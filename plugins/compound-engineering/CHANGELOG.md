@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`/workflows:review` rendering** — Fixed broken markdown output: "Next Steps" items 3 & 4 and Severity Breakdown no longer leak outside the Summary Report template, section numbering fixed (was jumping 5→7, now correct), removed orphaned fenced code block delimiters that caused the entire End-to-End Testing section to render as a code block, and fixed unclosed quoted string in section 1. ([#214](https://github.com/EveryInc/compound-engineering-plugin/pull/214)) — thanks [@XSAM](https://github.com/XSAM)!
+- **`.worktrees` gitignore** — Added `.worktrees/` to `.gitignore` to prevent worktree directories created by the `git-worktree` skill from being tracked. ([#213](https://github.com/EveryInc/compound-engineering-plugin/pull/213)) — thanks [@XSAM](https://github.com/XSAM)!
 
 ---
 
