@@ -1,3 +1,10 @@
+## [2.34.1](https://github.com/EveryInc/compound-engineering-plugin/compare/v2.34.0...v2.34.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* **release:** align cli versioning with repo tags ([7c58eee](https://github.com/EveryInc/compound-engineering-plugin/commit/7c58eeeec6cf33675cbe2b9639c7d69b92ecef60))
+
 # Changelog
 
 All notable changes to the `@every-env/compound-plugin` CLI tool will be documented in this file.
