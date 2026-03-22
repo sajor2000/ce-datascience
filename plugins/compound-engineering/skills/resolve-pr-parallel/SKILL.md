@@ -49,6 +49,16 @@ Spawn a `compound-engineering:workflow:pr-comment-resolver` agent for each unres
 
 If there are 3 comments, spawn 3 agents — one per comment. Prefer running all agents in parallel; if the platform does not support parallel dispatch, run them sequentially.
 
+Keep parent-context pressure bounded:
+- If there are 1-4 unresolved items, direct parallel returns are fine
+- If there are 5+ unresolved items, launch in batches of at most 4 agents at a time
+- Require each resolver agent to return a short status summary to the parent: comment/thread handled, files changed, tests run or skipped, any blocker that still needs human attention, and for question-only threads the substantive reply text so the parent can post or verify it
+
+If the PR is large enough that even batched short returns are likely to get noisy, use a per-run scratch directory such as `.context/compound-engineering/resolve-pr-parallel/<run-id>/`:
+- Have each resolver write a compact artifact for its thread there
+- Return only a completion summary to the parent
+- Re-read only the artifacts that are needed to resolve threads, answer reviewer questions, or summarize the batch
+
 ### 4. Commit & Resolve
 
 - Commit changes with a clear message referencing the PR feedback
@@ -69,6 +79,8 @@ bash scripts/get-pr-comments PR_NUMBER
 ```
 
 Should return an empty array `[]`. If threads remain, repeat from step 1.
+
+If a scratch directory was used and the user did not ask to inspect it, clean it up after verification succeeds.
 
 ## Scripts
 

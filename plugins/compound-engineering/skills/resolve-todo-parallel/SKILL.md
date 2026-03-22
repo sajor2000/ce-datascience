@@ -24,6 +24,16 @@ Spawn a `compound-engineering:workflow:pr-comment-resolver` agent for each unres
 
 If there are 3 items, spawn 3 agents — one per item. Prefer running all agents in parallel; if the platform does not support parallel dispatch, run them sequentially respecting the dependency order from step 2.
 
+Keep parent-context pressure bounded:
+- If there are 1-4 unresolved items, direct parallel returns are fine
+- If there are 5+ unresolved items, launch in batches of at most 4 agents at a time
+- Require each resolver agent to return only a short status summary to the parent: todo handled, files changed, tests run or skipped, and any blocker that still needs follow-up
+
+If the todo set is large enough that even batched short returns are likely to get noisy, use a per-run scratch directory such as `.context/compound-engineering/resolve-todo-parallel/<run-id>/`:
+- Have each resolver write a compact artifact for its todo there
+- Return only a completion summary to the parent
+- Re-read only the artifacts that are needed to summarize outcomes, document learnings, or decide whether a todo is truly resolved
+
 ### 4. Commit & Resolve
 
 - Commit changes
@@ -43,6 +53,8 @@ GATE: STOP. Verify that the compound skill produced a solution document in `docs
 ### 6. Clean Up Completed Todos
 
 List all todos and identify those with `done` or `resolved` status, then delete them to keep the todo list clean and actionable.
+
+If a scratch directory was used and the user did not ask to inspect it, clean it up after todo cleanup succeeds.
 
 After cleanup, output a summary:
 
