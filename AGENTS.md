@@ -77,7 +77,7 @@ cat plugins/compound-engineering/.claude-plugin/plugin.json | jq .
 
 ## Commit Conventions
 
-- Use conventional titles such as `feat: ...`, `fix: ...`, `docs: ...`, and `refactor: ...`.
+- **Prefix is based on intent, not file type.** Use conventional prefixes (`feat:`, `fix:`, `docs:`, `refactor:`, etc.) but classify by what the change does, not the file extension. Files under `plugins/*/skills/`, `plugins/*/agents/`, and `.claude-plugin/` are product code even though they are Markdown or JSON. Reserve `docs:` for files whose sole purpose is documentation (`README.md`, `docs/`, `CHANGELOG.md`).
 - Component scope is optional. Example: `feat(coding-tutor): add quiz reset`.
 - Breaking changes must be explicit with `!` or a breaking-change footer so release automation can classify them correctly.
 
