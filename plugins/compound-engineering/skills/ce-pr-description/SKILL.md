@@ -86,19 +86,19 @@ if [ -z "$CURRENT_BRANCH" ]; then
   exit 1
 fi
 
-# Priority: caller-supplied base: > existing PR's baseRefName > origin/HEAD
+# Priority: caller-supplied base: > existing PR's baseRefName > origin/HEAD > origin/main
 if [ -n "$CALLER_BASE" ]; then
   BASE_REF="$CALLER_BASE"
+elif EXISTING_PR_BASE=$(gh pr view --json baseRefName --jq '.baseRefName'); then
+  BASE_REF="origin/$EXISTING_PR_BASE"
+elif DEFAULT_HEAD=$(git rev-parse --abbrev-ref origin/HEAD); then
+  BASE_REF="$DEFAULT_HEAD"
 else
-  EXISTING_PR_BASE=$(gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null)
-  if [ -n "$EXISTING_PR_BASE" ]; then
-    BASE_REF="origin/$EXISTING_PR_BASE"
-  else
-    BASE_REF=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null)
-    BASE_REF="${BASE_REF:-origin/main}"
-  fi
+  BASE_REF="origin/main"
 fi
 ```
+
+Both `gh pr view` and `git rev-parse --abbrev-ref origin/HEAD` exit non-zero on the "not configured" paths; the elif chain drives off exit code rather than suppressed stderr. Stderr from a missing PR or unresolved `origin/HEAD` is informational and acceptable.
 
 If `$BASE_REF` does not resolve locally (`git rev-parse --verify "$BASE_REF"` fails), the caller (or the user) needs to fetch it first. Exit gracefully with `"Base ref $BASE_REF does not resolve locally. Fetch it before invoking the skill."` — do not attempt recovery.
 
@@ -216,10 +216,10 @@ Assess size (files, diff volume) and complexity (design decisions, trade-offs, c
 | Small + simple (typo, config, dep bump) | 1-2 sentences, no headers. Under ~300 characters. |
 | Small + non-trivial (bugfix, behavioral change) | Short narrative, ~3-5 sentences. No headers unless two distinct concerns. |
 | Medium feature or refactor | Narrative frame (before/after/scope), then what changed and why. Call out design decisions. |
-| Large or architecturally significant | Full narrative: problem context, approach (and why), key decisions, migration/rollback if relevant. |
+| Large or architecturally significant | Narrative frame + up to 3-5 design-decision callouts + 1-2 sentence test summary + key docs links. Target ~100 lines, cap ~150. For PRs with many mechanisms, use a Summary-level table to list them; do NOT create an H3 subsection per mechanism. Reviewers scrutinize decisions, not inventories — the diff and spec files carry the detail. If you find yourself writing 10+ subsections, consolidate to a table. |
 | Performance improvement | Include before/after measurements if available. Markdown table works well. |
 
-When in doubt, shorter is better. Match description weight to change weight.
+When in doubt, shorter is better. Match description weight to change weight. Large PRs need MORE selectivity, not MORE content.
 
 ---
 
@@ -247,6 +247,8 @@ If the repo has documented style preferences in context, follow those. Otherwise
 - **Markdown tables for data**: Before/after comparisons, performance numbers, or option trade-offs communicate well as tables.
 - **No empty sections**: If a section doesn't apply, omit it. No "N/A" or "None."
 - **Test plan — only when non-obvious**: Include when testing requires edge cases the reviewer wouldn't think of, hard-to-verify behavior, or specific setup. Omit when "run the tests" is the only useful guidance. When the branch adds test files, name them with what they cover.
+- **No Commits section**: GitHub already shows the commit list in its own tab. A Commits section in the PR body duplicates that without adding context. Omit unless the commits need annotations explaining their ordering or shipping rationale.
+- **No Review / process section**: Do not include a section describing how the reviewer should review (checklists of things to look at, process bullets). Process doesn't help the reviewer evaluate code. Call out specific non-obvious things to scrutinize inline with the change that warrants it.
 
 ### Visual communication
 
@@ -344,6 +346,23 @@ Assemble the body in this order:
 
 ---
 
+## Step 8b: Compression pass
+
+Before writing the body to the temp file, re-read the composed body and apply these cuts:
+
+- If any body section restates content already in the `## Summary`, remove it. The Summary plus the diff should carry the reader.
+- If "Testing" or "Test plan" has more than 2 paragraphs, compress to bullets.
+- If a "Commits" section enumerates the commit log, remove it — GitHub shows it in its own tab.
+- If a "Review" or process-oriented section lists how to review, remove it. Move any truly non-obvious review hints inline with the relevant change.
+- If the body has 5+ H3 subsections that each describe one mechanism, consolidate them into a single table row per mechanism under one header. Reserve prose H3 callouts for 2-3 genuine design decisions.
+- If the body exceeds the sizing-table target by more than 30%, compress the longest non-Summary section by half.
+
+**Value-lead check.** Re-read the first sentence of the Summary. If it describes what was moved around, renamed, or added ("This PR introduces three-tier autofix..."), rewrite to lead with what's now possible or what was broken and is now fixed ("Document reviews previously produced 14+ findings requiring user judgment; this PR cuts that to 4-6.").
+
+Large PRs benefit from selectivity, not comprehensiveness.
+
+---
+
 ## Step 9: Return `{title, body_file}`
 
 Write the composed body to an OS temp file, then return the title and the file path. Do not call `gh pr edit`, `gh pr create`, or any other mutating command. Do not ask the user to confirm — the caller owns apply.
@@ -370,7 +389,7 @@ Do not emit the body markdown in the return block — the caller reads it from `
 
 If Step 1 exited gracefully (closed/merged PR, invalid range, empty commit list), do not create a body file — just return the reason string.
 
-**The return block is a hand-off, not task completion.** When invoked by a parent skill (e.g., `git-commit-push-pr`), emit the return block and then continue executing the parent's remaining steps (typically `gh pr create` or `gh pr edit` with the returned title and body file). Do not stop after the return block unless invoked directly by the user with no parent workflow.
+**The return block is a hand-off, not task completion.** When invoked by a parent skill (e.g., `ce-commit-push-pr`), emit the return block and then continue executing the parent's remaining steps (typically `gh pr create` or `gh pr edit` with the returned title and body file). Do not stop after the return block unless invoked directly by the user with no parent workflow.
 
 ---
 

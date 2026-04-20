@@ -9,9 +9,9 @@ Create a single, well-crafted git commit from the current working tree changes.
 
 ## Context
 
-**If you are not Claude Code**, skip to the "Context fallback" section below and run the command there to gather context.
+**On platforms other than Claude Code**, skip to the "Context fallback" section below and run the command there to gather context.
 
-**If you are Claude Code**, the five labeled sections below (Git status, Working tree diff, Current branch, Recent commits, Remote default branch) contain pre-populated data. Use them directly throughout this skill -- do not re-run these commands.
+**In Claude Code**, the five labeled sections below (Git status, Working tree diff, Current branch, Recent commits, Remote default branch) contain pre-populated data. Use them directly throughout this skill -- do not re-run these commands.
 
 **Git status:**
 !`git status`
@@ -30,7 +30,7 @@ Create a single, well-crafted git commit from the current working tree changes.
 
 ### Context fallback
 
-**If you are Claude Code, skip this section — the data above is already available.**
+**In Claude Code, skip this section — the data above is already available.**
 
 Run this single command to gather all context:
 
