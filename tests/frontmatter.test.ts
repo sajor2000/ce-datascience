@@ -58,6 +58,7 @@ function collectFrontmatterFiles(pluginRoot: string): [string, string][] {
 }
 
 describe("frontmatter YAML validity", () => {
+  const MAX_SKILL_DESCRIPTION_LENGTH = 1024
   const pluginRoots = [
     "plugins/compound-engineering",
     "plugins/coding-tutor",
@@ -83,6 +84,17 @@ describe("frontmatter YAML validity", () => {
         const bareTag = stripped.match(/<[A-Za-z][\w-]*>/)
         expect(bareTag, `Backtick-wrap or rephrase: ${bareTag?.[0] ?? ""}`).toBeNull()
       })
+
+      if (/^skills\/[^/]+\/SKILL\.md$/.test(rel)) {
+        test(`${pluginRoot}/${rel} skill description fits 1024-char harness limit`, () => {
+          const parsed = load(yaml) as Record<string, unknown> | null
+          const description = parsed && typeof parsed.description === "string" ? parsed.description : ""
+          expect(
+            [...description].length,
+            `Shorten description to ${MAX_SKILL_DESCRIPTION_LENGTH} chars or less`,
+          ).toBeLessThanOrEqual(MAX_SKILL_DESCRIPTION_LENGTH)
+        })
+      }
     }
   }
 })
