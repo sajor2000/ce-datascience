@@ -72,7 +72,11 @@ agent-browser open [URL]
 ```
 
 ```bash
-agent-browser wait 2000
+agent-browser wait --load networkidle
+```
+
+```bash
+agent-browser wait 1000
 ```
 
 ```bash
@@ -81,7 +85,8 @@ agent-browser screenshot [RUN_DIR]/frame-01-initial.png
 
 **Capture tips:**
 - Use URL navigation (`agent-browser open URL`) rather than clicking SPA elements (clicks often fail on React/Vue/Svelte SPAs)
-- Wait 2-3 seconds after navigation for the page to settle
+- Wait for `--load networkidle` after navigation, then a short fixed buffer for any post-fetch render. A fixed `wait 2000` alone is not enough on SPAs that fetch data after paint -- screenshots will capture the empty shell.
+- For pages that keep network activity open (websockets, long-polling), use `agent-browser wait --text "<known content>"` to wait for a specific string from the populated UI, or `agent-browser wait --fn "<expression>"` for a custom readiness condition.
 - Capture the full viewport (sidebar, header give reviewers context)
 
 **Keep secrets out of frame:**

@@ -30,6 +30,7 @@ from pathlib import Path
 
 MAX_GIF_SIZE = 10 * 1024 * 1024   # 10 MB — GitHub inline render limit
 TARGET_GIF_SIZE = 5 * 1024 * 1024  # 5 MB — preferred target
+DEFAULT_MIN_FRAME_BYTES = 20 * 1024  # Below this a screenshot is almost certainly blank
 CATBOX_API = "https://catbox.moe/user/api.php"
 LITTERBOX_API = "https://litterbox.catbox.moe/resources/internals/api.php"
 
@@ -312,13 +313,25 @@ def _get_frame_dimensions(path):
     return int(parts[0]), int(parts[1])
 
 
-def _stitch_frames(output, frames, duration=3.0):
+def _stitch_frames(output, frames, duration=3.0, min_frame_bytes=DEFAULT_MIN_FRAME_BYTES):
     if not frames:
         die("No input frames provided")
 
     for f in frames:
         if not Path(f).exists():
             die(f"Frame not found: {f}")
+        if min_frame_bytes > 0:
+            size = Path(f).stat().st_size
+            if size < min_frame_bytes:
+                die(
+                    f"Frame {f} is {size} bytes, below the {min_frame_bytes}-byte minimum. "
+                    f"PNG size is dominated by entropy, so this is usually -- but not always -- "
+                    f"a page that had not finished loading when the screenshot was taken. "
+                    f"If the page is genuinely loaded but compresses small (flat-color UI, "
+                    f"sparse empty state, small viewport), pass --min-frame-bytes 0 to disable "
+                    f"the check, or a smaller positive value to lower the threshold. "
+                    f"Otherwise, re-capture after `agent-browser wait --load networkidle`."
+                )
 
     if not check_tool("ffmpeg"):
         die("ffmpeg is not installed. Install with: brew install ffmpeg")
@@ -413,7 +426,7 @@ def _stitch_frames(output, frames, duration=3.0):
                 if len(reduced) < len(frames):
                     print(f"  Reduced from {len(frames)} to {len(reduced)} frames")
                     shutil.rmtree(tmpdir, ignore_errors=True)
-                    _stitch_frames(output, reduced, duration)
+                    _stitch_frames(output, reduced, duration, min_frame_bytes)
                     return
             print("  WARNING: Could not reduce below 10 MB. GIF may not render inline on GitHub.")
         elif size > TARGET_GIF_SIZE:
@@ -424,7 +437,7 @@ def _stitch_frames(output, frames, duration=3.0):
 
 
 def cmd_stitch(args):
-    _stitch_frames(args.output, args.frames, args.duration)
+    _stitch_frames(args.output, args.frames, args.duration, args.min_frame_bytes)
 
 
 # --- Screenshot Reel ---
@@ -459,7 +472,9 @@ def cmd_screenshot_reel(args):
             frame_pngs.append(out_png)
 
         print(f"Rendered {len(frame_pngs)} frames via silicon")
-        _stitch_frames(args.output, frame_pngs, args.duration)
+        # silicon-rendered code frames are predictably small; the blank-screenshot
+        # guard does not apply to this tier.
+        _stitch_frames(args.output, frame_pngs, args.duration, min_frame_bytes=0)
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
@@ -710,6 +725,13 @@ Commands:
     # stitch
     p_stitch = sub.add_parser("stitch", help="Stitch frames into animated GIF")
     p_stitch.add_argument("--duration", type=float, default=3.0, help="Seconds per frame")
+    p_stitch.add_argument(
+        "--min-frame-bytes", type=int, default=DEFAULT_MIN_FRAME_BYTES,
+        help=(
+            "Minimum bytes per frame; smaller frames almost always mean a blank screenshot. "
+            "Set to 0 to disable the check."
+        ),
+    )
     p_stitch.add_argument("output", help="Output GIF path")
     p_stitch.add_argument("frames", nargs="+", help="Input frame PNGs")
 
