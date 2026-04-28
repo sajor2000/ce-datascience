@@ -94,7 +94,7 @@ describe("writePiBundle", () => {
 
     const agentsPath = path.join(outputRoot, "AGENTS.md")
     const agentsContent = await fs.readFile(agentsPath, "utf8")
-    expect(agentsContent).toContain("BEGIN COMPOUND PI TOOL MAP")
+    expect(agentsContent).toContain("BEGIN CE DATASCIENCE PI TOOL MAP")
     expect(agentsContent).toContain("pi-subagents")
     expect(agentsContent).toContain("pi-ask-user")
   })
@@ -167,6 +167,7 @@ Run these research agents:
     await fs.writeFile(configPath, JSON.stringify({ previous: true }, null, 2))
 
     const bundle: PiBundle = {
+      pluginName: "ce-datascience",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],

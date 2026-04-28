@@ -36,6 +36,7 @@ Spawned on every review regardless of diff content.
 | Persona | Agent | Select when diff touches... |
 |---------|-------|---------------------------|
 | `r-code` | `ce-r-code-reviewer` | `.R`, `.Rmd`, `.qmd` files, or R code chunks in polyglot documents |
+| `r-pipeline` | `ce-r-pipeline-reviewer` | `.R`, `.Rmd`, `.qmd` files with dplyr group_by logic, ggplot2 visualizations, survival analysis (`survival::`, `survminer::`), mixed models (`lme4::`, `glmmTMB::`), or targets pipeline code (`_targets.R`) |
 | `python-ds` | `ce-python-ds-reviewer` | `.py` files with data science imports (pandas, numpy, scipy, sklearn, statsmodels, matplotlib, seaborn) |
 | `kieran-python` | `ce-kieran-python-reviewer` | Python modules, endpoints, services, scripts, or typed domain code (general Python quality alongside DS-specific review) |
 

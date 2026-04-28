@@ -1,6 +1,6 @@
 ---
 name: ce-r-pipeline-reviewer
-description: Reviews R data transformation and visualization pipelines -- dplyr logic errors, ggplot2 accessibility, survival analysis patterns, and mixed model convergence. Complements ce-r-code-reviewer which focuses on R code quality; this agent focuses on statistical analysis correctness.
+description: Conditional code-review persona, selected when the diff touches R analysis pipelines. Reviews R data transformation and visualization pipelines -- dplyr logic errors, ggplot2 accessibility, survival analysis patterns, and mixed model convergence. Complements ce-r-code-reviewer which focuses on R code quality; this agent focuses on statistical analysis correctness.
 model: inherit
 tools:
   - Read

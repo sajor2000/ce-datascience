@@ -1,6 +1,6 @@
 ---
 name: ce-r-code-reviewer
-description: Reviews R code for data science quality -- tidyverse/base consistency, dplyr patterns, pipe usage, ggplot2, data.table, purrr, and R-specific anti-patterns.
+description: Conditional code-review persona, selected when the diff touches R code. Reviews R code for data science quality -- tidyverse/base consistency, dplyr patterns, pipe usage, ggplot2, data.table, purrr, and R-specific anti-patterns.
 model: mid
 tools:
   - Read

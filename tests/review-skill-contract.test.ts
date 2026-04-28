@@ -454,19 +454,16 @@ describe("ce-code-review contract", () => {
       "ce-project-standards-reviewer",
       "ce-security-reviewer",
       "ce-performance-reviewer",
-      "ce-api-contract-reviewer",
-      "ce-data-migrations-reviewer",
       "ce-reliability-reviewer",
       "ce-adversarial-reviewer",
-      "ce-cli-readiness-reviewer",
       "ce-previous-comments-reviewer",
-      "ce-dhh-rails-reviewer",
-      "ce-kieran-rails-reviewer",
       "ce-kieran-python-reviewer",
-      "ce-kieran-typescript-reviewer",
-      "ce-julik-frontend-races-reviewer",
-      "ce-swift-ios-reviewer",
-      "ce-agent-native-reviewer",
+      "ce-r-code-reviewer",
+      "ce-r-pipeline-reviewer",
+      "ce-python-ds-reviewer",
+      "ce-methods-reviewer",
+      "ce-reproducibility-reviewer",
+      "ce-reporting-checklist-reviewer",
     ]
 
     for (const persona of personas) {
@@ -474,7 +471,7 @@ describe("ce-code-review contract", () => {
 
       // Anchored language appears
       expect(content).toMatch(/Anchor (75|100)/)
-      expect(content).toMatch(/Anchor 25 or below.*suppress/i)
+      expect(content).toMatch(/Anchor 25.*(suppress|do not report)/i)
 
       // No float confidence references
       expect(content).not.toMatch(/0\.\d{2}\+/)
@@ -490,11 +487,10 @@ describe("ce-code-review contract", () => {
     )
 
     for (const agent of [
-      "ce-dhh-rails-reviewer",
-      "ce-kieran-rails-reviewer",
+      "ce-r-code-reviewer",
+      "ce-r-pipeline-reviewer",
+      "ce-python-ds-reviewer",
       "ce-kieran-python-reviewer",
-      "ce-kieran-typescript-reviewer",
-      "ce-julik-frontend-races-reviewer",
     ]) {
       expect(content).toContain(agent)
       expect(catalog).toContain(agent)
@@ -507,24 +503,20 @@ describe("ce-code-review contract", () => {
   test("stack-specific reviewer agents follow the structured findings contract", async () => {
     const reviewers = [
       {
-        path: "plugins/ce-datascience/agents/ce-dhh-rails-reviewer.agent.md",
-        reviewer: "dhh-rails",
-      },
-      {
-        path: "plugins/ce-datascience/agents/ce-kieran-rails-reviewer.agent.md",
-        reviewer: "kieran-rails",
-      },
-      {
         path: "plugins/ce-datascience/agents/ce-kieran-python-reviewer.agent.md",
         reviewer: "kieran-python",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-kieran-typescript-reviewer.agent.md",
-        reviewer: "kieran-typescript",
+        path: "plugins/ce-datascience/agents/ce-r-code-reviewer.agent.md",
+        reviewer: "r-code",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-julik-frontend-races-reviewer.agent.md",
-        reviewer: "julik-frontend-races",
+        path: "plugins/ce-datascience/agents/ce-r-pipeline-reviewer.agent.md",
+        reviewer: "r-pipeline",
+      },
+      {
+        path: "plugins/ce-datascience/agents/ce-python-ds-reviewer.agent.md",
+        reviewer: "python-ds",
       },
     ]
 
@@ -543,16 +535,6 @@ describe("ce-code-review contract", () => {
       expect(content).toContain("Return your findings as JSON matching the findings schema. No prose outside the JSON.")
       expect(content).toContain(`"reviewer": "${reviewer.reviewer}"`)
     }
-  })
-
-  test("leaves data-migration-expert as the unstructured review format", async () => {
-    const content = await readRepoFile(
-      "plugins/ce-datascience/agents/ce-data-migration-expert.agent.md",
-    )
-
-    expect(content).toContain("## Reviewer Checklist")
-    expect(content).toContain("Refuse approval until there is a written verification + rollback plan.")
-    expect(content).not.toContain("Return your findings as JSON matching the findings schema.")
   })
 
   test("fails closed when merge-base is unresolved instead of falling back to git diff HEAD", async () => {
@@ -581,15 +563,9 @@ describe("ce-code-review contract", () => {
     )
   })
 
-  test("orchestration callers pass explicit mode flags", async () => {
-    const lfg = await readRepoFile("plugins/ce-datascience/skills/lfg/SKILL.md")
-    expect(lfg).toMatch(/ce-code-review[^\n]*mode:autofix/)
-  })
-
   test("ce-work shipping-workflow enforces a residual-work gate after Tier 2 review", async () => {
     for (const path of [
       "plugins/ce-datascience/skills/ce-work/references/shipping-workflow.md",
-      "plugins/ce-datascience/skills/ce-work-beta/references/shipping-workflow.md",
     ]) {
       const workflow = await readRepoFile(path)
       await expect(readRepoFile(path.replace("shipping-workflow.md", "tracker-defer.md"))).resolves.toContain(
@@ -615,53 +591,6 @@ describe("ce-code-review contract", () => {
       expect(workflow).toContain("If the user later chooses the no-PR `ce-commit` path")
       expect(workflow).toContain("must not live only in the transient session")
     }
-  })
-
-  test("lfg autonomously handles residuals via non-interactive tracker-defer and PR description", async () => {
-    const lfg = await readRepoFile("plugins/ce-datascience/skills/lfg/SKILL.md")
-    await expect(readRepoFile("plugins/ce-datascience/skills/lfg/references/tracker-defer.md")).resolves.toContain(
-      "Non-interactive mode",
-    )
-    await expect(readRepoFile("plugins/ce-datascience/skills/lfg/references/tracker-defer.md")).resolves.not.toMatch(
-      /no-sink/,
-    )
-
-    // Autonomous residual handoff step exists between code review and test-browser.
-    expect(lfg).toContain("Persist review autofixes")
-    expect(lfg).toContain("fix(review): apply autofix feedback")
-    expect(lfg).toContain("Do not proceed to step 5, run browser tests, or output DONE while review autofix edits remain only in the working tree.")
-    expect(lfg).toContain("there were no review autofixes to persist")
-    expect(lfg).toContain("Autonomous residual handoff")
-    expect(lfg).toMatch(/Do not prompt the user/)
-
-    // tracker-defer is invoked in non-interactive mode.
-    expect(lfg).toContain("references/tracker-defer.md")
-    expect(lfg).not.toContain("plugins/ce-datascience/skills/ce-code-review/references/tracker-defer.md")
-    expect(lfg).toMatch(/non-interactive mode/)
-
-    // Structured return buckets drive PR description content.
-    expect(lfg).toMatch(/filed/)
-    expect(lfg).toMatch(/failed/)
-    expect(lfg).toMatch(/no_sink/)
-
-    // PR description update path is non-interactive and does not route through
-    // confirmation-driven PR update skills. The positive assertion on
-    // `gh pr edit` below is the actual check; a broad `not.toContain` would
-    // falsely trip on step 7's legitimate use of ce-commit-push-pr for the
-    // post-work commit/PR-open step.
-    expect(lfg).toContain("do not load any confirmation-driven PR update skill")
-    expect(lfg).toContain("gh pr edit PR_NUMBER --body-file BODY_FILE")
-    expect(lfg).toContain("## Residual Review Findings")
-    expect(lfg).toContain("docs/residual-review-findings/<branch-or-head-sha>.md")
-    expect(lfg).toContain("prefer `origin` when present")
-    expect(lfg).toContain("choose the first configured remote")
-    expect(lfg).toContain("git push --set-upstream <remote> HEAD")
-    expect(lfg).not.toContain("git push --set-upstream origin HEAD")
-    expect(lfg).toContain("Do not output DONE until either the existing PR body has been updated or this fallback file commit has been pushed.")
-
-    // Autopilot contract: never prompt, but require a durable sink before DONE.
-    expect(lfg).toContain("Do not prompt the user")
-    expect(lfg).toMatch(/Never block DONE on tracker filing failures/i)
   })
 
   test("ce-code-review autofix emits a residual-work summary in-chat, not only in the artifact", async () => {

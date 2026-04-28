@@ -478,7 +478,7 @@ describe("writeOpenCodeBundle", () => {
 
   test("upgrades from pre-namespacing legacy shared manifest for non-CE plugins", async () => {
     // Pre-namespacing, ALL plugins wrote their install manifest to the same
-    // shared path: `<root>/ce-datascience/install-manifest.json`. After
+    // shared path: `<root>/compound-engineering/install-manifest.json`. After
     // the namespacing fix, a plugin like `coding-tutor` reads from its own
     // scoped path (`<root>/coding-tutor/install-manifest.json`), which does
     // not exist on the first reinstall after upgrade. Without a fallback, the
@@ -490,9 +490,9 @@ describe("writeOpenCodeBundle", () => {
 
     // Seed the legacy shared manifest at the OLD path, recording artifacts
     // that the previous coding-tutor install placed in the root.
-    await fs.mkdir(path.join(outputRoot, "ce-datascience"), { recursive: true })
+    await fs.mkdir(path.join(outputRoot, "compound-engineering"), { recursive: true })
     await fs.writeFile(
-      path.join(outputRoot, "ce-datascience", "install-manifest.json"),
+      path.join(outputRoot, "compound-engineering", "install-manifest.json"),
       JSON.stringify({
         version: 1,
         pluginName: "coding-tutor",
@@ -543,7 +543,7 @@ describe("writeOpenCodeBundle", () => {
 
     // The legacy shared manifest must be archived so it doesn't keep
     // misleading a future install (and must no longer exist at the old path).
-    expect(await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json"))).toBe(false)
+    expect(await exists(path.join(outputRoot, "compound-engineering", "install-manifest.json"))).toBe(false)
     expect(await exists(path.join(outputRoot, "coding-tutor", "legacy-backup"))).toBe(true)
   })
 

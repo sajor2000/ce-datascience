@@ -516,10 +516,10 @@ describe("cleanupStalePrompts", () => {
       ),
     )
     await createFile(
-      path.join(root, "ce-work-beta.md"),
+      path.join(root, "ce-work.md"),
       legacyWorkflowPromptContent(
-        "ce:work-beta",
-        (await pluginDescription("plugins/ce-datascience/skills/ce-work-beta/SKILL.md"))
+        "ce:work",
+        (await pluginDescription("plugins/ce-datascience/skills/ce-work/SKILL.md"))
           .replaceAll("ce-", "ce:"),
       ),
     )
@@ -528,7 +528,7 @@ describe("cleanupStalePrompts", () => {
 
     expect(removed).toBe(2)
     expect(await exists(path.join(root, "ce-plan.md"))).toBe(false)
-    expect(await exists(path.join(root, "ce-work-beta.md"))).toBe(false)
+    expect(await exists(path.join(root, "ce-work.md"))).toBe(false)
   })
 
   test("removes wrappers whose description has drifted (matches a known historical alias)", async () => {
@@ -561,22 +561,12 @@ describe("cleanupStalePrompts", () => {
         "Transform feature descriptions or requirements into implementation plans grounded in repo patterns and research.",
       ),
     )
-    // Pre-rename ce-work-beta description still referencing the ce:work
-    // skill name. Normalization must still accept it.
-    await createFile(
-      path.join(root, "ce-work-beta.md"),
-      promptWrapperContent(
-        "ce-work-beta",
-        "[BETA] Execute work with external delegate support. Same as ce:work but includes experimental Codex delegation mode for token-conserving code implementation.",
-      ),
-    )
 
     const removed = await cleanupStalePrompts(root)
 
-    expect(removed).toBe(3)
+    expect(removed).toBe(2)
     expect(await exists(path.join(root, "ce-plan.md"))).toBe(false)
     expect(await exists(path.join(root, "ce-work.md"))).toBe(false)
-    expect(await exists(path.join(root, "ce-work-beta.md"))).toBe(false)
   })
 
   test("preserves wrappers whose description was never shipped by ce-datascience", async () => {
