@@ -220,6 +220,21 @@ optional_fields:
     max_items: 8
     description: "Search keywords, lowercase and hyphen-separated"
 
+  fingerprint:
+    type: string
+    description: |
+      Deterministic dedup key. Format: '<problem_type>::<component-or-_>::<root-cause-slug>'.
+      Computed by ce-compound during the assembly phase. When two compound runs
+      across studies / sessions / analysts produce the same fingerprint, the
+      newer run UPDATES the existing doc instead of creating a duplicate. The
+      slug component is lowercase, alphanumeric-and-hyphen-only, with English
+      stop-words removed (the, a, an, of, in, with, for, on, by, to), capped at
+      60 characters.
+
+  last_updated:
+    type: string
+    description: "ISO date (YYYY-MM-DD) when the doc was last touched by ce-compound or ce-compound-refresh; written when an existing doc is updated rather than created"
+
 # --- Backward compatibility --------------------------------------------------
 # Docs created before the track system was introduced may have bug-track
 # fields (symptoms, root_cause, resolution_type) on knowledge-type

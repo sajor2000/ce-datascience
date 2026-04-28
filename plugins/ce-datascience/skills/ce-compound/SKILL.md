@@ -209,7 +209,21 @@ Launch research subagents. Each returns text data to the orchestrator.
 The orchestrating agent (main conversation) performs these steps:
 
 1. Collect all text results from Phase 1 subagents
-2. **Check the overlap assessment** from the Related Docs Finder before deciding what to write:
+2. **Compute a deterministic dedup fingerprint** before relying on the overlap heuristic. The fingerprint is a stable triple computed from the proposed frontmatter, designed to catch the same lesson surfacing twice across studies / sessions / analysts. Across studies the same `(problem_type, component, root_cause_slug)` should map to a single entry, even if the conversation phrasing differs.
+
+   Compute:
+
+   ```
+   fingerprint = problem_type + "::" + (component or "_") + "::" + slug(root_cause or guidance_summary)
+   ```
+
+   where `slug(...)` is lowercase, alphanumeric-and-hyphen-only, with stop-words (`the, a, an, of, in, with, for, on, by, to`) removed and length capped at 60 characters.
+
+   If any existing doc in `docs/solutions/<category>/` already has a frontmatter `fingerprint:` field equal to this fingerprint, treat the overlap as **High** regardless of the Related Docs Finder's prose-similarity assessment. Update that doc rather than creating a new one.
+
+   Always write the computed `fingerprint` into the new or updated doc's frontmatter. Future runs will read it.
+
+3. **Check the overlap assessment** from the Related Docs Finder for cases the fingerprint did not catch:
 
    | Overlap | Action |
    |---------|--------|

@@ -1,0 +1,6 @@
+analysis_number,analysis_name,claim,unit_of_analysis,file_shape,analysis_question,main_methods,secondary_methods,site_outputs
+2,Criterion validity,Criterion validity,Ventilator-day,"Long, needs flowsheet flag","When flowsheet documents SAT or SBT happened, does algorithm detect it?",Sensitivity / specificity / PPV / NPV against nurse-flowsheet reference,,A2_*
+3,Time to extubation,Construct validity,Ventilator-day + patient,"Long for primary, wide for Fine-Gray","When algorithm applied, do patients who receive SBT/SAT get off vent faster?",Discrete-time mixed-effects logistic (primary),Cox cause-specific + Fine-Gray subdistribution (secondary),A3_*
+4,VFD-28,Construct validity,Patient,Wide,"Do patients who receive more SAT/SBT have more days alive and off ventilator?",Two-part mixed-effects (logistic Part 1 + NB Part 2),Sensitivity exposure variants,A4_*
+5,ICU LOS / mortality,Construct validity,Patient,Wide,"Do patients who receive SBT/SAT have shorter ICU stays and lower mortality?",ZTNB for LOS + mixed-effects logistic for mortality,Sensitivity exposure variants,A5_*
+6,Benchmarking,Hospital benchmarking,Hospital,Aggregated from wide,"Which hospitals deliver SAT/SBT at high vs low rates after case-mix adjustment?",Risk-adjusted hospital rates with caterpillar / funnel plots,,A6_*

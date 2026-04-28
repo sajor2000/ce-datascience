@@ -157,6 +157,22 @@ status: draft | final | amended
 [Reference the project's `.ce-datascience/study-metadata.yaml` file if it exists. Document the key reproducibility parameters for this study: random seeds, software versions, dataset split strategy (for ML studies), and any LLM provenance (for LLM-based studies). See the study metadata schema for the full field set.
 
 This section is optional for traditional statistical analyses. It is strongly recommended for studies with `ai_involvement` set to any value other than `none`.]
+
+---
+
+## SAP-12: Output Catalog
+
+The full per-artifact inventory lives in `analysis/sap-tables/02-outputs.csv` (also rendered in the multi-sheet workbook `analysis/sap-tables/<slug>-tabular-sap.xlsx`). Every output file in the catalog must trace back to a SAP-N.M analysis section. Programmers implement against the catalog row-by-row; coordinating-center audits read the catalog cell-by-cell.
+
+Generate this catalog with `/ce-sap-tabular <slug>` after this prose SAP is at draft or final status.
+
+---
+
+## SAP-13: Variable Catalog
+
+The variable-by-analysis matrix lives in `analysis/sap-tables/03-variables.csv`. Each row is one variable; each analysis (`SAP-5.N`) has a column flagging whether the variable is used. The catalog also records type (Fixed vs Time-varying), levels, and the source file (long vs wide).
+
+Generated alongside SAP-12 by `/ce-sap-tabular`.
 ```
 
 ## Writing Guidance
