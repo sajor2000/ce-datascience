@@ -1,18 +1,18 @@
 ---
 name: ce-plan
-description: "Create structured plans for any multi-step task -- software features, research workflows, events, study plans, or any goal that benefits from structured breakdown. Also deepen existing plans with interactive review of sub-agent findings. Use for plan creation when the user says 'plan this', 'create a plan', 'write a tech plan', 'plan the implementation', 'how should we build', 'what's the approach for', 'break this down', 'plan a trip', 'create a study plan', or when a brainstorm/requirements document is ready for planning. Use for plan deepening when the user says 'deepen the plan', 'deepen my plan', 'deepening pass', or uses 'deepen' in reference to a plan. For exploratory or ambiguous requests where the user is unsure what to do, prefer ce-brainstorm first."
-argument-hint: "[optional: feature description, requirements doc path, plan path to deepen, or any task to plan]"
+description: "Create structured plans or statistical analysis plans (SAPs). Produces a versioned SAP with stable SAP-N.M identifiers when input describes a study design (population, exposure, outcome, hypothesis). Otherwise produces an implementation plan. Use when the user says 'plan this', 'create a plan', 'write a SAP', 'write a tech plan', 'plan the analysis', 'plan the implementation', 'create a study plan', or when a brainstorm/requirements document is ready for planning. Also deepens existing plans or SAPs. For exploratory requests, prefer ce-brainstorm first."
+argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan]"
 ---
 
-# Create Technical Plan
+# Create Plan (Dual-Mode: SAP or Implementation)
 
 **Note: The current year is 2026.** Use this when dating plans and searching for recent documentation.
 
-`ce-brainstorm` defines **WHAT** to build. `ce-plan` defines **HOW** to build it. `ce-work` executes the plan. A prior brainstorm is useful context but never required — `ce-plan` works from any input: a requirements doc, a bug report, a feature idea, or a rough description.
+`ce-brainstorm` defines **WHAT** to study or build. `ce-plan` defines **HOW** -- either as a Statistical Analysis Plan (SAP) for study designs or as an implementation plan for technical tasks. `ce-work` executes the plan. A prior brainstorm is useful context but never required — `ce-plan` works from any input: a study design doc, a requirements doc, a feature idea, or a rough description.
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
 
-This workflow produces a durable implementation plan. It does **not** implement code, run tests, or learn from execution-time results. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
+This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run analyses, or learn from execution-time results. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
 
 ## Interaction Method
 
@@ -29,6 +29,60 @@ Ask one question at a time. Prefer a concise single-select choice when natural o
 If the input is present but unclear or underspecified, do not abandon — ask one or two clarifying questions, or proceed to Phase 0.4's planning bootstrap to establish enough context. The goal is always to help the user plan, never to exit the workflow.
 
 **IMPORTANT: All file references in the plan document must use repo-relative paths (e.g., `src/models/user.rb`), never absolute paths (e.g., `/Users/name/Code/project/src/models/user.rb`). This applies everywhere — implementation unit file lists, pattern references, origin document links, and prose mentions. Absolute paths break portability across machines, worktrees, and teammates.**
+
+## Dual-Mode: SAP vs Implementation
+
+This skill operates in one of two modes, detected after reading the input:
+
+**SAP mode** -- activated when the input document or feature description contains study design keywords: study population, exposure, intervention, outcome, hypothesis, research question, PICO, primary endpoint, cohort, case-control, randomized, observational study, clinical trial, inclusion criteria, exclusion criteria. SAP mode produces a versioned Statistical Analysis Plan using the template in `references/sap-template.md` and runs the gap checklist from `references/sap-gap-checklist.md`.
+
+**Implementation mode** -- activated for all other inputs (technical tasks, software features, refactors, infrastructure). Uses the existing plan template and full Phase 0-5 workflow described below.
+
+**Detection and override:**
+- After reading the input (Phase 0, before Phase 1), scan for the study design keywords listed above. If 2+ keywords are present, announce "Entering SAP mode" and follow the SAP workflow. If 0-1 keywords are present, announce "Entering implementation mode" and follow the standard workflow.
+- The user can override by saying "use SAP mode" or "use implementation mode" at any point. If the auto-detected mode seems wrong, ask the user to confirm before proceeding.
+
+### SAP Mode Workflow
+
+When SAP mode is active, replace Phases 3-4 with the SAP-specific workflow below. Phases 0-2 (resume, source, scope, research, questions) still run as normal -- study design brainstorms benefit from the same upstream requirements and research gathering.
+
+**SAP Phase 3: Structure the SAP**
+
+1. Read the SAP template from `references/sap-template.md`
+2. Fill each SAP section (SAP-1 through SAP-10) from the input document and research findings
+3. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming
+4. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank
+5. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments
+6. Use precise statistical language -- name specific tests, models, and adjustment methods
+
+**SAP Phase 4: Write the SAP**
+
+1. Determine the output path: use the user-specified path, or default to `analysis/sap.md` relative to the project root. Create the `analysis/` directory if it does not exist.
+2. Set the YAML frontmatter:
+   - `sap_version: 1`
+   - `study_type:` one of `observational`, `rct`, `exploratory`, `other`
+   - `date_created:` today's date
+   - `date_amended:` leave empty for initial draft
+   - `status: draft`
+3. Write the SAP file to disk using the Write tool
+4. Confirm: `SAP written to [path]`
+
+**SAP Phase 5: Gap Check and Review**
+
+1. Read the gap checklist from `references/sap-gap-checklist.md`
+2. Scan the written SAP against every item in the checklist
+3. Report gaps to the user in the format specified by the checklist (critical, important, advisory)
+4. If critical gaps exist, recommend the user resolve them before finalizing (`status` remains `draft`)
+5. If no critical gaps exist, offer to set `status: final`
+6. Present the post-generation menu (same options as implementation mode, substituting SAP path for plan path)
+
+### SAP Versioning
+
+When updating an existing SAP:
+- Increment `sap_version` in the frontmatter
+- Set `date_amended` to today's date
+- Set `status: amended`
+- Preserve all existing SAP-N.M section IDs -- never renumber. Add new subsections as SAP-N.M+1
 
 ## Core Principles
 
@@ -78,9 +132,13 @@ Normal editing requests (e.g., "update the test scenarios", "add a new implement
 
 If the plan already has a `deepened: YYYY-MM-DD` frontmatter field and there is no explicit user request to re-deepen, the fast path still applies the same confidence-gap evaluation — it does not force deepening.
 
-#### 0.1b Classify Task Domain
+#### 0.1b Classify Task Domain and Detect Mode
 
-If the task involves building, modifying, or architecting software (references code, repos, APIs, databases, or asks to build/modify/deploy), continue to Phase 0.2.
+First, detect SAP vs implementation mode per the Dual-Mode section above. Scan the input for study design keywords (study population, exposure, intervention, outcome, hypothesis, research question, PICO, primary endpoint, cohort, case-control, randomized, observational study, clinical trial, inclusion criteria, exclusion criteria). If 2+ keywords are present, announce "Entering SAP mode" and continue to Phase 0.2 (research is valuable for SAPs too). The SAP-specific workflow replaces Phases 3-4 as described in the Dual-Mode section.
+
+If SAP mode is not triggered, apply the standard domain classification:
+
+If the task involves building, modifying, or architecting software (references code, repos, APIs, databases, or asks to build/modify/deploy), continue to Phase 0.2 in implementation mode.
 
 If the domain is genuinely ambiguous (e.g., "plan a migration" with no other context), ask the user before routing.
 
