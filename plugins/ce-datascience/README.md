@@ -24,7 +24,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, writing a requirements doc before planning |
 | `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks |
-| `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, reporting checklist compliance, and phase-aware dispatch (blinded EDA / confirmatory / general) |
+| `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-work` | Execute analysis tasks with SAP tracking -- surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
@@ -90,8 +90,8 @@ Agents are specialized subagents invoked by skills.
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
 | `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output |
-| `ce-targets-pipeline-reviewer` | targets pipeline correctness (hidden file deps, format hints, branching drift, seed leaks). **Opt-in** via `reviewers:` in `.ce-datascience/config.local.yaml` |
-| `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness (committed output, cache traps, params drift, bibliography paths, accessibility). **Opt-in** via `reviewers:` in `.ce-datascience/config.local.yaml` |
+| `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file deps, format hints, branching drift, seed leaks |
+| `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness — committed output, cache traps, params drift, bibliography paths, accessibility |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
 | `ce-r-pipeline-reviewer` | R analysis pipeline correctness — dplyr logic errors, ggplot2 accessibility, survival analysis, mixed model convergence |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |

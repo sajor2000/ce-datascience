@@ -1,61 +1,42 @@
 # Persona Catalog
 
-17 reviewer personas organized into always-on, statistical conditional, language-specific conditional, and cross-cutting conditional layers, plus 1 CE always-on agent. The orchestrator uses this catalog to select which reviewers to spawn for each review.
+The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's own SKILL.md table is the authoritative source for spawn conditions; this file describes what each reviewer focuses on.
 
-## Always-on (4 personas + 1 CE agent)
-
-Spawned on every review regardless of diff content.
-
-**Persona agents (structured JSON output):**
-
-| Persona | Agent | Focus |
-|---------|-------|-------|
-| `correctness` | `ce-correctness-reviewer` | Logic errors, edge cases, state bugs, error propagation, intent compliance |
-| `testing` | `ce-testing-reviewer` | Coverage gaps, weak assertions, brittle tests, missing edge case tests |
-| `maintainability` | `ce-maintainability-reviewer` | Coupling, complexity, naming, dead code, premature abstraction |
-| `project-standards` | `ce-project-standards-reviewer` | AGENTS.md compliance -- frontmatter, references, naming, portability |
-
-**CE agent (unstructured output, synthesized separately):**
+## Always-on (every review)
 
 | Agent | Focus |
 |-------|-------|
-| `ce-learnings-researcher` | Search docs/solutions/ for past issues related to this PR's modules and patterns |
+| `ce-correctness-reviewer` | Logic errors, edge cases, state bugs, error propagation, intent compliance |
+| `ce-testing-reviewer` | Coverage gaps, weak assertions, brittle tests, missing edge case tests |
+| `ce-maintainability-reviewer` | Coupling, complexity, naming, dead code, premature abstraction |
+| `ce-project-standards-reviewer` | AGENTS.md compliance — frontmatter, references, naming, portability |
+| `ce-learnings-researcher` | Search docs/solutions/ for past issues related to this PR (unstructured output) |
 
-## Statistical Conditional (dispatched based on analysis content)
+## Conditional — spawn when the diff hits the trigger
 
-| Persona | Agent | Select when diff touches... |
-|---------|-------|---------------------------|
-| `methods` | `ce-methods-reviewer` | Files containing statistical tests, regression models, hypothesis testing, or inferential analysis code |
-| `multiplicity` | `ce-multiplicity-reviewer` | Code with multiple endpoints, multiple comparisons, subgroup analyses, or repeated testing patterns |
-| `reproducibility` | `ce-reproducibility-reviewer` | Analysis scripts, notebooks, or pipeline code (checks seeds, versions, paths, environment specs) |
-| `reporting-checklist` | `ce-reporting-checklist-reviewer` | **Opt-in only.** Dispatched when `reporting_checklist: true` in config AND a SAP or study protocol exists. Auto-routes to the correct guideline(s) from the full set: CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, plus AI extensions (REFORMS, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, DEAL, CHART, PDSQI-9) when `ai_involvement` is set |
-| `sap-drift` | `ce-sap-drift-detector` | SAP file (`**/sap.md` or markdown with `sap_version` frontmatter) exists in the project |
+| Agent | Spawn when... |
+|-------|---------------|
+| `ce-r-code-reviewer` | `.R` / `.Rmd` / `.qmd` files in diff |
+| `ce-r-pipeline-reviewer` | `.R` / `.Rmd` / `.qmd` files in diff |
+| `ce-python-ds-reviewer` | `.py` / `.ipynb` files with DS imports (pandas, numpy, scipy, sklearn, statsmodels) in diff |
+| `ce-kieran-python-reviewer` | `.py` files in diff |
+| `ce-methods-reviewer` | inferential analysis or model-fitting code in diff (regression, hypothesis tests, survival) |
+| `ce-multiplicity-reviewer` | multiple comparisons, subgroup, or repeated-testing code in diff |
+| `ce-reproducibility-reviewer` | analysis scripts, notebooks, or env lock files in diff |
+| `ce-sap-drift-detector` | `analysis/sap.md` (or any markdown with `sap_version` frontmatter) exists in project |
+| `ce-data-mapping-reviewer` | codebook, SAP variable list, or `analysis/sap-tables/03-variables.csv` in diff |
+| `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, figure files in diff, OR `stack_profile.data_root` is inside the repo |
+| `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
+| `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
+| `ce-reporting-checklist-reviewer` | `reporting_checklist: true` in stack profile AND a SAP exists. Auto-routes to the correct guideline(s) from the full set: CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, plus AI extensions (REFORMS, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, DEAL, CHART, PDSQI-9) when `ai_involvement` is set |
+| `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
+| `ce-performance-reviewer` | DB queries, loop-heavy transforms, caching, async, large-data operations in diff |
+| `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |
+| `ce-adversarial-reviewer` | >=50 changed non-test/non-generated lines, OR data mutations, external APIs, high-risk domains |
+| `ce-previous-comments-reviewer` | reviewing a PR with existing review comments |
 
-## Language-Specific Conditional
+## Selection notes
 
-| Persona | Agent | Select when diff touches... |
-|---------|-------|---------------------------|
-| `r-code` | `ce-r-code-reviewer` | `.R`, `.Rmd`, `.qmd` files, or R code chunks in polyglot documents |
-| `r-pipeline` | `ce-r-pipeline-reviewer` | `.R`, `.Rmd`, `.qmd` files with dplyr group_by logic, ggplot2 visualizations, survival analysis (`survival::`, `survminer::`), mixed models (`lme4::`, `glmmTMB::`), or targets pipeline code (`_targets.R`) |
-| `python-ds` | `ce-python-ds-reviewer` | `.py` files with data science imports (pandas, numpy, scipy, sklearn, statsmodels, matplotlib, seaborn) |
-| `kieran-python` | `ce-kieran-python-reviewer` | Python modules, endpoints, services, scripts, or typed domain code (general Python quality alongside DS-specific review) |
-
-## Cross-Cutting Conditional
-
-| Persona | Agent | Select when diff touches... |
-|---------|-------|---------------------------|
-| `security` | `ce-security-reviewer` | Auth, public endpoints, user input handling, permission checks, secrets management |
-| `performance` | `ce-performance-reviewer` | Database queries, loop-heavy data transforms, caching layers, async code, large data operations |
-| `reliability` | `ce-reliability-reviewer` | Error handling, retry logic, timeouts, background jobs, async handlers |
-| `adversarial` | `ce-adversarial-reviewer` | Diff has >=50 changed non-test/non-generated lines, or touches data mutations, external APIs, or other high-risk domains |
-| `previous-comments` | `ce-previous-comments-reviewer` | **PR-only.** Reviewing a PR that has existing review comments or threads |
-
-## Selection rules
-
-1. **Always spawn all 4 always-on personas** plus the 1 CE always-on agent.
-2. **For each statistical conditional**, check whether the diff contains relevant statistical content. This is judgment, not keyword matching.
-3. **For each language-specific conditional**, use file extensions and import patterns as starting signals, then decide whether meaningful work exists for that reviewer.
-4. **For each cross-cutting conditional**, apply the same judgment-based selection as always.
-5. **Reporting checklist is opt-in** -- never dispatch unless explicitly enabled in config or requested by the user.
-6. **SAP-drift detector** dispatches automatically whenever a SAP file exists in the project.
-7. **Announce the team** before spawning with a one-line justification per conditional reviewer selected.
+- Always spawn the always-on set.
+- For each conditional, check the trigger; spawn when it matches. The reviewer's own frontmatter `description:` reinforces the trigger so the dispatch stays consistent.
+- Announce the team before spawning with a one-line justification per conditional reviewer selected.
