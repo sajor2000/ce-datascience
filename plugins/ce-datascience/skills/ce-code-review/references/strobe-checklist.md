@@ -3,6 +3,10 @@
 Strengthening the Reporting of Observational Studies in Epidemiology (STROBE).
 22-item checklist applicable to cohort, case-control, and cross-sectional studies.
 
+**Primary reference:** von Elm E, Altman DG, Egger M, Pocock SJ, Gotzsche PC, Vandenbroucke JP; STROBE Initiative. Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. Ann Intern Med. 2007;147(8):573-577. doi:10.7326/0003-4819-147-8-200710160-00010. PMID: 17938396.
+
+**Explanation and elaboration:** Vandenbroucke JP, von Elm E, Altman DG, et al. Strengthening the Reporting of Observational Studies in Epidemiology (STROBE): explanation and elaboration. PLoS Med. 2007;4(10):e297. doi:10.1371/journal.pmed.0040297. PMID: 17941715.
+
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
 
