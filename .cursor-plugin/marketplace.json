@@ -1,25 +1,18 @@
 {
-  "name": "compound-engineering",
+  "name": "ce-datascience",
   "owner": {
-    "name": "Kieran Klaassen",
-    "email": "kieran@every.to",
-    "url": "https://github.com/kieranklaassen"
+    "name": "Juan Carlos Rojas"
   },
   "metadata": {
-    "description": "Cursor plugin marketplace for Every Inc plugins",
-    "version": "1.0.1",
+    "description": "Compound engineering plugin for computational scientists",
+    "version": "0.1.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
     {
-      "name": "compound-engineering",
-      "source": "compound-engineering",
-      "description": "AI-powered development tools that get smarter with every use. Make each unit of engineering work easier than the last."
-    },
-    {
-      "name": "coding-tutor",
-      "source": "coding-tutor",
-      "description": "Personalized coding tutorials with spaced repetition quizzes using your real codebase."
+      "name": "ce-datascience",
+      "source": "ce-datascience",
+      "description": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows."
     }
   ]
 }

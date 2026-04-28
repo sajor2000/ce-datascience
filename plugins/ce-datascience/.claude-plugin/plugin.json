@@ -1,0 +1,22 @@
+{
+  "name": "ce-datascience",
+  "version": "0.1.0",
+  "description": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.",
+  "author": {
+    "name": "Juan Carlos Rojas"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai-powered",
+    "data-science",
+    "biostatistics",
+    "statistical-analysis",
+    "workflow-automation",
+    "sap-management",
+    "r-language",
+    "python",
+    "quarto",
+    "reporting-checklists",
+    "knowledge-management"
+  ]
+}

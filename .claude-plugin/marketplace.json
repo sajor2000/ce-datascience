@@ -1,50 +1,30 @@
 {
-  "name": "compound-engineering-plugin",
+  "name": "ce-datascience-plugin",
   "owner": {
-    "name": "Kieran Klaassen",
-    "url": "https://github.com/kieranklaassen"
+    "name": "Juan Carlos Rojas"
   },
   "metadata": {
-    "description": "Plugin marketplace for Claude Code and Codex extensions",
-    "version": "1.0.2"
+    "description": "Compound engineering plugin for computational scientists",
+    "version": "0.1.0"
   },
   "plugins": [
     {
-      "name": "compound-engineering",
-      "description": "AI-powered development tools that get smarter with every use. Make each unit of engineering work easier than the last.",
+      "name": "ce-datascience",
+      "description": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.",
       "author": {
-        "name": "Kieran Klaassen",
-        "url": "https://github.com/kieranklaassen",
-        "email": "kieran@every.to"
+        "name": "Juan Carlos Rojas"
       },
-      "homepage": "https://github.com/EveryInc/compound-engineering-plugin",
       "tags": [
         "ai-powered",
-        "compound-engineering",
+        "data-science",
+        "biostatistics",
+        "statistical-analysis",
         "workflow-automation",
-        "code-review",
-        "quality",
-        "knowledge-management",
-        "image-generation"
+        "sap-management",
+        "reporting-checklists",
+        "knowledge-management"
       ],
-      "source": "./plugins/compound-engineering"
-    },
-    {
-      "name": "coding-tutor",
-      "description": "Personalized coding tutorials that build on your existing knowledge and use your actual codebase for examples. Includes spaced repetition quizzes to reinforce learning. Includes 3 commands and 1 skill.",
-      "author": {
-        "name": "Nityesh Agarwal"
-      },
-      "homepage": "https://github.com/EveryInc/compound-engineering-plugin",
-      "tags": [
-        "coding",
-        "programming",
-        "tutorial",
-        "learning",
-        "spaced-repetition",
-        "education"
-      ],
-      "source": "./plugins/coding-tutor"
+      "source": "./plugins/ce-datascience"
     }
   ]
 }
