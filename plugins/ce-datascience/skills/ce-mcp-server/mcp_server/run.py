@@ -428,8 +428,8 @@ def sap_amend(
         f"  new version: {new_version}\n"
         f"  log: {log_path}\n"
         f"  amended_by: {amended_by or '(unspecified)'}\n"
-        f"Run /ce-code-review with the ce-sap-amendment-reviewer to validate "
-        f"the amendment against the data lock state."
+        f"Run /ce-code-review to dispatch ce-sap-drift-detector, which "
+        f"validates the amendment against the data lock state."
     )
 
 

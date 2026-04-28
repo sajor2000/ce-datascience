@@ -24,16 +24,13 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, writing a requirements doc before planning |
 | `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks |
-| `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, plus reporting checklist compliance and phase-aware dispatch (blinded EDA / confirmatory / revision / pilot) |
+| `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, reporting checklist compliance, and phase-aware dispatch (blinded EDA / confirmatory / general) |
 | `/ce-work` | Execute analysis tasks with SAP tracking -- surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
-| `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (now with deterministic dedup fingerprints across studies) |
+| `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
-| `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians actually hand to programmers |
+| `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians hand to programmers |
 | `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
-| `/ce-pilot` | Run a feasibility / methods-development sub-project with phase-aware review and a structured handoff that captures what transfers to the main study |
-| `/ce-freeze` | Freeze an analysis at submission time. Tags commit, snapshots SAP version + locked wave + env lock + manuscript into a single submission archive with RECOVER.md |
-| `/ce-revise` | Open a revision round in response to peer-review or regulator feedback. Per-query status, SAP-amendment linkage, structured response-to-reviewers document |
 
 ### Git Workflow
 
@@ -70,6 +67,14 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-setup` | Configure stack profile, diagnose environment, and bootstrap project config |
 | `/ce-update` | Check plugin version and fix stale cache (Claude Code only) |
 
+## Scripts
+
+Plain shell utilities for things that don't need a skill:
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/freeze-submission.sh <tag>` | Tag the current commit as a submission freeze. Refuses on a dirty tree; writes `submissions/<tag>/manifest.yaml` with commit sha, SAP version, locked-wave hash, and env-lock-file hashes. Does not push the tag and does not copy data. |
+
 ## Agents
 
 Agents are specialized subagents invoked by skills.
@@ -82,12 +87,11 @@ Agents are specialized subagents invoked by skills.
 | `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting |
 | `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
 | `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 16 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
-| `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code (now also flags blinding-state violations) |
-| `ce-sap-amendment-reviewer` | Validates SAP amendments are properly logged, made before data lock, and reflected in the analysis code |
+| `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
 | `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output |
-| `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file dependencies, format hints, branching count drift, seed leaks |
-| `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness — committed output, cache traps, params drift, bibliography paths, accessibility |
+| `ce-targets-pipeline-reviewer` | targets pipeline correctness (hidden file deps, format hints, branching drift, seed leaks). **Opt-in** via `reviewers:` in `.ce-datascience/config.local.yaml` |
+| `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness (committed output, cache traps, params drift, bibliography paths, accessibility). **Opt-in** via `reviewers:` in `.ce-datascience/config.local.yaml` |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
 | `ce-r-pipeline-reviewer` | R analysis pipeline correctness — dplyr logic errors, ggplot2 accessibility, survival analysis, mixed model convergence |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |

@@ -78,7 +78,7 @@ When invoked from an automated workflow (LFG-style, headless `ce-work`, or any `
 
 - **It does not modify the data.** This is a read-only assessment. Cleaning is a separate `ce-work` task.
 - **It does not lock the data.** Locking requires explicit user confirmation via the `data_lock` MCP tool.
-- **It does not check SAP correctness.** That's `ce-sap-amendment-reviewer`. We check data-vs-SAP shape consistency only.
+- **It does not check SAP correctness.** That's `ce-sap-drift-detector` (which now also covers amendments). We check data-vs-SAP shape consistency only.
 - **It does not run statistical models.** No fits, no tests, no inferential output. Descriptive only.
 
 ## References

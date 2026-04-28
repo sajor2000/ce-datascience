@@ -51,7 +51,7 @@ Use the 5-anchor confidence scale. The reporting threshold is confidence >= 75. 
 
 - **Data quality issues** -- range violations, duplicate keys, missingness rates. Those belong to `ce-data-qa`.
 - **Statistical method choice** -- whether the chosen model is appropriate. That belongs to `ce-methods-reviewer`.
-- **SAP correctness** -- whether the SAP's variable list is complete. That belongs to `ce-sap-amendment-reviewer` (after the analyst proposes an amendment).
+- **SAP correctness** -- whether the SAP's variable list is complete. That belongs to `ce-sap-drift-detector` (which also reviews amendments).
 - **Reporting checklist coverage** -- demographic table variable list. That belongs to `ce-reporting-checklist-reviewer`.
 
 ## Output format

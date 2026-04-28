@@ -33,17 +33,15 @@ All tokens are optional. Each one present means one less thing to infer. When ab
 
 ## Phase-Aware Dispatch
 
-Data science reviews differ by workflow phase. The same diff carries different risks during blinded EDA, confirmatory analysis, and submission revision. The `phase:<name>` argument constrains reviewer dispatch and adjusts severity. When `phase:` is absent, the skill reads `stack_profile.blinding_state` from `.ce-datascience/config.local.yaml` and infers the phase: `blinded` -> `blinded-eda`, `unblinded` -> `confirmatory`, `n/a` -> `general`.
+Data science reviews differ by workflow phase. The same diff carries different risks during blinded EDA vs confirmatory analysis. The `phase:<name>` argument constrains reviewer dispatch and adjusts severity. When `phase:` is absent, the skill reads `stack_profile.blinding_state` from `.ce-datascience/config.local.yaml` and infers the phase: `blinded` -> `blinded-eda`, `unblinded` -> `confirmatory`, `n/a` -> `general`.
 
 | Phase value | Allowed reviewers (in addition to language-specific) | Refused reviewers | Severity bumps |
 |-------------|-------------------------------------------------------|-------------------|----------------|
-| `blinded-eda` | ce-data-mapping-reviewer, ce-data-qa (if data-state file changed), ce-r-code-reviewer, ce-python-ds-reviewer, ce-reproducibility-reviewer, ce-phi-leak-reviewer | ce-methods-reviewer (defer to confirmatory), ce-multiplicity-reviewer | Inferential code (regression / t-test / Cox / chi-square against the assignment variable) -> P0 even if labeled "exploratory" |
-| `confirmatory` | All language-specific + ce-methods-reviewer + ce-multiplicity-reviewer + ce-sap-drift-detector + ce-reporting-checklist-reviewer | ce-data-mapping-reviewer (mapping should be settled by now) | Drift between SAP and code -> P0; new analyses without SAP amendment log -> P0 |
-| `revision` | All confirmatory + ce-sap-amendment-reviewer | none | Any change to a primary endpoint is P0 unless paired with a sap_amend log entry that cites the reviewer/regulator query |
-| `pilot` | ce-r-code-reviewer, ce-python-ds-reviewer, ce-reproducibility-reviewer, ce-data-mapping-reviewer | ce-methods-reviewer (pilot is descriptive), ce-sap-drift-detector | Code that hard-codes pilot-specific paths or thresholds -> P1 (will not transfer) |
+| `blinded-eda` | ce-data-mapping-reviewer, ce-r-code-reviewer, ce-python-ds-reviewer, ce-reproducibility-reviewer, ce-phi-leak-reviewer | ce-methods-reviewer (defer to confirmatory), ce-multiplicity-reviewer | Inferential code (regression / t-test / Cox / chi-square against the assignment variable) -> P0 even if labeled "exploratory" |
+| `confirmatory` | All language-specific + ce-methods-reviewer + ce-multiplicity-reviewer + ce-sap-drift-detector + ce-reporting-checklist-reviewer | ce-data-mapping-reviewer (mapping should be settled by now) | Drift between SAP and code -> P0; new analyses without a SAP amendment log entry -> P0 |
 | `general` | All reviewers | none | No bumps |
 
-When the inferred or passed phase is `blinded-eda` or `pilot` and the diff contains inferential code on the assignment variable, the skill MUST emit a `block` finding with the title "Inferential code on assignment variable during <phase>" and severity P0, even if no reviewer agent flagged it independently.
+When the inferred or passed phase is `blinded-eda` and the diff contains inferential code on the assignment variable, the skill MUST emit a `block` finding with the title "Inferential code on assignment variable during blinded-eda" and severity P0, even if no reviewer agent flagged it independently.
 
 **Conflicting mode flags:** If multiple mode tokens appear in arguments, stop and do not dispatch agents. If `mode:headless` is one of the conflicting tokens, emit the headless error envelope: `Review failed (headless mode). Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.` Otherwise emit the generic form: `Review failed. Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.`
 
@@ -142,6 +140,10 @@ Routing rules:
 | `ce-reproducibility-reviewer` | Analysis scripts, notebooks, or pipeline code (seeds, versions, paths, environment specs) |
 | `ce-reporting-checklist-reviewer` | **Opt-in only.** `reporting_checklist: true` in config AND a SAP or study protocol exists. Pass the SAP `study_type`, `ai_involvement`, and `guidelines_selected` fields when dispatching so the agent can route without re-reading the SAP |
 | `ce-sap-drift-detector` | SAP file (`**/sap.md` or markdown with `sap_version` frontmatter) exists in the project |
+| `ce-data-mapping-reviewer` | Diff touches a codebook (`data/codebook.csv`, `analysis/codebook.md`, `data/dictionary.yaml`), the SAP variable list (SAP-2.x), or the tabular SAP companion (`analysis/sap-tables/03-variables.csv`) |
+| `ce-phi-leak-reviewer` | Diff touches data files, codebooks, notebooks, manuscripts, figure files, OR the stack profile declares `data_root` inside the repo |
+| `ce-targets-pipeline-reviewer` | **Opt-in via `reviewers: [..., ce-targets-pipeline-reviewer]` in `.ce-datascience/config.local.yaml`.** Selected when opted in AND the diff touches `_targets.R`, `tar_target()` calls, or `_targets.yaml`. Off by default to keep the reviewer set lean for non-targets users |
+| `ce-quarto-render-reviewer` | **Opt-in via `reviewers: [..., ce-quarto-render-reviewer]` in `.ce-datascience/config.local.yaml`.** Selected when opted in AND the diff touches `.qmd` files, `_quarto.yml`, `_publish.yml`, or rendered output under `_book/` / `_site/`. Off by default |
 
 **Language-specific conditional (selected per diff):**
 
