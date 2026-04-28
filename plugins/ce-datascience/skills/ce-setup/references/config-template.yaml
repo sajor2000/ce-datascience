@@ -14,8 +14,12 @@
 #     python: [pandas]         # pandas | polars
 #   data_layer: parquet        # parquet | database | fabric
 #   statistical_packages:
-#     r: [stats, survival]     # stats | survival | lme4
+#     r: [stats, survival]     # stats | survival | lme4 | gt | tidymodels | glmnet | survminer | brms | arrow | haven
 #     python: [scipy]          # scipy | statsmodels | scikit-learn
+#   environment_manager:
+#     r: renv                  # renv | packrat | none
+#     python: venv             # venv | conda | poetry | pixi | none
+#   r_project_type: script     # script | package | shiny | plumber | targets
 #   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
 
 # --- Reporting checklist ---

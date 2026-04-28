@@ -82,7 +82,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     await fs.mkdir(managedDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       groups: {
         skills: [
           "safe-skill",
@@ -97,7 +97,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readManagedInstallManifest(managedDir, "compound-engineering")
+    const result = await readManagedInstallManifest(managedDir, "ce-datascience")
     expect(result).not.toBeNull()
     expect(result!.groups.skills).toEqual(["safe-skill", "another-safe"])
     expect(result!.groups.commands).toEqual(["ok.md"])
@@ -113,7 +113,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readManagedInstallManifest(managedDir, "compound-engineering")
+    const result = await readManagedInstallManifest(managedDir, "ce-datascience")
     expect(result).toBeNull()
   })
 })
@@ -139,7 +139,7 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
     // readManagedInstallManifest's filter.
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       groups: {
         prompts: ["../outside.txt", "/etc/passwd"],
       },
@@ -158,7 +158,7 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       groups: {
         skills: ["../outside"],
       },
@@ -176,11 +176,11 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
 
     await writeManagedInstallManifest(rootDir, {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       groups: { prompts: ["safe-prompt.md"] },
     })
 
-    const manifest = await readManagedInstallManifest(rootDir, "compound-engineering")
+    const manifest = await readManagedInstallManifest(rootDir, "ce-datascience")
     expect(manifest).not.toBeNull()
 
     // Simulate a follow-up install where "safe-prompt.md" is no longer
@@ -209,18 +209,18 @@ describe("readCodexInstallManifest filters unsafe entries", () => {
 
   test("drops traversal/absolute entries from skills, prompts, agents", async () => {
     const codexRoot = path.join(tempRoot, ".codex")
-    const pluginDir = path.join(codexRoot, "compound-engineering")
+    const pluginDir = path.join(codexRoot, "ce-datascience")
     await fs.mkdir(pluginDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["safe-skill", "../../../etc/passwd", "/etc/passwd"],
       prompts: ["ok.md", "../../evil.md", "foo/../../escape.md"],
       agents: ["safe-agent.toml", "/tmp/abs.toml", "../escape.toml"],
     }
     await fs.writeFile(path.join(pluginDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readCodexInstallManifest(codexRoot, "compound-engineering")
+    const result = await readCodexInstallManifest(codexRoot, "ce-datascience")
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["safe-skill"])
     expect(result!.prompts).toEqual(["ok.md"])
@@ -229,18 +229,18 @@ describe("readCodexInstallManifest filters unsafe entries", () => {
 
   test("keeps all entries when all are safe", async () => {
     const codexRoot = path.join(tempRoot, ".codex")
-    const pluginDir = path.join(codexRoot, "compound-engineering")
+    const pluginDir = path.join(codexRoot, "ce-datascience")
     await fs.mkdir(pluginDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["a", "b", "c"],
       prompts: ["p.md"],
       agents: ["agent.toml"],
     }
     await fs.writeFile(path.join(pluginDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readCodexInstallManifest(codexRoot, "compound-engineering")
+    const result = await readCodexInstallManifest(codexRoot, "ce-datascience")
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["a", "b", "c"])
     expect(result!.prompts).toEqual(["p.md"])
@@ -261,7 +261,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
 
   test("drops traversal/absolute entries from skills, prompts, extensions", async () => {
     const piRoot = path.join(tempRoot, ".pi")
-    const managedDir = path.join(piRoot, "compound-engineering")
+    const managedDir = path.join(piRoot, "ce-datascience")
     await fs.mkdir(managedDir, { recursive: true })
     const paths = {
       managedDir,
@@ -273,14 +273,14 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     const manifest = {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["safe-skill", "../../../etc/passwd", "/etc/passwd", "foo/../../escape"],
       prompts: ["ok.md", "../../evil.md", "foo/../bar.md"],
       extensions: ["safe.ext", "/tmp/abs.ext", "..\\escape.ext"],
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readPiInstallManifest(managedDir, "compound-engineering", paths)
+    const result = await readPiInstallManifest(managedDir, "ce-datascience", paths)
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["safe-skill"])
     expect(result!.prompts).toEqual(["ok.md"])
@@ -289,7 +289,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
 
   test("keeps all entries when all are safe", async () => {
     const piRoot = path.join(tempRoot, ".pi")
-    const managedDir = path.join(piRoot, "compound-engineering")
+    const managedDir = path.join(piRoot, "ce-datascience")
     await fs.mkdir(managedDir, { recursive: true })
     const paths = {
       managedDir,
@@ -301,14 +301,14 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     const manifest = {
       version: 1,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["a", "b", "c"],
       prompts: ["p.md"],
       extensions: ["ext.js"],
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readPiInstallManifest(managedDir, "compound-engineering", paths)
+    const result = await readPiInstallManifest(managedDir, "ce-datascience", paths)
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["a", "b", "c"])
     expect(result!.prompts).toEqual(["p.md"])
@@ -336,7 +336,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["../outside-skill", "/etc/passwd"],
       prompts: [],
       extensions: [],
@@ -354,7 +354,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: [],
       prompts: ["../outside.txt", "/etc/passwd"],
       extensions: [],
@@ -372,7 +372,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: [],
       prompts: [],
       extensions: ["../outside-ext", "/etc/passwd", "foo/../../escape"],
@@ -400,7 +400,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const manifest = {
       version: 1 as const,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skills: ["stale-skill"],
       prompts: ["stale.md"],
       extensions: ["stale.ext"],

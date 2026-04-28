@@ -40,8 +40,24 @@ stack_profile:
 
   # Statistical and modeling packages
   statistical_packages:
-    r: [stats, survival, lme4]
+    r: [stats, survival, lme4, gt, tidymodels, glmnet, survminer, brms, arrow, haven]
     python: [scipy, statsmodels, scikit-learn]
+
+  # Environment and dependency management
+  # renv      - R environment manager (renv.lock for reproducible installs)
+  # packrat   - Legacy R environment manager (pre-renv)
+  # none      - No environment manager
+  environment_manager:
+    r: [renv, packrat, none]
+    python: [venv, conda, poetry, pixi, none]
+
+  # R project type (only shown when language includes R)
+  # script   - Analysis scripts (standalone .R files)
+  # package  - R package structure (DESCRIPTION, NAMESPACE, man/)
+  # shiny    - Shiny web application
+  # plumber  - Plumber API
+  # targets  - targets pipeline (_targets.R)
+  r_project_type: script | package | shiny | plumber | targets
 
   # Reporting and output framework
   # quarto    - Quarto documents (.qmd)

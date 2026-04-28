@@ -1,17 +1,17 @@
 {
-  "name": "compound-engineering",
+  "name": "ce-datascience",
   "version": "2.27.0",
-  "description": "Fixture aligned with the Compound Engineering plugin",
+  "description": "Fixture aligned with the CE DataScience plugin",
   "author": {
     "name": "Kieran Klaassen",
     "email": "kieran@every.to",
     "url": "https://github.com/kieranklaassen"
   },
   "homepage": "https://every.to/source-code/my-ai-had-already-fixed-the-code-before-i-saw-it",
-  "repository": "https://github.com/EveryInc/compound-engineering-plugin",
+  "repository": "https://github.com/EveryInc/ce-datascience",
   "license": "MIT",
   "keywords": [
-    "compound-engineering",
+    "ce-datascience",
     "workflow-automation",
     "code-review",
     "agents"

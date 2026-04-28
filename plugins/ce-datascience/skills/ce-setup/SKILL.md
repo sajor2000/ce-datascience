@@ -128,6 +128,13 @@ Which statistical packages do you use? (select all that apply)
 1. stats (base R)
 2. survival
 3. lme4 (mixed models)
+4. gt (tables)
+5. tidymodels (ML framework)
+6. glmnet (regularized regression)
+7. survminer (survival plots)
+8. brms (Bayesian models)
+9. arrow (parquet)
+10. haven (SAS/SPSS/Stata)
 ```
 
 For Python:
@@ -142,6 +149,32 @@ Which statistical packages do you use? (select all that apply)
 For "both", ask the R question first, then the Python question.
 
 Store selections as `stack_profile.statistical_packages`.
+
+### Step 5.5: Environment Manager (R-only follow-up)
+
+When the language selection includes R, ask:
+
+```
+How do you manage R package environments?
+
+1. renv (recommended -- renv.lock for reproducible installs)
+2. None (manual package management)
+```
+
+Store the selection as `stack_profile.environment_manager.r`.
+
+For Python or "both", ask the equivalent:
+```
+How do you manage Python environments?
+
+1. venv (built-in virtual environments)
+2. conda (Anaconda/Miniconda)
+3. poetry (pyproject.toml-based)
+4. pixi (conda-based with pixi.toml)
+5. None
+```
+
+Store the selection as `stack_profile.environment_manager.python`.
 
 ### Step 6: Reporting Framework
 
@@ -176,7 +209,23 @@ What reporting framework do you prefer?
 
 Store the selection as `stack_profile.reporting`.
 
-### Step 7: Golden Path Check
+### Step 7: R Project Type (R-only)
+
+When the language selection is R or both, ask:
+
+```
+What type of R project are you building?
+
+1. Analysis scripts (standalone .R files)
+2. R package (DESCRIPTION, NAMESPACE, man/)
+3. Shiny application
+4. Plumber API
+5. targets pipeline (_targets.R)
+```
+
+Store the selection as `stack_profile.r_project_type`.
+
+### Step 8: Golden Path Check
 
 After collecting all answers, check whether the combination matches a golden path:
 
@@ -199,7 +248,7 @@ optimized templates. Skills will still generate code for your setup, but
 some templates may require minor adjustments.
 ```
 
-### Step 8: Reporting Checklist (Optional)
+### Step 9: Reporting Checklist (Optional)
 
 ```
 Enable a reporting guideline checklist in generated outputs?
@@ -211,7 +260,7 @@ Enable a reporting guideline checklist in generated outputs?
 
 Store the selection as `reporting_checklist.enabled` and `reporting_checklist.guideline`.
 
-### Step 9: Save Config
+### Step 10: Save Config
 
 Resolve the repository root (`git rev-parse --show-toplevel`). All paths are relative to the repo root.
 
@@ -228,13 +277,15 @@ Display the saved config summary:
 ```
 Stack profile saved to .ce-datascience/config.local.yaml
 
-  Language:   python
-  IDE:        vscode
-  Libraries:  pandas
-  Data layer: parquet
-  Stats:      scipy, statsmodels
-  Reporting:  jupyter
-  Checklist:  none
+  Language:    python
+  IDE:         vscode
+  Libraries:   pandas
+  Data layer:  parquet
+  Stats:       scipy, statsmodels
+  Env manager: venv
+  R project:   n/a
+  Reporting:   jupyter
+  Checklist:   none
 
 Run /ce-setup anytime to modify.
 ```
@@ -269,10 +320,11 @@ If everything is installed and config is present:
 ```
  ✅ ce-datascience setup complete
 
-    Language:  python
-    IDE:       vscode
-    Reporting: jupyter
-    Config:    ✅
+    Language:    python
+    IDE:         vscode
+    Reporting:   jupyter
+    Env manager: venv
+    Config:      ✅
 
     Run /ce-setup anytime to reconfigure.
 ```

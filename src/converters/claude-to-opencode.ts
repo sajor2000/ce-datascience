@@ -291,10 +291,10 @@ function rewriteClaudePaths(body: string): string {
  *
  * OpenCode resolves agents by flat filename, so fully-qualified agent
  * references must be flattened. Both 3-segment legacy refs
- * (`compound-engineering:document-review:coherence-reviewer` -> `coherence-reviewer`)
+ * (`ce-datascience:document-review:coherence-reviewer` -> `coherence-reviewer`)
  * and 2-segment category-qualified refs (`review:ce-correctness-reviewer` ->
  * `ce-correctness-reviewer`) are handled. 2-segment skill references without
- * `ce-` prefix (e.g. `compound-engineering:document-review`) are left unchanged.
+ * `ce-` prefix (e.g. `ce-datascience:document-review`) are left unchanged.
  * See #477.
  */
 export function transformSkillContentForOpenCode(body: string): string {

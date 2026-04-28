@@ -106,7 +106,7 @@ Routing rules:
 
 ## Reviewers
 
-17 reviewer personas in layered conditionals, plus 1 CE always-on agent. See the persona catalog included below for the full catalog.
+18 reviewer personas in layered conditionals, plus 1 CE always-on agent. See the persona catalog included below for the full catalog.
 
 **Always-on (every review):**
 
@@ -133,6 +133,7 @@ Routing rules:
 | Agent | Select when diff touches... |
 |-------|---------------------------|
 | `ce-r-code-reviewer` | `.R`, `.Rmd`, `.qmd` files, or R code chunks in polyglot documents |
+| `ce-r-pipeline-reviewer` | `.R`, `.Rmd`, `.qmd` files with dplyr group_by logic, ggplot2 visualizations, survival analysis (`survival::`, `survminer::`), mixed models (`lme4::`, `glmmTMB::`), or targets pipeline code (`_targets.R`) |
 | `ce-python-ds-reviewer` | `.py` files with data science imports (pandas, numpy, scipy, sklearn, statsmodels, matplotlib, seaborn) |
 | `ce-kieran-python-reviewer` | Python modules, endpoints, services, scripts, or typed domain code (general Python quality alongside DS-specific review) |
 
@@ -148,7 +149,7 @@ Routing rules:
 
 ## Review Scope
 
-Every review spawns all 4 always-on personas plus the 1 CE always-on agent, then adds whichever statistical, language-specific, and cross-cutting conditionals fit the diff. The model naturally right-sizes: a small config change triggers 0 conditionals = 5 reviewers. A Python analysis with statistical tests might trigger methods + python-ds + kieran-python + reproducibility = 9 reviewers.
+Every review spawns all 4 always-on personas plus the 1 CE always-on agent, then adds whichever statistical, language-specific, and cross-cutting conditionals fit the diff. The model naturally right-sizes: a small config change triggers 0 conditionals = 5 reviewers. A Python analysis with statistical tests might trigger methods + python-ds + kieran-python + reproducibility = 9 reviewers. An R survival analysis might trigger methods + r-code + r-pipeline + reproducibility = 9 reviewers.
 
 ## Protected Artifacts
 
@@ -360,7 +361,7 @@ Read the diff and file list from Stage 1. The 4 always-on personas and 1 CE alwa
 
 **`previous-comments` is PR-only.** Only select this persona when Stage 1 gathered PR metadata (PR number or URL was provided as an argument, or `gh pr view` returned metadata for the current branch). Skip it entirely for standalone branch reviews with no associated PR -- there are no prior comments to check.
 
-Language-specific personas are additive. A Python analysis script may warrant `kieran-python` plus `python-ds`; an R notebook with statistical tests may warrant `r-code` plus `methods` and `reproducibility`.
+Language-specific personas are additive. A Python analysis script may warrant `kieran-python` plus `python-ds`; an R notebook with statistical tests may warrant `r-code` plus `r-pipeline`, `methods` and `reproducibility`.
 
 Announce the team before spawning:
 

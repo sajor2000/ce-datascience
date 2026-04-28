@@ -8,7 +8,7 @@ import { getLegacyCodexArtifacts, getLegacyKiroArtifacts, getLegacyPiArtifacts, 
 
 describe("plugin legacy artifacts", () => {
   test("Codex legacy detection is restricted to the explicit historical allow-list", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -57,7 +57,7 @@ describe("plugin legacy artifacts", () => {
 
   test("Codex legacy detection ignores current bundle skills/agents not in the historical allow-list", () => {
     const artifacts = getLegacyCodexArtifacts({
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       prompts: [],
       skillDirs: [
         // A current skill name that was NEVER shipped historically. A user
@@ -93,7 +93,7 @@ describe("plugin legacy artifacts", () => {
   })
 
   test("includes current and historical CE artifacts for Pi cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToPi(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -119,7 +119,7 @@ describe("plugin legacy artifacts", () => {
   })
 
   test("includes historical CE artifacts for Kiro install cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToKiro(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -141,7 +141,7 @@ describe("plugin legacy artifacts", () => {
   })
 
   test("includes only historical CE artifacts for deprecated Windsurf cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
 
     const artifacts = getLegacyWindsurfArtifacts(plugin)
 

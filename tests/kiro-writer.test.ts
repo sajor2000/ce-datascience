@@ -38,7 +38,7 @@ describe("writeKiroBundle", () => {
     const kiroRoot = path.join(tempRoot, ".kiro")
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
     const sessionHistorianDescription = await pluginDescription(
-      "plugins/compound-engineering/agents/ce-session-historian.agent.md",
+      "plugins/ce-datascience/agents/ce-session-historian.agent.md",
     )
 
     await fs.writeFile(
@@ -81,7 +81,7 @@ describe("writeKiroBundle", () => {
 
     await writeKiroBundle(kiroRoot, {
       ...emptyBundle,
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       skillDirs: [{ name: "ce-plan", sourceDir: sourceSkillDir }],
     })
 
@@ -89,7 +89,7 @@ describe("writeKiroBundle", () => {
     expect(await exists(path.join(kiroRoot, "agents", "repo-research-analyst.json"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(kiroRoot, "compound-engineering", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 
   test("writes agents, skills, steering, and mcp.json", async () => {
@@ -123,7 +123,7 @@ describe("writeKiroBundle", () => {
         },
       ],
       steeringFiles: [
-        { name: "compound-engineering", content: "# Steering content\n\nFollow these guidelines." },
+        { name: "ce-datascience", content: "# Steering content\n\nFollow these guidelines." },
       ],
       mcpServers: {
         playwright: { command: "npx", args: ["-y", "@anthropic/mcp-playwright"] },
@@ -156,7 +156,7 @@ describe("writeKiroBundle", () => {
     expect(await exists(path.join(tempRoot, ".kiro", "skills", "skill-one", "SKILL.md"))).toBe(true)
 
     // Steering file
-    const steeringPath = path.join(tempRoot, ".kiro", "steering", "compound-engineering.md")
+    const steeringPath = path.join(tempRoot, ".kiro", "steering", "ce-datascience.md")
     expect(await exists(steeringPath)).toBe(true)
     const steeringContent = await fs.readFile(steeringPath, "utf8")
     expect(steeringContent).toContain("Follow these guidelines.")

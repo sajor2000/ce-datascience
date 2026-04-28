@@ -10,8 +10,8 @@ After installing, run `/ce-setup` in any project. It configures your stack profi
 
 | Component | Count |
 |-----------|-------|
-| Agents | 40 |
-| Skills | 16 |
+| Agents | 41 |
+| Skills | 18 |
 
 ## Skills
 
@@ -45,6 +45,18 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 |-------|-------------|
 | `ce-doc-review` | Review documents using parallel persona agents for role-specific feedback |
 
+### Literature & Evidence
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-literature-search` | Search and download scientific papers via Google Scholar, Crossref, and SciHub using PyPaperBot. Supports PICO/PECO queries, DOI lookup, and structured literature summaries. |
+
+### IDE & Deployment
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-mcp-server` | Register the ce-datascience MCP server for IDE-agnostic access from Cursor, Windsurf, VS Code+Cline, and other MCP-compatible environments |
+
 ### Workflow Utilities
 
 | Skill | Description |
@@ -67,6 +79,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 16 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
+| `ce-r-pipeline-reviewer` | R analysis pipeline correctness — dplyr logic errors, ggplot2 accessibility, survival analysis, mixed model convergence |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |
 | `ce-kieran-python-reviewer` | General Python code review with strict conventions |
 

@@ -197,7 +197,7 @@ describe("writeCodexBundle", () => {
     await fs.writeFile(path.join(promptsDir, "ce-plan.md"), userPromptBody)
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
@@ -205,7 +205,7 @@ describe("writeCodexBundle", () => {
 
     expect(await exists(path.join(promptsDir, "ce-plan.md"))).toBe(true)
     expect(await fs.readFile(path.join(promptsDir, "ce-plan.md"), "utf8")).toBe(userPromptBody)
-    const backupRoot = path.join(codexRoot, "compound-engineering", "legacy-backup")
+    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
     // The legacy-backup directory should not contain the user-authored prompt.
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
@@ -223,7 +223,7 @@ describe("writeCodexBundle", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-managed-plugin-"))
     const codexRoot = path.join(tempRoot, ".codex")
     const bundle: CodexBundle = {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       prompts: [{ name: "old-prompt", content: "Prompt content" }],
       skillDirs: [
         {
@@ -237,17 +237,17 @@ describe("writeCodexBundle", () => {
 
     await writeCodexBundle(codexRoot, bundle)
 
-    const managedSkillsRoot = path.join(codexRoot, "skills", "compound-engineering")
-    const managedAgentsRoot = path.join(codexRoot, "agents", "compound-engineering")
+    const managedSkillsRoot = path.join(codexRoot, "skills", "ce-datascience")
+    const managedAgentsRoot = path.join(codexRoot, "agents", "ce-datascience")
     expect(await exists(path.join(managedSkillsRoot, "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(managedSkillsRoot, "old-command", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(managedAgentsRoot, "old-agent.toml"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "skill-one"))).toBe(false)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "old-agent"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "compound-engineering", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       prompts: [{ name: "new-prompt", content: "Prompt content" }],
       skillDirs: [],
       generatedSkills: [{ name: "new-command", content: "New command" }],
@@ -267,17 +267,17 @@ describe("writeCodexBundle", () => {
   test("removes legacy .agents symlinks that point to managed Codex skills", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-flat-symlink-"))
     const codexRoot = path.join(tempRoot, ".codex")
-    const previousManagedSkillsRoot = path.join(codexRoot, "compound-engineering", "skills")
+    const previousManagedSkillsRoot = path.join(codexRoot, "ce-datascience", "skills")
     const agentsSkillsDir = path.join(tempRoot, ".agents", "skills")
 
     await fs.mkdir(path.join(previousManagedSkillsRoot, "old-agent"), { recursive: true })
     await fs.mkdir(path.join(previousManagedSkillsRoot, "reproduce-bug"), { recursive: true })
     await fs.writeFile(
-      path.join(codexRoot, "compound-engineering", "install-manifest.json"),
-      JSON.stringify({ version: 1, pluginName: "compound-engineering", skills: ["old-agent"], prompts: [] }),
+      path.join(codexRoot, "ce-datascience", "install-manifest.json"),
+      JSON.stringify({ version: 1, pluginName: "ce-datascience", skills: ["old-agent"], prompts: [] }),
     )
     await fs.mkdir(agentsSkillsDir, { recursive: true })
-    await fs.symlink(previousManagedSkillsRoot, path.join(agentsSkillsDir, "compound-engineering"))
+    await fs.symlink(previousManagedSkillsRoot, path.join(agentsSkillsDir, "ce-datascience"))
     await fs.symlink(
       path.join(previousManagedSkillsRoot, "old-agent"),
       path.join(agentsSkillsDir, "old-agent"),
@@ -292,7 +292,7 @@ describe("writeCodexBundle", () => {
     await fs.symlink(unrelatedRoot, path.join(agentsSkillsDir, "skill-one"))
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       prompts: [],
       skillDirs: [
         {
@@ -303,7 +303,7 @@ describe("writeCodexBundle", () => {
       generatedSkills: [],
     })
 
-    expect(await entryExists(path.join(agentsSkillsDir, "compound-engineering"))).toBe(false)
+    expect(await entryExists(path.join(agentsSkillsDir, "ce-datascience"))).toBe(false)
     expect(await entryExists(path.join(agentsSkillsDir, "old-agent"))).toBe(false)
     expect(await entryExists(path.join(agentsSkillsDir, "reproduce-bug"))).toBe(false)
     expect(await fs.realpath(path.join(agentsSkillsDir, "skill-one"))).toBe(await fs.realpath(unrelatedRoot))
@@ -329,7 +329,7 @@ describe("writeCodexBundle", () => {
     await fs.writeFile(path.join(codexRoot, "prompts", "reproduce-bug.md"), "legacy removed prompt")
     await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), "legacy deleted command prompt")
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -345,7 +345,7 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(codexRoot, "skills", "bug-reproduction-validator"))).toBe(false)
     expect(await exists(path.join(codexRoot, "prompts", "reproduce-bug.md"))).toBe(false)
     expect(await exists(path.join(codexRoot, "prompts", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "compound-engineering", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 
   test("preserves unrelated user skills at flat ~/.codex/skills/<name>/ that share a name with a current CE skill", async () => {
@@ -368,7 +368,7 @@ describe("writeCodexBundle", () => {
     await fs.mkdir(userDebugDir, { recursive: true })
     await fs.writeFile(path.join(userDebugDir, "SKILL.md"), "# user debug skill")
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -382,7 +382,7 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(userDebugDir, "SKILL.md"))).toBe(true)
 
     // And they are not silently relocated to the legacy backup.
-    const backupRoot = path.join(codexRoot, "compound-engineering", "legacy-backup")
+    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
       for (const ts of timestamps) {
@@ -452,7 +452,7 @@ describe("writeCodexBundle", () => {
   test("agents-only install preserves namespaced skills previously installed via Codex native plugin flow", async () => {
     // Regression for the bug where re-running `install --to codex` after a
     // native `/plugins` install moved currently-active namespaced skills
-    // (e.g., `.codex/skills/compound-engineering/ce-plan/`) into
+    // (e.g., `.codex/skills/ce-datascience/ce-plan/`) into
     // legacy-backup. The agents-only default produces an empty `skillDirs` /
     // `generatedSkills`, but the converter now populates
     // `externallyManagedSkillNames` with the allow-listed current skills so
@@ -462,7 +462,7 @@ describe("writeCodexBundle", () => {
 
     // Simulate the tree produced by a native Codex plugin install: active
     // namespaced skills under `.codex/skills/<plugin>/<skill>/SKILL.md`.
-    const namespacedSkillsRoot = path.join(codexRoot, "skills", "compound-engineering")
+    const namespacedSkillsRoot = path.join(codexRoot, "skills", "ce-datascience")
     for (const skillName of ["ce-plan", "ce-debug", "ce-brainstorm"]) {
       await fs.mkdir(path.join(namespacedSkillsRoot, skillName), { recursive: true })
       await fs.writeFile(
@@ -471,7 +471,7 @@ describe("writeCodexBundle", () => {
       )
     }
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -494,7 +494,7 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(namespacedSkillsRoot, "ce-brainstorm", "SKILL.md"))).toBe(true)
 
     // And none of them were silently relocated into legacy-backup.
-    const backupRoot = path.join(codexRoot, "compound-engineering", "legacy-backup")
+    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
       for (const ts of timestamps) {

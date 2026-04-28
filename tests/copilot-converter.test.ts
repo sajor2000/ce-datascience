@@ -400,9 +400,9 @@ describe("convertClaudeToCopilot", () => {
 
 describe("transformContentForCopilot", () => {
   test("rewrites .claude/ paths to .github/", () => {
-    const input = "Read `.claude/compound-engineering.local.md` for config."
+    const input = "Read `.claude/ce-datascience.local.md` for config."
     const result = transformContentForCopilot(input)
-    expect(result).toContain(".github/compound-engineering.local.md")
+    expect(result).toContain(".github/ce-datascience.local.md")
     expect(result).not.toContain(".claude/")
   })
 

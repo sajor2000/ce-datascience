@@ -12,7 +12,7 @@
     {
       "name": "ce-datascience",
       "source": "ce-datascience",
-      "description": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows."
+      "description": "Compound engineering for computational scientists: reproducible, compliant, compound research automation with R/Python statistical review and SAP tracking."
     }
   ]
 }

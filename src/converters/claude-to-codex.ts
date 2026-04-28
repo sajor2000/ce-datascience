@@ -201,7 +201,7 @@ function toCanonicalWorkflowSkillName(name: string): string | null {
 }
 
 function shouldApplyCompoundWorkflowModel(plugin: ClaudePlugin): boolean {
-  return plugin.manifest.name === "compound-engineering"
+  return plugin.manifest.name === "ce-datascience"
 }
 
 function buildAgentTargets(plugin: ClaudePlugin, agents: CodexAgent[]): Record<string, string> {

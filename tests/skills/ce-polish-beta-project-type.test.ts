@@ -8,7 +8,7 @@ const detectProjectType = path.join(
   "..",
   "..",
   "plugins",
-  "compound-engineering",
+  "ce-datascience",
   "skills",
   "ce-polish-beta",
   "scripts",

@@ -9,7 +9,7 @@ const helperPath = path.join(
   "..",
   "..",
   "plugins",
-  "compound-engineering",
+  "ce-datascience",
   "skills",
   "ce-release-notes",
   "scripts",

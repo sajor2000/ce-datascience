@@ -159,6 +159,13 @@ This is agent-internal analysis, not a user-facing checklist. Read the opening, 
 
 - **Data access feasibility.** Is the data available, accessible, and of sufficient quality? Are there IRB, data use agreement, or data linkage barriers? Is the sample size likely sufficient?
 
+**R-specific probes** — fire these alongside the domain-specific probes above when the stack profile indicates R as the primary or secondary language:
+
+- **Data format.** Will the analysis use tidy (long) format or wide format? Is a pivot planned? Data format decisions affect downstream dplyr/group_by logic and can introduce silent errors if inconsistent.
+- **R package ecosystem.** Is the analysis consistent within tidyverse, data.table, or base R? Mixing paradigms in a single pipeline adds cognitive load and error risk. Probe: "What's the primary data manipulation approach -- tidyverse, data.table, or base R?"
+- **Results table formatting.** Which package for formatted output tables? `gt`, `flextable`, `kableExtra`, or `modelsummary`? This choice affects regulatory submission readiness and should be decided before analysis code is written. Probe: "How will results tables be formatted for the final report?"
+- **Power analysis package.** Which package for sample size / power calculations? `pwr` for simple tests, `simr` for mixed models, `powerSurvEpi` for survival endpoints, `WebPower` for diverse designs. Probe: "What power analysis approach and package is planned?"
+
 Plus these synthesis questions — not gap lenses, study-design judgment the agent weighs in its own reasoning:
 - Is there a nearby framing that generates more actionable evidence without more analytical cost? If so, what complexity does it add?
 - Given the current data availability, research goals, and constraints, what is the single highest-leverage move right now: the question as framed, a reframing, one adjacent analysis, a simplification, or doing nothing?

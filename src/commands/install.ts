@@ -310,7 +310,7 @@ async function resolveGitHubPluginPath(pluginName: string, branch?: string): Pro
 function resolveGitHubSource(): string {
   const override = process.env.COMPOUND_PLUGIN_GITHUB_SOURCE
   if (override && override.trim()) return override.trim()
-  return "https://github.com/EveryInc/compound-engineering-plugin"
+  return "https://github.com/EveryInc/ce-datascience-plugin"
 }
 
 async function cloneGitHubRepo(source: string, destination: string, branch?: string): Promise<void> {

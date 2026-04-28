@@ -6,7 +6,7 @@ import os from "os"
 const SCRIPT = path.join(
   process.cwd(),
   "plugins",
-  "compound-engineering",
+  "ce-datascience",
   "skills",
   "ce-demo-reel",
   "scripts",

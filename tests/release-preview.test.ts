@@ -6,13 +6,13 @@ describe("release preview", () => {
     const versions = await loadCurrentVersions()
     const preview = await buildReleasePreview({
       title: "fix: adjust ce-plan wording",
-      files: ["plugins/compound-engineering/skills/ce-plan/SKILL.md"],
+      files: ["plugins/ce-datascience/skills/ce-plan/SKILL.md"],
     })
 
     expect(preview.components).toHaveLength(1)
-    expect(preview.components[0].component).toBe("compound-engineering")
+    expect(preview.components[0].component).toBe("ce-datascience")
     expect(preview.components[0].inferredBump).toBe("patch")
-    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["compound-engineering"], "patch"))
+    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["ce-datascience"], "patch"))
   })
 
   test("supports per-component overrides without affecting unrelated components", async () => {

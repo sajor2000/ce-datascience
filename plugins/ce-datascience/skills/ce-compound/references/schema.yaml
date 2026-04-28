@@ -38,6 +38,7 @@ tracks:
       - data_quality_issue
       - reporting_convention
       - reproducibility_pattern
+      - literature_pattern
 
 # --- Fields required by BOTH tracks -----------------------------------------
 required_fields:
@@ -75,6 +76,7 @@ required_fields:
       - data_quality_issue
       - reporting_convention
       - reproducibility_pattern
+      - literature_pattern
     description: "Primary category — determines track (bug vs knowledge). Prefer the narrowest applicable value; best_practice is the fallback when no narrower knowledge-track value fits."
 
   component:

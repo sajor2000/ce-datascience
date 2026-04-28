@@ -76,7 +76,7 @@ Load the `ce-proof` skill in HITL-review mode with:
 
 - **source file:** `docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md`
 - **doc title:** `Requirements: <topic title>`
-- **identity:** `ai:compound-engineering` / `Compound Engineering`
+- **identity:** `ai:ce-datascience` / `CE DataScience`
 - **recommended next step:** `ce-plan` (shown in the ce-proof skill's final terminal output)
 
 Follow `references/hitl-review.md` in the ce-proof skill. It uploads the doc, prompts the user for review in Proof's web UI, ingests each thread by reading it fresh and replying in-thread, applies agreed edits as tracked suggestions, and syncs the final markdown back to the source file atomically on proceed.

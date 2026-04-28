@@ -3,7 +3,7 @@ import path from "path"
 import { describe, expect, test } from "bun:test"
 import { load } from "js-yaml"
 
-const PLUGIN_ROOT = path.join(process.cwd(), "plugins", "compound-engineering", "skills")
+const PLUGIN_ROOT = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
 
 /** Canonical copies live in ce-compound; mirrors must stay identical. */
 const SHARED_SUPPORT_FILES = [

@@ -16,6 +16,29 @@ This file contains the shipping workflow (Phase 3-4). Load it only when all Phas
    # Use linting-agent before pushing to origin
    ```
 
+   **R project detection** — when the project contains R source files, also check for:
+
+   ```bash
+   # R test detection (run whichever matches the project structure)
+   # tests/testthat/ exists -> devtools::test()
+   # .R files importing testthat:: -> testthat::test_dir("tests/testthat")
+   # DESCRIPTION exists -> R CMD check --no-manual
+   # _targets.R exists -> targets::tar_check()
+   # lintr config -> lintr::lint_dir()
+   ```
+
+   **R gitignore hygiene** — verify `.gitignore` includes R-specific entries when R files are present:
+   ```gitignore
+   .RData
+   .Rhistory
+   .Ruserdata
+   .Renviron
+   .Rproj.user/
+   renv/library/
+   renv/staging/
+   renv/sandbox/
+   ```
+
 2. **Code Review** (REQUIRED)
 
    Every change gets reviewed before shipping. The depth scales with the change's risk profile, but review itself is never skipped.

@@ -1,7 +1,7 @@
 {
   "name": "ce-datascience",
   "version": "0.1.0",
-  "description": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.",
+  "description": "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
   "author": {
     "name": "Juan Carlos Rojas"
   },

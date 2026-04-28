@@ -71,21 +71,21 @@ describe("cleanupStaleSkillDirs", () => {
       path.join(root, "git-commit"),
       skillContent(
         "git-commit",
-        await pluginDescription("plugins/compound-engineering/skills/ce-commit/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-commit/SKILL.md"),
       ),
     )
     await createDir(
       path.join(root, "setup"),
       skillContent(
         "setup",
-        await pluginDescription("plugins/compound-engineering/skills/ce-setup/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-setup/SKILL.md"),
       ),
     )
     await createDir(
       path.join(root, "document-review"),
       skillContent(
         "document-review",
-        await pluginDescription("plugins/compound-engineering/skills/ce-doc-review/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-doc-review/SKILL.md"),
       ),
     )
 
@@ -117,14 +117,14 @@ describe("cleanupStaleSkillDirs", () => {
       path.join(root, "ce-review"),
       skillContent(
         "ce-review",
-        await pluginDescription("plugins/compound-engineering/skills/ce-code-review/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-code-review/SKILL.md"),
       ),
     )
     await createDir(
       path.join(root, "ce-document-review"),
       skillContent(
         "ce-document-review",
-        await pluginDescription("plugins/compound-engineering/skills/ce-doc-review/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-doc-review/SKILL.md"),
       ),
     )
 
@@ -141,14 +141,14 @@ describe("cleanupStaleSkillDirs", () => {
       path.join(root, "ce:plan"),
       skillContent(
         "ce:plan",
-        await pluginDescription("plugins/compound-engineering/skills/ce-plan/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-plan/SKILL.md"),
       ),
     )
     await createDir(
       path.join(root, "workflows:review"),
       skillContent(
         "workflows:review",
-        await pluginDescription("plugins/compound-engineering/skills/ce-code-review/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-code-review/SKILL.md"),
       ),
     )
     await createDir(
@@ -176,7 +176,7 @@ describe("cleanupStaleSkillDirs", () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-user-skill-"))
     await createDir(
       path.join(root, "setup"),
-      skillContent("setup", "User-owned setup skill unrelated to compound-engineering."),
+      skillContent("setup", "User-owned setup skill unrelated to ce-datascience."),
     )
 
     const removed = await cleanupStaleSkillDirs(root)
@@ -191,7 +191,7 @@ describe("cleanupStaleSkillDirs", () => {
       path.join(root, "setup"),
       skillContent(
         "setup",
-        "Configure project-level settings for compound-engineering workflows. Currently a placeholder — review agent selection is handled automatically by ce:review.",
+        "Configure project-level settings for ce-datascience workflows. Currently a placeholder — review agent selection is handled automatically by ce:review.",
       ),
     )
 
@@ -282,7 +282,7 @@ describe("cleanupStaleSkillDirs", () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-legacy-only-user-"))
     await createDir(
       path.join(root, "reproduce-bug"),
-      skillContent("reproduce-bug", "A project-local reproduce-bug helper unrelated to compound-engineering."),
+      skillContent("reproduce-bug", "A project-local reproduce-bug helper unrelated to ce-datascience."),
     )
 
     const removed = await cleanupStaleSkillDirs(root)
@@ -299,14 +299,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "adversarial-reviewer.md"),
       agentContent(
         "adversarial-reviewer",
-        await pluginDescription("plugins/compound-engineering/agents/ce-adversarial-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.agent.md"),
       ),
     )
     await createFile(
       path.join(root, "learnings-researcher.md"),
       agentContent(
         "learnings-researcher",
-        await pluginDescription("plugins/compound-engineering/agents/ce-learnings-researcher.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-learnings-researcher.agent.md"),
       ),
     )
 
@@ -323,14 +323,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "security-sentinel.agent.md"),
       agentContent(
         "security-sentinel",
-        await pluginDescription("plugins/compound-engineering/agents/ce-security-sentinel.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-security-sentinel.agent.md"),
       ),
     )
     await createFile(
       path.join(root, "performance-oracle.agent.md"),
       agentContent(
         "performance-oracle",
-        await pluginDescription("plugins/compound-engineering/agents/ce-performance-oracle.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-performance-oracle.agent.md"),
       ),
     )
 
@@ -346,21 +346,21 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "slack-researcher.json"),
       kiroAgentConfigContent(
         "slack-researcher",
-        await pluginDescription("plugins/compound-engineering/agents/ce-slack-researcher.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-slack-researcher.agent.md"),
       ),
     )
     await createFile(
       path.join(root, "session-historian.json"),
       kiroAgentConfigContent(
         "session-historian",
-        await pluginDescription("plugins/compound-engineering/agents/ce-session-historian.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-session-historian.agent.md"),
       ),
     )
     await createFile(
       path.join(root, "lint.json"),
       kiroAgentConfigContent(
         "lint",
-        "A project-local lint helper unrelated to compound-engineering.",
+        "A project-local lint helper unrelated to ce-datascience.",
       ),
     )
 
@@ -378,14 +378,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "code-simplicity-reviewer"),
       skillContent(
         "code-simplicity-reviewer",
-        await pluginDescription("plugins/compound-engineering/agents/ce-code-simplicity-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-code-simplicity-reviewer.agent.md"),
       ),
     )
     await createDir(
       path.join(root, "repo-research-analyst"),
       skillContent(
         "repo-research-analyst",
-        await pluginDescription("plugins/compound-engineering/agents/ce-repo-research-analyst.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-repo-research-analyst.agent.md"),
       ),
     )
 
@@ -411,7 +411,7 @@ describe("cleanupStaleAgents", () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-agents-user-"))
     await createFile(
       path.join(root, "lint.md"),
-      agentContent("lint", "A project-local lint helper unrelated to compound-engineering."),
+      agentContent("lint", "A project-local lint helper unrelated to ce-datascience."),
     )
 
     const removed = await cleanupStaleAgents(root, ".md")
@@ -456,21 +456,21 @@ describe("cleanupStalePrompts", () => {
       path.join(root, "ce-plan.md"),
       promptWrapperContent(
         "ce-plan",
-        await pluginDescription("plugins/compound-engineering/skills/ce-plan/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-plan/SKILL.md"),
       ),
     )
     await createFile(
       path.join(root, "ce-review.md"),
       promptWrapperContent(
         "ce-review",
-        await pluginDescription("plugins/compound-engineering/skills/ce-code-review/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-code-review/SKILL.md"),
       ),
     )
     await createFile(
       path.join(root, "ce-brainstorm.md"),
       promptWrapperContent(
         "ce-brainstorm",
-        await pluginDescription("plugins/compound-engineering/skills/ce-brainstorm/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-brainstorm/SKILL.md"),
       ),
     )
 
@@ -511,7 +511,7 @@ describe("cleanupStalePrompts", () => {
       path.join(root, "ce-plan.md"),
       legacyWorkflowPromptContent(
         "ce:plan",
-        (await pluginDescription("plugins/compound-engineering/skills/ce-plan/SKILL.md"))
+        (await pluginDescription("plugins/ce-datascience/skills/ce-plan/SKILL.md"))
           .replaceAll("ce-", "ce:"),
       ),
     )
@@ -519,7 +519,7 @@ describe("cleanupStalePrompts", () => {
       path.join(root, "ce-work-beta.md"),
       legacyWorkflowPromptContent(
         "ce:work-beta",
-        (await pluginDescription("plugins/compound-engineering/skills/ce-work-beta/SKILL.md"))
+        (await pluginDescription("plugins/ce-datascience/skills/ce-work-beta/SKILL.md"))
           .replaceAll("ce-", "ce:"),
       ),
     )
@@ -541,7 +541,7 @@ describe("cleanupStalePrompts", () => {
     // Cleanup now accepts any description that appears in the plugin's
     // `LEGACY_PROMPT_DESCRIPTION_ALIASES` list for that file (in addition to
     // the current shipped description). The strings below are real
-    // descriptions compound-engineering has shipped in prior releases, so
+    // descriptions ce-datascience has shipped in prior releases, so
     // they must be recognized as owned.
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-prompts-drifted-desc-"))
 
@@ -579,33 +579,33 @@ describe("cleanupStalePrompts", () => {
     expect(await exists(path.join(root, "ce-work-beta.md"))).toBe(false)
   })
 
-  test("preserves wrappers whose description was never shipped by compound-engineering", async () => {
+  test("preserves wrappers whose description was never shipped by ce-datascience", async () => {
     // Defense-in-depth against a sibling plugin installed into the same
     // `~/.codex/prompts/` directory. `renderPrompt` in
     // `src/converters/claude-to-codex.ts` emits the instruction sentence for
     // every plugin that ships invocable commands, so body alone is not proof
     // of ownership — a third-party plugin whose skill happens to be named
-    // `ce-plan` / `ce-work` (for example a compound-engineering fork keeping
+    // `ce-plan` / `ce-work` (for example a ce-datascience fork keeping
     // the `ce-*` namespace) would produce a wrapper whose body matches ours
     // verbatim.
     //
     // Cleanup must leave those wrappers alone. The additional ownership
     // signal is the frontmatter description: if it is not one
-    // compound-engineering has ever shipped, the file belongs to somebody
+    // ce-datascience has ever shipped, the file belongs to somebody
     // else and we refuse to delete it.
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-prompts-foreign-desc-"))
     await createFile(
       path.join(root, "ce-plan.md"),
       promptWrapperContent(
         "ce-plan",
-        "A sibling plugin's ce-plan wrapper. This description has never been shipped by compound-engineering, so cleanup must preserve the file.",
+        "A sibling plugin's ce-plan wrapper. This description has never been shipped by ce-datascience, so cleanup must preserve the file.",
       ),
     )
     await createFile(
       path.join(root, "ce-brainstorm.md"),
       promptWrapperContent(
         "ce-brainstorm",
-        "Fork-specific brainstorm wrapper with a description compound-engineering has never shipped.",
+        "Fork-specific brainstorm wrapper with a description ce-datascience has never shipped.",
       ),
     )
     await createFile(
@@ -653,14 +653,14 @@ describe("idempotency", () => {
       path.join(root, "git-commit"),
       skillContent(
         "git-commit",
-        await pluginDescription("plugins/compound-engineering/skills/ce-commit/SKILL.md"),
+        await pluginDescription("plugins/ce-datascience/skills/ce-commit/SKILL.md"),
       ),
     )
     await createFile(
       path.join(root, "adversarial-reviewer.md"),
       agentContent(
         "adversarial-reviewer",
-        await pluginDescription("plugins/compound-engineering/agents/ce-adversarial-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.agent.md"),
       ),
     )
 

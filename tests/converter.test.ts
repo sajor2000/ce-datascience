@@ -11,11 +11,11 @@ const compoundEngineeringRoot = path.join(
   import.meta.dir,
   "..",
   "plugins",
-  "compound-engineering",
+  "ce-datascience",
 )
 
 describe("convertClaudeToOpenCode", () => {
-  test("current compound-engineering output is skills and subagents, not commands", async () => {
+  test("current ce-datascience output is skills and subagents, not commands", async () => {
     const plugin = await loadClaudePlugin(compoundEngineeringRoot)
     const bundle = convertClaudeToOpenCode(plugin, {
       agentMode: "subagent",
@@ -350,11 +350,11 @@ describe("convertClaudeToOpenCode", () => {
         {
           name: "review",
           description: "Review command",
-          body: `Read \`compound-engineering.local.md\` in the project root.
+          body: `Read \`ce-datascience.local.md\` in the project root.
 
 If no settings file exists, auto-detect project type.
 
-Run \`/compound-engineering-setup\` to create a settings file.`,
+Run \`/ce-datascience-setup\` to create a settings file.`,
           sourcePath: "/tmp/plugin/commands/review.md",
         },
       ],
@@ -371,7 +371,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
     expect(commandFile).toBeDefined()
 
     // Tool-agnostic path in project root — no rewriting needed
-    expect(commandFile!.content).toContain("compound-engineering.local.md")
+    expect(commandFile!.content).toContain("ce-datascience.local.md")
   })
 
   test("rewrites .claude/ paths in agent bodies", () => {
@@ -382,7 +382,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
         {
           name: "test-agent",
           description: "Test agent",
-          body: "Read `compound-engineering.local.md` for config.",
+          body: "Read `ce-datascience.local.md` for config.",
           sourcePath: "/tmp/plugin/agents/test-agent.md",
         },
       ],
@@ -399,7 +399,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
     const agentFile = bundle.agents.find((a) => a.name === "test-agent")
     expect(agentFile).toBeDefined()
     // Tool-agnostic path in project root — no rewriting needed
-    expect(agentFile!.content).toContain("compound-engineering.local.md")
+    expect(agentFile!.content).toContain("ce-datascience.local.md")
   })
 
   test("command .md files include description in frontmatter", () => {

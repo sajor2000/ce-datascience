@@ -21,7 +21,7 @@ describe("writeOpenCodeBundle", () => {
   test("writes config, agents, plugins, and skills", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-test-"))
     const bundle: OpenCodeBundle = {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       config: { $schema: "https://opencode.ai/config.json" },
       agents: [{ name: "agent-one", content: "Agent content" }],
       plugins: [{ name: "hook.ts", content: "export {}" }],
@@ -40,7 +40,7 @@ describe("writeOpenCodeBundle", () => {
     expect(await exists(path.join(tempRoot, ".opencode", "agents", "agent-one.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".opencode", "plugins", "hook.ts"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".opencode", "skills", "skill-one", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(tempRoot, ".opencode", "compound-engineering", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".opencode", "ce-datascience", "install-manifest.json"))).toBe(true)
   })
 
   test("writes directly into a .opencode output root", async () => {
@@ -361,7 +361,7 @@ describe("writeOpenCodeBundle", () => {
     const outputRoot = path.join(tempRoot, ".opencode")
 
     await writeOpenCodeBundle(outputRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       config: { $schema: "https://opencode.ai/config.json" },
       agents: [{ name: "old-agent", content: "Agent content" }],
       plugins: [{ name: "hook.ts", content: "export {}" }],
@@ -375,7 +375,7 @@ describe("writeOpenCodeBundle", () => {
     })
 
     await writeOpenCodeBundle(outputRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       config: { $schema: "https://opencode.ai/config.json" },
       agents: [{ name: "new-agent", content: "Agent content" }],
       plugins: [],
@@ -397,7 +397,7 @@ describe("writeOpenCodeBundle", () => {
 
     // Install plugin A first, with a skill and an agent
     await writeOpenCodeBundle(outputRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       config: { $schema: "https://opencode.ai/config.json" },
       agents: [{ name: "ce-agent", content: "ce agent" }],
       plugins: [],
@@ -426,7 +426,7 @@ describe("writeOpenCodeBundle", () => {
     })
 
     // Both plugins must keep their own namespaced manifest
-    expect(await exists(path.join(outputRoot, "compound-engineering", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
     expect(await exists(path.join(outputRoot, "coding-tutor", "install-manifest.json"))).toBe(true)
 
     // Reinstall plugin A with no agents/skills — it must clean up only its own
@@ -434,7 +434,7 @@ describe("writeOpenCodeBundle", () => {
     // addresses: a shared manifest path would have lost B's manifest after A was
     // installed, and a later A reinstall would skip B's stale-file cleanup).
     await writeOpenCodeBundle(outputRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       config: { $schema: "https://opencode.ai/config.json" },
       agents: [],
       plugins: [],
@@ -461,7 +461,7 @@ describe("writeOpenCodeBundle", () => {
     await fs.writeFile(path.join(outputRoot, "commands", "reproduce-bug.md"), "legacy removed command")
     await fs.writeFile(path.join(outputRoot, "commands", "report-bug.md"), "legacy deleted command")
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToOpenCode(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -473,12 +473,12 @@ describe("writeOpenCodeBundle", () => {
     expect(await exists(path.join(outputRoot, "agents", "bug-reproduction-validator.md"))).toBe(false)
     expect(await exists(path.join(outputRoot, "commands", "reproduce-bug.md"))).toBe(false)
     expect(await exists(path.join(outputRoot, "commands", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(outputRoot, "compound-engineering", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 
   test("upgrades from pre-namespacing legacy shared manifest for non-CE plugins", async () => {
     // Pre-namespacing, ALL plugins wrote their install manifest to the same
-    // shared path: `<root>/compound-engineering/install-manifest.json`. After
+    // shared path: `<root>/ce-datascience/install-manifest.json`. After
     // the namespacing fix, a plugin like `coding-tutor` reads from its own
     // scoped path (`<root>/coding-tutor/install-manifest.json`), which does
     // not exist on the first reinstall after upgrade. Without a fallback, the
@@ -490,9 +490,9 @@ describe("writeOpenCodeBundle", () => {
 
     // Seed the legacy shared manifest at the OLD path, recording artifacts
     // that the previous coding-tutor install placed in the root.
-    await fs.mkdir(path.join(outputRoot, "compound-engineering"), { recursive: true })
+    await fs.mkdir(path.join(outputRoot, "ce-datascience"), { recursive: true })
     await fs.writeFile(
-      path.join(outputRoot, "compound-engineering", "install-manifest.json"),
+      path.join(outputRoot, "ce-datascience", "install-manifest.json"),
       JSON.stringify({
         version: 1,
         pluginName: "coding-tutor",
@@ -543,7 +543,7 @@ describe("writeOpenCodeBundle", () => {
 
     // The legacy shared manifest must be archived so it doesn't keep
     // misleading a future install (and must no longer exist at the old path).
-    expect(await exists(path.join(outputRoot, "compound-engineering", "install-manifest.json"))).toBe(false)
+    expect(await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json"))).toBe(false)
     expect(await exists(path.join(outputRoot, "coding-tutor", "legacy-backup"))).toBe(true)
   })
 
@@ -554,7 +554,7 @@ describe("writeOpenCodeBundle", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-legacy-other-plugin-"))
     const outputRoot = path.join(tempRoot, ".opencode")
 
-    await fs.mkdir(path.join(outputRoot, "compound-engineering"), { recursive: true })
+    await fs.mkdir(path.join(outputRoot, "ce-datascience"), { recursive: true })
     const legacyManifest = {
       version: 1,
       pluginName: "some-other-plugin",
@@ -566,7 +566,7 @@ describe("writeOpenCodeBundle", () => {
       },
     }
     await fs.writeFile(
-      path.join(outputRoot, "compound-engineering", "install-manifest.json"),
+      path.join(outputRoot, "ce-datascience", "install-manifest.json"),
       JSON.stringify(legacyManifest),
     )
     await fs.mkdir(path.join(outputRoot, "agents"), { recursive: true })
@@ -585,11 +585,11 @@ describe("writeOpenCodeBundle", () => {
     expect(await exists(path.join(outputRoot, "agents", "other-plugin-agent.md"))).toBe(true)
     // Other plugin's legacy manifest is left at the legacy path.
     expect(
-      await exists(path.join(outputRoot, "compound-engineering", "install-manifest.json")),
+      await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json")),
     ).toBe(true)
     const preserved = JSON.parse(
       await fs.readFile(
-        path.join(outputRoot, "compound-engineering", "install-manifest.json"),
+        path.join(outputRoot, "ce-datascience", "install-manifest.json"),
         "utf8",
       ),
     )

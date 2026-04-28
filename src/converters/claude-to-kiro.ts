@@ -135,7 +135,7 @@ function convertCommandToSkill(
 export function transformContentForKiro(body: string, knownAgentNames: string[] = []): string {
   let result = body
 
-  // 1. Transform Task agent calls (supports namespaced names like compound-engineering:research:agent-name)
+  // 1. Transform Task agent calls (supports namespaced names like ce-datascience:research:agent-name)
   const taskPattern = /^(\s*-?\s*)Task\s+([a-z][a-z0-9:-]*)\(([^)]*)\)/gm
   result = result.replace(taskPattern, (_match, prefix: string, agentName: string, args: string) => {
     const finalSegment = agentName.includes(":") ? agentName.split(":").pop()! : agentName
@@ -214,7 +214,7 @@ function buildSteeringFiles(plugin: ClaudePlugin, knownAgentNames: string[]): Ki
   if (!content || content.trim().length === 0) return []
 
   const transformed = transformContentForKiro(content, knownAgentNames)
-  return [{ name: "compound-engineering", content: transformed }]
+  return [{ name: "ce-datascience", content: transformed }]
 }
 
 function resolveInstructionPath(root: string): string | null {

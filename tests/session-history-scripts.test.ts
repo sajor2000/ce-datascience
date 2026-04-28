@@ -3,11 +3,11 @@ import path from "path"
 
 const INVENTORY_SCRIPTS_DIR = path.join(
   __dirname,
-  "../plugins/compound-engineering/skills/ce-session-inventory/scripts"
+  "../plugins/ce-datascience/skills/ce-session-inventory/scripts"
 )
 const EXTRACT_SCRIPTS_DIR = path.join(
   __dirname,
-  "../plugins/compound-engineering/skills/ce-session-extract/scripts"
+  "../plugins/ce-datascience/skills/ce-session-extract/scripts"
 )
 const FIXTURES_DIR = path.join(__dirname, "fixtures/session-history")
 
@@ -678,7 +678,7 @@ describe("discover-sessions", () => {
 
   test("all output lines are .jsonl files", async () => {
     const { stdout, exitCode } = await runDiscover(
-      "compound-engineering-plugin",
+      "ce-datascience-plugin",
       "7"
     )
     expect(exitCode).toBe(0)
@@ -692,7 +692,7 @@ describe("discover-sessions", () => {
 
   test("--platform claude restricts to claude dirs only", async () => {
     const { stdout } = await runDiscover(
-      "compound-engineering-plugin",
+      "ce-datascience-plugin",
       "7",
       "--platform",
       "claude"
@@ -705,7 +705,7 @@ describe("discover-sessions", () => {
 
   test("--platform codex restricts to codex dirs only", async () => {
     const { stdout } = await runDiscover(
-      "compound-engineering-plugin",
+      "ce-datascience-plugin",
       "7",
       "--platform",
       "codex"
@@ -718,7 +718,7 @@ describe("discover-sessions", () => {
 
   test("fails on unknown platform", async () => {
     const { exitCode, stderr } = await runDiscover(
-      "compound-engineering-plugin",
+      "ce-datascience-plugin",
       "7",
       "--platform",
       "windsurf"
