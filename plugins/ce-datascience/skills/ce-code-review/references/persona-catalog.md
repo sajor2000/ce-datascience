@@ -29,6 +29,16 @@ The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's 
 | `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
 | `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
 | `ce-reporting-checklist-reviewer` | `reporting_checklist: true` in stack profile AND a SAP exists. Auto-routes to the correct guideline(s) from the full set: CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, plus AI extensions (REFORMS, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, DEAL, CHART, PDSQI-9) when `ai_involvement` is set |
+| `ce-data-leakage-reviewer` | ML training / evaluation code in diff -- target leakage, train-test contamination, look-ahead bias, normalization fit on test set, subject-in-both-splits |
+| `ce-fairness-reviewer` | prediction-model code AND data has subgroup variables (sex / race / age / site / payer) -- subgroup performance, demographic parity, equalized odds, mitigation plan |
+| `ce-calibration-reviewer` | prediction-model eval code that produces predicted probabilities -- calibration plot, intercept/slope, Brier, ICI, decision-curve analysis (the AUC-only gap) |
+| `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or concept-set YAMLs -- vocabulary version pinning, valid-window honoring, descendant inclusion, era vs occurrence, observation_period |
+| `ce-administrative-data-reviewer` | claims / billing / payer data -- continuous enrollment, look-back, claims truncation, payer mix, place of service, NDC-to-RxNorm, claims-vs-clinical disconnect |
+| `ce-concept-drift-reviewer` | concept sets / code lists used across multiple data waves or years -- ICD-9-to-10 transition, CPT yearly updates, SNOMED concept_id deprecation, vocab refresh drift |
+| `ce-causal-inference-reviewer` | causal-inference code (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target trial) -- DAG, confounder set, time-zero alignment, positivity, estimand, sensitivity analyses |
+| `ce-bioinfo-pipeline-reviewer` | Snakemake / Nextflow / CWL / Bioconductor pipelines -- env pinning, reference pinning, sample-sheet validation, output checksums, caching traps, version traceability |
+| `ce-omics-batch-reviewer` | omics count or beta matrices + downstream differential / clustering / ML -- batch screening, batch-condition confound, blind ComBat, method-data-type mismatch, sample-sheet hygiene |
+| `ce-sprint-audit-reviewer` | dispatched only by `/ce-sprint close`; not selected by code-review directly. Audits planned-vs-actual sprint outputs, scope discipline, reproducibility re-run |
 | `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
 | `ce-performance-reviewer` | DB queries, loop-heavy transforms, caching, async, large-data operations in diff |
 | `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |

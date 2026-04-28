@@ -10,8 +10,8 @@ After installing, run `/ce-setup` in any project. It configures your stack profi
 
 | Component | Count |
 |-----------|-------|
-| Agents | 41 |
-| Skills | 18 |
+| Agents | 55 |
+| Skills | 33 |
 
 ## Skills
 
@@ -31,6 +31,41 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
 | `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians hand to programmers |
 | `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
+| `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
+
+### Biomedical Lifecycle
+
+For the academic paper lifecycle: literature → checklist → cohort → power → SAP → manuscript artifacts.
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-pubmed` | PubMed/MEDLINE search via NCBI E-utilities with MeSH expansion and structured result tables |
+| `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification |
+| `/ce-checklist-match` | Pick the right reporting checklist (CONSORT / STROBE / TRIPOD+AI / etc.) at PLAN time, before SAP drafting |
+| `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes; produces an R or Python script and a SAP-ready paragraph |
+| `/ce-effect-size` | Pool effect-size estimates from prior literature (random-effects REML) into a defensible assumption for `/ce-power` |
+| `/ce-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP |
+| `/ce-model-card` | Generate a Mitchell-style model card for a clinical prediction model, with overall + subgroup performance and ethical considerations |
+
+### EHR & Administrative Data
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
+| `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
+
+### Bioinformatics
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-bioinfo-qc` | Sequencing / omics data QA gate: FastQC / MultiQC / sample swap detection / batch-effect screen for FASTQ, BAM, count matrices, methylation arrays |
+| `/ce-genome-build` | Pin the genome build (GRCh37 / GRCh38 / T2T) and annotation version (GENCODE / Ensembl); audit every output for build consistency |
+
+### ML / AI
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema |
 
 ### Git Workflow
 
@@ -96,6 +131,36 @@ Agents are specialized subagents invoked by skills.
 | `ce-r-pipeline-reviewer` | R analysis pipeline correctness — dplyr logic errors, ggplot2 accessibility, survival analysis, mixed model convergence |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |
 | `ce-kieran-python-reviewer` | General Python code review with strict conventions |
+| `ce-causal-inference-reviewer` | Causal-inference correctness — DAG specification, confounder set, time-zero alignment, positivity, estimand, sensitivity analyses for IPTW / matching / MSM / g-computation / DR / IV / RDD / DiD / target-trial emulation |
+
+### ML / AI Review
+
+| Agent | Description |
+|-------|-------------|
+| `ce-data-leakage-reviewer` | Target leakage, train-test contamination, look-ahead bias in time-series, normalization fit on test set, subject-in-both-splits |
+| `ce-fairness-reviewer` | Subgroup performance auditing (sex / race / age / hospital / payer / language) for clinical prediction models, against TRIPOD+AI and FDA AI/ML guidance |
+| `ce-calibration-reviewer` | Calibration plot, intercept and slope, Brier, ICI, decision-curve analysis -- catches the AUC-only TRIPOD+AI gap |
+
+### EHR & Administrative Data Review
+
+| Agent | Description |
+|-------|-------------|
+| `ce-omop-mapping-reviewer` | OMOP CDM correctness -- vocabulary version pinning, valid_start/valid_end honoring, descendant inclusion, era vs occurrence, observation_period |
+| `ce-administrative-data-reviewer` | Claims-data idiosyncrasies -- continuous enrollment, look-back, claims truncation, payer mix, NDC-to-RxNorm, claims-vs-clinical disconnect |
+| `ce-concept-drift-reviewer` | Vocabulary drift across time -- ICD-9-to-10 transition, CPT yearly updates, SNOMED concept_id deprecation, vocab refresh drift |
+
+### Bioinformatics Review
+
+| Agent | Description |
+|-------|-------------|
+| `ce-bioinfo-pipeline-reviewer` | Snakemake / Nextflow / CWL / Bioconductor pipelines -- env pinning, reference pinning, sample-sheet validation, output checksums, caching traps, version traceability |
+| `ce-omics-batch-reviewer` | Batch-condition confound detection in differential expression / methylation / proteomics; flags blind ComBat / RUV / SVA application |
+
+### Workflow
+
+| Agent | Description |
+|-------|-------------|
+| `ce-sprint-audit-reviewer` | Audits a sprint's planned-vs-actual outputs, scope discipline, and reproducibility re-run; dispatched by `/ce-sprint close` |
 
 ### Code Quality Review
 

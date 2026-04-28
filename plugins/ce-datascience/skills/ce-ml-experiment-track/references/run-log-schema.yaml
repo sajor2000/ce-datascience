@@ -1,0 +1,54 @@
+# Required schema for every committed run log.
+# Files at runs/<run-id>.yaml MUST conform to this schema.
+
+run_id: string                    # UUID; matches backend run id when applicable
+started: ISO8601                  # required
+completed: ISO8601                # required (or "in_progress")
+backend: mlflow|wandb|dvc|offline
+backend_run_id: string            # backend-specific id; null for offline
+study_id: string                  # links run to the SAP / project
+
+params:
+  train_data_sha: string          # SHA-256 of training data file (first 16 chars OK)
+  test_data_sha: string
+  git_sha: string                 # `git rev-parse HEAD` at run start
+  random_seed: integer
+  split_strategy: group|temporal|random
+  model_class: string             # e.g., "lightgbm.LGBMClassifier"
+  hyperparams: map                # model hyperparams as a flat map
+  feature_count: integer
+
+metrics:
+  n_train: integer
+  n_test: integer
+  auc_internal: float
+  auc_internal_ci_lo: float
+  auc_internal_ci_hi: float
+  auc_external: float             # null if no external set
+  brier_score: float
+  calibration_intercept: float
+  calibration_slope: float
+  subgroup_metrics:
+    - subgroup: string            # e.g., "sex_F"
+      n: integer
+      auc: float
+      auc_ci_lo: float
+      auc_ci_hi: float
+      calibration_intercept: float
+      calibration_slope: float
+
+artifacts:
+  - name: model.pkl
+    path: string                  # absolute or repo-relative
+    sha: string
+  - name: eval-results.json
+    path: string
+    sha: string
+  - name: calibration-plot.png
+    path: string
+    sha: string
+
+# Optional but recommended
+notes: string                     # what this run was trying to test
+parent_run_id: string             # for hyperparameter sweeps; the sweep id
+manuscript_candidate: bool        # set true when this run is the one going in the paper

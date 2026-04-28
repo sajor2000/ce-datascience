@@ -130,6 +130,16 @@ Routing rules:
 | `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
 | `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
 | `ce-reporting-checklist-reviewer` | `reporting_checklist: true` in stack profile AND a SAP exists |
+| `ce-data-leakage-reviewer` | ML training/eval code in diff (sklearn, lightgbm, xgboost, pytorch, tensorflow, keras, lifelines, sksurv, tidymodels) |
+| `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
+| `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
+| `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or `analysis/cohort/concept-sets/` in diff |
+| `ce-administrative-data-reviewer` | claims / billing / payer / administrative healthcare data in diff (Medicare, Medicaid, MarketScan, Optum, OMOP claims-flavor) |
+| `ce-concept-drift-reviewer` | concept sets, ICD/CPT/LOINC/SNOMED code lists in diff AND data spans multiple refresh waves or multiple years |
+| `ce-causal-inference-reviewer` | observational analysis with causal aim in diff (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target-trial emulation) |
+| `ce-bioinfo-pipeline-reviewer` | Snakefile / `*.smk` / `*.nf` / `nextflow.config` / `*.cwl` / Bioconductor pipelines / sample-sheet driven scripts in diff |
+| `ce-omics-batch-reviewer` | omics count / beta matrices in diff AND downstream differential or clustering or ML code |
+| `ce-sprint-audit-reviewer` | dispatched by `/ce-sprint close` (not by code review directly) |
 | `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
 | `ce-performance-reviewer` | DB queries, loop-heavy data transforms, caching, async, large-data operations in diff |
 | `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |

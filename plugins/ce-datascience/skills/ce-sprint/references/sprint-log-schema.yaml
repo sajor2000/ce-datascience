@@ -1,0 +1,35 @@
+# sprint-log.yaml schema
+# Lives at analysis/sprints/<name>/sprint-log.yaml
+# One file per sprint. The set of files in analysis/sprints/ IS the audit trail.
+
+sprint:
+  name: string                    # required, unique
+  status: open|closed_pending_signoff|signed_off|abandoned
+  opened: ISO8601                 # required
+  closed: ISO8601                 # set on /ce-sprint close
+  signed_off_at: ISO8601          # set on /ce-sprint sign-off
+  signed_off_by: string           # human name; required to move to signed_off
+  reviewer: string                # named human reviewer; required at open
+
+  scope:
+    sap_sections: [string]        # e.g. ["SAP-3.3", "SAP-3.4"]
+    planned_outputs:              # rows from sap-tables/02-outputs.csv
+      - id: string
+        output_file: string       # path within subfolder
+        subfolder: string         # tables/ figures/ etc.
+        sap_section: string
+
+  entry_criteria:
+    sap_version: string           # from analysis/sap.md frontmatter
+    data_wave_id: string          # from data-state.yaml; must be 'locked'
+    prior_sprint: string          # name of prior sprint, or 'n/a' for first
+
+  audit_reviewer_findings:        # populated on close
+    P0: int
+    P1: int
+    P2: int
+    out_of_scope_edits: [string]  # file paths edited but not in scope
+    missing_outputs: [string]     # planned but not produced
+    extra_outputs: [string]       # produced but not planned
+
+  notes: string                   # optional free text
