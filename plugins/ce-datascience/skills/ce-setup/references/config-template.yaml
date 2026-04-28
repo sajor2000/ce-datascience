@@ -1,12 +1,26 @@
-# CE DataScience -- local config
+# ce-datascience -- local config
 # Copy to .ce-datascience/config.local.yaml in your project root.
-# All settings are optional. Invalid values fall through to defaults.
+# All settings are optional. Uncomment and edit only what you need.
 
-# --- Work delegation (Codex) ---
+# --- Stack profile ---
+# Configure your preferred language, IDE, libraries, and reporting tools.
+# Run /ce-setup to set these interactively.
 
-# work_delegate: codex           # codex | false (default: false)
-# work_delegate_consent: true    # true | false (default: false)
-# work_delegate_sandbox: yolo    # yolo | full-auto (default: yolo)
-# work_delegate_decision: auto   # auto | ask (default: auto)
-# work_delegate_model: gpt-5.4   # any valid codex model (omit to use ~/.codex/config.toml default)
-# work_delegate_effort: high     # minimal | low | medium | high | xhigh (omit to use ~/.codex/config.toml default)
+# stack_profile:
+#   language: python           # r | python | both
+#   ide: vscode                # rstudio | jupyter | marimo | quarto | vscode
+#   data_libraries:
+#     r: [tidyverse]           # tidyverse | data.table
+#     python: [pandas]         # pandas | polars
+#   data_layer: parquet        # parquet | database | fabric
+#   statistical_packages:
+#     r: [stats, survival]     # stats | survival | lme4
+#     python: [scipy]          # scipy | statsmodels | scikit-learn
+#   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
+
+# --- Reporting checklist ---
+# Enable a reporting guideline checklist (STROBE, CONSORT) in generated outputs.
+
+# reporting_checklist:
+#   enabled: false
+#   guideline: null            # strobe | consort

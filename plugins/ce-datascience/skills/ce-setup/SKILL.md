@@ -1,36 +1,251 @@
 ---
 name: ce-setup
-description: "Diagnose and configure ce-datascience environment. Checks CLI dependencies, plugin version, and repo-local config. Offers guided installation for missing tools. Use when troubleshooting missing tools, verifying setup, or before onboarding."
+description: "Configure data science stack profile and diagnose environment. Prompts for language (R/Python/both), IDE, data libraries, statistical packages, and reporting framework. Detects existing config and offers modification. Use when setting up a new project, switching tools, or troubleshooting environment."
 disable-model-invocation: true
 ---
 
-# CE DataScience Setup
+# Data Science Environment Setup
 
 ## Interaction Method
 
-Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip or auto-configure. For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
+Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) -- not because a schema load is required. Never silently skip or auto-configure. For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
 
-Interactive setup for ce-datascience — diagnoses environment health, cleans obsolete repo-local CE config, and helps configure required tools. Review agent selection is handled automatically by `ce-code-review`; project-specific review guidance belongs in `CLAUDE.md` or `AGENTS.md`.
+Interactive setup for ce-datascience -- configures the stack profile for R/Python data science workflows, diagnoses environment health, and bootstraps project-local config.
 
-## Phase 1: Diagnose
+## Phase 0: Detect Existing Config
 
-### Step 1: Determine Plugin Version
+**Config detection (pre-resolved):** !`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
 
-Detect the installed ce-datascience plugin version by reading the plugin metadata or manifest. This is platform-specific -- use whatever mechanism is available (e.g., reading `plugin.json` from the plugin root or cache directory). If the version cannot be determined, skip this step.
+If the line above resolved to valid YAML (not `__NO_CONFIG__`), an existing config was found. Parse the current `stack_profile` values and display them:
 
-If a version is found, pass it to the check script via `--version`. Otherwise omit the flag.
+```
+Existing stack profile detected:
+  Language:   python
+  IDE:        vscode
+  Libraries:  pandas
+  Data layer: parquet
+  Stats:      scipy, statsmodels
+  Reporting:  jupyter
 
-### Step 2: Run the Health Check Script
+What would you like to do?
 
-Before running the script, display: "CE DataScience -- checking your environment..."
-
-Run the bundled check script. Do not perform manual dependency checks -- the script handles all CLI tools, agent skills, repo-local CE file checks, and `.gitignore` guidance in one pass.
-
-```bash
-bash scripts/check-health --version VERSION
+1. Modify this profile
+2. Start fresh (reconfigure from scratch)
+3. Skip profile setup -- run environment check only
 ```
 
-Or without version if Step 1 could not determine it:
+If the user selects "Modify this profile", proceed to Phase 1 but pre-fill each question with the current value as the default. If "Start fresh", proceed to Phase 1 with no defaults. If "Skip", jump to Phase 2.
+
+If `__NO_CONFIG__`, this is a first-time setup. Display: "No stack profile found. Let's configure your data science environment." Proceed to Phase 1.
+
+## Phase 1: Stack Profile Configuration
+
+Walk through each question in sequence. The answer to each question determines the options shown for subsequent questions.
+
+### Step 1: Language
+
+```
+What is your primary analysis language?
+
+1. R
+2. Python
+3. Both (polyglot projects)
+```
+
+Store the selection as `stack_profile.language`.
+
+### Step 2: IDE
+
+Present IDE options relevant to the selected language.
+
+For R or both:
+```
+What is your primary development environment?
+
+1. RStudio
+2. VS Code
+3. Quarto (VS Code or RStudio)
+```
+
+For Python or both:
+```
+What is your primary development environment?
+
+1. JupyterLab / Jupyter Notebook
+2. VS Code
+3. Marimo
+4. Quarto
+```
+
+For "both", combine all unique options (RStudio, JupyterLab, VS Code, Marimo, Quarto) and present as a numbered list in chat since the list exceeds 4 items. Include a hint: "Pick a number or describe what you want."
+
+Store the selection as `stack_profile.ide`.
+
+### Step 3: Data Libraries
+
+Present library options based on the selected language. Use a multiSelect question.
+
+For R:
+```
+Which data libraries do you use? (select all that apply)
+
+1. tidyverse (dplyr, ggplot2, tidyr, readr, purrr, etc.)
+2. data.table
+```
+
+For Python:
+```
+Which data libraries do you use? (select all that apply)
+
+1. pandas
+2. polars
+```
+
+For "both", ask the R question first, then the Python question.
+
+Store selections as `stack_profile.data_libraries`.
+
+### Step 4: Data Layer
+
+```
+What is your primary data storage layer?
+
+1. Parquet files (local or cloud)
+2. SQL database (PostgreSQL, SQLite, DuckDB, etc.)
+3. Microsoft Fabric / Spark
+```
+
+Store the selection as `stack_profile.data_layer`.
+
+### Step 5: Statistical Packages
+
+Present package options based on the selected language. Use a multiSelect question.
+
+For R:
+```
+Which statistical packages do you use? (select all that apply)
+
+1. stats (base R)
+2. survival
+3. lme4 (mixed models)
+```
+
+For Python:
+```
+Which statistical packages do you use? (select all that apply)
+
+1. scipy
+2. statsmodels
+3. scikit-learn
+```
+
+For "both", ask the R question first, then the Python question.
+
+Store selections as `stack_profile.statistical_packages`.
+
+### Step 6: Reporting Framework
+
+Present options based on the selected language.
+
+For R:
+```
+What reporting framework do you prefer?
+
+1. Quarto (.qmd)
+2. R Markdown (.Rmd)
+```
+
+For Python:
+```
+What reporting framework do you prefer?
+
+1. Jupyter notebooks (.ipynb)
+2. Quarto (.qmd)
+3. Marimo
+```
+
+For "both":
+```
+What reporting framework do you prefer?
+
+1. Quarto (.qmd) -- works with both R and Python
+2. R Markdown (.Rmd)
+3. Jupyter notebooks (.ipynb)
+4. Marimo
+```
+
+Store the selection as `stack_profile.reporting`.
+
+### Step 7: Golden Path Check
+
+After collecting all answers, check whether the combination matches a golden path:
+
+- **Golden path 1:** R + tidyverse + Quarto
+- **Golden path 2:** Python + pandas + Jupyter
+
+If the combination matches a golden path, display:
+
+```
+Your stack matches a golden path configuration -- all skills will generate
+optimized code for this combination.
+```
+
+If the combination does NOT match a golden path, display a warning (do not block):
+
+```
+Note: Your configuration is supported but is not a golden path combination.
+Golden paths (R+tidyverse+Quarto and Python+pandas+Jupyter) have the most
+optimized templates. Skills will still generate code for your setup, but
+some templates may require minor adjustments.
+```
+
+### Step 8: Reporting Checklist (Optional)
+
+```
+Enable a reporting guideline checklist in generated outputs?
+
+1. No (skip)
+2. STROBE (observational studies)
+3. CONSORT (randomized trials)
+```
+
+Store the selection as `reporting_checklist.enabled` and `reporting_checklist.guideline`.
+
+### Step 9: Save Config
+
+Resolve the repository root (`git rev-parse --show-toplevel`). All paths are relative to the repo root.
+
+Build the YAML content from the collected answers. Only include non-null values. Write to `<repo-root>/.ce-datascience/config.local.yaml`, creating the directory if needed.
+
+If `.ce-datascience/config.local.yaml` is not already covered by `.gitignore`, offer to add the entry:
+
+```text
+.ce-datascience/*.local.yaml
+```
+
+Display the saved config summary:
+
+```
+Stack profile saved to .ce-datascience/config.local.yaml
+
+  Language:   python
+  IDE:        vscode
+  Libraries:  pandas
+  Data layer: parquet
+  Stats:      scipy, statsmodels
+  Reporting:  jupyter
+  Checklist:  none
+
+Run /ce-setup anytime to modify.
+```
+
+## Phase 2: Environment Health Check
+
+### Step 10: Run Diagnostics
+
+Display: "ce-datascience -- checking your environment..."
+
+Run the bundled health check script:
 
 ```bash
 bash scripts/check-health
@@ -40,125 +255,77 @@ Script reference: `scripts/check-health`
 
 Display the script's output to the user.
 
-### Step 3: Evaluate Results
+### Step 11: Evaluate Results
 
 **Platform detection (pre-resolved):** !`[ -n "${CLAUDE_PLUGIN_ROOT}" ] && echo "CLAUDE_CODE" || echo "OTHER"`
 
-If the line above resolved to `CLAUDE_CODE`, this is a Claude Code session and `/ce-update` is available. Otherwise, omit any `/ce-update` references from output.
-
 After the diagnostic report, check whether:
 
-- any CLI tools are missing (reported as yellow in the Tools section)
-- any agent skills are missing (reported as yellow in the Skills section)
-- `ce-datascience.local.md` is present and needs cleanup
+- any tools are missing (reported as yellow in the output)
 - `.ce-datascience/config.local.yaml` does not exist or is not safely gitignored
-- `.ce-datascience/config.local.example.yaml` is missing or outdated
 
-If everything is installed, no repo-local cleanup is needed, and `.ce-datascience/config.local.yaml` already exists and is gitignored, display the tool and skill list and completion message. Parse the tool and skill names from the script output and list each with a green circle. Omit the Skills line if the Skills section is absent from the script output:
-
-```
- ✅ CE DataScience setup complete
-
-    Tools:  🟢 agent-browser  🟢 gh  🟢 jq  🟢 vhs  🟢 silicon  🟢 ffmpeg  🟢 ast-grep
-    Skills: 🟢 ast-grep
-    Config: ✅
-
-    Run /ce-setup anytime to re-check.
-```
-
-If this is a Claude Code session, append to the message: "Run /ce-update to grab the latest plugin version."
-
-Stop here.
-
-Otherwise proceed to Phase 2 to resolve any issues. Handle repo-local cleanup (Step 4) first, then config bootstrapping (Step 5), then missing dependencies (Step 6).
-
-## Phase 2: Fix
-
-### Step 4: Resolve Repo-Local CE Issues
-
-Resolve the repository root (`git rev-parse --show-toplevel`). If `ce-datascience.local.md` exists at the repo root, explain that it is obsolete because review-agent selection is automatic and CE now uses `.ce-datascience/config.local.yaml` for any surviving machine-local state. Ask whether to delete it now. Use the repo-root path when deleting.
-
-### Step 5: Bootstrap Project Config
-
-Resolve the repository root (`git rev-parse --show-toplevel`). All paths below are relative to the repo root, not the current working directory.
-
-**Example file (always refresh):** Copy `references/config-template.yaml` to `<repo-root>/.ce-datascience/config.local.example.yaml`, creating the directory if needed. This file is committed to the repo and always overwritten with the latest template so teammates can see available settings.
-
-**Local config (create once):** If `.ce-datascience/config.local.yaml` does not exist, ask whether to create it:
+If everything is installed and config is present:
 
 ```
-Set up a local config file for this project?
-This saves your CE DataScience preferences (like which tools to use and how workflows behave).
-Everything starts commented out -- you only enable what you need.
+ ✅ ce-datascience setup complete
 
-1. Yes, create it (Recommended)
-2. No thanks
+    Language:  python
+    IDE:       vscode
+    Reporting: jupyter
+    Config:    ✅
+
+    Run /ce-setup anytime to reconfigure.
 ```
 
-If the user approves, copy `references/config-template.yaml` to `<repo-root>/.ce-datascience/config.local.yaml`. If `.ce-datascience/config.local.yaml` is not already covered by `.gitignore`, offer to add the entry:
+If this is a Claude Code session (resolved to `CLAUDE_CODE`), append: "Run /ce-update to grab the latest plugin version."
 
-```text
-.ce-datascience/*.local.yaml
-```
+If issues were found, proceed to Phase 3.
 
-If the local config already exists, check whether it is safely gitignored. If not, offer to add the `.gitignore` entry as above.
+## Phase 3: Fix Missing Dependencies
 
-### Step 6: Offer Installation
+### Step 12: Offer Installation
 
-Present the missing tools and skills using a multiSelect question with all items pre-selected. Use the install commands and URLs from the script's diagnostic output. Group items under `Tools:` and `Skills:` so the user can see which runtime each item targets; omit a group whose items are all installed.
+Present missing tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output.
 
 ```
-The following items are missing. Select which to install:
+The following tools are missing. Select which to install:
 (All items are pre-selected)
 
-Tools:
-  [x] agent-browser - Browser automation for testing and screenshots
-  [x] gh - GitHub CLI for issues and PRs
+  [x] R - R language runtime
+  [x] python3 - Python 3 runtime
+  [x] quarto - Quarto CLI for literate programming
   [x] jq - JSON processor
-  [x] vhs (charmbracelet/vhs) - Create GIFs from CLI output
-  [x] silicon (Aloxaf/silicon) - Generate code screenshots
-  [x] ffmpeg - Video processing for feature demos
-  [x] ast-grep - Structural code search using AST patterns
-
-Skills:
-  [x] ast-grep - Agent skill for structural code search with ast-grep
 ```
 
-Only show items that are actually missing. Omit installed ones.
+Only show items that are actually missing.
 
-### Step 7: Install Selected Dependencies
+### Step 13: Install Selected Dependencies
 
-For each selected dependency, in order:
+For each selected dependency:
 
-1. **Show the install command** (from the diagnostic output) and ask for approval:
+1. Show the install command and ask for approval:
 
    ```
-   Install agent-browser?
-   Command: CI=true npm install -g agent-browser --no-audit --no-fund --loglevel=error && agent-browser install && npx skills add https://github.com/vercel-labs/agent-browser --skill agent-browser -g -y
+   Install quarto?
+   Command: NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto
 
    1. Run this command
-   2. Skip - I'll install it manually
+   2. Skip -- install manually later
    ```
 
-2. **If approved:** Run the install command using a shell execution tool. After the command completes, verify installation:
-   - For a CLI tool, run the dependency's check command (e.g., `command -v agent-browser`).
-   - For an agent skill, prefer `npx --yes skills list --global --json | jq -r '.[].name' | grep -qx <skill-name>` when `npx` is available; otherwise fall back to checking that `~/.claude/skills/<skill-name>` exists (file, directory, or symlink).
+2. If approved, run the command. After completion, verify with `command -v <tool>`.
 
-3. **If verification succeeds:** Report success.
+3. If verification succeeds, report success. If it fails or errors, display the project URL as fallback and continue.
 
-4. **If verification fails or install errors:** Display the project URL as fallback and continue to the next dependency.
-
-### Step 8: Summary
-
-Display a brief summary:
+### Step 14: Summary
 
 ```
- ✅ CE DataScience setup complete
+ ✅ ce-datascience setup complete
 
-    Installed: agent-browser, gh, jq
-    Skipped:   rtk
+    Installed: quarto, jq
+    Skipped:   R
 
     Run /ce-setup anytime to re-check.
 ```
 
-If this is a Claude Code session (per platform detection in Step 3), append: "Run /ce-update to grab the latest plugin version."
+If this is a Claude Code session, append: "Run /ce-update to grab the latest plugin version."

@@ -1,0 +1,60 @@
+# Stack Profile Template
+# Schema for .ce-datascience/config.local.yaml
+#
+# This file defines the available options for each stack profile field.
+# The ce-setup skill uses this as a reference when prompting users
+# and validating their selections.
+#
+# Golden paths (tested, fully supported):
+#   - R + tidyverse + Quarto
+#   - Python + pandas + Jupyter
+#
+# Other combinations work but may lack optimized templates.
+
+# .ce-datascience/config.local.yaml
+stack_profile:
+  # Primary analysis language
+  # r       - R only
+  # python  - Python only
+  # both    - R and Python (polyglot projects)
+  language: r | python | both
+
+  # Development environment
+  # rstudio  - RStudio IDE
+  # jupyter  - JupyterLab / Jupyter Notebook
+  # marimo   - Marimo reactive notebooks
+  # quarto   - Quarto documents (VS Code or RStudio)
+  # vscode   - Visual Studio Code
+  ide: rstudio | jupyter | marimo | quarto | vscode
+
+  # Data manipulation libraries
+  data_libraries:
+    r: [tidyverse, data.table]
+    python: [pandas, polars]
+
+  # Data storage layer
+  # parquet   - Local parquet files
+  # database  - SQL database (PostgreSQL, SQLite, DuckDB, etc.)
+  # fabric    - Microsoft Fabric / Spark
+  data_layer: parquet | database | fabric
+
+  # Statistical and modeling packages
+  statistical_packages:
+    r: [stats, survival, lme4]
+    python: [scipy, statsmodels, scikit-learn]
+
+  # Reporting and output framework
+  # quarto    - Quarto documents (.qmd)
+  # rmarkdown - R Markdown (.Rmd)
+  # marimo    - Marimo notebooks
+  # jupyter   - Jupyter notebooks (.ipynb)
+  reporting: quarto | rmarkdown | marimo | jupyter
+
+# Optional reporting checklist integration
+reporting_checklist:
+  # Enable reporting guideline checklist in generated outputs
+  enabled: false
+  # Reporting guideline to follow
+  # strobe  - STrengthening the Reporting of OBservational studies in Epidemiology
+  # consort - CONsolidated Standards of Reporting Trials
+  guideline: null  # strobe | consort
