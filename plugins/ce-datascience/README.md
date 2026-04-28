@@ -10,7 +10,7 @@ After installing, run `/ce-setup` in any project. It configures your stack profi
 
 | Component | Count |
 |-----------|-------|
-| Agents | 33 |
+| Agents | 40 |
 | Skills | 16 |
 
 ## Skills
@@ -61,7 +61,19 @@ Agents are specialized subagents invoked by skills.
 
 | Agent | Description |
 |-------|-------------|
-| `ce-kieran-python-reviewer` | Python data science code review with strict conventions |
+| `ce-methods-reviewer` | Statistical test selection and assumption verification |
+| `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting |
+| `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
+| `ce-reporting-checklist-reviewer` | STROBE/CONSORT reporting guideline compliance (opt-in) |
+| `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code |
+| `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
+| `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |
+| `ce-kieran-python-reviewer` | General Python code review with strict conventions |
+
+### Code Quality Review
+
+| Agent | Description |
+|-------|-------------|
 | `ce-correctness-reviewer` | Logic errors, edge cases, state bugs |
 | `ce-maintainability-reviewer` | Coupling, complexity, naming, dead code |
 | `ce-performance-oracle` | Performance analysis and optimization |
