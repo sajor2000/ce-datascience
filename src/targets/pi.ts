@@ -17,13 +17,15 @@ import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
 import { cleanupStaleAgents } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
 
-const PI_AGENTS_BLOCK_START = "<!-- BEGIN COMPOUND PI TOOL MAP -->"
-const PI_AGENTS_BLOCK_END = "<!-- END COMPOUND PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_END = "<!-- END CE DATASCIENCE PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_START_PREV = "<!-- BEGIN COMPOUND PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_END_PREV = "<!-- END COMPOUND PI TOOL MAP -->"
 const PI_INSTALL_MANIFEST = "install-manifest.json"
 
-const PI_AGENTS_BLOCK_BODY = `## Compound Engineering (Pi compatibility)
+const PI_AGENTS_BLOCK_BODY = `## CE DataScience (Pi compatibility)
 
-This block is managed by compound-plugin.
+This block is managed by ce-datascience.
 
 Pi extensions used by this plugin:
 - Required: \`pi-subagents\` (by nicobailon) provides the \`subagent\` tool used by skills that dispatch parallel agents
@@ -198,12 +200,20 @@ function buildPiAgentsBlock(): string {
 }
 
 function upsertBlock(existing: string, block: string): string {
-  const startIndex = existing.indexOf(PI_AGENTS_BLOCK_START)
-  const endIndex = existing.indexOf(PI_AGENTS_BLOCK_END)
+  // Check for both new and legacy markers
+  const startIdx = existing.indexOf(PI_AGENTS_BLOCK_START)
+  const endIdx = existing.indexOf(PI_AGENTS_BLOCK_END)
+  const prevStartIdx = existing.indexOf(PI_AGENTS_BLOCK_START_PREV)
+  const prevEndIdx = existing.indexOf(PI_AGENTS_BLOCK_END_PREV)
+
+  // Prefer new markers, fall back to legacy markers
+  const startIndex = startIdx !== -1 ? startIdx : prevStartIdx
+  const endMarker = startIdx !== -1 ? PI_AGENTS_BLOCK_END : PI_AGENTS_BLOCK_END_PREV
+  const endIndex = startIdx !== -1 ? endIdx : prevEndIdx
 
   if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
     const before = existing.slice(0, startIndex).trimEnd()
-    const after = existing.slice(endIndex + PI_AGENTS_BLOCK_END.length).trimStart()
+    const after = existing.slice(endIndex + endMarker.length).trimStart()
     return [before, block, after].filter(Boolean).join("\n\n") + "\n"
   }
 

@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "ce-datascience": {
-      "type": "http",
-      "url": "https://mcp.ce-datascience.dev/sse",
-      "description": "Compound engineering for computational scientists: agentic tools for literature search, SAP tracking, reporting compliance, and compound learning"
+      "type": "stdio",
+      "command": "python3",
+      "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"],
+      "description": "Compound engineering for computational scientists: literature search, SAP tracking, reporting compliance, and compound learning"
     }
   }
 }

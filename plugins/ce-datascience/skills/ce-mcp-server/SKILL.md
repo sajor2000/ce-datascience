@@ -8,47 +8,82 @@ argument-hint: "[install|status|tools]"
 
 Register and manage the ce-datascience MCP server for IDE-agnostic deployment. This skill exposes key ce-datascience capabilities as MCP tools that any MCP-compatible IDE can invoke.
 
+The server runs as a **local stdio process** — no remote deployment needed. The IDE spawns the server as a child process and communicates via the MCP protocol.
+
+## Prerequisites
+
+- Python 3.10+ with `fastmcp`, `ruamel.yaml`, and `pydantic` installed
+- Install dependencies:
+
+```bash
+pip install fastmcp ruamel.yaml pydantic
+```
+
 ## Setup
 
 ### Claude Code
 
 ```bash
-droid mcp add ce-datascience https://mcp.ce-datascience.dev/mcp --type http
+droid mcp add ce-datascience -- python3 plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py
 ```
 
-Or manually add to `.mcp.json`:
+Or manually add to `.mcp.json` in your project root:
 
 ```json
 {
   "mcpServers": {
     "ce-datascience": {
-      "type": "http",
-      "url": "https://mcp.ce-datascience.dev/mcp",
-      "description": "Compound engineering for computational scientists"
+      "type": "stdio",
+      "command": "python3",
+      "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"]
     }
   }
 }
 ```
 
-### Cursor / Windsurf / VS Code + Cline
+### Cursor / Windsurf
 
-Add the server URL to your IDE's MCP configuration:
+Add to your IDE's MCP configuration (e.g., `.cursor/mcp.json` or Windsurf settings):
 
 ```json
 {
   "ce-datascience": {
-    "url": "https://mcp.ce-datascience.dev/mcp",
-    "description": "Compound engineering for computational scientists"
+    "command": "python3",
+    "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"]
   }
 }
 ```
+
+### VS Code + Cline
+
+Add to `cline_mcp_settings.json`:
+
+```json
+{
+  "ce-datascience": {
+    "command": "python3",
+    "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"],
+    "disabled": false
+  }
+}
+```
+
+**Note on installed paths:** The `args` path above works from a repo checkout. When the plugin is installed via `ce-datascience install --to codex` or `--to pi`, skills are copied to platform-specific locations and the MCP server path changes:
+
+| Platform | MCP server path |
+|----------|----------------|
+| Claude Code (repo) | `plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py` |
+| Codex (`~/.codex`) | `skills/ce-mcp-server/mcp_server/run.py` (relative to `~/.codex/ce-datascience/`) |
+| Pi (`~/.pi/agent`) | `skills/ce-mcp-server/mcp_server/run.py` (relative to `~/.pi/agent/`) |
+
+For Codex and Pi, update the MCP server path in your config to match the installed location.
 
 ## Available MCP Tools
 
 | Tool | Description |
 |------|-------------|
 | `literature_search` | Search scientific papers via Google Scholar, Crossref, SciHub. Returns structured results with BibTeX. |
-| `stack_profile_configure` | Read/write the `.ce-datascience/config.local.yaml` stack profile for R/Python/library settings. |
+| `stack_profile` | Read/write the `.ce-datascience/config.local.yaml` stack profile for R/Python/library settings. |
 | `sap_create` | Generate a Statistical Analysis Plan from study metadata using the SAP template with stable SAP-N.M identifiers. |
 | `sap_drift_check` | Detect structural and semantic drift between a SAP and the current analysis code. |
 | `reporting_compliance_check` | Run study-type-aware reporting guideline compliance check against the 16 supported guidelines. |
@@ -62,25 +97,28 @@ Add the server URL to your IDE's MCP configuration:
 ```json
 {
   "query": "PICO/PECO research question or keywords",
+  "doi": "",
   "min_year": 2018,
-  "max_citations": null,
   "scholar_pages": 3,
-  "doi": null,
+  "max_citations": null,
   "output_dir": null
 }
 ```
 
 **Output:** Structured paper list with title, authors, year, journal, DOI, citation count, and BibTeX.
 
-### stack_profile_configure
+### stack_profile
 
 **Input:**
 ```json
 {
-  "action": "read" | "write",
-  "language": "r" | "python" | "both",
-  "ide": "rstudio" | "jupyter" | "marimo" | "quarto" | "vscode",
-  "reporting": "quarto" | "rmarkdown" | "marimo" | "jupyter"
+  "action": "read | write",
+  "language": "r | python | both",
+  "ide": "rstudio | jupyter | marimo | quarto | vscode",
+  "environment_manager_r": "renv | packrat | none",
+  "environment_manager_python": "venv | conda | poetry | pixi | none",
+  "r_project_type": "script | package | shiny | plumber | targets",
+  "reporting": "quarto | rmarkdown | marimo | jupyter"
 }
 ```
 
@@ -91,61 +129,63 @@ Add the server URL to your IDE's MCP configuration:
 **Input:**
 ```json
 {
-  "study_type": "rct" | "observational" | "diagnostic" | "systematic_review",
+  "study_type": "observational | rct | systematic-review | diagnostic-accuracy | ...",
   "title": "Study title",
   "population": "Study population description",
   "primary_outcome": "Primary endpoint",
-  "ai_involvement": false
+  "ai_involvement": "none | ai-assisted | ai-primary | llm-based",
+  "output_path": "analysis/sap.md"
 }
 ```
 
-**Output:** Structured SAP markdown with SAP-N.M section identifiers.
+**Output:** SAP file path and summary.
 
 ### sap_drift_check
 
 **Input:**
 ```json
 {
-  "sap_path": "docs/plans/sap.md",
-  "analysis_dir": "src/"
+  "sap_path": "analysis/sap.md",
+  "analysis_dir": ""
 }
 ```
 
-**Output:** Drift report listing SAP sections with missing, divergent, or extra analysis code.
+**Output:** Drift report listing SAP sections with missing, found, or extra analysis code.
 
 ### reporting_compliance_check
 
 **Input:**
 ```json
 {
-  "study_type": "rct" | "observational" | "diagnostic" | "systematic_review" | ...,
-  "manuscript_path": "docs/manuscript.md",
-  "guideline": "consort" | "strobe" | null
+  "study_type": "rct | observational | systematic-review | diagnostic-accuracy | ...",
+  "guideline": "consort | strobe | prisma | ...",
+  "manuscript_path": "docs/manuscript.md"
 }
 ```
 
-**Output:** Compliance checklist with pass/fail/warning per guideline item.
+**Output:** Compliance checklist with applicable guideline items.
 
 ### compound_learning
 
 **Input:**
 ```json
 {
-  "action": "read" | "write",
-  "problem_type": "methods_decision" | "statistical_pattern" | "data_quality_issue" | "reporting_convention",
+  "action": "read | write",
+  "problem_type": "methods_decision | statistical_pattern | data_quality_issue | reproducibility_pattern | literature_pattern | ...",
   "title": "Learning title",
-  "content": "Learning content (markdown)"
+  "content": "Learning content (markdown)",
+  "module": "Module or area affected",
+  "component": "statistical_analysis | reproducibility | ...",
+  "tags": "comma-separated keywords"
 }
 ```
 
-**Output:** Confirmation or matching entries from `docs/solutions/`.
+**Output:** Matching entries (read) or write confirmation.
 
-## Offline / Local Mode
+## Fallback: Slash Commands
 
-When the remote MCP server is unavailable, the tools fall back to local execution using the skill scripts and templates bundled with the plugin. The MCP server is a convenience layer for IDEs that prefer the MCP protocol over slash commands — both paths produce the same results.
-
-To use offline, invoke the corresponding skills directly:
+When MCP is not available in your IDE, invoke the corresponding skills directly:
 - `/ce-literature-search` instead of `literature_search`
-- `/ce-setup` instead of `stack_profile_configure`
+- `/ce-setup` instead of `stack_profile`
 - `/ce-plan` (SAP mode) instead of `sap_create`
 - `/ce-code-review` with SAP drift agent instead of `sap_drift_check`

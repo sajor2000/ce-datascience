@@ -1,0 +1,13 @@
+[project]
+name = "ce-datascience-mcp"
+version = "0.1.0"
+description = "Local MCP server for CE DataScience — literature search, stack profile, SAP, reporting compliance, and compound learning tools"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=2.0",
+    "ruamel.yaml>=0.18",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+ce-datascience-mcp = "mcp_server:main"
