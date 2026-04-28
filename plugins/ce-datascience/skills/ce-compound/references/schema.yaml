@@ -23,7 +23,7 @@ tracks:
       - integration_issue
       - logic_error
   knowledge:
-    description: "Practices, patterns, conventions, decisions, workflow improvements, and documentation"
+    description: "Practices, patterns, conventions, decisions, workflow improvements, statistical methods, and documentation"
     problem_types:
       - best_practice
       - documentation_gap
@@ -33,6 +33,11 @@ tracks:
       - design_pattern
       - tooling_decision
       - convention
+      - methods_decision
+      - statistical_pattern
+      - data_quality_issue
+      - reporting_convention
+      - reproducibility_pattern
 
 # --- Fields required by BOTH tracks -----------------------------------------
 required_fields:
@@ -65,26 +70,27 @@ required_fields:
       - design_pattern
       - tooling_decision
       - convention
+      - methods_decision
+      - statistical_pattern
+      - data_quality_issue
+      - reporting_convention
+      - reproducibility_pattern
     description: "Primary category — determines track (bug vs knowledge). Prefer the narrowest applicable value; best_practice is the fallback when no narrower knowledge-track value fits."
 
   component:
     type: enum
     values:
-      - rails_model
-      - rails_controller
-      - rails_view
-      - service_object
-      - background_job
-      - database
-      - frontend_stimulus
-      - hotwire_turbo
-      - email_processing
-      - brief_system
-      - assistant
-      - authentication
-      - payments
-      - development_workflow
-      - testing_framework
+      - data_ingestion
+      - data_cleaning
+      - feature_engineering
+      - statistical_analysis
+      - model_training
+      - model_evaluation
+      - visualization
+      - reporting
+      - reproducibility
+      - data_pipeline
+      - environment_setup
       - documentation
       - tooling
     description: "Component involved"
@@ -127,6 +133,12 @@ track_rules:
           - inadequate_documentation
           - missing_tooling
           - incomplete_setup
+          - data_quality_issue
+          - wrong_statistical_test
+          - assumption_violation
+          - data_leakage
+          - missing_seed
+          - unversioned_dependency
         description: "Fundamental technical cause of the problem"
       resolution_type:
         type: enum
@@ -173,6 +185,12 @@ track_rules:
           - inadequate_documentation
           - missing_tooling
           - incomplete_setup
+          - data_quality_issue
+          - wrong_statistical_test
+          - assumption_violation
+          - data_leakage
+          - missing_seed
+          - unversioned_dependency
         description: "Underlying cause, if there is a specific one (optional for knowledge track)"
       resolution_type:
         type: enum
@@ -200,13 +218,6 @@ optional_fields:
     max_items: 8
     description: "Search keywords, lowercase and hyphen-separated"
 
-# --- Fields optional for bug track only -------------------------------------
-bug_optional_fields:
-  rails_version:
-    type: string
-    pattern: '^\d+\.\d+\.\d+$'
-    description: "Rails version in X.Y.Z format. Only relevant for bug-track docs."
-
 # --- Backward compatibility --------------------------------------------------
 # Docs created before the track system was introduced may have bug-track
 # fields (symptoms, root_cause, resolution_type) on knowledge-type
@@ -226,6 +237,5 @@ validation_rules:
   - "Enum fields must match allowed values exactly"
   - "Array fields must respect min_items/max_items when specified"
   - "date must match YYYY-MM-DD format"
-  - "rails_version, if provided, must match X.Y.Z format and only applies to bug-track docs"
   - "tags should be lowercase and hyphen-separated"
   - "Array-of-strings frontmatter items (symptoms, applies_when, tags, related_components, or any future array field) must be wrapped in double quotes when the value starts with a YAML reserved indicator (`, [, *, &, !, |, >, %, @, ?) or contains the substring `: ` — otherwise strict YAML parsers reject the file"

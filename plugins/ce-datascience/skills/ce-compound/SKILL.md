@@ -1,6 +1,6 @@
 ---
 name: ce-compound
-description: Document a recently solved problem to compound your team's knowledge
+description: "Document validated analytical approaches, statistical decisions, and domain methods to compound your team's data science knowledge"
 ---
 
 # /ce-compound
@@ -133,7 +133,7 @@ Launch research subagents. Each returns text data to the orchestrator.
    - **What Didn't Work**: Failed investigation attempts and why they failed
    - **Solution**: The actual fix with code examples (before/after when applicable)
    - **Why This Works**: Root cause explanation and why the solution addresses it
-   - **Prevention**: Strategies to avoid recurrence, best practices, and test cases. Include concrete code examples where applicable (e.g., gem configurations, test assertions, linting rules)
+   - **Prevention**: Strategies to avoid recurrence, best practices, and test cases. Include concrete code examples where applicable (e.g., validation checks, reproducibility configurations, dependency pinning)
 
    **Knowledge track output sections:**
 
@@ -273,10 +273,10 @@ When invoking or recommending `ce-compound-refresh`, be explicit about the argum
 
 Examples:
 
-- `/ce-compound-refresh plugin-versioning-requirements`
-- `/ce-compound-refresh payments`
-- `/ce-compound-refresh performance-issues`
-- `/ce-compound-refresh critical-patterns`
+- `/ce-compound-refresh sofa-score-calculation`
+- `/ce-compound-refresh statistical-patterns`
+- `/ce-compound-refresh data-quality-issues`
+- `/ce-compound-refresh reproducibility-patterns`
 
 A single scope hint may still expand to multiple related docs when the change is cross-cutting within one domain, category, or pattern area.
 
@@ -307,14 +307,14 @@ After the learning is written and the refresh decision is made, check whether th
 
       When there's an existing directory listing or architecture section — add a line:
       ```
-      docs/solutions/  # documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (module, tags, problem_type)
+      docs/solutions/  # documented solutions to past problems (bugs, statistical methods, data quality patterns), organized by category with YAML frontmatter (module, tags, problem_type)
       ```
 
       When nothing in the file is a natural fit — a small headed section is appropriate:
       ```
       ## Documented Solutions
 
-      `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
+      `docs/solutions/` — documented solutions to past problems (bugs, statistical methods, data quality patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
       ```
    c. In full mode, explain to the user why this matters — agents working in this repo (including fresh sessions, other tools, or collaborators without the plugin) won't know to check `docs/solutions/` unless the instruction file surfaces it. Show the proposed change and where it would go, then use the platform's blocking question tool to get consent before making the edit: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting the proposal in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question. In lightweight mode, output a one-liner note and move on
 
@@ -326,14 +326,14 @@ After the learning is written and the refresh decision is made, check whether th
 
 Based on problem type, optionally invoke specialized agents to review the documentation:
 
-- **performance_issue** → `ce-performance-oracle`
-- **security_issue** → `ce-security-sentinel`
-- **database_issue** → `ce-data-integrity-guardian`
-- Any code-heavy issue → always run `ce-code-simplicity-reviewer`, and additionally run the kieran reviewer that matches the repo's primary stack:
-  - Ruby/Rails → also run `ce-kieran-rails-reviewer`
-  - Python → also run `ce-kieran-python-reviewer`
-  - TypeScript/JavaScript → also run `ce-kieran-typescript-reviewer`
-  - Other stacks → no kieran reviewer needed
+- **performance_issue** -> `ce-performance-oracle`
+- **security_issue** -> `ce-security-sentinel`
+- **database_issue** -> `ce-data-integrity-guardian`
+- Any code-heavy issue -> always run `ce-code-simplicity-reviewer`, and additionally run the kieran reviewer that matches the repo's primary stack:
+  - Python -> also run `ce-kieran-python-reviewer`
+  - R -> also run `ce-kieran-r-reviewer`
+  - TypeScript/JavaScript -> also run `ce-kieran-typescript-reviewer`
+  - Other stacks -> no kieran reviewer needed
 
 </parallel_tasks>
 
@@ -359,7 +359,7 @@ The orchestrator (main conversation) performs ALL of the following in one sequen
 
 **Lightweight output:**
 ```
-✓ Documentation complete (lightweight mode)
+Completed: Documentation complete (lightweight mode)
 
 File created:
 - docs/solutions/[category]/[filename].md
@@ -422,47 +422,51 @@ Bug track:
 - logic-errors/
 
 Knowledge track:
-- architecture-patterns/ — architectural or structural patterns (agent/skill/pipeline/workflow shape decisions)
-- design-patterns/ — reusable non-architectural design approaches (content generation, interaction patterns, prompt shapes)
+- architecture-patterns/ — architectural or structural patterns (pipeline/workflow shape decisions)
+- design-patterns/ — reusable non-architectural design approaches (analysis patterns, visualization strategies)
 - tooling-decisions/ — language, library, or tool choices with durable rationale
 - conventions/ — team-agreed way of doing something, captured so it survives turnover
 - workflow-issues/
 - developer-experience/
 - documentation-gaps/
 - best-practices/ — fallback only, use when no narrower knowledge-track value applies
+- methods-decisions/ — validated analytical approaches and statistical method selections
+- statistical-patterns/ — recurring statistical techniques and their proper application
+- data-quality-issues/ — data validation, cleaning strategies, and quality assurance patterns
+- reporting-conventions/ — standardized reporting formats and presentation guidelines
+- reproducibility-patterns/ — environment pinning, seed management, and result reproducibility
 
 ## Common Mistakes to Avoid
 
-| ❌ Wrong | ✅ Correct |
+| Wrong | Correct |
 |----------|-----------|
 | Subagents write files like `context-analysis.md`, `solution-draft.md` | Subagents return text data; orchestrator writes one final file |
-| Research and assembly run in parallel | Research completes → then assembly runs |
+| Research and assembly run in parallel | Research completes -> then assembly runs |
 | Multiple files created during workflow | One solution doc written or updated: `docs/solutions/[category]/[filename].md` (plus an optional small edit to a project instruction file for discoverability) |
 | Creating a new doc when an existing doc covers the same problem | Check overlap assessment; update the existing doc when overlap is high |
 
 ## Success Output
 
 ```
-✓ Documentation complete
+Completed: Documentation complete
 
 Auto memory: 2 relevant entries used as supplementary evidence
 
 Subagent Results:
-  ✓ Context Analyzer: Identified performance_issue in brief_system, category: performance-issues/
-  ✓ Solution Extractor: 3 code fixes, prevention strategies
-  ✓ Related Docs Finder: 2 related issues
-  ✓ Session History: 3 prior sessions on same branch, 2 failed approaches surfaced
+  Completed: Context Analyzer: Identified methods_decision in sofa_scoring, category: methods-decisions/
+  Completed: Solution Extractor: 3 code fixes, prevention strategies
+  Completed: Related Docs Finder: 2 related issues
+  Completed: Session History: 3 prior sessions on same branch, 2 failed approaches surfaced
 
 Specialized Agent Reviews (Auto-Triggered):
-  ✓ ce-performance-oracle: Validated query optimization approach
-  ✓ ce-kieran-rails-reviewer: Code examples meet Rails conventions
-  ✓ ce-code-simplicity-reviewer: Solution is appropriately minimal
+  Completed: ce-kieran-python-reviewer: Code examples meet Python best practices
+  Completed: ce-code-simplicity-reviewer: Solution is appropriately minimal
 
 File created:
-- docs/solutions/performance-issues/n-plus-one-brief-generation.md
+- docs/solutions/methods-decisions/chi-square-vs-fisher-exact-test-selection.md
 
 This documentation will be searchable for future reference when similar
-issues occur in the Email Processing or Brief System modules.
+issues occur in the SOFA Scoring or Sepsis Analysis modules.
 
 What's next?
 1. Continue workflow (recommended)
@@ -477,34 +481,34 @@ What's next?
 **Alternate output (when updating an existing doc due to high overlap):**
 
 ```
-✓ Documentation updated (existing doc refreshed with current context)
+Completed: Documentation updated (existing doc refreshed with current context)
 
-Overlap detected: docs/solutions/performance-issues/n-plus-one-queries.md
+Overlap detected: docs/solutions/methods-decisions/chi-square-test-selection.md
   Matched dimensions: problem statement, root cause, solution, referenced files
   Action: Updated existing doc with fresher code examples and prevention tips
 
 File updated:
-- docs/solutions/performance-issues/n-plus-one-queries.md (added last_updated: 2026-03-24)
+- docs/solutions/methods-decisions/chi-square-test-selection.md (added last_updated: 2026-03-24)
 ```
 
 ## The Compounding Philosophy
 
 This creates a compounding knowledge system:
 
-1. First time you solve "N+1 query in brief generation" → Research (30 min)
-2. Document the solution → docs/solutions/performance-issues/n-plus-one-briefs.md (5 min)
-3. Next time similar issue occurs → Quick lookup (2 min)
-4. Knowledge compounds → Team gets smarter
+1. First time you solve "wrong statistical test for small sample size" -> Research (30 min)
+2. Document the solution -> docs/solutions/methods-decisions/fisher-exact-small-samples.md (5 min)
+3. Next time similar issue occurs -> Quick lookup (2 min)
+4. Knowledge compounds -> Team gets smarter
 
 The feedback loop:
 
 ```
-Build → Test → Find Issue → Research → Improve → Document → Validate → Deploy
-    ↑                                                                      ↓
-    └──────────────────────────────────────────────────────────────────────┘
+Explore -> Analyze -> Find Issue -> Research -> Improve -> Document -> Validate -> Deploy
+    ^                                                                              |
+    +------------------------------------------------------------------------------+
 ```
 
-**Each unit of engineering work should make subsequent units of work easier—not harder.**
+**Each unit of analytical work should make subsequent units of work easier—not harder.**
 
 ## Auto-Invoke
 
@@ -521,8 +525,8 @@ Writes the final learning directly into `docs/solutions/`.
 Based on problem type, these agents can enhance documentation:
 
 ### Code Quality & Review
-- **ce-kieran-rails-reviewer**: Reviews code examples for Rails best practices
 - **ce-kieran-python-reviewer**: Reviews code examples for Python best practices
+- **ce-kieran-r-reviewer**: Reviews code examples for R best practices
 - **ce-kieran-typescript-reviewer**: Reviews code examples for TypeScript best practices
 - **ce-code-simplicity-reviewer**: Ensures solution code is minimal and clear
 - **ce-pattern-recognition-specialist**: Identifies anti-patterns or repeating issues

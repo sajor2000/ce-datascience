@@ -16,21 +16,21 @@ The `problem_type` determines which **track** applies. Each track has different 
 | Track | problem_types | Description |
 |-------|--------------|-------------|
 | **Bug** | `build_error`, `test_failure`, `runtime_error`, `performance_issue`, `database_issue`, `security_issue`, `ui_bug`, `integration_issue`, `logic_error` | Defects and failures that were diagnosed and fixed |
-| **Knowledge** | `best_practice`, `documentation_gap`, `workflow_issue`, `developer_experience`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention` | Practices, patterns, conventions, decisions, workflow improvements, and documentation. Prefer the narrowest applicable value; `best_practice` is the fallback. |
+| **Knowledge** | `best_practice`, `documentation_gap`, `workflow_issue`, `developer_experience`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention`, `methods_decision`, `statistical_pattern`, `data_quality_issue`, `reporting_convention`, `reproducibility_pattern` | Practices, patterns, conventions, decisions, statistical methods, workflow improvements, and documentation. Prefer the narrowest applicable value; `best_practice` is the fallback. |
 
 ## Required Fields (both tracks)
 
 - **module**: Module or area affected
 - **date**: ISO date in `YYYY-MM-DD`
 - **problem_type**: One of the values listed in the Tracks table above
-- **component**: One of `rails_model`, `rails_controller`, `rails_view`, `service_object`, `background_job`, `database`, `frontend_stimulus`, `hotwire_turbo`, `email_processing`, `brief_system`, `assistant`, `authentication`, `payments`, `development_workflow`, `testing_framework`, `documentation`, `tooling`
+- **component**: One of `data_ingestion`, `data_cleaning`, `feature_engineering`, `statistical_analysis`, `model_training`, `model_evaluation`, `visualization`, `reporting`, `reproducibility`, `data_pipeline`, `environment_setup`, `documentation`, `tooling`
 - **severity**: One of `critical`, `high`, `medium`, `low`
 
 ## Bug Track Fields
 
 Required:
 - **symptoms**: YAML array with 1-5 observable symptoms (errors, broken behavior)
-- **root_cause**: One of `missing_association`, `missing_include`, `missing_index`, `wrong_api`, `scope_issue`, `thread_violation`, `async_timing`, `memory_leak`, `config_error`, `logic_error`, `test_isolation`, `missing_validation`, `missing_permission`, `missing_workflow_step`, `inadequate_documentation`, `missing_tooling`, `incomplete_setup`
+- **root_cause**: One of `missing_association`, `missing_include`, `missing_index`, `wrong_api`, `scope_issue`, `thread_violation`, `async_timing`, `memory_leak`, `config_error`, `logic_error`, `test_isolation`, `missing_validation`, `missing_permission`, `missing_workflow_step`, `inadequate_documentation`, `missing_tooling`, `incomplete_setup`, `data_quality_issue`, `wrong_statistical_test`, `assumption_violation`, `data_leakage`, `missing_seed`, `unversioned_dependency`
 - **resolution_type**: One of `code_fix`, `migration`, `config_change`, `test_fix`, `dependency_update`, `environment_setup`, `workflow_improvement`, `documentation_update`, `tooling_addition`, `seed_data_update`
 
 ## Knowledge Track Fields
@@ -46,10 +46,6 @@ No additional required fields beyond the shared ones. All fields below are optio
 
 - **related_components**: Other components involved
 - **tags**: Search keywords, lowercase and hyphen-separated
-
-## Optional Fields (bug track only)
-
-- **rails_version**: Rails version in `X.Y.Z` format
 
 ## Backward Compatibility
 
@@ -77,6 +73,11 @@ Docs created before the track system may have `symptoms`/`root_cause`/`resolutio
 - `design_pattern` -> `docs/solutions/design-patterns/`
 - `tooling_decision` -> `docs/solutions/tooling-decisions/`
 - `convention` -> `docs/solutions/conventions/`
+- `methods_decision` -> `docs/solutions/methods-decisions/`
+- `statistical_pattern` -> `docs/solutions/statistical-patterns/`
+- `data_quality_issue` -> `docs/solutions/data-quality-issues/`
+- `reporting_convention` -> `docs/solutions/reporting-conventions/`
+- `reproducibility_pattern` -> `docs/solutions/reproducibility-patterns/`
 
 ## Validation Rules
 
@@ -88,7 +89,6 @@ Docs created before the track system may have `symptoms`/`root_cause`/`resolutio
 6. Enum fields must match the allowed values exactly.
 7. Array fields must respect min/max item counts.
 8. `date` must match `YYYY-MM-DD`.
-9. `rails_version`, if present, must match `X.Y.Z` and only applies to bug-track docs.
 
 ## YAML Safety Rules
 
