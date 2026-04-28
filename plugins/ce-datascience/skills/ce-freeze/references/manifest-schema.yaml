@@ -1,0 +1,60 @@
+# Submission Freeze Manifest Schema
+
+# This file describes the schema for submissions/<tag>/manifest.yaml.
+# Every submission archive MUST contain a manifest matching this schema.
+
+schema_version: "1.0"
+
+submission_tag: string  # required, format: venue-YYYY-MM[-roundN]
+frozen_at: string       # required, ISO 8601 timestamp
+frozen_by: string       # required, person responsible
+
+git:
+  sha: string                  # required, full 40-char commit hash
+  branch: string               # required
+  remote_url: string           # required
+  tag: string                  # required, "submission/<tag>"
+  worktree_clean: boolean      # required, must be true at freeze time
+
+sap:
+  path: string                 # required, e.g., analysis/sap.md
+  version: string              # required, e.g., "1.3"
+  amendments_log_sha256: string # sha256 of sap-amendments.md
+  amendment_count: integer
+
+data:
+  current_wave: string         # required, extract_id from data-state.yaml
+  hash_sha256: string          # required, wave file hash
+  locked_at: string            # required, ISO timestamp of lock
+  qa_status: string            # required, "pass" | "pass-with-signoff"
+  qa_report_path: string       # required, where the QA report lives
+
+environment:
+  manager: string              # renv | venv | conda | poetry | pixi | uv
+  lock_files: list[string]     # required, at least one
+  lock_files_sha256:           # required, dict of file -> sha256
+    type: map<string, string>
+  language_versions:           # optional, e.g. R 4.4.1, Python 3.12.3
+    type: map<string, string>
+
+manuscript:
+  source_path: string          # required, e.g., manuscript/main.qmd
+  rendered_path: string        # required, the file submitted
+  rendered_sha256: string      # required
+  rendered_format: string      # required, pdf | docx | tex
+  word_count: integer
+  figure_count: integer
+  table_count: integer
+
+artifacts:
+  figures: list[string]        # paths relative to repo root
+  tables: list[string]
+  supplementary: list[string]
+  cover_letter: string         # optional, path to cover letter
+
+review_state:
+  reviewer_count: integer      # 0 for initial; N for revision rounds
+  prior_round_tag: string      # optional, tag of the previous round (for revisions)
+  reviewer_queries: list[string] # optional, paths to addressed reviewer comments
+
+notes: string  # free text the analyst adds at freeze time
