@@ -106,7 +106,7 @@ Routing rules:
 
 ## Reviewers
 
-18 reviewer personas in layered conditionals, plus CE-specific agents. See the persona catalog included below for the full catalog.
+17 reviewer personas in layered conditionals, plus 1 CE always-on agent. See the persona catalog included below for the full catalog.
 
 **Always-on (every review):**
 
@@ -115,44 +115,40 @@ Routing rules:
 | `ce-correctness-reviewer` | Logic errors, edge cases, state bugs, error propagation |
 | `ce-testing-reviewer` | Coverage gaps, weak assertions, brittle tests |
 | `ce-maintainability-reviewer` | Coupling, complexity, naming, dead code, abstraction debt |
-| `ce-project-standards-reviewer` | CLAUDE.md and AGENTS.md compliance -- frontmatter, references, naming, portability |
-| `ce-agent-native-reviewer` | Verify new features are agent-accessible |
+| `ce-project-standards-reviewer` | AGENTS.md compliance -- frontmatter, references, naming, portability |
 | `ce-learnings-researcher` | Search docs/solutions/ for past issues related to this PR |
+
+**Statistical conditional (dispatched based on analysis content):**
+
+| Agent | Select when diff touches... |
+|-------|---------------------------|
+| `ce-methods-reviewer` | Statistical tests, regression models, hypothesis testing, or inferential analysis code |
+| `ce-multiplicity-reviewer` | Multiple endpoints, multiple comparisons, subgroup analyses, or repeated testing patterns |
+| `ce-reproducibility-reviewer` | Analysis scripts, notebooks, or pipeline code (seeds, versions, paths, environment specs) |
+| `ce-reporting-checklist-reviewer` | **Opt-in only.** `reporting_checklist: true` in config AND a SAP or study protocol exists |
+| `ce-sap-drift-detector` | SAP file (`**/sap.md` or markdown with `sap_version` frontmatter) exists in the project |
+
+**Language-specific conditional (selected per diff):**
+
+| Agent | Select when diff touches... |
+|-------|---------------------------|
+| `ce-r-code-reviewer` | `.R`, `.Rmd`, `.qmd` files, or R code chunks in polyglot documents |
+| `ce-python-ds-reviewer` | `.py` files with data science imports (pandas, numpy, scipy, sklearn, statsmodels, matplotlib, seaborn) |
+| `ce-kieran-python-reviewer` | Python modules, endpoints, services, scripts, or typed domain code (general Python quality alongside DS-specific review) |
 
 **Cross-cutting conditional (selected per diff):**
 
 | Agent | Select when diff touches... |
 |-------|---------------------------|
 | `ce-security-reviewer` | Auth, public endpoints, user input, permissions |
-| `ce-performance-reviewer` | DB queries, data transforms, caching, async |
-| `ce-api-contract-reviewer` | Routes, serializers, type signatures, versioning |
-| `ce-data-migrations-reviewer` | Migrations, schema changes, backfills |
+| `ce-performance-reviewer` | Database queries, loop-heavy data transforms, caching, async, large data operations |
 | `ce-reliability-reviewer` | Error handling, retries, timeouts, background jobs |
-| `ce-adversarial-reviewer` | Diff >=50 changed non-test/non-generated/non-lockfile lines, or auth, payments, data mutations, external APIs |
-| `ce-cli-readiness-reviewer` | CLI command definitions, argument parsing, CLI framework usage, command handler implementations |
+| `ce-adversarial-reviewer` | Diff >=50 changed non-test/non-generated lines, or data mutations, external APIs, high-risk domains |
 | `ce-previous-comments-reviewer` | Reviewing a PR that has existing review comments or threads |
-
-**Stack-specific conditional (selected per diff):**
-
-| Agent | Select when diff touches... |
-|-------|---------------------------|
-| `ce-dhh-rails-reviewer` | Rails architecture, service objects, session/auth choices, or Hotwire-vs-SPA boundaries |
-| `ce-kieran-rails-reviewer` | Rails application code where conventions, naming, and maintainability are in play |
-| `ce-kieran-python-reviewer` | Python modules, endpoints, scripts, or services |
-| `ce-kieran-typescript-reviewer` | TypeScript components, services, hooks, utilities, or shared types |
-| `ce-julik-frontend-races-reviewer` | Stimulus/Turbo controllers, DOM events, timers, animations, or async UI flows |
-| `ce-swift-ios-reviewer` | Swift files, SwiftUI views, UIKit controllers, entitlements, privacy manifests, Core Data models, SPM manifests, storyboards/XIBs, or semantic build-setting/target/signing changes in .pbxproj |
-
-**CE conditional (migration-specific):**
-
-| Agent | Select when diff includes migration files |
-|-------|------------------------------------------|
-| `ce-schema-drift-detector` | Cross-references schema.rb against included migrations |
-| `ce-deployment-verification-agent` | Produces deployment checklist with SQL verification queries |
 
 ## Review Scope
 
-Every review spawns all 4 always-on personas plus the 2 CE always-on agents, then adds whichever cross-cutting and stack-specific conditionals fit the diff. The model naturally right-sizes: a small config change triggers 0 conditionals = 6 reviewers. A Rails auth feature might trigger security + reliability + kieran-rails + dhh-rails = 10 reviewers.
+Every review spawns all 4 always-on personas plus the 1 CE always-on agent, then adds whichever statistical, language-specific, and cross-cutting conditionals fit the diff. The model naturally right-sizes: a small config change triggers 0 conditionals = 5 reviewers. A Python analysis with statistical tests might trigger methods + python-ds + kieran-python + reproducibility = 9 reviewers.
 
 ## Protected Artifacts
 
@@ -358,15 +354,13 @@ If a plan is found, read its **Requirements Trace** (R1, R2, etc.) and **Impleme
 
 ### Stage 3: Select reviewers
 
-Read the diff and file list from Stage 1. The 4 always-on personas and 2 CE always-on agents are automatic. For each cross-cutting and stack-specific conditional persona in the persona catalog included below, decide whether the diff warrants it. This is agent judgment, not keyword matching.
+Read the diff and file list from Stage 1. The 4 always-on personas and 1 CE always-on agent are automatic. For each statistical, language-specific, and cross-cutting conditional persona in the persona catalog included below, decide whether the diff warrants it. This is agent judgment, not keyword matching.
 
 **File-type awareness for conditional selection:** Instruction-prose files (Markdown skill definitions, JSON schemas, config files) are product code but do not benefit from runtime-focused reviewers. The adversarial reviewer's techniques (race conditions, cascade failures, abuse cases) target executable code behavior. For diffs that only change instruction-prose files, skip adversarial unless the prose describes auth, payment, or data-mutation behavior. Count only executable code lines toward line-count thresholds.
 
 **`previous-comments` is PR-only.** Only select this persona when Stage 1 gathered PR metadata (PR number or URL was provided as an argument, or `gh pr view` returned metadata for the current branch). Skip it entirely for standalone branch reviews with no associated PR -- there are no prior comments to check.
 
-Stack-specific personas are additive. A Rails UI change may warrant `kieran-rails` plus `julik-frontend-races`; a TypeScript API diff may warrant `kieran-typescript` plus `api-contract` and `reliability`.
-
-For CE conditional agents, check if the diff includes files matching `db/migrate/*.rb`, `db/schema.rb`, or data backfill scripts.
+Language-specific personas are additive. A Python analysis script may warrant `kieran-python` plus `python-ds`; an R notebook with statistical tests may warrant `r-code` plus `methods` and `reproducibility`.
 
 Announce the team before spawning:
 
@@ -376,13 +370,12 @@ Review team:
 - testing (always)
 - maintainability (always)
 - project-standards (always)
-- ce-agent-native-reviewer (always)
 - ce-learnings-researcher (always)
-- security -- new endpoint in routes.rb accepts user-provided redirect URL
-- kieran-rails -- controller and Turbo flow changed in app/controllers and app/views
-- dhh-rails -- diff adds service objects around ordinary Rails CRUD
-- data-migrations -- adds migration 20260303_add_index_to_orders
-- ce-schema-drift-detector -- migration files present
+- methods -- logistic regression model with hypothesis testing in analysis.py
+- reproducibility -- analysis notebook without seed or environment spec
+- python-ds -- pandas and sklearn imports with manual transform steps
+- kieran-python -- new Python module with public functions
+- performance -- large data join operation in preprocessing pipeline
 ```
 
 This is progress reporting, not a blocking confirmation.
@@ -463,9 +456,7 @@ Each persona sub-agent writes full JSON (all schema fields) to `/tmp/ce-datascie
 
 Detail-tier fields (`why_it_matters`, `evidence`) are in the artifact file only. `suggested_fix` is optional in both tiers -- included in compact returns when present so the orchestrator has fix context for auto-apply decisions. If the file write fails, the compact return still provides everything the merge needs.
 
-**CE always-on agents** (ce-agent-native-reviewer, ce-learnings-researcher) are dispatched as standard Agent calls in parallel with the persona agents. Give them the same review context bundle the personas receive: entry mode, any PR metadata gathered in Stage 1, intent summary, review base branch name when known, `BASE:` marker, file list, diff, and `UNTRACKED:` scope notes. Do not invoke them with a generic "review this" prompt. Their output is unstructured and synthesized separately in Stage 6.
-
-**CE conditional agents** (ce-schema-drift-detector, ce-deployment-verification-agent) are also dispatched as standard Agent calls when applicable. Pass the same review context bundle plus the applicability reason (for example, which migration files triggered the agent). For ce-schema-drift-detector specifically, pass the resolved review base branch explicitly so it never assumes `main`. Their output is unstructured and must be preserved for Stage 6 synthesis just like the CE always-on agents.
+**CE always-on agent** (ce-learnings-researcher) is dispatched as a standard Agent call in parallel with the persona agents. Give it the same review context bundle the personas receive: entry mode, any PR metadata gathered in Stage 1, intent summary, review base branch name when known, `BASE:` marker, file list, diff, and `UNTRACKED:` scope notes. Do not invoke it with a generic "review this" prompt. Its output is unstructured and synthesized separately in Stage 6.
 
 ### Stage 5: Merge findings
 
@@ -523,7 +514,7 @@ Demotion is intentionally narrow. The conservative scope (testing/maintainabilit
    - report-only queue: `advisory` findings plus anything owned by `human` or `release`
 9. **Sort.** Order by severity (P0 first) -> anchor (descending) -> file path -> line number.
 10. **Collect coverage data.** Union residual_risks and testing_gaps across reviewers.
-11. **Preserve CE agent artifacts.** Keep the learnings, agent-native, schema-drift, and deployment-verification outputs alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
+11. **Preserve CE agent artifacts.** Keep the learnings researcher output alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
 
 ### Stage 5b: Validation pass (externalizing modes only)
 
@@ -580,11 +571,8 @@ Assemble the final report using **pipe-delimited markdown tables for findings** 
 5. **Residual Actionable Work.** Include when unresolved actionable findings were handed off or should be handed off.
 6. **Pre-existing.** Separate section, does not count toward verdict.
 7. **Learnings & Past Solutions.** Surface ce-learnings-researcher results: if past solutions are relevant, flag them as "Known Pattern" with links to docs/solutions/ files.
-8. **Agent-Native Gaps.** Surface ce-agent-native-reviewer results. Omit section if no gaps found.
-9. **Schema Drift Check.** If ce-schema-drift-detector ran, summarize whether drift was found. If drift exists, list the unrelated schema objects and the required cleanup command. If clean, say so briefly.
-10. **Deployment Notes.** If ce-deployment-verification-agent ran, surface the key Go/No-Go items: blocking pre-deploy checks, the most important verification queries, rollback caveats, and monitoring focus areas. Keep the checklist actionable rather than dropping it into Coverage.
-11. **Coverage.** Suppressed count by anchor (e.g., "N findings suppressed at anchor 50, M at anchor 25"), mode-aware demotion count (interactive/report-only) or suppression count (headless/autofix), validator drop count and reasons (when Stage 5b ran), validator over-budget drops (when the 15-cap fired), residual risks, testing gaps, failed/timed-out reviewers, and any intent uncertainty carried by non-interactive modes.
-12. **Verdict.** Ready to merge / Ready with fixes / Not ready. Fix order if applicable. When an `explicit` plan has unaddressed requirements, the verdict must reflect it — a PR that's code-clean but missing planned requirements is "Not ready" unless the omission is intentional. When an `inferred` plan has unaddressed requirements, note it in the verdict reasoning but do not block on it alone.
+8. **Coverage.** Suppressed count by anchor (e.g., "N findings suppressed at anchor 50, M at anchor 25"), mode-aware demotion count (interactive/report-only) or suppression count (headless/autofix), validator drop count and reasons (when Stage 5b ran), validator over-budget drops (when the 15-cap fired), residual risks, testing gaps, failed/timed-out reviewers, and any intent uncertainty carried by non-interactive modes.
+9. **Verdict.** Ready to merge / Ready with fixes / Not ready. Fix order if applicable. When an `explicit` plan has unaddressed requirements, the verdict must reflect it — a PR that's code-clean but missing planned requirements is "Not ready" unless the omission is intentional. When an `inferred` plan has unaddressed requirements, note it in the verdict reasoning but do not block on it alone.
 
 Do not include time estimates.
 
@@ -634,15 +622,6 @@ Residual risks:
 Learnings & Past Solutions:
 - <learning>
 
-Agent-Native Gaps:
-- <gap description>
-
-Schema Drift Check:
-- <drift status>
-
-Deployment Notes:
-- <deployment note>
-
 Testing gaps:
 - <gap>
 
@@ -687,9 +666,9 @@ Before delivering the review, verify:
 
 ## Language-Aware Conditionals
 
-This skill uses stack-specific reviewer agents when the diff clearly warrants them. Keep those agents opinionated. They are not generic language checkers; they add a distinct review lens on top of the always-on and cross-cutting personas.
+This skill uses language-specific reviewer agents when the diff clearly warrants them. Keep those agents opinionated. They are not generic language checkers; they add a distinct review lens on top of the always-on and cross-cutting personas.
 
-Do not spawn them mechanically from file extensions alone. The trigger is meaningful changed behavior, architecture, or UI state in that stack.
+Do not spawn them mechanically from file extensions alone. The trigger is meaningful changed analysis logic, data transformations, or modeling code in that language.
 
 ## After Review
 
