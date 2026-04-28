@@ -57,6 +57,8 @@ Semantic detection compares SAP prose against code behavior to identify substant
 
 - **Variable set changes** -- Covariates in the adjusted model differ from those listed in the SAP; stratification factors in code do not match the SAP; subgroup variables added or removed.
 
+- **Blinding state violations** -- When `.ce-datascience/config.local.yaml` declares `blinding_state: blinded` (or the SAP's blinding section indicates ongoing blinding), flag any code that performs inferential analysis using the blinded grouping variable: regression with `treatment` or `arm` as a predictor, t-tests / Wilcoxon / chi-square stratified by the assignment variable, survival models with arm as a covariate, p-values reported in tables that compare arms. Descriptive statistics by arm are acceptable only if the labels are masked (e.g., `Group A` / `Group B` rather than `placebo` / `drug`). Confidence 100 when blinded state is declared and code shows arm-stratified inferential output.
+
 **Semantic Confidence Rules:**
 - Findings below confidence 50 are suppressed -- do not report them
 - All semantic findings must include `"drift_type": "semantic"` and a note that the finding is best-effort

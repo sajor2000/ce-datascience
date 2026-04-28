@@ -185,9 +185,17 @@ def sap_create(
     population: str = "",
     primary_outcome: str = "",
     ai_involvement: str = "none",
+    power_analysis: str = "",
     output_path: str = "analysis/sap.md",
 ) -> str:
     """Generate a Statistical Analysis Plan from study metadata using the SAP template.
+
+    Refuses to create the SAP without a power analysis statement (the most
+    frequently skipped section that breaks downstream review). Pass any
+    non-empty string describing the calculation, the assumed effect size,
+    alpha, and target N. For observational studies where formal power is
+    inappropriate, pass 'precision-based: target N=X yields Y% CI half-width
+    of Z' or 'descriptive only: no inferential test'.
 
     Args:
         study_type: observational, rct, systematic-review, diagnostic-accuracy, case-report, qualitative, animal, health-economic, prediction-model, exploratory, or other
@@ -195,12 +203,23 @@ def sap_create(
         population: Study population description
         primary_outcome: Primary endpoint description
         ai_involvement: none, ai-assisted, ai-primary, or llm-based
+        power_analysis: Power calculation or precision statement (REQUIRED)
         output_path: Where to write the SAP file (relative to project root)
 
     Returns:
         Confirmation with the SAP file path.
     """
     import datetime
+
+    if not power_analysis or not power_analysis.strip():
+        return (
+            "Error: power_analysis is required.\n"
+            "Pass a power calculation (e.g., 'two-sample t-test, alpha=0.05, "
+            "power=0.80, effect size d=0.5 -> N=64 per group'), a precision "
+            "statement (e.g., 'precision-based: N=200 yields 95% CI half-width "
+            "of 0.07 for prevalence proportion'), or 'descriptive only: no "
+            "inferential test' for purely descriptive studies."
+        )
 
     template_path = PLUGIN_ROOT / "skills" / "ce-plan" / "references" / "sap-template.md"
     if not template_path.exists():
@@ -225,6 +244,11 @@ def sap_create(
             "[Primary and secondary outcomes",
             f"Primary outcome: {primary_outcome}\n\n[Secondary outcomes"
         )
+
+    sap_content = sap_content.replace(
+        "[Sample size calculation",
+        f"{power_analysis}\n\n[Original template guidance: Sample size calculation"
+    )
 
     out = Path(output_path)
     if not out.is_absolute():
@@ -316,6 +340,97 @@ def sap_drift_check(
         lines.append("\nAll SAP sections have corresponding analysis code.")
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Tool: sap_amend
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def sap_amend(
+    section_id: str,
+    old_text: str,
+    new_text: str,
+    reason: str,
+    amended_by: str = "",
+    sap_path: str = "analysis/sap.md",
+) -> str:
+    """Record a SAP amendment with provenance.
+
+    Updates the SAP in place and writes an entry to analysis/sap-amendments.md
+    documenting the prior text, new text, reason, person, and timestamp. Bumps
+    the SAP version line at the top of the file. Reviewers (ce-sap-amendment-
+    reviewer) consult this log to determine whether the amendment was made
+    before or after the data lock and whether it changed primary endpoints.
+
+    Args:
+        section_id: SAP section being amended (e.g., 'SAP-3.1' or '4.2')
+        old_text: A unique substring of the prior text being replaced
+        new_text: The replacement text
+        reason: Why this amendment is needed
+        amended_by: Person responsible for the amendment
+        sap_path: Path to the SAP file (relative to project root)
+
+    Returns:
+        Confirmation with new SAP version and amendment log path.
+    """
+    import datetime, re
+
+    sap = Path(sap_path)
+    if not sap.is_absolute():
+        sap = PLUGIN_ROOT / sap_path
+
+    if not sap.exists():
+        return f"Error: SAP file not found at {sap}"
+
+    sap_text = sap.read_text()
+    if old_text not in sap_text:
+        return (
+            f"Error: old_text not found in SAP. Pass a unique substring of the "
+            f"existing text. The SAP starts with: {sap_text[:200]!r}..."
+        )
+
+    # Bump version line: 'Version: X.Y' -> 'Version: X.(Y+1)'
+    version_re = re.compile(r"(Version:\s*)(\d+)\.(\d+)")
+    m = version_re.search(sap_text)
+    if m:
+        new_minor = int(m.group(3)) + 1
+        new_version = f"{m.group(2)}.{new_minor}"
+        sap_text = version_re.sub(rf"\g<1>{new_version}", sap_text, count=1)
+    else:
+        new_version = "1.1"
+        sap_text = f"Version: {new_version}\n" + sap_text
+
+    sap_text = sap_text.replace(old_text, new_text, 1)
+    sap.write_text(sap_text)
+
+    log_path = sap.parent / "sap-amendments.md"
+    timestamp = datetime.datetime.now().isoformat(timespec="seconds")
+    entry = (
+        f"\n## Amendment to {section_id} ({timestamp})\n\n"
+        f"- **New version**: {new_version}\n"
+        f"- **Amended by**: {amended_by or '(unspecified)'}\n"
+        f"- **Reason**: {reason}\n\n"
+        f"### Prior text\n\n```\n{old_text}\n```\n\n"
+        f"### Replacement text\n\n```\n{new_text}\n```\n"
+    )
+    if log_path.exists():
+        log_path.write_text(log_path.read_text() + entry)
+    else:
+        log_path.write_text(
+            "# SAP Amendment Log\n\n"
+            "Each entry records a SAP change with prior text, new text, reason, "
+            "and person.\n" + entry
+        )
+
+    return (
+        f"Amended {section_id} in {sap}\n"
+        f"  new version: {new_version}\n"
+        f"  log: {log_path}\n"
+        f"  amended_by: {amended_by or '(unspecified)'}\n"
+        f"Run /ce-code-review with the ce-sap-amendment-reviewer to validate "
+        f"the amendment against the data lock state."
+    )
 
 
 # ---------------------------------------------------------------------------
