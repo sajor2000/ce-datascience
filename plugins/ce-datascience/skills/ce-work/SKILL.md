@@ -1,12 +1,18 @@
 ---
 name: ce-work
-description: Execute work efficiently while maintaining quality and finishing features
+description: "Execute work with SAP tracking and stack-profile-aware scaffolding. Use for data science analysis tasks, SAP-driven studies, or general feature work."
 argument-hint: "[Plan doc path or description of work. Blank to auto use latest plan doc]"
 ---
 
 # Work Execution Command
 
-Execute work efficiently while maintaining quality and finishing features.
+Execute work efficiently while maintaining quality and finishing features. When a Statistical Analysis Plan (SAP) exists, tracks which SAP sections have been implemented and labels non-SAP analyses as exploratory. Generates analysis code scaffolding adapted to the user's stack profile (language, IDE, libraries).
+
+## Stack Profile (pre-resolved)
+
+!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+
+If the block above resolved to YAML content, parse it for `language`, `ide`, `libraries`, and `notebook_format` fields. These drive scaffolding decisions -- see `references/scaffolding-templates.md`. If the block resolved to `__NO_CONFIG__`, infer the stack from existing project files and fall through to defaults.
 
 ## Introduction
 
@@ -58,6 +64,7 @@ Determine how to proceed based on what was provided in `<input_document>`.
    - If clarifying questions were needed above, get user approval on the resolved answers. If no clarifications were needed, proceed without a separate approval step — plan scope is the plan's authority, not something to renegotiate
    - **Do not skip this** - better to ask questions now than build the wrong thing
    - **Do not edit the plan body during execution.** The plan is a decision artifact; progress lives in git commits and the task tracker. The only plan mutation during ce-work is the final `status: active → completed` flip at shipping (see `references/shipping-workflow.md` Phase 4 Step 2). Legacy plans may contain `- [ ]` / `- [x]` marks on unit headings — ignore them as state; per-unit completion is determined during execution by reading the current file state.
+   - **SAP discovery:** After reading the plan, search the project for a SAP file (`**/sap.md` or any markdown file with `sap_version` in its YAML frontmatter). If a SAP file is found, read `references/sap-tracking.md` and produce the SAP coverage summary table showing which SAP sections have been implemented, which are pending, and which existing analyses are exploratory. Display this summary before creating the task list. If no SAP file is found, skip SAP tracking entirely.
 
 2. **Setup Environment**
 
