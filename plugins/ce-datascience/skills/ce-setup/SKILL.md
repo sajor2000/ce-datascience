@@ -225,6 +225,32 @@ What type of R project are you building?
 
 Store the selection as `stack_profile.r_project_type`.
 
+### Step 7b: Data root
+
+```
+Where will the analysis dataset live?
+
+1. Off-repo absolute path (recommended for any real subject data)
+2. ~/Box Sync, ~/Dropbox, or other cloud-mounted folder
+3. Inside the repo at data/ (only valid for SYNTHETIC or fully de-identified public data)
+```
+
+If option 1 or 2, ask the user to type the absolute path (`AskUserQuestion` with text input). If option 3, set `data_root: data/` and warn: "PHI must NEVER live inside this tree. The QA gate will block any column matching PHI patterns."
+
+Store the resolved path as `stack_profile.data_root`.
+
+### Step 7c: Blinding state
+
+```
+What is the blinding state for this analysis?
+
+1. Blinded -- group labels are masked; only descriptive code allowed until unblinding
+2. Unblinded -- confirmatory analysis allowed against the locked SAP
+3. Not applicable -- observational, single-arm, or no blinding by design
+```
+
+Store the selection as `stack_profile.blinding_state`. The `ce-code-review` skill consults this when `--phase` is not passed and refuses inferential code while blinded.
+
 ### Step 8: Golden Path Check
 
 After collecting all answers, check whether the combination matches a golden path:

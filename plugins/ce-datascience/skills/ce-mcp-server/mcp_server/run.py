@@ -573,6 +573,176 @@ def compound_learning(
 
 
 # ---------------------------------------------------------------------------
+# Tool: data_wave_register
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def data_wave_register(
+    extract_id: str,
+    location: str,
+    source: str = "",
+    query_id: str = "",
+    extracted_by: str = "",
+    notes: str = "",
+) -> str:
+    """Register a new data extract (data wave) into .ce-datascience/data-state.yaml.
+
+    Each wave is identified by an extract_id (free-form string the analyst chooses,
+    e.g., 'wave_001' or '2026-04-28-rerun'). The tool records location, source,
+    extracted_at, and a sha256 hash of the file contents so the analysis can
+    later prove which data it ran against. Status defaults to 'unlocked'; use
+    data_lock to seal the wave after data QA passes.
+
+    Args:
+        extract_id: Analyst-chosen identifier for this extract (must be unique)
+        location: Path to the data file (absolute) or URI (s3://, box://, etc.)
+        source: Origin system (EHR name, registry, simulation script)
+        query_id: Identifier for the extract query (Cohort builder ID, SQL hash, etc.)
+        extracted_by: Person who pulled the extract
+        notes: Optional free text (e.g., why this re-extract)
+
+    Returns:
+        Confirmation with extract_id, hash, and unlocked status.
+    """
+    from ruamel.yaml import YAML
+    import datetime, hashlib
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    state_path = PLUGIN_ROOT / ".ce-datascience" / "data-state.yaml"
+
+    if state_path.exists():
+        with open(state_path) as f:
+            state = yaml.load(f) or {}
+    else:
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state = {}
+
+    waves = state.setdefault("waves", {})
+    if extract_id in waves:
+        return f"Error: extract_id '{extract_id}' already registered. Choose a unique id."
+
+    # Hash the file if it's a local path
+    file_hash = ""
+    loc_path = Path(location)
+    if loc_path.exists() and loc_path.is_file():
+        h = hashlib.sha256()
+        with open(loc_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                h.update(chunk)
+        file_hash = h.hexdigest()
+
+    waves[extract_id] = {
+        "location": location,
+        "source": source,
+        "query_id": query_id,
+        "extracted_by": extracted_by,
+        "extracted_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        "hash_sha256": file_hash,
+        "status": "unlocked",
+        "notes": notes,
+    }
+
+    state["current_wave"] = extract_id
+
+    with open(state_path, "w") as f:
+        yaml.dump(state, f)
+
+    return (
+        f"Registered wave '{extract_id}'\n"
+        f"  location: {location}\n"
+        f"  hash: {file_hash[:16]}{'...' if file_hash else '(no hash; not a local file)'}\n"
+        f"  status: unlocked\n"
+        f"Next: run /ce-data-qa to validate the wave before locking."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Tool: data_lock
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def data_lock(
+    extract_id: str,
+    qa_report_path: str = "",
+    locked_by: str = "",
+    sap_version_at_lock: str = "",
+) -> str:
+    """Seal a data wave as the canonical analysis dataset.
+
+    Locking requires data QA to have passed (qa_report_path exists and the
+    report status is GO or GO with PI sign-off). Once locked, the wave is
+    immutable for the analysis -- any change requires registering a new wave
+    and a SAP amendment if the change affects scope.
+
+    Args:
+        extract_id: Wave to lock (must be registered and unlocked)
+        qa_report_path: Path to the data QA report; tool checks status
+        locked_by: Person sealing the data
+        sap_version_at_lock: SAP version (e.g., '1.2') in effect at lock time
+
+    Returns:
+        Confirmation with locked timestamp.
+    """
+    from ruamel.yaml import YAML
+    import datetime
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    state_path = PLUGIN_ROOT / ".ce-datascience" / "data-state.yaml"
+
+    if not state_path.exists():
+        return "Error: no data-state.yaml. Register a wave first via data_wave_register."
+
+    with open(state_path) as f:
+        state = yaml.load(f) or {}
+
+    waves = state.get("waves", {})
+    if extract_id not in waves:
+        return f"Error: extract_id '{extract_id}' not registered. Available: {list(waves.keys())}"
+
+    wave = waves[extract_id]
+    if wave.get("status") == "locked":
+        return f"Error: wave '{extract_id}' is already locked at {wave.get('locked_at')}."
+
+    # Soft check on QA report
+    qa_status = "unknown"
+    if qa_report_path:
+        qp = Path(qa_report_path)
+        if not qp.is_absolute():
+            qp = PLUGIN_ROOT / qa_report_path
+        if qp.exists():
+            text = qp.read_text(errors="ignore")
+            if "Status**: `GO`" in text or "Status**: GO" in text:
+                qa_status = "pass"
+            elif "GO with PI sign-off" in text:
+                qa_status = "pass-with-signoff"
+            elif "NO-GO" in text:
+                return f"Error: QA report at {qp} is NO-GO. Resolve blockers before locking."
+        else:
+            return f"Warning: QA report not found at {qp}. Refusing to lock without a QA report. Pass qa_report_path explicitly."
+    else:
+        return "Error: qa_report_path is required. Run /ce-data-qa first to generate a QA report, then pass its path."
+
+    wave["status"] = "locked"
+    wave["locked_at"] = datetime.datetime.now().isoformat(timespec="seconds")
+    wave["locked_by"] = locked_by
+    wave["qa_status"] = qa_status
+    wave["qa_report_path"] = qa_report_path
+    wave["sap_version_at_lock"] = sap_version_at_lock
+
+    with open(state_path, "w") as f:
+        yaml.dump(state, f)
+
+    return (
+        f"Locked wave '{extract_id}' ({qa_status})\n"
+        f"  locked_at: {wave['locked_at']}\n"
+        f"  sap_version_at_lock: {sap_version_at_lock or '(unspecified)'}\n"
+        f"This wave is now immutable for the analysis. New extracts require a new wave."
+    )
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
