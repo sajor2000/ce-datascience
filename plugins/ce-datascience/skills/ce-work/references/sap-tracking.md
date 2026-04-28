@@ -104,3 +104,60 @@ During Phase 2 task execution, before implementing each task:
 2. If it does: note the SAP section in the task status (e.g., "Implementing SAP-5.1: Primary Analysis")
 3. If the task produces analysis code that does not map to any SAP section: add the "Exploratory -- not in SAP" comment header to the output file
 4. Never block or reject work because it is not in the SAP -- flag and proceed
+
+---
+
+## Guidelines Classification Check
+
+After reading the SAP, check the frontmatter for classification completeness:
+
+- If `study_type` is set and `guidelines_selected` is empty or absent: add a note in the coverage summary: "Note: `guidelines_selected` is empty — reporting guideline will be auto-routed from `study_type` by `ce-reporting-checklist-reviewer`."
+- If `study_type` is absent or `other`: add a warning: "WARN: `study_type` not set — reporting guideline cannot be auto-routed. Set `study_type` in SAP frontmatter or specify `guidelines_selected` explicitly."
+- If `ai_involvement` is not `none` but `study_type` is absent: add a warning: "WARN: `ai_involvement` is set but `study_type` is absent — AI extension routing requires a `study_type`."
+
+These are informational, not blockers. Never stop task execution based on missing guideline metadata.
+
+---
+
+## Metadata Completeness Check
+
+After computing the SAP coverage summary, check for `.ce-datascience/study-metadata.yaml` in the project root. If the file exists, read it. If the SAP frontmatter has `ai_involvement` set to any value other than `none`, check for the following and emit warnings as additional rows in the coverage summary table:
+
+| Condition | Warning |
+|-----------|---------|
+| `ai_involvement` is `ai-primary` or `ai-assisted` and `dataset_split` is empty or missing | WARN: dataset_split not documented (recommended for ML studies) |
+| `ai_involvement` is `llm-based` and `llm_provenance` is empty or missing | WARN: llm_provenance not documented (required for LLM studies) |
+| `ai_involvement` is not `none` and `software_provenance.random_seeds` is empty or missing | WARN: random_seeds not documented (recommended for reproducibility) |
+| `ai_involvement` is not `none` and `.ce-datascience/study-metadata.yaml` does not exist | WARN: study-metadata.yaml not found (recommended when ai_involvement is not none) |
+
+Display these warnings below the SAP coverage table under a `Metadata Completeness` heading. Example:
+
+```
+Metadata Completeness (from: .ce-datascience/study-metadata.yaml)
+
+| Check | Status |
+|-------|--------|
+| dataset_split documented | OK |
+| llm_provenance documented | WARN: empty |
+| random_seeds documented | OK |
+```
+
+If the SAP has `ai_involvement: none` or the field is omitted, skip the metadata completeness check entirely.
+
+---
+
+## Compliance Report Integration
+
+After the Metadata Completeness check, check for `.ce-datascience/compliance-report.md`. If it exists, read the header summary and display it alongside the SAP coverage table:
+
+```
+Reporting Compliance (from: .ce-datascience/compliance-report.md)
+
+| Guideline | Complete | Incomplete | Waived | Last updated |
+|-----------|----------|------------|--------|--------------|
+| STROBE    | 18/22    | 3          | 1      | 2026-04-28   |
+```
+
+If no compliance report exists and `reporting_checklist: true` is set in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Run `/ce-code-review` with reporting checklist enabled to generate the initial report."
+
+See `references/compliance-report.md` for the full report format and update instructions.

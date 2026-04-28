@@ -1,0 +1,80 @@
+# ce-datascience -- study metadata
+# Copy to .ce-datascience/study-metadata.yaml in your project root.
+# All fields are optional. Uncomment and populate only what applies.
+# See the study metadata schema for field descriptions and reviewer checks.
+
+# --- Study design ---
+# Mirrors SAP frontmatter for cross-referencing. Reviewers check consistency.
+
+# study_design:
+#   classification: observational  # observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+#   ai_involvement: none           # none | ai-assisted | ai-primary | llm-based
+#   guidelines_selected: []        # e.g., [STROBE, TRIPOD-AI]
+
+# --- Dataset split ---
+# How data was partitioned for model training/evaluation.
+# Populate for prediction models and AI/ML studies.
+
+# dataset_split:
+#   method: random                 # random | temporal | stratified | k-fold | leave-one-out | external
+#   train_ratio: 0.7
+#   validation_ratio: 0.15
+#   test_ratio: 0.15
+#   temporal_cutoff: null          # YYYY-MM-DD, required for temporal splits
+#   stratification_variables: []   # required for stratified splits
+#   notes: null
+
+# --- Leakage assessment ---
+# Document whether data leakage was assessed. Populate when dataset_split is used.
+
+# leakage_assessment:
+#   documented: false
+#   method: null                   # e.g., "Verified no future data in training set"
+#   known_risks: []                # e.g., ["Shared patients across splits"]
+
+# --- Software provenance ---
+# Computational environment for reproducibility. Populate for every study;
+# required when ai_involvement is not none.
+
+# software_provenance:
+#   language: null                 # e.g., Python 3.11.4 or R 4.3.1
+#   package_versions:
+#     - name: pandas
+#       version: "2.1.0"
+#   random_seeds: []               # e.g., [42, 123, 456]
+#   environment_file: null         # path to renv.lock, requirements.txt, conda.yaml
+
+# --- LLM provenance ---
+# Record LLM details for reproducibility. Populate for llm-based studies
+# and any study using LLMs for text processing or annotation.
+
+# llm_provenance:
+#   model: null                    # e.g., gpt-4-turbo-2024-04-09
+#   provider: null                 # e.g., OpenAI, Azure OpenAI, Anthropic
+#   temperature: null              # e.g., 0.0
+#   prompt_version: null           # version identifier for the prompt template
+#   prompt_file: null              # path to prompt template file
+#   date_accessed: null            # YYYY-MM-DD
+#   api_version: null              # e.g., 2024-04-01-preview
+
+# --- Statistical rules ---
+# Pre-specified decision rules. Populate for hypothesis-testing studies.
+
+# statistical_rules:
+#   alpha: 0.05
+#   power: 0.80
+#   multiplicity_method: none      # bonferroni | holm | hochberg | fdr | none
+#   one_sided_or_two: two          # one | two
+#   notes: null
+
+# --- LLM note grading ---
+# Annotation methodology for studies grading clinical notes or text.
+# Populate when humans or LLMs annotate unstructured data.
+
+# llm_note_grading:
+#   annotation_schema: null        # path to schema file or description
+#   annotator_count: null          # number of annotators
+#   inter_rater_reliability:
+#     metric: null                 # kappa | ICC | percent_agreement
+#     value: null
+#   adjudication_method: null      # consensus | majority | expert

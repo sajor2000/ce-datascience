@@ -125,7 +125,7 @@ Routing rules:
 | `ce-methods-reviewer` | Statistical tests, regression models, hypothesis testing, or inferential analysis code |
 | `ce-multiplicity-reviewer` | Multiple endpoints, multiple comparisons, subgroup analyses, or repeated testing patterns |
 | `ce-reproducibility-reviewer` | Analysis scripts, notebooks, or pipeline code (seeds, versions, paths, environment specs) |
-| `ce-reporting-checklist-reviewer` | **Opt-in only.** `reporting_checklist: true` in config AND a SAP or study protocol exists |
+| `ce-reporting-checklist-reviewer` | **Opt-in only.** `reporting_checklist: true` in config AND a SAP or study protocol exists. Pass the SAP `study_type`, `ai_involvement`, and `guidelines_selected` fields when dispatching so the agent can route without re-reading the SAP |
 | `ce-sap-drift-detector` | SAP file (`**/sap.md` or markdown with `sap_version` frontmatter) exists in the project |
 
 **Language-specific conditional (selected per diff):**

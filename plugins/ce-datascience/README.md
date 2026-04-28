@@ -1,6 +1,6 @@
 # CE DataScience
 
-Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.
+Compound engineering for computational scientists. SAP management, statistical review, and full reporting guideline compliance for R and Python workflows — covering 16 standards across all study types and AI extensions.
 
 ## Getting Started
 
@@ -64,7 +64,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-methods-reviewer` | Statistical test selection and assumption verification |
 | `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting |
 | `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
-| `ce-reporting-checklist-reviewer` | STROBE/CONSORT reporting guideline compliance (opt-in) |
+| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 16 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |

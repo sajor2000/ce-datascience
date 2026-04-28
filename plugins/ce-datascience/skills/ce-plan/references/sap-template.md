@@ -7,7 +7,9 @@ Use this template when producing a Statistical Analysis Plan in SAP mode. The YA
 ```yaml
 ---
 sap_version: 1
-study_type: observational | rct | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+ai_involvement: none | ai-assisted | ai-primary | llm-based
+guidelines_selected: []
 date_created: YYYY-MM-DD
 date_amended: YYYY-MM-DD
 status: draft | final | amended
@@ -15,7 +17,9 @@ status: draft | final | amended
 ```
 
 - `sap_version` starts at `1` and increments on substantive amendments (not typo fixes)
-- `study_type` must be one of the four values shown; pick the closest fit
+- `study_type` must be one of the values shown; pick the closest fit. The original four values (`observational`, `rct`, `exploratory`, `other`) remain valid
+- `ai_involvement` is optional. Set it when the study uses AI/ML methods: `ai-assisted` for AI as a tool within traditional methods, `ai-primary` for AI as the primary analytical approach, `llm-based` for studies using large language models. Defaults to `none` when omitted
+- `guidelines_selected` is optional. When set, it overrides auto-routing and specifies exactly which reporting guidelines apply (e.g., `[CONSORT, CONSORT-AI]`). When empty or omitted, guidelines are auto-selected from `study_type` and `ai_involvement` via the routing map
 - `date_amended` and `status: amended` are set only when revising a finalized SAP
 - A SAP in `draft` status may be edited freely; `final` signals the analysis plan is locked
 
@@ -24,7 +28,9 @@ status: draft | final | amended
 ```markdown
 ---
 sap_version: 1
-study_type: observational | rct | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+ai_involvement: none
+guidelines_selected: []
 date_created: YYYY-MM-DD
 date_amended: YYYY-MM-DD
 status: draft | final | amended
@@ -143,6 +149,14 @@ status: draft | final | amended
 - Table 1: Baseline characteristics (SAP-2.2, SAP-4.1)
 - Table 2: Primary analysis results (SAP-5.1)
 - Figure 1: Study flow diagram / CONSORT (SAP-4.1)
+
+---
+
+## SAP-11: Reproducibility Metadata
+
+[Reference the project's `.ce-datascience/study-metadata.yaml` file if it exists. Document the key reproducibility parameters for this study: random seeds, software versions, dataset split strategy (for ML studies), and any LLM provenance (for LLM-based studies). See the study metadata schema for the full field set.
+
+This section is optional for traditional statistical analyses. It is strongly recommended for studies with `ai_involvement` set to any value other than `none`.]
 ```
 
 ## Writing Guidance
@@ -155,3 +169,4 @@ When filling in this template from a study design brainstorm:
 4. Use precise statistical language -- name specific tests, models, and adjustment methods rather than vague descriptions like "appropriate statistical methods"
 5. Cross-reference between sections using SAP-N.M identifiers (e.g., "using the population defined in SAP-4.1")
 6. Keep the document self-contained -- a statistician should be able to execute the analysis plan without referring to the brainstorm document
+7. SAP-11 (Reproducibility Metadata) is optional for traditional statistical analyses but strongly recommended when `ai_involvement` is not `none`. At minimum, reference the study metadata file path; detailed provenance fields live in `.ce-datascience/study-metadata.yaml`

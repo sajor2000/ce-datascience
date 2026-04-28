@@ -54,7 +54,17 @@ stack_profile:
 reporting_checklist:
   # Enable reporting guideline checklist in generated outputs
   enabled: false
-  # Reporting guideline to follow
-  # strobe  - STrengthening the Reporting of OBservational studies in Epidemiology
-  # consort - CONsolidated Standards of Reporting Trials
-  guideline: null  # strobe | consort
+  # Primary reporting guideline to follow (auto-selected from SAP study_type when null)
+  # consort             - CONsolidated Standards of Reporting Trials (RCTs)
+  # strobe              - STrengthening the Reporting of OBservational studies in Epidemiology
+  # prisma              - Preferred Reporting Items for Systematic Reviews and Meta-Analyses
+  # stard               - Standards for Reporting Diagnostic Accuracy Studies
+  # care                - CAse REport guidelines
+  # coreq               - Consolidated Criteria for Reporting Qualitative Research
+  # arrive              - Animal Research: Reporting of In Vivo Experiments
+  # cheers              - Consolidated Health Economic Evaluation Reporting Standards
+  # tripod-ai           - Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis + AI
+  guideline: null  # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
+  # Enable AI-specific extension checklists (layered on top of primary guideline)
+  # Auto-detected from SAP ai_involvement field when true
+  ai_extensions: false

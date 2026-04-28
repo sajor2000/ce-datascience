@@ -28,7 +28,7 @@ Spawned on every review regardless of diff content.
 | `methods` | `ce-methods-reviewer` | Files containing statistical tests, regression models, hypothesis testing, or inferential analysis code |
 | `multiplicity` | `ce-multiplicity-reviewer` | Code with multiple endpoints, multiple comparisons, subgroup analyses, or repeated testing patterns |
 | `reproducibility` | `ce-reproducibility-reviewer` | Analysis scripts, notebooks, or pipeline code (checks seeds, versions, paths, environment specs) |
-| `reporting-checklist` | `ce-reporting-checklist-reviewer` | **Opt-in only.** Dispatched when `reporting_checklist: true` in config AND a SAP or study protocol exists. Checks STROBE/CONSORT compliance |
+| `reporting-checklist` | `ce-reporting-checklist-reviewer` | **Opt-in only.** Dispatched when `reporting_checklist: true` in config AND a SAP or study protocol exists. Auto-routes to the correct guideline(s) from the full set: CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, plus AI extensions (REFORMS, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, DEAL, CHART, PDSQI-9) when `ai_involvement` is set |
 | `sap-drift` | `ce-sap-drift-detector` | SAP file (`**/sap.md` or markdown with `sap_version` frontmatter) exists in the project |
 
 ## Language-Specific Conditional

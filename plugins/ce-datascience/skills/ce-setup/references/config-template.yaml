@@ -19,8 +19,11 @@
 #   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
 
 # --- Reporting checklist ---
-# Enable a reporting guideline checklist (STROBE, CONSORT) in generated outputs.
+# Enable reporting guideline compliance review. Guideline is auto-selected
+# from SAP study_type when not specified. See guideline-routing.md for the
+# full routing map including AI extensions.
 
 # reporting_checklist:
 #   enabled: false
-#   guideline: null            # strobe | consort
+#   guideline: null            # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
+#   ai_extensions: false       # layer AI-specific checklists (CONSORT-AI, SPIRIT-AI, CLAIM, etc.)
