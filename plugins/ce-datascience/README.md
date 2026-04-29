@@ -1,6 +1,6 @@
 # CE DataScience
 
-Compound engineering for computational scientists. SAP management, statistical review, and full reporting guideline compliance for R and Python workflows — covering 22 standards across all study types and AI extensions.
+Compound engineering for computational scientists. SAP management, statistical review, and full reporting guideline compliance for R and Python workflows — covering 35 standards across all study types and AI extensions.
 
 ## Getting Started
 
@@ -127,7 +127,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-methods-reviewer` | Statistical test selection and assumption verification |
 | `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting |
 | `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
-| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 22 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
+| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 35 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
 | `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output |
