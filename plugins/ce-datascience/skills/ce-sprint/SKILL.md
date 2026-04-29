@@ -62,16 +62,20 @@ sprint:
 
 ### `/ce-sprint close`
 
-1. Read `sprint-log.yaml`. If `status != open`, report and exit.
+1. Run `scripts/sprint.py close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
 
-2. Spawn `ce-sprint-audit-reviewer`. The reviewer checks:
+   ```
+   __CE_SPRINT_AUDIT_DISPATCH__ sprint=<name> reviewer=ce-sprint-audit-reviewer human_reviewer=<name> scope=<csv> commit_open=<sha> commit_close=<sha>
+   ```
+
+2. Parse the `__CE_SPRINT_AUDIT_DISPATCH__` line and use it to fire the Task tool with `subagent_type=ce-sprint-audit-reviewer`, passing the sprint name, scope, and commit range. The reviewer checks:
    - Every `planned_outputs` row has a corresponding artifact at the expected path
    - No out-of-scope SAP sections were modified during the sprint window (git log of analysis/ files vs `opened` timestamp)
    - No unscheduled outputs were produced (warn; not block)
    - All planned analyses ran successfully (no errored Quarto/notebook chunks)
    - Reproducibility check: re-running the sprint script produces the same hashes for declared outputs
 
-3. Write the sprint summary to `analysis/sprints/<name>/summary.md`:
+3. On a passing audit verdict, write the sprint summary to `analysis/sprints/<name>/summary.md`. On a failing verdict, flip the sprint back to `status: open` so the user can address findings; do not write a summary.
 
 ```
 # Sprint <name> Summary

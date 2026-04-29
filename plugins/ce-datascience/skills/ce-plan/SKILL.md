@@ -49,11 +49,26 @@ When SAP mode is active, replace Phases 3-4 with the SAP-specific workflow below
 **SAP Phase 3: Structure the SAP**
 
 1. Read the SAP template from `references/sap-template.md`
-2. Fill each SAP section (SAP-1 through SAP-10) from the input document and research findings
-3. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming
-4. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank
-5. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments
-6. Use precise statistical language -- name specific tests, models, and adjustment methods
+2. **Scan chat context and `analysis/` for upstream biomedical-skill handoff signals.** Each signal is the output of a skill earlier in the lifecycle and feeds a specific SAP section. The model parses them out of recent chat turns (each is a single line beginning with `__CE_*__`) and out of `analysis/` artifact paths the signals point at, then uses them as inputs in step 3.
+
+   | Signal | Emitted by | Feeds SAP section |
+   |--------|------------|-------------------|
+   | `__CE_PUBMED_RESULTS__ csv=... n=... query=... pmc_pct=...` | `/ce-pubmed` | SAP-1 background, SAP-2 rationale |
+   | `__CE_METHOD_EXTRACT__ csv=... n=...` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
+   | `__CE_CHECKLIST__ primary=STROBE extensions=[TRIPOD+AI,REFORMS]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
+   | `__CE_COHORT__ name=... n=... json=... yaml=...` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
+   | `__CE_DATA_QA__ wave=... pass=true/false issues=...` | `/ce-data-qa` | SAP-2.4 data quality assertions |
+   | `__CE_PHENOTYPE_VALIDATE__ name=... ppv=... sens=... yaml=...` | `/ce-phenotype-validate` | SAP-2 case-definition validation |
+   | `__CE_EFFECT_SIZE__ metric=... point=... ci=... n_studies=...` | `/ce-effect-size` | SAP-2.5 effect-size anchor |
+   | `__CE_POWER__ type=... n=... epv=... file=...` | `/ce-power` | SAP-2.5 sample-size result |
+
+   When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
+
+3. Fill each SAP section (SAP-1 through SAP-10) from the input document, the upstream signal artifacts from step 2, and research findings
+4. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming
+5. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank
+6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2)
+7. Use precise statistical language -- name specific tests, models, and adjustment methods
 
 **SAP Phase 4: Write the SAP**
 

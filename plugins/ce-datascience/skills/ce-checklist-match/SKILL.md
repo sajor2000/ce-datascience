@@ -64,19 +64,24 @@ If the answers don't fit a row, ask a clarifying question rather than guessing.
 
 ### Step 3: Write the selection to stack profile
 
-Update `.ce-datascience/config.local.yaml`:
+Update `.ce-datascience/config.local.yaml`. The shape that `/ce-code-review` and `/ce-plan` read is the canonical surface — keep these field names exact:
 
 ```yaml
 stack_profile:
   ...existing fields...
   study_type: cohort_retrospective
   ai_involvement: none
+  reporting_checklist: STROBE                  # canonical primary; non-null string turns on ce-reporting-checklist-reviewer
+  reporting_checklist_extensions:              # zero or more strings
+    - RECORD
+  # Legacy compatibility — keep both shapes during transition:
   guidelines_selected:
     primary: STROBE
     extensions:
       - RECORD
-  reporting_checklist: true   # turns on ce-reporting-checklist-reviewer
 ```
+
+The string form (`reporting_checklist: STROBE`) is what `/ce-code-review` Stage 3 conditional dispatches on and what `/ce-plan` SAP frontmatter reads from. Never write `reporting_checklist: true` — that legacy boolean was ambiguous (which checklist?) and is deprecated.
 
 ### Step 4: Drop the checklist into the project
 
@@ -84,7 +89,13 @@ For each selected guideline, write a placeholder file at `analysis/checklists/<g
 
 ### Step 5: Emit signal for downstream skills
 
-`__CE_CHECKLIST_MATCH__ primary=<name> extensions=<comma-sep>` so `/ce-plan` knows which sections to scaffold in the SAP.
+Print one line so `/ce-plan` SAP mode and `/ce-code-review` Stage 3 can pick the selection up from chat context:
+
+```
+__CE_CHECKLIST__ primary=STROBE extensions=[RECORD]
+```
+
+The bracket-list form mirrors how `/ce-plan` parses signals in its SAP-Phase 3 step 2 lookup table.
 
 ## What this skill does NOT do
 

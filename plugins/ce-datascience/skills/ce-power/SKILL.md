@@ -70,7 +70,13 @@ Reference the prior literature explicitly so the assumption is auditable.
 
 ### Step 5: Emit signal
 
-`__CE_POWER__ design=<name> n_per_arm=<n> total=<n> with_dropout=<n>` so `/ce-plan` can drop the value into SAP-2.5 automatically.
+Print one line so `/ce-plan` SAP mode can drop the value into SAP-2.5 automatically:
+
+```
+__CE_POWER__ design=<name> n_per_arm=<n> total=<n> with_dropout=<n> file=<path-to-summary.md>
+```
+
+The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `type=prediction-model` plus an `epv=<n>` field. Both forms are recognized by `/ce-plan`.
 
 ## What this skill does NOT do
 

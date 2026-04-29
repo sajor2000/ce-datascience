@@ -114,10 +114,23 @@ def close_sprint(name: str) -> int:
     sprint["status"]       = "pending_review"
     save_log(log)
 
+    scope_csv = ",".join(sprint.get("scope") or [])
     print(f"__CE_SPRINT__ action=close name={name} commit={sprint['commit_close']} "
           f"status=pending_review reviewer={sprint['reviewer']}")
-    print(f"next: dispatch ce-sprint-audit-reviewer to review {name}, "
-          f"then human reviewer ({sprint['reviewer']}) signs off.")
+
+    # Machine-parseable dispatch hint. The skill body in ce-sprint/SKILL.md tells
+    # the orchestrator to use this line to fire the Task tool with
+    # subagent_type=ce-sprint-audit-reviewer. The reviewer's verdict gates whether
+    # status flips closed (pass) or back to open (fail).
+    print(f"__CE_SPRINT_AUDIT_DISPATCH__ "
+          f"sprint={name} "
+          f"reviewer=ce-sprint-audit-reviewer "
+          f"human_reviewer={sprint['reviewer']} "
+          f"scope={scope_csv} "
+          f"commit_open={sprint.get('commit_open') or ''} "
+          f"commit_close={sprint['commit_close'] or ''}")
+    print(f"next: dispatch ce-sprint-audit-reviewer per the line above; "
+          f"on pass, human reviewer ({sprint['reviewer']}) signs off and status flips to closed.")
     return 0
 
 

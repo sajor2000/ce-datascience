@@ -112,8 +112,17 @@ If the cohort waterfall loses > 50% at any single step, suggest `/ce-compound` t
 
 - Does not run statistical analysis (use `/ce-work`)
 - Does not validate the phenotype against chart review (use `/ce-phenotype-validate`)
-- Does not replace the SAP -- the cohort spec is referenced FROM the SAP, not instead of it
+- Does not validate the resulting dataset (run `/ce-data-qa` next; the CONSORT waterfall produced here is the data-quality starting point)
+- Does not replace the SAP — the cohort spec is referenced FROM the SAP, not instead of it
 - Does not de-identify (use `/ce-data-qa` and `ce-phi-leak-reviewer` for that)
+
+## Handoff signal
+
+After step 5, print one line so `/ce-plan` SAP mode and `/ce-data-qa` can pick this cohort up from chat context:
+
+```
+__CE_COHORT__ name=<cohort-name> n=<final-n> json=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>
+```
 
 ## References
 

@@ -122,7 +122,16 @@ Classify the **subject of ideation** (settled in 0.2) into one of three modes fo
 
 **Surprise-me short-circuit.** When Phase 0.2 routed to surprise-me mode, skip the two-decision classification below and use the deterministic rule stated in 0.2: repo-grounded when CWD is inside a git repo, elsewhere-software otherwise. The ambiguity-confirmation step at the end of this section also does not fire for surprise-me — there is no user subject to be ambiguous about. State the chosen mode in one sentence and proceed to 0.4.
 
-For specified subjects, make two sequential binary decisions, enumerating negative signals at each:
+For specified subjects, make three sequential binary decisions, enumerating negative signals at each:
+
+**Decision 0 (fires before Decision 1) — biomedical research question vs everything else.** Some subjects are not engineering or product topics at all but clinical / biomedical research questions: a population, an exposure / intervention, an outcome, a hypothesis, or any combination of those. Software-frame ideation produces wrong-shaped output for these (no PICO, no equipoise check, no reporting-checklist anchor, no prior-art anchor).
+
+- Positive signals for **biomedical-research mode**: the prompt mentions a clinical population (patients, ICU, sepsis, EHR cohort, claims, omics, pediatric, geriatric, oncology, etc.), an exposure or intervention (drug, device, procedure, bundle, biomarker), an outcome (mortality, readmission, AUC, sensitivity/specificity, time-to-event), or any biostat / epi terminology (RCT, cohort, case-control, prospective, retrospective, prediction model, target trial, observational, EHR phenotype). Two or more such terms in the prompt is enough.
+- Negative signals: the prompt is about software, product, naming, narrative, or personal decisions even if it touches healthcare tangentially (e.g., "redesign our patient-portal sign-up page" is elsewhere-software, not biomedical-research).
+
+When biomedical-research mode triggers, skip Decision 1 and Decision 2 and load `references/biomedical-frames.md` in place of Phase 2's six software frames. Phase 1 still runs (codebase scan if in a repo, user-context synthesis otherwise; web research is high-value and on by default; learnings stays on). The biomedical frames file replaces only Phase 2 generation and the Phase 6 menu's "next step" wording — every other phase runs normally.
+
+State the inferred mode plainly: "Treating this as a biomedical research question — about X." No internal taxonomy label.
 
 **Decision 1 — repo-grounded vs elsewhere.** Weigh prompt content first, topic-repo coherence second, and CWD repo presence as supporting evidence only.
 

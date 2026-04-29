@@ -129,7 +129,7 @@ Routing rules:
 | `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, or figure files in diff, OR `stack_profile.data_root` is inside the repo |
 | `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
 | `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
-| `ce-reporting-checklist-reviewer` | `reporting_checklist: true` in stack profile AND a SAP exists |
+| `ce-reporting-checklist-reviewer` | `reporting_checklist:` set to a non-null string (e.g., `STROBE`, `TRIPOD+AI`) in stack profile AND a SAP exists. Pass the value plus any `reporting_checklist_extensions` list to the reviewer as the checklist identifier. |
 | `ce-data-leakage-reviewer` | ML training/eval code in diff (sklearn, lightgbm, xgboost, pytorch, tensorflow, keras, lifelines, sksurv, tidymodels) |
 | `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
 | `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
