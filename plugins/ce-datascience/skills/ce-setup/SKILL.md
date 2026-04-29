@@ -223,6 +223,8 @@ What reporting framework do you prefer?
 
 Store the selection as `stack_profile.reporting`.
 
+If Marimo is selected, display: "Marimo selected. `/ce-work` will scaffold reactive `.py` notebooks. Quarto export (`quarto render`) is available for manuscript output."
+
 ### Step 7: R Project Type (R-only)
 
 When the language selection is R or both, ask:

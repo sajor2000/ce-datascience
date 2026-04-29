@@ -11,7 +11,7 @@ After installing, run `/ce-setup` in any project. It configures your stack profi
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 33 |
+| Skills | 40 |
 
 ## Skills
 
@@ -23,6 +23,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 |-------|-------------|
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, writing a requirements doc before planning |
+| `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
 | `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-work` | Execute analysis tasks with SAP tracking -- surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
@@ -31,6 +32,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
 | `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians hand to programmers |
 | `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
+| `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
 
 ### Biomedical Lifecycle
@@ -51,6 +53,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- enforces Parquet-only, mCIDE vocab, three-script architecture, POC sign-off on protected paths |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 
@@ -66,6 +69,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | Skill | Description |
 |-------|-------------|
 | `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema |
+| `/ce-optimize` | Run metric-driven iterative optimization loops for model hyperparameters, prediction thresholds, feature sets, or any measurable analytical outcome with cross-validation awareness and leakage guards |
 
 ### Git Workflow
 
@@ -74,6 +78,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `ce-clean-gone-branches` | Clean up local branches whose remote tracking branch is gone |
 | `ce-commit` | Create a git commit with a value-communicating message |
 | `ce-commit-push-pr` | Commit, push, and open a PR with an adaptive description |
+| `ce-resolve-pr-feedback` | Resolve PR review feedback in parallel -- evaluates validity, fixes issues, and replies to statistical methodology threads |
 | `ce-worktree` | Manage Git worktrees for parallel development |
 
 ### Review & Quality
@@ -101,6 +106,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-sessions` | Ask questions about session history across Claude Code, Codex, and Cursor |
 | `/ce-setup` | Configure stack profile, diagnose environment, and bootstrap project config |
 | `/ce-update` | Check plugin version and fix stale cache (Claude Code only) |
+| `/ce-workflow` | Lifecycle navigator -- shows ordered skill sequence for your project type, data layer, and language; detects progress and recommends next step |
 
 ## Scripts
 
