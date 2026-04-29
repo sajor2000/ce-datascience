@@ -1,6 +1,6 @@
 ---
 name: ce-phenotype-validate
-description: 'Validate an EHR-derived phenotype algorithm against a chart-review gold standard. Computes PPV, NPV, sensitivity, specificity (with Wilson 95% CIs) overall and by subgroup. Produces a phenotype-validation report that drops into the SAP and into RECORD-extension reporting. Use whenever a study uses an EHR-derived phenotype (algorithmic case definition) as inclusion criterion or outcome ascertainment.'
+description: 'Validates an EHR-derived phenotype algorithm against a chart-review gold standard. Computes PPV, NPV, sensitivity, specificity, F1, and Cohen kappa with Wilson 95% confidence intervals (better small-sample behavior than Wald) overall and stratified by sex/age/race/site. Use whenever the user mentions phenotype validation, algorithm validation, chart review, gold standard, PPV/NPV/sensitivity/specificity for a phenotype, eMERGE phenotype, PheKB phenotype, computable phenotype, "is my cohort definition accurate", "validate the case definition", or RECORD/RECORD-PE reporting requirement for phenotype performance. Required by RECORD-PE for any pharmacoepi study using an EHR-derived case definition. Emits a report and updates the concept-set provenance YAML.'
 argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-output csv"
 ---
 

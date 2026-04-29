@@ -1,6 +1,6 @@
 ---
 name: ce-sprint
-description: 'Open or close a sprint -- a bounded, auditable unit of analysis work. Each sprint declares its scope (subset of SAP sections), entry criteria (data lock, prior sprint signed off), planned outputs (rows from sap-tables/02-outputs.csv), and a named human reviewer. /ce-sprint start opens a sprint and writes sprint-log.yaml; /ce-sprint close runs ce-sprint-audit-reviewer, produces a one-page sprint summary, and gates the next sprint on human sign-off. Use to enact the SAP in human-auditable increments rather than as an unbounded /ce-work session.'
+description: 'Opens, closes, or reports status on a bounded analysis sprint with a named human reviewer and explicit scope (subset of SAP sections). Each sprint declares entry criteria (data lock, prior sprint signed off), planned outputs from sap-tables/02-outputs.csv, and a named reviewer; /ce-sprint close dispatches ce-sprint-audit-reviewer to verify planned-vs-actual and runs a reproducibility re-check. Use whenever the user mentions sprint, sprint open/close, "auditable unit of work", "human sign-off", "lock down what gets done this week", "freeze scope for the next analysis chunk", "human reviewer for this analysis", or wants to enact a SAP in increments rather than one unbounded /ce-work session. Especially valuable for academic / regulated work where each analysis unit needs an audit trail. The sprint-log.yaml IS the audit trail.'
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 

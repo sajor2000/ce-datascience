@@ -1,6 +1,6 @@
 ---
 name: ce-method-extract
-description: 'Extract structured statistical and methodological detail from a PubMed result set produced by /ce-pubmed. For each paper, extract sample size, primary outcome operationalization, statistical methods used, software/package, and reported effect sizes. Output is a comparison table that drops into the SAP justification ("we chose method X because Y comparable studies used it"). Use after /ce-pubmed when planning a SAP and you need to anchor method choices in prior literature.'
+description: 'Extracts structured statistical and methodological detail from a PubMed result set into a comparison table. Use whenever the user wants to extract methods from papers, build a methods comparison table, summarize what statistical approaches prior studies used, find the modal analytic method in a literature corpus, anchor a SAP method choice in prior literature, or produce input for /ce-effect-size meta-analysis pooling. Triggers on "extract methods from these papers", "what did similar studies do for analysis", "summarize the statistical approaches", or any reference to a methods/sample-size/effect-size comparison table. Runs on /ce-pubmed CSV output; pulls full text via PMC OAI when pmcid is available, falls back to abstracts otherwise.'
 argument-hint: "<path/to/pubmed-results.csv>, optional: --full-text-only --max 25"
 ---
 

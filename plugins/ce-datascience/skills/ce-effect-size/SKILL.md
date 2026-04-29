@@ -1,6 +1,6 @@
 ---
 name: ce-effect-size
-description: 'Pool effect-size estimates from prior literature into a defensible assumption for /ce-power. Reads /ce-method-extract output and runs random-effects meta-analysis (REML) when 3+ studies report a comparable effect; otherwise produces a narrative range with the highest-quality study weighted. Output is a single point estimate plus 95% CI plus a forest plot, ready to drop into SAP-2.5 as the power-calc anchor. Use after /ce-method-extract, before /ce-power.'
+description: 'Pools effect-size estimates from prior literature into a single defensible assumption for /ce-power. Runs random-effects meta-analysis (REML) when 3+ studies report a comparable metric; produces a narrative range when fewer. Outputs a pooled point estimate + 95% CI + 95% prediction interval + I^2 + tau^2 + forest plot, ready to drop into SAP-2.5 as the power-calc anchor. Use whenever the user mentions effect size pooling, meta-analysis for power calculation, random-effects REML, pooled HR/OR/RR, prior-literature effect size, "what effect size should I assume", forest plot for prior studies, or finishes /ce-method-extract and is heading to /ce-power. Wraps R meta::metagen conventions; not a full systematic-review meta-analysis (no risk-of-bias scoring) -- use PRISMA workflow for that.'
 argument-hint: "<path/to/methods.csv>, optional: --metric or|hr|rr|md|smd"
 ---
 

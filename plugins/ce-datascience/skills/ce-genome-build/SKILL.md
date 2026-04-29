@@ -1,6 +1,6 @@
 ---
 name: ce-genome-build
-description: 'Record the genome build (GRCh37/GRCh38/T2T) and annotation version (GENCODE/Ensembl) used for every output in a bioinformatics study. Generates a build-manifest YAML, a per-output traceability table, and a build-consistency check that flags any cross-build mixing (BAM aligned to GRCh38 fed to a tool calling against GRCh37). Use at the start of any bioinformatics study and re-run when references change. Genome-build mismatches are a top cause of bioinformatics retractions.'
+description: 'Pins the genome build (GRCh37/GRCh38/T2T-CHM13) and annotation version (GENCODE/Ensembl) used in a bioinformatics study and audits every output (BAM @SQ headers, VCF ##contig lines, GTF, count matrices) for cross-build mixing. Generates a build-manifest YAML, a per-output traceability table, and exits non-zero on any mismatch. Use whenever the user mentions genome build, GRCh37, GRCh38, hg19, hg38, T2T, CHM13, GENCODE version, Ensembl release, "pin the reference", "audit the build", or anything touching reference fasta + annotation across multiple bioinformatics outputs. Genome-build mismatches are a top-5 cause of bioinformatics retractions; this skill makes them detectable.'
 argument-hint: "[--ref-fasta path, --annotation-gtf path, --check]"
 ---
 

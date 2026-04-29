@@ -1,6 +1,6 @@
 ---
 name: ce-prereg
-description: 'Generate a pre-registration form from the locked SAP. Supports OSF (osf.io), ClinicalTrials.gov, PROSPERO (systematic reviews), and AsPredicted. Reads SAP-1 (background), SAP-2 (variables), SAP-3 (hypotheses), SAP-4 (analysis plan), SAP-5 (sample size) and maps them to the registry-specific form fields. Outputs a ready-to-paste markdown file plus a pre-filled JSON / form-data export. Use after SAP is locked and before data unblinding (or, for retrospective studies, before any inferential analysis is run).'
+description: 'Generates a pre-registration form from the locked SAP for OSF, ClinicalTrials.gov, PROSPERO (systematic reviews), or AsPredicted. Reads SAP sections (background, variables, hypotheses, analysis plan, sample size) and maps them to the registry-specific form fields; refuses to generate if the SAP is not locked, blinding state is unblinded, or git log shows inferential analysis already ran. Use whenever the user mentions pre-registration, prereg, OSF, ClinicalTrials.gov, NCT, PROSPERO, AsPredicted, ICMJE registration, "register this trial", "pre-register the analysis plan", or any reference to a registration deadline relative to enrollment. ICMJE requires CT.gov registration BEFORE first enrollment for prospective interventional studies; this skill catches that timing window.'
 argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --sap path"
 ---
 

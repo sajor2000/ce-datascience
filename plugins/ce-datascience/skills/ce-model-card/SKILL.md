@@ -1,6 +1,6 @@
 ---
 name: ce-model-card
-description: 'Generate a Mitchell-style model card for a clinical / biomedical prediction model. Captures intended use, training data, evaluation data, performance overall and by subgroup, calibration, fairness considerations, ethical considerations, caveats and recommendations. Drops in as a manuscript appendix and a deployment artifact. Use after model evaluation is done and before manuscript submission, especially for TRIPOD+AI / CONSORT-AI compliance.'
+description: 'Generates a Mitchell-style model card for a clinical / biomedical prediction or classification model: intended use, training data, evaluation data, overall + subgroup performance, calibration, fairness considerations, ethical considerations, caveats, recalibration plan. Use whenever the user mentions model card, Mitchell model card, TRIPOD+AI item 16, CONSORT-AI item 7, FDA AI/ML model documentation, "document the model for the manuscript", "appendix for the prediction model", "deployment artifact", or finishes evaluating a clinical prediction model. Required by TRIPOD+AI and recommended by FDA for AI/ML clinical decision support. Reads an eval-output JSON with overall metrics + per-subgroup metrics; refuses to generate placeholder cards when required fields are missing.'
 argument-hint: "<model artifact path>, optional: --eval-output path/to/eval-results.json"
 ---
 

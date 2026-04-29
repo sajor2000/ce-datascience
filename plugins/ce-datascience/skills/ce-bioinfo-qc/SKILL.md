@@ -1,6 +1,6 @@
 ---
 name: ce-bioinfo-qc
-description: 'Run sequencing and omics data quality assessment before any downstream analysis. Wraps FastQC / MultiQC / per-sample genotype concordance / batch-effect screen (PCA + ComBat candidate flag) into a single QC gate. Produces a GO/NO-GO report parallel to /ce-data-qa but for FASTQ, BAM, count matrices, methylation arrays, and other omics inputs. Use whenever a bioinformatics data wave is registered, before running differential analysis or model training.'
+description: 'Runs sequencing and omics data QA before any downstream analysis. Wraps FastQC, MultiQC, samtools flagstat, mosdepth, RSeQC, somalier (sample-swap detection via genotype concordance), and PCA-based batch-confound screening into a single GO/NO-GO gate. The omics counterpart to /ce-data-qa, for FASTQ, BAM/CRAM, count matrices, methylation IDAT, and VCF inputs. Use whenever the user mentions FASTQ, BAM, CRAM, sequencing QC, FastQC, MultiQC, RNA-seq QC, WGS/WES QC, ATAC-seq QC, methylation array QC, sample swap, somalier, batch effect screening, or registers a sequencing/omics data wave. Modality is auto-detected from file extensions; flags batch-condition confound (P0) before any differential analysis runs.'
 argument-hint: "<data dir or sample sheet>, optional: --modality wgs|wes|rnaseq|chipseq|methyl|atac|microarray"
 ---
 

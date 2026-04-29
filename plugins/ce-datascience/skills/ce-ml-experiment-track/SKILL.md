@@ -1,6 +1,6 @@
 ---
 name: ce-ml-experiment-track
-description: 'Wire up ML experiment tracking with mlflow, wandb, or dvc so every model run logs training data hash, hyperparams, metrics, model weights, and a study-id link. Generates the boilerplate, configures the tracking backend, and writes a run-log YAML schema for offline tracking when network not available. Use at the start of an ML project and after the first uncontrolled experimentation phase, before "real" runs that will appear in a manuscript.'
+description: 'Wires up ML experiment tracking (mlflow, wandb, dvc, or offline-YAML) so every model run logs training-data hash, hyperparams, metrics, model artifacts, and a study-id link. Generates backend-specific boilerplate (init script, run-schema.yaml with required logged fields, .gitignore entries) and a `runs/<run-id>.yaml` fallback so the local repo is the audit trail even if the tracking server is lost. Use whenever the user mentions mlflow, wandb, weights-and-biases, DVC, experiment tracking, run tracking, "track my model runs", "I keep losing track of which model I trained", reproducibility for ML, model versioning, run registry, or starts a new ML project. Use BEFORE the first manuscript-bound run; if uncontrolled experiments already happened, the previous tracking is lost.'
 argument-hint: "[--backend mlflow|wandb|dvc|offline, --project name]"
 ---
 

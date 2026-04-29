@@ -1,6 +1,6 @@
 ---
 name: ce-power
-description: 'Compute sample size / power for the planned study design. Supports two-sample t, two-proportion, log-rank (survival), mixed-effects (cluster RCT, repeated measures), and prediction-model events-per-variable rules. Generates an R or Python script that runs the calculation, produces a sensitivity sweep across plausible effect sizes, and writes a one-page write-up that drops into SAP-2.5. Use during /ce-plan once the primary outcome and effect-size assumption are settled (often after /ce-method-extract anchors the assumption in prior literature).'
+description: 'Computes sample size / power for the planned study design with a sensitivity sweep across plausible effect sizes. Supports two-sample t, two-proportion, log-rank/Cox (survival), mixed-effects (cluster RCT, repeated measures), TOST equivalence/non-inferiority, and Riley 2018 four-criterion sample size for prediction-model development (uses the pmsampsize R package, not naive EPV ≥ 10). Use whenever the user mentions sample size, power calculation, "how many participants do I need", "is this study powered", a priori power, sensitivity to effect size, EPV, Riley criteria, pmsampsize, sample size for external validation, or any /ce-plan step needing a SAP-2.5 paragraph. Generates a runnable R or Python script + a sensitivity sweep table + a one-page write-up. Reads /ce-effect-size pooled estimates as the effect-size anchor when available.'
 argument-hint: "<design>, optional: --effect-size <value> --alpha 0.05 --power 0.80 --side two"
 ---
 

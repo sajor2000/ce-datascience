@@ -1,6 +1,6 @@
 ---
 name: ce-cohort-build
-description: 'Define a study cohort using inclusion/exclusion criteria, OMOP concept sets (or ICD/CPT/LOINC code lists for non-OMOP datasets), and an index-event definition. Outputs a SQL/CTE definition, a JSON cohort spec compatible with ATLAS, and a CONSORT-flow waterfall (eligible → included → excluded with reasons). Use at the start of any observational study using EHR or administrative data, before /ce-data-qa runs.'
+description: 'Defines a study cohort using inclusion/exclusion criteria, OMOP concept sets (or ICD/CPT/LOINC/SNOMED/RxNorm code lists), an index event, and continuous-enrollment + look-back + wash-out + follow-up windows. Outputs a Capr-compatible JSON cohort spec, a SQL/CTE query, concept-set YAMLs with vocabulary version pinning, and a CONSORT-flow waterfall (eligible → included → excluded with reasons). Use whenever the user mentions cohort definition, OMOP, ATLAS, OHDSI, observational study setup, EHR cohort, claims cohort, ICD/CPT/SNOMED/RxNorm/LOINC code lists, phenotype algorithm, inclusion/exclusion criteria, index date, target trial cohort, or "build me a cohort of". Use at the START of any observational study, before /ce-data-qa runs. Wraps OHDSI Capr conventions; concept sets are vocabulary-version-pinned to prevent silent drift across data refreshes.'
 argument-hint: "<cohort name>, optional: --vocab omop|icd10|icd9|cpt|loinc|snomed --index-event <event>"
 ---
 
