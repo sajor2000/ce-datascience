@@ -8,47 +8,7 @@ Built on the [compound-engineering](https://github.com/EveryInc/compound-enginee
 
 Frame your research question. Search the literature. Build a cohort. Write a Statistical Analysis Plan. Execute with SAP tracking. Review against 35 reporting checklists. Document what you learned so the next study is easier.
 
-```mermaid
-flowchart LR
-    subgraph FRAME ["Frame"]
-        RQ["/ce-research-question\nPICO + FINER"]
-    end
-
-    subgraph EVIDENCE ["Evidence"]
-        PB["/ce-pubmed"]
-        ME["/ce-method-extract"]
-        ES["/ce-effect-size"]
-        PW["/ce-power"]
-    end
-
-    subgraph COHORT ["Cohort"]
-        CB["/ce-cohort-build\nOMOP | CLIF | claims"]
-        DQ["/ce-data-qa\nGO / NO-GO"]
-        PV["/ce-phenotype-validate"]
-    end
-
-    subgraph PLAN ["Plan"]
-        PL["/ce-plan\nSAP mode"]
-        ST["/ce-sap-tabular"]
-        CM["/ce-checklist-match\nSTROBE | CONSORT | TRIPOD+AI"]
-    end
-
-    subgraph EXECUTE ["Execute"]
-        SP["/ce-sprint"]
-        WK["/ce-work\nSAP tracking"]
-        VR["/ce-verify\nmid-workflow checks"]
-    end
-
-    subgraph REVIEW ["Review"]
-        CR["/ce-code-review\n55 agents"]
-        CP["/ce-compound\ndocument learnings"]
-    end
-
-    RQ --> PB --> ME --> ES --> PW
-    PW --> CB --> DQ --> PV
-    PV --> CM --> PL --> ST
-    ST --> SP --> WK --> VR --> CR --> CP
-```
+![CE DataScience Workflow — From PICO to Publication](docs/workflow-diagram.png)
 
 Run `/ce-workflow` to see which path applies to your project and where you are in it.
 
