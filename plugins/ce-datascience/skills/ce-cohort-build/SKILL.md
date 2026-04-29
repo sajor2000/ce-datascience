@@ -37,6 +37,15 @@ Print: `[research-question] seeding cohort from analysis/research-question.yaml;
 
 When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 
+**CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults:
+
+- Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
+- The cohort identifier is `hospitalization_id` (VARCHAR). Persist the cohort as `output/cohort_ids.parquet` — never CSV, never with an integer cast.
+- Inclusion criteria default to `adt.location_category == "icu"` for ICU studies; `hospitalization.age_at_admission >= 18` for adult studies.
+- All datetime filters are timezone-aware UTC (see `ce-clif/references/clif-rules.md` §3).
+- The waterfall is written to `output/cohort_waterfall.csv`; the SQL/CTE step is replaced by a `code/02_cohort_<name>.{py,R}` script that follows the three-script architecture from `WORKFLOW.md`.
+- `_category` filters must use mCIDE allow-listed values (see `ce-clif/references/mcide-vocab.md`). Refuse to emit a filter with an unknown category string.
+
 ### Step 1: Elicit the cohort definition
 
 Ask the user (or parse from `args`):

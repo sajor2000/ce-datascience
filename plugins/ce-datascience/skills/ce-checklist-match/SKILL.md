@@ -47,6 +47,15 @@ Confirm or correct any of these? (or say "go" to accept all)
 
 When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 and ask all questions.
 
+**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, pre-fill `data_source = EHR (CLIF)` and bias the routing toward:
+
+- Observational cohort → STROBE + RECORD (always; CLIF is EHR-derived).
+- Prediction model → TRIPOD+AI.
+- Target trial emulation → TARGET (with STROBE underneath).
+- RCT using CLIF for outcome ascertainment → CONSORT (and RECORD if outcomes are EHR-defined).
+
+Surface these defaults to the user and let them override before writing to stack profile.
+
 ### Step 1: Ask the routing questions
 
 If `--interactive` or the study description is too sparse, ask 4-6 questions one at a time:

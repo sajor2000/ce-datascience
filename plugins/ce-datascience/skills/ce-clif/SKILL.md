@@ -1,0 +1,103 @@
+---
+name: ce-clif
+description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format consortium repos (CLIF, mCIDE, clif-icu.com, project-template-derived projects). Enforces Parquet-only storage, timezone-aware UTC datetimes, mCIDE-allow-listed category vocabularies, the canonical project layout (code/, config/, outlier-thresholds/, output/, renv/, utils/), the QC -> cohort -> analysis script split, and no-PHI output rules. Treats mCIDE/, ddl/, outlier-handling/, reference_ranges/, WORKFLOW.md as protected paths needing POC sign-off. Use whenever the user mentions CLIF, mCIDE, clif-icu, clif-consortium, a CLIF table (patient, hospitalization, adt, vitals, labs, respiratory_support, medication_admin_continuous), federated ICU research, or the workspace has CLIF_CLAUDE.md / mCIDE/ / WORKFLOW.md. Auto-activates and emits __CE_CLIF__ active=true so other ce-* skills (cohort-build, data-qa, plan, checklist-match, code-review, work) switch to CLIF behavior.'
+argument-hint: "[optional: --version 2.0.0|2.1.0, --strict, --off]"
+---
+
+# CLIF-Safe Profile
+
+Loads the CLIF (Common Longitudinal ICU data Format) ruleset whenever a session is operating against a CLIF consortium repo or a CLIF-derived project. The goal is simple: when a user is doing CLIF work, the rest of the `ce-*` lifecycle should automatically respect CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
+
+## When this skill activates
+
+Auto-activate when **any one** of the following signals is present:
+
+- A file named `CLIF_CLAUDE.md` exists at the repo root or `~/CLIF_CLAUDE.md`
+- The working directory contains both `WORKFLOW.md` and a `mCIDE/` directory
+- The working directory contains a `renv.lock` plus references to CLIF tables (`clif_*` parquet files, `read_parquet("patient.parquet")`, etc.)
+- Git remote URL contains `clif-consortium`, `Common-Longitudinal-ICU-data-Format`, or `clif-icu`
+- The user mentions CLIF, mCIDE, clif-icu, "common longitudinal icu data format", or a CLIF table by name (`hospitalization`, `respiratory_support`, `medication_admin_continuous`, etc.)
+- Manual: `/ce-clif` (forces activation), `/ce-clif --off` (forces deactivation for the session)
+
+When activated, print one acknowledgment line and emit the handoff signal:
+
+```
+[ce-clif] CLIF profile active (data dictionary <version>); protected paths read-only without POC sign-off.
+__CE_CLIF__ active=true version=<2.0.0|2.1.0> strict=<true|false> rules=plugins/ce-datascience/skills/ce-clif/references/clif-rules.md
+```
+
+When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
+
+## Prerequisites
+
+None. The skill is a guardrail layer; it reads context but does not require a stack profile.
+
+## Core workflow
+
+### Step 1: Detect or confirm
+
+If auto-detection signals are present, activate silently and print the acknowledgment line. If signals are ambiguous (e.g., user mentions CLIF but is in an unrelated repo), ask one question:
+
+> "Detected CLIF references but the working directory is `<dir>`. Activate CLIF profile for this session?"
+
+### Step 2: Load the rule set
+
+Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
+
+### Step 3: Read the project's local override (optional)
+
+If `.ce-datascience/config.local.yaml` contains a `clif:` block, merge it over the defaults. Recognized keys:
+
+```yaml
+profile: clif
+clif:
+  data_dictionary_version: "2.1.0"   # default 2.1.0 per CLIF_CLAUDE.md
+  parquet_only: true                  # refuse CSV/Feather for CLIF tables
+  protected_paths:                    # in addition to the built-in list
+    - mCIDE/**
+    - ddl/**
+    - outlier-handling/**
+    - reference_ranges/**
+    - WORKFLOW.md
+  poc_table_path: ./CLIF_POCs.md      # optional override; defaults to references/poc-table.md
+  strict: true                        # block on any rule violation rather than warn
+```
+
+### Step 4: Emit the signal
+
+Other `ce-*` skills check chat context for `__CE_CLIF__ active=true` in their step-0 context scan and switch behavior accordingly. This skill never directly modifies the user's repo — it only loads rules and emits the signal.
+
+### Step 5: On protected-path edits
+
+When the session is about to edit any `protected_paths` entry, the skill's guardrail runs **before** the edit:
+
+1. Resolve the responsible POC by matching the file path against `references/poc-table.md` (e.g., `mCIDE/respiratory_support/**` -> Nicholas Ingraham, `@ingra107`).
+2. Refuse the edit unless the prompt contains a phrase indicating POC authorization, e.g., `POC: @ingra107 approved` or `--poc-approved`.
+3. If the user insists without authorization, write the proposed change to `analysis/clif-protected-edits/<timestamp>-<file>.diff` and surface a single-line warning:
+
+   ```
+   [ce-clif] BLOCKED: edit to mCIDE/respiratory_support/respiratory_support_mode_categories.csv requires POC sign-off (Nicholas Ingraham, @ingra107). Diff staged at analysis/clif-protected-edits/2026-04-29T18-00-00-respiratory_support_mode_categories.diff
+   ```
+
+## What this skill does NOT do
+
+- Does not edit files in the upstream CLIF repo on the user's behalf
+- Does not contact POCs (it only cites the right person)
+- Does not replace `/ce-data-qa`, `/ce-cohort-build`, etc. — it just changes how those skills behave when CLIF mode is active
+- Does not de-identify data or run PHI scans (use `ce-phi-leak-reviewer`)
+
+## Handoff signal (canonical envelope)
+
+```
+__CE_CLIF__ active=<true|false> version=<dd-version> strict=<true|false> rules=<path-to-clif-rules.md>
+```
+
+Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; they parse `version=` to know which data dictionary applies; they parse `strict=true` to escalate warnings into refusals.
+
+## References
+
+@./references/clif-rules.md — Core rules (Parquet-only, UTC datetimes, mCIDE vocab, project layout, PHI rules, three-script architecture)
+
+@./references/mcide-vocab.md — Allow-listed values for every `_category` column across the 16 beta tables, plus pointers to mCIDE CSV sources
+
+@./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail

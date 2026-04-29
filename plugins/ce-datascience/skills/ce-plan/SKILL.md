@@ -64,8 +64,11 @@ When SAP mode is active, replace Phases 3-4 with the SAP-specific workflow below
    | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `/ce-phenotype-validate` | SAP-2 case-definition validation |
    | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `/ce-effect-size` | SAP-2.5 effect-size anchor |
    | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `/ce-power` | SAP-2.5 sample-size result |
+   | `__CE_CLIF__ active=<bool> version=<dd-version> strict=<bool> rules=<path>` | `/ce-clif` | SAP frontmatter `data_source: CLIF`, SAP-2 layout, SAP-9 dissemination |
 
    When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
+
+   **CLIF profile**: when `__CE_CLIF__ active=true` is present, also set the SAP frontmatter field `data_source: CLIF` (with the data dictionary `version` from the signal), default the implementation-units split to the three-script architecture (QC -> cohort -> analysis under `code/`), default `reporting_checklist: STROBE` + `reporting_checklist_extensions: [RECORD]` for observational studies if not already set by `__CE_CHECKLIST__`, and add a SAP-9 dissemination note: "patient-level data does not leave each site; only aggregate results in `output/` are shared". Place protected-path edits (mCIDE, ddl, outlier-handling, reference_ranges, WORKFLOW.md) out of scope for any implementation unit unless the user has stated POC sign-off.
 
 3. Fill each SAP section (SAP-1 through SAP-10) from the input document, the upstream signal artifacts from step 2, and research findings
 4. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming

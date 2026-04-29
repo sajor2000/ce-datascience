@@ -43,6 +43,15 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 
 ### Step 3: Run the QA checks
 
+**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks:
+
+- **Storage check**: refuse to QA non-Parquet inputs for CLIF tables; emit a `block` finding if asked to QA CSV/Feather data declared as CLIF.
+- **ID type check**: `patient_id` and `hospitalization_id` are VARCHAR — `block` if cast to int.
+- **Datetime check**: every `*_dttm` column is timezone-aware UTC — `block` if any tz-naive timestamps exist.
+- **mCIDE vocabulary check**: every `*_category` column conforms to `ce-clif/references/mcide-vocab.md`. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
+- **Outlier-handling check**: physiologic ranges follow `outlier-handling/` thresholds when present; `warn` on out-of-range, never silently clip.
+- **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
+
 Apply each check from `references/qa-checks.md` against the data. Generate findings into one of these buckets:
 
 | Bucket | Meaning | Effect on gate |
