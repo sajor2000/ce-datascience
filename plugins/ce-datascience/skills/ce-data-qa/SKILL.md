@@ -51,7 +51,7 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 - **mCIDE vocabulary check**: every `*_category` column conforms to `ce-clif/references/mcide-vocab.md`. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
 - **Outlier-handling check**: physiologic ranges follow `outlier-handling/` thresholds when present; `warn` on out-of-range, never silently clip.
 - **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
-- **Canonical implementation**: prefer the upstream DQA implementation when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator.run_dqa()` (see `ce-clif/references/clifpy-recipes.md` §6). `__CE_LANG__ primary=r` -> use the QC and outlier-handler templates in `ce-clif/references/r-template-recipes.md` §6-7. Roll your own only when neither applies.
+- **Canonical implementation**: prefer the upstream DQA implementation when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator.run_dqa()` (see `ce-clif/references/clifpy-recipes.md` §6). `__CE_LANG__ primary=r` -> use the QC and outlier-handler templates in `ce-clif/references/r-template-recipes.md` §6-7. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.
 
 Apply each check from `references/qa-checks.md` against the data. Generate findings into one of these buckets:
 

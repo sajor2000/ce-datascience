@@ -1,6 +1,6 @@
 ---
 name: ce-setup
-description: "Configure data science stack profile and diagnose environment. Prompts for language (R/Python/both), IDE, data libraries, statistical packages, and reporting framework. Detects existing config and offers modification. Use when setting up a new project, switching tools, or troubleshooting environment."
+description: "Configure data science stack profile and diagnose environment. Auto-detects language (R/Python/both) from repository signals, then prompts for IDE, data libraries, statistical packages, and reporting framework. Detects existing config and offers modification. Use when setting up a new project, switching tools, or troubleshooting environment."
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Interaction Method
 
-Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) -- not because a schema load is required. Never silently skip or auto-configure. For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
+Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) -- not because a schema load is required. Never silently skip or auto-configure user-facing questions (except the explicit repo-signal language auto-detect in Phase 0.5). For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
 
 Interactive setup for ce-datascience -- configures the stack profile for R/Python data science workflows, diagnoses environment health, and bootstraps project-local config.
 
@@ -38,21 +38,35 @@ If the user selects "Modify this profile", proceed to Phase 1 but pre-fill each 
 
 If `__NO_CONFIG__`, this is a first-time setup. Display: "No stack profile found. Let's configure your data science environment." Proceed to Phase 1.
 
+## Phase 0.5: Auto-detect language from repo signals (no question)
+
+Before asking any Phase 1 questions, run `/ce-language-detect` (or apply its rules from `ce-language-detect/references/detection-rules.md`) and capture:
+
+```
+__CE_LANG__ primary=<python|r|both|unknown> secondary=<python|r|null> source=<auto|cached|manual>
+```
+
+Rules:
+
+- Do not ask the user what language they use in this phase.
+- If `primary=unknown` and an existing config has `stack_profile.language`, reuse that value and set `source=cached`.
+- If `primary=unknown` and no prior config exists, default to `both`.
+
 ## Phase 1: Stack Profile Configuration
 
 Walk through each question in sequence. The answer to each question determines the options shown for subsequent questions.
 
-### Step 1: Language
+### Step 1: Language (from auto-detection)
+
+Set `stack_profile.language` from `__CE_LANG__.primary` captured in Phase 0.5 (`r`, `python`, or `both`).
+
+- If `primary=unknown`, use fallback rules from Phase 0.5.
+- Store the detection metadata as `language_detect.primary`, `language_detect.secondary`, and `language_detect.source`.
+- Print one line so the user can see what happened:
 
 ```
-What is your primary analysis language?
-
-1. R
-2. Python
-3. Both (polyglot projects)
+[ce-setup] language auto-detected: <primary> (source=<auto|cached|manual>)
 ```
-
-Store the selection as `stack_profile.language`.
 
 ### Step 2: IDE
 
@@ -292,6 +306,15 @@ Resolve the repository root (`git rev-parse --show-toplevel`). All paths are rel
 
 Build the YAML content from the collected answers. Only include non-null values. Write to `<repo-root>/.ce-datascience/config.local.yaml`, creating the directory if needed.
 
+Persist the language-detection block gathered in Phase 0.5:
+
+```yaml
+language_detect:
+  primary: <python|r|both|unknown>
+  secondary: <python|r|null>
+  source: <auto|cached|manual>
+```
+
 If `.ce-datascience/config.local.yaml` is not already covered by `.gitignore`, offer to add the entry:
 
 ```text
@@ -314,6 +337,12 @@ Stack profile saved to .ce-datascience/config.local.yaml
   Checklist:   none
 
 Run /ce-setup anytime to modify.
+```
+
+After saving, emit:
+
+```
+__CE_LANG__ primary=<python|r|both|unknown> secondary=<python|r|null> source=<auto|cached|manual>
 ```
 
 ## Phase 2: Environment Health Check

@@ -1,7 +1,7 @@
 ---
 name: ce-clif
-description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format consortium repos (CLIF, mCIDE, clif-icu.com, project-template-derived projects). Enforces Parquet-only storage, timezone-aware UTC datetimes, mCIDE-allow-listed category vocabularies, the canonical project layout (code/, config/, outlier-thresholds/, output/, renv/, utils/), the QC -> cohort -> analysis script split, and no-PHI output rules. Treats mCIDE/, ddl/, outlier-handling/, reference_ranges/, WORKFLOW.md as protected paths needing POC sign-off. Use whenever the user mentions CLIF, mCIDE, clif-icu, clif-consortium, a CLIF table (patient, hospitalization, adt, vitals, labs, respiratory_support, medication_admin_continuous), federated ICU research, or the workspace has CLIF_CLAUDE.md / mCIDE/ / WORKFLOW.md. Auto-activates and emits __CE_CLIF__ active=true so other ce-* skills (cohort-build, data-qa, plan, checklist-match, code-review, work) switch to CLIF behavior.'
-argument-hint: "[optional: --version 2.0.0|2.1.0, --strict, --off]"
+description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format repos (CLIF, mCIDE, clif-icu.com, project-template-derived projects). Enforces Parquet-only storage, timezone-aware UTC datetimes, mCIDE allow-listed category vocabularies, canonical layout (code/, config/, outlier-thresholds/, output/, renv/, utils/), QC -> cohort -> analysis script split, and no-PHI output rules. Treats mCIDE/, ddl/, outlier-handling/, reference_ranges/, WORKFLOW.md as protected paths requiring POC sign-off. Use when the user mentions CLIF/mCIDE/clif-icu or CLIF tables (patient, hospitalization, adt, vitals, labs, respiratory_support, medication_admin_continuous), or when the repo has CLIF_CLAUDE.md / mCIDE/ / WORKFLOW.md. Auto-activates and emits __CE_CLIF__ active=true, and ensures __CE_LANG__ is available via ce-language-detect for language-specific recipe routing.'
+argument-hint: "[optional: --version 2.1.1|2.2.0|3.0.0, --strict, --off]"
 ---
 
 # CLIF-Safe Profile
@@ -42,9 +42,15 @@ If auto-detection signals are present, activate silently and print the acknowled
 
 > "Detected CLIF references but the working directory is `<dir>`. Activate CLIF profile for this session?"
 
-### Step 2: Load the rule set
+### Step 2: Load the rule set and language envelope
 
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
+
+Then ensure `__CE_LANG__` exists:
+
+- If `__CE_LANG__` is already present in chat context, consume it as-is.
+- Otherwise invoke `/ce-language-detect` and use its emitted envelope.
+- If detection returns `primary=unknown`, route CLIF code guidance to both recipe files.
 
 ### Step 3: Read the project's local override (optional)
 
@@ -67,7 +73,7 @@ clif:
 
 ### Step 4: Emit the signal
 
-Other `ce-*` skills check chat context for `__CE_CLIF__ active=true` in their step-0 context scan and switch behavior accordingly. This skill never directly modifies the user's repo — it only loads rules and emits the signal.
+Other `ce-*` skills check chat context for `__CE_CLIF__ active=true` and `__CE_LANG__ ...` in their step-0 context scan and switch behavior accordingly. This skill never directly modifies the user's repo — it only loads rules and emits the signal(s).
 
 ### Step 5: On protected-path edits
 
