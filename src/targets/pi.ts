@@ -17,13 +17,15 @@ import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
 import { cleanupStaleAgents } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
 
-const PI_AGENTS_BLOCK_START = "<!-- BEGIN COMPOUND PI TOOL MAP -->"
-const PI_AGENTS_BLOCK_END = "<!-- END COMPOUND PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_END = "<!-- END CE DATASCIENCE PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_START_PREV = "<!-- BEGIN COMPOUND PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_END_PREV = "<!-- END COMPOUND PI TOOL MAP -->"
 const PI_INSTALL_MANIFEST = "install-manifest.json"
 
-const PI_AGENTS_BLOCK_BODY = `## Compound Engineering (Pi compatibility)
+const PI_AGENTS_BLOCK_BODY = `## CE DataScience (Pi compatibility)
 
-This block is managed by compound-plugin.
+This block is managed by ce-datascience.
 
 Pi extensions used by this plugin:
 - Required: \`pi-subagents\` (by nicobailon) provides the \`subagent\` tool used by skills that dispatch parallel agents
@@ -136,7 +138,10 @@ function resolvePiPaths(outputRoot: string, pluginName?: string): PiPaths {
   // Namespace the managed install directory per plugin so multiple plugins
   // installed into the same Pi root do not share (and overwrite) each other's
   // install manifests. `resolveManagedSegment` falls back to the legacy
-  // "compound-engineering" segment when no plugin name is supplied.
+  // "compound-engineering" segment when no plugin name is supplied
+  // (backward compat: old installs used this segment; ce-datascience is the
+  // current name, but resolveManagedSegment preserves the old path as
+  // LEGACY_MANAGED_SEGMENT).
   const managedSegment = resolveManagedSegment(pluginName)
   const base = path.basename(outputRoot)
 
@@ -195,12 +200,20 @@ function buildPiAgentsBlock(): string {
 }
 
 function upsertBlock(existing: string, block: string): string {
-  const startIndex = existing.indexOf(PI_AGENTS_BLOCK_START)
-  const endIndex = existing.indexOf(PI_AGENTS_BLOCK_END)
+  // Check for both new and legacy markers
+  const startIdx = existing.indexOf(PI_AGENTS_BLOCK_START)
+  const endIdx = existing.indexOf(PI_AGENTS_BLOCK_END)
+  const prevStartIdx = existing.indexOf(PI_AGENTS_BLOCK_START_PREV)
+  const prevEndIdx = existing.indexOf(PI_AGENTS_BLOCK_END_PREV)
+
+  // Prefer new markers, fall back to legacy markers
+  const startIndex = startIdx !== -1 ? startIdx : prevStartIdx
+  const endMarker = startIdx !== -1 ? PI_AGENTS_BLOCK_END : PI_AGENTS_BLOCK_END_PREV
+  const endIndex = startIdx !== -1 ? endIdx : prevEndIdx
 
   if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
     const before = existing.slice(0, startIndex).trimEnd()
-    const after = existing.slice(endIndex + PI_AGENTS_BLOCK_END.length).trimStart()
+    const after = existing.slice(endIndex + endMarker.length).trimStart()
     return [before, block, after].filter(Boolean).join("\n\n") + "\n"
   }
 
@@ -417,13 +430,14 @@ async function cleanupCurrentManagedAgentFile(
 // on upgrade. This list is the safety net for that case.
 const LEGACY_PI_EXTENSIONS_BY_PLUGIN: Record<string, string[]> = {
   "compound-engineering": ["compound-engineering-compat.ts"],
+  "ce-datascience": ["compound-engineering-compat.ts"],
 }
 
 // Plugins that historically shipped an mcporter.json (via the now-removed
 // compat extension) but no longer do when `bundle.mcporterConfig` is absent.
 // The per-plugin guard keeps us from touching mcporter configs owned by
 // plugins that still legitimately emit one.
-const LEGACY_PI_MCPORTER_PLUGINS = new Set<string>(["compound-engineering"])
+const LEGACY_PI_MCPORTER_PLUGINS = new Set<string>(["compound-engineering", "ce-datascience"])
 
 type LegacyArtifactKind = "skills" | "prompts" | "extensions" | "mcporter"
 

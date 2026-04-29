@@ -60,7 +60,7 @@ function collectFrontmatterFiles(pluginRoot: string): [string, string][] {
 describe("frontmatter YAML validity", () => {
   const MAX_SKILL_DESCRIPTION_LENGTH = 1024
   const pluginRoots = [
-    "plugins/compound-engineering",
+    "plugins/ce-datascience",
     "plugins/coding-tutor",
   ]
 

@@ -160,7 +160,7 @@ describe("convertClaudeToCodex", () => {
   test("copies workflow skills as regular skills and omits workflows aliases", () => {
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
-      manifest: { name: "compound-engineering", version: "1.0.0" },
+      manifest: { name: "ce-datascience", version: "1.0.0" },
       commands: [],
       agents: [],
       skills: [
@@ -366,7 +366,7 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
   test("retains <category>-<agent> naming for nested-layout plugins (dead-code fallback)", () => {
     // This test pins the behavior of getAgentCategory() for any third-party
     // plugin that still uses agents/<category>/<name>.md layout. The
-    // compound-engineering plugin itself is flat, but the converter must keep
+    // ce-datascience plugin itself is flat, but the converter must keep
     // working for other plugins passed through the CLI.
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
@@ -525,7 +525,7 @@ Don't confuse with file paths like /tmp/output.md or /dev/null.`,
   test("transforms workflow skill slash commands to Codex skill references", () => {
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
-      manifest: { name: "compound-engineering", version: "1.0.0" },
+      manifest: { name: "ce-datascience", version: "1.0.0" },
       commands: [
         {
           name: "review",
@@ -624,11 +624,11 @@ If planning is complete, continue with /ce-work.`,
         {
           name: "review",
           description: "Review command",
-          body: `Read \`compound-engineering.local.md\` in the project root.
+          body: `Read \`ce-datascience.local.md\` in the project root.
 
 If no settings file exists, auto-detect project type.
 
-Run \`/compound-engineering-setup\` to create a settings file.`,
+Run \`/ce-datascience-setup\` to create a settings file.`,
           sourcePath: "/tmp/plugin/commands/review.md",
         },
       ],
@@ -648,7 +648,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
     const parsed = parseFrontmatter(commandSkill!.content)
 
     // Tool-agnostic path in project root — no rewriting needed
-    expect(parsed.body).toContain("compound-engineering.local.md")
+    expect(parsed.body).toContain("ce-datascience.local.md")
   })
 
   test("preserves tool-agnostic paths in Codex custom agent instructions", () => {
@@ -660,7 +660,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
         {
           name: "config-reader",
           description: "Reads config",
-          body: "Read `compound-engineering.local.md` for config.",
+          body: "Read `ce-datascience.local.md` for config.",
           sourcePath: "/tmp/plugin/agents/config-reader.md",
         },
       ],
@@ -675,7 +675,7 @@ Run \`/compound-engineering-setup\` to create a settings file.`,
 
     const agent = bundle.agents.find((s) => s.name === "config-reader")
     expect(agent).toBeDefined()
-    expect(agent!.instructions).toContain("compound-engineering.local.md")
+    expect(agent!.instructions).toContain("ce-datascience.local.md")
   })
 
   test("truncates custom agent descriptions to Codex limits and single line", () => {

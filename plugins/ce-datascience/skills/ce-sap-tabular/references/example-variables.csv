@@ -1,0 +1,27 @@
+category,variable,description,type,levels,file,analysis_2,analysis_3,analysis_4,analysis_5,analysis_6,notes
+ID,hospital_id,Site / hospital identifier,Fixed,Categorical,Both,✓,✓,✓,✓,✓,Used for clustering; never as predictor
+ID,hospitalization_id,Patient encounter id (study-generated),Fixed,Categorical,Both,✓,✓,✓,✓,,Replace any EHR MRN before commit
+Exposure,SAT_delivered_primary,SAT delivered (primary algorithm definition),Time-varying,0/1,File 1,✓,✓,,,,Daily indicator
+Exposure,SAT_delivered_modified,SAT delivered (modified definition; sensitivity),Time-varying,0/1,File 1,,✓,,,,Daily indicator; sensitivity variant
+Exposure,SBT_delivered_2min,SBT delivered with 2-minute threshold (primary),Time-varying,0/1,File 1,✓,✓,,,,
+Exposure,SBT_delivered_5min,SBT delivered with 5-minute threshold (sensitivity),Time-varying,0/1,File 1,,✓,,,,
+Exposure,SAT_prop_final_primary,Proportion of eligible days with SAT (patient-level summary),Fixed,Numeric 0-1,File 2,,✓,✓,✓,✓,Derived: sum SAT_delivered / sum SAT_eligible
+Exposure,SBT_prop_final_2min,Proportion of eligible days with SBT (2min),Fixed,Numeric 0-1,File 2,,✓,✓,✓,✓,
+Outcome,extubation_flag,Extubation occurred during episode,Fixed,0/1,File 2,,✓,✓,,,Patient-level; = 0 if died or censored
+Outcome,time_to_extubation,Days from vent start to extubation,Fixed,Integer,File 2,,✓,,,,Censored at death / day 28 / discharge
+Outcome,death_flag,In-hospital death indicator,Fixed,0/1,File 2,,✓,✓,✓,✓,Competing event for Analysis 3
+Outcome,days_to_death,Days from vent start to death,Fixed,Integer,File 2,,✓,,,,For Fine-Gray competing risks
+Outcome,VFD_28,Ventilator-free days at 28 days,Fixed,Integer 0-28,File 2,,,✓,,,= 0 if died; 28 - vent days if survived/extubated
+Outcome,ICU_LOS,ICU length of stay (days),Fixed,Numeric,File 2,,,,✓,✓,Primary outcome A5; case-mix adjuster A6
+Patient Characteristic,age,Patient age at admission,Fixed,Integer,Both,,✓,✓,✓,✓,
+Patient Characteristic,sex,Patient sex,Fixed,"{M, F}",Both,,✓,✓,✓,✓,
+Patient Characteristic,CCI,Charlson Comorbidity Index,Fixed,Integer,Both,,✓,✓,✓,✓,Derived from ICD codes; not raw EHR field
+Clinical Characteristic,SOFA_prior,Prior-day SOFA score,Time-varying,Integer,File 1,,✓,,,✓,Lagged 1 day; severity covariate
+Clinical Characteristic,FiO2_prior,Prior-day FiO2,Time-varying,Numeric,File 1,,✓,,,✓,Lagged 1 day
+Clinical Characteristic,PEEP_prior,Prior-day PEEP,Time-varying,Numeric,File 1,,✓,,,✓,Lagged 1 day
+Clinical Characteristic,NEE_prior,Prior-day vasopressor exposure,Time-varying,TBD,File 1,,✓,,,✓,TBD: confirm binary vs norepinephrine-equivalent
+Clinical Characteristic,sedation_prior,Prior-day sedation,Time-varying,TBD,File 1,,✓,,,✓,TBD: confirm binary vs intensity vs agent-specific
+Clinical Characteristic,SOFA_mean,Mean SOFA score over episode,Fixed,Numeric,File 2,,,✓,✓,✓,Mean of all daily SOFA values
+Clinical Characteristic,FiO2_mean,Mean FiO2 over episode,Fixed,Numeric,File 2,,,✓,✓,✓,
+Clinical Characteristic,PEEP_mean,Mean PEEP over episode,Fixed,Numeric,File 2,,,✓,✓,✓,
+Cluster,site_id,Coordinating-center site identifier,Fixed,Categorical,Both,✓,✓,✓,✓,✓,Used for stratified pooling

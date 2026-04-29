@@ -1,5 +1,5 @@
 /**
- * One-time cleanup of stale compound-engineering files from previous installs.
+ * One-time cleanup of stale ce-datascience files from previous installs.
  *
  * The v3 rename changed all skill and agent names (e.g., git-commit -> ce-commit,
  * adversarial-reviewer -> ce-adversarial-reviewer). Target writers create new
@@ -167,7 +167,7 @@ const STALE_PROMPT_FILES = [
 
 const LEGACY_SKILL_DESCRIPTION_ALIASES: Record<string, string[]> = {
   setup: [
-    "Configure project-level settings for compound-engineering workflows. Currently a placeholder — review agent selection is handled automatically by ce:review.",
+    "Configure project-level settings for ce-datascience workflows. Currently a placeholder — review agent selection is handled automatically by ce:review.",
   ],
 }
 
@@ -180,7 +180,7 @@ const LEGACY_SKILL_DESCRIPTION_ALIASES: Record<string, string[]> = {
  * plugin's same-named wrapper from a shared `~/.codex/prompts/` directory.
  *
  * Each entry is the exact frontmatter description string from a shipped
- * compound-engineering release (all skill rewords across versions, including
+ * ce-datascience release (all skill rewords across versions, including
  * the ce:/ce- prefix transition). The current shipped description for the
  * renamed skill is also accepted automatically via `loadLegacyFingerprints`,
  * so only historical values need to live here.
@@ -222,7 +222,7 @@ const LEGACY_PROMPT_DESCRIPTION_ALIASES: Record<string, string[]> = {
   ],
 }
 
-/** The compound-engineering skill whose current description should also be
+/** The ce-datascience skill whose current description should also be
  * accepted as an ownership signal for a given stale prompt file. Provides the
  * "current shipped description" leg of the two-signal check so that the alias
  * map above does not need to be touched on every routine description edit. */
@@ -348,7 +348,7 @@ async function pathExists(targetPath: string): Promise<boolean> {
 async function findRepoRoot(startDir: string): Promise<string | null> {
   let current = startDir
   while (true) {
-    const pluginRoot = path.join(current, "plugins", "compound-engineering")
+    const pluginRoot = path.join(current, "plugins", "ce-datascience")
     if (await pathExists(pluginRoot)) return current
     const parent = path.dirname(current)
     if (parent === current) return null
@@ -425,7 +425,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
         return { skills: new Map(), agents: new Map(), prompts: new Map() }
       }
 
-      const pluginRoot = path.join(repoRoot, "plugins", "compound-engineering")
+      const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
       const [skillIndex, agentIndex] = await Promise.all([
         buildSkillIndex(path.join(pluginRoot, "skills")),
         buildAgentIndex(path.join(pluginRoot, "agents")),
@@ -529,7 +529,7 @@ async function isLegacyPluginOwned(
  *   - `Use the ce-plan skill for this workflow and follow its instructions exactly.`
  *     (post-rename workflow-form wrapper)
  *
- * The "command" form is NOT exclusive to compound-engineering. `renderPrompt`
+ * The "command" form is NOT exclusive to ce-datascience. `renderPrompt`
  * in `src/converters/claude-to-codex.ts` emits the same sentence (with a
  * different skill name) for every plugin that ships invocable commands. A
  * third-party plugin that happens to ship a same-named prompt wrapper (for
@@ -539,10 +539,10 @@ async function isLegacyPluginOwned(
  * **Signal 2 — description ownership.** To avoid deleting another plugin's
  * wrapper out of a shared `~/.codex/prompts/` directory, we additionally
  * require the frontmatter `description:` to match either (a) the current
- * shipped description of the corresponding compound-engineering skill, or
+ * shipped description of the corresponding ce-datascience skill, or
  * (b) one of the historical descriptions we have shipped in a prior release
  * (`LEGACY_PROMPT_DESCRIPTION_ALIASES`). A wrapper with our body fingerprint
- * but a description that has never appeared in any compound-engineering
+ * but a description that has never appeared in any ce-datascience
  * release is treated as NOT ours.
  *
  * Trade-off: adding a new release that reworks a prompt-related skill's
@@ -673,7 +673,7 @@ export async function cleanupStaleAgents(
  * Only applies to targets that used to generate workflow prompt wrappers (Codex).
  *
  * Ownership uses the two-signal check documented on `isLegacyPromptWrapper`:
- * the body must contain one of the compound-engineering-specific instruction
+ * the body must contain one of the ce-datascience-specific instruction
  * sentences AND the frontmatter description must match either the current
  * shipped description of the corresponding ce-* skill or a known historical
  * alias. This prevents deleting a sibling plugin's same-named wrapper from a
@@ -695,11 +695,11 @@ export async function cleanupStalePrompts(promptsDir: string): Promise<number> {
  * Ownership verdict for an individual Codex prompt file at a shared path like
  * `~/.codex/prompts/<file>.md`. Used by callers in the Codex install and
  * standalone-cleanup paths to gate legacy-name allow-list moves before
- * renaming a file into `compound-engineering/legacy-backup/`.
+ * renaming a file into `ce-datascience/legacy-backup/`.
  *
  * Verdicts:
  *   - `"ce-owned"`: body + frontmatter fingerprint match a known
- *     compound-engineering prompt-wrapper shape. Safe to move.
+ *     ce-datascience prompt-wrapper shape. Safe to move.
  *   - `"foreign"`: we have a fingerprint on record for this filename and the
  *     file does NOT match it. A user or sibling plugin authored this file —
  *     leave it alone. `~/.codex/prompts/` is a cross-plugin directory, so a

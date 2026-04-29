@@ -17,7 +17,7 @@ import { describe, expect, test } from "bun:test"
  *     `basename "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)")"`.
  */
 
-const PLUGIN_SKILLS_GLOB = ["plugins/compound-engineering/skills", "plugins/coding-tutor/skills"]
+const PLUGIN_SKILLS_GLOB = ["plugins/ce-datascience/skills", "plugins/coding-tutor/skills"]
 
 function listSkillFiles(): string[] {
   const out: string[] = []

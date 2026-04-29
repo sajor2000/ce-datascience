@@ -39,7 +39,7 @@ const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
 
 async function createTestRepo(): Promise<string> {
   const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "plugin-path-repo-"))
-  const pluginRoot = path.join(repoRoot, "plugins", "compound-engineering")
+  const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
   await fs.mkdir(path.dirname(pluginRoot), { recursive: true })
   await fs.cp(fixtureRoot, pluginRoot, { recursive: true })
 
@@ -62,7 +62,7 @@ describe("plugin-path", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "plugin-path",
-      "compound-engineering",
+      "ce-datascience",
       "--branch",
       "feat/test-branch",
     ], {
@@ -84,8 +84,8 @@ describe("plugin-path", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    const cacheDir = path.join(tempHome, ".cache", "compound-engineering", "branches", "compound-engineering-feat~test-branch")
-    const pluginDir = path.join(cacheDir, "plugins", "compound-engineering")
+    const cacheDir = path.join(tempHome, ".cache", "ce-datascience", "branches", "ce-datascience-feat~test-branch")
+    const pluginDir = path.join(cacheDir, "plugins", "ce-datascience")
 
     expect(stderr).toContain("claude --plugin-dir")
     expect(stdout.trim()).toBe(pluginDir)
@@ -104,7 +104,7 @@ describe("plugin-path", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "plugin-path",
-      "compound-engineering",
+      "ce-datascience",
       "--branch",
       "feat/deep/nested/branch",
     ], {
@@ -126,7 +126,7 @@ describe("plugin-path", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("compound-engineering-feat~deep~nested~branch")
+    expect(stdout).toContain("ce-datascience-feat~deep~nested~branch")
     expect(stderr).toContain("claude --plugin-dir")
   })
 
@@ -135,7 +135,7 @@ describe("plugin-path", () => {
     await runGit(["checkout", "-b", "feat/update-test"], repoRoot, gitEnv)
 
     // Add a marker file on the branch
-    const markerPath = path.join(repoRoot, "plugins", "compound-engineering", "MARKER.txt")
+    const markerPath = path.join(repoRoot, "plugins", "ce-datascience", "MARKER.txt")
     await fs.writeFile(markerPath, "v1")
     await runGit(["add", "."], repoRoot, gitEnv)
     await runGit(["commit", "-m", "add marker v1"], repoRoot, gitEnv)
@@ -143,7 +143,7 @@ describe("plugin-path", () => {
     await runGit(["checkout", "main"], repoRoot, gitEnv)
 
     const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "plugin-path-update-"))
-    const cacheDir = path.join(tempHome, ".cache", "compound-engineering", "branches", "compound-engineering-feat~update-test")
+    const cacheDir = path.join(tempHome, ".cache", "ce-datascience", "branches", "ce-datascience-feat~update-test")
 
     const runPluginPath = async () => {
       const proc = Bun.spawn([
@@ -151,7 +151,7 @@ describe("plugin-path", () => {
         "run",
         path.join(projectRoot, "src", "index.ts"),
         "plugin-path",
-        "compound-engineering",
+        "ce-datascience",
         "--branch",
         "feat/update-test",
       ], {
@@ -176,7 +176,7 @@ describe("plugin-path", () => {
     // First run: clone
     const first = await runPluginPath()
     expect(first.stderr).toContain("Cloning")
-    const cachedMarker = path.join(cacheDir, "plugins", "compound-engineering", "MARKER.txt")
+    const cachedMarker = path.join(cacheDir, "plugins", "ce-datascience", "MARKER.txt")
     expect(await fs.readFile(cachedMarker, "utf-8")).toBe("v1")
 
     // Push a new commit to the branch
@@ -201,7 +201,7 @@ describe("plugin-path", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "plugin-path",
-      "compound-engineering",
+      "ce-datascience",
       "--branch",
       "does-not-exist",
     ], {
@@ -234,7 +234,7 @@ describe("plugin-path", () => {
         "run",
         path.join(projectRoot, "src", "index.ts"),
         "plugin-path",
-        "compound-engineering",
+        "ce-datascience",
         "--branch",
         branch,
       ], {

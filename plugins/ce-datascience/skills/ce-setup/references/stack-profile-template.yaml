@@ -1,0 +1,103 @@
+# Stack Profile Template
+# Schema for .ce-datascience/config.local.yaml
+#
+# This file defines the available options for each stack profile field.
+# The ce-setup skill uses this as a reference when prompting users
+# and validating their selections.
+#
+# Golden paths (tested, fully supported):
+#   - R + tidyverse + Quarto
+#   - Python + pandas + Jupyter
+#
+# Other combinations work but may lack optimized templates.
+
+# .ce-datascience/config.local.yaml
+stack_profile:
+  # Primary analysis language
+  # r       - R only
+  # python  - Python only
+  # both    - R and Python (polyglot projects)
+  language: r | python | both
+
+  # Development environment
+  # rstudio  - RStudio IDE
+  # jupyter  - JupyterLab / Jupyter Notebook
+  # marimo   - Marimo reactive notebooks
+  # quarto   - Quarto documents (VS Code or RStudio)
+  # vscode   - Visual Studio Code
+  ide: rstudio | jupyter | marimo | quarto | vscode
+
+  # Data manipulation libraries
+  data_libraries:
+    r: [tidyverse, data.table]
+    python: [pandas, polars]
+
+  # Data storage layer
+  # parquet   - Local parquet files
+  # database  - SQL database (PostgreSQL, SQLite, DuckDB, etc.)
+  # fabric    - Microsoft Fabric / Spark
+  data_layer: parquet | database | fabric
+
+  # Statistical and modeling packages
+  statistical_packages:
+    r: [stats, survival, lme4, gt, tidymodels, glmnet, survminer, brms, arrow, haven]
+    python: [scipy, statsmodels, scikit-learn]
+
+  # Environment and dependency management
+  # renv      - R environment manager (renv.lock for reproducible installs)
+  # packrat   - Legacy R environment manager (pre-renv)
+  # none      - No environment manager
+  environment_manager:
+    r: [renv, packrat, none]
+    python: [venv, conda, poetry, pixi, none]
+
+  # R project type (only shown when language includes R)
+  # script   - Analysis scripts (standalone .R files)
+  # package  - R package structure (DESCRIPTION, NAMESPACE, man/)
+  # shiny    - Shiny web application
+  # plumber  - Plumber API
+  # targets  - targets pipeline (_targets.R)
+  r_project_type: script | package | shiny | plumber | targets
+
+  # Reporting and output framework
+  # quarto    - Quarto documents (.qmd)
+  # rmarkdown - R Markdown (.Rmd)
+  # marimo    - Marimo notebooks
+  # jupyter   - Jupyter notebooks (.ipynb)
+  reporting: quarto | rmarkdown | marimo | jupyter
+
+  # Where the analysis dataset lives. Used by data_wave_register, data_lock,
+  # ce-data-qa, and ce-phi-leak-reviewer. PHI must NEVER be inside the repo
+  # tree -- if data_root is repo-relative, the QA gate refuses any column
+  # matching PHI patterns.
+  # Examples:
+  #   /Users/jcr/secure-data/study-x/        (absolute, off-repo)
+  #   ~/Box Sync/study-x/data/                (cloud-mounted, off-repo)
+  #   data/                                   (in-repo; only valid for SYNTHETIC data)
+  data_root: null
+
+  # Blinding state for the analysis. Drives ce-code-review's --phase flag
+  # (blinded EDA vs unblinded confirmatory) and gates SAP amendment review.
+  # blinded   - Group labels masked; only descriptive code is allowed
+  # unblinded - Confirmatory analysis allowed against the locked SAP
+  # n/a       - Observational, single-arm, or otherwise not applicable
+  blinding_state: blinded | unblinded | n/a
+
+# Optional reporting checklist integration
+reporting_checklist:
+  # Enable reporting guideline checklist in generated outputs
+  enabled: false
+  # Primary reporting guideline to follow (auto-selected from SAP study_type when null)
+  # consort             - CONsolidated Standards of Reporting Trials (RCTs)
+  # strobe              - STrengthening the Reporting of OBservational studies in Epidemiology
+  # prisma              - Preferred Reporting Items for Systematic Reviews and Meta-Analyses
+  # stard               - Standards for Reporting Diagnostic Accuracy Studies
+  # care                - CAse REport guidelines
+  # coreq               - Consolidated Criteria for Reporting Qualitative Research
+  # arrive              - Animal Research: Reporting of In Vivo Experiments
+  # cheers              - Consolidated Health Economic Evaluation Reporting Standards
+  # tripod-ai           - Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis + AI
+  guideline: null  # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
+  # Enable AI-specific extension checklists (layered on top of primary guideline)
+  # Auto-detected from SAP ai_involvement field when true
+  ai_extensions: false

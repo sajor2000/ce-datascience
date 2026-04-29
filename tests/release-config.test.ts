@@ -8,14 +8,14 @@ describe("release-please config validation", () => {
         ".": {
           "changelog-path": "CHANGELOG.md",
         },
-        "plugins/compound-engineering": {
+        "plugins/ce-datascience": {
           "changelog-path": "../../CHANGELOG.md",
         },
       },
     })
 
     expect(errors).toHaveLength(1)
-    expect(errors[0]).toContain('Package "plugins/compound-engineering"')
+    expect(errors[0]).toContain('Package "plugins/ce-datascience"')
     expect(errors[0]).toContain("../../CHANGELOG.md")
   })
 
@@ -25,7 +25,7 @@ describe("release-please config validation", () => {
         ".": {
           "changelog-path": "CHANGELOG.md",
         },
-        "plugins/compound-engineering": {
+        "plugins/ce-datascience": {
           "skip-changelog": true,
         },
         ".claude-plugin": {
@@ -43,7 +43,7 @@ describe("release-please config validation", () => {
         ".": {
           "release-as": "3.0.2",
         },
-        "plugins/compound-engineering": {
+        "plugins/ce-datascience": {
           "release-as": "3.0.2",
         },
       },
@@ -52,7 +52,7 @@ describe("release-please config validation", () => {
     expect(errors).toHaveLength(2)
     expect(errors[0]).toContain('Package "."')
     expect(errors[0]).toContain("release-as")
-    expect(errors[1]).toContain('Package "plugins/compound-engineering"')
+    expect(errors[1]).toContain('Package "plugins/ce-datascience"')
     expect(errors[1]).toContain("3.0.2")
   })
 })

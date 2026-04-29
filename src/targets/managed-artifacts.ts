@@ -21,7 +21,8 @@ export function sanitizeManagedPluginName(name: string): string {
  * name is supplied, it is used verbatim so multiple plugins installed into
  * the same target root keep independent manifests. When no plugin name is
  * supplied (legacy callers / bundles without `pluginName`), the historical
- * `compound-engineering` segment is returned to preserve pre-existing paths.
+ * `compound-engineering` segment is returned to preserve pre-existing paths
+ * from installs that predate the ce-datascience rename.
  */
 export function resolveManagedSegment(pluginName?: string): string {
   return pluginName ?? LEGACY_MANAGED_SEGMENT
@@ -30,7 +31,7 @@ export function resolveManagedSegment(pluginName?: string): string {
 /**
  * Resolves the legacy shared managed directory that lived next to the
  * current plugin-scoped directory before the per-plugin namespacing fix.
- * `managedDir` is the plugin-scoped path (e.g. `<root>/coding-tutor`);
+ * `managedDir` is the plugin-scoped path (e.g. `<root>/ce-datascience`);
  * the legacy sibling is `<root>/compound-engineering`. When `pluginName`
  * is the historical `compound-engineering`, the legacy path and the
  * current path are the same, so there is nothing to migrate -- this
@@ -45,10 +46,10 @@ export function resolveLegacyManagedDir(managedDir: string, pluginName: string):
  * Reads the plugin-scoped install manifest, falling back to the legacy
  * shared manifest at `<root>/compound-engineering/install-manifest.json`
  * when the plugin-scoped one is missing. The legacy manifest is only
- * returned when its recorded `pluginName` matches the current plugin --
- * `readManagedInstallManifest` enforces that match, so a legacy manifest
- * belonging to a different plugin is left untouched for that plugin's
- * own next install to migrate.
+ * returned when its recorded `pluginName` matches the current plugin
+ * (ce-datascience) -- `readManagedInstallManifest` enforces that match,
+ * so a legacy manifest belonging to a different plugin is left untouched
+ * for that plugin's own next install to migrate.
  */
 export async function readManagedInstallManifestWithLegacyFallback(
   managedDir: string,

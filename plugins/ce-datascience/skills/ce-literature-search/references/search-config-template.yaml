@@ -1,0 +1,36 @@
+# CE DataScience Literature Search Configuration
+
+sources:
+  scholar: true
+  crossref: true
+  scihub: true
+  scidb: true
+
+defaults:
+  # Number of Google Scholar pages to inspect (10 papers per page)
+  scholar_pages: 3
+  # Minimum publication year
+  min_year: 2018
+  # Download method: 0=BibTeX only, 1=PDF only, 2=both
+  dwnl_method: 2
+  # Maximum papers sorted by citations (null = no limit)
+  max_citations: null
+  # Use DOI as filename instead of paper title
+  doi_filename: false
+
+filters:
+  # Path to CSV with journal allowlist (name,0/1)
+  journal_filter_path: null
+  # Comma-separated words to skip in title/summary
+  skip_words: null
+
+chrome:
+  # First 3 digits of Chrome version for Selenium-based Scholar access
+  # Set to avoid bot detection (e.g., "136" for Chrome 136.x)
+  # Requires Chrome to be installed on the system
+  chrome_version: null
+
+output:
+  # Default output directory pattern
+  # /tmp/ce-datascience/ce-literature-search/<run-id>/
+  dir_pattern: "/tmp/ce-datascience/ce-literature-search"

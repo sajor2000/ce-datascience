@@ -1,0 +1,41 @@
+{
+  "name": "ce-datascience",
+  "version": "0.1.0",
+  "description": "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+  "author": {
+    "name": "Juan Carlos Rojas"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai-powered",
+    "data-science",
+    "biostatistics",
+    "statistical-analysis",
+    "workflow-automation",
+    "sap-management",
+    "r-language",
+    "python",
+    "quarto",
+    "reporting-checklists",
+    "knowledge-management"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CE DataScience",
+    "shortDescription": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.",
+    "longDescription": "CE DataScience adapts the compound engineering loop for computational scientists and biostatisticians. Brainstorm study designs, create versioned Statistical Analysis Plans, execute analyses with SAP tracking, review methods and reporting checklist compliance, and compound institutional knowledge. Supports R and Python workflows with Quarto, Jupyter, and RMarkdown.",
+    "developerName": "Juan Carlos Rojas",
+    "category": "Data Science",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "/ce-brainstorm a study design",
+      "/ce-plan a statistical analysis",
+      "/ce-code-review my analysis"
+    ],
+    "screenshots": []
+  }
+}

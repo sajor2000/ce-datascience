@@ -46,7 +46,7 @@ describe("writeGeminiBundle", () => {
   test("writes agents, skills, commands, and settings.json", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "gemini-test-"))
     const bundle: GeminiBundle = {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       generatedSkills: [],
       agents: [
         {
@@ -77,7 +77,7 @@ describe("writeGeminiBundle", () => {
     expect(await exists(path.join(tempRoot, ".gemini", "skills", "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".gemini", "commands", "plan.toml"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".gemini", "settings.json"))).toBe(true)
-    expect(await exists(path.join(tempRoot, ".gemini", "compound-engineering", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".gemini", "ce-datascience", "install-manifest.json"))).toBe(true)
 
     const agentContent = await fs.readFile(
       path.join(tempRoot, ".gemini", "agents", "security-reviewer.md"),
@@ -251,7 +251,7 @@ Run these research agents:
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "gemini-managed-cleanup-"))
 
     await writeGeminiBundle(tempRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       generatedSkills: [],
       agents: [{ name: "old-agent", content: "---\nname: old-agent\n---\n\nBody" }],
       skillDirs: [
@@ -264,7 +264,7 @@ Run these research agents:
     })
 
     await writeGeminiBundle(tempRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       generatedSkills: [],
       agents: [{ name: "new-agent", content: "---\nname: new-agent\n---\n\nBody" }],
       skillDirs: [],
@@ -283,7 +283,7 @@ Run these research agents:
 
     // Install plugin A first, with a skill and an agent
     await writeGeminiBundle(tempRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       generatedSkills: [],
       agents: [{ name: "ce-agent", content: "---\nname: ce-agent\n---\n\nBody" }],
       skillDirs: [
@@ -310,7 +310,7 @@ Run these research agents:
     })
 
     // Both plugins must keep their own namespaced manifest
-    expect(await exists(path.join(tempRoot, ".gemini", "compound-engineering", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".gemini", "ce-datascience", "install-manifest.json"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".gemini", "coding-tutor", "install-manifest.json"))).toBe(true)
 
     // Reinstall plugin A with no agents/skills — it must clean up only its own
@@ -318,7 +318,7 @@ Run these research agents:
     // addresses: a shared manifest path would have lost B's manifest after A
     // was installed, and a later A reinstall would skip B's stale-file cleanup).
     await writeGeminiBundle(tempRoot, {
-      pluginName: "compound-engineering",
+      pluginName: "ce-datascience",
       generatedSkills: [],
       agents: [],
       skillDirs: [],
@@ -346,7 +346,7 @@ Run these research agents:
     await fs.writeFile(path.join(geminiRoot, "commands", "reproduce-bug.toml"), "legacy removed command")
     await fs.writeFile(path.join(geminiRoot, "commands", "report-bug.toml"), "legacy deleted command")
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "compound-engineering"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToGemini(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -359,6 +359,6 @@ Run these research agents:
     expect(await exists(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"))).toBe(false)
     expect(await exists(path.join(geminiRoot, "commands", "reproduce-bug.toml"))).toBe(false)
     expect(await exists(path.join(geminiRoot, "commands", "report-bug.toml"))).toBe(false)
-    expect(await exists(path.join(geminiRoot, "compound-engineering", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(geminiRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 })

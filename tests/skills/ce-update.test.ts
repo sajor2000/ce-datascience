@@ -6,7 +6,7 @@ import { describe, expect, test } from "bun:test"
 
 const SKILL_PATH = path.join(
   process.cwd(),
-  "plugins/compound-engineering/skills/ce-update/SKILL.md",
+  "plugins/ce-datascience/skills/ce-update/SKILL.md",
 )
 const SKILL_BODY = readFileSync(SKILL_PATH, "utf8")
 
@@ -14,8 +14,8 @@ describe("ce-update SKILL.md", () => {
   // Regression guard for https://github.com/EveryInc/compound-engineering-plugin/issues/556.
   //
   // `CLAUDE_PLUGIN_ROOT` points at the currently-loaded plugin version directory
-  // (e.g. `~/.claude/plugins/cache/<marketplace>/compound-engineering/<version>`),
-  // NOT the plugins cache root. Appending `/cache/<anything>/compound-engineering/`
+  // (e.g. `~/.claude/plugins/cache/<marketplace>/ce-datascience/<version>`),
+  // NOT the plugins cache root. Appending `/cache/<anything>/ce-datascience/`
   // produces a path that never exists, which caused the cache-probe to fail and
   // emit `__CE_UPDATE_CACHE_FAILED__` on every healthy install. Has regressed twice.
   test("does not append a /cache/<marketplace>/ suffix onto CLAUDE_PLUGIN_ROOT", () => {
@@ -108,7 +108,7 @@ function runUpstreamCommand(command: string, options: MockOptions): string {
   try {
     const pluginJsonB64 = pluginJsonVersion
       ? Buffer.from(
-          JSON.stringify({ name: "compound-engineering", version: pluginJsonVersion }),
+          JSON.stringify({ name: "ce-datascience", version: pluginJsonVersion }),
         ).toString("base64")
       : ""
     const releaseJson = releaseTagVersion

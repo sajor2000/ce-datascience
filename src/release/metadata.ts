@@ -56,17 +56,17 @@ export type MetadataSyncResult = {
   errors: string[]
 }
 
-export type CompoundEngineeringCounts = {
+export type CeDatascienceCounts = {
   agents: number
   skills: number
   mcpServers: number
 }
 
-const COMPOUND_ENGINEERING_DESCRIPTION =
-  "AI-powered development tools for code review, research, design, and workflow automation."
+const CE_DATASCIENCE_DESCRIPTION =
+  "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance."
 
-const COMPOUND_ENGINEERING_MARKETPLACE_DESCRIPTION =
-  "AI-powered development tools that get smarter with every use. Make each unit of engineering work easier than the last."
+const CE_DATASCIENCE_MARKETPLACE_DESCRIPTION =
+  "Compound engineering for computational scientists: reproducible, compliant, compound research automation with R/Python statistical review and SAP tracking."
 
 function resolveExpectedVersion(
   explicitVersion: string | undefined,
@@ -122,8 +122,8 @@ export async function countMcpServers(pluginRoot: string): Promise<number> {
   }
 }
 
-export async function getCompoundEngineeringCounts(root: string): Promise<CompoundEngineeringCounts> {
-  const pluginRoot = path.join(root, "plugins", "compound-engineering")
+export async function getCeDatascienceCounts(root: string): Promise<CeDatascienceCounts> {
+  const pluginRoot = path.join(root, "plugins", "ce-datascience")
   const [agents, skills, mcpServers] = await Promise.all([
     countMarkdownFiles(path.join(pluginRoot, "agents")),
     countSkillDirectories(path.join(pluginRoot, "skills")),
@@ -133,12 +133,12 @@ export async function getCompoundEngineeringCounts(root: string): Promise<Compou
   return { agents, skills, mcpServers }
 }
 
-export async function buildCompoundEngineeringDescription(_root: string): Promise<string> {
-  return COMPOUND_ENGINEERING_DESCRIPTION
+export async function buildCeDatascienceDescription(_root: string): Promise<string> {
+  return CE_DATASCIENCE_DESCRIPTION
 }
 
-export async function buildCompoundEngineeringMarketplaceDescription(_root: string): Promise<string> {
-  return COMPOUND_ENGINEERING_MARKETPLACE_DESCRIPTION
+export async function buildCeDatascienceMarketplaceDescription(_root: string): Promise<string> {
+  return CE_DATASCIENCE_MARKETPLACE_DESCRIPTION
 }
 
 export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<MetadataSyncResult> {
@@ -148,11 +148,11 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
   const updates: FileUpdate[] = []
   const errors: string[] = []
 
-  const compoundDescription = await buildCompoundEngineeringDescription(root)
-  const compoundMarketplaceDescription = await buildCompoundEngineeringMarketplaceDescription(root)
+  const compoundDescription = await buildCeDatascienceDescription(root)
+  const compoundMarketplaceDescription = await buildCeDatascienceMarketplaceDescription(root)
 
-  const compoundClaudePath = path.join(root, "plugins", "compound-engineering", ".claude-plugin", "plugin.json")
-  const compoundCursorPath = path.join(root, "plugins", "compound-engineering", ".cursor-plugin", "plugin.json")
+  const compoundClaudePath = path.join(root, "plugins", "ce-datascience", ".claude-plugin", "plugin.json")
+  const compoundCursorPath = path.join(root, "plugins", "ce-datascience", ".cursor-plugin", "plugin.json")
   const codingTutorClaudePath = path.join(root, "plugins", "coding-tutor", ".claude-plugin", "plugin.json")
   const codingTutorCursorPath = path.join(root, "plugins", "coding-tutor", ".cursor-plugin", "plugin.json")
   const marketplaceClaudePath = path.join(root, ".claude-plugin", "marketplace.json")
@@ -165,7 +165,7 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
   const marketplaceClaude = await readJson<MarketplaceManifest>(marketplaceClaudePath)
   const marketplaceCursor = await readJson<MarketplaceManifest>(marketplaceCursorPath)
   const expectedCompoundVersion = resolveExpectedVersion(
-    versions["compound-engineering"],
+    versions["ce-datascience"],
     compoundClaude.version,
   )
   const expectedCodingTutorVersion = resolveExpectedVersion(
@@ -220,7 +220,7 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
   }
 
   for (const plugin of marketplaceClaude.plugins) {
-    if (plugin.name === "compound-engineering") {
+    if (plugin.name === "ce-datascience") {
       if (plugin.description !== compoundMarketplaceDescription) {
         plugin.description = compoundMarketplaceDescription
         changed = true
@@ -241,7 +241,7 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
   }
 
   for (const plugin of marketplaceCursor.plugins) {
-    if (plugin.name === "compound-engineering") {
+    if (plugin.name === "ce-datascience") {
       if (plugin.description !== compoundMarketplaceDescription) {
         plugin.description = compoundMarketplaceDescription
         changed = true
@@ -258,7 +258,7 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
   // version sync is DETECT-ONLY here — release-please owns the bump via
   // `extra-files` in `.github/release-please-config.json`. Duplicating the
   // write would create a second authority for the same field.
-  const compoundCodexPath = path.join(root, "plugins", "compound-engineering", ".codex-plugin", "plugin.json")
+  const compoundCodexPath = path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json")
   const codingTutorCodexPath = path.join(root, "plugins", "coding-tutor", ".codex-plugin", "plugin.json")
   const marketplaceCodexPath = path.join(root, ".agents", "plugins", "marketplace.json")
 
@@ -272,7 +272,7 @@ export async function syncReleaseMetadata(options: SyncOptions = {}): Promise<Me
       claudePath: compoundClaudePath,
       claude: compoundClaude,
       codexPath: compoundCodexPath,
-      expectedName: "compound-engineering",
+      expectedName: "ce-datascience",
     },
     {
       claudePath: codingTutorClaudePath,

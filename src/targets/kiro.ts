@@ -115,7 +115,7 @@ function resolveKiroPaths(outputRoot: string) {
   if (base === ".kiro") {
     return {
       kiroDir: outputRoot,
-      managedDir: path.join(outputRoot, "compound-engineering"),
+      managedDir: path.join(outputRoot, "ce-datascience"),
       agentsDir: path.join(outputRoot, "agents"),
       skillsDir: path.join(outputRoot, "skills"),
       steeringDir: path.join(outputRoot, "steering"),
@@ -126,7 +126,7 @@ function resolveKiroPaths(outputRoot: string) {
   const kiroDir = path.join(outputRoot, ".kiro")
   return {
     kiroDir,
-    managedDir: path.join(kiroDir, "compound-engineering"),
+    managedDir: path.join(kiroDir, "ce-datascience"),
     agentsDir: path.join(kiroDir, "agents"),
     skillsDir: path.join(kiroDir, "skills"),
     steeringDir: path.join(kiroDir, "steering"),

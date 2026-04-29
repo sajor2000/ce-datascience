@@ -9,9 +9,9 @@ import pluginPath from "./commands/plugin-path"
 
 const main = defineCommand({
   meta: {
-    name: "compound-plugin",
+    name: "ce-datascience-plugin",
     version: packageJson.version,
-    description: "Convert Claude Code plugins into other agent formats",
+    description: "Convert CE DataScience plugins into other agent formats",
   },
   subCommands: {
     cleanup: () => cleanup,

@@ -150,6 +150,9 @@ export default defineCommand({
         if (activeTargets.some((t) => t.name === "codex")) {
           await ensureCodexAgentsFile(codexHome)
         }
+        if (activeTargets.some((t) => t.name === "codex") && plugin.mcpServers && Object.keys(plugin.mcpServers).length > 0) {
+          console.log(`Note: ${plugin.manifest.name} includes MCP server tools. Run with --include-skills to install them for Codex, or set up MCP manually via .codex/config.toml.`)
+        }
         return
       }
 
@@ -180,6 +183,12 @@ export default defineCommand({
         targetName === "opencode" ? resolveOpenCodeWriteScope(hasExplicitOutput, resolvedScope) : resolvedScope
       await target.write(primaryOutputRoot, bundle, effectiveScope)
       console.log(`Installed ${plugin.manifest.name} to ${primaryOutputRoot}`)
+
+      // When installing to Codex in agents-only mode (default) and the plugin
+      // has MCP servers, remind the user that MCP tools require --include-skills.
+      if (targetName === "codex" && !options.codexIncludeSkills && plugin.mcpServers && Object.keys(plugin.mcpServers).length > 0) {
+        console.log(`Note: ${plugin.manifest.name} includes MCP server tools. Run with --include-skills to install them for Codex, or set up MCP manually via .codex/config.toml.`)
+      }
 
       const extraTargets = parseExtraTargets(args.also)
       const allTargets = [targetName, ...extraTargets]
@@ -310,7 +319,7 @@ async function resolveGitHubPluginPath(pluginName: string, branch?: string): Pro
 function resolveGitHubSource(): string {
   const override = process.env.COMPOUND_PLUGIN_GITHUB_SOURCE
   if (override && override.trim()) return override.trim()
-  return "https://github.com/EveryInc/compound-engineering-plugin"
+  return "https://github.com/sajor2000/ce-datascience"
 }
 
 async function cloneGitHubRepo(source: string, destination: string, branch?: string): Promise<void> {

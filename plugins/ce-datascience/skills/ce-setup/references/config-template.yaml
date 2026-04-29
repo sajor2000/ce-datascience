@@ -1,0 +1,33 @@
+# ce-datascience -- local config
+# Copy to .ce-datascience/config.local.yaml in your project root.
+# All settings are optional. Uncomment and edit only what you need.
+
+# --- Stack profile ---
+# Configure your preferred language, IDE, libraries, and reporting tools.
+# Run /ce-setup to set these interactively.
+
+# stack_profile:
+#   language: python           # r | python | both
+#   ide: vscode                # rstudio | jupyter | marimo | quarto | vscode
+#   data_libraries:
+#     r: [tidyverse]           # tidyverse | data.table
+#     python: [pandas]         # pandas | polars
+#   data_layer: parquet        # parquet | database | fabric
+#   statistical_packages:
+#     r: [stats, survival]     # stats | survival | lme4 | gt | tidymodels | glmnet | survminer | brms | arrow | haven
+#     python: [scipy]          # scipy | statsmodels | scikit-learn
+#   environment_manager:
+#     r: renv                  # renv | packrat | none
+#     python: venv             # venv | conda | poetry | pixi | none
+#   r_project_type: script     # script | package | shiny | plumber | targets
+#   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
+
+# --- Reporting checklist ---
+# Enable reporting guideline compliance review. Guideline is auto-selected
+# from SAP study_type when not specified. See guideline-routing.md for the
+# full routing map including AI extensions.
+
+# reporting_checklist:
+#   enabled: false
+#   guideline: null            # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
+#   ai_extensions: false       # layer AI-specific checklists (CONSORT-AI, SPIRIT-AI, CLAIM, etc.)

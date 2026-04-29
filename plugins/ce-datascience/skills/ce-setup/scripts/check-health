@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# ce-datascience environment health check
+# Outputs a formatted diagnostic report for R/Python data science tooling
+
+set -o pipefail
+
+# =====================================================
+#  Dependency config
+# =====================================================
+# Format: name|check_cmd|tier|install_cmd|url
+# Tiers: recommended (flagged if missing), optional (noted if missing)
+
+deps=(
+  "R|R --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q r|https://cran.r-project.org"
+  "python3|python3 --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q python|https://www.python.org/downloads/"
+  "quarto|quarto --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto|https://quarto.org/docs/get-started/"
+  "jq|command -v jq|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q jq|https://jqlang.github.io/jq/"
+  "gh|command -v gh|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q gh|https://cli.github.com"
+  "git|command -v git|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q git|https://git-scm.com"
+)
+
+# =====================================================
+#  Args
+# =====================================================
+
+plugin_version=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --version) [ -n "$2" ] && plugin_version="$2" && shift 2 || shift ;;
+    *) shift ;;
+  esac
+done
+
+# =====================================================
+#  Helpers
+# =====================================================
+
+ok()      { echo "  🟢  $1"; }
+fail()    { echo "  🔴  $1"; }
+warn()    { echo "  🟡  $1"; }
+skip()    { echo "  ➖  $1"; }
+detail()  { echo "       $1"; }
+section() { echo ""; echo " $1"; }
+
+has_brew=$(command -v brew >/dev/null 2>&1 && echo "yes" || echo "no")
+in_repo=$(git rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo "yes" || echo "no")
+
+# =====================================================
+#  Check tools
+# =====================================================
+
+cli_ok=0; cli_total=0; issues=0
+
+results=()
+for entry in "${deps[@]}"; do
+  IFS='|' read -r name check_cmd tier install_cmd url <<< "$entry"
+  cli_total=$((cli_total + 1))
+  if eval "$check_cmd" >/dev/null 2>&1; then
+    cli_ok=$((cli_ok + 1))
+    results+=("$name|$tier|ok|$install_cmd|$url")
+  else
+    results+=("$name|$tier|missing|$install_cmd|$url")
+  fi
+done
+
+# =====================================================
+#  Project checks (repo only)
+# =====================================================
+
+repo_cfg_gitignore="skip"
+config_exists="skip"
+
+if [ "$in_repo" = "yes" ]; then
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+  if [ -f "$repo_root/.ce-datascience/config.local.yaml" ]; then
+    config_exists="ok"
+    if git check-ignore -q "$repo_root/.ce-datascience/config.local.yaml" 2>/dev/null; then
+      repo_cfg_gitignore="ok"
+    else
+      repo_cfg_gitignore="missing"
+    fi
+  else
+    config_exists="missing"
+  fi
+fi
+
+# =====================================================
+#  Output
+# =====================================================
+
+echo ""
+if [ -n "$plugin_version" ]; then
+  ok "Plugin version v${plugin_version}"
+fi
+
+# --- Tools ---
+
+section "Tools  ${cli_ok}/${cli_total}"
+
+for result in "${results[@]}"; do
+  IFS='|' read -r name tier status install_cmd url <<< "$result"
+  if [ "$status" = "ok" ]; then
+    ok "$name"
+  else
+    warn "$name"
+    issues=$((issues + 1))
+    case "$install_cmd" in
+      *brew\ install*)
+        if [ "$has_brew" = "yes" ]; then detail "$install_cmd"
+        else detail "$url"; fi ;;
+      *)
+        detail "$install_cmd"
+        detail "$url" ;;
+    esac
+  fi
+done
+
+# --- Project ---
+
+if [ "$in_repo" = "yes" ]; then
+  has_project_issues="no"
+
+  if [ "$config_exists" = "missing" ]; then
+    has_project_issues="yes"
+  fi
+  if [ "$repo_cfg_gitignore" = "missing" ]; then
+    has_project_issues="yes"
+  fi
+
+  if [ "$has_project_issues" = "yes" ]; then
+    section "Project"
+
+    if [ "$config_exists" = "missing" ]; then
+      warn "Stack profile not configured (.ce-datascience/config.local.yaml)"
+      issues=$((issues + 1))
+    fi
+
+    if [ "$repo_cfg_gitignore" = "missing" ]; then
+      warn "Local config not safely gitignored"
+      issues=$((issues + 1))
+    fi
+  fi
+fi
+
+# --- Bottom line ---
+
+echo ""
+if [ "$issues" -eq 0 ]; then
+  echo " ✅  All clear  ${cli_ok}/${cli_total} tools"
+else
+  echo " ⚠️   ${issues} issue(s) found  ${cli_ok}/${cli_total} tools"
+fi
+
+echo ""

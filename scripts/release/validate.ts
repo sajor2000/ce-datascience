@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import path from "path"
 import { validateReleasePleaseConfig } from "../../src/release/config"
-import { getCompoundEngineeringCounts, syncReleaseMetadata } from "../../src/release/metadata"
+import { getCeDatascienceCounts, syncReleaseMetadata } from "../../src/release/metadata"
 import { readJson } from "../../src/utils/files"
 
 type ReleasePleaseManifest = Record<string, string>
@@ -13,7 +13,7 @@ const manifest = await readJson<ReleasePleaseManifest>(
   path.join(process.cwd(), ".github", ".release-please-manifest.json"),
 )
 const configErrors = validateReleasePleaseConfig(releasePleaseConfig)
-const counts = await getCompoundEngineeringCounts(process.cwd())
+const counts = await getCeDatascienceCounts(process.cwd())
 const result = await syncReleaseMetadata({
   write: false,
   componentVersions: {
@@ -26,7 +26,7 @@ const metadataErrors = result.errors
 
 if (configErrors.length === 0 && changed.length === 0 && metadataErrors.length === 0) {
   console.log(
-    `Release metadata is in sync. compound-engineering currently has ${counts.agents} agents, ${counts.skills} skills, and ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
+    `Release metadata is in sync. ce-datascience currently has ${counts.agents} agents, ${counts.skills} skills, and ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
   )
   process.exit(0)
 }
@@ -51,7 +51,7 @@ if (changed.length > 0) {
     console.error(`- ${update.path}`)
   }
   console.error(
-    `Current compound-engineering counts: ${counts.agents} agents, ${counts.skills} skills, ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
+    `Current ce-datascience counts: ${counts.agents} agents, ${counts.skills} skills, ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
   )
 }
 process.exit(1)

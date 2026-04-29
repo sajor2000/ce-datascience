@@ -11,11 +11,11 @@ import {
 describe("release component detection", () => {
   test("maps plugin-only changes to the matching plugin component", () => {
     const components = detectComponentsFromFiles([
-      "plugins/compound-engineering/skills/ce-plan/SKILL.md",
+      "plugins/ce-datascience/skills/ce-plan/SKILL.md",
     ])
 
-    expect(components.get("compound-engineering")).toEqual([
-      "plugins/compound-engineering/skills/ce-plan/SKILL.md",
+    expect(components.get("ce-datascience")).toEqual([
+      "plugins/ce-datascience/skills/ce-plan/SKILL.md",
     ])
     expect(components.get("cli")).toEqual([])
     expect(components.get("coding-tutor")).toEqual([])
@@ -38,7 +38,7 @@ describe("release component detection", () => {
     const components = detectComponentsFromFiles([".claude-plugin/marketplace.json"])
     expect(components.get("marketplace")).toEqual([".claude-plugin/marketplace.json"])
     expect(components.get("cursor-marketplace")).toEqual([])
-    expect(components.get("compound-engineering")).toEqual([])
+    expect(components.get("ce-datascience")).toEqual([])
     expect(components.get("coding-tutor")).toEqual([])
   })
 
@@ -46,7 +46,7 @@ describe("release component detection", () => {
     const components = detectComponentsFromFiles([".cursor-plugin/marketplace.json"])
     expect(components.get("cursor-marketplace")).toEqual([".cursor-plugin/marketplace.json"])
     expect(components.get("marketplace")).toEqual([])
-    expect(components.get("compound-engineering")).toEqual([])
+    expect(components.get("ce-datascience")).toEqual([])
     expect(components.get("coding-tutor")).toEqual([])
   })
 })
@@ -96,7 +96,7 @@ describe("scope mismatch warnings", () => {
   test("does not require scope when omitted", () => {
     const warnings = resolveComponentWarnings(
       parseReleaseIntent("fix: update ce plan copy"),
-      ["compound-engineering"],
+      ["ce-datascience"],
     )
     expect(warnings).toEqual([])
   })
