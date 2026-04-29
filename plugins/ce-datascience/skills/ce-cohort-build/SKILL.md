@@ -45,6 +45,7 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 - All datetime filters are timezone-aware UTC (see `ce-clif/references/clif-rules.md` §3).
 - The waterfall is written to `output/cohort_waterfall.csv`; the SQL/CTE step is replaced by a `code/02_cohort_<name>.{py,R}` script that follows the three-script architecture from `WORKFLOW.md`.
 - `_category` filters must use mCIDE allow-listed values (see `ce-clif/references/mcide-vocab.md`). Refuse to emit a filter with an unknown category string.
+- For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> `ce-clif/references/clifpy-recipes.md` (use `ClifOrchestrator` and `co.create_wide_dataset()` rather than rolling your own joins); `__CE_LANG__ primary=r` -> `ce-clif/references/r-template-recipes.md` (use `arrow::open_dataset()` per the `CLIF-Project-Template` layout).
 
 ### Step 1: Elicit the cohort definition
 

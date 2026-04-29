@@ -1,6 +1,26 @@
-# mCIDE Allow-Listed Vocabularies
+# mCIDE Allow-Listed Vocabularies (v2.1.1)
 
-The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. Source of truth: `https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/main/mCIDE`. The values below mirror data dictionary 2.0.0 / 2.1.0 as captured in `CLIF_CLAUDE.md`. When in doubt, fetch the latest mCIDE CSV for the table in question and reconcile.
+The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. **Pinned source**: `https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/v2.1.1/mCIDE` (latest tagged release, January 2026). The values below mirror that ref as cached in `CLIF_CLAUDE.md`. The upstream `2_2_0_WIP/` and tag `v3.0.0` directories add `ecmo_mcs/` and `output/` — see § "Coming in v2.2.0" at the bottom. When in doubt, fetch the latest mCIDE CSV at `?ref=v2.1.1` for the table in question and reconcile.
+
+## Table of contents
+
+1. `adt` — `hospital_type`, `location_category`, `location_type`.
+2. `patient` — `race_category`, `ethnicity_category`, `sex_category`, `language_category`.
+3. `hospitalization` — `admission_type_category`, `discharge_category`.
+4. `vitals` — `vital_category` (9 values).
+5. `labs` — `lab_specimen_category`, common `lab_category` examples.
+6. `medication_admin_continuous` and `medication_admin_intermittent` — `med_group`, `med_category`, `mar_action_group`.
+7. `respiratory_support` — `device_category`, `mode_category`, `fio2_set` units.
+8. `hospital_diagnosis` — code formats and primary/POA flags.
+9. `crrt_therapy` — `crrt_mode_category`.
+10. `microbiology_culture` and `microbiology_susceptibility` — `method_category`, `susceptibility_category`.
+11. `patient_assessments` — common assessments by group.
+12. `code_status` — full categorical set.
+13. `position` — prone / not_prone.
+14. `patient_procedures` — procedure code formats.
+15. Validation patterns (Python / polars and R / arrow + dplyr).
+16. Coming in v2.2.0 (preview only — opt in explicitly).
+17. When the cache is incomplete (refresh policy).
 
 ## adt
 
@@ -113,6 +133,15 @@ bad <- adt %>% filter(!location_category %in% allowed) %>% collect()
 stopifnot(nrow(bad) == 0)
 ```
 
-## When the vocab here is incomplete
+## Coming in v2.2.0 (preview only)
 
-This file mirrors the major closed vocabularies. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** for the table before validating. The mCIDE directory is the source of truth; this file is a cache.
+The `v2.2.0` tag adds two table directories not present in `v2.1.1`:
+
+- `mCIDE/ecmo_mcs/` — ECMO and mechanical circulatory support categories.
+- `mCIDE/output/` — output table categories (fluid balance variants).
+
+Until the consortium publishes `v2.2.0` as a recommended default, these are opt-in only. Set `clif.data_dictionary_version: "2.2.0"` in `.ce-datascience/config.local.yaml` if you need them; otherwise `v2.1.1` remains the default.
+
+## When the cache here is incomplete (refresh policy)
+
+This file mirrors the major closed vocabularies as of `v2.1.1`. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** at `?ref=v2.1.1` before validating. The mCIDE directory is the source of truth; this file is a cache. Note also that the upstream directory has a typo (`postion/` instead of `position/`) — preserved here for fidelity. Refresh from upstream when the consortium publishes a new tagged release.

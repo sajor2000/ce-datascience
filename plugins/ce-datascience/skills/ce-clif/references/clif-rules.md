@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's `WORKFLOW.md`, the data dictionary at `https://clif-consortium.github.io/website/data-dictionary.html`, and the project's `CLIF_CLAUDE.md` (version 2.1.0). Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/clif-consortium/project-template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's `WORKFLOW.md`, the data dictionary at `https://clif-consortium.github.io/website/data-dictionary.html`, and the project's `CLIF_CLAUDE.md`. Pinned default: data dictionary **v2.1.1** (latest tagged release, January 2026). Tags `v2.2.0` and `v3.0.0` exist upstream as work-in-progress (v2.2.0 adds `ecmo_mcs/` and `output/` to mCIDE); opt in explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -114,11 +114,12 @@ To override: include `POC: @<github-handle> approved` (or `--poc-approved`) in t
 
 ## 12. References (read-only, cite as needed)
 
-- CLIF data dictionary 2.0.0: https://clif-icu.com/data-dictionary/data-dictionary-2.0.0
-- CLIF GitHub: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF
+- CLIF data dictionary v2.1.1 (latest release): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/releases/tag/v2.1.1
+- CLIF GitHub (main): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF
 - CLIF WORKFLOW.md: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/blob/main/WORKFLOW.md
-- mCIDE directory: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/main/mCIDE
-- Project template: https://github.com/clif-consortium/project-template
-- CLIF-MIMIC pipeline: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
-- CLIF Lighthouse (validation): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse
+- mCIDE directory @ v2.1.1: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/v2.1.1/mCIDE
+- **clifpy** (official Python client, PyPI: `pip install clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
+- **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
+- CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
+- CLIF Lighthouse (validation tool): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse
 - Consortium contact: clif_consortium@uchicago.edu

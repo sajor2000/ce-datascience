@@ -22,9 +22,11 @@ Auto-activate when **any one** of the following signals is present:
 When activated, print one acknowledgment line and emit the handoff signal:
 
 ```
-[ce-clif] CLIF profile active (data dictionary <version>); protected paths read-only without POC sign-off.
-__CE_CLIF__ active=true version=<2.0.0|2.1.0> strict=<true|false> rules=plugins/ce-datascience/skills/ce-clif/references/clif-rules.md
+[ce-clif] CLIF profile active (data dictionary v2.1.1); protected paths read-only without POC sign-off.
+__CE_CLIF__ active=true version=2.1.1 strict=<true|false> rules=plugins/ce-datascience/skills/ce-clif/references/clif-rules.md
 ```
+
+Default `version=2.1.1` (latest tagged release of `Common-Longitudinal-ICU-data-Format/CLIF`, January 2026). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. Tags `v2.2.0` and `v3.0.0` exist as work-in-progress; opt in explicitly if you need them.
 
 When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
 
@@ -51,7 +53,7 @@ If `.ce-datascience/config.local.yaml` contains a `clif:` block, merge it over t
 ```yaml
 profile: clif
 clif:
-  data_dictionary_version: "2.1.0"   # default 2.1.0 per CLIF_CLAUDE.md
+  data_dictionary_version: "2.1.1"   # default; latest tagged release (Jan 2026)
   parquet_only: true                  # refuse CSV/Feather for CLIF tables
   protected_paths:                    # in addition to the built-in list
     - mCIDE/**
@@ -94,6 +96,14 @@ __CE_CLIF__ active=<true|false> version=<dd-version> strict=<true|false> rules=<
 
 Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; they parse `version=` to know which data dictionary applies; they parse `strict=true` to escalate warnings into refusals.
 
+## Code recipes (drawn from the upstream CLIF org)
+
+When the user is writing CLIF analysis code, surface canonical recipes from the upstream code-of-record packages:
+
+- **Python users** (`__CE_LANG__ primary=python`): load `references/clifpy-recipes.md` — recipes drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy` (`pip install clifpy`). Covers `ClifOrchestrator` setup, `validate_all()`, `compute_sofa_scores()`, `create_wide_dataset()` (hourly resolution), encounter stitching, vitals outlier handling, unit conversion for medications, and the data-quality assessment (DQA) pattern.
+- **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, the QC → cohort → analysis script split, and `output/` write conventions.
+- **`__CE_LANG__ primary=both`** or `unknown`: surface both files so the agent can choose.
+
 ## References
 
 @./references/clif-rules.md — Core rules (Parquet-only, UTC datetimes, mCIDE vocab, project layout, PHI rules, three-script architecture)
@@ -101,3 +111,7 @@ Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; 
 @./references/mcide-vocab.md — Allow-listed values for every `_category` column across the 16 beta tables, plus pointers to mCIDE CSV sources
 
 @./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
+
+@./references/clifpy-recipes.md — Canonical Python recipes from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`
+
+@./references/r-template-recipes.md — Canonical R recipes from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template/code/templates/R/`
