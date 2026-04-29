@@ -118,6 +118,6 @@ When the user is writing CLIF analysis code, surface canonical recipes from the 
 
 @./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
 
-@./references/clifpy-recipes.md — Canonical Python recipes from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`
+`references/clifpy-recipes.md` — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
 
-@./references/r-template-recipes.md — Canonical R recipes from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template/code/templates/R/`
+`references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.

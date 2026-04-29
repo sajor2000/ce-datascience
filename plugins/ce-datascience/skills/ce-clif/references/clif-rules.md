@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's `WORKFLOW.md`, the data dictionary at `https://clif-consortium.github.io/website/data-dictionary.html`, and the project's `CLIF_CLAUDE.md`. Pinned default: data dictionary **v2.1.1** (latest tagged release, January 2026). Tags `v2.2.0` and `v3.0.0` exist upstream as work-in-progress (v2.2.0 adds `ecmo_mcs/` and `output/` to mCIDE); opt in explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's `WORKFLOW.md`, the data dictionary at `https://clif-consortium.github.io/website/data-dictionary.html`, and the project's `CLIF_CLAUDE.md`. Pinned default: data dictionary **v2.1.1** (latest stable release, January 2026). Tag `v2.2.0` is obsolete (replaced by v3.0.0). Tag `v3.0.0` is a pre-release (March 2026, multimodal extension); opt in explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -92,16 +92,61 @@ To override: include `POC: @<github-handle> approved` (or `--poc-approved`) in t
 
 - Develop on MIMIC-IV converted to CLIF format (`CLIF-MIMIC` pipeline) or on local CLIF data.
 - Ship the analysis script via PR; each site runs it locally and returns aggregate results.
-- Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `requirements.txt` / `renv.lock` with pinned versions.
+- Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `renv.lock` (R) or `uv.lock` (Python) with pinned versions.
+- **Two aggregation patterns exist in the consortium:**
+  - **Meta-analytic pooling:** each site runs the full analysis and submits summary CSVs; a central aggregation script pools with `metafor::rma(method="REML")`.
+  - **Federated coefficient pooling:** for low-prevalence outcomes where site-level models fail — sites submit local model coefficients, a lead site pools them into global intercepts, sites apply the global model locally. Use when outcome is too rare for site-level propensity scoring.
+- Site output files follow `{SITE_ID}_{descriptor}.{ext}` naming. The site identifier is always the prefix.
+- Aggregation code lives in a separate repository from the analysis code — the split is enforced at the repo boundary.
 
-## 10. Common pitfalls (codify the warnings from `CLIF_CLAUDE.md`)
+## 9b. Staged data loading
 
+Load tables in stages to manage memory — never load the full labs or vitals table before filtering:
+
+1. Load `patient` and `hospitalization` tables first.
+2. Apply inclusion/exclusion criteria to produce a vector of `hospitalization_id` values.
+3. Load specialty tables (`vitals`, `labs`, `respiratory_support`, `medication_admin_continuous`) filtered to those IDs via semi-join or IN-filter.
+4. Only then `collect()` into memory.
+
+## 9c. Hybrid Python + R pipeline
+
+Some consortium projects use Python for data wrangling and R for statistical modeling, connected by intermediate parquet:
+
+- Steps 00-03 in Python: `ClifOrchestrator` loads data, creates wide dataset, saves to `output/intermediate/`.
+- Steps 04-06 in R: `arrow::read_parquet()` loads the intermediate file for causal inference (IPTW, MSM, competing risks).
+- This pattern leverages DuckDB/Polars speed for large table joins and R's superior causal inference ecosystem.
+
+## 10. Common pitfalls (codified from `CLIF_CLAUDE.md` and observed in consortium repos)
+
+### Clinical data pitfalls
 - Do not use `hospital_diagnosis` (billing diagnoses) as a predictor — finalized after discharge, prone to leakage.
 - `medication_admin_continuous` has no end time. End is inferred from `med_dose == 0` or the next administration. Do not assume a fixed duration.
 - `lab_value` may be non-numeric (e.g., `"> upper limit"`, `"<0.01"`). Use `lab_value_numeric` for arithmetic; preserve `lab_value` for QC.
 - `mar_action_group == "administered"` is the only value that means the medication was given. `not_administered` and `other` must be filtered out before exposure analyses.
 - `ADT.location_category` is a *physical* location, not a patient-status flag. ICU presence is `location_category == "icu"`.
 - `device_category == "IMV"` is invasive ventilation; `NIPPV`, `CPAP`, `High Flow NC`, `Face Mask`, `Trach Collar`, `Nasal Cannula`, `Room Air`, `Other` are non-invasive or no support. Never collapse these silently.
+
+### R coding pitfalls
+- **`large_utf8` Arrow type breaks cross-site joins.** Some ETL implementations produce `large_utf8` instead of `utf8`. Joins between the two fail silently. Always `cast_large_utf8_to_utf8()` after `open_dataset()`.
+- **`ifelse()` drops attributes.** Use `data.table::fifelse()` or `dplyr::if_else()`.
+- **`fill()` direction must be explicit.** Always `group_by(patient_id)` before `fill()` and specify `.direction`. Omitting bleeds values across groups.
+- **Timezone mismatch.** Always pass `tz = config$timezone` to `as.POSIXct()`, then convert to UTC with `lubridate::with_tz()`.
+- **Namespace collisions.** Arrow and dplyr both export `filter` and `select`. Declare `select <- dplyr::select` at script top.
+
+### Python coding pitfalls
+- **Outlier handling is clifpy's job.** Use `ClifOrchestrator` — do not hardcode thresholds.
+- **Prefer polars for large tables.** `pl.scan_parquet()` for lazy evaluation on vitals/labs (often >50M rows). Pandas `read_parquet()` loads everything into memory.
+- **uv is replacing pip.** Newer CLIF Python projects use `uv` for environment management. Check for `uv.lock` alongside `requirements.txt`.
+
+### Statistical modeling pitfalls
+- **Never include SOFA as a propensity score covariate when its components are already in the model.** SOFA is a composite of respiratory, coagulation, hepatic, cardiovascular, renal, and neurological sub-scores. Including both creates collinearity. Display SOFA in Table 1 but exclude from propensity models.
+- **Variables with fewer than 2 unique values at a site must be excluded from propensity models dynamically.** Small sites may have zero variance in some covariates — the model will fail or produce infinite weights.
+- **Age cap at 119 years.** Any age > 119 is treated as a data error and set to NA.
+
+### Output conventions
+- **Two-tier output directory:** `output/intermediate/` for working parquet files between pipeline stages; `output/final/` for site-submitted summary artifacts. Only `final/` contents are shared.
+- **CONSORT flow as a running dictionary.** Track exclusion counts at every filtering step — update the dictionary inline, not as a post-hoc summary. Save as both CSV and embedded in the QC report.
+- **Sensitivity analysis naming.** Use a letter suffix on the parent step number (e.g., `06b_sensitivity_analysis.R`), not a new step number. This keeps the main pipeline numbering stable.
 
 ## 11. Reporting checklist defaults under CLIF profile
 
