@@ -17,12 +17,19 @@ Parse the resolved block for `language`, `ide`, `reporting`, and `data_layer` fi
 
 Scan the working directory for project-type signals. Do not ask the user yet.
 
-**CLIF signals** (any one → observational study + CLIF overlay):
+**CLIF signals** (strong signals → auto-route to CLIF overlay; weak signals need 2+ to route):
+
+Strong (any one sufficient):
 - `CLIF_CLAUDE.md` at repo root
-- `mCIDE/` directory exists
-- Both `WORKFLOW.md` and `renv.lock` exist
 - Git remote contains `clif-consortium` or `clif-icu`
 - `__CE_CLIF__ active=true` in chat context
+
+Weak (need 2+ together):
+- `mCIDE/` directory exists
+- `clif_*.parquet` files exist
+- `WORKFLOW.md` at repo root
+
+Do NOT route to CLIF for: generic `patient.parquet`, `vitals`, `labs`, `renv.lock` alone, or `WORKFLOW.md` alone — these appear in non-CLIF EHR projects.
 
 **OMOP signals** (any one → observational study + OMOP overlay):
 - SQL files referencing `cdm_source`, `concept`, `person`, or `observation_period`

@@ -1,6 +1,6 @@
 ---
 name: ce-clif
-description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format repos (CLIF, mCIDE, clif-icu.com, project-template-derived projects). Enforces Parquet-only storage, timezone-aware UTC datetimes, mCIDE allow-listed category vocabularies, canonical layout (code/, config/, outlier-thresholds/, output/, renv/, utils/), QC -> cohort -> analysis script split, and no-PHI output rules. Treats mCIDE/, ddl/, outlier-handling/, reference_ranges/, WORKFLOW.md as protected paths requiring POC sign-off. Use when the user mentions CLIF/mCIDE/clif-icu or CLIF tables (patient, hospitalization, adt, vitals, labs, respiratory_support, medication_admin_continuous), or when the repo has CLIF_CLAUDE.md / mCIDE/ / WORKFLOW.md. Auto-activates and emits __CE_CLIF__ active=true, and ensures __CE_LANG__ is available via ce-language-detect for language-specific recipe routing.'
+description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format consortium repos and CLIF-derived projects. Enforces Parquet-only storage, UTC datetimes, mCIDE vocabulary validation, three-script architecture, and no-PHI output rules. Use when the repo has CLIF_CLAUDE.md, a mCIDE/ directory, clif_*.parquet files, or a clif-consortium/clif-icu git remote. Does NOT activate for generic EHR, OMOP, or claims projects — those use ce-cohort-build without the CLIF profile.'
 argument-hint: "[optional: --version 2.1.1|2.2.0|3.0.0, --strict, --off]"
 ---
 
@@ -10,14 +10,34 @@ Loads the CLIF (Common Longitudinal ICU data Format) ruleset whenever a session 
 
 ## When this skill activates
 
-Auto-activate when **any one** of the following signals is present:
+Auto-activate when **two or more** of the following signals are present (single signals are too generic to distinguish CLIF from other EHR projects):
 
+**Strong signals (any ONE of these alone is sufficient):**
 - A file named `CLIF_CLAUDE.md` exists at the repo root or `~/CLIF_CLAUDE.md`
-- The working directory contains both `WORKFLOW.md` and a `mCIDE/` directory
-- The working directory contains a `renv.lock` plus references to CLIF tables (`clif_*` parquet files, `read_parquet("patient.parquet")`, etc.)
 - Git remote URL contains `clif-consortium`, `Common-Longitudinal-ICU-data-Format`, or `clif-icu`
-- The user mentions CLIF, mCIDE, clif-icu, "common longitudinal icu data format", or a CLIF table by name (`hospitalization`, `respiratory_support`, `medication_admin_continuous`, etc.)
-- Manual: `/ce-clif` (forces activation), `/ce-clif --off` (forces deactivation for the session)
+- The user explicitly says "CLIF", "mCIDE", "clif-icu", or "common longitudinal icu data format"
+- Manual: `/ce-clif` (forces activation)
+
+**Weak signals (require 2+ to activate — individually these appear in non-CLIF projects):**
+- A `mCIDE/` directory exists
+- `WORKFLOW.md` exists at the repo root
+- Files named `clif_*.parquet` exist (e.g., `clif_vitals.parquet`, `clif_respiratory_support.parquet`)
+- Code references CLIF-specific table names: `respiratory_support`, `medication_admin_continuous`, `patient_assessments`, `intake_output`
+- `config/config.json` contains a `tables_path` field pointing to parquet files
+
+**NOT activation signals (too generic — appear in OMOP, custom EHR, and non-CLIF projects):**
+- `patient.parquet` alone (OMOP has `person`, but custom EHR may use `patient`)
+- `hospitalization` alone (generic term)
+- `vitals` or `labs` alone (generic terms)
+- `renv.lock` alone (any R project)
+- `WORKFLOW.md` alone (any project with a workflow doc)
+- `adt` alone (ADT feeds exist outside CLIF)
+
+When signals are ambiguous (only weak signals, or the user mentions a CLIF table name in a non-CLIF context), ask one question before activating:
+
+> "Detected possible CLIF signals but this may not be a CLIF project. Is this a CLIF consortium or CLIF-derived project?"
+
+`/ce-clif --off` forces deactivation for the session.
 
 When activated, print one acknowledgment line and emit the handoff signal:
 
