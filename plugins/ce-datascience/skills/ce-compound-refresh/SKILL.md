@@ -200,63 +200,7 @@ Pattern docs are high-leverage — a stale pattern is more dangerous than a stal
 A pattern doc with no clear supporting learnings is a stale signal — investigate carefully before keeping it unchanged.
 
 ## Phase 1.75: Document-Set Analysis
-
-After investigating individual docs, step back and evaluate the document set as a whole. The goal is to catch problems that only become visible when comparing docs to each other — not just to reality.
-
-### Overlap Detection
-
-For docs that share the same module, component, tags, or problem domain, compare them across these dimensions:
-
-- **Problem statement** — do they describe the same underlying problem?
-- **Solution shape** — do they recommend the same approach, even if worded differently?
-- **Referenced files** — do they point to the same code paths?
-- **Prevention rules** — do they repeat the same prevention bullets?
-- **Root cause** — do they identify the same root cause?
-
-High overlap across 3+ dimensions is a strong Consolidate signal. The question to ask: "Would a future maintainer need to read both docs to get the current truth, or is one mostly repeating the other?"
-
-### Supersession Signals
-
-Detect "older narrow precursor, newer canonical doc" patterns:
-
-- A newer doc covers the same files, same workflow, and broader runtime behavior than an older doc
-- An older doc describes a specific incident that a newer doc generalizes into a pattern
-- Two docs recommend the same fix but the newer one has better context, examples, or scope
-
-When a newer doc clearly subsumes an older one, the older doc is a consolidation candidate — its unique content (if any) should be merged into the newer doc, and the older doc should be deleted.
-
-### Canonical Doc Identification
-
-For each topic cluster (docs sharing a problem domain), identify which doc is the **canonical source of truth**:
-
-- Usually the most recent, broadest, most accurate doc in the cluster
-- The one a maintainer should find first when searching for this topic
-- The one that other docs should point to, not duplicate
-
-All other docs in the cluster are either:
-- **Distinct** — they cover a meaningfully different sub-problem and have independent retrieval value. Keep them separate.
-- **Subsumed** — their unique content fits as a section in the canonical doc. Consolidate.
-- **Redundant** — they add nothing the canonical doc doesn't already say. Delete.
-
-### Retrieval-Value Test
-
-Before recommending that two docs stay separate, apply this test: "If a maintainer searched for this topic six months from now, would having these as separate docs improve discoverability, or just create drift risk?"
-
-Separate docs earn their keep only when:
-- They cover genuinely different sub-problems that someone might search for independently
-- They target different audiences or contexts (e.g., one is about debugging, another about prevention)
-- Merging them would create an unwieldy doc that is harder to navigate than two focused ones
-
-If none of these apply, prefer consolidation. Two docs covering the same ground will eventually drift apart and contradict each other — that is worse than a slightly longer single doc.
-
-### Cross-Doc Conflict Check
-
-Look for outright contradictions between docs in scope:
-- Doc A says "always use approach X" while Doc B says "avoid approach X"
-- Doc A references a file path that Doc B says was deprecated
-- Doc A and Doc B describe different root causes for what appears to be the same problem
-
-Contradictions between docs are more urgent than individual staleness — they actively confuse readers. Flag these for immediate resolution, either through Consolidate (if one is right and the other is a stale version of the same truth) or through targeted Update/Replace.
+Read `references/document-set-analysis.md` for full detail. It covers overlap detection across 5 dimensions, supersession signals, canonical-doc identification (Distinct / Subsumed / Redundant), the retrieval-value test, and the cross-doc conflict check.
 
 ## Subagent Strategy
 
@@ -372,88 +316,10 @@ Apply the same five outcomes (Keep, Update, Consolidate, Replace, Delete) to pat
 
 ## Phase 3: Ask for Decisions
 
-### Autofix mode
+### Autofix mode and Interactive mode
 
-**Skip this entire phase. Do not ask any questions. Do not present options. Do not wait for input.** Proceed directly to Phase 4 and execute all actions based on the classifications from Phase 2:
+Read `references/phase3-ask-decisions.md` for full detail. It covers the autofix-mode skip rule, the interactive-mode "when to ask" rules, question style (platform blocking tools, one-at-a-time, recommended-first), focused-scope interaction, batch-scope interaction (Keep / Update / Consolidate / Replace / Delete groupings), and broad-scope incremental sweep.
 
-- Unambiguous Keep, Update, Consolidate, auto-Delete, and Replace (with sufficient evidence) → execute directly
-- Ambiguous cases → mark as stale
-- Then generate the report (see Output Format)
-
-### Interactive mode
-
-Most Updates and Consolidations should be applied directly without asking. Only ask the user when:
-
-- The right action is genuinely ambiguous (Update vs Replace vs Consolidate vs Delete)
-- You are about to Delete a document **and** the evidence is not unambiguous (see auto-delete criteria in Phase 2). When auto-delete criteria are met, proceed without asking.
-- You are about to Consolidate and the choice of canonical doc is not clear-cut
-- You are about to create a successor via Replace
-
-Do **not** ask questions about whether code changes were intentional, whether the user wants to fix bugs in the code, or other concerns outside doc maintenance. Stay in your lane — doc accuracy.
-
-#### Question Style
-
-Always present choices using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in plain text only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
-
-Question rules:
-
-- Ask **one question at a time**
-- Prefer **multiple choice**
-- Lead with the **recommended option**
-- Explain the rationale for the recommendation in one concise sentence
-- Avoid asking the user to choose from actions that are not actually plausible
-
-#### Focused Scope
-
-For a single artifact, present:
-
-- file path
-- 2-4 bullets of evidence
-- recommended action
-
-Then ask:
-
-```text
-This [learning/pattern] looks like a [Keep/Update/Consolidate/Replace/Delete].
-
-Why: [one-sentence rationale based on the evidence]
-
-What would you like to do?
-
-1. [Recommended action]
-2. [Second plausible action]
-3. Skip for now
-```
-
-Do not list all five actions unless all five are genuinely plausible.
-
-#### Batch Scope
-
-For several learnings:
-
-1. Group obvious **Keep** cases together
-2. Group obvious **Update** cases together when the fixes are straightforward
-3. Present **Consolidate** cases together when the canonical doc is clear
-4. Present **Replace** cases individually or in very small groups
-5. Present **Delete** cases individually unless they are strong auto-delete candidates
-
-Ask for confirmation in stages:
-
-1. Confirm grouped Keep/Update recommendations
-2. Then handle Consolidate groups (present the canonical doc and what gets merged)
-3. Then handle Replace one at a time
-4. Then handle Delete one at a time unless the deletion is unambiguous and safe to auto-apply
-
-#### Broad Scope
-
-If the user asked for a sweeping refresh, keep the interaction incremental:
-
-1. Narrow scope first
-2. Investigate a manageable batch
-3. Present recommendations
-4. Ask whether to continue to the next batch
-
-Do not front-load the user with a full maintenance queue.
 
 ## Phase 4: Execute the Chosen Action
 
@@ -583,55 +449,7 @@ If all writes succeed, the Recommended section is empty. If no writes succeed (e
 - List archived files found and recommend disposition: restore (if still relevant), delete (if truly obsolete), or consolidate (if overlapping with active docs)
 
 ## Phase 5: Commit Changes
-
-After all actions are executed and the report is generated, handle committing the changes. Skip this phase if no files were modified (all Keep, or all writes failed).
-
-### Detect git context
-
-Before offering options, check:
-1. Which branch is currently checked out (main/master vs feature branch)
-2. Whether the working tree has other uncommitted changes beyond what compound-refresh modified
-3. Recent commit messages to match the repo's commit style
-
-### Autofix mode
-
-Use sensible defaults — no user to ask:
-
-| Context | Default action |
-|---------|---------------|
-| On main/master | Create a branch named for what was refreshed (e.g., `docs/refresh-auth-and-ci-learnings`), commit, attempt to open a PR. If PR creation fails, report the branch name. |
-| On a feature branch | Commit as a separate commit on the current branch |
-| Git operations fail | Include the recommended git commands in the report and continue |
-
-Stage only the files that compound-refresh modified — not other dirty files in the working tree.
-
-### Interactive mode
-
-First, run `git branch --show-current` to determine the current branch. Then present the correct options based on the result. Stage only compound-refresh files regardless of which option the user picks.
-
-**If the current branch is main, master, or the repo's default branch:**
-
-1. Create a branch, commit, and open a PR (recommended) — the branch name should be specific to what was refreshed, not generic (e.g., `docs/refresh-auth-learnings` not `docs/compound-refresh`)
-2. Commit directly to `{current branch name}`
-3. Don't commit — I'll handle it
-
-**If the current branch is a feature branch, clean working tree:**
-
-1. Commit to `{current branch name}` as a separate commit (recommended)
-2. Create a separate branch and commit
-3. Don't commit
-
-**If the current branch is a feature branch, dirty working tree (other uncommitted changes):**
-
-1. Commit only the compound-refresh changes to `{current branch name}` (selective staging — other dirty files stay untouched)
-2. Don't commit
-
-### Commit message
-
-Write a descriptive commit message that:
-- Summarizes what was refreshed (e.g., "update 3 stale learnings, consolidate 2 overlapping docs, delete 1 obsolete doc")
-- Follows the repo's existing commit conventions (check recent git log for style)
-- Is succinct — the details are in the changed files themselves
+Read `references/phase5-commit-changes.md` for full detail on git-context detection, autofix-mode defaults (main vs feature branch), interactive-mode option presentation by branch state, and the commit-message style.
 
 ## Relationship to ce-compound
 
