@@ -1,6 +1,6 @@
 ---
 name: ce-checklist-match
-description: 'Determines which reporting checklist(s) a study should follow BEFORE the SAP is written. Asks 4-6 routing questions (design, prospective vs retrospective, AI involvement, etc.) and recommends the primary checklist + AI/specialty extensions from CONSORT, STROBE, RECORD, RECORD-PE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, TARGET (target trial emulation 2025), TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, REFORMS, DEAL, CHART, PDSQI-9. Use whenever the user mentions reporting checklist, EQUATOR, CONSORT, STROBE, TRIPOD, PRISMA, STARD, TARGET, "which guideline do I follow", "reporting standards", or sets up a study and has not yet picked a checklist. Use at PLAN time (before SAP drafting) so the SAP is written against the right checklist; ce-reporting-checklist-reviewer validates AT REVIEW time. Writes the selection to stack profile so other skills pick it up.'
+description: 'Picks the reporting checklist a study should follow BEFORE the SAP is written. Asks 4-6 routing questions and recommends a primary plus extensions from CONSORT, STROBE, RECORD, RECORD-PE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, TARGET, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, REFORMS, DEAL, CHART, PDSQI-9. Use whenever the user mentions reporting checklist, EQUATOR, CONSORT, STROBE, TRIPOD, PRISMA, STARD, TARGET, "which guideline", "reporting standards", or sets up a study without one. PLAN-time skill — review-time scoring is ce-reporting-checklist-reviewer (auto-dispatched by /ce-code-review). Writes canonical stack-profile fields reporting_checklist (string) + reporting_checklist_extensions (list). Reads /ce-research-question yaml when present to pre-fill routing answers.'
 argument-hint: "[study description, optional --interactive]"
 ---
 
@@ -21,6 +21,31 @@ Picks the right reporting checklist(s) at PLAN time so the SAP is written agains
 - Stack profile exists (`/ce-setup` has run)
 
 ## Core workflow
+
+### Step 0: Context inputs (scan chat first)
+
+Before asking routing questions, scan the most recent ~50 chat turns for `__CE_RESEARCH_QUESTION__ yaml=<path> design=<...> checklist=<...>`. If found, read the YAML and pre-fill these routing answers from the structured fields, then ask only the questions still unanswered:
+
+| Routing question | Pre-fill from YAML field |
+|---|---|
+| Design | `suggested_design` (cohort / case-control / RCT / prediction model / target trial / etc.) |
+| Direction (prospective / retrospective) | infer from `pico.population` time frame |
+| AI involvement | infer from `pico.intervention_or_exposure` and `suggested_design` |
+| Population | `pico.population` |
+
+Pre-fills are starting points, not answers — the model must surface them and let the user override before writing to stack profile. Example:
+
+```
+[research-question] pre-filled from analysis/research-question.yaml:
+  design: cohort_retrospective
+  ai_involvement: none
+  population: human
+  primary checklist (suggested): STROBE
+  extensions (suggested): RECORD
+Confirm or correct any of these? (or say "go" to accept all)
+```
+
+When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 and ask all questions.
 
 ### Step 1: Ask the routing questions
 

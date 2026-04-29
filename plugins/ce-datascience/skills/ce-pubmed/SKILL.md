@@ -16,6 +16,21 @@ Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstr
 
 ## Workflow
 
+### 0. Context inputs (scan chat first)
+
+Before asking the user for a query, scan the most recent ~50 chat turns for `__CE_RESEARCH_QUESTION__ yaml=<path> ... query="<one-line>"`. If found:
+
+1. Read the YAML at the path (`analysis/research-question.yaml` by default).
+2. Use the `suggested_pubmed_query` field as the default query if no `<query terms>` argument was passed on the command line.
+3. Use `pico.population` and `outcome` to derive a default `--years` window (default 10) and `--study-type` filter (e.g., `cohort` if `suggested_design` starts with "cohort").
+4. Print one line so the chain is visible:
+
+   ```
+   [research-question] using query from analysis/research-question.yaml: "<query>"
+   ```
+
+If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, ask the user for a query (or recommend running `/ce-research-question` first to harden the question).
+
 ### 1. Run the bundled script
 
 The `scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries. Prefer it over hand-rolling `requests` because Entrez already implements the rate-limit + retry logic that hand-rolled code routinely gets wrong.

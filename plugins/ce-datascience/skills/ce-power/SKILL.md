@@ -24,6 +24,15 @@ Wraps the standard power calculations behind a single command. Produces a script
 
 ## Core workflow
 
+### Step 0: Context inputs (scan chat first)
+
+If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> ... mode=<reml|narrative>`.
+
+- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size` and use `ci=lo,hi` as the sensitivity-sweep bounds. Print `[effect-size] anchor from /ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%)`.
+- If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user run `/ce-effect-size` again with more studies.
+
+When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption (or recommend `/ce-method-extract` + `/ce-effect-size` first).
+
 ### Step 1: Pick the formula
 
 | Design | Formula | R | Python |
@@ -70,13 +79,13 @@ Reference the prior literature explicitly so the assumption is auditable.
 
 ### Step 5: Emit signal
 
-Print one line so `/ce-plan` SAP mode can drop the value into SAP-2.5 automatically:
+Print one line so `/ce-plan` SAP mode can drop the value into SAP-2.5 automatically. Required keys: `design`, `total`, `file`. Optional keys for specific designs: `n_per_arm` (two-arm), `with_dropout` (any), `epv` (prediction-model).
 
 ```
-__CE_POWER__ design=<name> n_per_arm=<n> total=<n> with_dropout=<n> file=<path-to-summary.md>
+__CE_POWER__ design=<name> total=<n> file=<path-to-summary.md> n_per_arm=<n> with_dropout=<n>
 ```
 
-The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `type=prediction-model` plus an `epv=<n>` field. Both forms are recognized by `/ce-plan`.
+The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `/ce-plan` SAP mode.
 
 ## What this skill does NOT do
 

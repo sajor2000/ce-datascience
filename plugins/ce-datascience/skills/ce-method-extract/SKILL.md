@@ -21,6 +21,12 @@ Reads a PubMed result CSV and produces a structured methods-comparison table for
 
 ## Core workflow
 
+### Step 0: Context inputs (scan chat first)
+
+If no `<path/to/pubmed-results.csv>` was passed as the first argument, scan the most recent ~50 chat turns for `__CE_PUBMED_RESULTS__ csv=<path> n=<int> ...`. If found, use that CSV path as the input.
+
+Print: `[pubmed] using results from <path> (n=<N>)`. If neither an explicit path nor the signal is present, ask the user to run `/ce-pubmed` first or pass a CSV path explicitly.
+
 ### Step 1: Load and prioritize
 
 Read the input CSV. If `--full-text-only`, drop rows without `pmcid`. Sort by year (descending), then by study-type relevance (RCT > prospective cohort > retrospective cohort > case-control > case series). Cap at `--max` (default 25).

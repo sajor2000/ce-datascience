@@ -21,6 +21,12 @@ Bridges `/ce-method-extract` (which collects what prior studies REPORTED) and `/
 
 ## Core workflow
 
+### Step 0: Context inputs (scan chat first)
+
+If no `<path/to/methods.csv>` was passed, scan the most recent ~50 chat turns for `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<...>`. If found, use that CSV as the input. Print `[method-extract] using methods table from <path> (n=<N>, modal=<modal_method>)`.
+
+If neither an explicit path nor the signal is present, ask the user to run `/ce-method-extract` first or pass a CSV path explicitly.
+
 ### Step 1: Load and parse
 
 Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns. Drop rows where parsing fails; report count of dropped rows.
@@ -82,7 +88,19 @@ Use R `meta::forest()` or Python `matplotlib`. Each study's point and CI; pooled
 
 ### Step 6: Emit signal
 
-`__CE_EFFECT_SIZE__ metric=<m> point=<v> ci=<lo,hi> n_studies=<n>` so `/ce-power` can pick up the value.
+The bundled `scripts/pool_effects.R` prints the canonical envelope. REML (k>=3) form:
+
+```
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> i2=<pct> mode=reml
+```
+
+Narrative form (k<3, no pooling):
+
+```
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=null ci=null i2=null mode=narrative
+```
+
+Both forms share the same key set so `/ce-power` can scan one regex. When `mode=narrative`, `/ce-power` should fall back to the user-supplied effect size or stop and ask, rather than try to read `point=null` as a number.
 
 ## What this skill does NOT do
 

@@ -99,7 +99,7 @@ md <- c(
 if (!is.null(a$out)) {
   dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
   writeLines(md, a$out)
-  cat(sprintf("__CE_POWER__ type=prediction-model n=%d epv=%.1f file=%s\n",
+  cat(sprintf("__CE_POWER__ design=prediction-model total=%d n_per_arm=null epv=%.1f file=%s\n",
               res$sample_size, res$EPV, a$out))
 } else {
   cat(md, sep = "\n")

@@ -51,16 +51,19 @@ When SAP mode is active, replace Phases 3-4 with the SAP-specific workflow below
 1. Read the SAP template from `references/sap-template.md`
 2. **Scan chat context and `analysis/` for upstream biomedical-skill handoff signals.** Each signal is the output of a skill earlier in the lifecycle and feeds a specific SAP section. The model parses them out of recent chat turns (each is a single line beginning with `__CE_*__`) and out of `analysis/` artifact paths the signals point at, then uses them as inputs in step 3.
 
-   | Signal | Emitted by | Feeds SAP section |
-   |--------|------------|-------------------|
-   | `__CE_PUBMED_RESULTS__ csv=... n=... query=... pmc_pct=...` | `/ce-pubmed` | SAP-1 background, SAP-2 rationale |
-   | `__CE_METHOD_EXTRACT__ csv=... n=...` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
-   | `__CE_CHECKLIST__ primary=STROBE extensions=[TRIPOD+AI,REFORMS]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
-   | `__CE_COHORT__ name=... n=... json=... yaml=...` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
-   | `__CE_DATA_QA__ wave=... pass=true/false issues=...` | `/ce-data-qa` | SAP-2.4 data quality assertions |
-   | `__CE_PHENOTYPE_VALIDATE__ name=... ppv=... sens=... yaml=...` | `/ce-phenotype-validate` | SAP-2 case-definition validation |
-   | `__CE_EFFECT_SIZE__ metric=... point=... ci=... n_studies=...` | `/ce-effect-size` | SAP-2.5 effect-size anchor |
-   | `__CE_POWER__ type=... n=... epv=... file=...` | `/ce-power` | SAP-2.5 sample-size result |
+   The canonical envelope shape for each signal is below. Emitters MUST emit at minimum the listed keys; extra keys are allowed (forward-compatible). When a consumer expects a key that the emitter wrote `null` for (e.g. narrative-mode effect-size pooling), treat it as missing rather than an error.
+
+   | Signal | Canonical shape | Emitted by | Feeds SAP section |
+   |--------|------------------|------------|-------------------|
+   | `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `/ce-research-question` | SAP-1 framing, SAP-2.1 hypothesis |
+   | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `/ce-pubmed` | SAP-1 background, SAP-2 rationale |
+   | `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
+   | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
+   | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
+   | `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `/ce-data-qa` | SAP-2.4 data quality assertions |
+   | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `/ce-phenotype-validate` | SAP-2 case-definition validation |
+   | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `/ce-effect-size` | SAP-2.5 effect-size anchor |
+   | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `/ce-power` | SAP-2.5 sample-size result |
 
    When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
 

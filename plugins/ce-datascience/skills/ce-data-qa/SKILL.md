@@ -1,6 +1,6 @@
 ---
 name: ce-data-qa
-description: 'Run a structured data quality assessment on a freshly extracted dataset before any modeling code runs. Produces a GO/NO-GO report with row counts vs CONSORT flow, missingness pattern vs SAP rule, range checks, duplicate keys, date sanity, and category validation. Use when a new data wave has been registered, before unblinding for confirmatory analysis, or whenever the SAP shape may have drifted from the data shape.'
+description: 'Runs a structured data-quality gate on a freshly extracted dataset BEFORE any modeling code runs and emits a GO/NO-GO verdict. Produces row-counts vs the CONSORT-flow waterfall, missingness pattern vs the SAP rule, range checks, duplicate-key checks, date sanity, and category-value validation. Use whenever the user mentions data quality, data QA, GO/NO-GO, "is the data clean", "check the dataset before modeling", missingness check, range check, duplicate IDs, CONSORT flow vs raw rows, SAP-vs-data shape drift, "the data looks off", a fresh data extract / re-extract / data wave, or unblinding readiness for confirmatory analysis. Required gate after /ce-cohort-build and before any /ce-work modeling task; refuses to run on a locked data wave without --force.'
 argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 ---
 

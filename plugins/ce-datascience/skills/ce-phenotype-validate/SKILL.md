@@ -128,7 +128,13 @@ validation:
 
 ### Step 8: Emit signal
 
-`__CE_PHENOTYPE_VALIDATE__ phenotype=<name> ppv=<v> sens=<v> n=<n>`
+The bundled script (`scripts/validate_phenotype.py`) prints the canonical envelope:
+
+```
+__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> yaml=<path-to-validation.yaml> report=<path-to-report.md>
+```
+
+Surface this line so `/ce-plan` SAP mode and the concept-set provenance YAML pick the validation up.
 
 ## What this skill does NOT do
 

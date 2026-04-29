@@ -62,7 +62,7 @@ if (nrow(dat) < 3) {
   )
   dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
   writeLines(out_md, a$out)
-  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d mode=narrative\n",
+  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null i2=null mode=narrative\n",
               a$metric, nrow(dat)))
   quit(status = 0)
 }
@@ -125,5 +125,5 @@ out_md <- c(
 dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
 writeLines(out_md, a$out)
 
-cat(sprintf("__CE_EFFECT_SIZE__ metric=%s point=%.3f ci=%.3f,%.3f n_studies=%d i2=%.0f\n",
-            a$metric, pooled, ci_lo, ci_hi, nrow(dat), m$I2 * 100))
+cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f i2=%.0f mode=reml\n",
+            a$metric, nrow(dat), pooled, ci_lo, ci_hi, m$I2 * 100))

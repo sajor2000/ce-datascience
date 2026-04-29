@@ -1,5 +1,6 @@
 # sprint-log.yaml schema
-# Lives at analysis/sprints/<name>/sprint-log.yaml
+# Lives at analysis/sprint-log.yaml (top-level; one file per project, with a `sprints:` list of entries — one per sprint)
+# Per-sprint summary closeout reports live separately at analysis/sprints/<name>/summary.md
 # One file per sprint. The set of files in analysis/sprints/ IS the audit trail.
 
 sprint:

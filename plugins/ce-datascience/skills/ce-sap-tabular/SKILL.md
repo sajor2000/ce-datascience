@@ -1,6 +1,6 @@
 ---
 name: ce-sap-tabular
-description: 'Generate a structured tabular companion to the prose SAP -- a 5-table artifact (overview, outputs catalog, variables catalog, long-format sample, wide-format sample) that statisticians actually hand to programmers and reviewers. Use after the prose SAP exists, before any analysis code is written, to lock down the output inventory and per-analysis variable list.'
+description: 'Generates a structured 5-table tabular companion (overview, outputs catalog, variables catalog, long-format sample, wide-format sample) to the prose SAP and emits both CSVs and a styled .xlsx. The catalog drives /ce-work task seeding (one task per row) and gates /ce-sprint scope (only catalogued outputs are in-scope). Use whenever the user mentions SAP companion table, tabular SAP, output catalog, variables catalog, "make me a programmer-handoff sheet for the SAP", "lock down the output inventory", section-banner highlighting, or finishes /ce-plan SAP and is heading to /ce-sprint or /ce-work. Use AFTER the prose SAP exists and BEFORE any analysis code runs — the catalog is the contract /ce-work executes against. Refuses to run when no SAP exists.'
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 

@@ -25,7 +25,7 @@ Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human 
 
 ### `/ce-sprint start <name>`
 
-1. Check that no other sprint is currently `open` in `analysis/sprints/sprint-log.yaml`. Refuse to open a second concurrent sprint -- one in flight at a time. Use `/ce-sprint close` first.
+1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `/ce-sprint close` first.
 
 2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `analysis_section` matches.
 
@@ -39,7 +39,7 @@ Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human 
 
    If any fails, refuse to open the sprint and report what's blocking.
 
-5. Write `analysis/sprints/<name>/sprint-log.yaml`:
+5. Append the new sprint entry to `analysis/sprint-log.yaml` (top-level, one file per project — every sprint becomes a list item under `sprints:`). The script handles the append; the example below shows one such entry:
 
 ```yaml
 sprint:
@@ -68,12 +68,44 @@ sprint:
    __CE_SPRINT_AUDIT_DISPATCH__ sprint=<name> reviewer=ce-sprint-audit-reviewer human_reviewer=<name> scope=<csv> commit_open=<sha> commit_close=<sha>
    ```
 
-2. Parse the `__CE_SPRINT_AUDIT_DISPATCH__` line and use it to fire the Task tool with `subagent_type=ce-sprint-audit-reviewer`, passing the sprint name, scope, and commit range. The reviewer checks:
-   - Every `planned_outputs` row has a corresponding artifact at the expected path
-   - No out-of-scope SAP sections were modified during the sprint window (git log of analysis/ files vs `opened` timestamp)
-   - No unscheduled outputs were produced (warn; not block)
-   - All planned analyses ran successfully (no errored Quarto/notebook chunks)
-   - Reproducibility check: re-running the sprint script produces the same hashes for declared outputs
+2. Parse the `__CE_SPRINT_AUDIT_DISPATCH__` line into its key=value fields and fire the Task tool using this literal template (substitute `<name>`, `<scope>`, `<commit_open>`, `<commit_close>`, `<human_reviewer>` from the parsed line):
+
+   ```
+   Task(
+     subagent_type = "ce-sprint-audit-reviewer",
+     description   = "Audit sprint <name>",
+     prompt        = """
+       Sprint name:   <name>
+       Human reviewer: <human_reviewer>
+       Scope (SAP sections in this sprint): <scope>
+       Commit range: <commit_open>..<commit_close>
+
+       Verify, in order:
+       1. Every row in analysis/sap-tables/02-outputs.csv whose
+          analysis_section is in <scope> has a corresponding artifact at the
+          expected output_file under the expected subfolder.
+       2. No files outside <scope>'s SAP-section ownership were edited
+          between <commit_open> and <commit_close>
+          (use `git diff --name-only <commit_open> <commit_close>`).
+       3. Outputs produced that are NOT in 02-outputs.csv: list them
+          (warn-level, not blocking).
+       4. All planned Quarto/notebook chunks in scope ran without errors
+          (look for `Error in ...` in any *.log captured during the sprint).
+       5. Reproducibility re-check: hash each declared output and compare to
+          the hash captured at last execution if available.
+
+       Return JSON:
+         {
+           "verdict": "pass" | "fail",
+           "p0_count": <int>,
+           "p1_count": <int>,
+           "p2_count": <int>,
+           "blocking_findings": [ {file, line, severity, title}, ... ],
+           "advisory_findings": [ ... ]
+         }
+     """
+   )
+   ```
 
 3. On a passing audit verdict, write the sprint summary to `analysis/sprints/<name>/summary.md`. On a failing verdict, flip the sprint back to `status: open` so the user can address findings; do not write a summary.
 

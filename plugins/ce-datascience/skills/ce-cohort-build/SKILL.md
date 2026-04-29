@@ -23,6 +23,20 @@ Walks the user through defining a research cohort with vocabulary-pinned concept
 
 ## Core workflow
 
+### Step 0: Context inputs (scan chat first)
+
+Before eliciting cohort criteria, scan the most recent ~50 chat turns for `__CE_RESEARCH_QUESTION__ yaml=<path>`. If found, read the YAML and use it as the seed:
+
+- `pico.population` → starting point for inclusion criteria (the user can refine, but the population is already framed)
+- `pico.intervention_or_exposure` → starting point for the index event / exposure concept set
+- `pico.comparator` → seed for the comparator concept set when comparator is non-null
+- `pico.outcome` → seed for the outcome concept set used in follow-up
+- `suggested_design` → if it starts with "target trial", surface the target_trial.* slots as additional inputs
+
+Print: `[research-question] seeding cohort from analysis/research-question.yaml; pico.population = "..."`. The user still confirms each criterion in step 1; pre-seeding shortens the conversation, it does not skip review.
+
+When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
+
 ### Step 1: Elicit the cohort definition
 
 Ask the user (or parse from `args`):
@@ -121,8 +135,10 @@ If the cohort waterfall loses > 50% at any single step, suggest `/ce-compound` t
 After step 5, print one line so `/ce-plan` SAP mode and `/ce-data-qa` can pick this cohort up from chat context:
 
 ```
-__CE_COHORT__ name=<cohort-name> n=<final-n> json=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>
+__CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>
 ```
+
+The `yaml=` key points at the cohort spec (`analysis/cohort/<cohort-name>.yaml` from step 5); `waterfall=` points at the CONSORT waterfall CSV from step 4. Both keys must be present so downstream skills can pick whichever they need.
 
 ## References
 
