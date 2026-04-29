@@ -1,8 +1,8 @@
-# Claude Code for Data Science
+# Compound Data Science
 
 **Your AI research assistant — from research question to publication.**
 
-40 skills. 55 review agents. 35 reporting checklists. Works with R and Python.
+40 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, and Kiro.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
