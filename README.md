@@ -2,55 +2,77 @@
 
 Compound engineering for computational scientists. 40 skills, 55 agents, and 35 reporting checklists for the full biomedical research lifecycle — from PICO to publication — across R and Python.
 
-Built on the [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) plugin by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to).
-
-## What it does
-
-Frame your research question. Search the literature. Build a cohort. Write a Statistical Analysis Plan. Execute with SAP tracking. Review against 35 reporting checklists. Document what you learned so the next study is easier.
+Built on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to).
 
 ![CE DataScience Workflow — From PICO to Publication](docs/workflow-diagram.png)
 
-Run `/ce-workflow` to see which path applies to your project and where you are in it.
+---
 
-## Quick start
+## Install (5 minutes)
+
+### 1. Install Bun (if you don't have it)
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+### 2. Clone the plugin
 
 ```bash
 git clone https://github.com/sajor2000/ce-datascience.git
-cd ce-datascience && bun install
+cd ce-datascience
+bun install
 ```
 
-Then start Claude Code with the plugin loaded:
+### 3. Start Claude Code with the plugin
 
 ```bash
 claude --plugin-dir ~/ce-datascience/plugins/ce-datascience
 ```
 
-First commands in any project:
-
-```
-/ce-setup       # configure language, IDE, libraries
-/ce-workflow    # see the lifecycle for your project type
-```
-
-**Tip:** Add an alias to `~/.zshrc` so you don't have to type the path every time:
+**Save yourself typing** — add this alias to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-alias claude-ds='claude --plugin-dir ~/ce-datascience/plugins/ce-datascience'
+echo 'alias claude-ds="claude --plugin-dir ~/ce-datascience/plugins/ce-datascience"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-## Install on other platforms
+Now use `claude-ds` instead of `claude` in any project.
 
-```bash
-cd ~/ce-datascience
-bun run src/index.ts install ./plugins/ce-datascience --to codex    # Codex
-bun run src/index.ts install ./plugins/ce-datascience --to pi       # Pi
-bun run src/index.ts install ./plugins/ce-datascience --to gemini   # Gemini CLI
-bun run src/index.ts install ./plugins/ce-datascience --to opencode # OpenCode
-bun run src/index.ts install ./plugins/ce-datascience --to kiro     # Kiro
-bun run src/index.ts install ./plugins/ce-datascience --to all      # all at once
+### 4. Verify it works
+
+Inside Claude Code, run:
+
+```
+/ce-setup
 ```
 
-Pi needs two extensions first: `pi install npm:pi-subagents` (required) and `pi install npm:pi-ask-user` (recommended).
+You should see prompts for language (R/Python), IDE, and libraries. If you see "unknown command", restart Claude Code — the plugin loads at session start.
+
+### 5. See your workflow
+
+```
+/ce-workflow
+```
+
+This shows the full lifecycle for your project type and tells you what to do next.
+
+---
+
+## Other platforms
+
+| Platform | Install command |
+|---|---|
+| Codex | `bun run src/index.ts install ./plugins/ce-datascience --to codex` |
+| Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi` |
+| Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini` |
+| OpenCode | `bun run src/index.ts install ./plugins/ce-datascience --to opencode` |
+| Kiro | `bun run src/index.ts install ./plugins/ce-datascience --to kiro` |
+| All at once | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
+
+Run these from `~/ce-datascience`. Pi also needs `pi install npm:pi-subagents` first.
+
+---
 
 ## Updating
 
@@ -58,51 +80,78 @@ Pi needs two extensions first: `pi install npm:pi-subagents` (required) and `pi 
 cd ~/ce-datascience && git pull && bun install
 ```
 
-## Workflow by project type
+Then restart your coding agent.
+
+---
+
+## What you can do
 
 ### Observational study (EHR / OMOP / claims)
 
 ```
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
-/ce-pubmed              /ce-method-extract        /ce-checklist-match
-/ce-effect-size         /ce-power                 /ce-cohort-build
-/ce-data-qa             /ce-plan                  /ce-sap-tabular
-/ce-sprint              /ce-work                  /ce-verify
-/ce-code-review         /ce-compound
+/ce-pubmed
+/ce-method-extract
+/ce-checklist-match
+/ce-effect-size
+/ce-power
+/ce-cohort-build
+/ce-data-qa
+/ce-plan
+/ce-sap-tabular
+/ce-sprint
+/ce-work
+/ce-verify
+/ce-code-review
+/ce-compound
 ```
 
 ### Prediction model (ML / AI)
 
 ```
-/ce-research-question   /ce-checklist-match       /ce-cohort-build
-/ce-plan                /ce-ml-experiment-track    /ce-optimize
-/ce-work                /ce-model-card            /ce-code-review
+/ce-research-question
+/ce-checklist-match
+/ce-cohort-build
+/ce-plan
+/ce-ml-experiment-track
+/ce-optimize
+/ce-work
+/ce-model-card
+/ce-code-review
 ```
 
 ### CLIF consortium (ICU federated)
 
 ```
-# ce-clif activates automatically
-/ce-workflow            /ce-work
+# ce-clif activates automatically when it detects your CLIF project
+/ce-workflow
+/ce-work
 ```
 
-### Bioinformatics / omics
+### Bioinformatics
 
 ```
-/ce-bioinfo-qc          /ce-genome-build          /ce-plan
-/ce-work                /ce-code-review
-```
-
-### Software / technical
-
-```
-/ce-brainstorm          /ce-plan                  /ce-work
+/ce-bioinfo-qc
+/ce-genome-build
+/ce-plan
+/ce-work
 /ce-code-review
 ```
 
+### Software / technical task
+
+```
+/ce-brainstorm
+/ce-plan
+/ce-work
+/ce-code-review
+```
+
+---
+
 ## Language support
 
-| Stack | IDE | Output | Key libraries |
+| Stack | IDE | Output | Libraries |
 |---|---|---|---|
 | **Python + Jupyter** | JupyterLab, VS Code | `.ipynb` | pandas, polars, scipy, statsmodels, scikit-learn |
 | **Python + Marimo** | Marimo, VS Code | reactive `.py` | pandas, polars, scipy, statsmodels, scikit-learn |
@@ -110,22 +159,22 @@ cd ~/ce-datascience && git pull && bun install
 
 ## Data layer support
 
-| Data layer | Skills | Review agents |
+| Data layer | What activates it | What it does |
 |---|---|---|
-| **OMOP CDM** | `ce-cohort-build`, `ce-phenotype-validate` | `ce-omop-mapping-reviewer`, `ce-concept-drift-reviewer` |
-| **CLIF** | `ce-clif` (auto-profile), `ce-cohort-build` | mCIDE vocab, protected paths, three-script arch |
-| **Admin claims** | `ce-cohort-build`, `ce-phenotype-validate` | `ce-administrative-data-reviewer` |
-| **Custom EHR** | `ce-cohort-build`, `ce-data-qa` | `ce-phi-leak-reviewer` |
-| **Bioinformatics** | `ce-bioinfo-qc`, `ce-genome-build` | `ce-bioinfo-pipeline-reviewer`, `ce-omics-batch-reviewer` |
+| **OMOP CDM** | SQL with `cdm_source`, `concept`, `person` | OMOP SQL + concept sets, vocabulary version pinning |
+| **CLIF** | `CLIF_CLAUDE.md`, `clif-consortium` remote | Parquet-only, mCIDE vocab, three-script architecture, POC sign-off |
+| **Admin claims** | Medicare/Medicaid/MarketScan in code | Claims-specific reviewer (enrollment gaps, NDC-to-RxNorm) |
+| **Custom EHR** | Default for EHR data | PHI leak scanning, generic cohort building |
+| **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build pinning, batch-effect screening |
 
-## Reporting guidelines (35 checklists)
+## 35 reporting checklists
 
 | Study type | Primary | Extensions |
 |---|---|---|
 | Observational cohort | STROBE | RECORD, RECORD-PE, STROBE-MR, STREGA |
 | Randomized trial | CONSORT | CONSORT-AI, SPIRIT-AI, Cluster, Adaptive, N-of-1 |
-| Prediction model | TRIPOD, TRIPOD+AI | CHARMS (SR) |
-| Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 (SR) |
+| Prediction model | TRIPOD, TRIPOD+AI | CHARMS |
+| Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 |
 | Systematic review | PRISMA | DTA, NMA, IPD, ScR |
 | Target trial emulation | TARGET | |
 | Quality improvement | SQUIRE | |
@@ -133,26 +182,46 @@ cd ~/ce-datascience && git pull && bun install
 | Real-world evidence | STaRT-RWE | |
 | Other | ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL, PDSQI, REFORMS | |
 
+---
+
 ## Components
 
-| Component | Count |
-|-----------|-------|
+| | Count |
+|---|---|
 | Skills | 40 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 
-See the [full component reference](plugins/ce-datascience/README.md) for every skill and agent.
+See the [full skill and agent list](plugins/ce-datascience/README.md).
+
+---
+
+## Troubleshooting
+
+**"Unknown command" when running /ce-setup:**
+Restart Claude Code. The plugin loads at session start — if you cloned after starting, it won't be loaded yet.
+
+**`bun install` fails:**
+Make sure Bun is installed (`bun --version`). If not, run `curl -fsSL https://bun.sh/install | bash` and restart your terminal.
+
+**Plugin loads but skills seem wrong:**
+Run `git pull && bun install` in `~/ce-datascience` to get the latest version, then restart Claude Code.
+
+**CLIF profile activating on a non-CLIF project:**
+Run `/ce-clif --off` to disable it for the session. CLIF only auto-activates on strong signals (`CLIF_CLAUDE.md`, `clif-consortium` git remote).
+
+---
 
 ## Development
 
 ```bash
 bun test                      # 773 tests
-bun run release:validate      # manifests (55 agents, 40 skills)
+bun run release:validate      # check manifests
 ```
 
 ## Attribution
 
-Fork of [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to). Core workflow, multi-agent review architecture, and CLI converter from upstream. Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent.
+Fork of [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to). Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers).
 
 ## License
 
