@@ -117,35 +117,117 @@ The code review skill auto-routes to the correct reporting checklist:
 
 Plus: ARRIVE, CARE, CHART, CHEERS, DEAL, PDSQI, REFORMS.
 
-## Getting Started
+## Install
 
-### Claude Code
+### Prerequisites
 
-```text
-/install-plugin sajor2000/ce-datascience
-```
+- [Bun](https://bun.sh) (required for install and converter CLI)
+- [Git](https://git-scm.com)
 
-Then in any project:
-
-```text
-/ce-setup                               # configure stack profile
-/ce-workflow                            # see the lifecycle for your project type
-```
-
-## Local Development
+### Step 1: Clone and install dependencies
 
 ```bash
 git clone https://github.com/sajor2000/ce-datascience.git
 cd ce-datascience
 bun install
-bun test                                # 773 tests
-bun run release:validate                # check manifests
 ```
 
-### Testing from local checkout
+### Step 2: Use with your coding agent
+
+#### Claude Code
+
+Start Claude Code in any project with `--plugin-dir` pointing to your clone:
 
 ```bash
-claude --plugin-dir ./plugins/ce-datascience
+claude --plugin-dir ~/ce-datascience/plugins/ce-datascience
+```
+
+Or add an alias to your `~/.zshrc` / `~/.bashrc` so it loads automatically:
+
+```bash
+alias claude-ds='claude --plugin-dir ~/ce-datascience/plugins/ce-datascience'
+```
+
+Then just run `claude-ds` instead of `claude` in any project.
+
+#### Codex
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to codex
+```
+
+This copies skills and agents to Codex's local config. Restart Codex after install.
+
+#### Pi
+
+Pi needs two extensions first:
+
+```bash
+pi install npm:pi-subagents              # required -- parallel agent dispatch
+pi install npm:pi-ask-user               # recommended -- blocking question tool
+```
+
+Then install the plugin:
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to pi
+```
+
+#### Gemini CLI
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to gemini
+```
+
+#### OpenCode
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to opencode
+```
+
+#### Kiro
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to kiro
+```
+
+#### All targets at once
+
+```bash
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to all
+```
+
+### Step 3: First run
+
+Once loaded, run these two commands in any project:
+
+```text
+/ce-setup                               # configure language, IDE, libraries
+/ce-workflow                            # see the lifecycle for your project type
+```
+
+### Updating
+
+Pull the latest changes and reinstall:
+
+```bash
+cd ~/ce-datascience
+git pull
+bun install
+# Then restart your agent, or re-run the install command for non-Claude targets
+```
+
+## Development
+
+```bash
+bun test                                # 773 tests
+bun run release:validate                # check manifests (55 agents, 40 skills)
 ```
 
 ## Attribution
