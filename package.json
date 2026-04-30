@@ -1,6 +1,6 @@
 {
   "name": "ce-datascience-plugin",
-  "version": "0.1.0",
+  "version": "3.3.0",
   "description": "CE DataScience plugin for Claude Code, Codex, and Pi — agentic workflows for computational science, statistical review, and reporting compliance",
   "type": "module",
   "private": false,

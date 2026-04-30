@@ -9,6 +9,47 @@ All notable changes to the ce-datascience plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v0.1.0...ce-datascience-v3.3.0) (2026-04-30)
+
+
+### Features
+
+* **brainstorm:** adapt rigor probes and terminology for study design and PICO/PECO framing ([8c64d97](https://github.com/sajor2000/ce-datascience/commit/8c64d978f6ce4cf159dc8729589793266027891d))
+* **ce-clif:** pin v2.1.1 + add clifpy/R-template recipe references ([9b63664](https://github.com/sajor2000/ce-datascience/commit/9b6366400e9c6846b91fcd1b057f9b3556eccbd7))
+* ce-datascience 40-skill release with workflow navigator and competitive ports ([8777c24](https://github.com/sajor2000/ce-datascience/commit/8777c243bd2182bce98e3d0e3fa61194fe23e33b))
+* **ce-datascience:** add 7 skills, rewrite README with full attribution ([5a4399a](https://github.com/sajor2000/ce-datascience/commit/5a4399a6d87b330fae3020a8797c8906b788ebbc))
+* **ce-datascience:** biomedical lifecycle skills + reviewers (Phase A+B) ([f15597c](https://github.com/sajor2000/ce-datascience/commit/f15597cfeca6c35d1bf071eb1fdbdd07513c216f))
+* **checklists:** add all 17 missing reporting checklists, closes [#2](https://github.com/sajor2000/ce-datascience/issues/2) ([e0c0dcd](https://github.com/sajor2000/ce-datascience/commit/e0c0dcd8be36b37dd42c507214edce98d8241fb5))
+* **checklists:** add RECORD and RECORD-PE reporting checklists ([5a6a36a](https://github.com/sajor2000/ce-datascience/commit/5a6a36a454496d65e3d14de54f614019c7038e50))
+* **compat:** MCP server portability + cross-platform install fixes ([2962a26](https://github.com/sajor2000/ce-datascience/commit/2962a26bc60aabebd5ce7ed9bea78a9678eb8d99))
+* **compound:** adapt knowledge schema for data science categories and terminology ([66ce867](https://github.com/sajor2000/ce-datascience/commit/66ce86727d5cabc0ec736beae764164bc05d6895))
+* **plan:** add SAP template and dual-mode detection for study design vs technical planning ([90fc795](https://github.com/sajor2000/ce-datascience/commit/90fc79564494f0b19e2176c5f94e213b61695992))
+* **r-support:** comprehensive R user support enhancement and plugin rebrand ([cfb4d12](https://github.com/sajor2000/ce-datascience/commit/cfb4d12407e3b46bb3e2e2e034549017b432cda7))
+* **reporting-guidelines:** expand compliance system to 16 guidelines with provenance tracking ([9202c68](https://github.com/sajor2000/ce-datascience/commit/9202c687381cf01e17998662e64c649ad8d332f0))
+* **review:** add R/Python DS reviewers and update code review dispatch for data science ([8336bf8](https://github.com/sajor2000/ce-datascience/commit/8336bf8de34c91591966bcb30c2d8622a63e4096))
+* **review:** add reporting checklist and SAP-drift detection agents ([f1fb047](https://github.com/sajor2000/ce-datascience/commit/f1fb0478b2a54cc113897ee3cd97dc3b1d9b289f))
+* **review:** add statistical methods, multiplicity, and reproducibility review agents ([b39a51e](https://github.com/sajor2000/ce-datascience/commit/b39a51e5882210adec375cd5dc1b839e11a3c2ec))
+* **setup:** add stack profile configuration for R/Python/both workflows ([fcebff9](https://github.com/sajor2000/ce-datascience/commit/fcebff9b441bad2fd0cdc1acc336bcbae6d51c9e))
+* **skills:** add repo-signal language detection and __CE_LANG__ routing ([a4f71ca](https://github.com/sajor2000/ce-datascience/commit/a4f71ca3be600bdbbec653091ec7025cc0f319a7))
+* **skills:** CLIF-safe profile for consortium repos (mCIDE / clif-icu.com) ([1bdd7be](https://github.com/sajor2000/ce-datascience/commit/1bdd7be0bd7d303bc5cc1a01dc32771c7ce7fe47))
+* **skills:** trigger-rich descriptions + bundled scripts for Phase A+B skills ([456dd9e](https://github.com/sajor2000/ce-datascience/commit/456dd9efb68ea6fe68ad677dd7879e133b0a6304))
+* **work:** add SAP tracking overlay and stack-profile-aware scaffolding ([a28bb60](https://github.com/sajor2000/ce-datascience/commit/a28bb60dc374b5665713149ec36fedb84c9d2a31))
+* **workflow:** Phase 1 - data lifecycle (QA gate, mapping reviewer, wave register/lock) ([6129831](https://github.com/sajor2000/ce-datascience/commit/61298314405effa2595b0cd4c723583a21a5a9a7))
+* **workflow:** Phase 2 - SAP lifecycle (amend tool, amendment reviewer, blinding-state awareness) ([a42ab58](https://github.com/sajor2000/ce-datascience/commit/a42ab58b02c33b7748222ab527588658d5d5dd26))
+* **workflow:** Phase 3 - review and submission lifecycle ([d27a44c](https://github.com/sajor2000/ce-datascience/commit/d27a44cde307ae4c9008577170e01020a51ab234))
+* **workflow:** Phase 4 - pilot, dedup, SAP-section ownership, render reviewers + tabular SAP companion ([8709534](https://github.com/sajor2000/ce-datascience/commit/8709534168a3d5fa27d1de611aba94ef99720bc2))
+* **workflow:** wire 13 biomedical skills into the CE lifecycle loop ([a74f842](https://github.com/sajor2000/ce-datascience/commit/a74f8427eaa6480435de56a99ae6cf4c766e8380))
+
+
+### Bug Fixes
+
+* **audit:** align tests and source with ce-datascience scope ([4a50494](https://github.com/sajor2000/ce-datascience/commit/4a5049438da23d1da5b55da836241b1e7afd8f47))
+* **ce-clif:** correct CLIF v2.2.0 status from work-in-progress to obsolete ([d579c47](https://github.com/sajor2000/ce-datascience/commit/d579c47152ef3221253474cfcaf1fec9e8807503))
+* **ce-clif:** reduce bloat and enrich CLIF patterns from consortium repos ([1f4d8e1](https://github.com/sajor2000/ce-datascience/commit/1f4d8e1c1bd5b70ee39daa868f83aaf50694d5ad))
+* **ce-clif:** tighten activation signals to prevent false positives on non-CLIF projects ([5f0b8fa](https://github.com/sajor2000/ce-datascience/commit/5f0b8fad2be656655b17caefffacc3d1cb5d0ebf))
+* **ce-code-review:** tighten CLIF reviewer activation to match ce-clif routing ([14b37e5](https://github.com/sajor2000/ce-datascience/commit/14b37e5e68c7aa0acfb33a70dad3e28da08fded4))
+* **workflow:** make slash commands actually compose with current chat context ([d27f0c1](https://github.com/sajor2000/ce-datascience/commit/d27f0c11e05abf947fce2c08c06a32a79e779886))
+
 ## [3.2.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.1.0...ce-datascience-v3.2.0) (2026-04-26)
 
 

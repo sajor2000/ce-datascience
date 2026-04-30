@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.3.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.2.0...cli-v3.3.0) (2026-04-30)
+
+
+### Features
+
+* ce-datascience 40-skill release with workflow navigator and competitive ports ([8777c24](https://github.com/sajor2000/ce-datascience/commit/8777c243bd2182bce98e3d0e3fa61194fe23e33b))
+* **ce-datascience:** add 7 skills, rewrite README with full attribution ([5a4399a](https://github.com/sajor2000/ce-datascience/commit/5a4399a6d87b330fae3020a8797c8906b788ebbc))
+* **compat:** MCP server portability + cross-platform install fixes ([2962a26](https://github.com/sajor2000/ce-datascience/commit/2962a26bc60aabebd5ce7ed9bea78a9678eb8d99))
+* **r-support:** comprehensive R user support enhancement and plugin rebrand ([cfb4d12](https://github.com/sajor2000/ce-datascience/commit/cfb4d12407e3b46bb3e2e2e034549017b432cda7))
+
+
+### Bug Fixes
+
+* **audit:** align tests and source with ce-datascience scope ([4a50494](https://github.com/sajor2000/ce-datascience/commit/4a5049438da23d1da5b55da836241b1e7afd8f47))
+
 ## [3.2.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.1.0...cli-v3.2.0) (2026-04-26)
 
 
