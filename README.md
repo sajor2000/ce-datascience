@@ -1,4 +1,4 @@
-# Compound Data Science
+# Compound Health Data Science
 
 **Your AI research assistant — from research question to publication.**
 
