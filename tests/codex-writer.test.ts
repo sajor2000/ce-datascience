@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 import os from "os"
-import { mergeCodexConfig, renderCodexConfig, writeCodexBundle } from "../src/targets/codex"
+import { mergeCodexConfig, renderCodexConfig, writeCodexBundle, mergeCodexHooks } from "../src/targets/codex"
 import type { CodexBundle } from "../src/types/codex"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { convertClaudeToCodex } from "../src/converters/claude-to-codex"
@@ -1085,5 +1085,120 @@ describe("mergeCodexConfig", () => {
 
     const result = mergeCodexConfig(existing, null)
     expect(result).toBe("")
+  })
+})
+
+describe("mergeCodexHooks", () => {
+  test("writes hooks with _managed index for a new plugin", () => {
+    const result = mergeCodexHooks(null, {
+      SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "my-hook" }] }],
+    }, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(1)
+    expect((hooks.SessionStart[0] as Record<string, unknown>).matcher).toBe("*")
+    expect((hooks.SessionStart[0] as Record<string, unknown>)._source).toBeUndefined()
+
+    const managed = result._managed as Record<string, Record<string, number[]>>
+    expect(managed["my-plugin"].SessionStart).toEqual([0])
+  })
+
+  test("preserves hooks from other plugins", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "other-hook" }] }],
+      },
+      _managed: { "other-plugin": { SessionStart: [0] } },
+    }
+
+    const result = mergeCodexHooks(existing, {
+      Stop: [{ matcher: "*", hooks: [{ type: "command", command: "my-stop" }] }],
+    }, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(1)
+    expect(hooks.Stop).toHaveLength(1)
+  })
+
+  test("re-install replaces managed entries idempotently", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [
+          { matcher: "*", hooks: [{ type: "command", command: "old-hook" }] },
+        ],
+      },
+      _managed: { "my-plugin": { SessionStart: [0] } },
+    }
+
+    const result = mergeCodexHooks(existing, {
+      SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "new-hook" }] }],
+    }, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(1)
+    const entry = hooks.SessionStart[0] as Record<string, unknown>
+    const entryHooks = entry.hooks as Array<Record<string, unknown>>
+    expect(entryHooks[0].command).toBe("new-hook")
+  })
+
+  test("cleans up managed entries when plugin removes hooks", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [
+          { matcher: "*", hooks: [{ type: "command", command: "manual-hook" }] },
+          { matcher: "*", hooks: [{ type: "command", command: "plugin-hook" }] },
+        ],
+      },
+      _managed: { "my-plugin": { SessionStart: [1] } },
+    }
+
+    const result = mergeCodexHooks(existing, {}, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(1)
+    const entryHooks = (hooks.SessionStart[0] as Record<string, unknown>).hooks as Array<Record<string, unknown>>
+    expect(entryHooks[0].command).toBe("manual-hook")
+    expect((result._managed as Record<string, unknown>)?.["my-plugin"]).toBeUndefined()
+  })
+
+  test("preserves untagged manual hook entries", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [
+          { matcher: "*", hooks: [{ type: "command", command: "manual" }] },
+        ],
+      },
+    }
+
+    const result = mergeCodexHooks(existing, {
+      Stop: [{ matcher: "*", hooks: [{ type: "command", command: "plugin-stop" }] }],
+    }, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(1)
+    expect(hooks.Stop).toHaveLength(1)
+  })
+
+  test("cleans up legacy _source-tagged entries from previous format", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [
+          { matcher: "*", hooks: [{ type: "command", command: "legacy" }], _source: "my-plugin" },
+          { matcher: "*", hooks: [{ type: "command", command: "manual" }] },
+        ],
+      },
+    }
+
+    const result = mergeCodexHooks(existing, {
+      SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "new" }] }],
+    }, "my-plugin")
+
+    const hooks = result.hooks as Record<string, unknown[]>
+    expect(hooks.SessionStart).toHaveLength(2)
+    const commands = hooks.SessionStart.flatMap((entry) =>
+      ((entry as Record<string, unknown>).hooks as Array<Record<string, unknown>>)
+        .map((hook) => hook.command),
+    )
+    expect(commands).toEqual(["manual", "new"])
   })
 })

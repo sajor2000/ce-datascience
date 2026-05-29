@@ -11,7 +11,7 @@ After installing, run `/ce-setup` in any project. It configures your stack profi
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 40 |
+| Skills | 42 |
 
 ## Skills
 
@@ -104,6 +104,8 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | Skill | Description |
 |-------|-------------|
 | `/ce-sessions` | Ask questions about session history across Claude Code, Codex, and Cursor |
+| `/ce-release-notes` | Summarize recent ce-datascience releases or answer version-specific release questions |
+| `/ce-report-bug` | Gather structured environment details and open a GitHub issue for ce-datascience plugin bugs |
 | `/ce-setup` | Configure stack profile, diagnose environment, and bootstrap project config |
 | `/ce-update` | Check plugin version and fix stale cache (Claude Code only) |
 | `/ce-workflow` | Lifecycle navigator -- shows ordered skill sequence for your project type, data layer, and language; detects progress and recommends next step |

@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-40 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, and Kiro.
+42 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -160,14 +160,26 @@ Shows every step for your project type and tells you what to do next.
 
 | Platform | Install command (run from `~/ce-datascience`) |
 |---|---|
-| Codex | `bun run src/index.ts install ./plugins/ce-datascience --to codex` |
+| Claude Code | `claude --plugin-dir ~/ce-datascience/plugins/ce-datascience` |
+| Codex agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex` |
 | Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi` |
 | Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini` |
 | OpenCode | `bun run src/index.ts install ./plugins/ce-datascience --to opencode` |
 | Kiro | `bun run src/index.ts install ./plugins/ce-datascience --to kiro` |
+| Qwen Code | `qwen extensions install sajor2000/ce-datascience:ce-datascience` |
 | All at once | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
 
 Pi also needs `pi install npm:pi-subagents` first.
+
+For a non-default Codex profile, point both Codex and the installer at the same root:
+
+```bash
+CODEX_HOME="$HOME/.codex/profiles/research" codex plugin marketplace add "$PWD"
+CODEX_HOME="$HOME/.codex/profiles/research" bun run src/index.ts install ./plugins/ce-datascience --to codex
+CODEX_HOME="$HOME/.codex/profiles/research" codex
+```
+
+Inside Codex, run `/plugins`, select this local marketplace, install `ce-datascience`, then restart. Codex's native plugin install provides the skills; the Bun command above adds generated agents until Codex supports plugin-defined agents natively.
 
 ---
 
@@ -197,7 +209,7 @@ Then restart your coding agent.
 
 | | Count |
 |---|---|
-| Skills | 40 |
+| Skills | 42 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

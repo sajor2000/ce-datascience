@@ -6,6 +6,17 @@ Step Pre-A resolves the commit range, diff, and (for existing PRs) the current P
 
 ---
 
+## The core principle
+
+The diff is already visible on GitHub. The description exists to explain what the diff cannot show: what was impossible before and is now possible, what was broken and is now fixed, what changed in the scientific or analytical workflow, and why reviewers should trust the shape. Cut any sentence a reader could reconstruct from the diff itself.
+
+- Bad: "Adds `power.R`, updates `README.md`, and modifies tests."
+- Good: "Power calculations now produce a reusable, versioned artifact that analysts can cite in the SAP instead of recomputing assumptions by hand."
+
+For user-facing or analyst-facing bugs, run an extra before/after pass before writing the mechanism: name what the user would have seen before and what they now see instead. Only then mention the technical cause or fix, and only if it helps the reviewer understand risk. A lead like "R table rendering now ignores stale async responses" is still too mechanical if the visible bug was "old tables or warnings could appear after switching cohorts."
+
+---
+
 ## Step Pre-A: Resolve the PR commit range and diff
 
 Determine which commits and diff the description should cover. Run this first; Steps A and beyond assume the commit list and full diff are in context.

@@ -1,7 +1,7 @@
 ---
 name: ce-plan
 description: "Create structured plans or statistical analysis plans (SAPs). Produces a versioned SAP with stable SAP-N.M identifiers when input describes a study design (population, exposure, outcome, hypothesis). Otherwise produces an implementation plan. Use when the user says 'plan this', 'create a plan', 'write a SAP', 'write a tech plan', 'plan the analysis', 'plan the implementation', 'create a study plan', or when a brainstorm/requirements document is ready for planning. Also deepens existing plans or SAPs. For exploratory requests, prefer ce-brainstorm first."
-argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan]"
+argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan] [output:html]"
 ---
 
 # Create Plan (Dual-Mode: SAP or Implementation)
@@ -83,6 +83,29 @@ A plan is ready when an implementer can start confidently without needing the pl
 
 ### Phase 0: Resume, Source, and Scope
 
+#### 0.0 Resolve Output Mode
+
+Determine `OUTPUT_FORMAT` before any other phase fires. Output mode is **exclusive** -- the plan is written as either markdown (`.md`) OR HTML (`.html`), never both. Precedence: CLI arg > config > default (`md`), with a hard pipeline-mode override.
+
+**Read config (pre-resolved at skill load):**
+!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+
+Resolution steps:
+
+1. **CLI arg.** Scan `$ARGUMENTS` for a token starting with the literal prefix `output:`. If found, strip it from arguments before treating the remainder as the feature description, and match its value case-insensitively against `md` and `html`.
+   - `output:` alone (no value) -> no-op, fall through to step 2.
+   - `output:<unknown>` (e.g., `output:pdf`) -> drop the token, fall through to step 2, and remember to emit a one-line note above the post-generation menu after final resolution: `Ignored unknown output: value '<value>' -- using <resolved_format> instead.`
+2. **Config.** If step 1 did not resolve and the pre-resolved YAML above has an active, non-commented `plan_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
+3. **Default.** Otherwise `OUTPUT_FORMAT=md`.
+4. **Pipeline override.** When invoked from LFG or any `disable-model-invocation` context, force `OUTPUT_FORMAT=md` regardless of steps 1-3. Downstream automation parses markdown reliably; HTML in pipeline runs is unnecessary friction.
+
+Only literal-prefix flag tokens (`output:`, `mode:`, `delegate:` where applicable) are consumed and stripped. Other `<word>:<word>` tokens -- including conventional commit prefixes like `feat:` or `fix:` inside a feature description -- pass through verbatim.
+
+Load the format-rendering reference based on the resolved value. Section content is the same in either format; presentation differs. Both references pair with `references/plan-sections.md`, which describes what the plan contains regardless of format.
+
+- When `OUTPUT_FORMAT=md`, read `references/markdown-rendering.md` for format principles.
+- When `OUTPUT_FORMAT=html`, read `references/html-rendering.md` for format principles.
+
 #### 0.1 Resume Existing Plan Work When Appropriate
 
 If the user references an existing plan file or there is an obvious recent matching plan in `docs/plans/`:
@@ -95,12 +118,18 @@ If the user references an existing plan file or there is an obvious recent match
 Words like "strengthen", "confidence", "gaps", and "rigor" are NOT sufficient on their own to trigger deepening. These words appear in normal editing requests ("strengthen that section about the diagram", "there are gaps in the test scenarios") and should not cause a holistic deepening pass. Only treat them as deepening intent when the request clearly targets the plan as a whole and does not name a specific section or content area to change — and even then, prefer to confirm with the user before entering the deepening flow.
 
 Once the plan is identified and appears complete (all major sections present, implementation units defined, `status: active`):
-- If the plan lacks YAML frontmatter (non-software plans use a simple `# Title` heading with `Created:` date instead of frontmatter), route to `references/universal-planning.md` for editing or deepening instead of Phase 5.3. Non-software plans do not use the software confidence check.
-- Otherwise, short-circuit to Phase 5.3 (Confidence Check and Deepening) in **interactive mode**. This avoids re-running the full planning workflow and gives the user control over which findings are integrated.
+- **Routing is keyed on file extension first, then frontmatter.** HTML plans (`.html`) are always software or analysis plans -- the HTML rendering invariant forbids YAML frontmatter, so frontmatter absence is not a non-software signal for HTML. Treat the visible-header metadata as the frontmatter equivalent.
+  - **`.html` plan:** short-circuit to Phase 5.3 (Confidence Check and Deepening) in **interactive mode**. Never route to `references/universal-planning.md` based on missing YAML.
+  - **`.md` plan WITH YAML frontmatter:** short-circuit to Phase 5.3 in **interactive mode**.
+  - **`.md` plan WITHOUT YAML frontmatter** (non-software plans use a simple `# Title` heading with `Created:` date instead): route to `references/universal-planning.md` for editing or deepening instead of Phase 5.3. Non-software plans do not use the software confidence check.
+
+The Phase 5.3 short-circuit avoids re-running the full planning workflow and gives the user control over which findings are integrated.
 
 Normal editing requests (e.g., "update the test scenarios", "add a new implementation unit", "strengthen the risk section") should NOT trigger the fast path — they follow the standard resume flow.
 
 If the plan already has a `deepened: YYYY-MM-DD` frontmatter field and there is no explicit user request to re-deepen, the fast path still applies the same confidence-gap evaluation — it does not force deepening.
+
+**Resume preserves the existing artifact's format, except pipeline mode.** When resuming an existing plan, write back in whatever format the existing artifact uses -- markdown if the existing file is `.md`, HTML if it is `.html`. Explicit `output:` arguments on this run override. Pipeline mode always wins per Phase 0.0: even when resuming an existing `.html` plan, pipeline runs force `OUTPUT_FORMAT=md` so downstream automation receives markdown. The resume rewrites the markdown file at the parallel path (`<plan-basename>.md`) and leaves the original `.html` in place untouched.
 
 #### 0.1b Classify Task Domain and Detect Mode
 
@@ -116,7 +145,7 @@ Otherwise, read `references/universal-planning.md` and follow that workflow inst
 
 #### 0.2 Find Upstream Requirements Document
 
-Before asking planning questions, search `docs/brainstorms/` for files matching `*-requirements.md`.
+Before asking planning questions, search `docs/brainstorms/` for files matching `*-requirements.md` or `*-requirements.html` (`ce-brainstorm` emits whichever extension matches its resolved output format; both are valid upstream requirements docs and either may be carried as the plan's `origin:`).
 
 **Relevance criteria:** A requirements document is relevant if:
 - The topic semantically matches the feature description
@@ -218,11 +247,11 @@ Ask the user only when the answer materially affects architecture, scope, sequen
 
 - Draft a clear, searchable title using conventional format such as `feat: Add user authentication` or `fix: Prevent checkout double-submit`
 - Determine the plan type: `feat`, `fix`, or `refactor`
-- Build the filename following the repository convention: `docs/plans/YYYY-MM-DD-NNN-<type>-<descriptive-name>-plan.md`
+- Build the filename following the repository convention: `docs/plans/YYYY-MM-DD-NNN-<type>-<descriptive-name>-plan.<md|html>` using the resolved `OUTPUT_FORMAT`
   - Create `docs/plans/` if it does not exist
   - Check existing files for today's date to determine the next sequence number (zero-padded to 3 digits, starting at 001)
   - Keep the descriptive name concise (3-5 words) and kebab-cased
-  - Examples: `2026-01-15-001-feat-user-authentication-flow-plan.md`, `2026-02-03-002-fix-checkout-race-condition-plan.md`
+  - Examples: `2026-01-15-001-feat-user-authentication-flow-plan.md`, `2026-02-03-002-fix-checkout-race-condition-plan.html`
   - Avoid: missing sequence numbers, vague names like "new-feature", invalid characters (colons, spaces)
 
 #### 3.2 Stakeholder and Impact Awareness
@@ -370,7 +399,9 @@ Do not add these as boilerplate. Include them only when they improve execution q
 
 #### 4.2 Core Plan Template
 
-Read `references/plan-template.md` for the full template. It contains:
+Read `references/plan-sections.md` for the format-independent section contract and `references/plan-template.md` for the existing markdown template shape. Use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation.
+
+The templates contain:
 
 - The Core Plan Template (frontmatter, Overview, Problem Frame, Requirements Trace, Scope, Context & Research, Decisions, Open Questions, optional Output Structure, optional High-Level Technical Design, Implementation Units, System-Wide Impact, Risks & Dependencies, Documentation Notes, Sources & References).
 - Optional Deep-Plan Extensions (Alternative Approaches Considered, Success Metrics, Dependencies / Prerequisites, Risk Analysis & Mitigation, Phased Delivery, Documentation Plan, Operational / Rollout Notes).
@@ -429,7 +460,7 @@ If the plan originated from a requirements document, re-read that document and v
 Use the Write tool to save the complete plan to:
 
 ```text
-docs/plans/YYYY-MM-DD-NNN-<type>-<descriptive-name>-plan.md
+docs/plans/YYYY-MM-DD-NNN-<type>-<descriptive-name>-plan.<md|html>
 ```
 
 Confirm:

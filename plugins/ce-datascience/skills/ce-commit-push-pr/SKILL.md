@@ -71,13 +71,13 @@ Use the current branch and existing PR check from context. If the current branch
 
 **Compare and confirm.** Briefly explain what the new description covers differently from the old one. Ask the user to confirm before applying. If the user provided focus, confirm it was addressed.
 
-If confirmed, apply with `gh pr edit`. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes. The body is best written to a temp file first to avoid shell-escaping the whole markdown body:
+If confirmed, apply with `gh pr edit`. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes. The body must be written to a temp file and passed with `--body-file` to avoid shell-escaping and empty-body wrapper failures:
 
 ```bash
 BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
 <the composed body markdown goes here, verbatim>
 __CE_PR_BODY_END__
-gh pr edit --title "<TITLE>" --body "$(cat "$BODY_FILE")"
+gh pr edit --title "<TITLE>" --body-file "$BODY_FILE"
 ```
 
 The quoted sentinel keeps `$VAR`, backticks, and any literal `EOF` inside the body from being expanded.
@@ -111,7 +111,7 @@ If the working tree is clean (no staged, modified, or untracked files), determin
 
 Decision tree:
 
-- **On default branch, unpushed commits or no upstream** -- ask whether to create a feature branch (pushing default directly is not supported). If yes, create and continue from Step 5. If no, stop.
+- **On default branch with work to do** (uncommitted, unpushed, or no upstream) -- automatically create a feature branch (pushing default directly is not supported). Derive a name from the change content and continue from Step 4, which handles branch creation safely. Do not ask whether to branch -- committing or pushing on the default branch is not an option here.
 - **On default branch, all pushed, no open PR** -- report no feature branch work. Stop.
 - **Feature branch, no upstream** -- skip Step 4, continue from Step 5.
 - **Feature branch, unpushed commits** -- skip Step 4, continue from Step 5.
@@ -178,7 +178,7 @@ When evidence is not possible (docs-only, markdown-only, changelog-only, release
 
 ### Step 7: Create or update the PR
 
-Apply via `gh pr create` (new PR) or `gh pr edit` (existing PR). The body is best written to a temp file first to avoid shell-escaping the whole markdown body. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes:
+Apply via `gh pr create` (new PR) or `gh pr edit` (existing PR). The body must be written to a temp file and passed with `--body-file <path>`. Never use `--body-file -`, stdin pipes, heredoc-to-stdin, or `--body "$(cat ...)"` -- wrappers and stdin handling can silently produce an empty PR body while `gh` still exits 0 and returns a URL. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes:
 
 ```bash
 BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
@@ -191,7 +191,7 @@ The quoted sentinel keeps `$VAR`, backticks, and any literal `EOF` inside the bo
 #### New PR (no existing PR from Step 3)
 
 ```bash
-gh pr create --title "<TITLE>" --body "$(cat "$BODY_FILE")"
+gh pr create --title "<TITLE>" --body-file "$BODY_FILE"
 ```
 
 Keep the title under 72 characters; the writing reference already emits a conventional-commit title in that range.
@@ -207,7 +207,7 @@ The new commits are already on the PR from Step 5. Report the PR URL, then ask w
   3. If confirmed, apply with `gh pr edit`:
 
      ```bash
-     gh pr edit --title "<TITLE>" --body "$(cat "$BODY_FILE")"
+     gh pr edit --title "<TITLE>" --body-file "$BODY_FILE"
      ```
 
   Then report the PR URL (Step 8).

@@ -1,7 +1,7 @@
 ---
 name: ce-brainstorm
 description: 'Explore research questions and study designs through collaborative dialogue before writing a right-sized requirements document and planning analysis. Use for research ideas, study framing, when the user says ''let''s brainstorm'', or when they want to think through options before deciding what to study. Also use when a user describes a vague or ambitious research question, asks ''what should we study'', ''help me think through X'', presents a problem with multiple valid designs, or seems unsure about scope or direction — even if they don''t explicitly ask to brainstorm.'
-argument-hint: "[research question or study idea to explore]"
+argument-hint: "[research question or study idea to explore] [output:html]"
 ---
 
 # Brainstorm a Research Question or Study
@@ -52,12 +52,38 @@ Do not proceed until you have a research question description from the user.
 
 ### Phase 0: Resume, Assess, and Route
 
+#### 0.0 Resolve Output Mode
+
+Determine `OUTPUT_FORMAT` before any other phase fires. Output mode is **exclusive** -- the requirements document is written as either markdown (`.md`) OR HTML (`.html`), never both. Precedence: CLI arg > config > default (`md`), with a hard pipeline-mode override.
+
+**Read config (pre-resolved at skill load):**
+!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+
+Resolution steps:
+
+1. **CLI arg.** Scan `$ARGUMENTS` for a token starting with the literal prefix `output:`. If found, strip it from arguments before treating the remainder as the research description, and match its value case-insensitively against `md` and `html`.
+   - `output:` alone (no value) -> no-op, fall through to step 2.
+   - `output:<unknown>` (e.g., `output:pdf`) -> drop the token, fall through to step 2, and remember to emit a one-line note above the post-generation menu after final resolution: `Ignored unknown output: value '<value>' -- using <resolved_format> instead.`
+2. **Config.** If step 1 did not resolve and the pre-resolved YAML above has an active, non-commented `brainstorm_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
+3. **Default.** Otherwise `OUTPUT_FORMAT=md`.
+4. **Pipeline override.** When invoked from LFG or any `disable-model-invocation` context, force `OUTPUT_FORMAT=md` regardless of steps 1-3. Downstream consumers parse markdown reliably; HTML in pipeline runs is unnecessary friction.
+
+Only literal-prefix flag tokens (`output:`, `mode:`, `delegate:` where applicable) are consumed and stripped. Other `<word>:<word>` tokens pass through verbatim.
+
+Load the format-rendering reference based on the resolved value. Section content is the same in either format; presentation differs. Both rendering references pair with `references/brainstorm-sections.md`, which describes what the brainstorm contains regardless of format.
+
+- When `OUTPUT_FORMAT=md`, read `references/markdown-rendering.md` for format principles.
+- When `OUTPUT_FORMAT=html`, read `references/html-rendering.md` for format principles.
+
+The `output:` preference does not auto-propagate to `ce-plan` on handoff -- ce-plan re-resolves its own `plan_output` config independently. Asymmetric output (`requirements.html` + `plan.md`) is acceptable; users who want HTML for both set both keys in `.ce-datascience/config.local.yaml`.
+
 #### 0.1 Resume Existing Work When Appropriate
 
-If the user references an existing brainstorm topic or document, or there is an obvious recent matching `*-requirements.md` file in `docs/brainstorms/`:
+If the user references an existing brainstorm topic or document, or there is an obvious recent matching `*-requirements.{md,html}` file in `docs/brainstorms/`:
 - Read the document
 - Confirm with the user before resuming: "Found an existing requirements doc for [topic]. Should I continue from this, or start fresh?"
 - If resuming, summarize the current state briefly, continue from its existing decisions and outstanding questions, and update the existing document instead of creating a duplicate
+- **Resume preserves the existing artifact's format, except pipeline mode.** Write back in whatever format the existing artifact uses -- markdown if the existing file is `.md`, HTML if it is `.html`. Explicit `output:` arguments on this run override. Pipeline mode always wins per Phase 0.0: even when resuming an existing `.html` brainstorm, pipeline runs force `OUTPUT_FORMAT=md` so downstream automation receives markdown. The resume rewrites the markdown file at the parallel path and leaves the original `.html` in place untouched.
 
 #### 0.1b Classify Task Domain
 
@@ -236,7 +262,7 @@ If relevant, call out whether the choice is:
 
 ### Phase 3: Capture the Requirements
 
-Write or update a requirements document only when the conversation produced durable decisions worth preserving. Read `references/requirements-capture.md` for the document template, formatting rules, visual aid guidance, and completeness checks.
+Write or update a requirements document only when the conversation produced durable decisions worth preserving. Read `references/brainstorm-sections.md` for the format-independent section contract, then use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation. Keep using `references/requirements-capture.md` for the health data science template, visual aid guidance, and completeness checks.
 
 For **Lightweight** brainstorms, keep the document compact. Skip document creation when the user only needs brief alignment and no durable decisions need to be preserved.
 

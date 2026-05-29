@@ -299,14 +299,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "adversarial-reviewer.md"),
       agentContent(
         "adversarial-reviewer",
-        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.md"),
       ),
     )
     await createFile(
       path.join(root, "learnings-researcher.md"),
       agentContent(
         "learnings-researcher",
-        await pluginDescription("plugins/ce-datascience/agents/ce-learnings-researcher.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-learnings-researcher.md"),
       ),
     )
 
@@ -323,14 +323,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "security-sentinel.agent.md"),
       agentContent(
         "security-sentinel",
-        await pluginDescription("plugins/ce-datascience/agents/ce-security-sentinel.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-security-sentinel.md"),
       ),
     )
     await createFile(
       path.join(root, "performance-oracle.agent.md"),
       agentContent(
         "performance-oracle",
-        await pluginDescription("plugins/ce-datascience/agents/ce-performance-oracle.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-performance-oracle.md"),
       ),
     )
 
@@ -346,14 +346,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "slack-researcher.json"),
       kiroAgentConfigContent(
         "slack-researcher",
-        await pluginDescription("plugins/ce-datascience/agents/ce-slack-researcher.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-slack-researcher.md"),
       ),
     )
     await createFile(
       path.join(root, "session-historian.json"),
       kiroAgentConfigContent(
         "session-historian",
-        await pluginDescription("plugins/ce-datascience/agents/ce-session-historian.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-session-historian.md"),
       ),
     )
     await createFile(
@@ -378,14 +378,14 @@ describe("cleanupStaleAgents", () => {
       path.join(root, "code-simplicity-reviewer"),
       skillContent(
         "code-simplicity-reviewer",
-        await pluginDescription("plugins/ce-datascience/agents/ce-code-simplicity-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-code-simplicity-reviewer.md"),
       ),
     )
     await createDir(
       path.join(root, "repo-research-analyst"),
       skillContent(
         "repo-research-analyst",
-        await pluginDescription("plugins/ce-datascience/agents/ce-repo-research-analyst.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-repo-research-analyst.md"),
       ),
     )
 
@@ -650,7 +650,7 @@ describe("idempotency", () => {
       path.join(root, "adversarial-reviewer.md"),
       agentContent(
         "adversarial-reviewer",
-        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.agent.md"),
+        await pluginDescription("plugins/ce-datascience/agents/ce-adversarial-reviewer.md"),
       ),
     )
 
