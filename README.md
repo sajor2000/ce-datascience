@@ -181,6 +181,15 @@ CODEX_HOME="$HOME/.codex/profiles/research" codex
 
 Inside Codex, run `/plugins`, select this local marketplace, install `ce-datascience`, then restart. Codex's native plugin install provides the skills; the Bun command above adds generated agents until Codex supports plugin-defined agents natively.
 
+Codex installs have two supported modes:
+
+- **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex` to add generated agents to the same `CODEX_HOME`.
+- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --include-skills` when native plugin install is unavailable. This writes generated skills, MCP config, and managed `.codex/hooks.json` entries.
+
+Managed Codex hooks are tagged with plugin metadata so upgrades can replace this plugin's hook entries without deleting manual hooks or hooks owned by another plugin. If an existing `hooks.json` is malformed, the installer backs it up before writing a managed replacement.
+
+See [Codex profile and hook installation](docs/solutions/integrations/codex-profile-and-hook-installation.md) for the profile, standalone, and recovery details.
+
 ---
 
 ## Updating
@@ -200,6 +209,10 @@ Then restart your coding agent.
 **`bun install` fails:** Run `bun --version`. If missing: `curl -fsSL https://bun.sh/install | bash`
 
 **Plugin seems outdated:** `cd ~/ce-datascience && git pull && bun install`, then restart.
+
+**Codex installed into the wrong profile:** Set `CODEX_HOME` on both the `codex` command and the Bun installer. The installer defaults to `$CODEX_HOME` when set, otherwise `~/.codex`.
+
+**Codex hooks stopped loading after a broken edit:** Re-run the standalone install with `--include-skills`. The installer backs up malformed `.codex/hooks.json` before writing managed hook entries.
 
 **CLIF activating on a non-CLIF project:** `/ce-clif --off` disables it for the session.
 

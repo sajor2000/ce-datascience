@@ -11,6 +11,17 @@ date: 2026-04-29
 
 Competitive audit of ce-datascience against compound-engineering (CE), BMAD, and Superpowers revealed that ce-datascience already leads all three in scientific domain coverage. Neither BMAD nor Superpowers has any data science, statistics, or ML primitives. The gaps worth filling come from CE (3 skills to port with DS adaptations) and one pattern from Superpowers (mid-workflow verification gates).
 
+## Status Update - May 2026
+
+This plan's high-value feature ports have been incorporated into the curated health data science plugin. The current public inventory is 42 skills, including `ce-optimize`, `ce-resolve-pr-feedback`, `ce-verify`, `ce-release-notes`, and `ce-report-bug`.
+
+The May 2026 upstream `v3.9.3` sync preserved the data science scope while adding shared workflow and distribution improvements:
+
+- `ce-plan` and `ce-brainstorm` keep their SAP and study-design behavior while supporting upstream output-mode and rendering improvements.
+- `ce-resolve-pr-feedback` includes upstream GraphQL pagination and split-reference handling, with statistical methodology feedback language restored.
+- `ce-sessions` includes broader cross-platform session discovery.
+- Public support skills `ce-release-notes` and `ce-report-bug` are intentionally included; software/product-specific upstream skills remain deferred.
+
 ---
 
 ## Problem Frame
@@ -216,7 +227,7 @@ Add to appropriate table sections:
 - `ce-resolve-pr-feedback` → Git Workflow table (alongside ce-commit-push-pr)
 - `ce-verify` → Core Workflow table (between ce-data-qa and ce-sprint, since it runs mid-analysis)
 
-Update skill count: 37 → 40
+Historical update: skill count moved from 37 to 40 for this plan. Current inventory is 42 skills after adding the curated public support skills `ce-release-notes` and `ce-report-bug`.
 
 **Test scenarios:**
 - Test expectation: none -- documentation change. Validated by `bun run release:validate`.
