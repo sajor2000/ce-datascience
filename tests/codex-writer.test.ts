@@ -264,6 +264,36 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(codexRoot, "prompts", "new-prompt.md"))).toBe(true)
   })
 
+  test("backs up malformed hooks.json before writing managed hooks", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-hooks-malformed-"))
+    const codexRoot = path.join(tempRoot, ".codex")
+    const hooksPath = path.join(codexRoot, "hooks.json")
+    await fs.mkdir(codexRoot, { recursive: true })
+    await fs.writeFile(hooksPath, "{not json")
+
+    await writeCodexBundle(codexRoot, {
+      pluginName: "ce-datascience",
+      prompts: [],
+      skillDirs: [],
+      generatedSkills: [],
+      hooks: {
+        hooks: {
+          SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "echo managed" }] }],
+        },
+      },
+    })
+
+    const files = await fs.readdir(codexRoot)
+    const backupFileName = files.find((file) => file.startsWith("hooks.json.bak."))
+    expect(backupFileName).toBeDefined()
+    expect(await fs.readFile(path.join(codexRoot, backupFileName!), "utf8")).toBe("{not json")
+
+    const hooks = JSON.parse(await fs.readFile(hooksPath, "utf8")) as {
+      hooks: { SessionStart: Array<{ hooks: Array<{ command: string }> }> }
+    }
+    expect(hooks.hooks.SessionStart[0].hooks[0].command).toBe("echo managed")
+  })
+
   test("removes legacy .agents symlinks that point to managed Codex skills", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-flat-symlink-"))
     const codexRoot = path.join(tempRoot, ".codex")
@@ -1200,5 +1230,43 @@ describe("mergeCodexHooks", () => {
         .map((hook) => hook.command),
     )
     expect(commands).toEqual(["manual", "new"])
+  })
+
+  test("rebuilds managed indices after replacing one plugin's hooks", () => {
+    const existing = {
+      hooks: {
+        SessionStart: [
+          { matcher: "*", hooks: [{ type: "command", command: "plugin-a-old" }] },
+          { matcher: "*", hooks: [{ type: "command", command: "plugin-b-old" }] },
+        ],
+      },
+      _managed: {
+        "plugin-a": { SessionStart: [0] },
+        "plugin-b": { SessionStart: [1] },
+      },
+    }
+
+    const afterPluginA = mergeCodexHooks(existing, {
+      SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "plugin-a-new" }] }],
+    }, "plugin-a")
+
+    const hooks = afterPluginA.hooks as Record<string, Array<Record<string, unknown>>>
+    const commands = hooks.SessionStart.flatMap((entry) =>
+      (entry.hooks as Array<Record<string, unknown>>).map((hook) => hook.command),
+    )
+    expect(commands).toEqual(["plugin-b-old", "plugin-a-new"])
+
+    const managed = afterPluginA._managed as Record<string, Record<string, number[]>>
+    expect(managed["plugin-b"].SessionStart).toEqual([0])
+    expect(managed["plugin-a"].SessionStart).toEqual([1])
+
+    const afterPluginB = mergeCodexHooks(afterPluginA, {
+      SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "plugin-b-new" }] }],
+    }, "plugin-b")
+    const afterHooks = afterPluginB.hooks as Record<string, Array<Record<string, unknown>>>
+    const afterCommands = afterHooks.SessionStart.flatMap((entry) =>
+      (entry.hooks as Array<Record<string, unknown>>).map((hook) => hook.command),
+    )
+    expect(afterCommands).toEqual(["plugin-a-new", "plugin-b-new"])
   })
 })

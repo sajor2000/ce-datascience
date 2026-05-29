@@ -72,6 +72,27 @@ describe("convertClaudeToCodex", () => {
     expect(agent.instructions).toContain("Threat modeling")
   })
 
+  test("full standalone mode carries plugin hooks for managed hooks.json output", () => {
+    const bundle = convertClaudeToCodex({
+      ...fixturePlugin,
+      hooks: {
+        hooks: {
+          SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: "echo hello" }] }],
+        },
+      },
+    }, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+      codexIncludeSkills: true,
+    })
+
+    expect(bundle.hooks?.hooks.SessionStart?.[0]?.hooks[0]).toEqual({
+      type: "command",
+      command: "echo hello",
+    })
+  })
+
   test("default with zero agents: emits fully empty bundle (no duplicate install possible)", () => {
     const pluginWithNoAgents: ClaudePlugin = {
       ...fixturePlugin,
