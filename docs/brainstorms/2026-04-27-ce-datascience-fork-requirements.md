@@ -23,6 +23,14 @@ These requirements established the product boundary. The current implementation 
 - Public support skills `ce-release-notes` and `ce-report-bug` are intentionally included because they improve the professional distribution surface without changing the health data science scope.
 - Software/product-specific upstream skills such as Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, and agent-native workflows remain outside the curated product.
 
+Accepted upstream feature adaptations:
+
+- `/ce-plan` now keeps the SAP/implementation split while adding upstream output modes, HTML/Markdown rendering references, format-preserving resume, conceptual-diagram affordances, stronger synthesis, and explicit external-research routing.
+- `/ce-brainstorm` now keeps PICO/PECO study-design framing while adding upstream grouped requirements, output-mode handling, and visual communication behavior.
+- `/ce-resolve-pr-feedback` now uses upstream GitHub GraphQL pagination and split-reference handling, with health data science response language for methods, SAP drift, reproducibility, reporting checklists, and clinical data workflows.
+- `/ce-sessions` now uses upstream cross-platform session discovery for Claude Code, Codex, and Cursor with repo-root pre-resolution and extraction helpers.
+- Shared git/review/documentation workflows (`ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, `ce-compound`) now include selected upstream workflow fixes where they improve professional plugin behavior.
+
 ---
 
 ## Actors

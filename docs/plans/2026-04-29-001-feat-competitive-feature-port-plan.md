@@ -20,6 +20,8 @@ The May 2026 upstream `v3.9.3` sync preserved the data science scope while addin
 - `ce-plan` and `ce-brainstorm` keep their SAP and study-design behavior while supporting upstream output-mode and rendering improvements.
 - `ce-resolve-pr-feedback` includes upstream GraphQL pagination and split-reference handling, with statistical methodology feedback language restored.
 - `ce-sessions` includes broader cross-platform session discovery.
+- `ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, and `ce-compound` include upstream workflow fixes only where they improve shared review, PR, and learning behavior.
+- The converter/install surface includes current agent-source naming, `CODEX_HOME`, Codex root writes, and managed hook handling.
 - Public support skills `ce-release-notes` and `ce-report-bug` are intentionally included; software/product-specific upstream skills remain deferred.
 
 ---

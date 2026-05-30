@@ -246,6 +246,17 @@ bun test tests/codex-converter.test.ts tests/codex-writer.test.ts tests/cli.test
 
 Managed hook writes must preserve manual hooks and other-plugin managed hooks. If an existing `.codex/hooks.json` cannot be parsed, back it up before replacing it.
 
+### Upstream CE Sync Documentation
+
+When porting features from the original compound-engineering plugin, update documentation in the same PR:
+
+- Root `README.md` for the user-facing feature summary and install behavior.
+- `plugins/ce-datascience/README.md` for inventory descriptions and platform support.
+- Historical docs under `docs/brainstorms/` and `docs/plans/` with a dated status update when earlier scope decisions are superseded.
+- `docs/solutions/` when the port creates a durable policy, recovery pattern, or curation rule.
+
+Keep the docs explicit about which upstream features were adapted and which software/product-specific features remain deferred. See `docs/solutions/workflow/upstream-ce-feature-curation.md`.
+
 ### Adding a New Plugin to This Repo
 
 When adding a new plugin to this repo, the repo ships to three marketplace formats (Claude, Cursor, Codex). All three must stay in parity or `bun run release:validate` will fail on next run. Checklist:

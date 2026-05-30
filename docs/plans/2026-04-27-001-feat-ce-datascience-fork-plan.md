@@ -24,6 +24,15 @@ Current source and inventory state:
 - `ce-resolve-pr-feedback`, `ce-optimize`, and `ce-verify` are part of the curated health data science workflow.
 - Codex installation now supports `$CODEX_HOME`, agents-only bridge installs, standalone `--include-skills` installs, and managed `.codex/hooks.json` merging.
 
+Upstream CE feature ports now reflected in the product:
+
+- `ce-plan`: SAP/implementation dual mode plus output-mode handling, HTML/Markdown rendering references, format-preserving resume, stronger synthesis, external-research routing, and conceptual-diagram affordances.
+- `ce-brainstorm`: PICO/PECO study-design exploration plus grouped requirements, output-mode handling, and visual communication behavior.
+- `ce-sessions`: repo-root pre-resolution plus cross-platform Claude Code, Codex, and Cursor session discovery/extraction.
+- `ce-resolve-pr-feedback`: GitHub GraphQL pagination and split-reference handling with restored health data science feedback language.
+- Shared workflow fixes: selected improvements to `ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, and `ce-compound`.
+- Public support surface: `ce-release-notes` and `ce-report-bug`.
+
 Older implementation bullets below that mention deleting those support skills, using `*.agent.md` as the source convention, or targeting 37/40 skills should be read as superseded by this status update.
 
 ---
