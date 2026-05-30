@@ -13,7 +13,7 @@ Picks the right reporting checklist(s) at PLAN time so the SAP is written agains
 - During `/ce-ideate` after the study premise is solidified
 - During `/ce-plan` BEFORE drafting the SAP
 - Whenever the user asks "which checklist do I follow?"
-- When `stack_profile.guidelines_selected` is empty AND a SAP exists
+- When `stack_profile.reporting_checklist` is empty AND a SAP exists
 
 ## Prerequisites
 
@@ -108,14 +108,11 @@ stack_profile:
   reporting_checklist: STROBE                  # canonical primary; non-null string turns on ce-reporting-checklist-reviewer
   reporting_checklist_extensions:              # zero or more strings
     - RECORD
-  # Legacy compatibility — keep both shapes during transition:
-  guidelines_selected:
-    primary: STROBE
-    extensions:
-      - RECORD
 ```
 
-The string form (`reporting_checklist: STROBE`) is what `/ce-code-review` Stage 3 conditional dispatches on and what `/ce-plan` SAP frontmatter reads from. Never write `reporting_checklist: true` — that legacy boolean was ambiguous (which checklist?) and is deprecated.
+If a legacy `guidelines_selected` block already exists, leave it in place for compatibility unless the user asks to clean the config. Do not create that legacy block for new configs.
+
+The string form (`reporting_checklist: STROBE`) is what `/ce-code-review` Stage 3 conditional dispatches on and what `/ce-plan` SAP frontmatter reads from. Never write the old boolean form because it was ambiguous (which checklist?) and is deprecated.
 
 ### Step 4: Drop the checklist into the project
 
@@ -143,4 +140,3 @@ The bracket-list form mirrors how `/ce-plan` parses signals in its SAP-Phase 3 s
 @./references/routing-map.md
 
 @./references/checklist-snippets/
-

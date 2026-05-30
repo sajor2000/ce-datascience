@@ -1,0 +1,248 @@
+version: 1
+description: Machine-readable source of truth for ce-datascience reporting guideline coverage.
+guidelines:
+  ARRIVE:
+    file: arrive-checklist.md
+    aliases: [arrive-2.0]
+    primary_for: [animal]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  CARE:
+    file: care-checklist.md
+    aliases: [case-report]
+    primary_for: [case-report]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  CHARMS:
+    file: charms-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [prediction-model]
+    role: appraisal
+    ai_extension: false
+  CHART:
+    file: chart-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [rct, observational, prediction-model, diagnostic-accuracy]
+    role: extension
+    ai_extension: true
+  CHEERS:
+    file: cheers-checklist.md
+    aliases: [cheers-2022]
+    primary_for: [health-economic]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  CLAIM:
+    file: claim-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [diagnostic-accuracy, prediction-model]
+    role: extension
+    ai_extension: true
+  CONSORT:
+    file: consort-checklist.md
+    aliases: [consort-2010]
+    primary_for: [rct]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  CONSORT-ADAPTIVE:
+    file: consort-adaptive-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [rct]
+    role: extension
+    ai_extension: false
+  CONSORT-AI:
+    file: consort-ai-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [rct]
+    role: extension
+    ai_extension: true
+  CONSORT-CLUSTER:
+    file: consort-cluster-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [rct]
+    role: extension
+    ai_extension: false
+  CONSORT-NOF1:
+    file: consort-nof1-checklist.md
+    aliases: [consort-n-of-1]
+    primary_for: []
+    extension_for: [rct]
+    role: extension
+    ai_extension: false
+  COREQ:
+    file: coreq-checklist.md
+    aliases: []
+    primary_for: [qualitative]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  DEAL:
+    file: deal-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [diagnostic-accuracy, prediction-model]
+    role: extension
+    ai_extension: true
+  GRAMMS:
+    file: gramms-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [qualitative]
+    role: extension
+    ai_extension: false
+  PDSQI-9:
+    file: pdsqi-checklist.md
+    aliases: [pdsqi]
+    primary_for: []
+    extension_for: [prediction-model]
+    role: data-quality
+    ai_extension: true
+  PRISMA:
+    file: prisma-checklist.md
+    aliases: [prisma-2020]
+    primary_for: [systematic-review]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  PRISMA-DTA:
+    file: prisma-dta-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [systematic-review, diagnostic-accuracy]
+    role: extension
+    ai_extension: false
+  PRISMA-IPD:
+    file: prisma-ipd-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [systematic-review]
+    role: extension
+    ai_extension: false
+  PRISMA-NMA:
+    file: prisma-nma-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [systematic-review]
+    role: extension
+    ai_extension: false
+  PRISMA-SCR:
+    file: prisma-scr-checklist.md
+    aliases: [prisma-scoping]
+    primary_for: []
+    extension_for: [systematic-review]
+    role: extension
+    ai_extension: false
+  QUADAS-2:
+    file: quadas-2-checklist.md
+    aliases: [quadas]
+    primary_for: []
+    extension_for: [diagnostic-accuracy]
+    role: appraisal
+    ai_extension: false
+  RECORD:
+    file: record-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: extension
+    ai_extension: false
+  RECORD-PE:
+    file: record-pe-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: extension
+    ai_extension: false
+  REFORMS:
+    file: reforms-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [prediction-model, rct, observational, diagnostic-accuracy]
+    role: extension
+    ai_extension: true
+  SPIRIT-AI:
+    file: spirit-ai-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [rct]
+    role: protocol
+    ai_extension: true
+  SQUIRE:
+    file: squire-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: quality-improvement
+    ai_extension: false
+  STARD:
+    file: stard-checklist.md
+    aliases: [stard-2015]
+    primary_for: [diagnostic-accuracy]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  STARD-AI:
+    file: stard-ai-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [diagnostic-accuracy]
+    role: extension
+    ai_extension: true
+  START-RWE:
+    file: start-rwe-checklist.md
+    aliases: [start rwe]
+    primary_for: []
+    extension_for: [observational]
+    role: extension
+    ai_extension: false
+  STREGA:
+    file: strega-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: extension
+    ai_extension: false
+  STROBE:
+    file: strobe-checklist.md
+    aliases: []
+    primary_for: [observational]
+    extension_for: []
+    role: primary
+    ai_extension: false
+  STROBE-MR:
+    file: strobe-mr-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: extension
+    ai_extension: false
+  TARGET:
+    file: target-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [observational]
+    role: target-trial
+    ai_extension: false
+  TRIPOD:
+    file: tripod-checklist.md
+    aliases: []
+    primary_for: []
+    extension_for: [prediction-model]
+    role: primary
+    ai_extension: false
+  TRIPOD+AI:
+    file: tripod-ai-checklist.md
+    aliases: [tripod-ai]
+    primary_for: [prediction-model]
+    extension_for: []
+    role: primary
+    ai_extension: true

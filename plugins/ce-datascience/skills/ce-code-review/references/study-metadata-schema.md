@@ -14,7 +14,9 @@ Captures the study classification, AI involvement, and selected reporting guidel
 study_design:
   classification: <study_type from SAP frontmatter>
   ai_involvement: none | ai-assisted | ai-primary | llm-based
-  guidelines_selected: [<list of applicable guidelines>]
+  reporting_checklist: <primary guideline>
+  reporting_checklist_extensions: [<extension guidelines>]
+  guidelines_selected: [<legacy compatibility only>]
 ```
 
 **When to populate:** Every study. This is the anchor for all other metadata sections.
@@ -22,7 +24,8 @@ study_design:
 **Reviewer checks:**
 - `classification` matches the SAP `study_type`
 - `ai_involvement` matches the SAP `ai_involvement`
-- `guidelines_selected` is consistent with the guideline-routing map for the declared study type
+- `reporting_checklist` and `reporting_checklist_extensions` are consistent with the guideline registry for the declared study type
+- legacy `guidelines_selected` is only used when canonical reporting checklist fields are absent
 
 ---
 

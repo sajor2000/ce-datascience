@@ -9,6 +9,9 @@ Use this template when producing a Statistical Analysis Plan in SAP mode. The YA
 sap_version: 1
 study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
 ai_involvement: none | ai-assisted | ai-primary | llm-based
+reporting_checklist: null
+reporting_checklist_extensions: []
+# Legacy compatibility only; prefer the reporting_checklist fields above.
 guidelines_selected: []
 date_created: YYYY-MM-DD
 date_amended: YYYY-MM-DD
@@ -19,7 +22,8 @@ status: draft | final | amended
 - `sap_version` starts at `1` and increments on substantive amendments (not typo fixes)
 - `study_type` must be one of the values shown; pick the closest fit. The original four values (`observational`, `rct`, `exploratory`, `other`) remain valid
 - `ai_involvement` is optional. Set it when the study uses AI/ML methods: `ai-assisted` for AI as a tool within traditional methods, `ai-primary` for AI as the primary analytical approach, `llm-based` for studies using large language models. Defaults to `none` when omitted
-- `guidelines_selected` is optional. When set, it overrides auto-routing and specifies exactly which reporting guidelines apply (e.g., `[CONSORT, CONSORT-AI]`). When empty or omitted, guidelines are auto-selected from `study_type` and `ai_involvement` via the routing map
+- `reporting_checklist` and `reporting_checklist_extensions` mirror the canonical stack-profile fields when the SAP needs a portable per-study copy
+- `guidelines_selected` is legacy compatibility. When canonical fields are absent and it is set, it specifies exactly which reporting guidelines apply (e.g., `[CONSORT, CONSORT-AI]`). When all fields are empty or omitted, guidelines are auto-selected from `study_type` and `ai_involvement` via the routing map
 - `date_amended` and `status: amended` are set only when revising a finalized SAP
 - A SAP in `draft` status may be edited freely; `final` signals the analysis plan is locked
 
@@ -30,6 +34,8 @@ status: draft | final | amended
 sap_version: 1
 study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
 ai_involvement: none
+reporting_checklist: null
+reporting_checklist_extensions: []
 guidelines_selected: []
 date_created: YYYY-MM-DD
 date_amended: YYYY-MM-DD

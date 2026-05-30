@@ -6,17 +6,235 @@ Or:     python3 -m mcp_server
 This starts a stdio MCP server that any MCP-compatible IDE can connect to.
 """
 
+import os
 from pathlib import Path
-from fastmcp import FastMCP
+
+try:
+    from fastmcp import FastMCP
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        "ce-datascience MCP server requires the Python package 'fastmcp'. "
+        "Install MCP dependencies with: python3 -m pip install fastmcp ruamel.yaml pydantic"
+    ) from exc
 
 # Resolve the plugin root (four levels up: run.py -> mcp_server -> ce-mcp-server -> skills -> ce-datascience)
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+GUIDELINE_REGISTRY_PATH = PLUGIN_ROOT / "skills" / "ce-code-review" / "references" / "guideline-registry.yaml"
 
 mcp = FastMCP(
     name="ce-datascience",
     version="0.1.0",
     instructions="Compound engineering for computational scientists: literature search, SAP tracking, reporting compliance, and compound learning",
 )
+
+
+class ProjectRootError(ValueError):
+    """Raised when a user project root cannot be resolved safely."""
+
+
+def _dependency_error(package: str) -> str:
+    return (
+        f"Error: missing Python dependency '{package}'. Install MCP dependencies with: "
+        "python3 -m pip install fastmcp ruamel.yaml pydantic"
+    )
+
+
+def _yaml():
+    try:
+        from ruamel.yaml import YAML
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(_dependency_error("ruamel.yaml")) from exc
+
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    return yaml
+
+
+def _nearest_git_root(start: Path) -> Path | None:
+    current = start.resolve()
+    if current.is_file():
+        current = current.parent
+
+    for candidate in (current, *current.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    return None
+
+
+def _validate_project_root(candidate: Path, source: str) -> Path:
+    root = candidate.expanduser()
+    if not root.is_absolute():
+        root = Path.cwd() / root
+    root = root.resolve()
+
+    if not root.exists():
+        raise ProjectRootError(
+            f"{source} resolved to {root}, but that directory does not exist. "
+            "Pass project_root explicitly or set CE_DATASCIENCE_PROJECT_ROOT to an existing project directory."
+        )
+    if not root.is_dir():
+        raise ProjectRootError(
+            f"{source} resolved to {root}, but it is not a directory. "
+            "Pass project_root explicitly or set CE_DATASCIENCE_PROJECT_ROOT to a project directory."
+        )
+    if not os.access(root, os.W_OK):
+        raise ProjectRootError(
+            f"{source} resolved to {root}, but it is not writable. "
+            "Choose a writable project directory for ce-datascience artifacts."
+        )
+    return root
+
+
+def resolve_project_root(project_root: str | None = None) -> Path:
+    """Resolve the user project root, separate from the installed plugin root.
+
+    Precedence:
+    1. explicit project_root tool argument
+    2. CE_DATASCIENCE_PROJECT_ROOT environment variable
+    3. current working directory, promoted to nearest git root when present
+    """
+    if project_root and project_root.strip():
+        return _validate_project_root(Path(project_root), "project_root")
+
+    env_root = os.environ.get("CE_DATASCIENCE_PROJECT_ROOT")
+    if env_root and env_root.strip():
+        return _validate_project_root(Path(env_root), "CE_DATASCIENCE_PROJECT_ROOT")
+
+    cwd = Path.cwd().resolve()
+    return _validate_project_root(_nearest_git_root(cwd) or cwd, "current working directory")
+
+
+def _project_root_or_error(project_root: str | None = None) -> tuple[Path | None, str | None]:
+    try:
+        return resolve_project_root(project_root), None
+    except ProjectRootError as exc:
+        return None, f"Error: {exc}"
+
+
+def _project_path(project_root: Path, path_value: str | None, default: str) -> Path:
+    raw = path_value or default
+    path = Path(raw).expanduser()
+    if not path.is_absolute():
+        path = project_root / path
+    return path.resolve(strict=False)
+
+
+def _canonical_guideline(value: object) -> str:
+    if value is None:
+        return ""
+    raw = str(value).strip()
+    if not raw:
+        return ""
+
+    normalized = raw.upper().replace("_", "-")
+    alias_map = {
+        "TRIPOD-AI": "TRIPOD+AI",
+        "TRIPOD+AI": "TRIPOD+AI",
+        "PDSQI": "PDSQI-9",
+        "PRISMA SCR": "PRISMA-SCR",
+        "PRISMA-SCR": "PRISMA-SCR",
+        "START RWE": "START-RWE",
+        "START-RWE": "START-RWE",
+        "STROBE MR": "STROBE-MR",
+        "STROBE-MR": "STROBE-MR",
+        "RECORD PE": "RECORD-PE",
+        "RECORD-PE": "RECORD-PE",
+    }
+    return alias_map.get(normalized, normalized)
+
+
+def _guideline_list(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        raw_values = value
+    elif isinstance(value, tuple):
+        raw_values = list(value)
+    else:
+        text = str(value).strip()
+        if not text:
+            return []
+        raw_values = [part.strip() for part in text.strip("[]").split(",")]
+
+    seen: set[str] = set()
+    guidelines: list[str] = []
+    for item in raw_values:
+        guideline = _canonical_guideline(item)
+        if guideline and guideline not in seen:
+            seen.add(guideline)
+            guidelines.append(guideline)
+    return guidelines
+
+
+def _reporting_selection(data: dict | None) -> tuple[str, list[str]]:
+    if not isinstance(data, dict):
+        return "", []
+
+    sp = data.get("stack_profile") if isinstance(data.get("stack_profile"), dict) else {}
+    primary = _canonical_guideline(sp.get("reporting_checklist"))
+    extensions = _guideline_list(sp.get("reporting_checklist_extensions"))
+
+    legacy_guidelines = sp.get("guidelines_selected") or data.get("guidelines_selected")
+    if not primary and isinstance(legacy_guidelines, dict):
+        primary = _canonical_guideline(legacy_guidelines.get("primary"))
+        extensions.extend(_guideline_list(legacy_guidelines.get("extensions")))
+    elif not primary and isinstance(legacy_guidelines, list) and legacy_guidelines:
+        primary = _canonical_guideline(legacy_guidelines[0])
+        extensions.extend(_guideline_list(legacy_guidelines[1:]))
+
+    legacy_nested = data.get("reporting_checklist")
+    if not primary and isinstance(legacy_nested, dict) and legacy_nested.get("enabled"):
+        primary = _canonical_guideline(legacy_nested.get("guideline"))
+        nested_extensions = legacy_nested.get("extensions") or legacy_nested.get("ai_extensions")
+        if isinstance(nested_extensions, list):
+            extensions.extend(_guideline_list(nested_extensions))
+
+    deduped_extensions = [item for index, item in enumerate(extensions) if item and item not in extensions[:index]]
+    return primary, deduped_extensions
+
+
+def _load_guideline_registry() -> dict:
+    if not GUIDELINE_REGISTRY_PATH.exists():
+        return {}
+
+    yaml = _yaml()
+    with open(GUIDELINE_REGISTRY_PATH) as f:
+        data = yaml.load(f) or {}
+
+    registry = data.get("guidelines", {}) if isinstance(data, dict) else {}
+    if not isinstance(registry, dict):
+        return {}
+
+    normalized: dict[str, dict] = {}
+    for name, meta in registry.items():
+        key = _canonical_guideline(name)
+        if isinstance(meta, dict):
+            entry = dict(meta)
+            entry["_name"] = key
+            normalized[key] = entry
+            for alias in meta.get("aliases", []) or []:
+                normalized[_canonical_guideline(alias)] = entry
+    return normalized
+
+
+def _items_from_checklist(checklist_path: Path, limit: int = 24) -> list[str]:
+    if not checklist_path.exists():
+        return [f"Checklist file not found at {checklist_path}."]
+
+    import re
+
+    items: list[str] = []
+    item_re = re.compile(r"^###\s+Item\s+(.+)$")
+    for line in checklist_path.read_text(errors="ignore").splitlines():
+        match = item_re.match(line.strip())
+        if match:
+            items.append(match.group(1).strip())
+        if len(items) >= limit:
+            break
+
+    if not items:
+        return [f"Checklist items are available in {checklist_path.name}."]
+    return items
 
 
 # ---------------------------------------------------------------------------
@@ -31,6 +249,7 @@ def literature_search(
     scholar_pages: int = 3,
     max_citations: int | None = None,
     output_dir: str | None = None,
+    project_root: str | None = None,
 ) -> str:
     """Search scientific papers via Google Scholar, Crossref, and SciHub using PyPaperBot.
 
@@ -40,7 +259,8 @@ def literature_search(
         min_year: Minimum publication year filter
         scholar_pages: Number of Google Scholar pages to scan
         max_citations: Only return papers with at least this many citations
-        output_dir: Directory for downloaded PDFs and BibTeX
+        output_dir: Directory for downloaded PDFs and BibTeX. Relative paths resolve under project_root.
+        project_root: Optional user project root for resolving relative output_dir
 
     Returns:
         Structured paper list with title, authors, year, journal, DOI, and citation count.
@@ -54,7 +274,13 @@ def literature_search(
 
     import subprocess, tempfile, os
 
-    out_dir = output_dir or tempfile.mkdtemp(prefix="ce-lit-")
+    if output_dir:
+        root, root_error = _project_root_or_error(project_root)
+        if root_error:
+            return root_error
+        out_dir = str(_project_path(root, output_dir, output_dir))
+    else:
+        out_dir = tempfile.mkdtemp(prefix="ce-lit-")
     cmd = ["python3", str(script)]
 
     if doi:
@@ -93,6 +319,13 @@ def stack_profile(
     environment_manager_python: str | None = None,
     r_project_type: str | None = None,
     reporting: str | None = None,
+    data_root: str | None = None,
+    blinding_state: str | None = None,
+    study_type: str | None = None,
+    ai_involvement: str | None = None,
+    reporting_checklist: str | None = None,
+    reporting_checklist_extensions: list[str] | str | None = None,
+    project_root: str | None = None,
 ) -> str:
     """Read or write the .ce-datascience/config.local.yaml stack profile.
 
@@ -104,15 +337,27 @@ def stack_profile(
         environment_manager_python: venv, conda, poetry, pixi, or none
         r_project_type: script, package, shiny, plumber, or targets
         reporting: quarto, rmarkdown, marimo, or jupyter
+        data_root: Data directory or off-repo data path
+        blinding_state: blinded, unblinded, or n/a
+        study_type: Study design value used for reporting guideline routing
+        ai_involvement: none, ai-assisted, ai-primary, or llm-based
+        reporting_checklist: Canonical primary reporting guideline string (e.g., STROBE)
+        reporting_checklist_extensions: Optional extension guideline list or comma-separated string
+        project_root: Optional user project root; relative artifacts resolve here
 
     Returns:
         Current config state (read) or update confirmation (write).
     """
-    from ruamel.yaml import YAML
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
 
-    config_path = PLUGIN_ROOT / ".ce-datascience" / "config.local.yaml"
-    yaml = YAML()
-    yaml.preserve_quotes = True
+    try:
+        yaml = _yaml()
+    except RuntimeError as exc:
+        return str(exc)
+
+    config_path = root / ".ce-datascience" / "config.local.yaml"
 
     if action == "read":
         if not config_path.exists():
@@ -122,12 +367,18 @@ def stack_profile(
         if not data or "stack_profile" not in data:
             return "Config exists but has no stack_profile section."
         sp = data["stack_profile"]
+        primary_checklist, extensions = _reporting_selection(data)
         lines = ["Current stack profile:"]
         for key in ["language", "ide", "data_libraries", "data_layer",
                      "statistical_packages", "environment_manager",
-                     "r_project_type", "reporting"]:
+                     "r_project_type", "reporting", "data_root",
+                     "blinding_state", "study_type", "ai_involvement"]:
             if key in sp:
                 lines.append(f"  {key}: {sp[key]}")
+        if primary_checklist:
+            lines.append(f"  reporting_checklist: {primary_checklist}")
+        if extensions:
+            lines.append(f"  reporting_checklist_extensions: {extensions}")
         return "\n".join(lines)
 
     elif action == "write":
@@ -146,6 +397,10 @@ def stack_profile(
             "language": language,
             "ide": ide,
             "reporting": reporting,
+            "data_root": data_root,
+            "blinding_state": blinding_state,
+            "study_type": study_type,
+            "ai_involvement": ai_involvement,
         }
         env_updates = {
             "environment_manager": {
@@ -165,11 +420,24 @@ def stack_profile(
                     sp["environment_manager"][sub_k] = sub_v
         if r_project_type is not None:
             sp["r_project_type"] = r_project_type
+        if reporting_checklist is not None:
+            normalized = _canonical_guideline(reporting_checklist)
+            if normalized and normalized.lower() not in {"none", "null", "false", "off"}:
+                sp["reporting_checklist"] = normalized
+            else:
+                sp.pop("reporting_checklist", None)
+                sp.pop("reporting_checklist_extensions", None)
+        if reporting_checklist_extensions is not None:
+            extensions = _guideline_list(reporting_checklist_extensions)
+            if extensions:
+                sp["reporting_checklist_extensions"] = extensions
+            else:
+                sp.pop("reporting_checklist_extensions", None)
 
         with open(config_path, "w") as f:
             yaml.dump(data, f)
 
-        return f"Stack profile updated at {config_path}"
+        return f"Stack profile updated at {config_path}\nProject root: {root}"
 
     return "Error: action must be 'read' or 'write'."
 
@@ -187,6 +455,7 @@ def sap_create(
     ai_involvement: str = "none",
     power_analysis: str = "",
     output_path: str = "analysis/sap.md",
+    project_root: str | None = None,
 ) -> str:
     """Generate a Statistical Analysis Plan from study metadata using the SAP template.
 
@@ -205,11 +474,16 @@ def sap_create(
         ai_involvement: none, ai-assisted, ai-primary, or llm-based
         power_analysis: Power calculation or precision statement (REQUIRED)
         output_path: Where to write the SAP file (relative to project root)
+        project_root: Optional user project root; relative output_path resolves here
 
     Returns:
         Confirmation with the SAP file path.
     """
     import datetime
+
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
 
     if not power_analysis or not power_analysis.strip():
         return (
@@ -250,9 +524,7 @@ def sap_create(
         f"{power_analysis}\n\n[Original template guidance: Sample size calculation"
     )
 
-    out = Path(output_path)
-    if not out.is_absolute():
-        out = PLUGIN_ROOT / output_path
+    out = _project_path(root, output_path, "analysis/sap.md")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(sap_content)
 
@@ -267,6 +539,7 @@ def sap_create(
 def sap_drift_check(
     sap_path: str = "analysis/sap.md",
     analysis_dir: str = "",
+    project_root: str | None = None,
 ) -> str:
     """Detect structural drift between a SAP and analysis code.
 
@@ -277,15 +550,18 @@ def sap_drift_check(
     Args:
         sap_path: Path to the SAP file (relative to project root)
         analysis_dir: Directory to scan for analysis files (defaults to project root)
+        project_root: Optional user project root; relative paths resolve here
 
     Returns:
         Drift report listing SAP sections with missing, found, or extra analysis code.
     """
     import re
 
-    sap = Path(sap_path)
-    if not sap.is_absolute():
-        sap = PLUGIN_ROOT / sap_path
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    sap = _project_path(root, sap_path, "analysis/sap.md")
 
     if not sap.exists():
         return f"Error: SAP file not found at {sap}"
@@ -307,7 +583,7 @@ def sap_drift_check(
         return "No SAP-N.M section identifiers found in the SAP file."
 
     # Search analysis files for SAP references
-    scan_dir = Path(analysis_dir) if analysis_dir and Path(analysis_dir).is_absolute() else PLUGIN_ROOT / (analysis_dir or ".")
+    scan_dir = _project_path(root, analysis_dir or ".", ".")
     found_sections = set()
 
     patterns = ["**/*.R", "**/*.qmd", "**/*.Rmd", "**/*.py", "**/*.ipynb"]
@@ -354,6 +630,7 @@ def sap_amend(
     reason: str,
     amended_by: str = "",
     sap_path: str = "analysis/sap.md",
+    project_root: str | None = None,
 ) -> str:
     """Record a SAP amendment with provenance.
 
@@ -370,15 +647,18 @@ def sap_amend(
         reason: Why this amendment is needed
         amended_by: Person responsible for the amendment
         sap_path: Path to the SAP file (relative to project root)
+        project_root: Optional user project root; relative sap_path resolves here
 
     Returns:
         Confirmation with new SAP version and amendment log path.
     """
     import datetime, re
 
-    sap = Path(sap_path)
-    if not sap.is_absolute():
-        sap = PLUGIN_ROOT / sap_path
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    sap = _project_path(root, sap_path, "analysis/sap.md")
 
     if not sap.exists():
         return f"Error: SAP file not found at {sap}"
@@ -442,22 +722,32 @@ def reporting_compliance_check(
     study_type: str = "observational",
     guideline: str | None = None,
     manuscript_path: str | None = None,
+    project_root: str | None = None,
 ) -> str:
     """Run a reporting guideline compliance check against supported guidelines.
 
-    Checks the 16 supported guidelines (CONSORT, STROBE, PRISMA, etc.)
+    Checks the supported guideline registry (CONSORT, STROBE, PRISMA, etc.)
     and returns a checklist with required items for the applicable guideline.
 
     Args:
         study_type: rct, observational, systematic-review, diagnostic-accuracy, case-report, qualitative, animal, health-economic, or prediction-model
         guideline: Override auto-routing with a specific guideline (consort, strobe, prisma, stard, care, coreq, arrive, cheers, tripod-ai)
         manuscript_path: Optional path to manuscript for item-level checking
+        project_root: Optional user project root; relative manuscript_path resolves here
 
     Returns:
         Compliance checklist with applicable guideline items.
     """
-    # Guideline routing map (simplified from references/guideline-routing.md)
-    routing = {
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    try:
+        registry = _load_guideline_registry()
+    except RuntimeError as exc:
+        return str(exc)
+
+    fallback_routing = {
         "rct": "CONSORT",
         "observational": "STROBE",
         "systematic-review": "PRISMA",
@@ -469,114 +759,66 @@ def reporting_compliance_check(
         "prediction-model": "TRIPOD+AI",
     }
 
-    ai_extensions = {
-        "rct": ["CONSORT-AI", "SPIRIT-AI"],
-        "prediction-model": ["TRIPOD+AI", "CLAIM"],
-    }
+    selected = _canonical_guideline(guideline) if guideline else ""
+    if not selected and registry:
+        for name, meta in registry.items():
+            if name != meta.get("_name"):
+                continue
+            if study_type in (meta.get("primary_for") or []):
+                selected = name
+                break
+    if not selected:
+        selected = fallback_routing.get(study_type, "STROBE")
 
-    selected = guideline.upper() if guideline else routing.get(study_type, "STROBE")
+    selected_meta = registry.get(selected, {})
+    selected = selected_meta.get("_name", selected)
+    checklist_file = selected_meta.get("file")
+    checklist_path = (
+        PLUGIN_ROOT / "skills" / "ce-code-review" / "references" / checklist_file
+        if isinstance(checklist_file, str)
+        else None
+    )
+    items = _items_from_checklist(checklist_path) if checklist_path else [
+        f"Guideline {selected} checklist file is not registered.",
+        "Run /ce-code-review with a canonical reporting_checklist string for full compliance review.",
+    ]
+
+    extension_names: list[str] = []
+    if registry:
+        for name, meta in registry.items():
+            if name != meta.get("_name"):
+                continue
+            if study_type in (meta.get("extension_for") or []) and meta.get("ai_extension"):
+                extension_names.append(name)
 
     lines = [
-        f"Reporting Compliance Check",
-        f"=" * 40,
+        "Reporting Compliance Check",
+        "=" * 40,
+        f"Project root: {root}",
         f"Study type: {study_type}",
         f"Primary guideline: {selected}",
     ]
 
-    if study_type in ai_extensions:
-        lines.append(f"AI extensions: {', '.join(ai_extensions[study_type])}")
-
-    # Core checklist items (abbreviated — full items are in the reviewer agent)
-    core_items = {
-        "CONSORT": [
-            "1a. Title identifies as RCT",
-            "2a. Scientific background and rationale",
-            "3a. Eligibility criteria",
-            "4a. Interventions for each group",
-            "5a. Outcomes (primary/secondary)",
-            "6a. Sample size calculation",
-            "7a. Random sequence generation",
-            "8a. Allocation concealment",
-            "9a. Blinding (who was blinded)",
-            "10a. Statistical methods for primary analysis",
-            "11a. Participant flow diagram",
-            "12a. Dates of recruitment",
-            "13a. Baseline demographics table",
-            "14a. Estimated effect size and CI",
-            "15a. Adverse events",
-            "16a. Interpretation with bias limitations",
-            "17a. Registration number",
-            "18a. Funding source",
-        ],
-        "STROBE": [
-            "1. Title identifies study design",
-            "2. Background/rationale",
-            "3. Objectives",
-            "4. Study design",
-            "5. Setting and data source",
-            "6. Eligibility criteria",
-            "7. Variables (exposure, outcome, confounders)",
-            "8. Measurement methods",
-            "9. Bias assessment",
-            "10. Study size rationale",
-            "11. Quantitative variables handling",
-            "12. Statistical methods",
-            "13. Participant numbers",
-            "14. Descriptive data table",
-            "15. Outcome data with estimates and CIs",
-            "16. Confounder-adjusted results",
-            "17. Other analyses (sensitivity, subgroup)",
-            "18. Key results",
-            "19. Limitations with bias direction",
-            "20. Interpretation",
-            "21. Generalizability",
-            "22. Funding",
-        ],
-        "PRISMA": [
-            "1. Identification as systematic review in title",
-            "2. Structured summary (PICO)",
-            "3. Rationale",
-            "4. Objectives (PICO)",
-            "5. Eligibility criteria",
-            "6. Information sources and search date",
-            "7. Full search strategy",
-            "8. Study selection process",
-            "9. Data items and definitions",
-            "10. Risk of bias assessment method",
-            "11. Effect measures",
-            "12. Data synthesis method",
-            "13. Additional analyses",
-            "14. Study selection flow diagram",
-            "15. Study characteristics table",
-            "16. Risk of bias by study",
-            "17. Results of individual studies",
-            "18. Results of meta-analyses",
-            "19. Certainty of evidence",
-            "20. Discussion with limitations",
-            "21. Registration and protocol",
-            "22. Funding",
-        ],
-    }
-
-    items = core_items.get(selected, [
-        f"Guideline {selected} checklist items not embedded in this tool.",
-        f"Run /ce-code-review with reporting_checklist: true for full compliance check.",
-    ])
+    if checklist_path:
+        lines.append(f"Checklist file: {checklist_path}")
+    if extension_names:
+        lines.append(f"Potential AI extensions: {', '.join(extension_names)}")
 
     lines.append(f"\nChecklist items ({len(items)}):")
     for item in items:
         lines.append(f"  [ ] {item}")
 
     if manuscript_path:
-        mp = Path(manuscript_path)
-        if not mp.is_absolute():
-            mp = PLUGIN_ROOT / manuscript_path
+        mp = _project_path(root, manuscript_path, manuscript_path)
         if mp.exists():
             lines.append(f"\nManuscript found at {mp}. Run /ce-code-review for item-level verification.")
         else:
             lines.append(f"\nManuscript not found at {mp}.")
 
-    lines.append("\nNote: For full item-level compliance verification, run /ce-code-review with reporting_checklist: true.")
+    lines.append(
+        "\nNote: For full item-level compliance verification, set "
+        f"stack_profile.reporting_checklist: {selected} and run /ce-code-review."
+    )
 
     return "\n".join(lines)
 
@@ -594,6 +836,7 @@ def compound_learning(
     module: str | None = None,
     component: str | None = None,
     tags: str | None = None,
+    project_root: str | None = None,
 ) -> str:
     """Read or write institutional knowledge entries in docs/solutions/.
 
@@ -605,14 +848,23 @@ def compound_learning(
         module: Module or area affected (required for write)
         component: Component involved (e.g., statistical_analysis, reproducibility)
         tags: Comma-separated search keywords
+        project_root: Optional user project root; docs/solutions resolves here
 
     Returns:
         Matching entries (read) or write confirmation.
     """
-    from ruamel.yaml import YAML
     import datetime
 
-    solutions_dir = PLUGIN_ROOT / "docs" / "solutions"
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    try:
+        yaml = _yaml()
+    except RuntimeError as exc:
+        return str(exc)
+
+    solutions_dir = root / "docs" / "solutions"
 
     if action == "read":
         if not solutions_dir.exists():
@@ -627,7 +879,6 @@ def compound_learning(
                     end = text.find("---", 3)
                     if end != -1:
                         frontmatter = text[3:end].strip()
-                        yaml = YAML()
                         fm = yaml.load(frontmatter)
 
                         # Filter by problem_type if specified
@@ -699,6 +950,7 @@ def data_wave_register(
     query_id: str = "",
     extracted_by: str = "",
     notes: str = "",
+    project_root: str | None = None,
 ) -> str:
     """Register a new data extract (data wave) into .ce-datascience/data-state.yaml.
 
@@ -715,16 +967,23 @@ def data_wave_register(
         query_id: Identifier for the extract query (Cohort builder ID, SQL hash, etc.)
         extracted_by: Person who pulled the extract
         notes: Optional free text (e.g., why this re-extract)
+        project_root: Optional user project root; .ce-datascience/data-state.yaml resolves here
 
     Returns:
         Confirmation with extract_id, hash, and unlocked status.
     """
-    from ruamel.yaml import YAML
     import datetime, hashlib
 
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    state_path = PLUGIN_ROOT / ".ce-datascience" / "data-state.yaml"
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    try:
+        yaml = _yaml()
+    except RuntimeError as exc:
+        return str(exc)
+
+    state_path = root / ".ce-datascience" / "data-state.yaml"
 
     if state_path.exists():
         with open(state_path) as f:
@@ -739,7 +998,9 @@ def data_wave_register(
 
     # Hash the file if it's a local path
     file_hash = ""
-    loc_path = Path(location)
+    loc_path = Path(location).expanduser()
+    if not loc_path.is_absolute():
+        loc_path = root / loc_path
     if loc_path.exists() and loc_path.is_file():
         h = hashlib.sha256()
         with open(loc_path, "rb") as f:
@@ -782,6 +1043,7 @@ def data_lock(
     qa_report_path: str = "",
     locked_by: str = "",
     sap_version_at_lock: str = "",
+    project_root: str | None = None,
 ) -> str:
     """Seal a data wave as the canonical analysis dataset.
 
@@ -795,16 +1057,23 @@ def data_lock(
         qa_report_path: Path to the data QA report; tool checks status
         locked_by: Person sealing the data
         sap_version_at_lock: SAP version (e.g., '1.2') in effect at lock time
+        project_root: Optional user project root; .ce-datascience/data-state.yaml resolves here
 
     Returns:
         Confirmation with locked timestamp.
     """
-    from ruamel.yaml import YAML
     import datetime
 
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    state_path = PLUGIN_ROOT / ".ce-datascience" / "data-state.yaml"
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    try:
+        yaml = _yaml()
+    except RuntimeError as exc:
+        return str(exc)
+
+    state_path = root / ".ce-datascience" / "data-state.yaml"
 
     if not state_path.exists():
         return "Error: no data-state.yaml. Register a wave first via data_wave_register."
@@ -823,9 +1092,7 @@ def data_lock(
     # Soft check on QA report
     qa_status = "unknown"
     if qa_report_path:
-        qp = Path(qa_report_path)
-        if not qp.is_absolute():
-            qp = PLUGIN_ROOT / qa_report_path
+        qp = _project_path(root, qa_report_path, qa_report_path)
         if qp.exists():
             text = qp.read_text(errors="ignore")
             if "Status**: `GO`" in text or "Status**: GO" in text:

@@ -53,7 +53,7 @@ Use the 5-anchor confidence scale. The reporting threshold for this reviewer is 
 
 When AI/ML signals are detected in the analysis code (imports of sklearn, torch, tensorflow, keras, xgboost, lightgbm, caret, tidymodels, transformers, or LangChain; or calls to model.fit, train(), fine_tune()), check `.ce-datascience/study-metadata.yaml`:
 
-- **If the file does not exist**: emit a P1 finding titled "study-metadata.yaml missing for AI/ML study" with `autofix_class: manual`. The `suggested_fix` should instruct the user to copy the template from `plugins/ce-datascience/skills/ce-setup/references/study-metadata-template.yaml`.
+- **If the file does not exist**: emit a P1 finding titled "study-metadata.yaml missing for AI/ML study" with `autofix_class: manual`. The `suggested_fix` should instruct the user to copy the `study-metadata-template.yaml` reference from the installed `ce-setup` skill.
 - **If the file exists but `dataset_split` is empty or absent**: emit a P1 finding titled "Dataset split not documented in study-metadata.yaml" with `autofix_class: manual`.
 - **If the file exists but `software_provenance.random_seeds` is empty or absent** and the code uses stochastic methods: emit a P1 finding titled "Random seeds not documented in study-metadata.yaml" with `autofix_class: manual`.
 - **If the code uses LLM APIs** (openai, anthropic, langchain, litellm, or similar) and `llm_provenance` is empty or absent: emit a P1 finding titled "LLM provenance not documented in study-metadata.yaml" with `autofix_class: manual`.

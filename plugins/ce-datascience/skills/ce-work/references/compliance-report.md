@@ -133,4 +133,4 @@ Reporting Compliance (from: .ce-datascience/compliance-report.md)
 | STROBE    | 18/22    | 3          | 1      | 2026-04-28   |
 ```
 
-If no compliance report exists and `reporting_checklist: true` is set in config, add a note: "No compliance report found. Run ce-code-review to generate the initial report."
+If no compliance report exists and `stack_profile.reporting_checklist` is set to a non-null guideline string in config, add a note: "No compliance report found. Run ce-code-review to generate the initial report."

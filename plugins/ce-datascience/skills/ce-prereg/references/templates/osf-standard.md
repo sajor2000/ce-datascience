@@ -89,6 +89,6 @@ Power calculation reference: `analysis/power/<design>-<date>-summary.md`
 
 ## 8. Other (optional)
 
-- Reporting checklist followed: {{ stack_profile.guidelines_selected.primary }} {{ extensions }}
+- Reporting checklist followed: {{ stack_profile.reporting_checklist }} {{ stack_profile.reporting_checklist_extensions }}
 - Funding: {{ sap.frontmatter.funding }}
 - Conflicts of interest: {{ sap.frontmatter.conflicts | default("None declared") }}

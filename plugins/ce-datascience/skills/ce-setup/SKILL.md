@@ -298,9 +298,11 @@ Enable a reporting guideline checklist in generated outputs?
 1. No (skip)
 2. STROBE (observational studies)
 3. CONSORT (randomized trials)
+4. PRISMA (systematic reviews)
+5. TRIPOD+AI (prediction models)
 ```
 
-Store the selection as `reporting_checklist.enabled` and `reporting_checklist.guideline`.
+Store the selection as `stack_profile.reporting_checklist` when a guideline is selected. Leave it absent when the user selects "No". Store any layered guideline extensions as `stack_profile.reporting_checklist_extensions`.
 
 ### Step 10: Save Config
 
@@ -336,7 +338,7 @@ Stack profile saved to .ce-datascience/config.local.yaml
   Env manager: venv
   R project:   n/a
   Reporting:   jupyter
-  Checklist:   none
+  Checklist:   STROBE
 
 Run /ce-setup anytime to modify.
 ```
