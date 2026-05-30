@@ -111,8 +111,8 @@ During Phase 2 task execution, before implementing each task:
 
 After reading the SAP, check the frontmatter for classification completeness:
 
-- If `study_type` is set and `guidelines_selected` is empty or absent: add a note in the coverage summary: "Note: `guidelines_selected` is empty — reporting guideline will be auto-routed from `study_type` by `ce-reporting-checklist-reviewer`."
-- If `study_type` is absent or `other`: add a warning: "WARN: `study_type` not set — reporting guideline cannot be auto-routed. Set `study_type` in SAP frontmatter or specify `guidelines_selected` explicitly."
+- If `study_type` is set and canonical reporting checklist fields are empty or absent: add a note in the coverage summary: "Note: reporting checklist is empty — reporting guideline will be auto-routed from `study_type` by `ce-reporting-checklist-reviewer`."
+- If `study_type` is absent or `other`: add a warning: "WARN: `study_type` not set — reporting guideline cannot be auto-routed. Set `study_type` in SAP frontmatter or specify `stack_profile.reporting_checklist` explicitly."
 - If `ai_involvement` is not `none` but `study_type` is absent: add a warning: "WARN: `ai_involvement` is set but `study_type` is absent — AI extension routing requires a `study_type`."
 
 These are informational, not blockers. Never stop task execution based on missing guideline metadata.
@@ -158,6 +158,6 @@ Reporting Compliance (from: .ce-datascience/compliance-report.md)
 | STROBE    | 18/22    | 3          | 1      | 2026-04-28   |
 ```
 
-If no compliance report exists and `reporting_checklist: true` is set in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Run `/ce-code-review` with reporting checklist enabled to generate the initial report."
+If no compliance report exists and `stack_profile.reporting_checklist` is set to a non-null guideline string in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Run `/ce-code-review` with reporting checklist enabled to generate the initial report."
 
 See `references/compliance-report.md` for the full report format and update instructions.

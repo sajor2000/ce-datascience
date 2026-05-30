@@ -16,15 +16,31 @@ The server runs as a **local stdio process** — no remote deployment needed. Th
 - Install dependencies:
 
 ```bash
-pip install fastmcp ruamel.yaml pydantic
+python3 -m pip install fastmcp ruamel.yaml pydantic
 ```
+
+If the server starts without those packages, it exits with the same install command instead of a raw Python traceback.
+
+## Project Root Resolution
+
+The MCP server separates bundled plugin assets from user project artifacts. Scripts and checklist references load from the installed plugin, while config, SAPs, data-state files, compliance reports, and learnings resolve under the user project root.
+
+Resolution order:
+
+1. Tool call `project_root` argument
+2. `CE_DATASCIENCE_PROJECT_ROOT`
+3. Server current working directory, promoted to the nearest git root when one exists
+
+When an IDE launches MCP servers outside the project directory, set `CE_DATASCIENCE_PROJECT_ROOT` in the MCP server environment.
 
 ## Setup
 
 ### Claude Code
 
+From a source checkout, use the Claude Code MCP command:
+
 ```bash
-droid mcp add ce-datascience -- python3 plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py
+claude mcp add ce-datascience -- python3 plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py
 ```
 
 Or manually add to `.mcp.json` in your project root:
@@ -35,11 +51,28 @@ Or manually add to `.mcp.json` in your project root:
     "ce-datascience": {
       "type": "stdio",
       "command": "python3",
-      "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"]
+      "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"],
+      "env": {
+        "CE_DATASCIENCE_PROJECT_ROOT": "/absolute/path/to/your/project"
+      }
     }
   }
 }
 ```
+
+### Codex, OpenCode, Pi, Gemini CLI, and Kiro
+
+When installing with the converter, use the normal install command for the target. The installer rewrites MCP server paths to absolute installed skill files and writes the target's config shape:
+
+```bash
+bun run src/index.ts install ./plugins/ce-datascience --to codex --include-skills
+bun run src/index.ts install ./plugins/ce-datascience --to opencode --output /path/to/workspace
+bun run src/index.ts install ./plugins/ce-datascience --to pi
+bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path/to/gemini-home
+bun run src/index.ts install ./plugins/ce-datascience --to kiro --output /path/to/kiro-workspace
+```
+
+Do not copy the source-checkout path into generated target configs. The generated configs point to the installed `ce-mcp-server/mcp_server/run.py` file for that platform.
 
 ### Cursor / Windsurf
 
@@ -49,7 +82,10 @@ Add to your IDE's MCP configuration (e.g., `.cursor/mcp.json` or Windsurf settin
 {
   "ce-datascience": {
     "command": "python3",
-    "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"]
+    "args": ["/absolute/path/to/installed/ce-mcp-server/mcp_server/run.py"],
+    "env": {
+      "CE_DATASCIENCE_PROJECT_ROOT": "/absolute/path/to/your/project"
+    }
   }
 }
 ```
@@ -62,21 +98,14 @@ Add to `cline_mcp_settings.json`:
 {
   "ce-datascience": {
     "command": "python3",
-    "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"],
+    "args": ["/absolute/path/to/installed/ce-mcp-server/mcp_server/run.py"],
+    "env": {
+      "CE_DATASCIENCE_PROJECT_ROOT": "/absolute/path/to/your/project"
+    },
     "disabled": false
   }
 }
 ```
-
-**Note on installed paths:** The `args` path above works from a repo checkout. When the plugin is installed via `ce-datascience install --to codex` or `--to pi`, skills are copied to platform-specific locations and the MCP server path changes:
-
-| Platform | MCP server path |
-|----------|----------------|
-| Claude Code (repo) | `plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py` |
-| Codex (`~/.codex`) | `skills/ce-mcp-server/mcp_server/run.py` (relative to `~/.codex/ce-datascience/`) |
-| Pi (`~/.pi/agent`) | `skills/ce-mcp-server/mcp_server/run.py` (relative to `~/.pi/agent/`) |
-
-For Codex and Pi, update the MCP server path in your config to match the installed location.
 
 ## Available MCP Tools
 
@@ -86,8 +115,10 @@ For Codex and Pi, update the MCP server path in your config to match the install
 | `stack_profile` | Read/write the `.ce-datascience/config.local.yaml` stack profile for R/Python/library settings. |
 | `sap_create` | Generate a Statistical Analysis Plan from study metadata using the SAP template with stable SAP-N.M identifiers. |
 | `sap_drift_check` | Detect structural and semantic drift between a SAP and the current analysis code. |
-| `reporting_compliance_check` | Run study-type-aware reporting guideline compliance check against the 16 supported guidelines. |
+| `reporting_compliance_check` | Run study-type-aware reporting guideline compliance check against the 35 supported reporting guidelines. |
 | `compound_learning` | Read/write institutional knowledge entries in `docs/solutions/` with data-science problem_type categorization. |
+| `data_wave_register` | Register a data extract in project-local `.ce-datascience/data-state.yaml`. |
+| `data_lock` | Seal a registered data wave after QA passes. |
 
 ## Tool Details
 
@@ -118,7 +149,10 @@ For Codex and Pi, update the MCP server path in your config to match the install
   "environment_manager_r": "renv | packrat | none",
   "environment_manager_python": "venv | conda | poetry | pixi | none",
   "r_project_type": "script | package | shiny | plumber | targets",
-  "reporting": "quarto | rmarkdown | marimo | jupyter"
+  "reporting": "quarto | rmarkdown | marimo | jupyter",
+  "reporting_checklist": "STROBE",
+  "reporting_checklist_extensions": ["RECORD"],
+  "project_root": "/absolute/path/to/your/project"
 }
 ```
 
@@ -134,7 +168,9 @@ For Codex and Pi, update the MCP server path in your config to match the install
   "population": "Study population description",
   "primary_outcome": "Primary endpoint",
   "ai_involvement": "none | ai-assisted | ai-primary | llm-based",
-  "output_path": "analysis/sap.md"
+  "power_analysis": "descriptive only: no inferential test",
+  "output_path": "analysis/sap.md",
+  "project_root": "/absolute/path/to/your/project"
 }
 ```
 
@@ -146,7 +182,8 @@ For Codex and Pi, update the MCP server path in your config to match the install
 ```json
 {
   "sap_path": "analysis/sap.md",
-  "analysis_dir": ""
+  "analysis_dir": "",
+  "project_root": "/absolute/path/to/your/project"
 }
 ```
 
@@ -159,7 +196,8 @@ For Codex and Pi, update the MCP server path in your config to match the install
 {
   "study_type": "rct | observational | systematic-review | diagnostic-accuracy | ...",
   "guideline": "consort | strobe | prisma | ...",
-  "manuscript_path": "docs/manuscript.md"
+  "manuscript_path": "docs/manuscript.md",
+  "project_root": "/absolute/path/to/your/project"
 }
 ```
 
@@ -176,7 +214,8 @@ For Codex and Pi, update the MCP server path in your config to match the install
   "content": "Learning content (markdown)",
   "module": "Module or area affected",
   "component": "statistical_analysis | reproducibility | ...",
-  "tags": "comma-separated keywords"
+  "tags": "comma-separated keywords",
+  "project_root": "/absolute/path/to/your/project"
 }
 ```
 

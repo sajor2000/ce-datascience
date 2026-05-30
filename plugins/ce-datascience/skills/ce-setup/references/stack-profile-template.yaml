@@ -83,21 +83,11 @@ stack_profile:
   # n/a       - Observational, single-arm, or otherwise not applicable
   blinding_state: blinded | unblinded | n/a
 
-# Optional reporting checklist integration
-reporting_checklist:
-  # Enable reporting guideline checklist in generated outputs
-  enabled: false
-  # Primary reporting guideline to follow (auto-selected from SAP study_type when null)
-  # consort             - CONsolidated Standards of Reporting Trials (RCTs)
-  # strobe              - STrengthening the Reporting of OBservational studies in Epidemiology
-  # prisma              - Preferred Reporting Items for Systematic Reviews and Meta-Analyses
-  # stard               - Standards for Reporting Diagnostic Accuracy Studies
-  # care                - CAse REport guidelines
-  # coreq               - Consolidated Criteria for Reporting Qualitative Research
-  # arrive              - Animal Research: Reporting of In Vivo Experiments
-  # cheers              - Consolidated Health Economic Evaluation Reporting Standards
-  # tripod-ai           - Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis + AI
-  guideline: null  # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
-  # Enable AI-specific extension checklists (layered on top of primary guideline)
-  # Auto-detected from SAP ai_involvement field when true
-  ai_extensions: false
+  # Reporting guideline integration. A non-null string enables
+  # ce-reporting-checklist-reviewer when a SAP exists.
+  # Primary examples:
+  #   CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, TRIPOD+AI
+  # Extension examples:
+  #   RECORD, RECORD-PE, CONSORT-AI, SPIRIT-AI, CLAIM, REFORMS, DEAL, CHART, PDSQI-9
+  reporting_checklist: null
+  reporting_checklist_extensions: []

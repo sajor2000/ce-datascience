@@ -1,6 +1,6 @@
 # Reporting Guideline Routing Map
 
-Route a study to its applicable reporting guidelines based on SAP `study_type` and `ai_involvement` fields. The reporting-checklist-reviewer reads this map to determine which checklist files to load.
+Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the 35 supported checklist files; this document explains selection rules for humans and reviewers.
 
 ## Primary Guidelines
 
@@ -43,9 +43,11 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 
 ## Extension Selection Rules
 
-1. **Read SAP frontmatter** for `study_type`, `ai_involvement`, and `guidelines_selected`.
-2. **If `guidelines_selected` is explicitly set**, use that list as an override. Skip routing. Load each named checklist file.
-3. **Otherwise, route by `study_type`** to get the primary guideline from the table above.
+1. **Read stack profile** for `stack_profile.reporting_checklist` and `stack_profile.reporting_checklist_extensions`.
+2. **If canonical stack-profile fields are set**, use those values and load checklist files from `guideline-registry.yaml`.
+3. **Read SAP frontmatter** for `study_type`, `ai_involvement`, and legacy `guidelines_selected`.
+4. **If legacy `guidelines_selected` is explicitly set** and canonical stack-profile fields are absent, use that list as a compatibility override.
+5. **Otherwise, route by `study_type`** to get the primary guideline from the table above.
 4. **If `ai_involvement` is not `none`**, scan the AI extension table for matching conditions. A condition matches when the `study_type` and `ai_involvement` values both align. For domain-specific extensions (DEAL, CHART, PDSQI-9), also check for signals in the analysis code: deep learning imports for DEAL, clinical deployment documentation for CHART, EHR data sources for PDSQI-9.
 5. **Combine primary + extensions** into the final checklist set. Load each file and review against it.
 

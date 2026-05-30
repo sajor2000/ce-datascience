@@ -9,7 +9,9 @@
 # study_design:
 #   classification: observational  # observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
 #   ai_involvement: none           # none | ai-assisted | ai-primary | llm-based
-#   guidelines_selected: []        # e.g., [STROBE, TRIPOD-AI]
+#   reporting_checklist: STROBE
+#   reporting_checklist_extensions: [RECORD]
+#   guidelines_selected: []        # legacy compatibility only
 
 # --- Dataset split ---
 # How data was partitioned for model training/evaluation.

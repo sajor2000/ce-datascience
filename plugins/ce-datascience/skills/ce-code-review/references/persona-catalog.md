@@ -28,7 +28,7 @@ The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's 
 | `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, figure files in diff, OR `stack_profile.data_root` is inside the repo |
 | `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
 | `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
-| `ce-reporting-checklist-reviewer` | `reporting_checklist: true` in stack profile AND a SAP exists. Auto-routes to the correct guideline(s) from the full set: CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, plus AI extensions (REFORMS, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, DEAL, CHART, PDSQI-9) when `ai_involvement` is set |
+| `ce-reporting-checklist-reviewer` | `stack_profile.reporting_checklist` is set to a non-null guideline string AND a SAP exists. Pass that primary guideline plus `stack_profile.reporting_checklist_extensions`; use `references/guideline-registry.yaml` for the supported 35 guideline files. |
 | `ce-data-leakage-reviewer` | ML training / evaluation code in diff -- target leakage, train-test contamination, look-ahead bias, normalization fit on test set, subject-in-both-splits |
 | `ce-fairness-reviewer` | prediction-model code AND data has subgroup variables (sex / race / age / site / payer) -- subgroup performance, demographic parity, equalized odds, mitigation plan |
 | `ce-calibration-reviewer` | prediction-model eval code that produces predicted probabilities -- calibration plot, intercept/slope, Brier, ICI, decision-curve analysis (the AUC-only gap) |

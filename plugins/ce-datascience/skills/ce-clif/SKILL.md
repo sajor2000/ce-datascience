@@ -43,7 +43,7 @@ When activated, print one acknowledgment line and emit the handoff signal:
 
 ```
 [ce-clif] CLIF profile active (data dictionary v2.1.1); protected paths read-only without POC sign-off.
-__CE_CLIF__ active=true version=2.1.1 strict=<true|false> rules=plugins/ce-datascience/skills/ce-clif/references/clif-rules.md
+__CE_CLIF__ active=true version=2.1.1 strict=<true|false> rules=references/clif-rules.md
 ```
 
 Default `version=2.1.1` (latest stable release of `Common-Longitudinal-ICU-data-Format/CLIF`, January 2026). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. Tag `v2.2.0` is obsolete (replaced by v3.0.0). Tag `v3.0.0` is a pre-release (March 2026, multimodal); opt in explicitly if you need it.

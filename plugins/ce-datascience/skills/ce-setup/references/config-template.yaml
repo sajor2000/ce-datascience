@@ -21,13 +21,5 @@
 #     python: venv             # venv | conda | poetry | pixi | none
 #   r_project_type: script     # script | package | shiny | plumber | targets
 #   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
-
-# --- Reporting checklist ---
-# Enable reporting guideline compliance review. Guideline is auto-selected
-# from SAP study_type when not specified. See guideline-routing.md for the
-# full routing map including AI extensions.
-
-# reporting_checklist:
-#   enabled: false
-#   guideline: null            # consort | strobe | prisma | stard | care | coreq | arrive | cheers | tripod-ai
-#   ai_extensions: false       # layer AI-specific checklists (CONSORT-AI, SPIRIT-AI, CLAIM, etc.)
+#   reporting_checklist: STROBE                 # CONSORT | STROBE | PRISMA | STARD | CARE | COREQ | ARRIVE | CHEERS | TRIPOD+AI
+#   reporting_checklist_extensions: [RECORD]    # RECORD | RECORD-PE | CONSORT-AI | SPIRIT-AI | CLAIM | REFORMS | DEAL | CHART | PDSQI-9
