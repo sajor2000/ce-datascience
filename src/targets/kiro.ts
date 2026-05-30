@@ -4,17 +4,47 @@ import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
 import { cleanupStaleSkillDirs, cleanupStaleAgents } from "../utils/legacy-cleanup"
 import { getLegacyKiroArtifacts } from "../data/plugin-legacy-artifacts"
-import { moveLegacyArtifactToBackup, sanitizeManagedPluginName } from "./managed-artifacts"
+import {
+  archiveLegacyInstallManifestIfOwned,
+  cleanupCurrentManagedDirectory,
+  cleanupRemovedManagedDirectories,
+  cleanupRemovedManagedFiles,
+  moveLegacyArtifactToBackup,
+  readManagedInstallManifestWithLegacyFallback,
+  resolveManagedSegment,
+  sanitizeManagedPluginName,
+  writeManagedInstallManifest,
+} from "./managed-artifacts"
+import { rewriteMcpServerPaths } from "./mcp-paths"
 
 export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): Promise<void> {
-  const paths = resolveKiroPaths(outputRoot)
   const pluginName = bundle.pluginName ? sanitizeManagedPluginName(bundle.pluginName) : undefined
+  const paths = resolveKiroPaths(outputRoot, pluginName)
+  const manifest = pluginName
+    ? await readManagedInstallManifestWithLegacyFallback(paths.managedDir, pluginName)
+    : null
+  const currentSkills = [
+    ...bundle.generatedSkills.map((skill) => sanitizePathName(skill.name)),
+    ...bundle.skillDirs.map((skill) => sanitizePathName(skill.name)),
+  ]
+  const currentAgents = bundle.agents.map((agent) => `${sanitizePathName(agent.name)}.json`)
+  const currentAgentPrompts = bundle.agents.map((agent) => `${sanitizePathName(agent.name)}.md`)
+  const currentSteeringFiles = bundle.steeringFiles.map((file) => `${sanitizePathName(file.name)}.md`)
   await ensureDir(paths.kiroDir)
 
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
   await cleanupStaleSkillDirs(paths.skillsDir)
   await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md")
   await cleanupStaleAgents(paths.agentsDir, ".json")
+  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedFiles(
+    path.join(paths.agentsDir, "prompts"),
+    manifest,
+    "agentPrompts",
+    currentAgentPrompts,
+  )
+  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
 
   // Write agents
   if (bundle.agents.length > 0) {
@@ -40,6 +70,12 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
       validatePathSafe(skill.name, "skill")
+      await cleanupCurrentManagedDirectory(
+        path.join(paths.skillsDir, sanitizePathName(skill.name)),
+        manifest,
+        "skills",
+        sanitizePathName(skill.name),
+      )
       await writeText(
         path.join(paths.skillsDir, sanitizePathName(skill.name), "SKILL.md"),
         skill.content + "\n",
@@ -61,6 +97,12 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       }
 
       const knownAgentNames = bundle.agents.map((a) => a.name)
+      await cleanupCurrentManagedDirectory(
+        destDir,
+        manifest,
+        "skills",
+        sanitizePathName(skill.name),
+      )
       await copySkillDir(skill.sourceDir, destDir, (content) =>
         transformContentForKiro(content, knownAgentNames),
       )
@@ -79,7 +121,8 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   }
 
   // Write MCP servers to mcp.json
-  if (Object.keys(bundle.mcpServers).length > 0) {
+  const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir) ?? bundle.mcpServers
+  if (Object.keys(mcpServers).length > 0) {
     const mcpPath = path.join(paths.settingsDir, "mcp.json")
     const backupPath = await backupFile(mcpPath)
     if (backupPath) {
@@ -100,22 +143,34 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       existingConfig.mcpServers && typeof existingConfig.mcpServers === "object"
         ? (existingConfig.mcpServers as Record<string, unknown>)
         : {}
-    const merged = { ...existingConfig, mcpServers: { ...existingServers, ...bundle.mcpServers } }
+    const merged = { ...existingConfig, mcpServers: { ...existingServers, ...mcpServers } }
     await writeJson(mcpPath, merged)
   }
 
   if (pluginName) {
+    await writeManagedInstallManifest(paths.managedDir, {
+      version: 1,
+      pluginName,
+      groups: {
+        skills: currentSkills,
+        agents: currentAgents,
+        agentPrompts: currentAgentPrompts,
+        steering: currentSteeringFiles,
+      },
+    })
+    await archiveLegacyInstallManifestIfOwned(paths.managedDir, pluginName)
     await cleanupKnownLegacyKiroArtifacts(paths, bundle)
   }
 }
 
-function resolveKiroPaths(outputRoot: string) {
+function resolveKiroPaths(outputRoot: string, pluginName?: string) {
+  const managedSegment = resolveManagedSegment(pluginName)
   const base = path.basename(outputRoot)
   // If already pointing at .kiro, write directly into it
   if (base === ".kiro") {
     return {
       kiroDir: outputRoot,
-      managedDir: path.join(outputRoot, "ce-datascience"),
+      managedDir: path.join(outputRoot, managedSegment),
       agentsDir: path.join(outputRoot, "agents"),
       skillsDir: path.join(outputRoot, "skills"),
       steeringDir: path.join(outputRoot, "steering"),
@@ -126,7 +181,7 @@ function resolveKiroPaths(outputRoot: string) {
   const kiroDir = path.join(outputRoot, ".kiro")
   return {
     kiroDir,
-    managedDir: path.join(kiroDir, "ce-datascience"),
+    managedDir: path.join(kiroDir, managedSegment),
     agentsDir: path.join(kiroDir, "agents"),
     skillsDir: path.join(kiroDir, "skills"),
     steeringDir: path.join(kiroDir, "steering"),

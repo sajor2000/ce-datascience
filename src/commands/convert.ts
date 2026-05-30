@@ -2,7 +2,7 @@ import { defineCommand } from "citty"
 import os from "os"
 import path from "path"
 import { loadClaudePlugin } from "../parsers/claude"
-import { targets, validateScope } from "../targets"
+import { formatUnknownTargetError, targets, validateScope } from "../targets"
 import type { ClaudeToOpenCodeOptions, PermissionMode } from "../converters/claude-to-opencode"
 import { ensureCodexAgentsFile } from "../utils/codex-agents"
 import { expandHome, resolveCodexHome, resolveTargetHome } from "../utils/resolve-home"
@@ -144,7 +144,7 @@ export default defineCommand({
 
     const target = targets[targetName]
     if (!target) {
-      throw new Error(`Unknown target: ${targetName}`)
+      throw new Error(formatUnknownTargetError(targetName))
     }
 
     if (!target.implemented) {

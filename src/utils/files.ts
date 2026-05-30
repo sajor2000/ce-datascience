@@ -141,6 +141,7 @@ export async function copyDir(sourceDir: string, targetDir: string): Promise<voi
   await ensureDir(targetDir)
   const entries = await fs.readdir(sourceDir, { withFileTypes: true })
   for (const entry of entries) {
+    if (shouldSkipCopiedArtifact(entry.name)) continue
     const sourcePath = path.join(sourceDir, entry.name)
     const targetPath = path.join(targetDir, entry.name)
     if (entry.isDirectory()) {
@@ -172,6 +173,7 @@ export async function copySkillDir(
   const entries = await fs.readdir(sourceDir, { withFileTypes: true })
 
   for (const entry of entries) {
+    if (shouldSkipCopiedArtifact(entry.name)) continue
     const sourcePath = path.join(sourceDir, entry.name)
     const targetPath = path.join(targetDir, entry.name)
 
@@ -190,4 +192,13 @@ export async function copySkillDir(
       }
     }
   }
+}
+
+function shouldSkipCopiedArtifact(name: string): boolean {
+  return (
+    name === "__pycache__" ||
+    name === ".DS_Store" ||
+    name.endsWith(".pyc") ||
+    name.endsWith(".pyo")
+  )
 }

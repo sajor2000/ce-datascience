@@ -92,6 +92,74 @@ describe("writeKiroBundle", () => {
     expect(await exists(path.join(kiroRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 
+  test("removes previously managed Kiro artifacts that disappear on reinstall", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "kiro-managed-cleanup-"))
+    const kiroRoot = path.join(tempRoot, ".kiro")
+    const sourceSkillDir = path.join(tempRoot, "source-skill")
+    await fs.mkdir(sourceSkillDir, { recursive: true })
+    await fs.writeFile(
+      path.join(sourceSkillDir, "SKILL.md"),
+      "---\nname: old-skill\ndescription: Old skill\n---\n\nOld skill.",
+    )
+
+    await writeKiroBundle(kiroRoot, {
+      ...emptyBundle,
+      pluginName: "ce-datascience",
+      agents: [
+        {
+          name: "old-agent",
+          config: {
+            name: "old-agent",
+            description: "Old agent",
+            prompt: "file://./prompts/old-agent.md",
+            tools: ["*"],
+            resources: ["skill://.kiro/skills/**/SKILL.md"],
+            includeMcpJson: true,
+          },
+          promptContent: "Old agent prompt.",
+        },
+      ],
+      generatedSkills: [
+        {
+          name: "old-generated-skill",
+          content: "---\nname: old-generated-skill\ndescription: Old generated skill\n---\n\nOld generated skill.",
+        },
+      ],
+      skillDirs: [{ name: "old-skill", sourceDir: sourceSkillDir }],
+      steeringFiles: [{ name: "old-steering", content: "Old steering." }],
+    })
+
+    await writeKiroBundle(kiroRoot, {
+      ...emptyBundle,
+      pluginName: "ce-datascience",
+      agents: [
+        {
+          name: "new-agent",
+          config: {
+            name: "new-agent",
+            description: "New agent",
+            prompt: "file://./prompts/new-agent.md",
+            tools: ["*"],
+            resources: ["skill://.kiro/skills/**/SKILL.md"],
+            includeMcpJson: true,
+          },
+          promptContent: "New agent prompt.",
+        },
+      ],
+      generatedSkills: [],
+      skillDirs: [],
+      steeringFiles: [],
+    })
+
+    expect(await exists(path.join(kiroRoot, "agents", "old-agent.json"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "agents", "prompts", "old-agent.md"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "agents", "new-agent.json"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "skills", "old-generated-skill", "SKILL.md"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "skills", "old-skill", "SKILL.md"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "steering", "old-steering.md"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
+  })
+
   test("writes agents, skills, steering, and mcp.json", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "kiro-test-"))
     const bundle: KiroBundle = {

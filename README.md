@@ -193,6 +193,7 @@ This fork tracks useful infrastructure and workflow improvements from the origin
 | All at once | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
 
 Pi also needs `pi install npm:pi-subagents` first.
+Qwen Code uses its native extension installer; it is not a generated `--to qwen` converter target. `--to all` only writes generated targets detected on the machine and skips native-only plugin ecosystems.
 
 For a non-default Codex profile, point both Codex and the installer at the same root:
 

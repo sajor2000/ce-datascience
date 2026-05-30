@@ -36,7 +36,7 @@ If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, 
 The `scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries. Prefer it over hand-rolling `requests` because Entrez already implements the rate-limit + retry logic that hand-rolled code routinely gets wrong.
 
 ```bash
-python plugins/ce-datascience/skills/ce-pubmed/scripts/pubmed_search.py \
+python3 scripts/pubmed_search.py \
     "sepsis bundle compliance ICU" \
     --years 10 --study-type cohort --max 50 \
     --out analysis/pubmed/sepsis-bundle-2025.csv

@@ -124,6 +124,7 @@ describe("CLI", () => {
 
       expect(exitCode).not.toBe(0)
       expect(stderr).toContain(`Unknown target: ${target}`)
+      expect(stderr).toContain("native plugin install")
     }
   })
 

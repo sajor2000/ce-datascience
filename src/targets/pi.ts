@@ -16,6 +16,7 @@ import type { PiBundle } from "../types/pi"
 import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
 import { cleanupStaleAgents } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
+import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const PI_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE PI TOOL MAP -->"
 const PI_AGENTS_BLOCK_END = "<!-- END CE DATASCIENCE PI TOOL MAP -->"
@@ -110,12 +111,23 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     await writeText(path.join(paths.extensionsDir, extension.name), extension.content + "\n")
   }
 
-  if (bundle.mcporterConfig) {
+  const mcporterConfig = bundle.mcporterConfig
+    ? {
+        ...bundle.mcporterConfig,
+        mcpServers: rewriteMcpServerPaths(
+          bundle.mcporterConfig.mcpServers,
+          bundle.skillDirs,
+          paths.skillsDir,
+        ) ?? bundle.mcporterConfig.mcpServers,
+      }
+    : undefined
+
+  if (mcporterConfig) {
     const backupPath = await backupFile(paths.mcporterConfigPath)
     if (backupPath) {
       console.log(`Backed up existing MCPorter config to ${backupPath}`)
     }
-    await writeJson(paths.mcporterConfigPath, bundle.mcporterConfig)
+    await writeJson(paths.mcporterConfigPath, mcporterConfig)
   }
 
   await ensurePiAgentsBlock(paths.agentsPath)
