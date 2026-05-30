@@ -14,6 +14,7 @@ import {
   sanitizeManagedPluginName,
   writeManagedInstallManifest,
 } from "./managed-artifacts"
+import { rewriteOpenCodeMcpCommandPaths } from "./mcp-paths"
 
 async function mergeOpenCodeConfig(
   configPath: string,
@@ -85,7 +86,15 @@ export async function writeOpenCodeBundle(
   if (backupPath) {
     console.log(`Backed up existing config to ${backupPath}`)
   }
-  const merged = await mergeOpenCodeConfig(openCodePaths.configPath, bundle.config)
+  const incomingConfig: OpenCodeConfig = {
+    ...bundle.config,
+    mcp: rewriteOpenCodeMcpCommandPaths(
+      bundle.config.mcp,
+      bundle.skillDirs,
+      openCodePaths.skillsDir,
+    ),
+  }
+  const merged = await mergeOpenCodeConfig(openCodePaths.configPath, incomingConfig)
   await writeJson(openCodePaths.configPath, merged)
   if (hadExistingConfig) {
     console.log("Merged plugin config into existing opencode.json (user settings preserved)")

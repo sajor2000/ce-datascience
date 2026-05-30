@@ -6,6 +6,7 @@ import type { ClaudeMcpServer } from "../types/claude"
 import { transformContentForCodex } from "../utils/codex-content"
 import { getLegacyCodexArtifacts } from "../data/plugin-legacy-artifacts"
 import { classifyCodexLegacyPromptOwnership } from "../utils/legacy-cleanup"
+import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const MANAGED_START_MARKER = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
 const MANAGED_END_MARKER = "# END CE DataScience plugin MCP"
@@ -135,7 +136,9 @@ export async function writeCodexBundle(
 
   const configPath = path.join(codexRoot, "config.toml")
   const existingConfig = await readFileSafe(configPath)
-  const mcpToml = renderCodexConfig(bundle.mcpServers)
+  const mcpToml = renderCodexConfig(
+    rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, skillsRoot),
+  )
   const merged = mergeCodexConfig(existingConfig, mcpToml)
   if (merged !== null) {
     const backupPath = await backupFile(configPath)

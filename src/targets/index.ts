@@ -82,3 +82,12 @@ export const targets: Record<string, TargetHandler> = {
     write: writeKiroBundle as TargetHandler["write"],
   },
 }
+
+const nativePluginInstallTargets = new Set(["claude", "copilot", "droid", "qwen", "windsurf"])
+
+export function formatUnknownTargetError(targetName: string): string {
+  if (nativePluginInstallTargets.has(targetName)) {
+    return `Unknown target: ${targetName}. ${targetName} is a native plugin install target, not a generated converter target. Use that tool's native plugin or marketplace install flow instead.`
+  }
+  return `Unknown target: ${targetName}`
+}

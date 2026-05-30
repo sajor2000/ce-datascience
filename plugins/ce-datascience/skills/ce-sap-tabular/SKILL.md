@@ -102,7 +102,7 @@ A 3-10 row example of the wide-format (one row per patient or per hospitalizatio
 
 ### Step 4: Generate the workbook
 
-Run `scripts/generate-tabular-sap.py` with the 5 CSVs as inputs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (DIAGNOSTIC / TABLE / MODEL / FIGURE).
+Run `python3 scripts/generate-tabular-sap.py <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the 5 CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (DIAGNOSTIC / TABLE / MODEL / FIGURE).
 
 If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alone are a valid output.
 

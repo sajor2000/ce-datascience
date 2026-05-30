@@ -14,6 +14,7 @@ import {
   sanitizeManagedPluginName,
   writeManagedInstallManifest,
 } from "./managed-artifacts"
+import { rewriteMcpServerPaths } from "./mcp-paths"
 
 export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle): Promise<void> {
   const pluginName = bundle.pluginName ? sanitizeManagedPluginName(bundle.pluginName) : undefined
@@ -66,7 +67,8 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
     }
   }
 
-  if (bundle.mcpServers && Object.keys(bundle.mcpServers).length > 0) {
+  const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir)
+  if (mcpServers && Object.keys(mcpServers).length > 0) {
     const settingsPath = path.join(paths.geminiDir, "settings.json")
     const backupPath = await backupFile(settingsPath)
     if (backupPath) {
@@ -85,7 +87,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
     const existingMcp = (existingSettings.mcpServers && typeof existingSettings.mcpServers === "object")
       ? existingSettings.mcpServers as Record<string, unknown>
       : {}
-    const merged = { ...existingSettings, mcpServers: { ...existingMcp, ...bundle.mcpServers } }
+    const merged = { ...existingSettings, mcpServers: { ...existingMcp, ...mcpServers } }
     await writeJson(settingsPath, merged)
   }
 
