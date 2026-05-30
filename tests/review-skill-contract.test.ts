@@ -467,7 +467,7 @@ describe("ce-code-review contract", () => {
     ]
 
     for (const persona of personas) {
-      const content = await readRepoFile(`plugins/ce-datascience/agents/${persona}.agent.md`)
+      const content = await readRepoFile(`plugins/ce-datascience/agents/${persona}.md`)
 
       // Anchored language appears
       expect(content).toMatch(/Anchor (75|100)/)
@@ -503,19 +503,19 @@ describe("ce-code-review contract", () => {
   test("stack-specific reviewer agents follow the structured findings contract", async () => {
     const reviewers = [
       {
-        path: "plugins/ce-datascience/agents/ce-kieran-python-reviewer.agent.md",
+        path: "plugins/ce-datascience/agents/ce-kieran-python-reviewer.md",
         reviewer: "kieran-python",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-r-code-reviewer.agent.md",
+        path: "plugins/ce-datascience/agents/ce-r-code-reviewer.md",
         reviewer: "r-code",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-r-pipeline-reviewer.agent.md",
+        path: "plugins/ce-datascience/agents/ce-r-pipeline-reviewer.md",
         reviewer: "r-pipeline",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-python-ds-reviewer.agent.md",
+        path: "plugins/ce-datascience/agents/ce-python-ds-reviewer.md",
         reviewer: "python-ds",
       },
     ]
@@ -602,7 +602,7 @@ describe("ce-code-review contract", () => {
 
 describe("testing-reviewer contract", () => {
   test("includes behavioral-changes-with-no-test-additions check", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/agents/ce-testing-reviewer.agent.md")
+    const content = await readRepoFile("plugins/ce-datascience/agents/ce-testing-reviewer.md")
 
     // New check exists in "What you're hunting for" section
     expect(content).toContain("Behavioral changes with no test additions")

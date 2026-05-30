@@ -45,9 +45,28 @@ If `mode:headless` is not present, the skill runs in its default interactive mod
 
 ### Classify Document Type
 
-After reading, classify the document:
-- **requirements** -- from `docs/brainstorms/`, focuses on what to build and why
-- **plan** -- from `docs/plans/`, focuses on how to build it with implementation details
+Classify the document by reading its **content shape**, not its file path. Path is a tie-breaker hint, not the primary signal -- a brainstorm-style doc placed under `docs/plans/` should still classify as `requirements`, and a plan-shaped doc under `docs/brainstorms/` should still classify as `plan`.
+
+Use these signals to decide:
+
+**`requirements` signals (what-to-study or what-to-build documents):**
+- Frontmatter fields like `actors:`, `flows:`, `acceptance_examples:`, `topic:`, or study-design metadata
+- Section headings such as `Acceptance Examples`, `Actors`, `Key Flows`, `Study Population`, `Endpoints`, `Outstanding Questions`, `Resolve Before Planning`
+- Numbered identifiers in the form `R1`, `A1`, `F1`, `AE1`
+- Prose framing focused on research question, clinical/business problem, behavior, scope boundaries, success criteria, study design, or endpoints
+- No implementation units, no per-unit file lists, no test scenarios attached to units
+
+**`plan` signals (how-to-execute documents):**
+- Frontmatter fields like `type: feat|fix|refactor`, `status: active`, `origin: docs/brainstorms/...`, `sap_version:`, or `analysis_plan:`
+- Section headings such as `Implementation Units`, `Key Technical Decisions`, `Statistical Methods`, `Risks & Dependencies`, `System-Wide Impact`, `SAP Gap Check`
+- Numbered identifiers in the form `U1`, `U2` for implementation units, or SAP method identifiers
+- Per-unit fields named `Goal`, `Files`, `Approach`, `Test scenarios`, `Verification`
+- Repo-relative file paths to create, modify, analyze, or test
+- Prose framing focused on technical decisions, statistical methods, sequencing, and implementer/analyst-facing detail
+
+**Tie-breaker rule.** When the content signals are mixed or sparse, fall back to path: `docs/brainstorms/` -> `requirements`, `docs/plans/` -> `plan`. When neither path location applies, treat the dominant content shape as authoritative; if shape is genuinely ambiguous, default to `requirements` (the more conservative classification).
+
+Pass the classification result to each persona via the `{document_type}` slot in the subagent template. Extract the document's `origin:` frontmatter field once during this phase when present; pass it through `{origin_path}` as described below.
 
 ### Select Conditional Personas
 
@@ -86,11 +105,15 @@ Analyze the document content to determine which conditional personas to activate
 - Scope boundary language that seems misaligned with stated goals
 - Goals that don't clearly connect to requirements
 
-**adversarial** -- activate when the document contains:
-- More than 5 distinct requirements or implementation units
-- Explicit architectural or scope decisions with stated rationale
-- High-stakes domains (auth, payments, data migrations, external integrations)
-- Proposals of new abstractions, frameworks, or significant architectural patterns
+**adversarial** -- activate when the document contains a high-value challenge surface, not merely structural complexity. Routine plans with stated rationale are not by themselves an adversarial signal. Activate when ANY of the following holds:
+- The document is a **requirements document** with 2+ challengeable claims (problem framing, study design, solution selection, prioritization, predicted outcomes)
+- The document touches a **high-stakes domain** -- auth, payments, billing, data migrations, privacy/compliance, PHI, clinical decision support, external integrations, or regulated reporting
+- The document **proposes a new abstraction, framework, statistical methodology, or significant architectural pattern**
+- The document is a **plan with no `origin:` requirements doc** (greenfield bootstrap)
+- The document is a **plan that explicitly extends scope** beyond its origin requirements doc (new actors, flows, endpoints, outcomes, analyses, or deferred-then-restored features)
+- The document contains an **explicit alternatives section** or unresolved tradeoffs
+
+Do NOT activate adversarial on a routine plan document that derives from a validated origin requirements doc, stays within scope, and does not introduce high-stakes domains or new abstractions. The plan's structural decisions (more units, more rationale) are not by themselves adversarial signal -- those are the plan doing its job.
 
 ## Phase 2: Announce and Dispatch Personas
 
@@ -121,7 +144,9 @@ Add activated conditional personas:
 
 ### Dispatch
 
-Dispatch all agents in **parallel** using the platform's subagent primitive (e.g., `Agent` in Claude Code, `spawn_agent` in Codex, `subagent` in Pi via the `pi-subagents` extension). Omit the `mode` parameter so the user's configured permission settings apply. Each agent receives the prompt built from the subagent template included below with these variables filled:
+Dispatch agents using **bounded parallelism** with the platform's subagent primitive (e.g., `Agent` in Claude Code, `spawn_agent` in Codex, `subagent` in Pi via the `pi-subagents` extension). Omit the `mode` parameter so the user's configured permission settings apply. Respect the current harness's active-subagent limit: queue selected reviewers, dispatch only as many as the harness accepts, and fill freed slots as reviewers complete. Treat active-agent/thread/concurrency-limit spawn errors as backpressure, not reviewer failure.
+
+Each agent receives the prompt built from the subagent template included below with these variables filled:
 
 | Variable | Value |
 |----------|-------|
@@ -130,6 +155,7 @@ Dispatch all agents in **parallel** using the platform's subagent primitive (e.g
 | `{document_type}` | "requirements" or "plan" from Phase 1 classification |
 | `{document_path}` | Path to the document |
 | `{document_content}` | Full text of the document |
+| `{origin_path}` | Value of the document's `origin:` frontmatter field if present, or the literal string `none` if absent. Personas that adapt on origin read this slot instead of re-parsing frontmatter. |
 | `{decision_primer}` | Cumulative prior-round decisions in the current session, or an empty `<prior-decisions>` block on round 1. See "Decision primer" below. |
 
 Pass each agent the **full document** — do not split into sections.
@@ -173,7 +199,7 @@ Cross-session persistence is out of scope. A new invocation of ce-doc-review on 
 
 **Error handling:** If an agent fails or times out, proceed with findings from agents that completed. Note the failed agent in the Coverage section. Do not block the entire review on a single agent failure.
 
-**Dispatch limit:** Even at maximum (7 agents), use parallel dispatch. These are document reviewers with bounded scope reading a single document -- parallel is safe and fast.
+**Dispatch limit:** Even at maximum (7 agents), use bounded parallel dispatch. If the harness cap is lower than the selected team size, queue the remainder and launch them as active reviewers complete.
 
 ## Phases 3-5: Synthesis, Presentation, and Next Action
 

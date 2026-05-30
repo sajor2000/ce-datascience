@@ -44,6 +44,7 @@ Before committing ANY changes:
 - [ ] No manual release-version bump in `.codex-plugin/plugin.json`
 - [ ] No manual release-version bump in `.claude-plugin/marketplace.json`
 - [ ] No manual release entry added to the root `CHANGELOG.md`
+- [ ] `bunx tsc --noEmit` passes after TypeScript or converter changes
 - [ ] `bun run release:validate` passes (enforces Claude/Cursor/Codex manifest parity)
 - [ ] README.md component counts verified
 - [ ] README.md tables accurate (agents, commands, skills)
@@ -53,7 +54,7 @@ Before committing ANY changes:
 
 ```
 agents/
-└── ce-*.agent.md  # All agents live flat under agents/, prefixed with ce-
+└── ce-*.md        # All agents live flat under agents/, prefixed with ce-
 
 skills/
 ├── ce-*/          # Core workflow skills (ce-plan, ce-code-review, etc.)
@@ -228,7 +229,22 @@ grep -E '^description:' skills/*/SKILL.md
 ## Adding Components
 
 - **New skill:** Create `skills/<name>/SKILL.md` with required YAML frontmatter (`name`, `description`). Reference files go in `skills/<name>/references/`. Add the skill to the appropriate category table in `README.md` and update the skill count.
-- **New agent:** Create `agents/ce-<name>.agent.md` with frontmatter (the `ce-` prefix is required). Add the agent to the appropriate topical section of `README.md` (Review, Document Review, Research, Design, Workflow, Docs) and update the agent count.
+- **New agent:** Create `agents/ce-<name>.md` with frontmatter (the `ce-` prefix is required). Add the agent to the appropriate topical section of `README.md` (Review, Document Review, Research, Design, Workflow, Docs) and update the agent count.
+
+### Codex Target Changes
+
+Codex has two intentionally different install paths:
+
+- Default `install --to codex` is an agent bridge for Codex native plugin installs. It writes generated agents into the selected Codex root and respects `CODEX_HOME`.
+- `install --to codex --include-skills` is the full standalone path. It carries generated skills, MCP server config, and managed `.codex/hooks.json` entries.
+
+When changing Codex conversion or writing behavior, run `bunx tsc --noEmit` and the focused Codex tests:
+
+```bash
+bun test tests/codex-converter.test.ts tests/codex-writer.test.ts tests/cli.test.ts tests/resolve-output.test.ts
+```
+
+Managed hook writes must preserve manual hooks and other-plugin managed hooks. If an existing `.codex/hooks.json` cannot be parsed, back it up before replacing it.
 
 ### Adding a New Plugin to This Repo
 
@@ -253,4 +269,4 @@ The validator enforces: plugin-list parity across all three marketplaces, name/v
 
 ## Documentation
 
-See `docs/solutions/plugin-versioning-requirements.md` for detailed versioning workflow.
+See `docs/solutions/workflow/release-please-version-drift-recovery.md` for detailed versioning workflow.

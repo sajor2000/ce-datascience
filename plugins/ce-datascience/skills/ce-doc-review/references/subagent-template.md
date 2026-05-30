@@ -153,6 +153,7 @@ False-positive categories to actively suppress. Do NOT emit a finding when any o
 <review-context>
 Document type: {document_type}
 Document path: {document_path}
+Origin path: {origin_path}
 
 {decision_primer}
 

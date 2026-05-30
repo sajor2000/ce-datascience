@@ -25,8 +25,16 @@ export type CodexInstallManifest = {
   agents: string[]
 }
 
-export async function writeCodexBundle(outputRoot: string, bundle: CodexBundle): Promise<void> {
-  const codexRoot = resolveCodexRoot(outputRoot)
+export type CodexWriteOptions = {
+  outputIsCodexRoot?: boolean
+}
+
+export async function writeCodexBundle(
+  outputRoot: string,
+  bundle: CodexBundle,
+  options: CodexWriteOptions = {},
+): Promise<void> {
+  const codexRoot = resolveCodexRoot(outputRoot, options)
   await ensureDir(codexRoot)
 
   const pluginName = bundle.pluginName ? sanitizeCodexPathComponent(bundle.pluginName) : undefined
@@ -136,9 +144,38 @@ export async function writeCodexBundle(outputRoot: string, bundle: CodexBundle):
     }
     await writeTextSecure(configPath, merged)
   }
+
+  // Codex uses the same hooks shape as Claude Code. Keep plugin-owned hooks
+  // replaceable without clobbering manually authored hooks or other plugins.
+  if (pluginName) {
+    const hooksPath = path.join(codexRoot, "hooks.json")
+    const existingHooksRead = await readJsonSafe(hooksPath)
+    const existingHooks = existingHooksRead.value
+    const pluginHooks = bundle.hooks?.hooks ?? {}
+    const pluginHasHooks = Object.keys(pluginHooks).length > 0
+    if (existingHooksRead.exists && existingHooks === null && !pluginHasHooks) {
+      return
+    }
+    const mergedHooks = mergeCodexHooks(existingHooks, pluginHooks, pluginName)
+    const mergedContent = JSON.stringify(mergedHooks, null, 2) + "\n"
+    const existingContent = existingHooks !== null
+      ? JSON.stringify(existingHooks, null, 2) + "\n"
+      : null
+    const hasHooks = Object.keys((mergedHooks.hooks as Record<string, unknown>) ?? {}).length > 0
+    if ((hasHooks || existingHooksRead.exists) && mergedContent !== existingContent) {
+      if (existingHooksRead.exists) {
+        const backupPath = await backupFile(hooksPath)
+        if (backupPath) {
+          console.log(`Backed up existing hooks to ${backupPath}`)
+        }
+      }
+      await writeTextSecure(hooksPath, mergedContent)
+    }
+  }
 }
 
-function resolveCodexRoot(outputRoot: string): string {
+function resolveCodexRoot(outputRoot: string, options: CodexWriteOptions): string {
+  if (options.outputIsCodexRoot) return outputRoot
   return path.basename(outputRoot) === ".codex" ? outputRoot : path.join(outputRoot, ".codex")
 }
 
@@ -615,4 +652,94 @@ function formatTomlInlineTable(entries: Record<string, string>): string {
     ([key, value]) => `${formatTomlKey(key)} = ${formatTomlString(value)}`,
   )
   return `{ ${parts.join(", ")} }`
+}
+
+async function readJsonSafe(filePath: string): Promise<{ exists: boolean; value: Record<string, unknown> | null }> {
+  try {
+    const content = await fs.readFile(filePath, "utf8")
+    return { exists: true, value: JSON.parse(content) }
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+      console.warn(`Ignoring unreadable Codex hooks file at ${filePath}.`)
+      return { exists: true, value: null }
+    }
+    return { exists: false, value: null }
+  }
+}
+
+type HookEntry = {
+  matcher?: string
+  hooks: Array<{ type: string; command?: string; prompt?: string; agent?: string; timeout?: number }>
+}
+
+type ManagedIndex = Record<string, Record<string, number[]>>
+
+export function mergeCodexHooks(
+  existing: Record<string, unknown> | null,
+  pluginHooks: Record<string, HookEntry[]>,
+  pluginName: string,
+): Record<string, unknown> {
+  const result: Record<string, unknown[]> = {}
+  const managed: ManagedIndex = (existing?._managed as ManagedIndex) ?? {}
+  const rebuiltManaged: ManagedIndex = {}
+  const ownerByEventIndex = new Map<string, string[]>()
+
+  for (const [owner, events] of Object.entries(managed)) {
+    for (const [event, indices] of Object.entries(events)) {
+      for (const index of indices) {
+        const key = `${event}\0${index}`
+        const owners = ownerByEventIndex.get(key) ?? []
+        owners.push(owner)
+        ownerByEventIndex.set(key, owners)
+      }
+    }
+  }
+
+  const existingHooks = (existing?.hooks ?? {}) as Record<string, unknown[]>
+  for (const [event, matchers] of Object.entries(existingHooks)) {
+    if (!Array.isArray(matchers)) continue
+    for (let oldIndex = 0; oldIndex < matchers.length; oldIndex += 1) {
+      const matcher = matchers[oldIndex]
+      if (typeof matcher === "object" && matcher !== null && "_source" in matcher) {
+        if (matcher._source === pluginName) continue
+      }
+      const owners = (ownerByEventIndex.get(`${event}\0${oldIndex}`) ?? [])
+        .filter((owner) => owner !== pluginName)
+      if (owners.length === 0 && managed[pluginName]?.[event]?.includes(oldIndex)) continue
+
+      if (!result[event]) result[event] = []
+      const newIndex = result[event].length
+      result[event].push(matcher)
+      for (const owner of owners) {
+        rebuiltManaged[owner] ??= {}
+        rebuiltManaged[owner][event] ??= []
+        rebuiltManaged[owner][event].push(newIndex)
+      }
+    }
+  }
+
+  const newManagedForPlugin: Record<string, number[]> = {}
+  for (const [event, matchers] of Object.entries(pluginHooks)) {
+    if (!result[event]) result[event] = []
+    const indices: number[] = []
+    for (const matcher of matchers) {
+      indices.push(result[event].length)
+      result[event].push({ ...matcher })
+    }
+    if (indices.length > 0) {
+      newManagedForPlugin[event] = indices
+    }
+  }
+
+  for (const event of Object.keys(result)) {
+    if (result[event].length === 0) delete result[event]
+  }
+
+  if (Object.keys(newManagedForPlugin).length > 0) rebuiltManaged[pluginName] = newManagedForPlugin
+
+  const output: Record<string, unknown> = { hooks: result }
+  if (Object.keys(rebuiltManaged).length > 0) {
+    output._managed = rebuiltManaged
+  }
+  return output
 }

@@ -35,6 +35,23 @@ Read `stack_profile.blinding_state` from `.ce-datascience/config.local.yaml`. Wh
 
 **Conflicting mode flags:** If multiple mode tokens appear in arguments, stop and do not dispatch agents. If `mode:headless` is one of the conflicting tokens, emit the headless error envelope: `Review failed (headless mode). Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.` Otherwise emit the generic form: `Review failed. Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.`
 
+## Quick Review Short-Circuit
+
+If `$ARGUMENTS` indicates the user wants a quick, fast, or light code review, do not dispatch the multi-agent flow.
+
+**Announce the chosen path** before any other work (Quick review vs Multi-agent review).
+
+Programmatic callers (`mode:autofix`, `mode:report-only`, or `mode:headless`) skip this announcement and bypass the short-circuit -- the orchestrator owns user-facing messaging.
+
+Sequence:
+
+1. **Run the harness's built-in code review.** If `$ARGUMENTS` contained a review target (PR number, GitHub URL, or branch name) after stripping recognized tokens, forward that target to the built-in. If no target was provided, run the bare command and let the built-in default to the current branch.
+   - If you are Claude Code, run the `/review` tool, passing the target if present (for example, `/review 123`, `/review <PR-URL>`, `/review <branch>`); otherwise run bare `/review`.
+   - If you are Gemini, run a quick code review against the resolved target, or the current branch when none was provided.
+   - For all other coding harnesses, run the built-in code review tool when one exists, forwarding the target when its syntax accepts one.
+2. **Exemption -- no built-in code review exists.** If the current harness has no built-in code review command or skill, do not short-circuit. Continue into the full multi-agent review described in the rest of this skill.
+3. **Programmatic callers bypass this short-circuit.** Skill-to-skill callers that want a lightweight pass should invoke `/review` or the harness equivalent directly rather than route through this skill.
+
 ## Mode Detection
 
 | Mode | When | Behavior |
@@ -49,7 +66,7 @@ Read `stack_profile.blinding_state` from `.ce-datascience/config.local.yaml`. Wh
 - **Skip all user questions.** Never pause for approval or clarification once scope has been established.
 - **Apply only `safe_auto -> review-fixer` findings.** Leave `gated_auto`, `manual`, `human`, and `release` work unresolved.
 - **Write a run artifact** under `/tmp/ce-datascience/ce-code-review/<run-id>/` summarizing findings, applied fixes, residual actionable work, and advisory outputs. Orchestrators read this artifact to route residual `downstream-resolver` findings; the skill itself does not file tickets or prompt the user in autofix.
-- **Emit a compact Residual Actionable Work summary in the autofix return** listing each residual `downstream-resolver` finding with severity, file:line, title, and autofix_class. Include the run-artifact path. Callers read this summary directly without parsing the artifact. When no residuals exist, state `Residual actionable work: none.` explicitly.
+- **Emit a compact Residual Actionable Work summary in the autofix return** listing each residual `downstream-resolver` finding with its stable `#`, severity, file:line, title, and autofix_class. Structure the summary as two separate contiguous sections: applied `safe_auto` fixes first, then residual non-auto findings. Within the residual section, reuse each finding's stable `#` from Stage 5 -- never renumber. Include the run-artifact path. Callers read this summary directly without parsing the artifact. When no residuals exist, state `Residual actionable work: none.` explicitly.
 - **Never commit, push, or create a PR** from autofix mode. Parent workflows own those decisions.
 
 ### Report-only mode rules

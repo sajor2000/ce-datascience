@@ -12,6 +12,20 @@ origin: docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md
 
 Fork the compound-engineering plugin to create `ce-datascience`, a compound engineering harness for computational scientists working in R, Python, or both. The fork replaces the software-engineering domain layer (Rails/TypeScript/Swift reviewers, frontend design, API contract review) with data science equivalents (statistical review, SAP management, reporting checklist compliance) while preserving the compound loop architecture, cross-platform distribution, and knowledge accumulation system.
 
+## Status Update - May 2026
+
+This plan is a historical implementation plan. The current plugin has since been synced selectively with upstream compound-engineering `v3.9.3` while preserving the health data science product boundary.
+
+Current source and inventory state:
+
+- Source agents now live as `plugins/ce-datascience/agents/ce-*.md`. The parser still supports legacy `*.agent.md` files for compatibility, but new and renamed source agents should use `*.md`.
+- Public inventory is 55 agents, 42 skills, 35 reporting checklists, and 1 MCP server.
+- `ce-release-notes` and `ce-report-bug` are now intentionally included as public support skills.
+- `ce-resolve-pr-feedback`, `ce-optimize`, and `ce-verify` are part of the curated health data science workflow.
+- Codex installation now supports `$CODEX_HOME`, agents-only bridge installs, standalone `--include-skills` installs, and managed `.codex/hooks.json` merging.
+
+Older implementation bullets below that mention deleting those support skills, using `*.agent.md` as the source convention, or targeting 37/40 skills should be read as superseded by this status update.
+
 ---
 
 ## Problem Frame
@@ -91,7 +105,7 @@ Carried from origin — positioning rejection:
 
 ### Relevant Code and Patterns
 
-- **Plugin architecture**: 100% Markdown + scripts. Skills are self-contained directories (`SKILL.md` + `references/` + `scripts/`). Agents are flat `.agent.md` files under `agents/`. No cross-skill references allowed (converter portability).
+- **Plugin architecture**: 100% Markdown + scripts. Skills are self-contained directories (`SKILL.md` + `references/` + `scripts/`). Agents are flat `ce-*.md` files under `agents/` (legacy `*.agent.md` parsing remains supported). No cross-skill references allowed (converter portability).
 - **Compound loop**: `ce-ideate` -> `ce-brainstorm` -> `ce-plan` -> `ce-work` -> `ce-code-review` -> `ce-compound`, with `ce-learnings-researcher` closing the feedback loop.
 - **Review dispatch**: `ce-code-review` uses 6 always-on + up to 12 conditional reviewers. Structured JSON findings with 5-anchor confidence scale, autofix classification, and synthesis pipeline.
 - **Config system**: `.compound-engineering/config.local.yaml` at repo root, read via pre-resolution `!` backtick commands with worktree fallback.
@@ -168,14 +182,14 @@ plugins/ce-datascience/
 ├── .codex-plugin/
 │   └── plugin.json
 ├── agents/
-│   ├── ce-*.agent.md                    # Retained universal agents (26)
-│   ├── ce-methods-reviewer.agent.md     # NEW: statistical methods appropriateness
-│   ├── ce-multiplicity-reviewer.agent.md # NEW: multiple comparisons, bias
-│   ├── ce-reproducibility-reviewer.agent.md # NEW: seeds, versions, paths, provenance
-│   ├── ce-reporting-checklist-reviewer.agent.md # NEW: STROBE/CONSORT compliance
-│   ├── ce-sap-drift-detector.agent.md   # NEW: SAP-code synchronization
-│   ├── ce-r-code-reviewer.agent.md      # NEW: R code quality
-│   └── ce-python-ds-reviewer.agent.md   # NEW: Python data science quality
+│   ├── ce-*.md                          # Retained universal agents (26)
+│   ├── ce-methods-reviewer.md           # NEW: statistical methods appropriateness
+│   ├── ce-multiplicity-reviewer.md      # NEW: multiple comparisons, bias
+│   ├── ce-reproducibility-reviewer.md   # NEW: seeds, versions, paths, provenance
+│   ├── ce-reporting-checklist-reviewer.md # NEW: STROBE/CONSORT compliance
+│   ├── ce-sap-drift-detector.md         # NEW: SAP-code synchronization
+│   ├── ce-r-code-reviewer.md            # NEW: R code quality
+│   └── ce-python-ds-reviewer.md         # NEW: Python data science quality
 ├── skills/
 │   ├── ce-brainstorm/                   # MODIFIED: PICO/PECO probes, study design terminology
 │   ├── ce-plan/                         # MODIFIED: SAP mode + implementation mode
@@ -305,7 +319,8 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 
 **Files:**
 - Delete (agents): `ce-ankane-readme-writer`, `ce-dhh-rails-reviewer`, `ce-julik-frontend-races-reviewer`, `ce-kieran-rails-reviewer`, `ce-kieran-typescript-reviewer`, `ce-swift-ios-reviewer`, `ce-figma-design-sync`, `ce-design-implementation-reviewer`, `ce-schema-drift-detector`
-- Delete (skills): `ce-dhh-rails-style/`, `ce-frontend-design/`, `ce-test-browser/`, `ce-test-xcode/`, `ce-polish-beta/`, `ce-agent-native-architecture/`, `ce-agent-native-audit/`, `ce-demo-reel/`, `ce-gemini-imagegen/`, `ce-release-notes/`, `ce-report-bug/`, `ce-resolve-pr-feedback/`, `ce-session-extract/`, `ce-session-inventory/`, `ce-slack-research/`, `ce-optimize/`, `ce-proof/`, `ce-work-beta/`, `lfg/`
+- Delete or defer software/product-specific skills: `ce-dhh-rails-style/`, `ce-frontend-design/`, `ce-test-browser/`, `ce-test-xcode/`, `ce-polish-beta/`, `ce-agent-native-architecture/`, `ce-agent-native-audit/`, `ce-demo-reel/`, `ce-gemini-imagegen/`, `ce-slack-research/`, `ce-proof/`, `ce-work-beta/`, `lfg/`
+- Superseded by May 2026 upstream sync: `ce-release-notes/`, `ce-report-bug/`, `ce-resolve-pr-feedback/`, and `ce-optimize/` are now intentionally included in the curated public surface.
 - Delete (agents, modify-track not needed in v1): `ce-data-integrity-guardian`, `ce-data-migration-expert`, `ce-data-migrations-reviewer`, `ce-deployment-verification-agent`, `ce-api-contract-reviewer`, `ce-cli-agent-readiness-reviewer`, `ce-cli-readiness-reviewer`, `ce-agent-native-reviewer`, `ce-design-iterator`
 - Modify: `plugins/ce-datascience/.claude-plugin/plugin.json` (rename, description)
 - Modify: `plugins/ce-datascience/.cursor-plugin/plugin.json` (rename, description)
@@ -517,9 +532,9 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 **Dependencies:** U1
 
 **Files:**
-- Create: `plugins/ce-datascience/agents/ce-methods-reviewer.agent.md`
-- Create: `plugins/ce-datascience/agents/ce-multiplicity-reviewer.agent.md`
-- Create: `plugins/ce-datascience/agents/ce-reproducibility-reviewer.agent.md`
+- Create: `plugins/ce-datascience/agents/ce-methods-reviewer.md`
+- Create: `plugins/ce-datascience/agents/ce-multiplicity-reviewer.md`
+- Create: `plugins/ce-datascience/agents/ce-reproducibility-reviewer.md`
 
 **Approach:**
 - **ce-methods-reviewer**: Reviews statistical test selection against data structure. Checks: correct test for outcome type (binary -> logistic regression, continuous -> linear regression, time-to-event -> Cox), assumption verification (normality, homoscedasticity, independence), handling of clustering/correlation (mixed models for nested data, GEE for repeated measures), appropriate handling of confounders. Confidence threshold >= 50 (no automated backstop).
@@ -529,7 +544,7 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 - Model tier: `ce-methods-reviewer` inherits session model (highest-stakes analysis); others use mid-tier.
 
 **Patterns to follow:**
-- Existing agent `.agent.md` format with YAML frontmatter
+- Current agent `ce-*.md` source format with YAML frontmatter; legacy `.agent.md` parsing remains supported
 - `ce-correctness-reviewer` as structural template (always-on, returns findings JSON)
 - Confidence-anchored scoring pattern from `docs/solutions/skill-design/confidence-anchored-scoring-2026-04-21.md`
 
@@ -556,10 +571,10 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 **Dependencies:** U3 (SAP template)
 
 **Files:**
-- Create: `plugins/ce-datascience/agents/ce-reporting-checklist-reviewer.agent.md`
+- Create: `plugins/ce-datascience/agents/ce-reporting-checklist-reviewer.md`
 - Create: `plugins/ce-datascience/skills/ce-code-review/references/strobe-checklist.md`
 - Create: `plugins/ce-datascience/skills/ce-code-review/references/consort-checklist.md`
-- Create: `plugins/ce-datascience/agents/ce-sap-drift-detector.agent.md`
+- Create: `plugins/ce-datascience/agents/ce-sap-drift-detector.md`
 
 **Approach:**
 - **ce-reporting-checklist-reviewer**: Opt-in (off by default, enabled in config). When enabled, checks analysis code and outputs against the relevant guideline:
@@ -603,8 +618,8 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 **Dependencies:** U1, U6, U7
 
 **Files:**
-- Create: `plugins/ce-datascience/agents/ce-r-code-reviewer.agent.md`
-- Create: `plugins/ce-datascience/agents/ce-python-ds-reviewer.agent.md`
+- Create: `plugins/ce-datascience/agents/ce-r-code-reviewer.md`
+- Create: `plugins/ce-datascience/agents/ce-python-ds-reviewer.md`
 - Modify: `plugins/ce-datascience/skills/ce-code-review/SKILL.md`
 - Modify: `plugins/ce-datascience/skills/ce-code-review/references/` (update conditional dispatch table)
 
@@ -778,7 +793,7 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 ## Sources & References
 
 - **Origin document:** [docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md](docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md)
-- File-level audit: 170+ files classified across 53 agents, 37 skills, infrastructure
+- Historical file-level audit: 170+ files classified across 53 agents, 37 skills, infrastructure. Current public inventory is 55 agents and 42 skills after the May 2026 upstream sync.
 - Institutional learnings: pipeline separation, confidence-anchored scoring, beta skills framework, self-containment rule
 - STROBE Statement: https://www.strobe-statement.org
 - CONSORT Statement: https://www.consort-statement.org
