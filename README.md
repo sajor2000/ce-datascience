@@ -122,6 +122,17 @@ Shows every step for your project type and tells you what to do next.
 /ce-code-review
 ```
 
+### Maintain the plugin professionally
+
+```
+/ce-sessions
+/ce-resolve-pr-feedback
+/ce-release-notes
+/ce-report-bug
+```
+
+These workflow utilities are adapted from the original compound-engineering plugin so the public plugin can support release questions, bug reports, cross-session debugging, and statistical-methodology PR feedback without pulling in unrelated Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, or agent-native workflows.
+
 ---
 
 ## Works with your stack
@@ -141,6 +152,18 @@ Shows every step for your project type and tells you what to do next.
 | **Admin claims** | Medicare/Medicaid/MarketScan in code | Enrollment gaps, NDC-to-RxNorm, claims reviewer |
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |
+
+## Upstream CE features now included
+
+This fork tracks useful infrastructure and workflow improvements from the original [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) plugin while keeping the product scoped to health data science.
+
+| Area | What changed for data scientists |
+|---|---|
+| Planning and brainstorming | `/ce-plan` keeps SAP/implementation dual mode and now supports upstream output modes, HTML/Markdown rendering references, format-preserving resume, stronger synthesis, external-research routing, and conceptual-diagram affordances. `/ce-brainstorm` keeps study-design framing while adding grouped requirements, output-mode handling, and visual communication behavior. |
+| PR and review workflow | `/ce-resolve-pr-feedback` carries upstream GraphQL pagination and split-reference handling, then restores statistical methodology and SAP-aware response language. `/ce-code-review`, `/ce-doc-review`, `/ce-commit`, and `/ce-commit-push-pr` include shared workflow fixes where they improve review, commit, and PR hygiene. |
+| Session history | `/ce-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
+| Distribution and installation | The converter supports current `ce-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
+| Public support | `/ce-release-notes` and `/ce-report-bug` are included as curated support skills for a professional public plugin surface. |
 
 ## Reviews against 35 checklists
 
