@@ -17,7 +17,7 @@ CE-DataScience forks the proven CE infrastructure and replaces the software-engi
 
 These requirements established the product boundary. The current implementation remains a curated health data science plugin and now includes the selective upstream `v3.9.3` compatibility sync:
 
-- Current public inventory: 55 agents, 42 skills, 35 reporting checklists, and 1 MCP server.
+- Current public inventory: 55 agents, 48 skills, 35 reporting checklists, and 1 MCP server.
 - Source agents use `plugins/ce-datascience/agents/ce-*.md`; legacy `*.agent.md` parsing remains supported for compatibility.
 - Codex support includes `$CODEX_HOME`, native-plugin-plus-agent-bridge installs, standalone `--include-skills` installs, and managed `.codex/hooks.json` merging.
 - Public support skills `ce-release-notes` and `ce-report-bug` are intentionally included because they improve the professional distribution surface without changing the health data science scope.

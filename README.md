@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-42 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+48 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -11,6 +11,9 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 ---
 
 ## Get started in 5 minutes
+
+For a complete copy-paste setup guide across every supported platform, see
+[docs/setup.md](docs/setup.md).
 
 ### 1. Install Bun
 
@@ -21,21 +24,22 @@ curl -fsSL https://bun.sh/install | bash
 ### 2. Clone and install
 
 ```bash
-git clone https://github.com/sajor2000/ce-datascience.git
-cd ce-datascience
+export CE_DS_REPO="$HOME/ce-datascience"
+git clone https://github.com/sajor2000/ce-datascience.git "$CE_DS_REPO"
+cd "$CE_DS_REPO"
 bun install
 ```
 
-### 3. Launch
+### 3. Launch Claude Code
 
 ```bash
-claude --plugin-dir ~/ce-datascience/plugins/ce-datascience
+claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"
 ```
 
 **Pro tip** — save yourself typing forever:
 
 ```bash
-echo 'alias claude-ds="claude --plugin-dir ~/ce-datascience/plugins/ce-datascience"' >> ~/.zshrc
+printf "\nalias claude-ds='claude --plugin-dir %s/plugins/ce-datascience'\n" "$CE_DS_REPO" >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -181,16 +185,20 @@ This fork tracks useful infrastructure and workflow improvements from the origin
 
 ## Also works with Codex, Pi, Gemini, and more
 
-| Platform | Install command (run from `~/ce-datascience`) |
+Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
+`./plugins/ce-datascience` with the leading `./` for local installs.
+
+| Platform | Easiest command |
 |---|---|
-| Claude Code | `claude --plugin-dir ~/ce-datascience/plugins/ce-datascience` |
-| Codex agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex` |
-| Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi` |
-| Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini` |
-| OpenCode | `bun run src/index.ts install ./plugins/ce-datascience --to opencode` |
-| Kiro | `bun run src/index.ts install ./plugins/ce-datascience --to kiro` |
+| Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` |
+| Codex native + agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"` |
+| Codex standalone | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` |
+| Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"` |
+| Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path/to/gemini-workspace` |
+| OpenCode | `bun run src/index.ts install ./plugins/ce-datascience --to opencode --output /path/to/workspace` |
+| Kiro | `bun run src/index.ts install ./plugins/ce-datascience --to kiro --output /path/to/kiro-workspace` |
 | Qwen Code | `qwen extensions install sajor2000/ce-datascience:ce-datascience` |
-| All at once | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
+| All generated targets | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
 
 Pi also needs `pi install npm:pi-subagents` first.
 Qwen Code uses its native extension installer; it is not a generated `--to qwen` converter target. `--to all` only writes generated targets detected on the machine and skips native-only plugin ecosystems.
@@ -198,21 +206,24 @@ Qwen Code uses its native extension installer; it is not a generated `--to qwen`
 For a non-default Codex profile, point both Codex and the installer at the same root:
 
 ```bash
-CODEX_HOME="$HOME/.codex/profiles/research" codex plugin marketplace add "$PWD"
-CODEX_HOME="$HOME/.codex/profiles/research" bun run src/index.ts install ./plugins/ce-datascience --to codex
-CODEX_HOME="$HOME/.codex/profiles/research" codex
+export CODEX_HOME="$HOME/.codex/profiles/research"
+codex plugin marketplace add "$CE_DS_REPO"
+cd "$CE_DS_REPO"
+bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"
+CODEX_HOME="$CODEX_HOME" codex
 ```
 
 Inside Codex, run `/plugins`, select this local marketplace, install `ce-datascience`, then restart. Codex's native plugin install provides the skills; the Bun command above adds generated agents until Codex supports plugin-defined agents natively.
 
 Codex installs have two supported modes:
 
-- **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex` to add generated agents to the same `CODEX_HOME`.
-- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --include-skills` when native plugin install is unavailable. This writes generated skills, MCP config, and managed `.codex/hooks.json` entries.
+- **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex --codex-home "$CODEX_HOME"` to add generated agents to the same profile.
+- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills, MCP config, and managed `.codex/hooks.json` entries.
 
 Managed Codex hooks are tagged with plugin metadata so upgrades can replace this plugin's hook entries without deleting manual hooks or hooks owned by another plugin. If an existing `hooks.json` is malformed, the installer backs it up before writing a managed replacement.
 
 See [Codex profile and hook installation](docs/solutions/integrations/codex-profile-and-hook-installation.md) for the profile, standalone, and recovery details.
+See [the setup guide](docs/setup.md) for exact Claude, Codex, OpenCode, Gemini, Kiro, Pi, and Qwen walkthroughs.
 
 ---
 
@@ -246,7 +257,7 @@ Then restart your coding agent.
 
 | | Count |
 |---|---|
-| Skills | 42 |
+| Skills | 48 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

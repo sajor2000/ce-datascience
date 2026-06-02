@@ -26,22 +26,26 @@ Native Codex plugin installation is the preferred skills path. The generated Cod
 
 `install --to codex` resolves the Codex root with this priority:
 
-1. Explicit `--output` path.
+1. Explicit `--codex-home` path.
 2. `$CODEX_HOME` when set.
 3. `~/.codex`.
 
 Default generated Codex installs write agents only. Use the same `CODEX_HOME` for Codex itself and for the installer:
 
 ```bash
-CODEX_HOME="$HOME/.codex/profiles/research" codex plugin marketplace add "$PWD"
-CODEX_HOME="$HOME/.codex/profiles/research" bun run src/index.ts install ./plugins/ce-datascience --to codex
-CODEX_HOME="$HOME/.codex/profiles/research" codex
+export CE_DS_REPO="$HOME/ce-datascience"
+export CODEX_HOME="$HOME/.codex/profiles/research"
+
+codex plugin marketplace add "$CE_DS_REPO"
+cd "$CE_DS_REPO"
+bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"
+CODEX_HOME="$CODEX_HOME" codex
 ```
 
 Full standalone installs are available when native plugin installation is not an option:
 
 ```bash
-bun run src/index.ts install ./plugins/ce-datascience --to codex --include-skills
+bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills
 ```
 
 Standalone mode carries generated skills, MCP server config, and managed `.codex/hooks.json` entries.

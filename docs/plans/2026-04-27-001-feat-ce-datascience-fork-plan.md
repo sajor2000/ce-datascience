@@ -19,7 +19,7 @@ This plan is a historical implementation plan. The current plugin has since been
 Current source and inventory state:
 
 - Source agents now live as `plugins/ce-datascience/agents/ce-*.md`. The parser still supports legacy `*.agent.md` files for compatibility, but new and renamed source agents should use `*.md`.
-- Public inventory is 55 agents, 42 skills, 35 reporting checklists, and 1 MCP server.
+- Public inventory is 55 agents, 48 skills, 35 reporting checklists, and 1 MCP server.
 - `ce-release-notes` and `ce-report-bug` are now intentionally included as public support skills.
 - `ce-resolve-pr-feedback`, `ce-optimize`, and `ce-verify` are part of the curated health data science workflow.
 - Codex installation now supports `$CODEX_HOME`, agents-only bridge installs, standalone `--include-skills` installs, and managed `.codex/hooks.json` merging.
@@ -802,7 +802,7 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 ## Sources & References
 
 - **Origin document:** [docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md](docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md)
-- Historical file-level audit: 170+ files classified across 53 agents, 37 skills, infrastructure. Current public inventory is 55 agents and 42 skills after the May 2026 upstream sync.
+- Historical file-level audit: 170+ files classified across 53 agents, 37 skills, infrastructure. Current public inventory is 55 agents and 48 skills after the May 2026 upstream sync and publication workflow additions.
 - Institutional learnings: pipeline separation, confidence-anchored scoring, beta skills framework, self-containment rule
 - STROBE Statement: https://www.strobe-statement.org
 - CONSORT Statement: https://www.consort-statement.org
