@@ -73,6 +73,8 @@ Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extr
 5. **Findings table**: bucket × check × variable × details
 6. **Sign-off block**: empty, for PI to fill if `warn` bucket non-empty
 
+If any `warn` finding requires PI approval, add the report path and finding summary to the project signoff ledger used by `/ce-review-pack`. Data-QA approval must remain separate from the data lock; the ledger records human acceptance of warnings, not permission to mutate locked data.
+
 ### Step 5: Emit GO/NO-GO and update data state
 
 Always emit a unified handoff signal that `/ce-plan` SAP mode reads (and a legacy GO/NO-GO line for backward compatibility):

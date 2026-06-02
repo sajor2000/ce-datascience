@@ -92,6 +92,8 @@ Each check runs independently. Skip checks that don't apply to the current analy
 
 **How to check:** Read each figure file (PNG, PDF, SVG) and visually inspect. For Matplotlib/ggplot2 source code, check font size parameters.
 
+If `analysis/publication/figures/figure-manifest.json` exists, validate it with `/ce-figure` before marking figures manuscript-ready. The manifest must link each figure to source data, source code, caption, alt text, SAP section, and style profile.
+
 **When to skip:** No figure files found in output or analysis directories.
 
 ## 7. Reproducibility Check

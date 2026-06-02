@@ -182,4 +182,81 @@ print(json.dumps({
     expect(result.result).toContain("does not exist")
     expect(result.result).toContain("CE_DATASCIENCE_PROJECT_ROOT")
   })
+
+  test("writes a publication readiness report under the user project root", async () => {
+    const projectRoot = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "ce-mcp-publication-")))
+    await fs.mkdir(path.join(projectRoot, ".git"))
+    await fs.mkdir(path.join(projectRoot, "analysis", "publication", "tables"), { recursive: true })
+    await fs.mkdir(path.join(projectRoot, "analysis", "publication", "figures"), { recursive: true })
+    await fs.mkdir(path.join(projectRoot, "analysis", "publication", "package"), { recursive: true })
+    await fs.mkdir(path.join(projectRoot, "analysis", "signoff"), { recursive: true })
+    await fs.writeFile(
+      path.join(projectRoot, "analysis", "publication", "tables", "table1-spec.json"),
+      JSON.stringify({ artifact_type: "table1", rows: [{ variable: "age" }] }),
+    )
+    await fs.writeFile(
+      path.join(projectRoot, "analysis", "publication", "figures", "figure-manifest.json"),
+      JSON.stringify({ figures: [{ figure_id: "fig1" }] }),
+    )
+    await fs.writeFile(
+      path.join(projectRoot, "analysis", "publication", "package", "package-manifest.json"),
+      JSON.stringify({ package_id: "pkg1", readiness: "ready-with-review" }),
+    )
+    await fs.writeFile(
+      path.join(projectRoot, "analysis", "signoff", "signoff-ledger.json"),
+      JSON.stringify({
+        ledger_id: "ledger1",
+        study_id: "study1",
+        entries: [{
+          entry_id: "e1",
+          reviewer: "pi",
+          artifact: "package",
+          decision: "approved",
+          timestamp: "2026-05-30T00:00:00",
+        }],
+      }),
+    )
+
+    const script = String.raw`
+import importlib.util
+import json
+import pathlib
+import sys
+import types
+
+run_py = pathlib.Path(sys.argv[1])
+project_root = pathlib.Path(sys.argv[2])
+
+class FakeMCP:
+    def __init__(self, *args, **kwargs):
+        pass
+    def tool(self, *args, **kwargs):
+        def decorate(fn):
+            return fn
+        return decorate
+    def run(self, *args, **kwargs):
+        pass
+
+sys.modules["fastmcp"] = types.SimpleNamespace(FastMCP=FakeMCP)
+
+spec = importlib.util.spec_from_file_location("ce_mcp_run", run_py)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+print(json.dumps({
+    "result": module.publication_readiness_check(project_root=str(project_root))
+}))
+`
+
+    const stdout = await runPythonHarness(script, [projectRoot])
+    const result = JSON.parse(stdout) as { result: string }
+    const reportPath = path.join(projectRoot, ".ce-datascience", "publication-readiness-report.md")
+    const report = await fs.readFile(reportPath, "utf8")
+
+    expect(result.result).toContain("__CE_PUBLICATION_READINESS__ result=READY-WITH-REVIEW")
+    expect(report).toContain("Table 1 rows: 1")
+    expect(report).toContain("Figures: 1")
+    expect(report).toContain("Signoff entries: 1")
+    expect(await exists(path.join(pluginRoot, ".ce-datascience", "publication-readiness-report.md"))).toBe(false)
+  })
 })

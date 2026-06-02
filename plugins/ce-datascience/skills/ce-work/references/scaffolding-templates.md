@@ -184,6 +184,7 @@ For stacks not matching either golden path, adapt the scaffolding pragmatically:
 | Python + polars | Use `polars.read_csv()`, polars expression syntax. Keep `statsmodels` for inference |
 | Python + marimo | Scaffold as `.py` with `import marimo as mo` and `mo.md()` for markdown cells |
 | Julia | Best-effort: `.jl` files with `using DataFrames, GLM` patterns |
+| SAS/Stata | Assessment-only: run `/ce-sas-stata-assess`; do not scaffold new SAS/Stata projects until stable local patterns and human equivalence checks exist |
 
 When uncertain about the stack, match the patterns visible in the existing codebase rather than imposing a golden path.
 

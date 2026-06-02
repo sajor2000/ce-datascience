@@ -1,6 +1,6 @@
 # clifpy Recipes (Python)
 
-Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`. **Always prefer clifpy** (`pip install clifpy`) over hand-rolled Parquet IO — it provides automatic schema validation, mCIDE-aware unit conversion, encounter stitching, and clinical calculators (SOFA scores, etc.) tested against the consortium reference data.
+Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/` and the official clifpy docs. **Always prefer clifpy** (`pip install clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-05-30: clifpy is the official Python client; PyPI lists current release **0.4.9** with Python >=3.9 support.
 
 ## Table of contents
 
@@ -21,7 +21,7 @@ Canonical Python patterns for working with CLIF data, drawn directly from `Commo
 Source: clifpy README + `examples/00_basic_usage.py`.
 
 ```python
-# pip install clifpy
+# python3 -m pip install clifpy
 from clifpy import ClifOrchestrator
 
 orchestrator = ClifOrchestrator(
@@ -29,7 +29,7 @@ orchestrator = ClifOrchestrator(
     timezone='US/Eastern',
 )
 
-# Validate every table against the CLIF schema (mCIDE-aware).
+# Validate every table against the CLIF schema when the project exposes that method.
 orchestrator.validate_all()
 
 # Access individual tables (each is a thin wrapper around a polars / pandas frame).

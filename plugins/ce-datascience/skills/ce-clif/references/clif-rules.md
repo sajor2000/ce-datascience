@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's `WORKFLOW.md`, the data dictionary at `https://clif-consortium.github.io/website/data-dictionary.html`, and the project's `CLIF_CLAUDE.md`. Pinned default: data dictionary **v2.1.1** (latest stable release, January 2026). Tag `v2.2.0` is obsolete (replaced by v3.0.0). Tag `v3.0.0` is a pre-release (March 2026, multimodal extension); opt in explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's official site, GitHub organization, CLIF `WORKFLOW.md`, clifpy docs, and CLIF-Project-Template. Pinned default: data dictionary **v2.1.0** (current CLIF 2.x implementation family; last verified 2026-05-30). CLIF v3.0 is a concept/multimodal extension and must be opted into explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -28,7 +28,7 @@ These rules apply whenever `__CE_CLIF__ active=true` is present in chat context.
 - When a source value cannot be mapped, write `Other` (where the vocab includes it) and preserve the raw value in the corresponding `*_name` column.
 - Validate before writing: `assert df["location_category"].is_in(ALLOWED_LOCATION_CATEGORIES).all()`.
 
-## 5. Project layout (from `clif-consortium/project-template`)
+## 5. Project layout (from `CLIF-Project-Template`)
 
 ```
 project/
@@ -159,10 +159,11 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 
 ## 12. References (read-only, cite as needed)
 
-- CLIF data dictionary v2.1.1 (latest release): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/releases/tag/v2.1.1
+- CLIF official site and data dictionary: https://clif-icu.com/
+- CLIF data dictionary v2.1.0: https://clif-icu.com/data-dictionary/data-dictionary-2.1.0
 - CLIF GitHub (main): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF
 - CLIF WORKFLOW.md: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/blob/main/WORKFLOW.md
-- mCIDE directory @ v2.1.1: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/v2.1.1/mCIDE
+- mCIDE directory: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/main/mCIDE
 - **clifpy** (official Python client, PyPI: `pip install clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
 - **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC

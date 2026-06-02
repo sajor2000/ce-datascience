@@ -1,0 +1,16 @@
+version: 1
+required_fields:
+  - ledger_id
+  - study_id
+  - entries
+entry_required_fields:
+  - entry_id
+  - reviewer
+  - artifact
+  - decision
+  - timestamp
+allowed_decisions:
+  - approved
+  - approved-with-conditions
+  - changes-requested
+  - rejected

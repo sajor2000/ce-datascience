@@ -116,6 +116,7 @@ Add to `cline_mcp_settings.json`:
 | `sap_create` | Generate a Statistical Analysis Plan from study metadata using the SAP template with stable SAP-N.M identifiers. |
 | `sap_drift_check` | Detect structural and semantic drift between a SAP and the current analysis code. |
 | `reporting_compliance_check` | Run study-type-aware reporting guideline compliance check against the 35 supported reporting guidelines. |
+| `publication_readiness_check` | Summarize Table 1, figure manifest, manuscript package, registry package, and signoff readiness into a project-local report. |
 | `compound_learning` | Read/write institutional knowledge entries in `docs/solutions/` with data-science problem_type categorization. |
 | `data_wave_register` | Register a data extract in project-local `.ce-datascience/data-state.yaml`. |
 | `data_lock` | Seal a registered data wave after QA passes. |
@@ -202,6 +203,23 @@ Add to `cline_mcp_settings.json`:
 ```
 
 **Output:** Compliance checklist with applicable guideline items.
+
+### publication_readiness_check
+
+**Input:**
+```json
+{
+  "table1_spec": "analysis/publication/tables/table1-spec.json",
+  "figure_manifest": "analysis/publication/figures/figure-manifest.json",
+  "package_manifest": "analysis/publication/package/package-manifest.json",
+  "signoff_ledger": "analysis/signoff/signoff-ledger.json",
+  "registry_package_dir": "analysis/prereg/clinicaltrials-2026-05-30",
+  "report_path": ".ce-datascience/publication-readiness-report.md",
+  "project_root": "/absolute/path/to/your/project"
+}
+```
+
+**Output:** `__CE_PUBLICATION_READINESS__` signal plus a markdown report path.
 
 ### compound_learning
 

@@ -1,6 +1,6 @@
-# mCIDE Allow-Listed Vocabularies (v2.1.1)
+# mCIDE Allow-Listed Vocabularies (CLIF 2.1.0 Family)
 
-The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. **Pinned source**: `https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/v2.1.1/mCIDE` (latest tagged release, January 2026). The values below mirror that ref as cached in `CLIF_CLAUDE.md`. The upstream `2_2_0_WIP/` and tag `v3.0.0` directories add `ecmo_mcs/` and `output/` — see § "Coming in v2.2.0" at the bottom. When in doubt, fetch the latest mCIDE CSV at `?ref=v2.1.1` for the table in question and reconcile.
+The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. **Pinned source**: the official CLIF data dictionary v2.1.0 and the `mCIDE/` directory in `Common-Longitudinal-ICU-data-Format/CLIF` (last verified 2026-05-30). The values below are a portability cache, not the source of truth. When in doubt, fetch the live mCIDE CSV for the table in question and reconcile before blocking a user.
 
 ## Table of contents
 
@@ -19,7 +19,7 @@ The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for 
 13. `position` — prone / not_prone.
 14. `patient_procedures` — procedure code formats.
 15. Validation patterns (Python / polars and R / arrow + dplyr).
-16. Coming in v2.2.0 (preview only — opt in explicitly).
+16. CLIF v3 concept tables and opt-in extensions.
 17. When the cache is incomplete (refresh policy).
 
 ## adt
@@ -133,15 +133,15 @@ bad <- adt %>% filter(!location_category %in% allowed) %>% collect()
 stopifnot(nrow(bad) == 0)
 ```
 
-## Coming in v2.2.0 (preview only)
+## CLIF v3 concept tables and opt-in extensions
 
-The `v2.2.0` tag adds two table directories not present in `v2.1.1`:
+CLIF v3 concept work expands beyond the core CLIF 2.x ICU tabular family. Treat these as opt-in unless the project declares a v3 data dictionary:
 
 - `mCIDE/ecmo_mcs/` — ECMO and mechanical circulatory support categories.
 - `mCIDE/output/` — output table categories (fluid balance variants).
 
-Until the consortium publishes `v2.2.0` as a recommended default, these are opt-in only. Set `clif.data_dictionary_version: "2.2.0"` in `.ce-datascience/config.local.yaml` if you need them; otherwise `v2.1.1` remains the default.
+Set `clif.data_dictionary_version: "3.0.0"` in `.ce-datascience/config.local.yaml` only when the source project says it is using CLIF v3. Otherwise `2.1.0` remains the default.
 
 ## When the cache here is incomplete (refresh policy)
 
-This file mirrors the major closed vocabularies as of `v2.1.1`. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** at `?ref=v2.1.1` before validating. The mCIDE directory is the source of truth; this file is a cache. Note also that the upstream directory has a typo (`postion/` instead of `position/`) — preserved here for fidelity. Refresh from upstream when the consortium publishes a new tagged release.
+This file mirrors the major closed vocabularies for the CLIF 2.1.0 family. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** before validating. The mCIDE directory is the source of truth; this file is a cache. Note also that some upstream paths historically used `postion/` instead of `position/`; preserve upstream spelling when validating source repos. Refresh from upstream when the consortium publishes a new data dictionary release.

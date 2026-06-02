@@ -1,0 +1,15 @@
+version: 1
+required_fields:
+  - package_id
+  - format
+  - sap_path
+  - tables
+  - figures
+  - checklists
+  - registry_packages
+  - reproducibility
+  - readiness
+readiness_values:
+  - blocked
+  - ready-with-review
+  - ready-for-signoff

@@ -5,7 +5,7 @@ argument-hint: "[optional: --off]"
 
 # Repository Language Detection
 
-Detects whether the current repository is primarily `python`, `r`, `both`, or `unknown` using file-system and code-pattern signals only. Do not ask the user to choose a language in this skill.
+Detects whether the current repository is primarily `python`, `r`, `both`, or `unknown` using file-system and code-pattern signals only. Do not ask the user to choose a language in this skill. SAS/Stata signals do not become `primary` values; when they dominate, emit `primary=unknown` and recommend `/ce-sas-stata-assess`.
 
 ## When this skill activates
 

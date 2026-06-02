@@ -488,6 +488,6 @@ data <- data |>
 
 - CLIF-Project-Template (R): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - R templates directory: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template/tree/main/code/templates/R
-- CLIF data dictionary v2.1.1: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/releases/tag/v2.1.1
+- CLIF data dictionary v2.1.0: https://clif-icu.com/data-dictionary/data-dictionary-2.1.0
 - clifpy (Python client, also callable from R via `reticulate`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy
 - CLIF consortium repos: https://github.com/orgs/Common-Longitudinal-ICU-data-Format/repositories
