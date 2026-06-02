@@ -14,7 +14,7 @@ try:
 except ModuleNotFoundError as exc:
     raise SystemExit(
         "ce-datascience MCP server requires the Python package 'fastmcp'. "
-        "Install MCP dependencies with: python3 -m pip install fastmcp ruamel.yaml pydantic"
+        "Install the latest MCP dependencies with: python3 -m pip install --upgrade fastmcp ruamel.yaml pydantic"
     ) from exc
 
 # Resolve the plugin root (four levels up: run.py -> mcp_server -> ce-mcp-server -> skills -> ce-datascience)
@@ -34,8 +34,8 @@ class ProjectRootError(ValueError):
 
 def _dependency_error(package: str) -> str:
     return (
-        f"Error: missing Python dependency '{package}'. Install MCP dependencies with: "
-        "python3 -m pip install fastmcp ruamel.yaml pydantic"
+        f"Error: missing Python dependency '{package}'. Install the latest MCP dependencies with: "
+        "python3 -m pip install --upgrade fastmcp ruamel.yaml pydantic"
     )
 
 

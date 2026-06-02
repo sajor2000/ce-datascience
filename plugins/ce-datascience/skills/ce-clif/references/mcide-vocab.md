@@ -1,6 +1,6 @@
 # mCIDE Allow-Listed Vocabularies (CLIF 2.1.0 Family)
 
-The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. **Pinned source**: the official CLIF data dictionary v2.1.0 and the `mCIDE/` directory in `Common-Longitudinal-ICU-data-Format/CLIF` (last verified 2026-05-30). The values below are a portability cache, not the source of truth. When in doubt, fetch the live mCIDE CSV for the table in question and reconcile before blocking a user.
+The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for every `*_category` column. **Pinned source**: the official CLIF data dictionary v2.1.0 and the `mCIDE/` directory in `Common-Longitudinal-ICU-data-Format/CLIF` (last verified 2026-06-02). The values below are a portability cache, not the source of truth. When in doubt, fetch the live mCIDE CSV for the table in question and reconcile before blocking a user.
 
 ## Table of contents
 

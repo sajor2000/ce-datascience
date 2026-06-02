@@ -12,15 +12,14 @@
 #     --out-r analysis/cohort/concept-sets/T2DM.R \
 #     --out-json analysis/cohort/concept-sets/T2DM.json
 #
-# Required: install.packages("Capr") OR remotes::install_github("OHDSI/Capr")
-#           install.packages("yaml")
+# Required: install current CRAN packages with install.packages(c("Capr", "yaml"))
 
 suppressPackageStartupMessages({
   if (!requireNamespace("yaml", quietly = TRUE)) {
-    stop("install yaml: install.packages('yaml')")
+    stop("install current CRAN yaml: install.packages('yaml')")
   }
   if (!requireNamespace("Capr", quietly = TRUE)) {
-    stop("install Capr: install.packages('Capr') or remotes::install_github('OHDSI/Capr')")
+    stop("install current CRAN Capr: install.packages('Capr')")
   }
   library(yaml)
   library(Capr)

@@ -202,7 +202,7 @@ def main():
             sys.exit(1)
         print(result.stdout)
     except FileNotFoundError:
-        print("PyPaperBot not found. Install with: pip install PyPaperBot", file=sys.stderr)
+        print("PyPaperBot not found. Install the latest release with: python3 -m pip install --upgrade PyPaperBot", file=sys.stderr)
         sys.exit(1)
     except subprocess.TimeoutExpired:
         print("PyPaperBot timed out after 300s", file=sys.stderr)

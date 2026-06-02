@@ -46,7 +46,7 @@ When activated, print one acknowledgment line and emit the handoff signal:
 __CE_CLIF__ active=true version=2.1.0 strict=<true|false> rules=references/clif-rules.md
 ```
 
-Default `version=2.1.0` (current beta implementation family for CLIF 2.x; last verified from official CLIF docs and GitHub on 2026-05-30). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. `v3.0.0` is a concept/multimodal extension, not the default for ordinary ICU tabular projects; opt in explicitly when a project declares CLIF v3.
+Default `version=2.1.0` (current public CLIF structured ICU data dictionary; verified from the official CLIF site and CLIF-MIMIC repository on 2026-06-02). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. CLIF v3.0 is planned as a multimodal release; opt in explicitly only when a project declares that data dictionary.
 
 When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
 
@@ -79,7 +79,7 @@ If `.ce-datascience/config.local.yaml` contains a `clif:` block, merge it over t
 ```yaml
 profile: clif
 clif:
-  data_dictionary_version: "2.1.0"   # default; current CLIF 2.x implementation family
+  data_dictionary_version: "2.1.0"   # default; current public CLIF structured ICU data dictionary
   parquet_only: true                  # refuse CSV/Feather for CLIF tables
   protected_paths:                    # in addition to the built-in list
     - mCIDE/**
@@ -126,7 +126,7 @@ Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; 
 
 When the user is writing CLIF analysis code, surface canonical recipes from the upstream code-of-record packages:
 
-- **Python users** (`__CE_LANG__ primary=python`): load `references/clifpy-recipes.md` — recipes drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy` (`pip install clifpy`). Covers `ClifOrchestrator` setup, schema validation, helper-based feature construction, vitals outlier handling, unit conversion for medications, and the data-quality assessment (DQA) pattern.
+- **Python users** (`__CE_LANG__ primary=python`): load `references/clifpy-recipes.md` — recipes drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy` (`python3 -m pip install --upgrade clifpy`). Covers `ClifOrchestrator` setup, schema validation, helper-based feature construction, vitals outlier handling, unit conversion for medications, and the data-quality assessment (DQA) pattern.
 - **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, the QC → cohort → analysis script split, and `output/` write conventions.
 - **`__CE_LANG__ primary=both`** or `unknown`: surface both files so the agent can choose.
 

@@ -37,7 +37,7 @@ try:
     from Bio import Entrez
 except ImportError:
     sys.exit(
-        "biopython is required: pip install biopython>=1.83\n"
+        "biopython is required: python3 -m pip install --upgrade biopython\n"
         "(provides Bio.Entrez with auto rate-limit + retry)"
     )
 

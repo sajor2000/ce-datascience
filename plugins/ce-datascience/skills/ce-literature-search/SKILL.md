@@ -21,7 +21,7 @@ python3 -m PyPaperBot --help 2>/dev/null && echo "AVAILABLE" || echo "NOT_FOUND"
 If not found, install:
 
 ```bash
-pip install PyPaperBot
+python3 -m pip install --upgrade PyPaperBot
 ```
 
 Do not install automatically — prompt the user and let them confirm.
@@ -130,7 +130,7 @@ Override defaults based on user context. For systematic reviews, increase `schol
 
 | Error | Response |
 |-------|---------|
-| PyPaperBot not installed | Prompt user to `pip install PyPaperBot` |
+| PyPaperBot not installed | Prompt user to `python3 -m pip install --upgrade PyPaperBot` |
 | Scholar rate-limited (HTTP 429) | Suggest: set `--chrome-version` flag with Chrome installed, or reduce page count |
 | No papers found | Broaden query terms, remove skip-words, extend year range |
 | PDF download fails for specific paper | Report which papers failed, offer BibTeX-only fallback |

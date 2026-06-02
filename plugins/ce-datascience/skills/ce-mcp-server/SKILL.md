@@ -16,7 +16,7 @@ The server runs as a **local stdio process** — no remote deployment needed. Th
 - Install dependencies:
 
 ```bash
-python3 -m pip install fastmcp ruamel.yaml pydantic
+python3 -m pip install --upgrade fastmcp ruamel.yaml pydantic
 ```
 
 If the server starts without those packages, it exits with the same install command instead of a raw Python traceback.

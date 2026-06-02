@@ -9,7 +9,7 @@ async function readClif(relativePath: string): Promise<string> {
 }
 
 describe("CLIF guidance", () => {
-  test("uses the refreshed CLIF 2.1.0 default instead of stale version claims", async () => {
+  test("uses the current public CLIF 2.1.0 default instead of stale version claims", async () => {
     const files = await Promise.all([
       readClif("SKILL.md"),
       readClif("references/clif-rules.md"),
@@ -19,7 +19,7 @@ describe("CLIF guidance", () => {
     const combined = files.join("\n")
 
     expect(combined).toContain("2.1.0")
-    expect(combined).toContain("last verified 2026-05-30")
+    expect(combined).toContain("last verified 2026-06-02")
     expect(combined).not.toContain("2.1.1")
     expect(combined).not.toContain("2.2.0")
     expect(combined).not.toContain("latest stable release")
@@ -28,8 +28,10 @@ describe("CLIF guidance", () => {
   test("points Python users at current clifpy install guidance", async () => {
     const recipes = await readClif("references/clifpy-recipes.md")
 
-    expect(recipes).toContain("python3 -m pip install clifpy")
-    expect(recipes).toContain("0.4.9")
+    expect(recipes).toContain("python3 -m pip install --upgrade clifpy")
+    expect(recipes).toContain("Always prefer the latest clifpy release")
+    expect(recipes).not.toContain("0.4.9")
+    expect(recipes).not.toContain("clifpy==")
     expect(recipes).toContain("Python >=3.9")
   })
 })

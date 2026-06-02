@@ -132,7 +132,7 @@ def main() -> int:
     if nbformat is None:
         warning = (
             "nbformat is not installed; used JSON structural validation only. "
-            "Install with `python3 -m pip install nbformat` for full notebook schema validation."
+            "Install the latest release with `python3 -m pip install --upgrade nbformat` for full notebook schema validation."
         )
         warning_lines.append(f"WARN: {warning}")
         print(f"WARN: {warning}", file=sys.stderr)

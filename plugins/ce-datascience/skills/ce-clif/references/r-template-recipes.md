@@ -52,7 +52,7 @@ Source: `code/templates/R/00_renv_restore.R`. Always the first script in any ses
 ```r
 # 00_renv_restore.R
 if (!requireNamespace("renv", quietly = TRUE)) {
-  install.packages("renv")
+  install.packages("renv", repos = "https://cloud.r-project.org")
 }
 renv::activate()
 renv::restore()

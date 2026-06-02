@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's official site, GitHub organization, CLIF `WORKFLOW.md`, clifpy docs, and CLIF-Project-Template. Pinned default: data dictionary **v2.1.0** (current CLIF 2.x implementation family; last verified 2026-05-30). CLIF v3.0 is a concept/multimodal extension and must be opted into explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. They are derived from the CLIF consortium's official site, GitHub organization, CLIF `WORKFLOW.md`, clifpy docs, and CLIF-Project-Template. Pinned default: data dictionary **v2.1.0** (current public CLIF structured ICU data dictionary; last verified 2026-06-02). CLIF v3.0 is a planned multimodal release and must be opted into explicitly per project. Sources: `clif-icu.com`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -164,7 +164,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - CLIF GitHub (main): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF
 - CLIF WORKFLOW.md: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/blob/main/WORKFLOW.md
 - mCIDE directory: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/main/mCIDE
-- **clifpy** (official Python client, PyPI: `pip install clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
+- **clifpy** (official Python client, PyPI: `python3 -m pip install --upgrade clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
 - **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
 - CLIF Lighthouse (validation tool): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse

@@ -1,8 +1,9 @@
 # Sensitivity sweep template -- two-sample t example
 # Edit the params block; rest is fixed.
 
-if (!requireNamespace("pwr", quietly = TRUE)) install.packages("pwr")
-if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+cran_repo <- "https://cloud.r-project.org"
+if (!requireNamespace("pwr", quietly = TRUE)) install.packages("pwr", repos = cran_repo)
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2", repos = cran_repo)
 
 library(pwr)
 library(ggplot2)
