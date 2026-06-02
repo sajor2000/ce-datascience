@@ -88,6 +88,27 @@ describe("ce-datascience skill portability", () => {
     expect(trackedArtifacts).toEqual([])
   })
 
+  test("critical package install guidance prefers latest package releases", async () => {
+    const contentFiles = await collectFiles(pluginRoot, (file) => /\.(md|py|R)$/.test(file))
+    const stalePatterns = [
+      /\bpip install\s+(?:PyPaperBot|biopython|clifpy|fastmcp|ruamel\.yaml|pydantic|nbformat|openpyxl|pyyaml)\b/i,
+      /\bpython3 -m pip install\s+(?:PyPaperBot|biopython|clifpy|fastmcp|ruamel\.yaml|pydantic|nbformat|openpyxl|pyyaml)\b/i,
+      /\b(?:biopython|clifpy|PyPaperBot)\s*[=>]=\s*[0-9]/i,
+      /current release \*\*[0-9]/i,
+    ]
+    const offenders: string[] = []
+
+    for (const file of contentFiles) {
+      const rel = path.relative(pluginRoot, file)
+      const content = await fs.readFile(file, "utf8")
+      for (const pattern of stalePatterns) {
+        if (pattern.test(content)) offenders.push(rel)
+      }
+    }
+
+    expect(offenders).toEqual([])
+  })
+
   test("skill-local reference links resolve inside each skill directory", async () => {
     const skillFiles = await collectFiles(skillsRoot, (file) => path.basename(file) === "SKILL.md")
     const missingReferences: string[] = []

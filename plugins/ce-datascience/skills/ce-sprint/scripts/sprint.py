@@ -28,7 +28,7 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    sys.exit("PyYAML is required: pip install pyyaml")
+    sys.exit("PyYAML is required: python3 -m pip install --upgrade pyyaml")
 
 
 def repo_root() -> Path:

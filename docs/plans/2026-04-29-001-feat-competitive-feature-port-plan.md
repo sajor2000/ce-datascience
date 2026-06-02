@@ -13,7 +13,7 @@ Competitive audit of ce-datascience against compound-engineering (CE), BMAD, and
 
 ## Status Update - May 2026
 
-This plan's high-value feature ports have been incorporated into the curated health data science plugin. The current public inventory is 42 skills, including `ce-optimize`, `ce-resolve-pr-feedback`, `ce-verify`, `ce-release-notes`, and `ce-report-bug`.
+This plan's high-value feature ports have been incorporated into the curated health data science plugin. The current public inventory is 48 skills, including `ce-optimize`, `ce-resolve-pr-feedback`, `ce-verify`, `ce-release-notes`, `ce-report-bug`, and the publication workflow skills.
 
 The May 2026 upstream `v3.9.3` sync preserved the data science scope while adding shared workflow and distribution improvements:
 
@@ -229,7 +229,7 @@ Add to appropriate table sections:
 - `ce-resolve-pr-feedback` → Git Workflow table (alongside ce-commit-push-pr)
 - `ce-verify` → Core Workflow table (between ce-data-qa and ce-sprint, since it runs mid-analysis)
 
-Historical update: skill count moved from 37 to 40 for this plan. Current inventory is 42 skills after adding the curated public support skills `ce-release-notes` and `ce-report-bug`.
+Historical update: skill count moved from 37 to 40 for this plan. Current inventory is 48 skills after adding the curated public support skills and later publication workflow skills.
 
 **Test scenarios:**
 - Test expectation: none -- documentation change. Validated by `bun run release:validate`.

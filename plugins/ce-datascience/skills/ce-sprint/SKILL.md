@@ -140,9 +140,11 @@ closed: 2025-04-28T17:00:00
 audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 ```
 
-5. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer.
+5. If the project uses publication review packs, append or update an entry in the `ce-review-pack` signoff ledger that points to `analysis/sprints/<name>/summary.md`, the audit verdict, and the named reviewer. Do not mark it approved until the human reviewer has signed.
 
-6. After human sign-off, the user runs `/ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
+6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `/ce-review-pack` to build the PI-facing package and validate the signoff ledger.
+
+7. After human sign-off, the user runs `/ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
 
 ### `/ce-sprint status`
 

@@ -1,0 +1,66 @@
+version: 1
+description: Journal and publication style profiles used by ce-datascience table, figure, and manuscript workflows.
+profiles:
+  jama:
+    label: JAMA Network clinical research style
+    tables:
+      frequency_format: "No. (%)"
+      percent_decimals_under_100: 0
+      require_numerator_denominator: true
+      compare_across_columns: true
+      avoid_duplicate_figure_table_data: true
+    figures:
+      font_family: Arial
+      min_font_size_pt: 8
+      preferred_vector_formats:
+        - PDF
+        - EPS
+        - SVG
+      accepted_raster_formats:
+        - TIFF
+        - PNG
+        - JPG
+      require_caption: true
+      require_alt_text: true
+      require_source_data: true
+    captions:
+      require_descriptive_title: true
+      require_abbreviation_expansion: true
+      require_uncertainty_definition: true
+    manuscript:
+      require_reporting_guideline: true
+      require_analyst_contribution_disclosure: true
+      require_separate_main_figures: true
+    sources:
+      - https://jamanetwork.com/journals/jama/pages/instructions-for-authors
+  generic-biomedical:
+    label: Generic biomedical journal profile
+    tables:
+      frequency_format: "n (%)"
+      percent_decimals_under_100: 0
+      require_numerator_denominator: true
+      compare_across_columns: true
+      avoid_duplicate_figure_table_data: true
+    figures:
+      font_family: Arial
+      min_font_size_pt: 8
+      preferred_vector_formats:
+        - PDF
+        - SVG
+      accepted_raster_formats:
+        - PNG
+        - TIFF
+        - JPG
+      require_caption: true
+      require_alt_text: true
+      require_source_data: true
+    captions:
+      require_descriptive_title: true
+      require_abbreviation_expansion: true
+      require_uncertainty_definition: true
+    manuscript:
+      require_reporting_guideline: true
+      require_analyst_contribution_disclosure: false
+      require_separate_main_figures: false
+    sources:
+      - https://www.equator-network.org/reporting-guidelines/

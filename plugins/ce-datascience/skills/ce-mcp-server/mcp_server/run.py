@@ -14,7 +14,7 @@ try:
 except ModuleNotFoundError as exc:
     raise SystemExit(
         "ce-datascience MCP server requires the Python package 'fastmcp'. "
-        "Install MCP dependencies with: python3 -m pip install fastmcp ruamel.yaml pydantic"
+        "Install the latest MCP dependencies with: python3 -m pip install --upgrade fastmcp ruamel.yaml pydantic"
     ) from exc
 
 # Resolve the plugin root (four levels up: run.py -> mcp_server -> ce-mcp-server -> skills -> ce-datascience)
@@ -34,8 +34,8 @@ class ProjectRootError(ValueError):
 
 def _dependency_error(package: str) -> str:
     return (
-        f"Error: missing Python dependency '{package}'. Install MCP dependencies with: "
-        "python3 -m pip install fastmcp ruamel.yaml pydantic"
+        f"Error: missing Python dependency '{package}'. Install the latest MCP dependencies with: "
+        "python3 -m pip install --upgrade fastmcp ruamel.yaml pydantic"
     )
 
 
@@ -117,6 +117,13 @@ def _project_path(project_root: Path, path_value: str | None, default: str) -> P
     if not path.is_absolute():
         path = project_root / path
     return path.resolve(strict=False)
+
+
+def _project_path_checked(project_root: Path, path_value: str | None, default: str, label: str) -> Path:
+    resolved = _project_path(project_root, path_value, default)
+    if project_root != resolved and project_root not in resolved.parents:
+        raise ProjectRootError(f"{label} resolved outside the project root: {resolved}")
+    return resolved
 
 
 def _canonical_guideline(value: object) -> str:
@@ -821,6 +828,146 @@ def reporting_compliance_check(
     )
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Tool: publication_readiness_check
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def publication_readiness_check(
+    table1_spec: str = "analysis/publication/tables/table1-spec.json",
+    figure_manifest: str = "analysis/publication/figures/figure-manifest.json",
+    package_manifest: str = "analysis/publication/package/package-manifest.json",
+    signoff_ledger: str = "analysis/signoff/signoff-ledger.json",
+    registry_package_dir: str = "",
+    report_path: str = ".ce-datascience/publication-readiness-report.md",
+    project_root: str | None = None,
+) -> str:
+    """Summarize publication package readiness from generated artifacts.
+
+    Args:
+        table1_spec: Project-relative Table 1 spec JSON path
+        figure_manifest: Project-relative figure manifest JSON path
+        package_manifest: Project-relative manuscript package manifest JSON path
+        signoff_ledger: Project-relative multi-analyst signoff ledger JSON path
+        registry_package_dir: Optional project-relative preregistry package directory
+        report_path: Project-relative markdown report output path
+        project_root: Optional user project root; relative paths resolve here
+
+    Returns:
+        Readiness signal and report path.
+    """
+    import json
+
+    root, root_error = _project_root_or_error(project_root)
+    if root_error:
+        return root_error
+
+    try:
+        table1_path = _project_path_checked(root, table1_spec, "analysis/publication/tables/table1-spec.json", "table1_spec")
+        figure_path = _project_path_checked(root, figure_manifest, "analysis/publication/figures/figure-manifest.json", "figure_manifest")
+        package_path = _project_path_checked(root, package_manifest, "analysis/publication/package/package-manifest.json", "package_manifest")
+        signoff_path = _project_path_checked(root, signoff_ledger, "analysis/signoff/signoff-ledger.json", "signoff_ledger")
+        out_report = _project_path_checked(root, report_path, ".ce-datascience/publication-readiness-report.md", "report_path")
+        registry_dir = (
+            _project_path_checked(root, registry_package_dir, registry_package_dir, "registry_package_dir")
+            if registry_package_dir
+            else None
+        )
+    except ProjectRootError as exc:
+        return f"Error: {exc}"
+
+    blockers: list[str] = []
+    warnings: list[str] = []
+    summary: list[str] = []
+
+    def load_json(path: Path, label: str) -> dict | None:
+        if not path.exists():
+            warnings.append(f"{label} not found: {path.relative_to(root)}")
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            blockers.append(f"{label} is not valid JSON: {exc}")
+            return None
+        if not isinstance(data, dict):
+            blockers.append(f"{label} must be a JSON object")
+            return None
+        return data
+
+    table1 = load_json(table1_path, "Table 1 spec")
+    if table1:
+        rows = table1.get("rows", [])
+        summary.append(f"Table 1 rows: {len(rows) if isinstance(rows, list) else 'unknown'}")
+
+    figures = load_json(figure_path, "Figure manifest")
+    if figures:
+        figure_items = figures.get("figures", [])
+        summary.append(f"Figures: {len(figure_items) if isinstance(figure_items, list) else 'unknown'}")
+
+    package = load_json(package_path, "Manuscript package manifest")
+    if package:
+        readiness = str(package.get("readiness", "")).strip()
+        summary.append(f"Manuscript package readiness: {readiness or '(missing)'}")
+        if readiness == "blocked":
+            blockers.append("Manuscript package readiness is blocked")
+        elif readiness not in {"ready-with-review", "ready-for-signoff"}:
+            warnings.append("Manuscript package readiness is not ready-with-review or ready-for-signoff")
+
+    signoff = load_json(signoff_path, "Signoff ledger")
+    if signoff:
+        entries = signoff.get("entries", [])
+        if not isinstance(entries, list):
+            blockers.append("Signoff ledger entries must be a list")
+        else:
+            summary.append(f"Signoff entries: {len(entries)}")
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    blockers.append("Signoff ledger contains a non-object entry")
+                    continue
+                decision = entry.get("decision")
+                artifact = entry.get("artifact", "(unknown artifact)")
+                if decision in {"changes-requested", "rejected"}:
+                    blockers.append(f"Signoff for {artifact} is {decision}")
+                elif decision == "approved-with-conditions":
+                    warnings.append(f"Signoff for {artifact} is approved-with-conditions")
+
+    if registry_dir:
+        registry_report = registry_dir / "registry-validation-report.md"
+        if not registry_report.exists():
+            warnings.append(f"Registry validation report not found: {registry_report.relative_to(root)}")
+        else:
+            report_text = registry_report.read_text(encoding="utf-8", errors="ignore")
+            if "Result: BLOCKED" in report_text:
+                blockers.append(f"Registry package is blocked: {registry_dir.relative_to(root)}")
+            elif "Result: READY-WITH-REVIEW" in report_text:
+                summary.append(f"Registry package ready: {registry_dir.relative_to(root)}")
+            else:
+                warnings.append(f"Registry package has unknown validation status: {registry_dir.relative_to(root)}")
+
+    result = "BLOCKED" if blockers else "READY-WITH-REVIEW"
+    out_report.parent.mkdir(parents=True, exist_ok=True)
+    out_report.write_text(
+        "\n".join([
+            "# Publication Readiness Report",
+            "",
+            f"Project root: `{root}`",
+            f"Result: {result}",
+            "",
+            "## Summary",
+            *([f"- {item}" for item in summary] or ["- No publication artifacts found"]),
+            "",
+            "## Blocking Findings",
+            *([f"- {item}" for item in blockers] or ["- None"]),
+            "",
+            "## Warnings",
+            *([f"- {item}" for item in warnings] or ["- None"]),
+        ]) + "\n",
+        encoding="utf-8",
+    )
+
+    return f"__CE_PUBLICATION_READINESS__ result={result} report={out_report.relative_to(root)}"
 
 
 # ---------------------------------------------------------------------------

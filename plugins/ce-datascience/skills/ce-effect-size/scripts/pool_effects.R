@@ -20,7 +20,7 @@
 suppressPackageStartupMessages({
   for (pkg in c("meta", "ggplot2")) {
     if (!requireNamespace(pkg, quietly = TRUE)) {
-      stop(sprintf("install %s: install.packages('%s')", pkg, pkg))
+      stop(sprintf("install current CRAN %s: install.packages('%s')", pkg, pkg))
     }
   }
   library(meta)

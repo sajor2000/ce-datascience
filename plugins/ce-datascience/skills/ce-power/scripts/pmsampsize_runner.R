@@ -25,7 +25,7 @@
 
 suppressPackageStartupMessages({
   if (!requireNamespace("pmsampsize", quietly = TRUE)) {
-    stop("install pmsampsize: install.packages('pmsampsize')")
+    stop("install current CRAN pmsampsize: install.packages('pmsampsize')")
   }
   library(pmsampsize)
 })

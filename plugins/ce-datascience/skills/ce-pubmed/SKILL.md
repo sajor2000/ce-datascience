@@ -10,7 +10,7 @@ Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstr
 
 ## Prerequisites
 
-- Python with biopython: `pip install biopython>=1.83`
+- Python with current Biopython: `python3 -m pip install --upgrade biopython`
 - Optional but recommended: `export NCBI_API_KEY=<key>` (lifts rate limit from 3 → 10 req/sec)
 - Optional: `export NCBI_EMAIL=<your-email>` (NCBI courtesy)
 

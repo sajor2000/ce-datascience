@@ -161,3 +161,16 @@ Reporting Compliance (from: .ce-datascience/compliance-report.md)
 If no compliance report exists and `stack_profile.reporting_checklist` is set to a non-null guideline string in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Run `/ce-code-review` with reporting checklist enabled to generate the initial report."
 
 See `references/compliance-report.md` for the full report format and update instructions.
+
+---
+
+## Publication Readiness Integration
+
+After the Compliance Report Integration check, look for publication workflow artifacts:
+
+- `analysis/publication/package/package-manifest.json`
+- `analysis/publication/package/package-readiness-report.md`
+- `analysis/signoff/signoff-ledger.json`
+- `analysis/signoff/signoff-validation-report.md`
+
+If any exist, show a compact `Publication Readiness` block next to SAP coverage. Flag unresolved reviewer decisions as `WARN` and missing package readiness reports as `INFO`. Do not block `/ce-work` solely because a manuscript package has not been created; the publication block is a handoff summary for `/ce-manuscript-package` and `/ce-review-pack`.

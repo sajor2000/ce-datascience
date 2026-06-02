@@ -16,6 +16,10 @@ bun test                  # full test suite
 bun run release:validate  # check plugin/marketplace consistency
 ```
 
+For user-facing install and first-run instructions, keep
+`docs/setup.md`, root `README.md`, and `plugins/ce-datascience/README.md`
+in sync. `docs/setup.md` is the canonical detailed setup guide.
+
 ## Working Agreement
 
 - **Branching:** Create a feature branch for any non-trivial change. If already on the correct branch for the task, keep using it; do not create additional branches or worktrees unless explicitly requested.
@@ -99,6 +103,10 @@ Behavioral changes to a plugin agent or skill (anything under `plugins/*/agents/
 - Keep target-specific behavior in dedicated converters/writers instead of scattering conditionals across unrelated files.
 - Preserve stable output paths and merge semantics for installed targets; do not casually change generated file locations.
 - When adding or changing a target, update fixtures/tests alongside implementation rather than treating docs or examples as sufficient proof.
+
+## Agent Style Reference
+
+- Use [`forrestchang/andrej-karpathy-skills`](https://github.com/forrestchang/andrej-karpathy-skills) as an external reference for Karpathy-style agent/skill expectations when auditing or authoring slash-command skills: understand the task before acting, prefer simple and surgical workflows, keep instructions concise, avoid unsupported promises, and verify the real user-facing path. Treat it as guidance, not a dependency or a replacement for this repo's rules.
 
 ## Commit Conventions
 

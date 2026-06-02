@@ -1,6 +1,6 @@
 # clifpy Recipes (Python)
 
-Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`. **Always prefer clifpy** (`pip install clifpy`) over hand-rolled Parquet IO — it provides automatic schema validation, mCIDE-aware unit conversion, encounter stitching, and clinical calculators (SOFA scores, etc.) tested against the consortium reference data.
+Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/` and the official clifpy docs. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-02: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
 
 ## Table of contents
 
@@ -21,7 +21,7 @@ Canonical Python patterns for working with CLIF data, drawn directly from `Commo
 Source: clifpy README + `examples/00_basic_usage.py`.
 
 ```python
-# pip install clifpy
+# python3 -m pip install --upgrade clifpy
 from clifpy import ClifOrchestrator
 
 orchestrator = ClifOrchestrator(
@@ -29,7 +29,7 @@ orchestrator = ClifOrchestrator(
     timezone='US/Eastern',
 )
 
-# Validate every table against the CLIF schema (mCIDE-aware).
+# Validate every table against the CLIF schema when the project exposes that method.
 orchestrator.validate_all()
 
 # Access individual tables (each is a thin wrapper around a polars / pandas frame).
@@ -145,5 +145,5 @@ charlson = co.compute_charlson_comorbidity()    # uses hospital_diagnosis + como
 
 - clifpy docs: https://common-longitudinal-icu-data-format.github.io/clifpy/
 - Examples directory: https://github.com/Common-Longitudinal-ICU-data-Format/clifpy/tree/main/examples
-- PyPI: `pip install clifpy`
+- PyPI: `python3 -m pip install --upgrade clifpy`
 - Notebooks rendered with `marimo`: many examples are `.py` files using `marimo.App`. Run with `marimo run examples/sofa_demo.py` or `python examples/sofa_demo.py`.

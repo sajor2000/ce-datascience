@@ -1,0 +1,103 @@
+version: 1
+description: Machine-readable source of truth for ce-datascience publication and collaboration artifact categories.
+artifact_types:
+  table1:
+    label: Table 1 baseline characteristics
+    required_fields:
+      - artifact_id
+      - sap_section
+      - source_data
+      - variables
+      - strata
+      - output_paths
+      - style_profile
+    default_output_dir: analysis/publication/tables
+    readiness_gate: table1_ready
+  analysis-table:
+    label: Analysis results table
+    required_fields:
+      - artifact_id
+      - sap_section
+      - source_data
+      - source_code
+      - estimand
+      - output_paths
+      - style_profile
+    default_output_dir: analysis/publication/tables
+    readiness_gate: analysis_table_ready
+  figure:
+    label: Publication figure
+    required_fields:
+      - artifact_id
+      - sap_section
+      - source_data
+      - source_code
+      - output_paths
+      - caption
+      - alt_text
+      - style_profile
+    default_output_dir: analysis/publication/figures
+    readiness_gate: figure_ready
+  manuscript:
+    label: Manuscript package
+    required_fields:
+      - manuscript_id
+      - sap_path
+      - reporting_guidelines
+      - tables
+      - figures
+      - references
+      - output_paths
+    default_output_dir: manuscript
+    readiness_gate: manuscript_ready
+  supplement:
+    label: Online supplement
+    required_fields:
+      - supplement_id
+      - manuscript_id
+      - contents
+      - source_paths
+      - output_paths
+    default_output_dir: manuscript/supplement
+    readiness_gate: supplement_ready
+  checklist:
+    label: Reporting checklist
+    required_fields:
+      - guideline
+      - checklist_path
+      - manuscript_path
+      - evidence_paths
+      - status
+    default_output_dir: analysis/checklists
+    readiness_gate: checklist_ready
+  registry-package:
+    label: Registry export package
+    required_fields:
+      - registry
+      - sap_path
+      - form_draft
+      - structured_payload
+      - validation_report
+      - human_submission_instructions
+    default_output_dir: analysis/prereg
+    readiness_gate: registry_package_ready
+  review-pack:
+    label: PI and study-team review pack
+    required_fields:
+      - pack_id
+      - sap_path
+      - ready_outputs
+      - unresolved_findings
+      - requested_signoffs
+      - generated_at
+    default_output_dir: analysis/review-packs
+    readiness_gate: review_pack_ready
+  signoff-ledger:
+    label: Multi-analyst signoff ledger
+    required_fields:
+      - ledger_id
+      - study_id
+      - entries
+      - append_only_hash
+    default_output_dir: analysis/signoff
+    readiness_gate: signoff_current

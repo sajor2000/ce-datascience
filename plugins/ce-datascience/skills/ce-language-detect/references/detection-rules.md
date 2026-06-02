@@ -28,6 +28,16 @@ Use only repository signals. Do not ask the user.
 - R source files (`**/*.R`, `**/*.Rmd`, `**/*.qmd`) in active code paths (`code/`, `R/`, `analysis/`): **+2**
 - R-specific imports (`tidyverse`, `dplyr`, `data.table`, `arrow`, `survival`, `lme4`, `targets`, `brms`): **+1**
 
+### Legacy statistical package signals
+
+These are assessment signals, not primary-language classifications:
+
+- SAS source files (`**/*.sas`) in active code paths: note `legacy=sas`
+- Stata source files (`**/*.do`, `**/*.ado`) in active code paths: note `legacy=stata`
+- SAS procedure patterns (`PROC LOGISTIC`, `PROC PHREG`, `PROC MIXED`, `LIBNAME`) or Stata model commands (`stcox`, `logit`, `regress`, `mi`) reinforce the legacy note
+
+When SAS/Stata signals dominate and Python/R scores do not meet thresholds, keep `primary=unknown secondary=null source=auto` and recommend `/ce-sas-stata-assess`.
+
 ## 2. Scoring
 
 - Sum Python and R scores independently.
@@ -68,3 +78,4 @@ For CLIF repos:
 - `pyproject.toml` + `src/*.py` + no R markers -> `primary=python secondary=null source=auto`
 - `renv.lock` + `pyproject.toml` + active `code/*.R` and `code/*.py` -> `primary=both secondary=r|python source=auto`
 - Only docs, no code markers -> `primary=unknown secondary=null source=auto` (or `source=cached` if cache exists)
+- `analysis/*.sas` + `analysis/*.do` + no R/Python implementation files -> `primary=unknown secondary=null source=auto`, then run `/ce-sas-stata-assess`

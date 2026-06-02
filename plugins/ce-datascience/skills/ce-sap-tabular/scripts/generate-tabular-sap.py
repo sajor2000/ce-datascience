@@ -57,7 +57,7 @@ def main(argv: list[str]) -> int:
     except Exception as e:
         print(
             f"openpyxl not installed ({e}); skipping .xlsx generation. "
-            "Run `python3 -m pip install openpyxl` to enable.",
+            "Run `python3 -m pip install --upgrade openpyxl` to enable.",
             file=sys.stderr,
         )
         return 0

@@ -1,0 +1,50 @@
+version: 1
+package_layout:
+  required_files:
+    - form.md
+    - payload.json
+    - registry-validation-report.md
+  recommended_files:
+    - sap-snapshot.md
+    - checklist.md
+payload:
+  required_fields:
+    - registry
+    - title
+    - study_type
+    - sap_version
+    - generated_at
+    - fields
+registries:
+  clinicaltrials:
+    required_payload_fields:
+      - brief_title
+      - brief_summary
+      - primary_outcomes
+      - eligibility_criteria
+      - sponsor
+  osf:
+    required_payload_fields:
+      - description
+      - hypotheses
+      - sampling_plan
+      - analysis_plan
+  prospero:
+    required_payload_fields:
+      - review_question
+      - search_strategy
+      - participants
+      - outcomes
+      - synthesis_plan
+  aspredicted:
+    required_payload_fields:
+      - research_question
+      - hypothesis
+      - dependent_variable
+      - conditions
+      - analyses
+validation:
+  unresolved_placeholder_patterns:
+    - "<[^>]+>"
+    - "\\bTBD\\b"
+    - "\\bTODO\\b"
