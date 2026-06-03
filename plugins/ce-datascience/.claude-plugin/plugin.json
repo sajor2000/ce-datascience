@@ -1,6 +1,6 @@
 {
   "name": "ce-datascience",
-  "version": "0.1.0",
+  "version": "3.3.0",
   "description": "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
   "author": {
     "name": "Juan Carlos Rojas"
