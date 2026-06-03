@@ -132,10 +132,8 @@ describe("corporate install artifacts", () => {
     ])
 
     const codexPackage = path.join(stagingDir, "ce-datascience-codex-local")
-    const codexHome = path.join(tempRoot, ".codex")
-    const agentsHome = path.join(tempRoot, ".agents")
-    await fs.mkdir(codexHome, { recursive: true })
-    await fs.writeFile(path.join(codexHome, "config.toml"), 'model = "gpt-5-codex"\n')
+    const codexHome = path.join(tempRoot, "profiles", "research", ".codex")
+    const agentsHome = path.join(tempRoot, "profiles", "research", ".agents")
 
     await run([
       "bash",
@@ -160,7 +158,6 @@ describe("corporate install artifacts", () => {
 
     const config = await fs.readFile(path.join(codexHome, "config.toml"), "utf8")
     const installedRunPy = path.join(installedPlugin, "skills", "ce-mcp-server", "mcp_server", "run.py")
-    expect(config).toContain('model = "gpt-5-codex"')
     expect(config).toContain(installedRunPy)
     expect(config).not.toContain(path.join(repoRoot, "plugins", "ce-datascience"))
   })
@@ -182,6 +179,8 @@ describe("corporate install artifacts", () => {
     expect(setupSkill).toContain("do not offer or run Homebrew, pip, npm, GitHub CLI, or Quarto install commands")
     expect(healthScript).toContain("--locked-down|--no-install")
     expect(healthScript).toContain("quarto|quarto --version|optional")
+    expect(healthScript).toContain("git|command -v git|optional")
     expect(healthScript).toContain("locked-down mode: no install command offered")
+    expect(setupSkill).toContain("optional tools are reported as yellow but do not require Phase 3")
   })
 })

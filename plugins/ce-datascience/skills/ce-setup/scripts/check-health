@@ -16,7 +16,7 @@ deps=(
   "quarto|quarto --version|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto|https://quarto.org/docs/get-started/"
   "jq|command -v jq|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q jq|https://jqlang.github.io/jq/"
   "gh|command -v gh|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q gh|https://cli.github.com"
-  "git|command -v git|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q git|https://git-scm.com"
+  "git|command -v git|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q git|https://git-scm.com"
 )
 
 # =====================================================

@@ -386,7 +386,8 @@ Display the script's output to the user.
 
 After the diagnostic report, check whether:
 
-- any tools are missing (reported as yellow in the output)
+- recommended tools or project checks are reported in the bottom-line issue count
+- optional tools are reported as yellow but do not require Phase 3 unless the chosen workflow needs them
 - `.ce-datascience/config.local.yaml` does not exist or is not safely gitignored
 
 If everything is installed and config is present:
@@ -442,7 +443,7 @@ commands.
 Then jump to Step 14. Do not present install choices and do not execute
 installer commands.
 
-Present missing tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output.
+Present missing recommended tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output. Include Quarto only when the user selected Quarto manuscript/render output.
 
 ```
 The following tools are missing. Select which to install:
@@ -454,7 +455,7 @@ The following tools are missing. Select which to install:
   [x] jq - JSON processor
 ```
 
-Only show items that are actually missing.
+Only show recommended items that are actually missing, plus Quarto when the selected workflow requires Quarto output.
 
 ### Step 13: Install Selected Dependencies
 

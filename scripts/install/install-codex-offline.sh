@@ -64,7 +64,7 @@ done
 
 [ -n "$source_root" ] || { echo "--source is required" >&2; usage >&2; exit 2; }
 
-abs_path() {
+abs_existing_path() {
   local target="$1"
   if [ -d "$target" ]; then
     (cd "$target" && pwd)
@@ -76,9 +76,16 @@ abs_path() {
   fi
 }
 
-source_root="$(abs_path "$source_root")"
-codex_home="$(abs_path "$codex_home")"
-agents_home="$(abs_path "$agents_home")"
+abs_target_path() {
+  case "$1" in
+    /*) printf '%s\n' "$1" ;;
+    *) printf '%s/%s\n' "$PWD" "$1" ;;
+  esac
+}
+
+source_root="$(abs_existing_path "$source_root")"
+codex_home="$(abs_target_path "$codex_home")"
+agents_home="$(abs_target_path "$agents_home")"
 
 if [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
   plugin_src="$source_root/plugins/$PLUGIN_NAME"
