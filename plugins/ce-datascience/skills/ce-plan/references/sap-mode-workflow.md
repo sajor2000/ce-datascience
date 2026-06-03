@@ -4,19 +4,30 @@ Detailed workflow for `/ce-plan` when **SAP mode** is active. Linked from `SKILL
 
 ## Table of contents
 
-1. SAP Phase 3 — Structure the SAP (template, signal scan, fill rules).
-2. Canonical handoff-signal envelopes (the `__CE_*__` table consumed by Phase 3).
-3. CLIF-profile behavior under SAP mode.
-4. SAP Phase 4 — Write the SAP file.
-5. SAP Phase 5 — Gap check and review.
-6. SAP versioning rules.
+1. SAP Phase 2.5 — Data profile gate before SAP structure.
+2. SAP Phase 3 — Structure the SAP (template, signal scan, fill rules).
+3. Canonical handoff-signal envelopes (the `__CE_*__` table consumed by Phase 3).
+4. CLIF-profile behavior under SAP mode.
+5. SAP Phase 4 — Write the SAP file.
+6. SAP Phase 5 — Gap check and review.
+7. SAP versioning rules.
 
 ---
+
+## 0. SAP Phase 2.5: Data Profile Gate Before SAP Structure
+
+Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP must not finalize variable, missingness, cohort-size, feature, or model sections from assumptions when inspectable data exists.
+
+1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`.
+2. If a data profile or QA report exists, read it before filling SAP-2 through SAP-8. Use exact observed column names/types, candidate grain, key fields, date columns, null rates, duplicate rates, and blockers/warnings.
+3. If a dataset or registered data wave exists but no profile/QA report exists, stop SAP structuring long enough to run `/ce-data-qa` in pre-SAP column profile mode. Then resume SAP Phase 3 using its report.
+4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing /ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `/ce-data-qa` as a required next step before `/ce-sap-tabular`, `/ce-sprint`, `/ce-work`, coding, or modeling.
+5. If `/ce-data-qa` reports blockers, do not write a final SAP. Plan data remediation or re-extraction first.
 
 ## 1. SAP Phase 3: Structure the SAP
 
 1. Read the SAP template from `references/sap-template.md`.
-2. Scan chat context and `analysis/` for upstream biomedical-skill handoff signals (see § 2 below). The model parses each signal out of recent chat turns (one line per signal beginning with `__CE_*__`) and out of the `analysis/` artifact paths the signals point at, then uses them as inputs in step 3.
+2. Scan chat context and `analysis/` for upstream biomedical-skill handoff signals (see § 2 below), including the data profile/QA signals required by SAP Phase 2.5. The model parses each signal out of recent chat turns (one line per signal beginning with `__CE_*__`) and out of the `analysis/` artifact paths the signals point at, then uses them as inputs in step 3.
 3. Fill each SAP section (SAP-1 through SAP-10) from the input document, the upstream signal artifacts from step 2, and research findings.
 4. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming.
 5. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank.
@@ -36,6 +47,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 | `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
 | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
+| `__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<int> columns=<int> grain=<string> report=<path>` | `/ce-data-qa` pre-SAP mode | SAP-2 variables, SAP-4 data sources, SAP-8 missingness and data-quality prerequisites |
 | `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `/ce-data-qa` | SAP-2.4 data quality assertions |
 | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `/ce-phenotype-validate` | SAP-2 case-definition validation |
 | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `/ce-effect-size` | SAP-2.5 effect-size anchor |

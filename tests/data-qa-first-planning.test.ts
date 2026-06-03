@@ -1,0 +1,55 @@
+import { describe, expect, test } from "bun:test"
+import { readFile } from "fs/promises"
+import path from "path"
+
+const root = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+
+async function skillFile(relativePath: string): Promise<string> {
+  return readFile(path.join(root, relativePath), "utf8")
+}
+
+describe("data-first planning invariant", () => {
+  test("ce-plan requires column QA before SAP finalization or modeling", async () => {
+    const plan = await skillFile("ce-plan/SKILL.md")
+    const phase1 = await skillFile("ce-plan/references/phase1-context-gathering.md")
+    const sapWorkflow = await skillFile("ce-plan/references/sap-mode-workflow.md")
+    const gapChecklist = await skillFile("ce-plan/references/sap-gap-checklist.md")
+
+    expect(plan).toContain("Data shape before SAP, coding, or modeling")
+    expect(phase1).toContain("Phase 1.0 Data-Column and QA Preflight")
+    expect(phase1).toContain("actual columns and QA evidence come before SAP finalization, coding, or modeling")
+    expect(phase1).toContain("<!-- GAP: missing /ce-data-qa column profile; SAP variable/model sections provisional -->")
+
+    expect(sapWorkflow).toContain("SAP Phase 2.5: Data Profile Gate Before SAP Structure")
+    expect(sapWorkflow).toContain("__CE_DATA_PROFILE__")
+    expect(sapWorkflow).toContain("do not write a final SAP")
+
+    expect(gapChecklist).toContain("No data profile or QA gate before SAP variables/models")
+  })
+
+  test("ce-data-qa provides pre-SAP column profile mode", async () => {
+    const dataQa = await skillFile("ce-data-qa/SKILL.md")
+
+    expect(dataQa).toContain("pre-SAP column profile mode")
+    expect(dataQa).toContain("row count, column count, column names and types")
+    expect(dataQa).toContain("__CE_DATA_PROFILE__")
+    expect(dataQa).toContain("does not mean SAP-specific checks have passed")
+  })
+
+  test("workflow and work execution enforce QA before downstream work", async () => {
+    const lifecycle = await skillFile("ce-workflow/references/lifecycle-paths.md")
+    const stateDetection = await skillFile("ce-workflow/references/state-detection.md")
+    const work = await skillFile("ce-work/SKILL.md")
+
+    expect(lifecycle).toContain("Data-First Planning Invariant")
+    expect(lifecycle).toContain("actual columns and QA evidence come before SAP finalization, coding, or modeling")
+    expect(lifecycle).toContain("| 1 | `/ce-data-qa` | Trial data column profile + QA gate")
+    expect(lifecycle).toContain("reads, writes, transforms, models, or dashboards data tables")
+
+    expect(stateDetection).toContain("reports/data-qa/*.md")
+    expect(stateDetection).toContain("__CE_DATA_PROFILE__")
+
+    expect(work).toContain("Data QA gate before coding/modeling")
+    expect(work).toContain("stop execution and route to `/ce-data-qa`")
+  })
+})

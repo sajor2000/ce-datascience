@@ -4,6 +4,12 @@ Ordered skill sequences for each project type. Steps marked with language-specif
 
 ---
 
+## Data-First Planning Invariant
+
+For any project with inspectable data, actual columns and QA evidence come before SAP finalization, coding, or modeling. Run `/ce-data-qa` in pre-SAP column profile mode as the first data-touching planning step for tabular data, or `/ce-bioinfo-qc` first for omics data. If no dataset exists yet, `/ce-plan` must keep variable/model sections provisional and list `/ce-data-qa` as a required next step before `/ce-sap-tabular`, `/ce-sprint`, or `/ce-work`.
+
+---
+
 ## Path 1: Observational Study
 
 Full biomedical lifecycle — 14 steps. Most common path for EHR, OMOP, CLIF, and administrative claims data.
@@ -17,7 +23,7 @@ Full biomedical lifecycle — 14 steps. Most common path for EHR, OMOP, CLIF, an
 | 5 | `/ce-effect-size` | Pool effect sizes from literature | Python script | Python script | R script |
 | 6 | `/ce-power` | Sample size + sensitivity sweep | Python script | Python script | R script (`pmsampsize`) |
 | 7 | `/ce-cohort-build` | Define study cohort | OMOP SQL + JSON | OMOP SQL + JSON | CAPR + SQL |
-| 8 | `/ce-data-qa` | Data quality gate (GO/NO-GO) | pandas checks | polars checks | tidyverse checks |
+| 8 | `/ce-data-qa` | Column profile + data quality gate (GO/NO-GO) before SAP | pandas checks | polars checks | tidyverse checks |
 | 9 | `/ce-phenotype-validate` | Chart-review gold standard | Python script | Python script | R script |
 | 10 | `/ce-plan` (SAP mode) | Write Statistical Analysis Plan | — | — | — |
 | 11 | `/ce-sap-tabular` | Tabular SAP companion for programmers | — | — | — |
@@ -67,16 +73,17 @@ When writing the SAP at step 10, these sections and reviewers are emphasized:
 
 ## Path 2: Clinical Trial Analysis
 
-Condensed path — the trial protocol already defines population, intervention, and comparator. Skip literature search and cohort definition.
+Condensed path — the trial protocol already defines population, intervention, and comparator. Skip literature search and cohort definition. Still run a dataset/column QA profile before writing or finalizing the SAP when trial data or extracts are available.
 
 | # | Skill | Purpose | Notes |
 |---|---|---|---|
-| 1 | `/ce-checklist-match` | Select checklist | CONSORT (or CONSORT-AI if model-as-intervention, SPIRIT-AI if protocol) |
-| 2 | `/ce-plan` (SAP mode) | Write CONSORT SAP | ITT/PP populations, imputation, stratification, safety endpoints |
-| 3 | `/ce-sap-tabular` | Tabular SAP companion | — |
-| 4 | `/ce-sprint` | Open sprint | — |
-| 5 | `/ce-work` | Execute analysis | Language per stack profile |
-| 6 | `/ce-code-review` | Review | Blinding-aware: blocks inferential code when `blinding_state: blinded` |
+| 1 | `/ce-data-qa` | Trial data column profile + QA gate | Required before SAP finalization when any extract exists |
+| 2 | `/ce-checklist-match` | Select checklist | CONSORT (or CONSORT-AI if model-as-intervention, SPIRIT-AI if protocol) |
+| 3 | `/ce-plan` (SAP mode) | Write CONSORT SAP | ITT/PP populations, imputation, stratification, safety endpoints |
+| 4 | `/ce-sap-tabular` | Tabular SAP companion | — |
+| 5 | `/ce-sprint` | Open sprint | — |
+| 6 | `/ce-work` | Execute analysis | Language per stack profile |
+| 7 | `/ce-code-review` | Review | Blinding-aware: blocks inferential code when `blinding_state: blinded` |
 
 ### Optional additions
 - `/ce-power` before step 2 — if the protocol's sample size needs independent verification
@@ -95,7 +102,7 @@ Includes ML-specific skills for experiment tracking, model cards, and fairness r
 | 2 | `/ce-pubmed` | Literature search | Prior models, feature sets, calibration benchmarks |
 | 3 | `/ce-checklist-match` | Select checklist | Routes to TRIPOD+AI (or CLAIM if imaging) |
 | 4 | `/ce-cohort-build` | Define cohort | Dev/val/test split boundaries defined here |
-| 5 | `/ce-data-qa` | Data quality gate | — |
+| 5 | `/ce-data-qa` | Column profile + data quality gate before SAP/modeling | — |
 | 6 | `/ce-plan` (SAP mode) | Prediction SAP | Calibration plan, fairness subgroups, TRIPOD+AI sections |
 | 7 | `/ce-ml-experiment-track` | Wire up tracking | mlflow / wandb / dvc / offline-YAML |
 | 8 | `/ce-work` | Execute analysis | Language per stack profile |
@@ -114,7 +121,7 @@ For genomics, transcriptomics, proteomics, and methylation analyses.
 
 | # | Skill | Purpose | Notes |
 |---|---|---|---|
-| 1 | `/ce-bioinfo-qc` | Sequencing/omics QA | FastQC, MultiQC, sample swap detection, batch-effect screen |
+| 1 | `/ce-bioinfo-qc` | Sequencing/omics data profile + QA before planning | FastQC, MultiQC, sample swap detection, batch-effect screen |
 | 2 | `/ce-genome-build` | Pin genome build | GRCh37 / GRCh38 / T2T + GENCODE/Ensembl annotation |
 | 3 | `/ce-plan` | Plan | Implementation plan, or SAP if differential expression / EWAS study |
 | 4 | `/ce-work` | Execute analysis | — |
@@ -131,6 +138,8 @@ For genomics, transcriptomics, proteomics, and methylation analyses.
 ## Path 5: Technical / Software Implementation
 
 Default path when no biomedical signals are present. No SAP, no biomedical lifecycle skills.
+
+If the software task reads, writes, transforms, models, or dashboards data tables, carry the same data-first invariant into `/ce-plan` implementation mode: inspect columns/schema and run `/ce-data-qa` before coding data logic.
 
 | # | Skill | Purpose | Notes |
 |---|---|---|---|

@@ -10,6 +10,7 @@ These gaps make the SAP unexecutable or scientifically incomplete. A SAP with an
 - [ ] **Analysis population not specified (SAP-4.1)** -- The primary analysis population must be explicitly defined (ITT, per-protocol, as-treated, or other). Without this, the denominator is ambiguous.
 - [ ] **No primary statistical method specified (SAP-5.1)** -- The primary analysis must name the statistical model (e.g., logistic regression, Cox PH, linear mixed model), not just "we will compare groups."
 - [ ] **No sample size or power assessment (SAP-6)** -- Either a prospective power calculation or a retrospective minimum detectable effect statement is required. "We will use all available data" without a power assessment is a gap.
+- [ ] **No data profile or QA gate before SAP variables/models** -- The SAP must be anchored to an observed data profile (`__CE_DATA_PROFILE__`) or QA report (`__CE_DATA_QA__`) before finalization. Missing actual columns, candidate grain, key/date fields, or QA status makes variable and model sections provisional.
 
 ## Important Gaps (should resolve before finalization)
 
@@ -27,7 +28,7 @@ These are not strictly required but represent best-practice elements that streng
 - [ ] **No MCID or effect size justification (SAP-3.1, SAP-6)** -- The minimum clinically important difference should be justified from prior literature or clinical judgment, not assumed.
 - [ ] **No TFL shell layouts (SAP-10)** -- Shell tables help align expectations with collaborators and catch output problems before analysis begins.
 - [ ] **Vague covariate specification (SAP-5.1)** -- Covariates in adjusted models should be named explicitly, with justification for inclusion (confounder, precision variable, or effect modifier).
-- [ ] **No data quality or validation plan** -- For administrative or EHR data, data quality checks (missingness rates, implausible values, temporal consistency) should be specified before analysis.
+- [ ] **No automated data-quality follow-up plan** -- After the initial data profile/QA gate, stable rules such as key uniqueness, required not-null fields, accepted values, freshness thresholds, and referential integrity should be candidates for automated checks before recurring analyses.
 - [ ] **Exploratory objectives not clearly separated (SAP-1.3)** -- Exploratory analyses should be explicitly labeled as hypothesis-generating to prevent inflation of confirmatory claims.
 
 ## How to Report Gaps

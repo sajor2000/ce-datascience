@@ -12,7 +12,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
 
-This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run analyses, or learn from execution-time results. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
+This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run inferential analyses, or learn from execution-time results. For study or analysis projects, it **does** require a data-column/QA preflight before SAP finalization or modeling recommendations: inspect available dataset columns and consume `/ce-data-qa` output before writing variable/model sections. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
 
 ## Interaction Method
 
@@ -64,6 +64,7 @@ The reference covers:
 6. **Keep the plan portable** - The plan should work as a living document, review artifact, or issue body without embedding tool-specific executor instructions.
 7. **Carry execution posture lightly when it matters** - If the request, origin document, or repo context clearly implies test-first, characterization-first, or another non-default execution posture, reflect that in the plan as a lightweight signal. Do not turn the plan into step-by-step execution choreography.
 8. **Honor user-named resources** - When the user names a specific resource — a CLI, MCP server, URL, file, doc link, or prior artifact — treat it as authoritative input, not a suggestion. Discover it if unknown (`command -v`, fetch, read) before assuming it's unavailable. Use it in place of generic alternatives. If it fails or doesn't exist, say so explicitly rather than silently substituting.
+9. **Data shape before SAP, coding, or modeling** - For any study, prediction, clinical, omics, dashboard, or analysis project with data available, inspect the actual columns, grain, keys, dates, missingness, duplicates, and basic validity before SAP finalization or implementation planning. Use `/ce-data-qa` for tabular data and `/ce-bioinfo-qc` for omics data. If data is not available, write an explicit data-profile prerequisite and keep SAP variable/model sections provisional.
 
 ## Plan Quality Bar
 
@@ -224,7 +225,7 @@ If depth is unclear, ask one targeted question and then continue.
 
 ### Phase 1: Gather Context
 
-Read `references/phase1-context-gathering.md` for full sub-phase detail (1.1 local research dispatch, 1.1b execution-posture detection, 1.2 external-research decision rubric, 1.3 conditional external research, 1.4 consolidation, 1.4b depth reclassification, 1.5 flow analysis).
+Read `references/phase1-context-gathering.md` for full sub-phase detail (1.0 data-column/QA preflight, 1.1 local research dispatch, 1.1b execution-posture detection, 1.2 external-research decision rubric, 1.3 conditional external research, 1.4 consolidation, 1.4b depth reclassification, 1.5 flow analysis).
 
 ### Phase 2: Resolve Planning Questions
 
