@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.3.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.2.0...cli-v3.3.0) (2026-06-02)
+
+
+### Features
+
+* ce-datascience 40-skill release with workflow navigator and competitive ports ([8777c24](https://github.com/sajor2000/ce-datascience/commit/8777c243bd2182bce98e3d0e3fa61194fe23e33b))
+* **ce-datascience:** add 7 skills, rewrite README with full attribution ([5a4399a](https://github.com/sajor2000/ce-datascience/commit/5a4399a6d87b330fae3020a8797c8906b788ebbc))
+* **compat:** MCP server portability + cross-platform install fixes ([2962a26](https://github.com/sajor2000/ce-datascience/commit/2962a26bc60aabebd5ce7ed9bea78a9678eb8d99))
+* **integrations:** sync upstream plugin compatibility updates ([#4](https://github.com/sajor2000/ce-datascience/issues/4)) ([8aaad87](https://github.com/sajor2000/ce-datascience/commit/8aaad878fbc79d5a03aa9e376b2f825edb5599d3))
+* **r-support:** comprehensive R user support enhancement and plugin rebrand ([cfb4d12](https://github.com/sajor2000/ce-datascience/commit/cfb4d12407e3b46bb3e2e2e034549017b432cda7))
+* **workflows:** harden installs and add publication tools ([#9](https://github.com/sajor2000/ce-datascience/issues/9)) ([0521a38](https://github.com/sajor2000/ce-datascience/commit/0521a38d17be0a7f9cb9e92cd6588857fef9b803))
+
+
+### Bug Fixes
+
+* **audit:** align tests and source with ce-datascience scope ([4a50494](https://github.com/sajor2000/ce-datascience/commit/4a5049438da23d1da5b55da836241b1e7afd8f47))
+* **integrations:** harden generated platform installs ([#7](https://github.com/sajor2000/ce-datascience/issues/7)) ([3031940](https://github.com/sajor2000/ce-datascience/commit/3031940ff2b9dae5c310b5d35d1754341e6a0848))
+* **integrations:** harden installs and MCP project roots ([#8](https://github.com/sajor2000/ce-datascience/issues/8)) ([ae1b85f](https://github.com/sajor2000/ce-datascience/commit/ae1b85f7a2e22edceebbbb8b49c9c24a80b1622e))
+
 ## [3.2.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.1.0...cli-v3.2.0) (2026-04-26)
 
 
