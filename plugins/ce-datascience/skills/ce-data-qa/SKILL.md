@@ -1,12 +1,12 @@
 ---
 name: ce-data-qa
-description: 'Runs a structured data-quality gate on a freshly extracted dataset BEFORE any modeling code runs and emits a GO/NO-GO verdict. Produces row-counts vs the CONSORT-flow waterfall, missingness pattern vs the SAP rule, range checks, duplicate-key checks, date sanity, and category-value validation. Use whenever the user mentions data quality, data QA, GO/NO-GO, "is the data clean", "check the dataset before modeling", missingness check, range check, duplicate IDs, CONSORT flow vs raw rows, SAP-vs-data shape drift, "the data looks off", a fresh data extract / re-extract / data wave, or unblinding readiness for confirmatory analysis. Required gate after /ce-cohort-build and before any /ce-work modeling task; refuses to run on a locked data wave without --force.'
+description: 'Runs a structured data-quality gate on a freshly extracted dataset BEFORE SAP finalization or any modeling code runs and emits a GO/NO-GO verdict. Also supports pre-SAP column profile mode for first planning: inspect columns, types, candidate grain, keys, dates, nulls, duplicates, and obvious validity issues before writing the SAP. Produces row-counts vs the CONSORT-flow waterfall, missingness pattern vs the SAP rule when available, range checks, duplicate-key checks, date sanity, and category-value validation. Use whenever the user mentions data quality, data QA, GO/NO-GO, "look at columns first", "check the dataset before SAP/modeling", missingness check, range check, duplicate IDs, CONSORT flow vs raw rows, SAP-vs-data shape drift, "the data looks off", a fresh data extract / re-extract / data wave, or unblinding readiness for confirmatory analysis. Required gate after /ce-cohort-build and before /ce-plan SAP finalization or any /ce-work modeling task; refuses to run on a locked data wave without --force.'
 argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 ---
 
 # Data Quality Assessment Gate
 
-This skill formalizes the data-QA gate (workflow step 5) that exists between data extraction and any modeling. **No modeling code runs until this gate passes.** A "fail" outcome blocks the pipeline; a "warn" outcome requires PI sign-off; a "pass" outcome unlocks the data lock + modeling phase.
+This skill formalizes the data-QA gate that exists between data extraction and SAP/modeling work. **No SAP finalization, coding, or modeling runs until the available data columns and QA status are documented.** A "fail" outcome blocks the pipeline; a "warn" outcome requires PI sign-off; a "pass" outcome unlocks the data lock + modeling phase. When the SAP does not exist yet, run in pre-SAP column profile mode and emit a data profile that `/ce-plan` uses to draft the SAP without inventing variables.
 
 ## When This Skill Activates
 
@@ -18,18 +18,32 @@ This skill formalizes the data-QA gate (workflow step 5) that exists between dat
 
 ## Prerequisites
 
-1. A SAP exists at `analysis/sap.md` (or specified via `--sap`). The SAP is the source of truth for what the data should look like.
+1. A SAP exists at `analysis/sap.md` (or specified via `--sap`) for full SAP-aligned QA. If no SAP exists yet, run pre-SAP column profile mode instead of stopping.
 2. A stack profile has been written via `/ce-setup` so `data_root` is known.
 3. The data extract is registered as a data wave (run `data_wave_register` MCP tool first if not).
 4. If the dataset is a research cohort built from EHR or claims data, run `/ce-cohort-build` first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
 
 ## Core Workflow
 
+### Step 0: Choose QA mode
+
+If a SAP is available, run **SAP-aligned QA mode** and compare the data to SAP-declared variables, populations, missingness rules, and analysis windows.
+
+If no SAP is available, run **pre-SAP column profile mode**:
+
+- Inspect the dataset or table schema before `/ce-plan` writes SAP variable/model sections.
+- Produce row count, column count, column names and types, candidate grain, primary or candidate keys, important date columns, timezone assumptions, null rates, duplicate rates, distinct counts for categorical columns, and basic numeric summaries.
+- Flag obvious validity issues such as impossible dates, negative counts where not plausible, sentinel missing values, mixed-grain rows, and PHI-suspect columns.
+- Do not invent study variables or analysis models. Mark SAP-dependent checks as "deferred until SAP exists."
+- Emit `__CE_DATA_PROFILE__` so `/ce-plan` can use the actual columns and state which variables remain provisional.
+
 ### Step 1: Resolve the data wave
 
 Read `.ce-datascience/data-state.yaml`. If a specific `extract_id` was passed, use it; otherwise use the most recently registered, unlocked wave. Refuse to QA a `locked` wave unless `--force` is passed (locked waves are immutable; QA already passed).
 
 ### Step 2: Parse the SAP for shape expectations
+
+Skip SAP parsing in pre-SAP column profile mode. Instead, treat the observed column profile as planning evidence and label all SAP-dependent thresholds as pending.
 
 Extract from the SAP:
 - **Population size**: expected N from inclusion/exclusion criteria
@@ -67,11 +81,12 @@ Apply each check from `references/qa-checks.md` against the data. Generate findi
 Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extract_id>.html` (rendered Quarto / RMarkdown). Use `references/report-template.md`. Sections:
 
 1. **Summary banner** (GO / NO-GO / GO with PI sign-off)
-2. **Wave provenance**: extract_id, source, hash, row count, ingestion date
-3. **CONSORT flow**: enrollment → eligibility → analysis populations
-4. **Missingness map**: heatmap (or fallback table), per-variable %
-5. **Findings table**: bucket × check × variable × details
-6. **Sign-off block**: empty, for PI to fill if `warn` bucket non-empty
+2. **Column profile**: row count, column count, names/types, candidate grain, candidate keys, date columns, null rates, duplicate rates
+3. **Wave provenance**: extract_id, source, hash, row count, ingestion date
+4. **CONSORT/STROBE flow**: enrollment → eligibility → analysis populations, when available
+5. **Missingness map**: heatmap (or fallback table), per-variable %
+6. **Findings table**: bucket × check × variable × details
+7. **Sign-off block**: empty, for PI to fill if `warn` bucket non-empty
 
 If any `warn` finding requires PI approval, add the report path and finding summary to the project signoff ledger used by `/ce-review-pack`. Data-QA approval must remain separate from the data lock; the ledger records human acceptance of warnings, not permission to mutate locked data.
 
@@ -80,10 +95,11 @@ If any `warn` finding requires PI approval, add the report path and finding summ
 Always emit a unified handoff signal that `/ce-plan` SAP mode reads (and a legacy GO/NO-GO line for backward compatibility):
 
 ```
+__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<n> columns=<n> grain=<candidate-grain-or-unknown> report=<path>
 __CE_DATA_QA__ wave=<id> pass=<true|false> blockers=<n> warns=<n> report=<path>
 ```
 
-If GO (`pass=true`): also emit `__CE_DATA_QA_PASS__ extract_id=<id>` and prompt the user to run `data_lock` (MCP) to seal the wave. If NO-GO (`pass=false`): also emit `__CE_DATA_QA_FAIL__ extract_id=<id> blockers=<count>` and stop. Print the path to the report.
+In pre-SAP column profile mode, `pass=true` means no structural blockers were found in the profile; it does not mean SAP-specific checks have passed. If GO (`pass=true`): also emit `__CE_DATA_QA_PASS__ extract_id=<id>` and prompt the user to run `data_lock` (MCP) only after SAP-aligned QA is complete. If NO-GO (`pass=false`): also emit `__CE_DATA_QA_FAIL__ extract_id=<id> blockers=<count>` and stop. Print the path to the report.
 
 ### Step 6: Compound learning hook
 

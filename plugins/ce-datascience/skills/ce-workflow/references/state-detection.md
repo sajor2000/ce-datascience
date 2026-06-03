@@ -13,7 +13,7 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 | `/ce-effect-size` | `analysis/effect-size.*` exists (`.R`, `.py`, or `.md`) | — |
 | `/ce-power` | `analysis/power/` directory or `analysis/power-analysis.*` file exists | — |
 | `/ce-cohort-build` | `analysis/cohort/` contains `.sql` or `.json` concept-set files | Directory exists but no SQL/JSON |
-| `/ce-data-qa` | `analysis/data-qa-report.md` exists and contains `GO` verdict | Report exists but contains `NO-GO` or no verdict |
+| `/ce-data-qa` | `reports/data-qa/*.md` or `analysis/data-qa-report.md` exists and contains `GO`, `__CE_DATA_PROFILE__`, or `__CE_DATA_QA__` verdict | Report exists but contains `NO-GO`, blockers, or no verdict |
 | `/ce-phenotype-validate` | `analysis/phenotype-validation.*` exists with PPV/sensitivity results | — |
 | `/ce-plan` (SAP) | `docs/plans/` contains a file with `sap_version` in YAML frontmatter | Plan file exists without `sap_version` (implementation plan, not SAP) |
 | `/ce-plan` (implementation) | `docs/plans/` contains a file with `status: active` or `status: completed` | — |
