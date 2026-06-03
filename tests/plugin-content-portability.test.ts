@@ -58,11 +58,10 @@ describe("ce-datascience skill portability", () => {
       const rel = path.relative(pluginRoot, file)
       const content = await fs.readFile(file, "utf8")
       const isClaudeCacheSkill = rel === path.join("skills", "ce-update", "SKILL.md")
-      const isSourceCheckoutMcpDoc = rel === path.join("skills", "ce-mcp-server", "SKILL.md")
       if (!isClaudeCacheSkill && (content.includes("~/.claude/plugins/cache/") || content.includes("~/.codex/plugins/cache/"))) {
         offenders.push(rel)
       }
-      if (!isSourceCheckoutMcpDoc && content.includes("plugins/ce-datascience/skills/")) {
+      if (content.includes("plugins/ce-datascience/skills/")) {
         offenders.push(rel)
       }
     }

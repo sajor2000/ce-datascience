@@ -3,7 +3,73 @@
 This guide is the fastest path from a fresh machine to a working `ce-datascience`
 install. The commands assume a Unix-like shell on macOS, Linux, or WSL.
 
-## 1. Install Prerequisites
+## 1. Pick The Install Path
+
+### Locked-down laptop or team demo
+
+Use this path when Bun, Git, GitHub CLI, Homebrew, npm, or Quarto are blocked.
+Basic plugin use does not require those tools.
+
+Ask IT or the release owner for one of these approved artifacts:
+
+- `ce-datascience-plugin.zip` for Claude Code
+- `ce-datascience-claude-aliases.zip` for optional bare `/ce-*` aliases
+- `ce-datascience-codex-local.zip` for Codex local marketplace installs
+
+Claude Code can load either an approved folder or ZIP:
+
+```bash
+claude --plugin-dir /approved/path/ce-datascience
+claude --plugin-dir /approved/path/ce-datascience.zip
+```
+
+Use namespaced Claude plugin commands:
+
+```text
+/ce-datascience:ce-setup --locked-down
+/ce-datascience:ce-workflow
+```
+
+Bare `/ce-setup` is not guaranteed by Claude plugin loading. It works only when
+optional local aliases are installed into `~/.claude/commands` or a project's
+`.claude/commands`.
+
+To install optional aliases from an approved plugin folder:
+
+```bash
+bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/ce-datascience --scope user
+```
+
+For project-only aliases, run from the project root:
+
+```bash
+bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/ce-datascience --scope project
+```
+
+To remove only managed CE aliases:
+
+```bash
+bash scripts/install/install-claude-aliases.sh --scope user --uninstall
+```
+
+For Codex without Bun, unpack `ce-datascience-codex-local.zip` and run:
+
+```bash
+export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"
+```
+
+Then restart Codex, run `/plugins`, install CE DataScience from the local
+marketplace, and restart again. The installer also writes generated agent bridge
+files into the selected `CODEX_HOME` and rewrites MCP paths to the installed
+local plugin copy.
+
+### Source checkout for contributors
+
+Bun and Git are required only when building, validating, converting, or
+developing the plugin from source.
+
+## 2. Install Source Prerequisites
 
 Install Bun if it is not already available:
 
@@ -17,7 +83,7 @@ Restart the shell, then verify:
 bun --version
 ```
 
-## 2. Clone Once
+## 3. Clone Once
 
 Clone the repo and install dependencies:
 
@@ -37,7 +103,7 @@ bun run release:validate
 Expected result: release metadata is in sync, with the current agent, skill, and
 MCP server counts.
 
-## 3. Pick Your Agent
+## 4. Pick Your Agent
 
 ### Claude Code
 
@@ -55,6 +121,10 @@ source ~/.zshrc
 ```
 
 Then run `claude-ds` from any project.
+
+In Claude Code, use namespaced plugin commands such as
+`/ce-datascience:ce-setup`. Install optional local aliases only if you need bare
+demo commands such as `/ce-setup`.
 
 ### Codex, Recommended Mode
 
@@ -149,17 +219,19 @@ qwen extensions install sajor2000/ce-datascience:ce-datascience
 Qwen is not a generated `--to qwen` target. `--to all` only writes generated
 targets that are detected on the machine.
 
-## 4. First Run In A Project
+## 5. First Run In A Project
 
 Start in the project or study repo where you want help, then run:
 
 ```text
-/ce-setup
-/ce-workflow
+/ce-datascience:ce-setup
+/ce-datascience:ce-workflow
 ```
 
-`/ce-setup` records the project stack profile. `/ce-workflow` shows the next
+`ce-setup` records the project stack profile. `ce-workflow` shows the next
 recommended skill sequence for the project type, data layer, and language.
+If optional aliases are installed, the bare forms `/ce-setup` and
+`/ce-workflow` work too.
 
 Good first workflows:
 
@@ -179,7 +251,16 @@ For publication artifacts:
 /ce-review-pack
 ```
 
-## 5. Update An Existing Checkout
+For locked-down laptops, run setup in no-install mode:
+
+```text
+/ce-datascience:ce-setup --locked-down
+```
+
+This reports missing tools but does not offer Homebrew, pip, npm, GitHub CLI, or
+Quarto install commands.
+
+## 6. Update An Existing Checkout
 
 ```bash
 cd "$CE_DS_REPO"
@@ -191,15 +272,29 @@ bun run release:validate
 Then restart the agent. For generated targets, rerun the install command for
 that target so generated files and MCP paths refresh.
 
+## 7. Build Offline Artifacts
+
+Release owners with a working source checkout can build the corporate ZIPs:
+
+```bash
+bun run package:corporate
+```
+
+The build writes:
+
+- `dist/corporate/ce-datascience-plugin.zip`
+- `dist/corporate/ce-datascience-claude-aliases.zip`
+- `dist/corporate/ce-datascience-codex-local.zip`
+
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | `bun: command not found` | Re-run the Bun install command, restart the shell, and check `bun --version`. |
-| Claude says `/ce-setup` is unknown | Restart Claude Code. Plugins load at session start. |
+| Claude says `/ce-setup` is unknown | Use `/ce-datascience:ce-setup`, or install optional local aliases. Restart Claude Code after installing a plugin or aliases. |
+| Corporate laptop blocks Bun, GitHub CLI, Git, or Quarto | Use the approved Claude plugin folder/ZIP or Codex local marketplace package. Bun and Git are source-build tooling; GitHub CLI is only for GitHub helper skills; Quarto is only for Quarto render workflows. |
 | Local install says it cannot find `plugins/ce-datascience` remotely | Use `./plugins/ce-datascience` from the repo root, including the leading `./`. |
 | Codex installed into the wrong profile | Set `CODEX_HOME` and pass the same value to `--codex-home`. |
 | Codex has duplicate or stale CE files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |
 | OpenCode did not create `.opencode/` | Do not use an output directory named `opencode` or `.opencode` when you want workspace nesting. Use a normal workspace path. |
 | MCP writes reports into the plugin cache | Set `CE_DATASCIENCE_PROJECT_ROOT=/absolute/path/to/project` or pass `project_root` where the MCP tool supports it. |
-

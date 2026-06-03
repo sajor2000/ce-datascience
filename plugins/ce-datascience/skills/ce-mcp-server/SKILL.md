@@ -37,10 +37,11 @@ When an IDE launches MCP servers outside the project directory, set `CE_DATASCIE
 
 ### Claude Code
 
-From a source checkout, use the Claude Code MCP command:
+For a plugin loaded with `claude --plugin-dir`, use the plugin-root path. Claude
+pre-resolves `CLAUDE_PLUGIN_ROOT` when loading plugin content:
 
 ```bash
-claude mcp add ce-datascience -- python3 plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py
+claude mcp add ce-datascience -- python3 "${CLAUDE_PLUGIN_ROOT}/skills/ce-mcp-server/mcp_server/run.py"
 ```
 
 Or manually add to `.mcp.json` in your project root:
@@ -51,7 +52,7 @@ Or manually add to `.mcp.json` in your project root:
     "ce-datascience": {
       "type": "stdio",
       "command": "python3",
-      "args": ["plugins/ce-datascience/skills/ce-mcp-server/mcp_server/run.py"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/ce-mcp-server/mcp_server/run.py"],
       "env": {
         "CE_DATASCIENCE_PROJECT_ROOT": "/absolute/path/to/your/project"
       }
@@ -72,7 +73,7 @@ bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path
 bun run src/index.ts install ./plugins/ce-datascience --to kiro --output /path/to/kiro-workspace
 ```
 
-Do not copy the source-checkout path into generated target configs. The generated configs point to the installed `ce-mcp-server/mcp_server/run.py` file for that platform.
+Do not copy a source-checkout path into generated target configs. The generated configs point to the installed `ce-mcp-server/mcp_server/run.py` file for that platform.
 
 ### Cursor / Windsurf
 
@@ -243,6 +244,10 @@ Add to `cline_mcp_settings.json`:
 
 When MCP is not available in your IDE, invoke the corresponding skills directly:
 - `/ce-literature-search` instead of `literature_search`
-- `/ce-setup` instead of `stack_profile`
-- `/ce-plan` (SAP mode) instead of `sap_create`
-- `/ce-code-review` with SAP drift agent instead of `sap_drift_check`
+- `/ce-datascience:ce-setup` instead of `stack_profile`
+- `/ce-datascience:ce-plan` (SAP mode) instead of `sap_create`
+- `/ce-datascience:ce-code-review` with SAP drift agent instead of `sap_drift_check`
+
+If optional local aliases were installed into `.claude/commands`, the bare
+forms such as `/ce-setup` also work. Treat those aliases as user/project command
+files, not as native plugin names.

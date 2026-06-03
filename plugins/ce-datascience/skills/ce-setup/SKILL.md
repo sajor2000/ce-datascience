@@ -1,6 +1,7 @@
 ---
 name: ce-setup
 description: "Configure data science stack profile and diagnose environment. Auto-detects language (R/Python/both) from repository signals, then prompts for IDE, data libraries, statistical packages, and reporting framework. Detects existing config and offers modification. Use when setting up a new project, switching tools, or troubleshooting environment."
+argument-hint: "[--locked-down|--no-install]"
 disable-model-invocation: true
 ---
 
@@ -11,6 +12,14 @@ disable-model-invocation: true
 Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) -- not because a schema load is required. Never silently skip or auto-configure user-facing questions (except the explicit repo-signal language auto-detect in Phase 0.5). For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
 
 Interactive setup for ce-datascience -- configures the stack profile for R/Python data science workflows, diagnoses environment health, and bootstraps project-local config.
+
+## Input Arguments
+
+Read the user arguments from `$ARGUMENTS`.
+
+- `--locked-down` and `--no-install` mean corporate/no-package-manager mode.
+- In corporate mode, report missing tools and approved-workaround guidance, but do not offer or run Homebrew, pip, npm, GitHub CLI, or Quarto install commands.
+- Quarto is optional unless the user selected Quarto manuscript/render output in Step 6.
 
 ## Phase 0: Detect Existing Config
 
@@ -340,7 +349,7 @@ Stack profile saved to .ce-datascience/config.local.yaml
   Reporting:   jupyter
   Checklist:   STROBE
 
-Run /ce-setup anytime to modify.
+Run this setup skill anytime to modify.
 ```
 
 After saving, emit:
@@ -362,6 +371,12 @@ bash scripts/check-health
 ```
 
 Script reference: `scripts/check-health`
+
+If `$ARGUMENTS` contains `--locked-down` or `--no-install`, run:
+
+```bash
+bash scripts/check-health --locked-down
+```
 
 Display the script's output to the user.
 
@@ -385,7 +400,7 @@ If everything is installed and config is present:
     Env manager: venv
     Config:      ✅
 
-    Run /ce-setup anytime to reconfigure.
+    Run setup anytime to reconfigure.
 ```
 
 If this is a Claude Code session (resolved to `CLAUDE_CODE`), append: "Run /ce-update to grab the latest plugin version."
@@ -395,6 +410,37 @@ If issues were found, proceed to Phase 3.
 ## Phase 3: Fix Missing Dependencies
 
 ### Step 12: Offer Installation
+
+If `$ARGUMENTS` contains `--locked-down` or `--no-install`, do not offer
+installation. Instead, show:
+
+```
+Corporate/no-install mode is active. I will not run package-manager commands.
+
+Required for basic setup:
+  - Python 3 only if you want MCP tools or Python analysis helpers
+  - R only if this project uses R workflows
+
+Optional:
+  - Quarto only for Quarto manuscript/render output
+  - gh only for GitHub issue/PR helpers
+  - Bun and Git only for contributing to or rebuilding the plugin from source
+
+Use an approved local plugin folder or ZIP for Claude Code:
+  claude --plugin-dir /approved/path/ce-datascience
+  claude --plugin-dir /approved/path/ce-datascience.zip
+
+Use the namespaced plugin commands in Claude Code:
+  /ce-datascience:ce-setup
+  /ce-datascience:ce-workflow
+
+If your team installed optional local aliases, bare commands such as /ce-setup
+also work, but they are local .claude/commands files rather than native plugin
+commands.
+```
+
+Then jump to Step 14. Do not present install choices and do not execute
+installer commands.
 
 Present missing tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output.
 
@@ -436,7 +482,7 @@ For each selected dependency:
     Installed: quarto, jq
     Skipped:   R
 
-    Run /ce-setup anytime to re-check.
+    Run setup anytime to re-check.
 ```
 
 If this is a Claude Code session, append: "Run /ce-update to grab the latest plugin version."

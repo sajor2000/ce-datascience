@@ -368,7 +368,10 @@ def stack_profile(
 
     if action == "read":
         if not config_path.exists():
-            return "No stack profile found. Run /ce-setup to create one."
+            return (
+                "No stack profile found. Run the ce-setup skill to create one "
+                "(Claude plugin command: /ce-datascience:ce-setup; optional local alias: /ce-setup)."
+            )
         with open(config_path) as f:
             data = yaml.load(f)
         if not data or "stack_profile" not in data:
