@@ -52,4 +52,26 @@ describe("data-first planning invariant", () => {
     expect(work).toContain("Data QA gate before coding/modeling")
     expect(work).toContain("stop execution and route to `/ce-data-qa`")
   })
+
+  test("new SAPs require the biostatistics tabular workbook contract", async () => {
+    const plan = await skillFile("ce-plan/SKILL.md")
+    const sapWorkflow = await skillFile("ce-plan/references/sap-mode-workflow.md")
+    const sapTemplate = await skillFile("ce-plan/references/sap-template.md")
+    const gapChecklist = await skillFile("ce-plan/references/sap-gap-checklist.md")
+    const lifecycle = await skillFile("ce-workflow/references/lifecycle-paths.md")
+
+    expect(plan).toContain("Every new SAP gets a tabular workbook contract")
+    expect(plan).toContain("analysis/sap-tables/01-overview.csv")
+
+    expect(sapWorkflow).toContain("SAP Phase 4.5: Biostatistics Tabular SAP Companion")
+    expect(sapWorkflow).toContain("Every new SAP must be paired with the biostatistics-style tabular SAP workbook contract")
+    expect(sapWorkflow).toContain("Analysis`, `Claim`, `Unit of Analysis`, `Data File(s)`, `Analysis Question`, `Primary Method`, `Secondary Methods`, `Site Script")
+    expect(sapWorkflow).toContain("Output File (SITE_ID_ prefix added automatically)")
+    expect(sapWorkflow).toContain("Format / Values")
+    expect(sapWorkflow).toContain("`/ce-data-qa` followed by `/ce-sap-tabular <slug>`")
+
+    expect(sapTemplate).toContain("Every new SAP must include the biostatistics-style tabular SAP contract")
+    expect(gapChecklist).toContain("No tabular SAP workbook contract")
+    expect(lifecycle).toContain("Every new SAP must then get the biostatistics-style tabular workbook contract")
+  })
 })

@@ -111,7 +111,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
-| `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians hand to programmers |
+| `/ce-sap-tabular` | Generate the biostatistics-style tabular companion to the prose SAP -- Overview, Outputs, Master Variables, and optional long/wide sample sheets that statisticians hand to programmers |
 | `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
 | `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |

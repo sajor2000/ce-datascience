@@ -27,7 +27,7 @@ Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human 
 
 1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `/ce-sprint close` first.
 
-2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `analysis_section` matches.
+2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `Script Section` or legacy `analysis_section` matches. Ignore section banner rows where only the first cell is populated.
 
 3. Resolve the reviewer. The user passes `reviewer=<name>` or, if absent, prompt for one. The named human is the person who will sign the sprint summary. Their name lands in `sprint-log.yaml` -- this is the audit-trail anchor.
 
@@ -82,8 +82,10 @@ sprint:
 
        Verify, in order:
        1. Every row in analysis/sap-tables/02-outputs.csv whose
-          analysis_section is in <scope> has a corresponding artifact at the
-          expected output_file under the expected subfolder.
+          `Script Section` or legacy `analysis_section` is in <scope> has a
+          corresponding artifact at the expected `Output File (SITE_ID_ prefix
+          added automatically)` or legacy `output_file` under the expected
+          `Subfolder` or legacy `subfolder`.
        2. No files outside <scope>'s SAP-section ownership were edited
           between <commit_open> and <commit_close>
           (use `git diff --name-only <commit_open> <commit_close>`).
