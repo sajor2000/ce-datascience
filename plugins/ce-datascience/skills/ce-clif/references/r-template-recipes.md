@@ -1,6 +1,6 @@
 # CLIF Project-Template Recipes (R)
 
-Canonical R patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (`code/templates/R/`, `config/`, `utils/`, `outlier-thresholds/`, `output/`). New CLIF analyses in R should start by cloning this template — never roll your own folder structure. The template enforces the federated-portability rules from `WORKFLOW.md`: site-specific paths only in `config/config.json`, package versions pinned with `renv`, scripts numbered for execution order.
+Canonical R patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (`code/templates/R/`, `config/`, `utils/`, `outlier-thresholds/`, `output/`) and current mixed R/Python CLIF project repos. New CLIF analyses in R should start by cloning this template — never roll your own folder structure. The template enforces the federated-portability rules from `WORKFLOW.md`: site-specific paths only in `config/config.json`, package versions pinned with `renv`, scripts numbered for execution order.
 
 ## Table of contents
 
@@ -58,7 +58,7 @@ renv::activate()
 renv::restore()
 ```
 
-For first-time project initialization, the template ships `initialize_renv_template.R`, which seeds `renv.lock` from a base set: `tidyverse`, `arrow`, `here`, `gtsummary`, `knitr`, `jsonlite`. Run it once when starting a new project, then commit the resulting `renv.lock`.
+For first-time project initialization, the template ships `initialize_renv_template.R`, which seeds `renv.lock` from a base set: `knitr`, `here`, `tidyverse`, `arrow`, and `gtsummary`. Because `utils/config.R` reads JSON config, add `jsonlite` if it is absent from the lockfile. Current mixed CLIF pipelines also commonly use `data.table`, `cmprsk`, `writexl`, and `ggplot2` through either tidyverse or explicit package calls. Run the initializer once when starting a new project, then commit the resulting `renv.lock`.
 
 ## 3. `config/config.json` shape
 

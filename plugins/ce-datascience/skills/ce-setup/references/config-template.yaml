@@ -7,11 +7,14 @@
 # Run /ce-setup to set these interactively.
 
 # stack_profile:
+#   profile: clif             # optional: clif when CLIF mode is active
+#   clif:
+#     data_dictionary_version: "2.1.0"
 #   language: python           # r | python | both
 #   ide: vscode                # rstudio | jupyter | marimo | quarto | vscode
 #   data_libraries:
-#     r: [tidyverse]           # tidyverse | data.table
-#     python: [pandas]         # pandas | polars
+#     r: [tidyverse]           # tidyverse | data.table | arrow | here | jsonlite | knitr
+#     python: [clifpy, polars] # clifpy | pandas | polars | duckdb | pyarrow | pandera | sf-hamilton
 #   data_layer: parquet        # parquet | database | fabric
 #   data_connection:           # optional; populated from __CE_CONNECTION__ handoff signals
 #     name: healthmap-connection
@@ -20,11 +23,11 @@
 #     auth: entra
 #     status: verified
 #   statistical_packages:
-#     r: [stats, survival]     # stats | survival | lme4 | gt | tidymodels | glmnet | survminer | brms | arrow | haven
-#     python: [scipy]          # scipy | statsmodels | scikit-learn
+#     r: [stats, survival]     # stats | survival | lme4 | gtsummary | gt | cmprsk | writexl | tidymodels | glmnet | survminer | brms | arrow | haven
+#     python: [tableone]       # tableone | scipy | statsmodels | lifelines | scikit-learn | plotly | upsetplot
 #   environment_manager:
 #     r: renv                  # renv | packrat | none
-#     python: venv             # venv | conda | poetry | pixi | none
+#     python: uv               # uv | venv | conda | poetry | pixi | none
 #   r_project_type: script     # script | package | shiny | plumber | targets
 #   reporting: jupyter         # quarto | rmarkdown | marimo | jupyter
 #   reporting_checklist: STROBE                 # CONSORT | STROBE | PRISMA | STARD | CARE | COREQ | ARRIVE | CHEERS | TRIPOD+AI

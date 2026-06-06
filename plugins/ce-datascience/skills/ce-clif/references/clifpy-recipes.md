@@ -1,6 +1,6 @@
 # clifpy Recipes (Python)
 
-Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/` and the official clifpy docs. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-02: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
+Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`, the official clifpy docs, and current CLIF consortium project manifests. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-06: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
 
 ## Table of contents
 
@@ -13,6 +13,7 @@ Canonical Python patterns for working with CLIF data, drawn directly from `Commo
 7. Unit conversion for medications.
 8. MDRO / hospital-diagnosis flags.
 9. Where to read more.
+10. Package profile from current CLIF repos.
 
 ---
 
@@ -146,4 +147,18 @@ charlson = co.compute_charlson_comorbidity()    # uses hospital_diagnosis + como
 - clifpy docs: https://common-longitudinal-icu-data-format.github.io/clifpy/
 - Examples directory: https://github.com/Common-Longitudinal-ICU-data-Format/clifpy/tree/main/examples
 - PyPI: `python3 -m pip install --upgrade clifpy`
+- uv projects: `uv add clifpy` then `uv sync`
 - Notebooks rendered with `marimo`: many examples are `.py` files using `marimo.App`. Run with `marimo run examples/sofa_demo.py` or `python examples/sofa_demo.py`.
+
+## 10. Package profile from current CLIF repos
+
+Use this package profile when `/ce-setup` runs with `__CE_CLIF__ active=true`.
+It comes from the current upstream `clifpy`, `CLIF-MIMIC`, `CLIF-TableOne`,
+`CLIF-eligibility-for-mobilization`, and `CLIF-epi-of-sedation` manifests.
+
+- Environment manager: prefer `uv` when `pyproject.toml` or `uv.lock` exists.
+- Core CLIF runtime: `clifpy`, `duckdb`, `pyarrow`, `polars`, `pandas`.
+- Validation and pipeline support: `pyyaml`, `pandera`, `sf-hamilton`, `psutil`, `tqdm`.
+- Analysis and reporting: `tableone`, `statsmodels`, `scipy`, `lifelines`, `plotly`, `upsetplot`, `reportlab`.
+- Notebook/app workflow: `marimo`, `ipykernel`, `jupyter` / `jupyterlab` when the repo already uses notebooks.
+- Do not add exact-version clifpy pins in generated setup instructions. If the repo has an existing `uv.lock`, `requirements.txt`, or project-specific branch dependency, preserve that lockfile and report the existing constraint instead of overwriting it.
