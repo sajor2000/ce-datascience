@@ -13,10 +13,10 @@ set -o pipefail
 deps=(
   "R|R --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q r|https://cran.r-project.org"
   "python3|python3 --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q python|https://www.python.org/downloads/"
-  "quarto|quarto --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto|https://quarto.org/docs/get-started/"
+  "quarto|quarto --version|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto|https://quarto.org/docs/get-started/"
   "jq|command -v jq|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q jq|https://jqlang.github.io/jq/"
   "gh|command -v gh|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q gh|https://cli.github.com"
-  "git|command -v git|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q git|https://git-scm.com"
+  "git|command -v git|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q git|https://git-scm.com"
 )
 
 # =====================================================
@@ -24,9 +24,11 @@ deps=(
 # =====================================================
 
 plugin_version=""
+locked_down="no"
 while [ $# -gt 0 ]; do
   case "$1" in
     --version) [ -n "$2" ] && plugin_version="$2" && shift 2 || shift ;;
+    --locked-down|--no-install) locked_down="yes"; shift ;;
     *) shift ;;
   esac
 done
@@ -103,16 +105,26 @@ for result in "${results[@]}"; do
   if [ "$status" = "ok" ]; then
     ok "$name"
   else
-    warn "$name"
-    issues=$((issues + 1))
-    case "$install_cmd" in
-      *brew\ install*)
-        if [ "$has_brew" = "yes" ]; then detail "$install_cmd"
-        else detail "$url"; fi ;;
-      *)
-        detail "$install_cmd"
-        detail "$url" ;;
-    esac
+    if [ "$tier" = "optional" ]; then
+      warn "$name (optional)"
+      detail "$url"
+    else
+      warn "$name"
+      issues=$((issues + 1))
+      if [ "$locked_down" = "yes" ]; then
+        detail "locked-down mode: no install command offered; ask IT or use an approved local runtime"
+        detail "$url"
+      else
+        case "$install_cmd" in
+          *brew\ install*)
+            if [ "$has_brew" = "yes" ]; then detail "$install_cmd"
+            else detail "$url"; fi ;;
+          *)
+            detail "$install_cmd"
+            detail "$url" ;;
+        esac
+      fi
+    fi
   fi
 done
 

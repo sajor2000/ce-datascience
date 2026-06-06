@@ -19,7 +19,7 @@ This skill formalizes the data-QA gate that exists between data extraction and S
 ## Prerequisites
 
 1. A SAP exists at `analysis/sap.md` (or specified via `--sap`) for full SAP-aligned QA. If no SAP exists yet, run pre-SAP column profile mode instead of stopping.
-2. A stack profile has been written via `/ce-setup` so `data_root` is known.
+2. A stack profile has been written via the `ce-setup` skill so `data_root` is known.
 3. The data extract is registered as a data wave (run `data_wave_register` MCP tool first if not).
 4. If the dataset is a research cohort built from EHR or claims data, run `/ce-cohort-build` first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
 

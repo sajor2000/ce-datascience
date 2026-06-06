@@ -13,6 +13,12 @@
 #     r: [tidyverse]           # tidyverse | data.table
 #     python: [pandas]         # pandas | polars
 #   data_layer: parquet        # parquet | database | fabric
+#   data_connection:           # optional; populated from __CE_CONNECTION__ handoff signals
+#     name: healthmap-connection
+#     type: postgres           # postgres | sqlite | duckdb | other
+#     database: healthmap_dev
+#     auth: entra
+#     status: verified
 #   statistical_packages:
 #     r: [stats, survival]     # stats | survival | lme4 | gt | tidymodels | glmnet | survminer | brms | arrow | haven
 #     python: [scipy]          # scipy | statsmodels | scikit-learn

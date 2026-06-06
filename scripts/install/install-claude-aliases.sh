@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+# Install optional bare /ce-* Claude Code command aliases for ce-datascience.
+#
+# Native Claude plugin commands and skills are plugin-prefixed. These local
+# command files are only a convenience layer for demos and locked-down laptops.
+
+set -euo pipefail
+
+MARKER_PREFIX="<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "
+DEFAULT_PLUGIN_NAME="ce-datascience"
+
+scope="user"
+commands_dir=""
+plugin_dir=""
+plugin_name="$DEFAULT_PLUGIN_NAME"
+mode="install"
+dry_run="no"
+
+usage() {
+  cat <<'USAGE'
+Usage: bash scripts/install/install-claude-aliases.sh [options]
+
+Options:
+  --scope user|project      Write to ~/.claude/commands or ./.claude/commands (default: user)
+  --commands-dir PATH       Override the destination command directory
+  --plugin-dir PATH         Generate aliases from this ce-datascience plugin directory
+  --plugin-name NAME        Plugin namespace used in aliases (default: ce-datascience)
+  --uninstall               Remove only managed ce-datascience aliases
+  --dry-run                 Print actions without writing files
+  --help                    Show this help
+
+The installer never overwrites a user-owned ce-*.md command. Existing managed
+aliases are updated in place; stale managed aliases are removed.
+USAGE
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --scope)
+      [ "$#" -ge 2 ] || { echo "Missing value for --scope" >&2; exit 2; }
+      scope="$2"
+      shift 2
+      ;;
+    --commands-dir)
+      [ "$#" -ge 2 ] || { echo "Missing value for --commands-dir" >&2; exit 2; }
+      commands_dir="$2"
+      shift 2
+      ;;
+    --plugin-dir)
+      [ "$#" -ge 2 ] || { echo "Missing value for --plugin-dir" >&2; exit 2; }
+      plugin_dir="$2"
+      shift 2
+      ;;
+    --plugin-name)
+      [ "$#" -ge 2 ] || { echo "Missing value for --plugin-name" >&2; exit 2; }
+      plugin_name="$2"
+      shift 2
+      ;;
+    --uninstall)
+      mode="uninstall"
+      shift
+      ;;
+    --dry-run)
+      dry_run="yes"
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+case "$scope" in
+  user|project) ;;
+  *) echo "--scope must be user or project" >&2; exit 2 ;;
+esac
+
+if [ -z "$commands_dir" ]; then
+  if [ "$scope" = "project" ]; then
+    commands_dir="$PWD/.claude/commands"
+  else
+    commands_dir="${CLAUDE_COMMANDS_DIR:-$HOME/.claude/commands}"
+  fi
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/../.." && pwd)"
+prebuilt_dir="$script_dir/commands"
+
+if [ -z "$plugin_dir" ]; then
+  if [ -d "$repo_root/plugins/ce-datascience/skills" ]; then
+    plugin_dir="$repo_root/plugins/ce-datascience"
+  elif [ -d "$prebuilt_dir" ]; then
+    plugin_dir=""
+  else
+    echo "Could not find plugin skills. Pass --plugin-dir /path/to/ce-datascience or run from the repo checkout." >&2
+    exit 2
+  fi
+fi
+
+run_or_echo() {
+  if [ "$dry_run" = "yes" ]; then
+    printf '[dry-run] %s\n' "$*"
+  else
+    "$@"
+  fi
+}
+
+is_managed_alias() {
+  [ -f "$1" ] && grep -Fq "$MARKER_PREFIX" "$1"
+}
+
+write_alias_file() {
+  local output_file="$1"
+  local skill_name="$2"
+  cat > "$output_file" <<EOF_ALIAS
+---
+description: "Local alias for /${plugin_name}:${skill_name} from CE DataScience."
+---
+${MARKER_PREFIX}plugin=${plugin_name} skill=${skill_name} -->
+This local command is a convenience alias for the CE DataScience plugin skill:
+
+\`/${plugin_name}:${skill_name} \$ARGUMENTS\`
+
+Delegate to that namespaced plugin skill and pass through the arguments exactly:
+
+\$ARGUMENTS
+EOF_ALIAS
+}
+
+build_source_dir() {
+  if [ -z "$plugin_dir" ] && [ -d "$prebuilt_dir" ]; then
+    printf '%s\n' "$prebuilt_dir"
+    return
+  fi
+
+  if [ ! -d "$plugin_dir/skills" ]; then
+    echo "Plugin directory does not contain skills/: $plugin_dir" >&2
+    exit 2
+  fi
+
+  local temp_dir
+  temp_dir="$(mktemp -d -t ce-claude-aliases-XXXXXX)"
+  alias_temp_dir="$temp_dir"
+
+  shopt -s nullglob
+  local skill_path skill_name
+  for skill_path in "$plugin_dir"/skills/ce-*/SKILL.md; do
+    skill_name="$(basename "$(dirname "$skill_path")")"
+    write_alias_file "$temp_dir/${skill_name}.md" "$skill_name"
+  done
+  shopt -u nullglob
+
+  if ! compgen -G "$temp_dir/ce-*.md" >/dev/null; then
+    echo "No public ce-* skills found under $plugin_dir/skills" >&2
+    exit 2
+  fi
+
+  printf '%s\n' "$temp_dir"
+}
+
+uninstall_aliases() {
+  echo "Removing managed CE DataScience aliases from $commands_dir"
+  shopt -s nullglob
+  local file
+  for file in "$commands_dir"/ce-*.md; do
+    if is_managed_alias "$file"; then
+      run_or_echo rm -f "$file"
+      echo "removed $(basename "$file")"
+    fi
+  done
+  shopt -u nullglob
+}
+
+install_aliases() {
+  local source_dir="$1"
+  echo "Installing CE DataScience aliases into $commands_dir"
+  run_or_echo mkdir -p "$commands_dir"
+
+  local managed_names="
+"
+  shopt -s nullglob
+  local source_file base target
+  for source_file in "$source_dir"/ce-*.md; do
+    base="$(basename "$source_file")"
+    managed_names="${managed_names}${base}
+"
+    target="$commands_dir/$base"
+    if [ -e "$target" ] && ! is_managed_alias "$target"; then
+      echo "skipped user-owned $base"
+      continue
+    fi
+    if [ "$dry_run" = "yes" ]; then
+      echo "[dry-run] install $base"
+    else
+      cp "$source_file" "$target"
+    fi
+    echo "installed $base"
+  done
+
+  local existing
+  for existing in "$commands_dir"/ce-*.md; do
+    base="$(basename "$existing")"
+    case "$managed_names" in
+      *"
+$base
+"*) ;;
+      *)
+        if is_managed_alias "$existing"; then
+          run_or_echo rm -f "$existing"
+          echo "removed stale $base"
+        fi
+        ;;
+    esac
+  done
+  shopt -u nullglob
+}
+
+alias_temp_dir=""
+trap 'if [ -n "${alias_temp_dir:-}" ] && [ -d "$alias_temp_dir" ]; then rm -rf "$alias_temp_dir"; fi' EXIT
+
+if [ "$mode" = "uninstall" ]; then
+  uninstall_aliases
+else
+  source_dir="$(build_source_dir)"
+  install_aliases "$source_dir"
+fi

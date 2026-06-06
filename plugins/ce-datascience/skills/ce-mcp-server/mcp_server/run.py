@@ -327,6 +327,11 @@ def stack_profile(
     r_project_type: str | None = None,
     reporting: str | None = None,
     data_root: str | None = None,
+    data_connection_name: str | None = None,
+    data_connection_type: str | None = None,
+    data_connection_database: str | None = None,
+    data_connection_auth: str | None = None,
+    data_connection_status: str | None = None,
     blinding_state: str | None = None,
     study_type: str | None = None,
     ai_involvement: str | None = None,
@@ -345,6 +350,11 @@ def stack_profile(
         r_project_type: script, package, shiny, plumber, or targets
         reporting: quarto, rmarkdown, marimo, or jupyter
         data_root: Data directory or off-repo data path
+        data_connection_name: Optional verified connection name
+        data_connection_type: Optional connection type: postgres, sqlite, duckdb, or other
+        data_connection_database: Optional database name
+        data_connection_auth: Optional auth mode
+        data_connection_status: Optional connection status, e.g. verified
         blinding_state: blinded, unblinded, or n/a
         study_type: Study design value used for reporting guideline routing
         ai_involvement: none, ai-assisted, ai-primary, or llm-based
@@ -368,7 +378,10 @@ def stack_profile(
 
     if action == "read":
         if not config_path.exists():
-            return "No stack profile found. Run /ce-setup to create one."
+            return (
+                "No stack profile found. Run the ce-setup skill to create one "
+                "(Claude plugin command: /ce-datascience:ce-setup; optional local alias: /ce-setup)."
+            )
         with open(config_path) as f:
             data = yaml.load(f)
         if not data or "stack_profile" not in data:
@@ -379,6 +392,7 @@ def stack_profile(
         for key in ["language", "ide", "data_libraries", "data_layer",
                      "statistical_packages", "environment_manager",
                      "r_project_type", "reporting", "data_root",
+                     "data_connection",
                      "blinding_state", "study_type", "ai_involvement"]:
             if key in sp:
                 lines.append(f"  {key}: {sp[key]}")
@@ -427,6 +441,19 @@ def stack_profile(
                     sp["environment_manager"][sub_k] = sub_v
         if r_project_type is not None:
             sp["r_project_type"] = r_project_type
+        connection_updates = {
+            "name": data_connection_name,
+            "type": data_connection_type,
+            "database": data_connection_database,
+            "auth": data_connection_auth,
+            "status": data_connection_status,
+        }
+        if any(v is not None for v in connection_updates.values()):
+            if "data_connection" not in sp or not isinstance(sp["data_connection"], dict):
+                sp["data_connection"] = {}
+            for sub_k, sub_v in connection_updates.items():
+                if sub_v is not None:
+                    sp["data_connection"][sub_k] = sub_v
         if reporting_checklist is not None:
             normalized = _canonical_guideline(reporting_checklist)
             if normalized and normalized.lower() not in {"none", "null", "false", "off"}:

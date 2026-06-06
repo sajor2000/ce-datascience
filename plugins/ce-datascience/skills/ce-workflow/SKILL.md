@@ -99,12 +99,12 @@ Inline language-specific and data-layer notes at the steps where they matter (e.
 
 If all steps are complete, emit: "All lifecycle steps complete. Run `/ce-compound` to document learnings."
 
-If no stack profile exists, append: "Run `/ce-setup` first to configure your stack profile."
+If no stack profile exists, append: "Run the setup skill first to configure your stack profile. In Claude plugin installs, use `/ce-datascience:ce-setup`; bare `/ce-setup` works only when local aliases are installed."
 
 ## What this skill does NOT do
 
 - Does not run any lifecycle skill — it only recommends the next one
-- Does not replace `/ce-setup` — run setup first for full stack profile
+- Does not replace setup -- run `ce-setup` first for full stack profile
 - Does not create files or modify project state
 - Does not replace `/ce-clif` — CLIF activation happens automatically via `ce-clif`
 

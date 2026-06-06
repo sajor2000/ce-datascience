@@ -18,7 +18,7 @@ Picks the right reporting checklist(s) at PLAN time so the SAP is written agains
 ## Prerequisites
 
 - A one-line study description (or `/ce-ideate` output)
-- Stack profile exists (`/ce-setup` has run)
+- Stack profile exists (`ce-setup` has run)
 
 ## Core workflow
 

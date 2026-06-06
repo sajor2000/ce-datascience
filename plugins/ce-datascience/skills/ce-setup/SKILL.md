@@ -1,6 +1,7 @@
 ---
 name: ce-setup
 description: "Configure data science stack profile and diagnose environment. Auto-detects language (R/Python/both) from repository signals, then prompts for IDE, data libraries, statistical packages, and reporting framework. Detects existing config and offers modification. Use when setting up a new project, switching tools, or troubleshooting environment."
+argument-hint: "[--locked-down|--no-install]"
 disable-model-invocation: true
 ---
 
@@ -11,6 +12,14 @@ disable-model-invocation: true
 Ask the user each question below using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting each question as a numbered list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) -- not because a schema load is required. Never silently skip or auto-configure user-facing questions (except the explicit repo-signal language auto-detect in Phase 0.5). For multiSelect questions, accept comma-separated numbers (e.g. `1, 3`).
 
 Interactive setup for ce-datascience -- configures the stack profile for R/Python data science workflows, diagnoses environment health, and bootstraps project-local config.
+
+## Input Arguments
+
+Read the user arguments from `$ARGUMENTS`.
+
+- `--locked-down` and `--no-install` mean corporate/no-package-manager mode.
+- In corporate mode, report missing tools and approved-workaround guidance, but do not offer or run Homebrew, pip, npm, GitHub CLI, or Quarto install commands.
+- Quarto is optional unless the user selected Quarto manuscript/render output in Step 6.
 
 ## Phase 0: Detect Existing Config
 
@@ -24,6 +33,7 @@ Existing stack profile detected:
   IDE:        vscode
   Libraries:  pandas
   Data layer: parquet
+  Connection: n/a
   Stats:      scipy, statsmodels
   Reporting:  jupyter
 
@@ -52,13 +62,29 @@ Rules:
 - If `primary=unknown` and an existing config has `stack_profile.language`, reuse that value and set `source=cached`.
 - If `primary=unknown` and no prior config exists, default to `both`.
 
+## Phase 0.75: Detect verified connection handoff
+
+Before asking data-layer questions, scan the recent chat context for a verified connection signal:
+
+```
+__CE_CONNECTION__ name=<connection-name> type=<postgres|sqlite|duckdb|other> database=<db-name> auth=<auth-mode> status=verified
+```
+
+If present with `status=verified`, store it as `detected_connection` and print:
+
+```
+[ce-setup] verified data connection detected: <name> (<type>, database=<db-name>)
+```
+
+The signal is generic. `healthmap-connection` is one possible producer, but `ce-setup` must not depend on Health Map-specific behavior.
+
 ## Phase 1: Stack Profile Configuration
 
 Walk through each question in sequence. The answer to each question determines the options shown for subsequent questions.
 
 ### Step 1: Language (from auto-detection)
 
-Set `stack_profile.language` from `__CE_LANG__.primary` captured in Phase 0.5 (`r`, `python`, or `both`).
+Set a tentative `detected_language` from `__CE_LANG__.primary` captured in Phase 0.5 (`r`, `python`, or `both`).
 
 - If `primary=unknown`, use fallback rules from Phase 0.5.
 - Store the detection metadata as `language_detect.primary`, `language_detect.secondary`, and `language_detect.source`.
@@ -68,9 +94,11 @@ Set `stack_profile.language` from `__CE_LANG__.primary` captured in Phase 0.5 (`
 [ce-setup] language auto-detected: <primary> (source=<auto|cached|manual>)
 ```
 
+Do not treat `language_detect.primary=both` as a final user preference. It means the repository has both R and Python signals. The selected IDE in Step 2 refines `stack_profile.language` for all follow-up questions.
+
 ### Step 2: IDE
 
-Present IDE options relevant to the selected language.
+Present IDE options relevant to `detected_language`.
 
 For R or both:
 ```
@@ -95,9 +123,18 @@ For "both", combine all unique options (RStudio, JupyterLab, VS Code, Marimo, Qu
 
 Store the selection as `stack_profile.ide`.
 
+Then refine `stack_profile.language` from the selected IDE:
+
+- If `detected_language=both` and the user selects Marimo or JupyterLab / Jupyter Notebook, set `stack_profile.language=python`.
+- If `detected_language=both` and the user selects RStudio, set `stack_profile.language=r`.
+- If `detected_language=both` and the user selects VS Code or Quarto, keep `stack_profile.language=both`.
+- If `detected_language` is `r` or `python`, keep that value unless the user explicitly typed a conflicting free-text IDE/language preference.
+
+This refinement is required before Step 3. Do not ask R data-library, R statistical-package, R environment-manager, or R project-type questions after a Python-only IDE choice such as Marimo or Jupyter. Do not ask Python package questions after an RStudio-only choice. Keep the original `language_detect` block unchanged so future runs can see what was auto-detected.
+
 ### Step 3: Data Libraries
 
-Present library options based on the selected language. Use a multiSelect question.
+Present library options based on the refined `stack_profile.language`, not the raw auto-detected language. Use a multiSelect question.
 
 For R:
 ```
@@ -121,6 +158,32 @@ Store selections as `stack_profile.data_libraries`.
 
 ### Step 4: Data Layer
 
+If `detected_connection.status=verified`, show the SQL database option as the default/recommended choice and include the connection name in the prompt:
+
+```
+Verified database connection detected: healthmap-connection (postgres, database=healthmap_dev, auth=entra).
+
+What is your primary data storage layer?
+
+1. SQL database (recommended: use verified healthmap-connection)
+2. Parquet files (local or cloud)
+3. Microsoft Fabric / Spark
+```
+
+If the user selects the verified database option, set `stack_profile.data_layer=database` and store:
+
+```yaml
+stack_profile:
+  data_connection:
+    name: healthmap-connection
+    type: postgres
+    database: healthmap_dev
+    auth: entra
+    status: verified
+```
+
+If no verified connection signal is present, use the standard prompt:
+
 ```
 What is your primary data storage layer?
 
@@ -133,7 +196,7 @@ Store the selection as `stack_profile.data_layer`.
 
 ### Step 5: Statistical Packages
 
-Present package options based on the selected language. Use a multiSelect question.
+Present package options based on the refined `stack_profile.language`, not the raw auto-detected language. Use a multiSelect question.
 
 For R:
 ```
@@ -166,7 +229,7 @@ Store selections as `stack_profile.statistical_packages`.
 
 ### Step 5.5: Environment Manager (R-only follow-up)
 
-When the language selection includes R, ask:
+When the refined `stack_profile.language` includes R, ask:
 
 ```
 How do you manage R package environments?
@@ -177,7 +240,7 @@ How do you manage R package environments?
 
 Store the selection as `stack_profile.environment_manager.r`.
 
-For Python or "both", ask the equivalent:
+When the refined `stack_profile.language` includes Python, ask the equivalent:
 ```
 How do you manage Python environments?
 
@@ -192,7 +255,7 @@ Store the selection as `stack_profile.environment_manager.python`.
 
 ### Step 6: Reporting Framework
 
-Present options based on the selected language.
+Present options based on the refined `stack_profile.language`.
 
 For R:
 ```
@@ -227,7 +290,7 @@ If Marimo is selected, display: "Marimo selected. `/ce-work` will scaffold react
 
 ### Step 7: R Project Type (R-only)
 
-When the language selection is R or both, ask:
+When the refined `stack_profile.language` is R or both, ask:
 
 ```
 What type of R project are you building?
@@ -241,7 +304,24 @@ What type of R project are you building?
 
 Store the selection as `stack_profile.r_project_type`.
 
-### Step 7b: Data root
+### Step 7b: Data root or extract cache
+
+If `stack_profile.data_layer=database`, do not require `data_root` and do not treat the database connection as a filesystem path. Ask only whether the user wants a local extract/cache folder:
+
+```
+This project uses a database connection. `data_root` is optional and should only point to a local folder for materialized extracts or cached QA files.
+
+Where should local data extracts/cache live?
+
+1. No local data root for now (recommended for database-first projects)
+2. Off-repo absolute path
+3. ~/Box Sync, ~/Dropbox, or other cloud-mounted folder
+4. Inside the repo at data/ (only valid for SYNTHETIC or fully de-identified public data)
+```
+
+If option 1, set `stack_profile.data_root: null` and tell the user: "Register concrete database extracts, tables, or query outputs with `data_wave_register(location=...)` before `/ce-data-qa`." If option 2 or 3, ask for the absolute path. If option 4, set `data_root: data/` and warn about PHI.
+
+For non-database data layers, use the standard data-root prompt:
 
 ```
 Where will the analysis dataset live?
@@ -310,6 +390,8 @@ Resolve the repository root (`git rev-parse --show-toplevel`). All paths are rel
 
 Build the YAML content from the collected answers. Only include non-null values. Write to `<repo-root>/.ce-datascience/config.local.yaml`, creating the directory if needed.
 
+If a verified `detected_connection` was accepted in Step 4, include it under `stack_profile.data_connection`. Do not write the connection into `data_root`.
+
 Persist the language-detection block gathered in Phase 0.5:
 
 ```yaml
@@ -334,13 +416,14 @@ Stack profile saved to .ce-datascience/config.local.yaml
   IDE:         vscode
   Libraries:   pandas
   Data layer:  parquet
+  Connection:  n/a
   Stats:       scipy, statsmodels
   Env manager: venv
   R project:   n/a
   Reporting:   jupyter
   Checklist:   STROBE
 
-Run /ce-setup anytime to modify.
+Run this setup skill anytime to modify.
 ```
 
 After saving, emit:
@@ -363,6 +446,12 @@ bash scripts/check-health
 
 Script reference: `scripts/check-health`
 
+If `$ARGUMENTS` contains `--locked-down` or `--no-install`, run:
+
+```bash
+bash scripts/check-health --locked-down
+```
+
 Display the script's output to the user.
 
 ### Step 11: Evaluate Results
@@ -371,7 +460,8 @@ Display the script's output to the user.
 
 After the diagnostic report, check whether:
 
-- any tools are missing (reported as yellow in the output)
+- recommended tools or project checks are reported in the bottom-line issue count
+- optional tools are reported as yellow but do not require Phase 3 unless the chosen workflow needs them
 - `.ce-datascience/config.local.yaml` does not exist or is not safely gitignored
 
 If everything is installed and config is present:
@@ -385,7 +475,7 @@ If everything is installed and config is present:
     Env manager: venv
     Config:      ✅
 
-    Run /ce-setup anytime to reconfigure.
+    Run setup anytime to reconfigure.
 ```
 
 If this is a Claude Code session (resolved to `CLAUDE_CODE`), append: "Run /ce-update to grab the latest plugin version."
@@ -396,7 +486,38 @@ If issues were found, proceed to Phase 3.
 
 ### Step 12: Offer Installation
 
-Present missing tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output.
+If `$ARGUMENTS` contains `--locked-down` or `--no-install`, do not offer
+installation. Instead, show:
+
+```
+Corporate/no-install mode is active. I will not run package-manager commands.
+
+Required for basic setup:
+  - Python 3 only if you want MCP tools or Python analysis helpers
+  - R only if this project uses R workflows
+
+Optional:
+  - Quarto only for Quarto manuscript/render output
+  - gh only for GitHub issue/PR helpers
+  - Bun and Git only for contributing to or rebuilding the plugin from source
+
+Use an approved local plugin folder or ZIP for Claude Code:
+  claude --plugin-dir /approved/path/ce-datascience
+  claude --plugin-dir /approved/path/ce-datascience.zip
+
+Use the namespaced plugin commands in Claude Code:
+  /ce-datascience:ce-setup
+  /ce-datascience:ce-workflow
+
+If your team installed optional local aliases, bare commands such as /ce-setup
+also work, but they are local .claude/commands files rather than native plugin
+commands.
+```
+
+Then jump to Step 14. Do not present install choices and do not execute
+installer commands.
+
+Present missing recommended tools using a multiSelect question with all items pre-selected. Use the install commands from the script's diagnostic output. Include Quarto only when the user selected Quarto manuscript/render output.
 
 ```
 The following tools are missing. Select which to install:
@@ -408,7 +529,7 @@ The following tools are missing. Select which to install:
   [x] jq - JSON processor
 ```
 
-Only show items that are actually missing.
+Only show recommended items that are actually missing, plus Quarto when the selected workflow requires Quarto output.
 
 ### Step 13: Install Selected Dependencies
 
@@ -436,7 +557,7 @@ For each selected dependency:
     Installed: quarto, jq
     Skipped:   R
 
-    Run /ce-setup anytime to re-check.
+    Run setup anytime to re-check.
 ```
 
 If this is a Claude Code session, append: "Run /ce-update to grab the latest plugin version."

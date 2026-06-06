@@ -15,22 +15,58 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 For a complete copy-paste setup guide across every supported platform, see
 [docs/setup.md](docs/setup.md).
 
-### 1. Install Bun
+### Locked-down or demo laptop
+
+Use the offline release artifacts when package managers, GitHub CLI, Git, Bun,
+or Quarto are blocked by IT policy. Basic Claude Code and Codex use does not
+require Bun, GitHub CLI, or Quarto.
+
+Claude Code can load the approved plugin folder or ZIP directly:
+
+```bash
+claude --plugin-dir /approved/path/ce-datascience
+claude --plugin-dir /approved/path/ce-datascience.zip
+```
+
+Native Claude plugin skills are namespaced:
+
+```text
+/ce-datascience:ce-setup --locked-down
+/ce-datascience:ce-workflow
+```
+
+Bare `/ce-*` commands are an optional local alias layer, not a native plugin
+guarantee. Install them only when you want demo-friendly command names:
+
+```bash
+bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/ce-datascience --scope user
+```
+
+For Codex without Bun, unpack `ce-datascience-codex-local.zip` and run:
+
+```bash
+bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "${CODEX_HOME:-$HOME/.codex}"
+```
+
+Restart Codex, open `/plugins`, install CE DataScience from the local
+marketplace, then restart again. The installer writes the personal marketplace
+file under `.agents/plugins/marketplace.json` and points it at
+`./.codex/plugins/ce-datascience` relative to that marketplace root.
+
+### Source checkout for contributors
+
+Bun and Git are contributor/release tooling. Install them only when you need to
+build, validate, or convert the plugin from source:
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
-```
-
-### 2. Clone and install
-
-```bash
 export CE_DS_REPO="$HOME/ce-datascience"
 git clone https://github.com/sajor2000/ce-datascience.git "$CE_DS_REPO"
 cd "$CE_DS_REPO"
 bun install
 ```
 
-### 3. Launch Claude Code
+Launch Claude Code from the checkout:
 
 ```bash
 claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"
@@ -45,18 +81,19 @@ source ~/.zshrc
 
 Now just type `claude-ds` in any project.
 
-### 4. Configure your stack
+### Configure your stack
 
-```
-/ce-setup
+```text
+/ce-datascience:ce-setup
 ```
 
 Picks up your language (R or Python), IDE, libraries, and data layer automatically.
+If you installed optional aliases, `/ce-setup` works too.
 
-### 5. See your workflow
+### See your workflow
 
-```
-/ce-workflow
+```text
+/ce-datascience:ce-workflow
 ```
 
 Shows every step for your project type and tells you what to do next.
@@ -64,6 +101,9 @@ Shows every step for your project type and tells you what to do next.
 ---
 
 ## What can it do?
+
+The examples below use bare `/ce-*` commands for readability. In native Claude
+plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 
 ### Run an observational study
 
@@ -190,8 +230,11 @@ Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
 
 | Platform | Easiest command |
 |---|---|
-| Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` |
+| Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` then `/ce-datascience:ce-setup` |
+| Claude Code, offline | `claude --plugin-dir /approved/path/ce-datascience.zip` |
+| Claude bare aliases | `bash scripts/install/install-claude-aliases.sh --plugin-dir "$CE_DS_REPO/plugins/ce-datascience" --scope user` |
 | Codex native + agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"` |
+| Codex offline local marketplace | `bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"` |
 | Codex standalone | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` |
 | Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"` |
 | Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path/to/gemini-workspace` |
@@ -235,13 +278,21 @@ cd ~/ce-datascience && git pull && bun install
 
 Then restart your coding agent.
 
+To build corporate/offline ZIPs from a source checkout:
+
+```bash
+bun run package:corporate
+```
+
 ---
 
 ## Troubleshooting
 
-**"Unknown command" on /ce-setup:** Restart Claude Code. The plugin loads at session start.
+**"Unknown command" on `/ce-setup`:** Native Claude plugin commands are namespaced. Use `/ce-datascience:ce-setup`, or install the optional local aliases into `.claude/commands`.
 
 **`bun install` fails:** Run `bun --version`. If missing: `curl -fsSL https://bun.sh/install | bash`
+
+**Corporate laptop blocks Bun, GitHub CLI, Git, or Quarto:** Use the offline Claude folder/ZIP or Codex local marketplace package. Bun and Git are for source builds; GitHub CLI is only for GitHub helpers; Quarto is only required for Quarto render/manuscript workflows.
 
 **Plugin seems outdated:** `cd ~/ce-datascience && git pull && bun install`, then restart.
 
