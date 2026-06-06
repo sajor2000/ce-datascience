@@ -10,10 +10,64 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 
 ---
 
-## Get started in 5 minutes
+## Get started like Compound Engineering
 
-For a complete copy-paste setup guide across every supported platform, see
-[docs/setup.md](docs/setup.md).
+The normal path is intentionally short: install the plugin, start your agent,
+then run setup. For complete platform details, see [docs/setup.md](docs/setup.md).
+
+### Claude Code, easiest path
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 claude -Aliases
+claude
+```
+
+Then run:
+
+```text
+/ce-setup
+```
+
+The `--aliases` flag installs safe local command aliases so the demo-friendly
+bare `/ce-*` commands work. Without aliases, native Claude plugin commands are
+namespaced, for example `/ce-datascience:ce-setup`.
+
+### Codex, easiest path
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 codex
+codex
+```
+
+Inside Codex, open `/plugins`, install **CE DataScience**, restart Codex, then
+start a new thread and ask Codex to use CE DataScience for setup. The helper
+also installs the generated agent bridge when Bun is available.
 
 ### Locked-down or demo laptop
 
@@ -46,6 +100,12 @@ For Codex without Bun, unpack `ce-datascience-codex-local.zip` and run:
 
 ```bash
 bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "${CODEX_HOME:-$HOME/.codex}"
+```
+
+On Windows PowerShell, use the package's native installer:
+
+```powershell
+.\install.ps1 codex -Source C:\approved\ce-datascience-codex-local -CodexHome "$HOME\.codex"
 ```
 
 Restart Codex, open `/plugins`, install CE DataScience from the local
@@ -230,9 +290,13 @@ Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
 
 | Platform | Easiest command |
 |---|---|
+| Claude Code, one-command setup | `bash install.sh claude --aliases` then `/ce-setup` |
+| Claude Code, Windows PowerShell | `.\install.ps1 claude -Aliases` then `/ce-setup` |
 | Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` then `/ce-datascience:ce-setup` |
 | Claude Code, offline | `claude --plugin-dir /approved/path/ce-datascience.zip` |
 | Claude bare aliases | `bash scripts/install/install-claude-aliases.sh --plugin-dir "$CE_DS_REPO/plugins/ce-datascience" --scope user` |
+| Codex, one-command setup | `bash install.sh codex` then install CE DataScience from `/plugins` |
+| Codex, Windows PowerShell | `.\install.ps1 codex` then install CE DataScience from `/plugins` |
 | Codex native + agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"` |
 | Codex offline local marketplace | `bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"` |
 | Codex standalone | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` |
