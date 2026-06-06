@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-48 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+49 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -110,6 +110,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ```
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
 /ce-pubmed
+/ce-evidence-map
 /ce-method-extract
 /ce-checklist-match
 /ce-effect-size
