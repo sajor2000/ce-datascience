@@ -34,7 +34,7 @@ If the input is present but unclear or underspecified, do not abandon — ask on
 
 This skill operates in one of two modes, detected after reading the input:
 
-**SAP mode** -- activated when the input document or feature description contains study design keywords: study population, exposure, intervention, outcome, hypothesis, research question, PICO, primary endpoint, cohort, case-control, randomized, observational study, clinical trial, inclusion criteria, exclusion criteria. SAP mode produces a versioned Statistical Analysis Plan using the template in `references/sap-template.md` and runs the gap checklist from `references/sap-gap-checklist.md`.
+**SAP mode** -- activated when the input document or feature description contains study design keywords: study population, exposure, intervention, outcome, hypothesis, research question, PICO, primary endpoint, cohort, case-control, randomized, observational study, clinical trial, inclusion criteria, exclusion criteria. SAP mode produces a versioned Statistical Analysis Plan using the template in `references/sap-template.md`, requires the biostatistics-style tabular SAP workbook contract (`Overview`, `Outputs`, `Master Variables`), and runs the gap checklist from `references/sap-gap-checklist.md`.
 
 **Implementation mode** -- activated for all other inputs (technical tasks, software features, refactors, infrastructure). Uses the existing plan template and full Phase 0-5 workflow described below.
 
@@ -51,6 +51,7 @@ The reference covers:
 - SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
 - CLIF profile behavior under SAP mode (data dictionary version, three-script architecture, STROBE+RECORD default, protected-path scope rules).
 - SAP Phase 4 — write the SAP file.
+- SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`/ce-sap-tabular`) for every new SAP.
 - SAP Phase 5 — gap check and review.
 - SAP versioning rules.
 
@@ -65,6 +66,7 @@ The reference covers:
 7. **Carry execution posture lightly when it matters** - If the request, origin document, or repo context clearly implies test-first, characterization-first, or another non-default execution posture, reflect that in the plan as a lightweight signal. Do not turn the plan into step-by-step execution choreography.
 8. **Honor user-named resources** - When the user names a specific resource — a CLI, MCP server, URL, file, doc link, or prior artifact — treat it as authoritative input, not a suggestion. Discover it if unknown (`command -v`, fetch, read) before assuming it's unavailable. Use it in place of generic alternatives. If it fails or doesn't exist, say so explicitly rather than silently substituting.
 9. **Data shape before SAP, coding, or modeling** - For any study, prediction, clinical, omics, dashboard, or analysis project with data available, inspect the actual columns, grain, keys, dates, missingness, duplicates, and basic validity before SAP finalization or implementation planning. Use `/ce-data-qa` for tabular data and `/ce-bioinfo-qc` for omics data. If data is not available, write an explicit data-profile prerequisite and keep SAP variable/model sections provisional.
+10. **Every new SAP gets a tabular workbook contract** - A new SAP is not execution-ready until it has the biostatistics-style tabular SAP companion: `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` when `openpyxl` is available. If data QA is missing, keep the SAP in draft and list `/ce-data-qa` before `/ce-sap-tabular`; do not skip the workbook requirement.
 
 ## Plan Quality Bar
 

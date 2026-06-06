@@ -1,6 +1,6 @@
 # Variable categories
 
-The `category` column in `03-variables.csv` is a controlled vocabulary. Use the canonical labels below; a free-form `notes` column is available for everything else.
+The `Category` column in `03-variables.csv` is a controlled vocabulary. Use the canonical labels below; a free-form `Notes` column is available for everything else.
 
 ## Canonical categories
 
@@ -57,19 +57,19 @@ These belong in the catalog so reviewers can trace how primary variables are con
 - `Fixed` -- one value per patient / episode / cluster
 - `Time-varying` -- one value per row in the long-format file (typically per-day, per-encounter, per-observation)
 
-## Levels column hints
+## Format / Values column hints
 
 For categoricals, list the expected level set: `{M, F}`, `{placebo, drug}`, `{0, 1}`. For continuous variables, give the expected range or unit: `Numeric (kg/m^2)`, `Integer 0-28`, `Numeric (mg/dL)`. For dates, write `Date (YYYY-MM-DD)` or `Datetime (UTC)`.
 
-The `levels` column is what `ce-data-qa` (QA-4 categorical check) and `ce-data-mapping-reviewer` (level-set drift check) consult. Be specific.
+The `Format / Values` column is what `ce-data-qa` (QA-4 categorical check) and `ce-data-mapping-reviewer` (level-set drift check) consult. Be specific.
 
 ## File column
 
-Values: `File 1`, `File 2`, `File 3`, ..., or `Both` when a variable appears in multiple files (e.g., subject IDs, hospital IDs).
+Values: `File 1`, `File 2`, `File 3`, ..., or `Both` when a variable appears in multiple files (e.g., subject IDs, hospital IDs). Add a short note above the header row in the workbook when files need definition, such as `File 1 (Long): One row per patient per ventilator day.`
 
 ## Per-analysis flag columns
 
-One column per analysis from `01-overview.csv`. Use:
+One column per analysis from `01-overview.csv`. Use workbook-friendly IDs such as `A2`, `A3`, `A4`, `A5`, `A6`, and `SA`:
 
 - `✓` if the variable is used in that analysis
 - (blank) if not used

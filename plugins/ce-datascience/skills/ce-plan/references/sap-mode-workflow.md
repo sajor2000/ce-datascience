@@ -9,8 +9,9 @@ Detailed workflow for `/ce-plan` when **SAP mode** is active. Linked from `SKILL
 3. Canonical handoff-signal envelopes (the `__CE_*__` table consumed by Phase 3).
 4. CLIF-profile behavior under SAP mode.
 5. SAP Phase 4 — Write the SAP file.
-6. SAP Phase 5 — Gap check and review.
-7. SAP versioning rules.
+6. SAP Phase 4.5 — Create or require the biostatistics-style tabular SAP companion.
+7. SAP Phase 5 — Gap check and review.
+8. SAP versioning rules.
 
 ---
 
@@ -77,6 +78,20 @@ When `__CE_CLIF__ active=true` is present:
    - `status: draft`
 3. Write the SAP file to disk using the Write tool.
 4. Confirm: `SAP written to [path]`.
+
+## 4.5. SAP Phase 4.5: Biostatistics Tabular SAP Companion
+
+Every new SAP must be paired with the biostatistics-style tabular SAP workbook contract. Treat `/ce-sap-tabular` as part of the SAP deliverable, not optional polish.
+
+1. Derive a study slug from the SAP title or user-provided slug.
+2. If the SAP has usable data-profile evidence and no critical data QA blockers, generate or update the core tabular SAP files via `/ce-sap-tabular <slug>`:
+   - `analysis/sap-tables/01-overview.csv` with exact columns `Analysis`, `Claim`, `Unit of Analysis`, `Data File(s)`, `Analysis Question`, `Primary Method`, `Secondary Methods`, `Site Script`
+   - `analysis/sap-tables/02-outputs.csv` with exact columns `Output File (SITE_ID_ prefix added automatically)`, `Subfolder`, `Dataset / Cohort Scope`, `Script Section`, `Contents`, `Role at Coordinating Center`, `Interpretation`
+   - `analysis/sap-tables/03-variables.csv` with exact columns `Category`, `Variable`, `Description`, `Type`, `Format / Values`, `File`, one flag column per analysis (`A2`, `A3`, etc.), and optional `Notes`
+   - `analysis/sap-tables/<slug>-tabular-sap.xlsx` when `openpyxl` is available
+3. Use visible section-banner rows in `02-outputs.csv` such as `SETUP / DIAGNOSTICS | <script>`, `TABLE OUTPUTS | <script>`, `MODEL OUTPUTS | <script>`, and `FIGURE DATA OUTPUTS | <script>`. The remaining cells in a banner row stay blank so the workbook renderer can merge the row.
+4. If data QA is missing, blocked, or the SAP has provisional variable/model sections, do not invent workbook rows. Keep `status: draft`, retain the data-profile gap comment, and list `/ce-data-qa` followed by `/ce-sap-tabular <slug>` as required next steps before `/ce-sprint`, `/ce-work`, coding, or modeling.
+5. The SAP gap report must state whether the tabular companion is present, generated, or blocked by missing data QA. A new SAP with no tabular companion and no explicit blocker is incomplete.
 
 ## 5. SAP Phase 5: Gap Check and Review
 

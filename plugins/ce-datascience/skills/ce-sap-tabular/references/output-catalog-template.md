@@ -4,12 +4,35 @@ The `02-outputs.csv` catalog uses a constrained set of artifact types and sectio
 
 ## Section labels (group rows by these)
 
-Section rows are inserted as visual separators in the .xlsx workbook. The CSV has a section column; the .xlsx merges the section header across all columns.
+Section rows are inserted as visual separators in the `.xlsx` workbook. Preferred CSV form mirrors a biostatistics SAP workbook: a banner row has the section label in column 1 and blank cells in the remaining columns. The renderer merges that banner across all output columns.
 
-1. **DIAGNOSTIC OUTPUTS** -- pre-analysis QC and cohort documentation
+Example banner row:
+
+```csv
+SETUP / DIAGNOSTICS | ABTRISE_00_setup.R,,,,,,
+```
+
+Legacy CSVs with a first `section` column are still accepted, but new SAPs should use banner rows because that is what the workbook reader sees.
+
+1. **SETUP / DIAGNOSTICS** -- pre-analysis QC, cohort documentation, and script setup checks
 2. **TABLE OUTPUTS** -- manuscript-ready tables (descriptive, demographic, results summary)
 3. **MODEL OUTPUTS** -- per-analysis model estimates, coefficients, variances, diagnostics
 4. **FIGURE DATA OUTPUTS** -- aggregated data points enabling pooled-figure construction without individual data
+5. **SUBGROUP / SENSITIVITY OUTPUTS** -- prespecified subgroup and robustness outputs
+
+## Required catalog columns
+
+Use these exact column names:
+
+| Column | Purpose |
+|--------|---------|
+| `Output File (SITE_ID_ prefix added automatically)` | Artifact filename without a hard-coded site prefix |
+| `Subfolder` | Folder where the analysis script writes the artifact |
+| `Dataset / Cohort Scope` | Dataframe, cohort, or analytic population used |
+| `Script Section` | Script or analysis section that owns the output |
+| `Contents` | Plain-English inventory of fields/statistics in the artifact |
+| `Role at Coordinating Center` | How the pooled/coordinating layer consumes or audits it |
+| `Interpretation` | Pre-result expectation and meaning; required for model, table, and figure rows |
 
 ## Diagnostic-output canonical names
 
