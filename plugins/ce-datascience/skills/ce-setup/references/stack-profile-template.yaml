@@ -38,6 +38,17 @@ stack_profile:
   # fabric    - Microsoft Fabric / Spark
   data_layer: parquet | database | fabric
 
+  # Optional verified database connection metadata. Connection-producing skills
+  # can emit:
+  # __CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified
+  # ce-setup uses that handoff as the default database context.
+  data_connection:
+    name: healthmap-connection
+    type: postgres | sqlite | duckdb | other
+    database: healthmap_dev
+    auth: entra
+    status: verified
+
   # Statistical and modeling packages
   statistical_packages:
     r: [stats, survival, lme4, gt, tidymodels, glmnet, survminer, brms, arrow, haven]
@@ -66,10 +77,13 @@ stack_profile:
   # jupyter   - Jupyter notebooks (.ipynb)
   reporting: quarto | rmarkdown | marimo | jupyter
 
-  # Where the analysis dataset lives. Used by data_wave_register, data_lock,
-  # ce-data-qa, and ce-phi-leak-reviewer. PHI must NEVER be inside the repo
-  # tree -- if data_root is repo-relative, the QA gate refuses any column
-  # matching PHI patterns.
+  # Where local analysis datasets, materialized extracts, or cache files live.
+  # For database-first projects, this may stay null; register concrete tables,
+  # extracts, or query outputs with data_wave_register(location=...).
+  # Used by data_wave_register, data_lock, ce-data-qa, and
+  # ce-phi-leak-reviewer. PHI must NEVER be inside the repo tree -- if
+  # data_root is repo-relative, the QA gate refuses any column matching PHI
+  # patterns.
   # Examples:
   #   /Users/jcr/secure-data/study-x/        (absolute, off-repo)
   #   ~/Box Sync/study-x/data/                (cloud-mounted, off-repo)

@@ -61,8 +61,11 @@ bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local
 
 Then restart Codex, run `/plugins`, install CE DataScience from the local
 marketplace, and restart again. The installer also writes generated agent bridge
-files into the selected `CODEX_HOME` and rewrites MCP paths to the installed
-local plugin copy.
+files into the selected `CODEX_HOME`, copies the native plugin under the
+marketplace root at `.codex/plugins/ce-datascience`, and rewrites MCP paths to
+that installed local plugin copy. The marketplace entry uses
+`source.path: "./.codex/plugins/ce-datascience"` so Codex can resolve it from
+the marketplace root.
 
 ### Source checkout for contributors
 
@@ -232,6 +235,16 @@ Start in the project or study repo where you want help, then run:
 recommended skill sequence for the project type, data layer, and language.
 If optional aliases are installed, the bare forms `/ce-setup` and
 `/ce-workflow` work too.
+
+If another skill verifies a database connection first, it can emit a generic
+handoff such as:
+
+```text
+__CE_CONNECTION__ name=healthmap-connection type=postgres database=healthmap_dev auth=entra status=verified
+```
+
+`ce-setup` uses verified connection handoffs as defaults for database-backed
+projects while keeping `data_root` optional for local extracts/cache files.
 
 Good first workflows:
 

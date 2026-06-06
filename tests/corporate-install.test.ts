@@ -146,15 +146,20 @@ describe("corporate install artifacts", () => {
       agentsHome,
     ])
 
-    const installedPlugin = path.join(agentsHome, "plugins", "ce-datascience")
+    const marketplaceRoot = path.dirname(agentsHome)
+    const installedPlugin = path.join(marketplaceRoot, ".codex", "plugins", "ce-datascience")
     expect(await exists(path.join(installedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
+    expect(await exists(path.join(agentsHome, "plugins", "ce-datascience"))).toBe(false)
     expect(await exists(path.join(codexHome, "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
 
     const marketplace = JSON.parse(await fs.readFile(path.join(agentsHome, "plugins", "marketplace.json"), "utf8")) as {
       plugins: Array<{ name: string; source: { path: string } }>
     }
     const entry = marketplace.plugins.find((plugin) => plugin.name === "ce-datascience")
-    expect(entry?.source.path).toBe("./plugins/ce-datascience")
+    expect(entry?.source.path).toBe("./.codex/plugins/ce-datascience")
+    const marketplaceResolvedPlugin = path.resolve(marketplaceRoot, entry?.source.path ?? "")
+    expect(marketplaceResolvedPlugin).toBe(installedPlugin)
+    expect(await exists(path.join(marketplaceResolvedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
 
     const config = await fs.readFile(path.join(codexHome, "config.toml"), "utf8")
     const installedRunPy = path.join(installedPlugin, "skills", "ce-mcp-server", "mcp_server", "run.py")
@@ -182,5 +187,39 @@ describe("corporate install artifacts", () => {
     expect(healthScript).toContain("git|command -v git|optional")
     expect(healthScript).toContain("locked-down mode: no install command offered")
     expect(setupSkill).toContain("optional tools are reported as yellow but do not require Phase 3")
+  })
+
+  test("setup narrows auto-detected both language after Python-only IDE selection", async () => {
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+
+    expect(setupSkill).toContain("Do not treat `language_detect.primary=both` as a final user preference")
+    expect(setupSkill).toContain("If `detected_language=both` and the user selects Marimo or JupyterLab / Jupyter Notebook, set `stack_profile.language=python`")
+    expect(setupSkill).toContain("If `detected_language=both` and the user selects RStudio, set `stack_profile.language=r`")
+    expect(setupSkill).toContain("If `detected_language=both` and the user selects VS Code or Quarto, keep `stack_profile.language=both`")
+    expect(setupSkill).toContain("Do not ask R data-library, R statistical-package, R environment-manager, or R project-type questions after a Python-only IDE choice such as Marimo or Jupyter")
+    expect(setupSkill).toContain("Do not ask Python package questions after an RStudio-only choice")
+    expect(setupSkill).toContain("Present library options based on the refined `stack_profile.language`, not the raw auto-detected language")
+  })
+
+  test("setup consumes verified connection handoffs without requiring data_root", async () => {
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const configTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "config-template.yaml"), "utf8")
+    const stackTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "stack-profile-template.yaml"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+
+    const connectionSignal = "__CE_CONNECTION__ name=<connection-name> type=<postgres|sqlite|duckdb|other> database=<db-name> auth=<auth-mode> status=verified"
+    expect(setupSkill).toContain(connectionSignal)
+    expect(setupSkill).toContain("Verified database connection detected: healthmap-connection (postgres, database=healthmap_dev, auth=entra).")
+    expect(setupSkill).toContain("SQL database (recommended: use verified healthmap-connection)")
+    expect(setupSkill).toContain("Do not write the connection into `data_root`")
+    expect(setupSkill).toContain("set `stack_profile.data_root: null`")
+    expect(setupSkill).toContain("data_wave_register(location=...)")
+
+    expect(configTemplate).toContain("data_connection:")
+    expect(configTemplate).toContain("name: healthmap-connection")
+    expect(stackTemplate).toContain("data_connection:")
+    expect(stackTemplate).toContain("status: verified")
+    expect(stackTemplate).toContain("For database-first projects, this may stay null")
+    expect(setupDocs).toContain("__CE_CONNECTION__ name=healthmap-connection type=postgres database=healthmap_dev auth=entra status=verified")
   })
 })

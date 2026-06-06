@@ -19,7 +19,7 @@ Usage: bash scripts/install/install-codex-offline.sh --source PATH [options]
 Options:
   --source PATH        Unpacked ce-datascience-codex-local folder or repo root
   --codex-home PATH    Codex profile root (default: $CODEX_HOME or ~/.codex)
-  --agents-home PATH   Codex local marketplace root (default: $AGENTS_HOME or ~/.agents)
+  --agents-home PATH   Codex .agents root for marketplace.json (default: $AGENTS_HOME or ~/.agents)
   --dry-run            Print actions without writing files
   --help               Show this help
 
@@ -97,9 +97,11 @@ else
   exit 2
 fi
 
+marketplace_root="$(dirname "$agents_home")"
 marketplace_dir="$agents_home/plugins"
-plugin_dest="$marketplace_dir/$PLUGIN_NAME"
 marketplace_path="$marketplace_dir/marketplace.json"
+marketplace_plugin_path="./.codex/plugins/$PLUGIN_NAME"
+plugin_dest="$marketplace_root/.codex/plugins/$PLUGIN_NAME"
 bridge_source=""
 
 if [ -d "$source_root/codex-agent-bridge/agents/$PLUGIN_NAME" ]; then
@@ -158,7 +160,7 @@ if not isinstance(plugins, list):
 
 entry = {
     "name": "ce-datascience",
-    "source": {"source": "local", "path": "./plugins/ce-datascience"},
+    "source": {"source": "local", "path": "./.codex/plugins/ce-datascience"},
     "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
     "category": "Data Science",
 }
@@ -173,7 +175,7 @@ PY
   elif [ -f "$marketplace_path" ]; then
     echo "Cannot safely merge existing $marketplace_path without python3." >&2
     echo "Install python3, remove the existing marketplace file, or merge this entry manually:" >&2
-    echo '{"name":"ce-datascience","source":{"source":"local","path":"./plugins/ce-datascience"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Data Science"}' >&2
+    echo '{"name":"ce-datascience","source":{"source":"local","path":"./.codex/plugins/ce-datascience"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Data Science"}' >&2
     exit 2
   else
     if [ "$dry_run" = "yes" ]; then
@@ -191,7 +193,7 @@ PY
       "name": "ce-datascience",
       "source": {
         "source": "local",
-        "path": "./plugins/ce-datascience"
+        "path": "./.codex/plugins/ce-datascience"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -266,6 +268,8 @@ merge_managed_codex_config
 echo ""
 echo "Codex offline install complete."
 echo "Marketplace: $marketplace_path"
+echo "Marketplace root: $marketplace_root"
+echo "Marketplace source.path: $marketplace_plugin_path"
 echo "Plugin:      $plugin_dest"
 echo "Codex home:  $codex_home"
 echo ""

@@ -144,6 +144,87 @@ print(json.dumps({
     expect(await exists(path.join(pluginRoot, "analysis", "sap.md"))).toBe(false)
   })
 
+  test("writes and reads stack profile connection metadata", async () => {
+    const projectRoot = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "ce-mcp-connection-")))
+    await fs.mkdir(path.join(projectRoot, ".git"))
+
+    const script = String.raw`
+import importlib.util
+import json
+import pathlib
+import sys
+import types
+
+run_py = pathlib.Path(sys.argv[1])
+project_root = pathlib.Path(sys.argv[2])
+
+class FakeMCP:
+    def __init__(self, *args, **kwargs):
+        pass
+    def tool(self, *args, **kwargs):
+        def decorate(fn):
+            return fn
+        return decorate
+    def run(self, *args, **kwargs):
+        pass
+
+class FakeYAML:
+    preserve_quotes = False
+    def load(self, stream):
+        text = stream.read() if hasattr(stream, "read") else str(stream)
+        return json.loads(text) if text.strip() else None
+    def dump(self, data, stream):
+        json.dump(data, stream, indent=2)
+
+sys.modules["fastmcp"] = types.SimpleNamespace(FastMCP=FakeMCP)
+sys.modules["ruamel"] = types.ModuleType("ruamel")
+sys.modules["ruamel.yaml"] = types.SimpleNamespace(YAML=FakeYAML)
+
+spec = importlib.util.spec_from_file_location("ce_mcp_run", run_py)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+write_result = module.stack_profile(
+    action="write",
+    language="python",
+    ide="marimo",
+    data_root=None,
+    data_connection_name="healthmap-connection",
+    data_connection_type="postgres",
+    data_connection_database="healthmap_dev",
+    data_connection_auth="entra",
+    data_connection_status="verified",
+    project_root=str(project_root),
+)
+read_result = module.stack_profile(action="read", project_root=str(project_root))
+config_path = project_root / ".ce-datascience" / "config.local.yaml"
+
+print(json.dumps({
+    "write_result": write_result,
+    "read_result": read_result,
+    "config": json.loads(config_path.read_text()),
+}))
+`
+
+    const stdout = await runPythonHarness(script, [projectRoot])
+    const result = JSON.parse(stdout) as {
+      write_result: string
+      read_result: string
+      config: { stack_profile: { data_root?: string; data_connection?: Record<string, string> } }
+    }
+
+    expect(result.write_result).toContain(path.join(projectRoot, ".ce-datascience", "config.local.yaml"))
+    expect(result.read_result).toContain("data_connection: {'name': 'healthmap-connection'")
+    expect(result.config.stack_profile.data_root).toBeUndefined()
+    expect(result.config.stack_profile.data_connection).toEqual({
+      name: "healthmap-connection",
+      type: "postgres",
+      database: "healthmap_dev",
+      auth: "entra",
+      status: "verified",
+    })
+  })
+
   test("rejects invalid explicit project roots with actionable text", async () => {
     const missingRoot = path.join(os.tmpdir(), "ce-mcp-missing-project-root")
     const script = String.raw`

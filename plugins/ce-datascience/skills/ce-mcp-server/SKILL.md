@@ -152,13 +152,19 @@ Add to `cline_mcp_settings.json`:
   "environment_manager_python": "venv | conda | poetry | pixi | none",
   "r_project_type": "script | package | shiny | plumber | targets",
   "reporting": "quarto | rmarkdown | marimo | jupyter",
+  "data_root": "/absolute/path/to/local/extracts-or-null",
+  "data_connection_name": "healthmap-connection",
+  "data_connection_type": "postgres | sqlite | duckdb | other",
+  "data_connection_database": "healthmap_dev",
+  "data_connection_auth": "entra",
+  "data_connection_status": "verified",
   "reporting_checklist": "STROBE",
   "reporting_checklist_extensions": ["RECORD"],
   "project_root": "/absolute/path/to/your/project"
 }
 ```
 
-**Output:** Current config state or updated config confirmation.
+**Output:** Current config state or updated config confirmation. Database connection metadata is stored separately from `data_root`; database-backed projects may leave `data_root` unset and register concrete tables, extracts, or query outputs with `data_wave_register(location=...)`.
 
 ### sap_create
 

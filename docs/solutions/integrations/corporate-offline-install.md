@@ -18,6 +18,12 @@ source tooling:
 - `ce-datascience-codex-local.zip`: Codex local marketplace package plus
   generated agent bridge.
 
+For Codex personal/offline installs, keep the marketplace file at
+`.agents/plugins/marketplace.json`, but point its local `source.path` at a
+plugin directory under the marketplace root, such as
+`./.codex/plugins/ce-datascience`. Codex resolves `source.path` relative to the
+marketplace root, not relative to the `.agents/plugins/` folder.
+
 Bun, Git, and GitHub CLI are contributor/release tooling. Quarto is optional
 unless the user selected a Quarto manuscript or render workflow. Basic setup
 should continue to work when those tools are unavailable.

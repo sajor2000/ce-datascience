@@ -49,7 +49,9 @@ bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local
 ```
 
 Restart Codex, open `/plugins`, install CE DataScience from the local
-marketplace, then restart again.
+marketplace, then restart again. The installer writes the personal marketplace
+file under `.agents/plugins/marketplace.json` and points it at
+`./.codex/plugins/ce-datascience` relative to that marketplace root.
 
 ### Source checkout for contributors
 
