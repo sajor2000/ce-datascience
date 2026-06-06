@@ -306,6 +306,7 @@ The build writes:
 | `bun: command not found` | Re-run the Bun install command, restart the shell, and check `bun --version`. |
 | Claude says `/ce-setup` is unknown | Use `/ce-datascience:ce-setup`, or install optional local aliases. Restart Claude Code after installing a plugin or aliases. |
 | Corporate laptop blocks Bun, GitHub CLI, Git, or Quarto | Use the approved Claude plugin folder/ZIP or Codex local marketplace package. Bun and Git are source-build tooling; GitHub CLI is only for GitHub helper skills; Quarto is only for Quarto render workflows. |
+| Paperclip is missing or blocked | `/ce-evidence-map` still works from PubMed-only evidence. Paperclip is optional for full-text, result-set grep/map, SQL, and figure deepening. |
 | Local install says it cannot find `plugins/ce-datascience` remotely | Use `./plugins/ce-datascience` from the repo root, including the leading `./`. |
 | Codex installed into the wrong profile | Set `CODEX_HOME` and pass the same value to `--codex-home`. |
 | Codex has duplicate or stale CE files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |

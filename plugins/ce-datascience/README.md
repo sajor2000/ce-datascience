@@ -123,6 +123,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | Skill | Description |
 |-------|-------------|
 | `/ce-pubmed` | PubMed/MEDLINE search via NCBI E-utilities with MeSH expansion and structured result tables |
+| `/ce-evidence-map` | Build a source-backed evidence map from PubMed, with optional Paperclip full-text, grep, map, SQL, and figure deepening when available |
 | `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification |
 | `/ce-checklist-match` | Pick the right reporting checklist (CONSORT / STROBE / TRIPOD+AI / etc.) at PLAN time, before SAP drafting |
 | `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes; produces an R or Python script and a SAP-ready paragraph |
