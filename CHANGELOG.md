@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.1](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.0...cli-v3.4.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* **ce-setup:** align CLIF setup defaults ([#15](https://github.com/sajor2000/ce-datascience/issues/15)) ([24b0644](https://github.com/sajor2000/ce-datascience/commit/24b06445865b112546500347175f02bf6253bcb4))
+
 ## [3.4.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.3.0...cli-v3.4.0) (2026-06-07)
 
 

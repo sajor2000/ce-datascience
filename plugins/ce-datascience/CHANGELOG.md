@@ -9,6 +9,13 @@ All notable changes to the ce-datascience plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.1](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.4.0...ce-datascience-v3.4.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* **ce-setup:** align CLIF setup defaults ([#15](https://github.com/sajor2000/ce-datascience/issues/15)) ([24b0644](https://github.com/sajor2000/ce-datascience/commit/24b06445865b112546500347175f02bf6253bcb4))
+
 ## [3.4.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.3.0...ce-datascience-v3.4.0) (2026-06-07)
 
 
