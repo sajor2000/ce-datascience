@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.4.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.3.0...cli-v3.4.0) (2026-06-07)
+
+
+### Features
+
+* **evidence-map:** add optional Paperclip grounding ([#16](https://github.com/sajor2000/ce-datascience/issues/16)) ([9ff1eed](https://github.com/sajor2000/ce-datascience/commit/9ff1eedaafd42a6fd81535840361e8a45c76c0ce))
+
+
+### Bug Fixes
+
+* **integrations:** harden corporate offline setup ([#12](https://github.com/sajor2000/ce-datascience/issues/12)) ([6af64f3](https://github.com/sajor2000/ce-datascience/commit/6af64f35ccfeec8fe940350fd5547b8b67a27971))
+* **integrations:** harden cross-platform installer workflows ([#14](https://github.com/sajor2000/ce-datascience/issues/14)) ([186b1bd](https://github.com/sajor2000/ce-datascience/commit/186b1bd4dbb6a9f3aa3b88183f99dbcd3d56336f))
+* **planning:** require biostats SAP workbook contracts ([#17](https://github.com/sajor2000/ce-datascience/issues/17)) ([6fc1b88](https://github.com/sajor2000/ce-datascience/commit/6fc1b88b287d6ac78d32356b1900bbd8c0345e72))
+* **skills:** harden production readiness workflows ([#18](https://github.com/sajor2000/ce-datascience/issues/18)) ([3236e61](https://github.com/sajor2000/ce-datascience/commit/3236e617bd3ef00291c3c230bba19b4585799514))
+
 ## [3.3.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.2.0...cli-v3.3.0) (2026-06-02)
 
 
