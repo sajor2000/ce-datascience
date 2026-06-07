@@ -1,10 +1,20 @@
 ---
 name: ce-brainstorm
-description: 'Explore research questions and study designs through collaborative dialogue before writing a right-sized requirements document and planning analysis. Use for research ideas, study framing, when the user says ''let''s brainstorm'', or when they want to think through options before deciding what to study. Also use when a user describes a vague or ambitious research question, asks ''what should we study'', ''help me think through X'', presents a problem with multiple valid designs, or seems unsure about scope or direction — even if they don''t explicitly ask to brainstorm.'
+description: "Explore a research idea or study design before planning. Produces a right-sized requirements document that captures scope, rationale, outcomes, and unresolved assumptions."
 argument-hint: "[research question or study idea to explore] [output:html]"
 ---
 
 # Brainstorm a Research Question or Study
+
+
+## Skill Value
+
+- **Problem it solves:** Vague study ideas can turn into SAPs or code that silently invent population, endpoint, comparison, or feasibility decisions.
+- **Use when:** The user wants to brainstorm, refine a research question, compare study designs, or decide what evidence would be worth generating.
+- **Output:** A requirements, protocol, or analysis brief under docs/brainstorms/ that ce-plan can use as origin context.
+- **Ask only if:** Only for study-shaping decisions that are not clear from the prompt, repo, prior artifacts, or source documents.
+- **Do not do:** Do not write the SAP, implement analysis code, or force a long brainstorm when the request is already well scoped.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 **Note: The current year is 2026.** Use this when dating requirements documents.
 
@@ -32,7 +42,7 @@ These rules apply to every brainstorm, including the universal (non-software) fl
 1. **Ask one question at a time** - One question per turn, even when sub-questions feel related. Stacking several questions in a single message produces diluted answers; pick the single most useful one and ask it.
 2. **Prefer single-select multiple choice** - Use single-select when choosing one direction, one priority, or one next step.
 3. **Use multi-select rarely and intentionally** - Use it only for compatible sets such as goals, constraints, non-goals, or success criteria that can all coexist. If prioritization matters, follow up by asking which selected item is primary.
-4. **Default to the platform's blocking question tool** - Use `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). These tools include a free-text fallback (e.g., "Other" in Claude Code), so options scaffold the answer without confining it — well-chosen options surface dimensions the user may not have separated, and pick-plus-optional-note is lower activation energy than composing prose from scratch. This default holds for opening and elicitation questions too, not only narrowing. Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+4. **Use the Skill Value interaction rule** - Ask only decision-changing questions after checking available evidence. Use the current harness's blocking question UI when available; otherwise present numbered choices and wait.
 5. **Use prose only when the question is genuinely open** - Drop the blocking tool only when (a) the answer is inherently narrative ("walk me through how you got here"), (b) the question is diagnostic or introspective and presented options would leak your priors and bias the answer (e.g., "what concerns you most?" where a 4-option menu signals which axes matter), or (c) you cannot write 3-4 genuinely distinct, plausibly-correct options that cover the space without padding or strawmen. The test: if you'd be straining to fill the option slots, the question is open — use prose. Rule 1 still applies: still one question per turn.
 
 ## Output Guidance

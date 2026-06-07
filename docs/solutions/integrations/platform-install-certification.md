@@ -2,7 +2,7 @@
 title: Platform install certification
 category: integrations
 status: active
-last_verified: 2026-06-02
+last_verified: 2026-06-07
 ---
 
 # Platform Install Certification
@@ -47,6 +47,35 @@ installed files are self-contained.
 - Confirm skill instructions invoke bundled scripts through skill-local paths
   such as `python3 scripts/tool.py` or `bash scripts/tool`, never source-repo
   paths like `plugins/ce-datascience/skills/...`.
+
+## 2026-06-07 RC Certification
+
+The release-candidate smoke path passed with the current plugin inventory:
+55 agents, 48 skills, and 1 MCP server.
+
+Automated checks:
+
+- `bun test tests/platform-smoke.test.ts tests/corporate-install.test.ts`
+- `bun test tests/upstream-ce-curation.test.ts tests/skill-value-contract.test.ts tests/plugin-content-portability.test.ts tests/frontmatter.test.ts`
+- `bunx tsc --noEmit`
+- `bun run release:validate`
+- `bun test`
+
+Manual temp-root checks:
+
+- Built `ce-datascience-plugin.zip`,
+  `ce-datascience-claude-aliases.zip`, and
+  `ce-datascience-codex-local.zip`.
+- Verified ZIP contents exclude `__pycache__`, `.pyc`, `.pyo`,
+  `node_modules`, `.git`, `tests`, and `.DS_Store`.
+- Installed 48 Claude alias command files into a temp command root and verified
+  `ce-setup.md` delegates to `/ce-datascience:ce-setup $ARGUMENTS`.
+- Installed the Codex offline package into a fresh temp profile and verified
+  marketplace metadata, generated bridge agents, and MCP config paths point to
+  the installed plugin copy.
+- Ran generated installs for `codex --include-skills`, `opencode`, `pi`,
+  `gemini`, and `kiro` into fresh temp roots and verified no cache artifacts
+  were copied.
 
 ## Reference Docs
 

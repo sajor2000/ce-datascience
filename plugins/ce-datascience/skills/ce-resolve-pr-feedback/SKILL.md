@@ -1,11 +1,21 @@
 ---
 name: ce-resolve-pr-feedback
-description: "Resolve PR review feedback by evaluating validity and fixing issues in parallel. Use when addressing PR review comments, resolving review threads, fixing code review feedback, or responding to statistical methodology questions from reviewers (estimand concerns, sample size queries, sensitivity analysis requests, SAP feedback)."
+description: "Resolve pull request feedback by triaging review threads, applying valid fixes, validating changes, and replying to reviewers."
 argument-hint: "[PR number, comment URL, or blank for current branch's PR]"
 allowed-tools: Bash(gh *), Bash(git *), Read
 ---
 
 # Resolve PR Review Feedback
+
+
+## Skill Value
+
+- **Problem it solves:** PR comments need validity checks, focused fixes, and traceable replies without losing review context.
+- **Use when:** The user asks to resolve PR feedback, review comments, methodology concerns, or reviewer threads.
+- **Output:** Applied fixes, validation results, replies or resolution notes, and any remaining human decisions.
+- **Ask only if:** Only when a comment is ambiguous or changes scientific/product intent.
+- **Do not do:** Do not blindly apply reviewer suggestions that are invalid or out of scope.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Evaluate and fix PR review feedback, then reply and resolve threads. Spawns parallel agents for each thread.
 

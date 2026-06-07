@@ -1,10 +1,20 @@
 ---
 name: ce-model-card
-description: 'Generates a Mitchell-style model card for a clinical / biomedical prediction or classification model: intended use, training data, evaluation data, overall + subgroup performance, calibration, fairness considerations, ethical considerations, caveats, recalibration plan. Use whenever the user mentions model card, Mitchell model card, TRIPOD+AI item 16, CONSORT-AI item 7, FDA AI/ML model documentation, "document the model for the manuscript", "appendix for the prediction model", "deployment artifact", or finishes evaluating a clinical prediction model. Required by TRIPOD+AI and recommended by FDA for AI/ML clinical decision support. Reads an eval-output JSON with overall metrics + per-subgroup metrics; refuses to generate placeholder cards when required fields are missing.'
+description: "Generate clinical or biomedical model cards covering intended use, data, performance, calibration, fairness, and limitations."
 argument-hint: "<model artifact path>, optional: --eval-output path/to/eval-results.json"
 ---
 
 # Model Card Generator
+
+
+## Skill Value
+
+- **Problem it solves:** Models can ship without clear intended use, validation scope, subgroup behavior, or clinical limitations.
+- **Use when:** The user asks for a model card, prediction model documentation, AI reporting artifact, or validation summary.
+- **Output:** A model card with intended use, data provenance, metrics, calibration, fairness, risks, and limitations.
+- **Ask only if:** Only when intended use, population, model type, or validation evidence is missing.
+- **Do not do:** Do not fabricate performance metrics or approval claims.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Generates a model card following the Mitchell et al. 2019 framework, adapted for clinical/biomedical use. Required by TRIPOD+AI item 16, recommended by FDA for AI/ML-based clinical decision support.
 

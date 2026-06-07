@@ -1,10 +1,20 @@
 ---
 name: ce-table1
-description: "Generate publication-ready Table 1 baseline-characteristics artifacts from a SAP, tabular SAP variables catalog, stack profile, and journal style profile. Produces traceable CSV/Markdown shells and validation reports without inventing missing variables or cohorts. Use when the user asks for Table 1, baseline characteristics, demographic table, descriptive cohort table, or manuscript-ready participant characteristics."
+description: "Generate publication-ready Table 1 baseline-characteristics artifacts from SAP, tabular SAP variables, and style profile."
 argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama]"
 ---
 
 # Table 1 Generator
+
+
+## Skill Value
+
+- **Problem it solves:** Baseline tables fail when variable lists, cohort columns, formatting, and validation are not traceable.
+- **Use when:** The user asks for Table 1, baseline characteristics, demographic table, or manuscript-ready descriptive cohort table.
+- **Output:** Traceable CSV/Markdown Table 1 shell and validation report.
+- **Ask only if:** Only when baseline variable list, cohort grouping, or data source is missing.
+- **Do not do:** Do not invent variables, cohorts, or patient-level output.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Create a publication-ready Table 1 shell from declared study artifacts. This skill does not compute statistics from raw data unless the user supplies an explicit analysis dataset and asks for that implementation; the default is a traceable table specification and shell that the analyst can verify.
 

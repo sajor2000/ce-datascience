@@ -41,6 +41,11 @@ config. Then run `/ce-datascience:ce-workflow` to see the ordered next steps
 for the project. If optional aliases are installed, `/ce-setup` and
 `/ce-workflow` work too.
 
+Setup and workflow inspect available project evidence before asking. Each public
+skill starts with a `Skill Value` block naming the problem it solves, when to use
+it, expected output, question boundary, and non-goal so demos and first projects
+route to the right command quickly.
+
 Connection skills can hand setup a verified database default by emitting
 `__CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified`.
 For database-backed projects, `data_root` stays optional and is used only for
@@ -91,7 +96,7 @@ The current plugin selectively ports useful features from the original compound-
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included so users can answer version-specific questions and file structured bug reports from the public plugin surface. |
 | Target compatibility | Agent sources use current `ce-*.md` filenames; legacy `*.agent.md` parsing remains supported. Codex installs respect `CODEX_HOME`, support native-plugin agent bridge and standalone modes, and preserve manual/other-plugin hooks during managed hook writes. |
 
-Deferred upstream-only skills remain intentionally out of scope unless requested: Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, proof, and polish workflows.
+Deferred upstream-only skills remain intentionally out of scope unless requested: Rails, frontend, Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, proof, simplify-code, strategy, promote, and polish workflows. When the core Compound Engineering plugin is installed, ce-datascience may hand off to those core skills with an explicit fallback; it does not silently pretend they ship inside ce-datascience.
 
 ## Skills
 
@@ -138,7 +143,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- enforces Parquet-only, mCIDE vocab, three-script architecture, POC sign-off on protected paths |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- anchors to clif-icu.com, then enforces Parquet-only, mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 

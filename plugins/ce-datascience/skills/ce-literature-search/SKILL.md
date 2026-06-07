@@ -1,10 +1,20 @@
 ---
 name: ce-literature-search
-description: 'Search and download scientific papers via Google Scholar, Crossref, and SciHub using PyPaperBot. Use when evidence is needed for study design, SAP method sections cite prior work, brainstorm rigor probes identify evidence gaps, or the user asks to find papers on a topic.'
+description: "Route biomedical evidence search across PubMed, optional full-text tooling, and web sources based on the question and available tools."
 argument-hint: "[research query, PICO/PECO question, or DOI list]"
 ---
 
 # Literature Search for Computational Science
+
+
+## Skill Value
+
+- **Problem it solves:** Evidence grounding is weak when abstract metadata, full text, and current guideline searches are mixed together without intent.
+- **Use when:** The user asks for literature, papers, evidence grounding, methods sources, or current biomedical references.
+- **Output:** Search strategy, source-specific results, and recommended follow-up extraction or SAP grounding step.
+- **Ask only if:** Only when topic, population/outcome, date range, or source type cannot be inferred.
+- **Do not do:** Do not replace systematic review methods or claim full-text coverage when only abstracts were searched.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Search, download, and summarize scientific literature to support evidence-based study design and analysis planning. Integrates with the compound engineering workflow so that brainstorm, plan, and review phases can cite relevant prior work.
 

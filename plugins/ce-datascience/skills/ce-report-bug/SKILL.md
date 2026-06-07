@@ -1,17 +1,27 @@
 ---
 name: ce-report-bug
-description: Report a bug in the ce-datascience plugin
+description: "Collect a reproducible ce-datascience bug report and file it or draft it when GitHub tooling is unavailable."
 argument-hint: "[optional: brief description of the bug]"
 disable-model-invocation: true
 ---
 
 # Report a CE DataScience Plugin Bug
 
+
+## Skill Value
+
+- **Problem it solves:** Bug reports lose useful context when component, platform, version, reproduction, and expected behavior are missing.
+- **Use when:** The user wants to report a plugin bug, setup issue, broken skill, conversion problem, or workflow failure.
+- **Output:** A GitHub issue when available, or a markdown issue draft with reproduction details.
+- **Ask only if:** Only for missing bug category, affected component, platform, reproduction, expected behavior, or impact.
+- **Do not do:** Do not require GitHub CLI or expose credentials/log secrets.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
+
 Report bugs encountered while using the ce-datascience plugin. This skill gathers structured information and creates a GitHub issue for the maintainer.
 
 ## Step 1: Gather Bug Information
 
-Ask the user the following questions using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question:
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 **Question 1: Bug Category**
 - What type of issue are you experiencing?

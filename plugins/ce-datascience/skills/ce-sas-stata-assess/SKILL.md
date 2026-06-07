@@ -1,10 +1,20 @@
 ---
 name: ce-sas-stata-assess
-description: "Assess SAS and Stata analysis projects for migration, review, or reproducibility planning without pretending the plugin can fully scaffold SAS/Stata workflows. Use when a repo contains .sas, .do, .ado, .dta, PROC statements, or Stata model commands and the user asks what can be reviewed, ported, or made safer."
+description: "Assess SAS and Stata projects for reproducibility, migration, review, and risk without pretending full native scaffolding exists."
 argument-hint: "[optional: --scan-dir analysis --report analysis/sas-stata-assessment.md]"
 ---
 
 # SAS/Stata Project Assessment
+
+
+## Skill Value
+
+- **Problem it solves:** Legacy SAS/Stata analyses need review and migration planning before automated rewrites are safe.
+- **Use when:** The repo contains .sas, .do, .ado, .dta, PROC statements, or Stata commands and the user asks what can be reviewed or ported.
+- **Output:** Assessment of reproducibility risks, migration readiness, and recommended next steps.
+- **Ask only if:** Only when target outcome, validation standard, or migration destination is unclear.
+- **Do not do:** Do not claim full SAS/Stata equivalence or scaffold unsupported workflows.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 This skill is intentionally assessment-first. The plugin does not yet provide first-class SAS or Stata scaffolding. It can identify the surface area, likely statistical procedures, portability risks, and a safe handoff path to R/Python/Quarto workflows.
 

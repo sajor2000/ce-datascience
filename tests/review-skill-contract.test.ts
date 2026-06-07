@@ -33,9 +33,8 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("### Headless mode rules")
 
     // No interactive prompts (cross-platform)
-    expect(content).toContain(
-      "Never use the platform question tool",
-    )
+    expect(content).toContain("Skip all user questions.")
+    expect(content).toContain("Infer intent conservatively")
 
     // Structured output format
     expect(content).toContain("### Headless output format")

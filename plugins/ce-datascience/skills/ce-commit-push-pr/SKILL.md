@@ -1,13 +1,23 @@
 ---
 name: ce-commit-push-pr
-description: Commit, push, and open a PR with an adaptive, value-first description. Use when the user says "commit and PR", "push and open a PR", "ship this", "create a PR", "open a pull request", "commit push PR", or wants to go from working changes to an open pull request in one step. Also use when the user says "update the PR description", "refresh the PR description", "freshen the PR", "rewrite the PR body", "write a PR description", "draft a PR description", or "describe this PR" — the skill will produce a description without committing or pushing if that is all the user wants. Produces PR descriptions that scale in depth with the complexity of the change, avoiding cookie-cutter templates.
+description: "Commit, push, and open or update a pull request with an adaptive value-first title and description."
 ---
 
 # Git Commit, Push, and PR
 
+
+## Skill Value
+
+- **Problem it solves:** Shipping needs a clean commit, pushed branch, and PR body that explains value rather than restating the diff.
+- **Use when:** The user asks to commit and PR, push and open PR, ship this, create a PR, or refresh a PR description.
+- **Output:** A pushed branch and open or updated PR, or a PR description when requested description-only.
+- **Ask only if:** Only when applying a PR description update, capturing evidence, or resolving branch/PR ambiguity requires user choice.
+- **Do not do:** Do not push default branches, fabricate evidence, or overwrite an existing PR body without confirmation when required.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
+
 Go from working changes to an open pull request, rewrite an existing PR description, or generate a description without touching git state.
 
-**Asking the user:** When this skill says "ask the user", use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting the question in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 ## Mode detection
 
@@ -67,7 +77,7 @@ Use the current branch and existing PR check from context. If the current branch
 
 **Read `references/pr-description-writing.md` once now** — DU-3 walks through Pre-A then Steps A through H without re-reading. Run Pre-A in PR mode using the existing PR's URL from DU-2 (it resolves the commit range, diff, and current body). Then continue with Steps A through H from the already-loaded reference to compose the title and body. If the user provided focus (e.g., "include the benchmarking results"), apply it as steering — do not let it override the writing principles or fabricate content the diff does not support.
 
-**Evidence decision:** the writing reference preserves any existing `## Demo` or `## Screenshots` block from the current body by default. If the user's focus asks to refresh or remove evidence, honor that. If no evidence block exists and one would benefit the reader, invoke `ce-demo-reel` separately to capture, then re-compose with the captured URL/path spliced in.
+**Evidence decision:** the writing reference preserves any existing `## Demo` or `## Screenshots` block from the current body by default. If the user's focus asks to refresh or remove evidence, honor that. If no evidence block exists and one would benefit the reader, use the core Compound Engineering `ce-demo-reel` skill when it is installed, then re-compose with the captured URL/path spliced in. If `ce-demo-reel` is not available, ask for existing evidence or skip the evidence section; do not pretend ce-datascience ships its own demo-capture skill.
 
 **Compare and confirm.** Briefly explain what the new description covers differently from the old one. Ask the user to confirm before applying. If the user provided focus, confirm it was addressed.
 
@@ -168,7 +178,7 @@ The working-tree diff from Step 1 only shows uncommitted changes at invocation t
 
 Otherwise, run the full decision: if the branch diff changes observable behavior (UI, CLI output, API behavior with runnable code, generated artifacts, workflow output) and evidence is not otherwise blocked (unavailable credentials, paid services, deploy-only infrastructure, hardware), ask: "This PR has observable behavior. Capture evidence for the PR description?"
 
-- **Capture now** -- load the `ce-demo-reel` skill with a target description inferred from the branch diff. ce-demo-reel returns `Tier`, `Description`, `URL`, and `Path`. Exactly one of `URL` or `Path` contains a real value; the other is `"none"`. If capture returns a public URL, splice it into the body as a `## Demo` section. If capture returns a local `Path` instead (user chose local save), note in the body that a demo was recorded but is not embedded because the user chose local save. If capture returns `Tier: skipped` or both `URL` and `Path` are `"none"`, proceed with no evidence.
+- **Capture now** -- use the core Compound Engineering `ce-demo-reel` skill with a target description inferred from the branch diff when that skill is installed. It returns `Tier`, `Description`, `URL`, and `Path`; exactly one of `URL` or `Path` contains a real value, and the other is `"none"`. If capture returns a public URL, splice it into the body as a `## Demo` section. If capture returns a local `Path` instead (user chose local save), note in the body that a demo was recorded but is not embedded because the user chose local save. If capture returns `Tier: skipped` or both `URL` and `Path` are `"none"`, proceed with no evidence. If the skill is unavailable, tell the user demo capture is a core Compound Engineering capability and offer "Use existing evidence" or "Skip".
 - **Use existing evidence** -- ask for the URL or markdown embed, then splice it in as a `## Demo` section.
 - **Skip** -- proceed with no evidence section.
 

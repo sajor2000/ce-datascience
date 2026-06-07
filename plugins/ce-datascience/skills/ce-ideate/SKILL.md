@@ -1,10 +1,20 @@
 ---
 name: ce-ideate
-description: "Generate and critically evaluate grounded ideas about a topic. Use when asking what to improve, requesting idea generation, exploring surprising directions, or wanting the AI to proactively suggest strong options before brainstorming one in depth. Triggers on phrases like 'what should I improve', 'give me ideas', 'ideate on X', 'surprise me', 'what would you change', or any request for AI-generated suggestions rather than refining the user's own idea."
+description: "Generate and rank grounded ideas before brainstorming or planning, using repo, literature, issue, or topic context when available."
 argument-hint: "[feature, focus area, or constraint]"
 ---
 
 # Generate Improvement Ideas
+
+
+## Skill Value
+
+- **Problem it solves:** Idea generation is scattered when the subject, evidence source, or evaluation lens is unclear.
+- **Use when:** The user asks for ideas, directions, research opportunities, feature concepts, or surprise-me exploration.
+- **Output:** A ranked idea set with warrants and recommended next workflow, usually ce-brainstorm for selected ideas.
+- **Ask only if:** Only when the subject is too ambiguous for grounded ideation.
+- **Do not do:** Do not skip directly to implementation or present ungrounded ideas as validated plans.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 **Note: The current year is 2026.** Use this when dating ideation documents and checking recent ideation artifacts.
 
@@ -18,7 +28,7 @@ This workflow produces a ranked ideation artifact in `docs/ideation/`. It does *
 
 ## Interaction Method
 
-Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 Ask one question at a time. Prefer concise single-select choices when natural options exist.
 
@@ -102,7 +112,7 @@ When in doubt otherwise, err toward asking — one question is trivial compared 
 
 **The scope question.**
 
-Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists or the call errors — not because a schema load is required. Never silently skip.
+Ask this scope question only when repo scans and user language still do not identify a coherent subject, using the Skill Value interaction rule above.
 
 - **Stem:** "What should the agent ideate about?"
 - **Options:**

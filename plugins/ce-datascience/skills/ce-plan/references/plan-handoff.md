@@ -29,9 +29,9 @@ If artifact-backed mode was used:
 
 ## 5.4 Post-Generation Options
 
-**Pipeline mode:** If invoked from an automated workflow such as LFG, SLFG, or any `disable-model-invocation` context, skip the interactive menu below and return control to the caller immediately. The plan file has already been written, the confidence check has already run, and ce-doc-review has already run — the caller (e.g., lfg, slfg) determines the next step.
+**Pipeline mode:** If invoked from an automated workflow such as external core Compound Engineering LFG/SLFG, or any `disable-model-invocation` context, skip the interactive menu below and return control to the caller immediately. The plan file has already been written, the confidence check has already run, and ce-doc-review has already run — the external caller determines the next step.
 
-After document-review completes, present the options using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+After document-review completes, present the options using the current harness's blocking question mechanism when one is available. Fall back to numbered options in chat only when no blocking question mechanism exists in the harness or it cannot be called. Never silently skip the question.
 
 **Question:** "Plan ready at `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`. What would you like to do next?"
 
@@ -46,17 +46,17 @@ After document-review completes, present the options using the platform's blocki
 Based on selection:
 - **Start `/ce-work`** -> Call `/ce-work` with the plan path
 - **Create Issue** -> Follow the Issue Creation section below
-- **Open in Proof (web app) — review and comment to iterate with the agent** -> Load the `ce-proof` skill in HITL-review mode with:
+- **Open in Proof (web app) — review and comment to iterate with the agent** -> Use the core Compound Engineering `ce-proof` skill in HITL-review mode when that skill is installed. If it is not available in the current harness, explain that Proof review is provided by the core Compound Engineering plugin and return to the menu with the saved local plan as the fallback. When available, load it with:
   - source file: `docs/plans/<plan_filename>.md`
   - doc title: `Plan: <plan title from frontmatter>`
   - identity: `ai:ce-datascience` / `CE DataScience`
-  - recommended next step: `/ce-work` (shown in the ce-proof skill's final terminal output)
+  - recommended next step: `/ce-work` (shown in the core ce-proof skill's final terminal output)
 
-  Follow `references/hitl-review.md` in the ce-proof skill. It uploads the plan, prompts the user for review in Proof's web UI, ingests each thread by reading it fresh and replying in-thread, applies agreed edits as tracked suggestions, and syncs the final markdown back to the plan file atomically on proceed.
+  Follow the HITL-review workflow in the core ce-proof skill. It uploads the plan, prompts the user for review in Proof's web UI, ingests each thread by reading it fresh and replying in-thread, applies agreed edits as tracked suggestions, and syncs the final markdown back to the plan file atomically on proceed.
 
-  When the ce-proof skill returns:
+  When the core ce-proof skill returns:
   - `status: proceeded` with `localSynced: true` -> the plan on disk now reflects the review. Re-run `ce-doc-review` on the updated plan before re-rendering the menu — HITL can materially rewrite the plan body, so the prior ce-doc-review pass no longer covers the current file and section 5.3.8 requires a review before any handoff option is offered. Then return to the post-generation options with the refreshed residual findings.
-  - `status: proceeded` with `localSynced: false` -> the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the ce-proof skill's Pull workflow. If the pull happened, re-run `ce-doc-review` on the pulled file before re-rendering the options (same 5.3.8 rationale — the local plan was materially updated by the pull). If the pull was declined, include a one-line note above the menu that `<localPath>` is stale vs. Proof — otherwise `Start /ce-work` or `Create Issue` will silently use the pre-review copy.
+  - `status: proceeded` with `localSynced: false` -> the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the core ce-proof skill's Pull workflow. If the pull happened, re-run `ce-doc-review` on the pulled file before re-rendering the options (same 5.3.8 rationale — the local plan was materially updated by the pull). If the pull was declined, include a one-line note above the menu that `<localPath>` is stale vs. Proof — otherwise `Start /ce-work` or `Create Issue` will silently use the pre-review copy.
   - `status: done_for_now` -> the plan on disk may be stale if the user edited in Proof before leaving. Offer to pull the Proof doc to `localPath` so the local plan file stays in sync. If the pull happened, re-run `ce-doc-review` on the pulled file before re-rendering the options (same 5.3.8 rationale). If the pull was declined, include the stale-local note above the menu. `done_for_now` means the user stopped the HITL loop — it does not mean they ended the whole plan session; they may still want to start work or create an issue.
   - `status: aborted` -> fall back to the options without changes.
 
@@ -82,7 +82,7 @@ When the user selects "Create Issue", detect their project tracker:
    linear issue create --title "<title>" --description "$(cat <plan_path>)"
    ```
 
-4. If no tracker is configured, ask the user which tracker they use with the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to asking in chat only when no blocking tool exists or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip. Options: `GitHub`, `Linear`, `Skip`. Then:
+4. If no tracker is configured, ask the user which tracker they use with the current harness's blocking question mechanism when one is available. Fall back to asking in chat only when no blocking question mechanism exists or it cannot be called. Never silently skip. Options: `GitHub`, `Linear`, `Skip`. Then:
    - Proceed with the chosen tracker's command above
    - Offer to persist the choice by adding `project_tracker: <value>` to `AGENTS.md`, where `<value>` is the lowercase tracker key (`github` or `linear`) — not the display label — so future runs match the detector in step 1 and skip this prompt
    - If `Skip`, return to the options without creating an issue
@@ -91,4 +91,4 @@ When the user selects "Create Issue", detect their project tracker:
 
 After issue creation:
 - Display the issue URL
-- Ask whether to proceed to `/ce-work` using the platform's blocking question tool
+- Ask whether to proceed to `/ce-work` using the current harness's blocking question mechanism when available; otherwise ask in chat

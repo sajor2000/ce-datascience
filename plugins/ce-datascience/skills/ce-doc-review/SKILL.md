@@ -1,17 +1,26 @@
 ---
 name: ce-doc-review
-description: Review requirements or plan documents using parallel persona agents that surface role-specific issues. Use when a requirements document or plan document exists and the user wants to improve it.
+description: "Review plans, SAPs, manuscripts, requirements, or docs for clarity, completeness, scope control, and review readiness."
 argument-hint: "[mode:headless] [path/to/document.md]"
 ---
 
 # Document Review
 
+
+## Skill Value
+
+- **Problem it solves:** Documents can look complete while missing traceability, scope boundaries, or reader-facing clarity.
+- **Use when:** The user asks to review, strengthen, simplify, or validate a document rather than code.
+- **Output:** Prioritized document findings or an improved document when edit mode is requested.
+- **Ask only if:** Only when the review target or edit-vs-report mode is unclear.
+- **Do not do:** Do not turn document review into implementation or scientific analysis execution.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
+
 Review requirements or plan documents through multi-persona analysis. Dispatches specialized reviewer agents in parallel, auto-applies `safe_auto` fixes, and routes remaining findings through a four-option interaction (per-finding walk-through, auto-resolve with best judgment, Append-to-Open-Questions, Report-only) for user decision.
 
 ## Interactive mode rules
 
-- **Pre-load the platform question tool before any question fires.** In Claude Code, `AskUserQuestion` is a deferred tool — its schema is not available at session start. At the start of Interactive-mode work (before the routing question, per-finding walk-through questions, bulk-preview Proceed/Cancel, and Phase 5 terminal question), call `ToolSearch` with query `select:AskUserQuestion` to load the schema. Load it once, eagerly, at the top of the Interactive flow — do not wait for the first question site. On Codex, Gemini, and Pi this preload is not required.
-- **The numbered-list fallback applies only when the harness genuinely lacks a blocking question tool** — `ToolSearch` returns no match, the tool call explicitly fails, or the runtime mode does not expose it (e.g., Codex edit modes where `request_user_input` is unavailable). A pending schema load is not a fallback trigger; call `ToolSearch` first per the pre-load rule. In genuine-fallback cases, present options as a numbered list and wait for the user's reply — never silently skip the question. Rendering a question as narrative text because the tool feels inconvenient, because the model is in report-formatting mode, or because the instruction was buried in a long skill is a bug. A question that calls for a user decision must either fire the tool or fall back loudly.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 ## Phase 0: Detect Mode
 

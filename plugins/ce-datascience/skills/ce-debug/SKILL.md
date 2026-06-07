@@ -1,10 +1,20 @@
 ---
 name: ce-debug
-description: 'Systematically find root causes and fix bugs. Use when debugging errors, investigating test failures, reproducing bugs from issue trackers (GitHub, Linear, Jira), or when stuck on a problem after failed fix attempts. Also use when the user says ''debug this'', ''why is this failing'', ''fix this bug'', ''trace this error'', or pastes stack traces, error messages, or issue references.'
+description: "Systematically reproduce, trace, and fix bugs by establishing the causal chain before changing code."
 argument-hint: "[issue reference, error message, test path, or description of broken behavior]"
 ---
 
 # Debug and Fix
+
+
+## Skill Value
+
+- **Problem it solves:** Bug fixing fails when agents patch symptoms without reproducing or understanding the root cause.
+- **Use when:** The user reports an error, failed test, broken behavior, stack trace, issue, or asks why something is failing.
+- **Output:** A reproduced cause, minimal fix, targeted tests, and a concise explanation of the causal chain.
+- **Ask only if:** Only when reproduction requires unavailable credentials, data state, user role, or another external condition.
+- **Do not do:** Do not guess-fix without a causal chain unless the user explicitly accepts a best-available hypothesis.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Find root causes, then fix them. This skill investigates bugs systematically — tracing the full causal chain before proposing a fix — and optionally implements the fix with test-first discipline.
 
@@ -128,7 +138,7 @@ Once the root cause is confirmed, present:
 
 Then offer next steps.
 
-Use the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). In Claude Code, call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded — a pending schema load is not a reason to fall back. Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes). Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 Options to offer:
 
@@ -216,7 +226,7 @@ Analyze how this was introduced and what allowed it to survive. Note any systemi
 
 #### Pre-existing branch (skill did not create it): ask the user
 
-Use the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). In Claude Code, call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded — a pending schema load is not a reason to fall back. Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors. Never end the phase without collecting a response.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 Options:
 

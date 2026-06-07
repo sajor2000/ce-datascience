@@ -113,14 +113,14 @@ If resuming:
 
 ### 5.2 Proof Save (default for elsewhere mode; on request for repo mode)
 
-Hand off the ideation content to the `ce-proof` skill in HITL review mode. This uploads the doc, runs an iterative review loop (user annotates in Proof, agent ingests feedback and applies tracked edits), and (in repo mode) syncs the reviewed markdown back to `docs/ideation/`.
+Hand off the ideation content to the core Compound Engineering `ce-proof` skill in HITL review mode when that skill is installed. This uploads the doc, runs an iterative review loop (user annotates in Proof, agent ingests feedback and applies tracked edits), and (in repo mode) syncs the reviewed markdown back to `docs/ideation/`. If `ce-proof` is not available in the current harness, save the markdown locally and tell the user Proof review requires the core Compound Engineering plugin.
 
-Load the `ce-proof` skill in HITL-review mode with:
+When available, load `ce-proof` in HITL-review mode with:
 
 - **source content:** the survivors and rejection summary from Phase 4 (in repo mode, this is the file written in 5.1; in elsewhere mode, render to a temp file as the source for upload)
 - **doc title:** `Ideation: <topic>` or the H1 of the ideation doc
 - **identity:** `ai:ce-datascience` / `CE DataScience`
-- **recommended next step:** `/ce-brainstorm` (shown in the proof skill's final terminal output)
+- **recommended next step:** `/ce-brainstorm` (shown in the core ce-proof skill's final terminal output)
 
 The Proof failure ladder in Phase 6.5 governs what happens when this hand-off fails.
 
@@ -132,16 +132,16 @@ The Proof failure ladder in Phase 6.5 governs what happens when this hand-off fa
 - **§6.3 Brainstorm a selected idea.** On a successful Proof return (`proceeded` or `done_for_now`), do **not** stop at the Phase 6 menu — after applying the per-status handling below (including any stale-local pull offer), continue into §6.3's remaining bullets (mark the chosen idea as `Explored`, then load `ce-brainstorm`). Only the `aborted` branch returns to the Phase 6 menu, since no durable record was written.
 - **§6.4 Save and end.** On a successful Proof return (`proceeded` or `done_for_now`), exit cleanly: narrate that the ideation was saved, surface the `docUrl` (and the local-path note if applicable), and stop. Do **not** re-ask the Phase 6 question — the user already chose to end. Only the `aborted` branch returns to the Phase 6 menu so the user can retry or pick a different path.
 
-When the proof skill returns control:
+When the core ce-proof skill returns control:
 
 - `status: proceeded` with `localSynced: true` → the ideation doc on disk now reflects the review. Apply the caller-aware return rule above for the invoking branch.
-- `status: proceeded` with `localSynced: false` → the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the proof skill's Pull workflow. Apply the caller-aware return rule above; if the pull was declined, include a one-line note that `<localPath>` is stale vs. Proof so the next handoff (or final exit narration) doesn't read the old content silently. Placement: above the Phase 6 menu when the caller-aware rule returns to it, in the handoff preamble to `ce-brainstorm` for §6.3, or alongside the final save/exit narration for §6.2 elsewhere / §6.4.
+- `status: proceeded` with `localSynced: false` → the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the core ce-proof skill's Pull workflow. Apply the caller-aware return rule above; if the pull was declined, include a one-line note that `<localPath>` is stale vs. Proof so the next handoff (or final exit narration) doesn't read the old content silently. Placement: above the Phase 6 menu when the caller-aware rule returns to it, in the handoff preamble to `ce-brainstorm` for §6.3, or alongside the final save/exit narration for §6.2 elsewhere / §6.4.
 - `status: done_for_now` → the doc on disk may be stale if the user edited in Proof before leaving. Offer to pull the Proof doc to `localPath` so the local ideation artifact stays in sync, then apply the caller-aware return rule above. `done_for_now` means the user stopped the HITL loop — it does not mean they ended the whole ideation session unless the caller-aware rule exits (§6.2 elsewhere mode or §6.4). If the pull was declined, include the stale-local note at the placement described in the previous bullet.
 - `status: aborted` → fall back to the Phase 6 menu without changes, regardless of caller. No durable record was written, so §6.3 must not proceed with the brainstorm handoff and §6.4 must not end — the menu lets the user retry or pick another path.
 
 ## Phase 6: Refine or Hand Off
 
-Ask what should happen next using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+Ask what should happen next using the current harness's blocking question mechanism when one is available. Fall back to numbered options in chat only when no blocking question mechanism exists in the harness or it cannot be called. Never silently skip the question.
 
 **Question:** "What should the agent do next?"
 
@@ -201,7 +201,7 @@ After the file save (and optional commit), end the session — do not return to 
 
 ### 6.5 Proof Failure Ladder
 
-The `ce-proof` skill performs single-retry-once internally on transient failures (`STALE_BASE`, `BASE_TOKEN_REQUIRED`) before surfacing failure. The proof skill's return contract does not expose typed error classes to callers — the orchestrator cannot distinguish retryable vs terminal failures from outside.
+The core `ce-proof` skill performs single-retry-once internally on transient failures (`STALE_BASE`, `BASE_TOKEN_REQUIRED`) before surfacing failure. The proof skill's return contract does not expose typed error classes to callers — the orchestrator cannot distinguish retryable vs terminal failures from outside.
 
 **Orchestrator-side retry harness (intentionally minimal):** wrap the proof skill invocation in **one** additional best-effort retry with a short pause (~2 seconds). The proof skill already retried internally, so this catches transient races at the orchestrator boundary without compounding latency. Do not classify error types from outside the skill — no detection mechanism exists.
 

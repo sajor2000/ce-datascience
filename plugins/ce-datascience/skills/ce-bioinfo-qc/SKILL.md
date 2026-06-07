@@ -1,10 +1,20 @@
 ---
 name: ce-bioinfo-qc
-description: 'Runs sequencing and omics data QA before any downstream analysis. Wraps FastQC, MultiQC, samtools flagstat, mosdepth, RSeQC, somalier (sample-swap detection via genotype concordance), and PCA-based batch-confound screening into a single GO/NO-GO gate. The omics counterpart to /ce-data-qa, for FASTQ, BAM/CRAM, count matrices, methylation IDAT, and VCF inputs. Use whenever the user mentions FASTQ, BAM, CRAM, sequencing QC, FastQC, MultiQC, RNA-seq QC, WGS/WES QC, ATAC-seq QC, methylation array QC, sample swap, somalier, batch effect screening, or registers a sequencing/omics data wave. Modality is auto-detected from file extensions; flags batch-condition confound (P0) before any differential analysis runs.'
+description: "Run sequencing and omics QA before downstream analysis. Use for FASTQ, BAM/CRAM, VCF, count matrices, methylation arrays, sample-swap checks, and batch-effect screening."
 argument-hint: "<data dir or sample sheet>, optional: --modality wgs|wes|rnaseq|chipseq|methyl|atac|microarray"
 ---
 
 # Bioinformatics Data QA Gate
+
+
+## Skill Value
+
+- **Problem it solves:** Sequencing and omics projects can move into analysis before raw data quality, sample identity, and batch confounding are checked.
+- **Use when:** The user mentions FASTQ, BAM/CRAM, VCF, RNA-seq, WGS/WES, ATAC-seq, methylation arrays, FastQC, MultiQC, sample swaps, or omics batch effects.
+- **Output:** A GO/NO-GO omics QA summary with modality-specific checks and blockers for downstream analysis.
+- **Ask only if:** Only when modality, sample sheet, batch variable, or case/control grouping cannot be inferred.
+- **Do not do:** Do not run differential expression, association testing, or clinical interpretation.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 The omics counterpart to `/ce-data-qa`. Sequencing and array data fail in domain-specific ways (low base quality, adapter contamination, sample swaps, batch confounds with condition); this skill runs the right QC for the modality.
 

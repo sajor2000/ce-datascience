@@ -1,11 +1,21 @@
 ---
 name: ce-release-notes
-description: Summarize recent ce-datascience plugin releases, or answer a specific question about a past release with a version citation. Use when the user types `/ce-release-notes` or asks "what changed in ce-datascience recently?" or "what happened to `<skill-name>`?".
+description: "Summarize recent ce-datascience plugin releases or answer version-specific questions from release metadata."
 argument-hint: "[optional: question about a past release]"
 disable-model-invocation: true
 ---
 
 # CE DataScience Release Notes
+
+
+## Skill Value
+
+- **Problem it solves:** Users need to know what changed without manually reading release metadata or GitHub history.
+- **Use when:** The user asks what changed, whether a skill shipped, or what happened in recent plugin releases.
+- **Output:** Concise release summary with version citations or a targeted answer.
+- **Ask only if:** No user question normally; use the provided release question or summarize recent releases.
+- **Do not do:** Do not perform plugin updates; route update checks to platform-specific setup guidance.
+- **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
 
 Look up what shipped in recent releases of the ce-datascience plugin. Bare invocation summarizes the last 5 plugin releases. Argument invocation searches the last 40 releases and answers a specific question, citing the release version that introduced the change.
 

@@ -1,10 +1,20 @@
 ---
 name: ce-cohort-build
-description: 'Defines a study cohort using inclusion/exclusion criteria, OMOP concept sets (or ICD/CPT/LOINC/SNOMED/RxNorm code lists), an index event, and continuous-enrollment + look-back + wash-out + follow-up windows. Outputs a Capr-compatible JSON cohort spec, a SQL/CTE query, concept-set YAMLs with vocabulary version pinning, and a CONSORT-flow waterfall (eligible → included → excluded with reasons). Use whenever the user mentions cohort definition, OMOP, ATLAS, OHDSI, observational study setup, EHR cohort, claims cohort, ICD/CPT/SNOMED/RxNorm/LOINC code lists, phenotype algorithm, inclusion/exclusion criteria, index date, target trial cohort, or "build me a cohort of". Use at the START of any observational study, before /ce-data-qa runs. Wraps OHDSI Capr conventions; concept sets are vocabulary-version-pinned to prevent silent drift across data refreshes.'
+description: "Define a reproducible study cohort with inclusion/exclusion criteria, index event, vocabulary-pinned concepts, SQL/CTE output, and waterfall counts."
 argument-hint: "<cohort name>, optional: --vocab omop|icd10|icd9|cpt|loinc|snomed --index-event <event>"
 ---
 
 # Cohort Definition Builder
+
+
+## Skill Value
+
+- **Problem it solves:** Cohort definitions are a common source of irrecoverable bias when criteria, timing, and code lists are implicit.
+- **Use when:** The user needs an EHR, OMOP, claims, phenotype, or observational-study cohort before data QA or SAP finalization.
+- **Output:** Cohort spec YAML, concept-set files or code lists, SQL/CTE query, and CONSORT-style waterfall counts.
+- **Ask only if:** Only for cohort facts not supplied by PICO, prior research-question YAML, data source, or user prompt.
+- **Do not do:** Do not run downstream modeling or pretend a vague population is a locked cohort.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Walks the user through defining a research cohort with vocabulary-pinned concept sets and an explicit index event. Cohort definition is the most common source of unrecoverable bias in observational research; this skill makes the definition explicit, version-controlled, and replayable.
 
@@ -37,15 +47,15 @@ Print: `[research-question] seeding cohort from analysis/research-question.yaml;
 
 When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 
-**CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults:
+**CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the `version=` value in the CLIF handoff as the authoritative data dictionary source.
 
 - Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
 - The cohort identifier is `hospitalization_id` (VARCHAR). Persist the cohort as `output/cohort_ids.parquet` — never CSV, never with an integer cast.
 - Inclusion criteria default to `adt.location_category == "icu"` for ICU studies; `hospitalization.age_at_admission >= 18` for adult studies.
-- All datetime filters are timezone-aware UTC (see `ce-clif/references/clif-rules.md` §3).
+- All datetime filters are timezone-aware UTC.
 - The waterfall is written to `output/cohort_waterfall.csv`; the SQL/CTE step is replaced by a `code/02_cohort_<name>.{py,R}` script that follows the three-script architecture from `WORKFLOW.md`.
-- `_category` filters must use mCIDE allow-listed values (see `ce-clif/references/mcide-vocab.md`). Refuse to emit a filter with an unknown category string.
-- For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> `ce-clif/references/clifpy-recipes.md` (use `ClifOrchestrator` and `co.create_wide_dataset()` rather than rolling your own joins); `__CE_LANG__ primary=r` -> `ce-clif/references/r-template-recipes.md` (use `arrow::open_dataset()` per the `CLIF-Project-Template` layout). If `__CE_LANG__` is absent, run `/ce-language-detect` first; if still `unknown`, surface both recipe files.
+- `_category` filters must use mCIDE allow-listed values from the declared CLIF data dictionary. Refuse to emit a filter with an unknown category string.
+- For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> use `clifpy` and `ClifOrchestrator` rather than rolling your own joins; `__CE_LANG__ primary=r` -> use `arrow::open_dataset()` per the CLIF project-template layout. If `__CE_LANG__` is absent, run `/ce-language-detect` first; if still `unknown`, surface both implementation choices.
 
 ### Step 1: Elicit the cohort definition
 
