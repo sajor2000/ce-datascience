@@ -1,10 +1,20 @@
 ---
 name: ce-sprint
-description: 'Opens, closes, or reports status on a bounded analysis sprint with a named human reviewer and explicit scope (subset of SAP sections). Each sprint declares entry criteria (data lock, prior sprint signed off), planned outputs from sap-tables/02-outputs.csv, and a named reviewer; /ce-sprint close dispatches ce-sprint-audit-reviewer to verify planned-vs-actual and runs a reproducibility re-check. Use whenever the user mentions sprint, sprint open/close, "auditable unit of work", "human sign-off", "lock down what gets done this week", "freeze scope for the next analysis chunk", "human reviewer for this analysis", or wants to enact a SAP in increments rather than one unbounded /ce-work session. Especially valuable for academic / regulated work where each analysis unit needs an audit trail. The sprint-log.yaml IS the audit trail.'
+description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail."
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 
 # Sprint Cadence with Human Audit Gates
+
+
+## Skill Value
+
+- **Problem it solves:** Analysis work becomes unbounded without explicit scope, reviewer, planned outputs, and closure checks.
+- **Use when:** The user wants an auditable analysis sprint, human signoff, scoped SAP execution, or sprint closeout.
+- **Output:** Sprint log/status with scope, reviewer, planned-vs-actual outputs, and closeout findings.
+- **Ask only if:** Only when sprint name, reviewer, scope, or planned output rows are missing.
+- **Do not do:** Do not open a sprint without entry criteria or close one without checking planned outputs.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human reviewer sign-off. The frictionless feel of `/ce-work` is preserved; the sprint adds structure around it so analyses can be audited unit-by-unit.
 

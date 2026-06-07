@@ -1,10 +1,20 @@
 ---
 name: ce-pubmed
-description: 'Searches PubMed/MEDLINE via NCBI E-utilities (esearch + efetch) with MeSH-term expansion, study-type and date filters, and structured result tables. Use whenever the user mentions PubMed, MEDLINE, "find papers on", peer-reviewed methods, prior-literature search, biomedical literature, MeSH terms, PMIDs, or asks for a citation-clean structured table of papers (CSV with pmid, journal, year, study type, abstract). Triggers also for SAP-method-section literature anchors, brainstorm rigor probes asking for prior art, and any request preceding /ce-method-extract or /ce-effect-size. Use this rather than /ce-literature-search (PyPaperBot/SciHub for PDF retrieval) when the user wants structured biomedical metadata, not full-text PDFs. Wraps biopython.Entrez which auto-handles NCBI rate limits and retries.'
+description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output."
 argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-control|prediction|review --max 50"
 ---
 
 # PubMed Method Search
+
+
+## Skill Value
+
+- **Problem it solves:** Biomedical planning needs traceable literature metadata before methods extraction or SAP justification.
+- **Use when:** The user asks for PubMed, MEDLINE, PMIDs, biomedical abstracts, or literature metadata.
+- **Output:** Structured PubMed results with PMIDs, abstracts/metadata, query details, and downstream handoff.
+- **Ask only if:** Only when no query, research-question YAML, or PICO context is available.
+- **Do not do:** Do not claim full-text coverage or replace Paperclip/full-text methods extraction.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstream skills (`/ce-method-extract`, `/ce-effect-size`) consume. The skill exists because `/ce-literature-search` (PyPaperBot) is great for PDFs but bad for structured biomedical metadata; this is biomedical-native.
 

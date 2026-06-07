@@ -1,10 +1,20 @@
 ---
 name: ce-plan
-description: "Create structured plans or statistical analysis plans (SAPs). Produces a versioned SAP with stable SAP-N.M identifiers when input describes a study design (population, exposure, outcome, hypothesis). Otherwise produces an implementation plan. Use when the user says 'plan this', 'create a plan', 'write a SAP', 'write a tech plan', 'plan the analysis', 'plan the implementation', 'create a study plan', or when a brainstorm/requirements document is ready for planning. Also deepens existing plans or SAPs. For exploratory requests, prefer ce-brainstorm first."
+description: "Create implementation plans or statistical analysis plans. Produces versioned SAPs for study designs and implementation plans for technical work."
 argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan] [output:html]"
 ---
 
 # Create Plan (Dual-Mode: SAP or Implementation)
+
+
+## Skill Value
+
+- **Problem it solves:** Execution fails when scope, decisions, dependencies, tests, or SAP assumptions are not explicit before work starts.
+- **Use when:** The user asks to plan a feature, analysis, SAP, study, implementation, or to deepen an existing plan.
+- **Output:** A durable plan or SAP under docs/plans/ with stable requirements and implementation/SAP identifiers.
+- **Ask only if:** Only when planning-critical scope, mode, source document, or decision points cannot be inferred from input and repo context.
+- **Do not do:** Do not implement code, run analysis, or treat execution-time unknowns as settled.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 **Note: The current year is 2026.** Use this when dating plans and searching for recent documentation.
 
@@ -16,7 +26,7 @@ This workflow produces a durable plan artifact (SAP or implementation plan). It 
 
 ## Interaction Method
 
-When asking the user a question, use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 Ask one question at a time. Prefer a concise single-select choice when natural options exist.
 
@@ -524,7 +534,7 @@ When deepening is warranted, read `references/deepening-workflow.md` for confide
 
 **Load `references/plan-handoff.md` now.** It contains the full instructions for 5.3.8 (document review), 5.3.9 (final checks and cleanup), and 5.4 (post-generation handoff, including the Proof HITL flow, post-HITL re-review, and Issue Creation branching). Document review is mandatory — do not skip it even if the confidence check already ran.
 
-After document review and final checks, present this menu using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 **Question:** "Plan ready at `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`. What would you like to do next?"
 

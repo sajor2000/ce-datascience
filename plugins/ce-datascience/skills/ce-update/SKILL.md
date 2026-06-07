@@ -1,17 +1,21 @@
 ---
 name: ce-update
-description: |
-  Check if the ce-datascience plugin is up to date and recommend the
-  update command if not. Use when the user says "update compound engineering",
-  "check compound engineering version", "ce update", "is compound engineering
-  up to date", "update ce plugin", or reports issues that might stem from a
-  stale ce-datascience plugin version. This skill only works in Claude
-  Code — it relies on the plugin harness cache layout.
+description: "Check Claude Code marketplace ce-datascience plugin version and recommend the plugin update command when stale."
 disable-model-invocation: true
 ce_platforms: [claude]
 ---
 
 # Check Plugin Version
+
+
+## Skill Value
+
+- **Problem it solves:** Claude users can keep running an old cached plugin without realizing a newer marketplace version exists.
+- **Use when:** The user asks whether ce-datascience or compound engineering is up to date in Claude Code.
+- **Output:** Installed-vs-upstream version verdict and Claude plugin update command when applicable.
+- **Ask only if:** No user question normally; inspect the Claude skill directory and upstream plugin metadata.
+- **Do not do:** Do not run outside Claude Code or mutate plugin caches.
+- **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
 
 Verify the installed ce-datascience plugin version matches the upstream
 `plugin.json` on `main`, and recommend the update command if it doesn't.

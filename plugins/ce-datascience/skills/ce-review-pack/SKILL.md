@@ -1,10 +1,20 @@
 ---
 name: ce-review-pack
-description: "Generate PI-facing review packs and validate multi-analyst signoff ledgers for study outputs, SAP deviations, review findings, Table 1 readiness, figure readiness, manuscript packages, registry packages, and data locks. Use when a PI, study lead, statistician, or coordinating center needs a concise handoff or named approval workflow."
+description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages."
 argument-hint: "[optional: --ledger analysis/signoff/signoff-ledger.json]"
 ---
 
 # Review Pack and Signoff
+
+
+## Skill Value
+
+- **Problem it solves:** Study leads need concise, auditable review packets rather than scattered outputs and informal approvals.
+- **Use when:** The user needs PI review, statistician signoff, coordinating-center handoff, or approval workflow packaging.
+- **Output:** Review pack with artifact inventory, decisions, deviations, readiness status, and signoff ledger.
+- **Ask only if:** Only when reviewer names, scope, or required artifacts are unclear.
+- **Do not do:** Do not sign off on behalf of humans or hide unresolved blockers.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Create a concise study-team handoff and validate named human approvals. This skill never marks scientific content approved without a named reviewer.
 

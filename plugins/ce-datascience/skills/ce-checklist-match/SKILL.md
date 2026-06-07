@@ -1,10 +1,20 @@
 ---
 name: ce-checklist-match
-description: 'Picks the reporting checklist a study should follow BEFORE the SAP is written. Asks 4-6 routing questions and recommends a primary plus extensions from CONSORT, STROBE, RECORD, RECORD-PE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, TARGET, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, REFORMS, DEAL, CHART, PDSQI-9. Use whenever the user mentions reporting checklist, EQUATOR, CONSORT, STROBE, TRIPOD, PRISMA, STARD, TARGET, "which guideline", "reporting standards", or sets up a study without one. PLAN-time skill — review-time scoring is ce-reporting-checklist-reviewer (auto-dispatched by /ce-code-review). Writes canonical stack-profile fields reporting_checklist (string) + reporting_checklist_extensions (list). Reads /ce-research-question yaml when present to pre-fill routing answers.'
+description: "Select reporting guidelines before SAP writing. Routes studies to CONSORT, STROBE, RECORD, PRISMA, TRIPOD+AI, CLAIM, STARD, and related extensions."
 argument-hint: "[study description, optional --interactive]"
 ---
 
 # Reporting Checklist Match
+
+
+## Skill Value
+
+- **Problem it solves:** Reporting requirements are often discovered too late, after the SAP or manuscript misses required design-specific items.
+- **Use when:** The user asks which checklist applies, mentions EQUATOR/reporting standards, or starts a study without a guideline.
+- **Output:** Canonical stack-profile fields for primary reporting_checklist and reporting_checklist_extensions.
+- **Ask only if:** Only for routing facts that cannot be inferred from the research question, design, data source, or existing profile.
+- **Do not do:** Do not score a finished manuscript; reporting-checklist review happens during code/document review.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Picks the right reporting checklist(s) at PLAN time so the SAP is written against them, not corrected after the fact. Distinct from `ce-reporting-checklist-reviewer` which validates AT REVIEW time -- this skill makes the upfront choice.
 

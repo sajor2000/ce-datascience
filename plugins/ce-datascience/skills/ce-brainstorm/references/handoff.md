@@ -8,7 +8,7 @@ This content is loaded when Phase 4 begins — after the requirements document i
 
 The Phase 4 menu's visible option count varies by state: no requirements doc hides the review and Proof options, unresolved `Resolve Before Planning` hides `Plan implementation` and `Build it now`, a failing direct-to-work gate hides `Build it now`. Count the visible options for the current state and choose the rendering mode accordingly:
 
-- **4 or fewer visible:** use the platform's blocking question tool (`AskUserQuestion` in Claude Code — call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded; `request_user_input` in Codex; `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). This is the default.
+- **4 or fewer visible:** use the current harness's blocking question mechanism when one is available. This is the default.
 - **5 or more visible:** render as a numbered list in chat. This is the narrow option-overflow fallback; trimming would hide legitimate choices (plan, review, Proof, build, refine, pause are all distinct destinations). Include a hint that free-form input is accepted ("Pick a number or describe what you want.") so the numbered list retains the blocking tool's open-endedness.
 
 Never silently skip the question.
@@ -72,19 +72,19 @@ Immediately load the `ce-work` skill in the current session using the finalized 
 
 **If user selects "Open in Proof — review and comment to iterate with the agent":**
 
-Load the `ce-proof` skill in HITL-review mode with:
+Use the core Compound Engineering `ce-proof` skill in HITL-review mode when that skill is installed. If it is not available in the current harness, explain that Proof review is provided by the core Compound Engineering plugin and return to the Phase 4 menu with the saved local requirements document as the fallback. When available, load it with:
 
 - **source file:** `docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md`
 - **doc title:** `Requirements: <topic title>`
 - **identity:** `ai:ce-datascience` / `CE DataScience`
-- **recommended next step:** `ce-plan` (shown in the ce-proof skill's final terminal output)
+- **recommended next step:** `ce-plan` (shown in the core ce-proof skill's final terminal output)
 
-Follow `references/hitl-review.md` in the ce-proof skill. It uploads the doc, prompts the user for review in Proof's web UI, ingests each thread by reading it fresh and replying in-thread, applies agreed edits as tracked suggestions, and syncs the final markdown back to the source file atomically on proceed.
+Follow the HITL-review workflow in the core ce-proof skill. It uploads the doc, prompts the user for review in Proof's web UI, ingests each thread by reading it fresh and replying in-thread, applies agreed edits as tracked suggestions, and syncs the final markdown back to the source file atomically on proceed.
 
-When the ce-proof skill returns control:
+When the core ce-proof skill returns control:
 
 - `status: proceeded` with `localSynced: true` → the requirements doc on disk now reflects the review. Return to the Phase 4 options and re-render the menu (the doc may have changed substantially during review, so option eligibility can shift — re-evaluate `Resolve Before Planning`, direct-to-work gate, and residual ce-doc-review findings against the updated doc).
-- `status: proceeded` with `localSynced: false` → the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the ce-proof skill's Pull workflow. Re-render the Phase 4 menu after the pull completes (or is declined). If the pull was declined, include a one-line note above the menu that `<localPath>` is stale vs. Proof — otherwise `Plan implementation` / `Build it now` / `Agent review of requirements doc` will silently read the pre-review copy (ce-doc-review would analyze stale content, and planning or work would skip the user's Proof edits).
+- `status: proceeded` with `localSynced: false` → the reviewed version lives in Proof at `docUrl` but the local copy is stale. Offer to pull the Proof doc to `localPath` using the core ce-proof skill's Pull workflow. Re-render the Phase 4 menu after the pull completes (or is declined). If the pull was declined, include a one-line note above the menu that `<localPath>` is stale vs. Proof — otherwise `Plan implementation` / `Build it now` / `Agent review of requirements doc` will silently read the pre-review copy (ce-doc-review would analyze stale content, and planning or work would skip the user's Proof edits).
 - `status: done_for_now` → the doc on disk may be stale if the user edited in Proof before leaving. Offer to pull the Proof doc to `localPath` so the local requirements file stays in sync, then return to the Phase 4 options. If the pull was declined, include the stale-local note above the menu. `done_for_now` means the user stopped the HITL loop without syncing — it does not mean they ended the whole brainstorm; they may still want to plan implementation, run an agent review, or keep refining the doc.
 - `status: aborted` → fall back to the Phase 4 options without changes.
 

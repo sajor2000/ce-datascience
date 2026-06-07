@@ -88,6 +88,8 @@ Now just type `claude-ds` in any project.
 ```
 
 Picks up your language (R or Python), IDE, libraries, and data layer automatically.
+It checks project evidence first and only asks questions that change generated
+config or workflow routing.
 If you installed optional aliases, `/ce-setup` works too.
 
 ### See your workflow
@@ -97,6 +99,9 @@ If you installed optional aliases, `/ce-setup` works too.
 ```
 
 Shows every step for your project type and tells you what to do next.
+Each slash skill now starts with a `Skill Value` block that states the problem,
+expected output, question boundary, and non-goal so new users can pick the right
+command without guessing.
 
 ---
 
@@ -143,7 +148,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ### Work with CLIF consortium data
 
 ```
-# Activates automatically — enforces Parquet, mCIDE vocab, three-script architecture
+# Anchored to clif-icu.com; activates automatically for CLIF repos
 /ce-workflow
 /ce-work
 ```
@@ -193,7 +198,7 @@ These workflow utilities are adapted from the original compound-engineering plug
 | Data layer | How it activates | What it does |
 |---|---|---|
 | **OMOP CDM** | SQL with `cdm_source`, `concept`, `person` | OMOP SQL + concept sets, vocabulary pinning |
-| **CLIF** | `CLIF_CLAUDE.md` or `clif-consortium` remote | Parquet-only, mCIDE vocab, POC sign-off |
+| **CLIF** | `CLIF_CLAUDE.md`, `clif-icu` remote, or CLIF handoff | Anchors to clif-icu.com; Parquet-only, mCIDE vocab, POC sign-off |
 | **Admin claims** | Medicare/Medicaid/MarketScan in code | Enrollment gaps, NDC-to-RxNorm, claims reviewer |
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |
@@ -209,6 +214,12 @@ This fork tracks useful infrastructure and workflow improvements from the origin
 | Session history | `/ce-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
 | Distribution and installation | The converter supports current `ce-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included as curated support skills for a professional public plugin surface. |
+
+Core-only Compound Engineering skills such as Proof review, demo-reel capture,
+frontend/Rails/iOS helpers, LFG, simplify-code, strategy, promote, and polish
+remain external. When the core Compound Engineering plugin is also installed,
+ce-datascience handoffs can use those skills with a visible fallback; they are
+not packaged as ce-datascience slash skills.
 
 ## Reviews against 35 checklists
 

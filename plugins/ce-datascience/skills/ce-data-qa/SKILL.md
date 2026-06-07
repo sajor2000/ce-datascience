@@ -1,10 +1,20 @@
 ---
 name: ce-data-qa
-description: 'Runs a structured data-quality gate on a freshly extracted dataset BEFORE SAP finalization or any modeling code runs and emits a GO/NO-GO verdict. Also supports pre-SAP column profile mode for first planning: inspect columns, types, candidate grain, keys, dates, nulls, duplicates, and obvious validity issues before writing the SAP. Produces row-counts vs the CONSORT-flow waterfall, missingness pattern vs the SAP rule when available, range checks, duplicate-key checks, date sanity, and category-value validation. Use whenever the user mentions data quality, data QA, GO/NO-GO, "look at columns first", "check the dataset before SAP/modeling", missingness check, range check, duplicate IDs, CONSORT flow vs raw rows, SAP-vs-data shape drift, "the data looks off", a fresh data extract / re-extract / data wave, or unblinding readiness for confirmatory analysis. Required gate after /ce-cohort-build and before /ce-plan SAP finalization or any /ce-work modeling task; refuses to run on a locked data wave without --force.'
+description: "Run a pre-SAP column profile or GO/NO-GO data quality gate before SAP finalization, modeling, or unblinding."
 argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 ---
 
 # Data Quality Assessment Gate
+
+
+## Skill Value
+
+- **Problem it solves:** Analysis can start before grain, keys, missingness, duplicates, dates, and extract validity are understood.
+- **Use when:** The user asks to inspect columns, validate a fresh extract, compare data to cohort/SAP expectations, or check readiness.
+- **Output:** A data profile or GO/NO-GO QA report plus __CE_DATA_PROFILE__ or data-wave handoff signal.
+- **Ask only if:** Only for file paths, intended grain, key fields, or SAP/cohort links that cannot be inferred.
+- **Do not do:** Do not certify SAP correctness or run modeling.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 This skill formalizes the data-QA gate that exists between data extraction and SAP/modeling work. **No SAP finalization, coding, or modeling runs until the available data columns and QA status are documented.** A "fail" outcome blocks the pipeline; a "warn" outcome requires PI sign-off; a "pass" outcome unlocks the data lock + modeling phase. When the SAP does not exist yet, run in pre-SAP column profile mode and emit a data profile that `/ce-plan` uses to draft the SAP without inventing variables.
 
@@ -57,15 +67,15 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 
 ### Step 3: Run the QA checks
 
-**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks:
+**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the `version=` value in the CLIF handoff as the authoritative data dictionary source.
 
 - **Storage check**: refuse to QA non-Parquet inputs for CLIF tables; emit a `block` finding if asked to QA CSV/Feather data declared as CLIF.
 - **ID type check**: `patient_id` and `hospitalization_id` are VARCHAR — `block` if cast to int.
 - **Datetime check**: every `*_dttm` column is timezone-aware UTC — `block` if any tz-naive timestamps exist.
-- **mCIDE vocabulary check**: every `*_category` column conforms to `ce-clif/references/mcide-vocab.md`. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
+- **mCIDE vocabulary check**: every `*_category` column conforms to the declared CLIF data dictionary and mCIDE allow-list. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
 - **Outlier-handling check**: physiologic ranges follow `outlier-handling/` thresholds when present; `warn` on out-of-range, never silently clip.
 - **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
-- **Canonical implementation**: prefer the upstream DQA implementation when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator.run_dqa()` (see `ce-clif/references/clifpy-recipes.md` §6). `__CE_LANG__ primary=r` -> use the QC and outlier-handler templates in `ce-clif/references/r-template-recipes.md` §6-7. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.
+- **Canonical implementation**: prefer upstream CLIF tooling when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator` DQA path. `__CE_LANG__ primary=r` -> use the CLIF project-template QC and outlier-handler pattern. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.
 
 Apply each check from `references/qa-checks.md` against the data. Generate findings into one of these buckets:
 

@@ -1,10 +1,20 @@
 ---
 name: ce-effect-size
-description: 'Pools effect-size estimates from prior literature into a single defensible assumption for /ce-power. Runs random-effects meta-analysis (REML) when 3+ studies report a comparable metric; produces a narrative range when fewer. Outputs a pooled point estimate + 95% CI + 95% prediction interval + I^2 + tau^2 + forest plot, ready to drop into SAP-2.5 as the power-calc anchor. Use whenever the user mentions effect size pooling, meta-analysis for power calculation, random-effects REML, pooled HR/OR/RR, prior-literature effect size, "what effect size should I assume", forest plot for prior studies, or finishes /ce-method-extract and is heading to /ce-power. Wraps R meta::metagen conventions; not a full systematic-review meta-analysis (no risk-of-bias scoring) -- use PRISMA workflow for that.'
+description: "Extract, compute, or pool effect-size evidence to ground power, SAP assumptions, and study justification."
 argument-hint: "<path/to/methods.csv>, optional: --metric or|hr|rr|md|smd"
 ---
 
 # Effect-Size Anchor for Power Calculations
+
+
+## Skill Value
+
+- **Problem it solves:** SAPs often choose effect assumptions without traceable prior evidence.
+- **Use when:** The user needs effect-size assumptions, pilot estimates, pooled estimates, or literature-derived values.
+- **Output:** Effect-size summary with sources, assumptions, uncertainty, and downstream SAP/power handoff.
+- **Ask only if:** Only when outcome scale, comparison, estimand, or source set is ambiguous.
+- **Do not do:** Do not overstate causal interpretation or replace formal meta-analysis when one is required.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Bridges `/ce-method-extract` (which collects what prior studies REPORTED) and `/ce-power` (which needs a single number to plug in). Without this skill, analysts pick the most favorable prior estimate and over-power; with it, they get a defensible pooled estimate with explicit uncertainty.
 

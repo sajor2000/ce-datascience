@@ -1,10 +1,20 @@
 ---
 name: ce-phenotype-validate
-description: 'Validates an EHR-derived phenotype algorithm against a chart-review gold standard. Computes PPV, NPV, sensitivity, specificity, F1, and Cohen kappa with Wilson 95% confidence intervals (better small-sample behavior than Wald) overall and stratified by sex/age/race/site. Use whenever the user mentions phenotype validation, algorithm validation, chart review, gold standard, PPV/NPV/sensitivity/specificity for a phenotype, eMERGE phenotype, PheKB phenotype, computable phenotype, "is my cohort definition accurate", "validate the case definition", or RECORD/RECORD-PE reporting requirement for phenotype performance. Required by RECORD-PE for any pharmacoepi study using an EHR-derived case definition. Emits a report and updates the concept-set provenance YAML.'
+description: "Validate phenotype definitions against evidence, code lists, data behavior, and expected cohort characteristics."
 argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-output csv"
 ---
 
 # Phenotype Algorithm Validation
+
+
+## Skill Value
+
+- **Problem it solves:** Phenotype algorithms can look plausible but fail validity, portability, or source-code consistency checks.
+- **Use when:** The user defines, reviews, or validates clinical phenotypes, code lists, or computable cohort definitions.
+- **Output:** Phenotype validation report with evidence, code-list checks, data plausibility, and unresolved risks.
+- **Ask only if:** Only when phenotype target, source vocabularies, or validation data are unclear.
+- **Do not do:** Do not certify clinical validity without evidence.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 EHR phenotypes are algorithmic case definitions (e.g., "T2DM = 2+ ICD codes within 12 months OR HbA1c ≥ 6.5% OR T2DM medication"). They drift, they have built-in PPV/sensitivity tradeoffs, and they need explicit validation. This skill runs the validation against a chart-review gold standard.
 

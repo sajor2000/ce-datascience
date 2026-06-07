@@ -55,7 +55,7 @@ This file contains the shipping workflow (Phase 3-4). Load it only when all Phas
 
    After Tier 2 code review completes, inspect the Residual Actionable Work summary it returned (or read the run artifact directly if the summary was not emitted). If one or more residual `downstream-resolver` findings remain, do not proceed to Final Validation until the user decides how to handle them.
 
-   Ask the user using the platform's blocking question tool (`AskUserQuestion` in Claude Code with `ToolSearch select:AskUserQuestion` pre-loaded if needed, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). Fall back to numbered options in chat only when the harness genuinely lacks a blocking tool. Never silently skip the gate.
+   Ask the user using the current harness's blocking question mechanism when one is available. Fall back to numbered options in chat only when the harness genuinely lacks a blocking question mechanism or it cannot be called. Never silently skip the gate.
 
    Stem: `Code review found N residual finding(s) the skill did not auto-fix. How should the agent proceed?`
 
@@ -91,7 +91,7 @@ This file contains the shipping workflow (Phase 3-4). Load it only when all Phas
 
 1. **Prepare Evidence Context**
 
-   Do not invoke `ce-demo-reel` directly in this step. Evidence capture belongs to the PR creation or PR description update flow, where the final PR diff and description context are available.
+   Do not invoke the core Compound Engineering `ce-demo-reel` directly in this step. Evidence capture belongs to the PR creation or PR description update flow, where the final PR diff and description context are available.
 
    Note whether the completed work has observable behavior (UI rendering, CLI output, API/library behavior with a runnable example, generated artifacts, or workflow output). The `ce-commit-push-pr` skill will ask whether to capture evidence only when evidence is possible.
 

@@ -236,6 +236,11 @@ recommended skill sequence for the project type, data layer, and language.
 If optional aliases are installed, the bare forms `/ce-setup` and
 `/ce-workflow` work too.
 
+The first pass is evidence-first: setup and workflow inspect existing config,
+lockfiles, notebooks, IDE files, SAP artifacts, and recent verified connection
+handoffs before asking. Follow-up questions should be limited to decisions that
+change generated config, routing, or scientific scope.
+
 If another skill verifies a database connection first, it can emit a generic
 handoff such as:
 
@@ -250,10 +255,16 @@ Good first workflows:
 
 ```text
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
+/ce-data-qa
 /ce-plan
 /ce-work
 /ce-code-review
 ```
+
+Each public skill starts with a `Skill Value` block that names the problem it
+solves, when to use it, expected output, when it should ask questions, and what
+it should not do. Use that block to choose the right slash command during a demo
+or first project walkthrough.
 
 For publication artifacts:
 

@@ -1,10 +1,20 @@
 ---
 name: ce-figure
-description: "Create and validate publication figure manifests with source-data traceability, captions, alt text, SAP links, guideline links, and journal style profiles. Use when the user asks for manuscript figures, JAMA-style figures, figure export checks, source-data packages, or publication-ready figure validation."
+description: "Create or validate publication-ready scientific figures with JAMA-style typography, layout, and traceability checks."
 argument-hint: "[optional: --manifest analysis/publication/figures/figure-manifest.json --project-root .]"
 ---
 
 # Publication Figure Workflow
+
+
+## Skill Value
+
+- **Problem it solves:** Figures can be visually polished but fail journal, readability, overlap, or data-traceability standards.
+- **Use when:** The user asks for a figure, JAMA-style plot, manuscript graphic, or figure QA.
+- **Output:** Figure artifact plus validation notes for style, labels, overlap, legend placement, and source data.
+- **Ask only if:** Only when figure purpose, data source, panel structure, or journal style is unclear.
+- **Do not do:** Do not invent data or skip visual inspection.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Create or validate figure manifests before figures enter a manuscript or journal package. A figure is ready only when its source data, source code, output file, caption, alt text, SAP link, and style profile are visible.
 

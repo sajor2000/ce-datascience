@@ -1,9 +1,19 @@
 ---
 name: ce-sessions
-description: "Search and ask questions about coding agent session history across Claude Code, Codex, and Cursor. Use when asking what was worked on, what was tried before, how a problem was investigated across sessions, what happened recently, or any question about past agent sessions. Also use when the user references prior sessions, previous attempts, or past investigations — even without saying 'sessions' explicitly."
+description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim."
 ---
 
 # /ce-sessions
+
+
+## Skill Value
+
+- **Problem it solves:** Prior attempts, decisions, and blockers are hard to recover from raw session files.
+- **Use when:** The user asks what happened before, what was tried, prior decisions, or session-history questions.
+- **Output:** A technical synthesis with relevant attempts, outcomes, and caveats.
+- **Ask only if:** Only when the session question or scope is missing.
+- **Do not do:** Do not quote sensitive session content or expose credentials.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Search session history across Claude Code, Codex, and Cursor and synthesize findings about what was worked on, tried, decided, or learned in prior sessions.
 
@@ -41,7 +51,7 @@ These rules apply at all times during orchestration and synthesis.
 
 ## Execution
 
-If no question argument is provided, ask what the user wants to know about their session history. Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to asking in plain text only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 ### Step 1 — Determine scan window
 

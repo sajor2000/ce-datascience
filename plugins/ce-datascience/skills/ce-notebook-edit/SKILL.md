@@ -1,10 +1,20 @@
 ---
 name: ce-notebook-edit
-description: "Safely modify existing Jupyter notebooks by inserting reviewed markdown or code cells at tagged anchors, with backups, project-root path checks, and notebook validation. Use when an analysis already lives in .ipynb and the user asks to update, amend, add a section, add a sensitivity analysis, or preserve an existing notebook rather than generating a replacement script."
+description: "Safely modify existing Jupyter, Marimo, or Quarto notebooks using anchors, backups, and metadata-preserving edits."
 argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--cell-type markdown|code]"
 ---
 
 # Guarded Notebook Editing
+
+
+## Skill Value
+
+- **Problem it solves:** Notebook edits can silently reorder cells, corrupt metadata, or break outputs when treated as plain text.
+- **Use when:** The user asks to update, patch, or extend an existing notebook rather than generate a new one.
+- **Output:** A backed-up notebook edit plus an anchor/change summary and validation notes.
+- **Ask only if:** Only when target notebook, edit anchor, or desired insertion point is unclear.
+- **Do not do:** Do not rewrite whole notebooks or discard metadata without explicit scope.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Existing notebooks are fragile because cell order, metadata, outputs, and JSON structure can drift silently. This skill edits them only through explicit anchors and always leaves a backup.
 
