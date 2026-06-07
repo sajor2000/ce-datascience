@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and declared data dictionary version. Pinned default: data dictionary **v2.1.0** (current public CLIF structured ICU data dictionary; last verified 2026-06-06). CLIF v3.0 is a planned multimodal release and must be opted into explicitly per project. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and declared data dictionary version. Pinned default: data dictionary **v2.1.0** (current public CLIF structured ICU data dictionary; last verified 2026-06-06). CLIF v3.0 is a planned multimodal release and must be opted into explicitly per project. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-TableOne`, and `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -39,7 +39,9 @@ project/
 ├── output/                # Aggregated, de-identified results only
 ├── renv/                  # R environment (if R)
 ├── renv.lock              # R lockfile (if R)
-├── requirements.txt       # Python lockfile (if Python)
+├── pyproject.toml         # Python dependencies (if Python)
+├── uv.lock                # Python lockfile used by current CLIF repos
+├── requirements.txt       # Optional exported Python requirements
 ├── utils/                 # Shared helpers
 └── README.md
 ```
@@ -92,7 +94,7 @@ To override: include `POC: @<github-handle> approved` (or `--poc-approved`) in t
 
 - Develop on MIMIC-IV converted to CLIF format (`CLIF-MIMIC` pipeline) or on local CLIF data.
 - Ship the analysis script via PR; each site runs it locally and returns aggregate results.
-- Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `renv.lock` (R) or `uv.lock` (Python) with pinned versions.
+- Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `renv.lock` (R) or `uv.lock` / `pyproject.toml` (Python) with project-controlled versions.
 - **Two aggregation patterns exist in the consortium:**
   - **Meta-analytic pooling:** each site runs the full analysis and submits summary CSVs; a central aggregation script pools with `metafor::rma(method="REML")`.
   - **Federated coefficient pooling:** for low-prevalence outcomes where site-level models fail — sites submit local model coefficients, a lead site pools them into global intercepts, sites apply the global model locally. Use when outcome is too rare for site-level propensity scoring.
@@ -136,7 +138,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 ### Python coding pitfalls
 - **Outlier handling is clifpy's job.** Use `ClifOrchestrator` — do not hardcode thresholds.
 - **Prefer polars for large tables.** `pl.scan_parquet()` for lazy evaluation on vitals/labs (often >50M rows). Pandas `read_parquet()` loads everything into memory.
-- **uv is replacing pip.** Newer CLIF Python projects use `uv` for environment management. Check for `uv.lock` alongside `requirements.txt`.
+- **uv is the current Python default.** Newer CLIF Python projects use `uv` with `pyproject.toml` and `uv.lock` for environment management. Check for `uv.lock` before suggesting `pip install`; use `uv add` / `uv sync` when the project already uses uv.
 
 ### Statistical modeling pitfalls
 - **Never include SOFA as a propensity score covariate when its components are already in the model.** SOFA is a composite of respiratory, coagulation, hepatic, cardiovascular, renal, and neurological sub-scores. Including both creates collinearity. Display SOFA in Table 1 but exclude from propensity models.
@@ -164,7 +166,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - CLIF GitHub (main): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF
 - CLIF WORKFLOW.md: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/blob/main/WORKFLOW.md
 - mCIDE directory: https://github.com/Common-Longitudinal-ICU-data-Format/CLIF/tree/main/mCIDE
-- **clifpy** (official Python client, PyPI: `python3 -m pip install --upgrade clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
+- **clifpy** (official Python client, PyPI: `python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
 - **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
 - CLIF Lighthouse (validation tool): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse

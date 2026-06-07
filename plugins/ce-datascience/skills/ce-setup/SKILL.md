@@ -72,6 +72,46 @@ Rules:
 - If `primary=unknown` and an existing config has `stack_profile.language`, reuse that value and set `source=cached`.
 - If `primary=unknown` and no prior config exists, default to `both`.
 
+## Phase 0.6: Detect CLIF profile handoff
+
+Before asking stack questions, scan recent chat and repo signals for CLIF mode:
+
+```
+__CE_CLIF__ active=true version=<dd-version> strict=<true|false> rules=<path-to-clif-rules.md>
+```
+
+If the active signal is present, set `clif_profile_active=true` and store:
+
+```yaml
+stack_profile:
+  profile: clif
+  clif:
+    data_dictionary_version: "2.1.0"
+```
+
+If no signal is present, apply `/ce-clif` activation rules exactly:
+
+- Strong signals activate CLIF mode: `CLIF_CLAUDE.md`, a git remote containing
+  `clif-consortium`, `clif-icu`, or `Common-Longitudinal-ICU-data-Format`,
+  explicit user text saying CLIF/mCIDE, or direct `/ce-clif` use.
+- Weak CLIF signals require two or more matches, or one confirmation question
+  before activation: `mCIDE/`, `WORKFLOW.md`, `clif_*.parquet`, CLIF-specific
+  table names, or `config/config.json` with `tables_path`.
+
+When CLIF mode activates from repo signals, store the same profile block:
+
+```yaml
+stack_profile:
+  profile: clif
+  clif:
+    data_dictionary_version: "2.1.0"
+```
+
+When CLIF mode is active, bias setup prompts toward the packages used in current
+CLIF consortium repositories: `uv`, `clifpy`, `duckdb`, `pyarrow`, `polars`,
+`marimo`, `tableone`, and the R `renv` template package set. Do not pin Python
+package versions unless the user's project already has a lockfile.
+
 ## Phase 0.75: Detect verified connection handoff
 
 Before asking data-layer questions, scan the recent chat context for a verified connection signal:
@@ -146,6 +186,35 @@ This refinement is required before Step 3. Do not ask R data-library, R statisti
 
 Present library options based on the refined `stack_profile.language`, not the raw auto-detected language. Use a multiSelect question.
 
+If `clif_profile_active=true`, use CLIF-aware package prompts.
+
+For R under CLIF:
+```
+Which R data/workflow packages do you use? (select all that apply)
+
+1. tidyverse (dplyr, ggplot2, tidyr, readr, purrr, etc.)
+2. data.table
+3. arrow (recommended for CLIF Parquet)
+4. here
+5. jsonlite
+6. knitr
+```
+
+For Python under CLIF:
+```
+Which Python data/workflow packages do you use? (select all that apply)
+
+1. clifpy (recommended official CLIF client)
+2. polars (recommended for large CLIF tables)
+3. pandas
+4. duckdb
+5. pyarrow
+6. pandera (schema validation; used in CLIF-MIMIC)
+7. sf-hamilton (pipeline DAGs; used in CLIF-MIMIC)
+```
+
+For "both" under CLIF, ask the CLIF R question first, then the CLIF Python question.
+
 For R:
 ```
 Which data libraries do you use? (select all that apply)
@@ -192,7 +261,17 @@ stack_profile:
     status: verified
 ```
 
-If no verified connection signal is present, use the standard prompt:
+If no verified connection signal is present and `clif_profile_active=true`, use the CLIF prompt:
+
+```
+What is your primary data storage layer?
+
+1. CLIF Parquet files (recommended)
+2. SQL database (only for upstream extracts before materializing CLIF Parquet)
+3. Microsoft Fabric / Spark
+```
+
+If no verified connection signal is present and CLIF mode is not active, use the standard prompt:
 
 ```
 What is your primary data storage layer?
@@ -207,6 +286,39 @@ Store the selection as `stack_profile.data_layer`.
 ### Step 5: Statistical Packages
 
 Present package options based on the refined `stack_profile.language`, not the raw auto-detected language. Use a multiSelect question.
+
+If `clif_profile_active=true`, use CLIF-aware statistical/package prompts.
+
+For R under CLIF:
+```
+Which R statistical/reporting packages do you use? (select all that apply)
+
+1. stats (base R)
+2. survival
+3. gtsummary (Table 1 and summaries; CLIF template)
+4. gt (table rendering)
+5. cmprsk (competing risks; used in CLIF mobilization analyses)
+6. writexl (site summary exports)
+7. tidymodels (ML framework)
+8. glmnet (regularized regression)
+9. arrow (Parquet)
+10. haven (SAS/SPSS/Stata)
+```
+
+For Python under CLIF:
+```
+Which Python analysis packages do you use? (select all that apply)
+
+1. tableone (Table 1; used in CLIF project repos)
+2. statsmodels
+3. scipy
+4. lifelines
+5. scikit-learn
+6. plotly
+7. upsetplot
+```
+
+For "both" under CLIF, ask the CLIF R question first, then the CLIF Python question.
 
 For R:
 ```
@@ -254,11 +366,12 @@ When the refined `stack_profile.language` includes Python, ask the equivalent:
 ```
 How do you manage Python environments?
 
-1. venv (built-in virtual environments)
-2. conda (Anaconda/Miniconda)
-3. poetry (pyproject.toml-based)
-4. pixi (conda-based with pixi.toml)
-5. None
+1. uv (recommended for current CLIF Python repos and reproducible uv.lock files)
+2. venv (built-in virtual environments)
+3. conda (Anaconda/Miniconda)
+4. poetry (pyproject.toml-based)
+5. pixi (conda-based with pixi.toml)
+6. None
 ```
 
 Store the selection as `stack_profile.environment_manager.python`.
@@ -266,6 +379,18 @@ Store the selection as `stack_profile.environment_manager.python`.
 ### Step 6: Reporting Framework
 
 Present options based on the refined `stack_profile.language`.
+
+If `clif_profile_active=true` and the refined language includes Python, list
+Marimo first because current CLIF Python repos and clifpy examples use `uv` +
+Marimo workflows:
+
+```
+What reporting framework do you prefer?
+
+1. Marimo (recommended for current CLIF Python examples)
+2. Jupyter notebooks (.ipynb)
+3. Quarto (.qmd)
+```
 
 For R:
 ```
@@ -401,6 +526,15 @@ Resolve the repository root (`git rev-parse --show-toplevel`). All paths are rel
 Build the YAML content from the collected answers. Only include non-null values. Write to `<repo-root>/.ce-datascience/config.local.yaml`, creating the directory if needed.
 
 If a verified `detected_connection` was accepted in Step 4, include it under `stack_profile.data_connection`. Do not write the connection into `data_root`.
+
+If `clif_profile_active=true`, include:
+
+```yaml
+stack_profile:
+  profile: clif
+  clif:
+    data_dictionary_version: "2.1.0"
+```
 
 Persist the language-detection block gathered in Phase 0.5:
 
