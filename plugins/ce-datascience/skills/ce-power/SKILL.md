@@ -1,10 +1,20 @@
 ---
 name: ce-power
-description: 'Computes sample size / power for the planned study design with a sensitivity sweep across plausible effect sizes. Supports two-sample t, two-proportion, log-rank/Cox (survival), mixed-effects (cluster RCT, repeated measures), TOST equivalence/non-inferiority, and Riley 2018 four-criterion sample size for prediction-model development (uses the pmsampsize R package, not naive EPV ≥ 10). Use whenever the user mentions sample size, power calculation, "how many participants do I need", "is this study powered", a priori power, sensitivity to effect size, EPV, Riley criteria, pmsampsize, sample size for external validation, or any /ce-plan step needing a SAP-2.5 paragraph. Generates a runnable R or Python script + a sensitivity sweep table + a one-page write-up. Reads /ce-effect-size pooled estimates as the effect-size anchor when available.'
+description: "Plan sample size or power assumptions for clinical, observational, survival, and prediction-model studies."
 argument-hint: "<design>, optional: --effect-size <value> --alpha 0.05 --power 0.80 --side two"
 ---
 
 # Power and Sample Size
+
+
+## Skill Value
+
+- **Problem it solves:** Studies often proceed without transparent detectable-effect, alpha, power, attrition, or endpoint assumptions.
+- **Use when:** The user asks for power, sample size, detectable effect, feasibility, or SAP power section support.
+- **Output:** Power assumptions and calculation summary with inputs, limitations, and SAP handoff.
+- **Ask only if:** Only when design, endpoint type, effect scale, allocation, variance, or event rate is missing.
+- **Do not do:** Do not guarantee feasibility when data availability or assumptions are uncertain.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Wraps the standard power calculations behind a single command. Produces a script (so the calculation is reproducible), a sensitivity sweep (so the answer doesn't pretend to be more precise than it is), and a SAP-ready write-up.
 

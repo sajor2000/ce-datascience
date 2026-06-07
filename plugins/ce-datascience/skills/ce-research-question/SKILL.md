@@ -1,10 +1,20 @@
 ---
 name: ce-research-question
-description: 'Hardens a fuzzy clinical or biomedical research question into a structured PICO + FINER + suggested PubMed query stored at analysis/research-question.yaml so /ce-pubmed and /ce-checklist-match consume it directly. Use whenever the user has an idea for a study but it is not yet a PICO ("we want to look at sepsis bundles in the ICU"), wants to convert an /ce-ideate biomedical-mode survivor into a hardened question, mentions PICO, FINER, "frame the research question", "what is my hypothesis", "is this question worth doing", or precedes the rest of the biomedical lifecycle (/ce-pubmed, /ce-method-extract, /ce-checklist-match, /ce-cohort-build). Sits between /ce-ideate biomedical-mode and /ce-pubmed in the lifecycle. Output is a single YAML file other skills read; this skill writes data, not prose.'
+description: "Harden a fuzzy biomedical idea into PICO, FINER, hypothesis, and PubMed-query YAML for downstream study workflows."
 argument-hint: "<one-line research question>, optional: --ideation-survivor <path>"
 ---
 
 # Research Question Hardening
+
+
+## Skill Value
+
+- **Problem it solves:** Literature search, cohort building, and SAP writing drift when the research question is not structured.
+- **Use when:** The user has a clinical or biomedical study idea that needs PICO/FINER framing before evidence search.
+- **Output:** analysis/research-question.yaml plus __CE_RESEARCH_QUESTION__ handoff.
+- **Ask only if:** Only for missing PICO, hypothesis, feasibility, or outcome elements that cannot be inferred.
+- **Do not do:** Do not write the SAP or run literature extraction.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Turns a fuzzy clinical research question into a structured `analysis/research-question.yaml` that the rest of the biomedical lifecycle reads as input. The output is a small YAML file, not a long requirements doc — for the long requirements form use `/ce-brainstorm`. The two skills are complementary: brainstorm produces narrative requirements; this skill produces structured biomedical data.
 

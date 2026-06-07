@@ -1,9 +1,81 @@
 # CE DataScience Setup Guide
 
 This guide is the fastest path from a fresh machine to a working `ce-datascience`
-install. The commands assume a Unix-like shell on macOS, Linux, or WSL.
+install. Use Bash on macOS, Linux, WSL, or Git Bash. Use PowerShell on native
+Windows.
 
-## 1. Pick The Install Path
+## OS Support Matrix
+
+| OS | Recommended shell | Easiest command | Notes |
+|---|---|---|---|
+| macOS | Bash or Zsh | `bash install.sh claude --aliases` or `bash install.sh codex` | Fully supported and tested locally on macOS. |
+| Linux | Bash | `bash install.sh claude --aliases` or `bash install.sh codex` | Covered by Bash syntax tests and temp-root install tests. |
+| Windows with WSL | Bash inside WSL | `bash install.sh claude --aliases` or `bash install.sh codex` | Use Linux paths inside WSL, such as `/mnt/c/...` only when needed. |
+| Windows with Git Bash | Git Bash | `bash install.sh claude --aliases` or `bash install.sh codex` | `C:/Users/...` paths are accepted by the Bash helper. |
+| Windows PowerShell | PowerShell | `.\install.ps1 claude -Aliases` or `.\install.ps1 codex` | Native Windows path handling and Codex offline install support. |
+
+## 1. Easiest Install Path
+
+This mirrors the original Compound Engineering plugin experience: install once,
+then run setup.
+
+### Claude Code
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 claude -Aliases
+claude
+```
+
+Then run:
+
+```text
+/ce-setup
+```
+
+The helper registers the local Claude marketplace and installs the plugin. The
+`--aliases` flag also installs safe local command aliases so bare `/ce-*`
+commands work for demos. If you skip aliases, use namespaced plugin commands
+such as `/ce-datascience:ce-setup`.
+
+### Codex
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 codex
+codex
+```
+
+Inside Codex, run `/plugins`, install **CE DataScience**, restart Codex, then
+start a new thread and ask Codex to use CE DataScience for setup. If Bun is
+available, the helper also installs the generated CE agents into the selected
+`CODEX_HOME`.
+
+## 2. Locked-Down Or Demo Laptop
 
 ### Locked-down laptop or team demo
 
@@ -59,6 +131,12 @@ export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"
 ```
 
+On Windows PowerShell:
+
+```powershell
+.\install.ps1 codex -Source C:\approved\ce-datascience-codex-local -CodexHome "$HOME\.codex"
+```
+
 Then restart Codex, run `/plugins`, install CE DataScience from the local
 marketplace, and restart again. The installer also writes generated agent bridge
 files into the selected `CODEX_HOME`, copies the native plugin under the
@@ -67,12 +145,12 @@ that installed local plugin copy. The marketplace entry uses
 `source.path: "./.codex/plugins/ce-datascience"` so Codex can resolve it from
 the marketplace root.
 
-### Source checkout for contributors
+## 3. Source Checkout For Contributors
 
 Bun and Git are required only when building, validating, converting, or
 developing the plugin from source.
 
-## 2. Install Source Prerequisites
+## 4. Install Source Prerequisites
 
 Install Bun if it is not already available:
 
@@ -86,7 +164,7 @@ Restart the shell, then verify:
 bun --version
 ```
 
-## 3. Clone Once
+## 5. Clone Once
 
 Clone the repo and install dependencies:
 
@@ -106,7 +184,7 @@ bun run release:validate
 Expected result: release metadata is in sync, with the current agent, skill, and
 MCP server counts.
 
-## 4. Pick Your Agent
+## 6. Pick Your Agent
 
 ### Claude Code
 
@@ -222,7 +300,7 @@ qwen extensions install sajor2000/ce-datascience:ce-datascience
 Qwen is not a generated `--to qwen` target. `--to all` only writes generated
 targets that are detected on the machine.
 
-## 5. First Run In A Project
+## 7. First Run In A Project
 
 Start in the project or study repo where you want help, then run:
 
@@ -235,6 +313,11 @@ Start in the project or study repo where you want help, then run:
 recommended skill sequence for the project type, data layer, and language.
 If optional aliases are installed, the bare forms `/ce-setup` and
 `/ce-workflow` work too.
+
+The first pass is evidence-first: setup and workflow inspect existing config,
+lockfiles, notebooks, IDE files, SAP artifacts, and recent verified connection
+handoffs before asking. Follow-up questions should be limited to decisions that
+change generated config, routing, or scientific scope.
 
 If another skill verifies a database connection first, it can emit a generic
 handoff such as:
@@ -250,10 +333,16 @@ Good first workflows:
 
 ```text
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
+/ce-data-qa
 /ce-plan
 /ce-work
 /ce-code-review
 ```
+
+Each public skill starts with a `Skill Value` block that names the problem it
+solves, when to use it, expected output, when it should ask questions, and what
+it should not do. Use that block to choose the right slash command during a demo
+or first project walkthrough.
 
 For publication artifacts:
 
@@ -273,7 +362,7 @@ For locked-down laptops, run setup in no-install mode:
 This reports missing tools but does not offer Homebrew, pip, npm, GitHub CLI, or
 Quarto install commands.
 
-## 6. Update An Existing Checkout
+## 8. Update An Existing Checkout
 
 ```bash
 cd "$CE_DS_REPO"
@@ -285,7 +374,7 @@ bun run release:validate
 Then restart the agent. For generated targets, rerun the install command for
 that target so generated files and MCP paths refresh.
 
-## 7. Build Offline Artifacts
+## 9. Build Offline Artifacts
 
 Release owners with a working source checkout can build the corporate ZIPs:
 
@@ -305,7 +394,9 @@ The build writes:
 |---|---|
 | `bun: command not found` | Re-run the Bun install command, restart the shell, and check `bun --version`. |
 | Claude says `/ce-setup` is unknown | Use `/ce-datascience:ce-setup`, or install optional local aliases. Restart Claude Code after installing a plugin or aliases. |
+| Windows PowerShell cannot run `bash install.sh` | Use `.\install.ps1 claude -Aliases` or `.\install.ps1 codex`. Use Bash commands only in WSL or Git Bash. |
 | Corporate laptop blocks Bun, GitHub CLI, Git, or Quarto | Use the approved Claude plugin folder/ZIP or Codex local marketplace package. Bun and Git are source-build tooling; GitHub CLI is only for GitHub helper skills; Quarto is only for Quarto render workflows. |
+| Paperclip is missing or blocked | `/ce-evidence-map` still works from PubMed-only evidence. Paperclip is optional for full-text, result-set grep/map, SQL, and figure deepening. |
 | Local install says it cannot find `plugins/ce-datascience` remotely | Use `./plugins/ce-datascience` from the repo root, including the leading `./`. |
 | Codex installed into the wrong profile | Set `CODEX_HOME` and pass the same value to `--codex-home`. |
 | Codex has duplicate or stale CE files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |

@@ -1,9 +1,19 @@
 ---
 name: ce-clean-gone-branches
-description: Clean up local branches whose remote tracking branch is gone. Use when the user says "clean up branches", "delete gone branches", "prune local branches", "clean gone", or wants to remove stale local branches that no longer exist on the remote. Also handles removing associated worktrees for branches that have them.
+description: "Clean local git branches whose upstream tracking branches are gone, with confirmation before branch or worktree deletion."
 ---
 
 # Clean Gone Branches
+
+
+## Skill Value
+
+- **Problem it solves:** Stale local branches and orphaned worktrees accumulate after PRs merge or remotes are pruned.
+- **Use when:** The user asks to clean gone branches, prune local branches, or remove branches whose remotes no longer exist.
+- **Output:** A confirmed branch/worktree cleanup summary.
+- **Ask only if:** Before deleting anything, confirm the exact branches and worktrees to remove.
+- **Do not do:** Do not delete unmerged or user-owned work without confirmation.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Delete local branches whose remote tracking branch has been deleted, including any associated worktrees.
 
@@ -37,7 +47,7 @@ These local branches have been deleted from the remote:
 Delete all of them? (y/n)
 ```
 
-Wait for the user's answer using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting the list in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 This is a yes-or-no decision on the entire list -- do not offer multi-selection or per-branch choices.
 

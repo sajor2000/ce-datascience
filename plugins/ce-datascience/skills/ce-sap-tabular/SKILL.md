@@ -1,12 +1,22 @@
 ---
 name: ce-sap-tabular
-description: 'Generates a structured 5-table tabular companion (overview, outputs catalog, variables catalog, long-format sample, wide-format sample) to the prose SAP and emits both CSVs and a styled .xlsx. The catalog drives /ce-work task seeding (one task per row) and gates /ce-sprint scope (only catalogued outputs are in-scope). Use whenever the user mentions SAP companion table, tabular SAP, output catalog, variables catalog, "make me a programmer-handoff sheet for the SAP", "lock down the output inventory", section-banner highlighting, or finishes /ce-plan SAP and is heading to /ce-sprint or /ce-work. Use AFTER the prose SAP exists and BEFORE any analysis code runs — the catalog is the contract /ce-work executes against. Refuses to run when no SAP exists.'
+description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets."
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 
 # Tabular SAP Companion
 
-The prose SAP narrates methods; this skill generates the **executable inventory**: which analyses exist, which artifacts each one produces, which variables each one consumes, and what the data files look like. The output mirrors the structure of a real-world stats-team SAP (5 sheets: Overview, Outputs, Master Variables, File 1 Long, File 2 Wide), so a programmer can implement against it row-by-row and a coordinating center can audit it cell-by-cell.
+
+## Skill Value
+
+- **Problem it solves:** Prose SAPs do not give programmers a concrete output inventory or variable contract.
+- **Use when:** The user has a prose SAP and needs programmer handoff sheets, output catalog, variable catalog, or workbook contract.
+- **Output:** CSV sheets and styled .xlsx workbook under the SAP tables/output location.
+- **Ask only if:** Only when SAP content lacks analysis rows, outputs, variable definitions, or file-shape assumptions.
+- **Do not do:** Do not invent analyses, variables, or outputs missing from the SAP.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
+
+The prose SAP narrates methods; this skill generates the **executable inventory**: which analyses exist, which artifacts each one produces, which variables each one consumes, and what the data files look like. The output mirrors the structure of a real-world stats-team SAP workbook: three core sheets (`Overview`, `Outputs`, `Master Variables`) plus optional synthetic file-shape sample sheets when useful. A programmer should be able to implement against it row-by-row and a coordinating center should be able to audit it cell-by-cell.
 
 ## When This Skill Activates
 
@@ -18,7 +28,7 @@ The prose SAP narrates methods; this skill generates the **executable inventory*
 ## Prerequisites
 
 - `analysis/sap.md` exists (the prose SAP) -- the tabular companion seeds from it
-- The user can articulate, for each analysis: claim type, unit of analysis, file shape (long / wide), main method, and 1-line research question
+- The user can articulate, for each analysis: claim type, unit of analysis, data file(s), primary method, secondary methods, 1-line research question, and expected site script
 - Optional but encouraged: `python3 -m pip show openpyxl` succeeds, so the skill can also emit a single `.xlsx` workbook (the format the stats team actually opens)
 
 ## Core Workflow
@@ -39,70 +49,69 @@ Read `analysis/sap.md` and extract:
 
 If the prose SAP is thin, prompt the user for the missing fields rather than inventing them.
 
-### Step 3: Build the 5 tables
+### Step 3: Build the core workbook tables
 
-Walk the user through each table. The skill generates the CSV (and an .xlsx workbook combining all 5 sheets when `openpyxl` is available).
+Walk the user through each table. The skill generates CSVs and an `.xlsx` workbook combining the three core sheets, with optional synthetic sample sheets when `04-file1-long-sample.csv` or `05-file2-wide-sample.csv` exists.
 
 #### Table 1: `01-overview.csv` (Analysis × Claim × Methods)
 
-One row per analysis. Columns:
+One row per analysis. Use these exact column names because they mirror a biostatistics handoff workbook:
 
 | Column | Content |
 |--------|---------|
-| analysis_number | `2`, `3`, `4`, ... (corresponds to SAP-5.N) |
-| analysis_name | Short label (e.g., "Time to extubation") |
-| claim | Claim being tested: criterion validity / construct validity / hospital benchmarking / external validity / etc. |
-| unit_of_analysis | ventilator-day / patient / hospital / day / encounter |
-| file_shape | long / wide / mixed |
-| analysis_question | One-sentence question (e.g., "When SBT/SAT applied, do patients get off vent faster?") |
-| main_methods | Primary statistical method (mixed-effects logistic, ZTNB, Cox, Fine-Gray, etc.) |
-| secondary_methods | If applicable (sensitivity, alternate model) |
-| site_outputs | Which output files this analysis produces (semi-colon separated, references row IDs in 02-outputs.csv) |
+| Analysis | Numbered analysis label, e.g. `2 - Criterion Validity`, `3 - Time to Extubation`, `SA - Age <65 Subgroup` |
+| Claim | Claim being tested: criterion validity / construct validity / hospital benchmarking / external validity / sensitivity / etc. |
+| Unit of Analysis | Ventilator-day / hospitalization / patient / hospital / day / encounter |
+| Data File(s) | File shape and source, e.g. `File 1 (Long): one row per patient per ventilator day; File 2 (Wide): one row per hospitalization` |
+| Analysis Question | One-sentence question, e.g. "When SBT/SAT applied, do patients get off vent faster?" |
+| Primary Method | Primary statistical method (mixed-effects logistic, ZTNB, Cox, Fine-Gray, two-part model, etc.) |
+| Secondary Methods | Sensitivity, alternate model, fallback, or "None" |
+| Site Script | Expected implementation script, e.g. `ABTRISE_345_outcomes.R` or `analysis_03_time_to_event.py` |
 
 #### Table 2: `02-outputs.csv` (Artifact catalog)
 
-One row per artifact. Group rows by section in this order: DIAGNOSTIC OUTPUTS, TABLE OUTPUTS, MODEL OUTPUTS, FIGURE DATA OUTPUTS. Columns:
+One row per artifact. Group rows by visible section-banner rows, where column 1 contains a banner such as `SETUP / DIAGNOSTICS | ABTRISE_00_setup.R` and the remaining cells are blank. Legacy CSVs with a first `section` column are still accepted, but the workbook-native banner-row format is preferred. Columns:
 
 | Column | Content |
 |--------|---------|
-| output_file | Filename pattern with `SITE_ID_` prefix slot (e.g., `A3_dt_primary_coefs.csv`) |
-| subfolder | One of: `diagnostics/`, `tables/`, `models/a<N>/`, `figures/a<N>/` |
-| dataset_cohort_scope | Which dataframe / cohort the output is built from |
-| analysis_section | "Analysis 3.1 - Primary: Discrete-Time Logistic" or "Diagnostic" or "Table - general" |
-| contents | Plain-English description of what the file contains (variables, statistics, formats) |
-| role_in_pooled_analysis | What the coordinating center / pooled-analysis layer does with this output |
-| interpretation | 1-2 sentence "what this result might mean" -- the analyst commits to expected direction BEFORE running |
+| Output File (SITE_ID_ prefix added automatically) | Filename pattern without hard-coding a site prefix, e.g. `A3_dt_primary_coefs.csv` |
+| Subfolder | One of: `diagnostics/`, `tables/`, `models/a<N>/`, `figures/a<N>/`, or a justified project-specific subfolder |
+| Dataset / Cohort Scope | Which dataframe / cohort the output is built from |
+| Script Section | "Analysis 3.1 - Primary: Discrete-Time Logistic" or "Diagnostic" or "Table - general" |
+| Contents | Plain-English description of what the file contains (variables, statistics, formats) |
+| Role at Coordinating Center | What the coordinating center / pooled-analysis layer does with this output |
+| Interpretation | 1-2 sentence pre-result expectation: what this result should mean and what direction or pattern would support the claim |
 
 The `interpretation` column is the most important. It forces a pre-registered expectation, so when results arrive they can be compared to it ("expected OR > 1; got 0.85; investigate").
 
 #### Table 3: `03-variables.csv` (Master variables)
 
-One row per variable. Columns:
+One row per variable. Use title-cased workbook columns and analysis flags (`A2`, `A3`, `A4`, etc.) so the matrix is readable in Excel:
 
 | Column | Content |
 |--------|---------|
-| category | Outcome / Exposure / Patient Characteristic / Clinical Characteristic / Cluster / ID / Derivation Helper |
-| variable | Variable name as it appears in the data (e.g., `SAT_delivered_primary`) |
-| description | Plain-English description |
-| type | Fixed / Time-varying |
-| levels | 0/1, integer, numeric, categorical {A,B,C}, date, etc. |
-| file | File 1 / File 2 / Both |
-| `analysis_<N>` | One column per analysis; `✓` if used, blank if not |
-| notes | Free-form, especially for TBD operationalization decisions |
+| Category | Outcome / Exposure / Patient Characteristic / Clinical Characteristic / Cluster / ID / Derivation Helper |
+| Variable | Variable name as it appears in the data, e.g. `SAT_delivered_primary` |
+| Description | Plain-English description |
+| Type | Fixed / Time-varying |
+| Format / Values | 0/1, integer, numeric range, categorical level set, date/datetime format, units, or expected scale |
+| File | File 1 / File 2 / File 3 / Both |
+| `A<N>` | One column per analysis; `✓` if used, blank if not |
+| Notes | Optional free-form notes, especially for TBD operationalization decisions |
 
 The per-analysis `✓` columns make it instantly visible which variables drive which analyses, and which analyses share covariate sets.
 
-#### Table 4: `04-file1-long-sample.csv` (Long-format example)
+#### Optional Table 4: `04-file1-long-sample.csv` (Long-format example)
 
 A 5-15 row example of the long-format data file. Columns are the variables flagged `File 1` in Table 3. The sample data are SYNTHETIC; this is documentation, not data. Color-code (or annotate) rows in the corresponding `.xlsx` sheet to show: extubation events, deaths, missing-flowsheet rows, censored rows.
 
-#### Table 5: `05-file2-wide-sample.csv` (Wide-format example)
+#### Optional Table 5: `05-file2-wide-sample.csv` (Wide-format example)
 
 A 3-10 row example of the wide-format (one row per patient or per hospitalization). Columns are the variables flagged `File 2` in Table 3.
 
 ### Step 4: Generate the workbook
 
-Run `python3 scripts/generate-tabular-sap.py <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the 5 CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (DIAGNOSTIC / TABLE / MODEL / FIGURE).
+Run `python3 scripts/generate-tabular-sap.py <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
 
 If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alone are a valid output.
 
@@ -110,10 +119,10 @@ If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alon
 
 Run a cross-reference check:
 
-- Every `SAP-5.N` analysis in `analysis/sap.md` must appear as a row in `01-overview.csv` (and vice versa)
-- Every output file in `02-outputs.csv` must reference an analysis number that exists in `01-overview.csv`
+- Every `SAP-5.N` analysis in `analysis/sap.md` must appear as a row in `01-overview.csv` and must have a stable `A<N>` flag column in `03-variables.csv`
+- Every analysis-level output file in `02-outputs.csv` must reference an analysis ID that exists in `01-overview.csv`
 - Every variable in `03-variables.csv` flagged as used by an analysis must appear in the corresponding analysis's covariate list in the prose SAP (warn, don't block)
-- File names in `02-outputs.csv` must follow the `A<N>_*.csv` pattern (block on violation)
+- Analysis-level file names in `02-outputs.csv` must follow the `A<N>_*.csv` pattern (block on violation); diagnostics and general tables may omit the `A<N>_` prefix
 
 Print a validation summary; refuse to write the .xlsx workbook if blocking violations remain.
 
@@ -143,8 +152,8 @@ Files:
   analysis/sap-tables/01-overview.csv
   analysis/sap-tables/02-outputs.csv
   analysis/sap-tables/03-variables.csv
-  analysis/sap-tables/04-file1-long-sample.csv
-  analysis/sap-tables/05-file2-wide-sample.csv
+  analysis/sap-tables/04-file1-long-sample.csv   (optional synthetic sample)
+  analysis/sap-tables/05-file2-wide-sample.csv   (optional synthetic sample)
   analysis/sap-tables/<slug>-tabular-sap.xlsx   (when openpyxl available)
 
 Cross-link added to analysis/sap.md (SAP-12, SAP-13).
@@ -154,7 +163,7 @@ Next: run /ce-work; the task list will be seeded from 02-outputs.csv with one ta
 
 ## Pipeline mode
 
-In `mode:headless`, the skill writes the 5 CSVs + .xlsx and emits `__CE_SAP_TABULAR_GENERATED__ slug=<slug> outputs=<M>`. No prompts, no validation prose; failures are emitted as `__CE_SAP_TABULAR_FAIL__ reason=<reason>`.
+In `mode:headless`, the skill writes the core CSVs + `.xlsx` and emits `__CE_SAP_TABULAR_GENERATED__ slug=<slug> outputs=<M>`. No prompts, no validation prose; failures are emitted as `__CE_SAP_TABULAR_FAIL__ reason=<reason>`.
 
 ## What This Skill Does NOT Do
 

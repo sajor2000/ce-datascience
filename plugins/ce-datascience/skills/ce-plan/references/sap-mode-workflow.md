@@ -9,8 +9,9 @@ Detailed workflow for `/ce-plan` when **SAP mode** is active. Linked from `SKILL
 3. Canonical handoff-signal envelopes (the `__CE_*__` table consumed by Phase 3).
 4. CLIF-profile behavior under SAP mode.
 5. SAP Phase 4 — Write the SAP file.
-6. SAP Phase 5 — Gap check and review.
-7. SAP versioning rules.
+6. SAP Phase 4.5 — Create or require the biostatistics-style tabular SAP companion.
+7. SAP Phase 5 — Gap check and review.
+8. SAP versioning rules.
 
 ---
 
@@ -34,7 +35,7 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2).
 7. Use precise statistical language -- name specific tests, models, and adjustment methods.
 
-When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
+When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`, or `path=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
 
 ## 2. Canonical handoff-signal envelopes
 
@@ -44,6 +45,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 |--------|------------------|------------|-------------------|
 | `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `/ce-research-question` | SAP-1 framing, SAP-2.1 hypothesis |
 | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `/ce-pubmed` | SAP-1 background, SAP-2 rationale |
+| `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `/ce-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-4 analysis-plan justification |
 | `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
 | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
@@ -76,6 +78,20 @@ When `__CE_CLIF__ active=true` is present:
    - `status: draft`
 3. Write the SAP file to disk using the Write tool.
 4. Confirm: `SAP written to [path]`.
+
+## 4.5. SAP Phase 4.5: Biostatistics Tabular SAP Companion
+
+Every new SAP must be paired with the biostatistics-style tabular SAP workbook contract. Treat `/ce-sap-tabular` as part of the SAP deliverable, not optional polish.
+
+1. Derive a study slug from the SAP title or user-provided slug.
+2. If the SAP has usable data-profile evidence and no critical data QA blockers, generate or update the core tabular SAP files via `/ce-sap-tabular <slug>`:
+   - `analysis/sap-tables/01-overview.csv` with exact columns `Analysis`, `Claim`, `Unit of Analysis`, `Data File(s)`, `Analysis Question`, `Primary Method`, `Secondary Methods`, `Site Script`
+   - `analysis/sap-tables/02-outputs.csv` with exact columns `Output File (SITE_ID_ prefix added automatically)`, `Subfolder`, `Dataset / Cohort Scope`, `Script Section`, `Contents`, `Role at Coordinating Center`, `Interpretation`
+   - `analysis/sap-tables/03-variables.csv` with exact columns `Category`, `Variable`, `Description`, `Type`, `Format / Values`, `File`, one flag column per analysis (`A2`, `A3`, etc.), and optional `Notes`
+   - `analysis/sap-tables/<slug>-tabular-sap.xlsx` when `openpyxl` is available
+3. Use visible section-banner rows in `02-outputs.csv` such as `SETUP / DIAGNOSTICS | <script>`, `TABLE OUTPUTS | <script>`, `MODEL OUTPUTS | <script>`, and `FIGURE DATA OUTPUTS | <script>`. The remaining cells in a banner row stay blank so the workbook renderer can merge the row.
+4. If data QA is missing, blocked, or the SAP has provisional variable/model sections, do not invent workbook rows. Keep `status: draft`, retain the data-profile gap comment, and list `/ce-data-qa` followed by `/ce-sap-tabular <slug>` as required next steps before `/ce-sprint`, `/ce-work`, coding, or modeling.
+5. The SAP gap report must state whether the tabular companion is present, generated, or blocked by missing data QA. A new SAP with no tabular companion and no explicit blocker is incomplete.
 
 ## 5. SAP Phase 5: Gap Check and Review
 

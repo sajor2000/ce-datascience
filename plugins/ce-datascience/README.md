@@ -7,6 +7,53 @@ Compound engineering for computational scientists. SAP management, statistical r
 For complete copy-paste setup across Claude Code, Codex, OpenCode, Gemini CLI,
 Kiro, Pi, and Qwen Code, see [`../../docs/setup.md`](../../docs/setup.md).
 
+Fastest normal Claude Code setup:
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 claude -Aliases
+claude
+```
+
+Then run `/ce-setup`. The alias flag gives you the same bare-command feel as
+the original Compound Engineering plugin. Without aliases, use the native
+namespaced form `/ce-datascience:ce-setup`.
+
+Fastest normal Codex setup:
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 codex
+codex
+```
+
+Inside Codex, install **CE DataScience** from `/plugins`, restart, then ask
+Codex to use CE DataScience for setup.
+
 Locked-down laptops can use approved local artifacts without Bun, Git, GitHub
 CLI, or Quarto:
 
@@ -25,21 +72,16 @@ In native Claude plugin installs, commands are namespaced:
 Bare commands such as `/ce-setup` require optional local alias files in
 `.claude/commands`; they are not guaranteed by plugin loading itself.
 
-Fastest local Claude Code setup from a fresh checkout:
-
-```bash
-export CE_DS_REPO="$HOME/ce-datascience"
-git clone https://github.com/sajor2000/ce-datascience.git "$CE_DS_REPO"
-cd "$CE_DS_REPO"
-bun install
-claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"
-```
-
 After installing, run `/ce-datascience:ce-setup` in any project. It configures your stack
 profile (language, IDE, libraries, reporting framework) and bootstraps project
 config. Then run `/ce-datascience:ce-workflow` to see the ordered next steps
 for the project. If optional aliases are installed, `/ce-setup` and
 `/ce-workflow` work too.
+
+Setup and workflow inspect available project evidence before asking. Each public
+skill starts with a `Skill Value` block naming the problem it solves, when to use
+it, expected output, question boundary, and non-goal so demos and first projects
+route to the right command quickly.
 
 Connection skills can hand setup a verified database default by emitting
 `__CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified`.
@@ -91,7 +133,7 @@ The current plugin selectively ports useful features from the original compound-
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included so users can answer version-specific questions and file structured bug reports from the public plugin surface. |
 | Target compatibility | Agent sources use current `ce-*.md` filenames; legacy `*.agent.md` parsing remains supported. Codex installs respect `CODEX_HOME`, support native-plugin agent bridge and standalone modes, and preserve manual/other-plugin hooks during managed hook writes. |
 
-Deferred upstream-only skills remain intentionally out of scope unless requested: Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, proof, and polish workflows.
+Deferred upstream-only skills remain intentionally out of scope unless requested: Rails, frontend, Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, proof, simplify-code, strategy, promote, and polish workflows. When the core Compound Engineering plugin is installed, ce-datascience may hand off to those core skills with an explicit fallback; it does not silently pretend they ship inside ce-datascience.
 
 ## Skills
 
@@ -111,7 +153,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
-| `/ce-sap-tabular` | Generate the structured tabular companion to the prose SAP -- 5-table artifact (overview, outputs catalog, variables catalog, long/wide samples) statisticians hand to programmers |
+| `/ce-sap-tabular` | Generate the biostatistics-style tabular companion to the prose SAP -- Overview, Outputs, Master Variables, and optional long/wide sample sheets that statisticians hand to programmers |
 | `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
 | `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
@@ -123,6 +165,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | Skill | Description |
 |-------|-------------|
 | `/ce-pubmed` | PubMed/MEDLINE search via NCBI E-utilities with MeSH expansion and structured result tables |
+| `/ce-evidence-map` | Build a source-backed evidence map from PubMed, with optional Paperclip full-text, grep, map, SQL, and figure deepening when available |
 | `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification |
 | `/ce-checklist-match` | Pick the right reporting checklist (CONSORT / STROBE / TRIPOD+AI / etc.) at PLAN time, before SAP drafting |
 | `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes; produces an R or Python script and a SAP-ready paragraph |
@@ -138,7 +181,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- enforces Parquet-only, mCIDE vocab, three-script architecture, POC sign-off on protected paths |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- anchors to clif-icu.com, then enforces Parquet-only, mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 

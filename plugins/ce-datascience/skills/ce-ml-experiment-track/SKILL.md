@@ -1,10 +1,20 @@
 ---
 name: ce-ml-experiment-track
-description: 'Wires up ML experiment tracking (mlflow, wandb, dvc, or offline-YAML) so every model run logs training-data hash, hyperparams, metrics, model artifacts, and a study-id link. Generates backend-specific boilerplate (init script, run-schema.yaml with required logged fields, .gitignore entries) and a `runs/<run-id>.yaml` fallback so the local repo is the audit trail even if the tracking server is lost. Use whenever the user mentions mlflow, wandb, weights-and-biases, DVC, experiment tracking, run tracking, "track my model runs", "I keep losing track of which model I trained", reproducibility for ML, model versioning, run registry, or starts a new ML project. Use BEFORE the first manuscript-bound run; if uncontrolled experiments already happened, the previous tracking is lost.'
+description: "Add reproducible ML experiment tracking guidance for datasets, splits, metrics, model cards, and optional tracking tools."
 argument-hint: "[--backend mlflow|wandb|dvc|offline, --project name]"
 ---
 
 # ML Experiment Tracking Setup
+
+
+## Skill Value
+
+- **Problem it solves:** ML analyses lose reproducibility when splits, seeds, metrics, and artifacts are not tracked consistently.
+- **Use when:** The user builds or reviews ML experiments, prediction models, validation runs, or tracking setup.
+- **Output:** Experiment tracking plan or scaffold with run metadata, metrics, artifacts, and reproducibility checks.
+- **Ask only if:** Only when tracking backend, task type, or required metrics cannot be inferred.
+- **Do not do:** Do not make a tracking service mandatory when local artifacts are sufficient.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Most ML papers in biomedicine are unreproducible because runs are not tracked. By the time the analyst writes the manuscript, "the version that got 0.89 AUC" is on no disk, with no record of hyperparameters or training-data hash. This skill wires tracking from day 1.
 

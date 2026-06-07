@@ -1,10 +1,20 @@
 ---
 name: ce-method-extract
-description: 'Extracts structured statistical and methodological detail from a PubMed result set into a comparison table. Use whenever the user wants to extract methods from papers, build a methods comparison table, summarize what statistical approaches prior studies used, find the modal analytic method in a literature corpus, anchor a SAP method choice in prior literature, or produce input for /ce-effect-size meta-analysis pooling. Triggers on "extract methods from these papers", "what did similar studies do for analysis", "summarize the statistical approaches", or any reference to a methods/sample-size/effect-size comparison table. Runs on /ce-pubmed CSV output; pulls full text via PMC OAI when pmcid is available, falls back to abstracts otherwise.'
+description: "Extract study methods, cohort definitions, endpoints, models, and assumptions from literature for SAP justification."
 argument-hint: "<path/to/pubmed-results.csv>, optional: --full-text-only --max 25"
 ---
 
 # Method Extraction from Prior Literature
+
+
+## Skill Value
+
+- **Problem it solves:** Plans cite papers but often miss the methods details needed to justify analysis choices.
+- **Use when:** The user has PubMed, Paperclip, or literature-search results and needs methods grounding.
+- **Output:** Structured methods extraction table with cohort, outcome, model, covariate, and effect-size clues.
+- **Ask only if:** Only when source set, extraction fields, or target SAP section is unclear.
+- **Do not do:** Do not treat abstracts as full-text evidence when methods are unavailable.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Reads a PubMed result CSV and produces a structured methods-comparison table for the SAP.
 
@@ -24,6 +34,8 @@ Reads a PubMed result CSV and produces a structured methods-comparison table for
 ### Step 0: Context inputs (scan chat first)
 
 If no `<path/to/pubmed-results.csv>` was passed as the first argument, scan the most recent ~50 chat turns for `__CE_PUBMED_RESULTS__ csv=<path> n=<int> ...`. If found, use that CSV path as the input.
+
+Also scan for `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] ...`. If present, read the evidence map before extraction and use it to prioritize papers, identify full-text-verified claims, and avoid re-asking literature questions already answered there. The PubMed CSV remains the required tabular input for this skill; the evidence map is context, not a replacement CSV.
 
 Print: `[pubmed] using results from <path> (n=<N>)`. If neither an explicit path nor the signal is present, ask the user to run `/ce-pubmed` first or pass a CSV path explicitly.
 

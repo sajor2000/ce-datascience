@@ -2,6 +2,8 @@
 
 Use this template when producing a Statistical Analysis Plan in SAP mode. The YAML frontmatter and `SAP-N.M` section identifiers are load-bearing -- downstream skills (`ce-work` SAP tracking, SAP-drift detector) parse them by ID. Do not renumber or restructure section IDs without updating consumers.
 
+Every new SAP must include the biostatistics-style tabular SAP contract. The prose SAP is the narrative plan; `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` workbook are the programmer/coordinating-center handoff.
+
 ## YAML Frontmatter
 
 ```yaml
@@ -170,13 +172,15 @@ This section is optional for traditional statistical analyses. It is strongly re
 
 The full per-artifact inventory lives in `analysis/sap-tables/02-outputs.csv` (also rendered in the multi-sheet workbook `analysis/sap-tables/<slug>-tabular-sap.xlsx`). Every output file in the catalog must trace back to a SAP-N.M analysis section. Programmers implement against the catalog row-by-row; coordinating-center audits read the catalog cell-by-cell.
 
-Generate this catalog with `/ce-sap-tabular <slug>` after this prose SAP is at draft or final status.
+The tabular catalog should mirror a biostatistics handoff workbook. Use these exact output columns: `Output File (SITE_ID_ prefix added automatically)`, `Subfolder`, `Dataset / Cohort Scope`, `Script Section`, `Contents`, `Role at Coordinating Center`, and `Interpretation`. Group outputs with visible section-banner rows such as `SETUP / DIAGNOSTICS | <script>` and `MODEL OUTPUTS | <script>`.
+
+Generate this catalog with `/ce-sap-tabular <slug>` as part of every new SAP. If `/ce-data-qa` has not yet profiled the actual columns, keep the SAP in draft and list `/ce-data-qa` followed by `/ce-sap-tabular <slug>` as required next steps.
 
 ---
 
 ## SAP-13: Variable Catalog
 
-The variable-by-analysis matrix lives in `analysis/sap-tables/03-variables.csv`. Each row is one variable; each analysis (`SAP-5.N`) has a column flagging whether the variable is used. The catalog also records type (Fixed vs Time-varying), levels, and the source file (long vs wide).
+The variable-by-analysis matrix lives in `analysis/sap-tables/03-variables.csv`. Each row is one variable; each analysis (`SAP-5.N`) has a column flagging whether the variable is used. The catalog also records type (Fixed vs Time-varying), format/values, and the source file (long vs wide). Use workbook-friendly analysis flag columns (`A2`, `A3`, `A4`, etc.) so the matrix matches the `Overview` analysis IDs.
 
 Generated alongside SAP-12 by `/ce-sap-tabular`.
 ```

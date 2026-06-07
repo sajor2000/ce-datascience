@@ -1,10 +1,20 @@
 ---
 name: ce-sprint
-description: 'Opens, closes, or reports status on a bounded analysis sprint with a named human reviewer and explicit scope (subset of SAP sections). Each sprint declares entry criteria (data lock, prior sprint signed off), planned outputs from sap-tables/02-outputs.csv, and a named reviewer; /ce-sprint close dispatches ce-sprint-audit-reviewer to verify planned-vs-actual and runs a reproducibility re-check. Use whenever the user mentions sprint, sprint open/close, "auditable unit of work", "human sign-off", "lock down what gets done this week", "freeze scope for the next analysis chunk", "human reviewer for this analysis", or wants to enact a SAP in increments rather than one unbounded /ce-work session. Especially valuable for academic / regulated work where each analysis unit needs an audit trail. The sprint-log.yaml IS the audit trail.'
+description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail."
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 
 # Sprint Cadence with Human Audit Gates
+
+
+## Skill Value
+
+- **Problem it solves:** Analysis work becomes unbounded without explicit scope, reviewer, planned outputs, and closure checks.
+- **Use when:** The user wants an auditable analysis sprint, human signoff, scoped SAP execution, or sprint closeout.
+- **Output:** Sprint log/status with scope, reviewer, planned-vs-actual outputs, and closeout findings.
+- **Ask only if:** Only when sprint name, reviewer, scope, or planned output rows are missing.
+- **Do not do:** Do not open a sprint without entry criteria or close one without checking planned outputs.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human reviewer sign-off. The frictionless feel of `/ce-work` is preserved; the sprint adds structure around it so analyses can be audited unit-by-unit.
 
@@ -27,7 +37,7 @@ Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human 
 
 1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `/ce-sprint close` first.
 
-2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `analysis_section` matches.
+2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `Script Section` or legacy `analysis_section` matches. Ignore section banner rows where only the first cell is populated.
 
 3. Resolve the reviewer. The user passes `reviewer=<name>` or, if absent, prompt for one. The named human is the person who will sign the sprint summary. Their name lands in `sprint-log.yaml` -- this is the audit-trail anchor.
 
@@ -82,8 +92,10 @@ sprint:
 
        Verify, in order:
        1. Every row in analysis/sap-tables/02-outputs.csv whose
-          analysis_section is in <scope> has a corresponding artifact at the
-          expected output_file under the expected subfolder.
+          `Script Section` or legacy `analysis_section` is in <scope> has a
+          corresponding artifact at the expected `Output File (SITE_ID_ prefix
+          added automatically)` or legacy `output_file` under the expected
+          `Subfolder` or legacy `subfolder`.
        2. No files outside <scope>'s SAP-section ownership were edited
           between <commit_open> and <commit_close>
           (use `git diff --name-only <commit_open> <commit_close>`).

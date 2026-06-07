@@ -1,6 +1,6 @@
 # clifpy Recipes (Python)
 
-Canonical Python patterns for working with CLIF data, drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`, the official clifpy docs, and current CLIF consortium project manifests. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-06: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
+Canonical Python patterns for working with CLIF data, anchored to `https://clif-icu.com/` as the public CLIF source and drawn from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`, the official clifpy docs, and current CLIF consortium project manifests. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-06: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
 
 ## Table of contents
 

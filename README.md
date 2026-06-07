@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-48 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+49 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -10,10 +10,64 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 
 ---
 
-## Get started in 5 minutes
+## Get started like Compound Engineering
 
-For a complete copy-paste setup guide across every supported platform, see
-[docs/setup.md](docs/setup.md).
+The normal path is intentionally short: install the plugin, start your agent,
+then run setup. For complete platform details, see [docs/setup.md](docs/setup.md).
+
+### Claude Code, easiest path
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 claude -Aliases
+claude
+```
+
+Then run:
+
+```text
+/ce-setup
+```
+
+The `--aliases` flag installs safe local command aliases so the demo-friendly
+bare `/ce-*` commands work. Without aliases, native Claude plugin commands are
+namespaced, for example `/ce-datascience:ce-setup`.
+
+### Codex, easiest path
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 codex
+codex
+```
+
+Inside Codex, open `/plugins`, install **CE DataScience**, restart Codex, then
+start a new thread and ask Codex to use CE DataScience for setup. The helper
+also installs the generated agent bridge when Bun is available.
 
 ### Locked-down or demo laptop
 
@@ -46,6 +100,12 @@ For Codex without Bun, unpack `ce-datascience-codex-local.zip` and run:
 
 ```bash
 bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "${CODEX_HOME:-$HOME/.codex}"
+```
+
+On Windows PowerShell, use the package's native installer:
+
+```powershell
+.\install.ps1 codex -Source C:\approved\ce-datascience-codex-local -CodexHome "$HOME\.codex"
 ```
 
 Restart Codex, open `/plugins`, install CE DataScience from the local
@@ -88,6 +148,8 @@ Now just type `claude-ds` in any project.
 ```
 
 Picks up your language (R or Python), IDE, libraries, and data layer automatically.
+It checks project evidence first and only asks questions that change generated
+config or workflow routing.
 If you installed optional aliases, `/ce-setup` works too.
 
 ### See your workflow
@@ -97,6 +159,9 @@ If you installed optional aliases, `/ce-setup` works too.
 ```
 
 Shows every step for your project type and tells you what to do next.
+Each slash skill now starts with a `Skill Value` block that states the problem,
+expected output, question boundary, and non-goal so new users can pick the right
+command without guessing.
 
 ---
 
@@ -110,6 +175,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ```
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
 /ce-pubmed
+/ce-evidence-map
 /ce-method-extract
 /ce-checklist-match
 /ce-effect-size
@@ -142,7 +208,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ### Work with CLIF consortium data
 
 ```
-# Activates automatically — enforces Parquet, mCIDE vocab, three-script architecture
+# Anchored to clif-icu.com; activates automatically for CLIF repos
 /ce-workflow
 /ce-work
 ```
@@ -192,7 +258,7 @@ These workflow utilities are adapted from the original compound-engineering plug
 | Data layer | How it activates | What it does |
 |---|---|---|
 | **OMOP CDM** | SQL with `cdm_source`, `concept`, `person` | OMOP SQL + concept sets, vocabulary pinning |
-| **CLIF** | `CLIF_CLAUDE.md` or `clif-consortium` remote | Parquet-only, mCIDE vocab, POC sign-off |
+| **CLIF** | `CLIF_CLAUDE.md`, `clif-icu` remote, or CLIF handoff | Anchors to clif-icu.com; Parquet-only, mCIDE vocab, POC sign-off |
 | **Admin claims** | Medicare/Medicaid/MarketScan in code | Enrollment gaps, NDC-to-RxNorm, claims reviewer |
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |
@@ -208,6 +274,12 @@ This fork tracks useful infrastructure and workflow improvements from the origin
 | Session history | `/ce-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
 | Distribution and installation | The converter supports current `ce-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included as curated support skills for a professional public plugin surface. |
+
+Core-only Compound Engineering skills such as Proof review, demo-reel capture,
+frontend/Rails/iOS helpers, LFG, simplify-code, strategy, promote, and polish
+remain external. When the core Compound Engineering plugin is also installed,
+ce-datascience handoffs can use those skills with a visible fallback; they are
+not packaged as ce-datascience slash skills.
 
 ## Reviews against 35 checklists
 
@@ -230,9 +302,13 @@ Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
 
 | Platform | Easiest command |
 |---|---|
+| Claude Code, one-command setup | `bash install.sh claude --aliases` then `/ce-setup` |
+| Claude Code, Windows PowerShell | `.\install.ps1 claude -Aliases` then `/ce-setup` |
 | Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` then `/ce-datascience:ce-setup` |
 | Claude Code, offline | `claude --plugin-dir /approved/path/ce-datascience.zip` |
 | Claude bare aliases | `bash scripts/install/install-claude-aliases.sh --plugin-dir "$CE_DS_REPO/plugins/ce-datascience" --scope user` |
+| Codex, one-command setup | `bash install.sh codex` then install CE DataScience from `/plugins` |
+| Codex, Windows PowerShell | `.\install.ps1 codex` then install CE DataScience from `/plugins` |
 | Codex native + agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"` |
 | Codex offline local marketplace | `bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"` |
 | Codex standalone | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` |

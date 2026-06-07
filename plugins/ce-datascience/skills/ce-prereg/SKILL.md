@@ -1,10 +1,20 @@
 ---
 name: ce-prereg
-description: 'Generates a pre-registration form from the locked SAP for OSF, ClinicalTrials.gov, PROSPERO (systematic reviews), or AsPredicted. Reads SAP sections (background, variables, hypotheses, analysis plan, sample size) and maps them to the registry-specific form fields; refuses to generate if the SAP is not locked, blinding state is unblinded, or git log shows inferential analysis already ran. Use whenever the user mentions pre-registration, prereg, OSF, ClinicalTrials.gov, NCT, PROSPERO, AsPredicted, ICMJE registration, "register this trial", "pre-register the analysis plan", or any reference to a registration deadline relative to enrollment. ICMJE requires CT.gov registration BEFORE first enrollment for prospective interventional studies; this skill catches that timing window.'
+description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows."
 argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --sap path"
 ---
 
 # Pre-Registration Generator
+
+
+## Skill Value
+
+- **Problem it solves:** Registry submissions need structured design, outcomes, analysis, and deviation language before work begins.
+- **Use when:** The user asks for preregistration, registry package, ClinicalTrials.gov, OSF, PROSPERO, or protocol registration.
+- **Output:** Registry-ready draft sections and a missing-information checklist.
+- **Ask only if:** Only when registry target, intervention/exposure, outcomes, or analysis timing is unclear.
+- **Do not do:** Do not submit registrations or invent sponsor/IRB details.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Pre-registration is once-per-study, painful, and high-value. This skill converts a locked SAP into a registry-specific form so the analyst doesn't translate by hand.
 

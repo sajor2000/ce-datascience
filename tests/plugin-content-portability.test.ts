@@ -108,6 +108,21 @@ describe("ce-datascience skill portability", () => {
     expect(offenders).toEqual([])
   })
 
+  test("evidence map keeps Paperclip optional and guarded", async () => {
+    const evidenceMap = await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "SKILL.md"), "utf8")
+    const sapMode = await fs.readFile(path.join(skillsRoot, "ce-plan", "references", "sap-mode-workflow.md"), "utf8")
+
+    expect(evidenceMap).toContain("command -v paperclip && paperclip config")
+    expect(evidenceMap).toContain("Do not run the Paperclip installer automatically.")
+    expect(evidenceMap).toContain("paperclip search -s pmc")
+    expect(evidenceMap).toContain("paperclip map --from <search_id>")
+    expect(evidenceMap).toContain("paperclip grep --from <search_id>")
+    expect(evidenceMap).toContain("paperclip ask_image")
+    expect(evidenceMap).toContain("__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>")
+    expect(evidenceMap).not.toContain("curl -fsSL https://paperclip.gxl.ai/install.sh")
+    expect(sapMode).toContain("`csv=`, `yaml=`, `json=`, `file=`, or `path=`")
+  })
+
   test("skill-local reference links resolve inside each skill directory", async () => {
     const skillFiles = await collectFiles(skillsRoot, (file) => path.basename(file) === "SKILL.md")
     const missingReferences: string[] = []

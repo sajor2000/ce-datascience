@@ -6,7 +6,7 @@ Ordered skill sequences for each project type. Steps marked with language-specif
 
 ## Data-First Planning Invariant
 
-For any project with inspectable data, actual columns and QA evidence come before SAP finalization, coding, or modeling. Run `/ce-data-qa` in pre-SAP column profile mode as the first data-touching planning step for tabular data, or `/ce-bioinfo-qc` first for omics data. If no dataset exists yet, `/ce-plan` must keep variable/model sections provisional and list `/ce-data-qa` as a required next step before `/ce-sap-tabular`, `/ce-sprint`, or `/ce-work`.
+For any project with inspectable data, actual columns and QA evidence come before SAP finalization, coding, or modeling. Run `/ce-data-qa` in pre-SAP column profile mode as the first data-touching planning step for tabular data, or `/ce-bioinfo-qc` first for omics data. If no dataset exists yet, `/ce-plan` must keep variable/model sections provisional and list `/ce-data-qa` as a required next step before `/ce-sap-tabular`, `/ce-sprint`, or `/ce-work`. Every new SAP must then get the biostatistics-style tabular workbook contract (`Overview`, `Outputs`, `Master Variables`) through `/ce-sap-tabular` before sprint/work.
 
 ---
 
@@ -26,7 +26,7 @@ Full biomedical lifecycle — 14 steps. Most common path for EHR, OMOP, CLIF, an
 | 8 | `/ce-data-qa` | Column profile + data quality gate (GO/NO-GO) before SAP | pandas checks | polars checks | tidyverse checks |
 | 9 | `/ce-phenotype-validate` | Chart-review gold standard | Python script | Python script | R script |
 | 10 | `/ce-plan` (SAP mode) | Write Statistical Analysis Plan | — | — | — |
-| 11 | `/ce-sap-tabular` | Tabular SAP companion for programmers | — | — | — |
+| 11 | `/ce-sap-tabular` | Required biostatistics tabular SAP workbook for programmers | — | — | — |
 | 12 | `/ce-sprint` | Open bounded analysis sprint | — | — | — |
 | 13 | `/ce-work` | Execute analysis | `.ipynb` notebook | Marimo `.py` | Quarto `.qmd` |
 | 14 | `/ce-code-review` | Statistical + methodological review | Python reviewers | Python reviewers | R reviewers |
@@ -46,6 +46,7 @@ Full biomedical lifecycle — 14 steps. Most common path for EHR, OMOP, CLIF, an
 
 **CLIF (Common Longitudinal ICU Format):**
 - `ce-clif` activates automatically — emits `__CE_CLIF__ active=true`
+- Core source is `https://clif-icu.com/`; GitHub repos provide implementation details after the data dictionary version is known.
 - Step 4: routes to STROBE + RECORD (default)
 - Step 7: cohort follows three-script architecture (`code/01_qc_*`, `code/02_cohort_*`, `code/03_analysis_*`)
 - Step 9: skip — mCIDE vocabulary handles phenotype definitions; no chart-review needed
@@ -80,7 +81,7 @@ Condensed path — the trial protocol already defines population, intervention, 
 | 1 | `/ce-data-qa` | Trial data column profile + QA gate | Required before SAP finalization when any extract exists |
 | 2 | `/ce-checklist-match` | Select checklist | CONSORT (or CONSORT-AI if model-as-intervention, SPIRIT-AI if protocol) |
 | 3 | `/ce-plan` (SAP mode) | Write CONSORT SAP | ITT/PP populations, imputation, stratification, safety endpoints |
-| 4 | `/ce-sap-tabular` | Tabular SAP companion | — |
+| 4 | `/ce-sap-tabular` | Required biostatistics tabular SAP workbook | — |
 | 5 | `/ce-sprint` | Open sprint | — |
 | 6 | `/ce-work` | Execute analysis | Language per stack profile |
 | 7 | `/ce-code-review` | Review | Blinding-aware: blocks inferential code when `blinding_state: blinded` |

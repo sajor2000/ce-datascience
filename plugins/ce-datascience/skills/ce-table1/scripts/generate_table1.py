@@ -21,6 +21,15 @@ BASELINE_CATEGORIES = {
     "cohort",
 }
 
+FIELD_ALIASES = {
+    "category": ("category", "Category"),
+    "variable": ("variable", "Variable"),
+    "description": ("description", "Description"),
+    "type": ("type", "Type"),
+    "levels": ("levels", "Levels", "Format / Values", "format / values"),
+    "notes": ("notes", "Notes"),
+}
+
 
 def repo_relative(path: Path, root: Path) -> str:
     try:
@@ -41,10 +50,17 @@ def load_variables(path: Path) -> list[dict[str, str]]:
         return [{key: (value or "").strip() for key, value in row.items()} for row in csv.DictReader(handle)]
 
 
+def value_for(row: dict[str, str], field: str) -> str:
+    for candidate in FIELD_ALIASES.get(field, (field,)):
+        if candidate in row and row[candidate]:
+            return row[candidate]
+    return ""
+
+
 def baseline_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     selected: list[dict[str, str]] = []
     for row in rows:
-        category = row.get("category", "").strip().lower()
+        category = value_for(row, "category").strip().lower()
         if any(token in category for token in BASELINE_CATEGORIES):
             selected.append(row)
     return selected
@@ -56,15 +72,16 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         for row in rows:
+            variable = value_for(row, "variable")
             writer.writerow({
-                "variable": row.get("variable", ""),
-                "label": row.get("description") or row.get("variable", ""),
-                "category": row.get("category", ""),
-                "type": row.get("type", ""),
-                "levels": row.get("levels", ""),
+                "variable": variable,
+                "label": value_for(row, "description") or variable,
+                "category": value_for(row, "category"),
+                "type": value_for(row, "type"),
+                "levels": value_for(row, "levels"),
                 "overall": "TBD: compute from locked analysis dataset",
                 "by_strata": "TBD: compute by declared strata",
-                "notes": row.get("notes", ""),
+                "notes": value_for(row, "notes"),
             })
 
 
@@ -78,16 +95,16 @@ def write_markdown(path: Path, rows: list[dict[str, str]], style_profile: str) -
         "|---|---|---|---|---|---|",
     ]
     for row in rows:
-        label = row.get("description") or row.get("variable", "")
+        label = value_for(row, "description") or value_for(row, "variable")
         lines.append(
             "| "
             + " | ".join([
                 label,
-                row.get("category", ""),
-                row.get("type", ""),
+                value_for(row, "category"),
+                value_for(row, "type"),
                 "TBD",
                 "TBD",
-                row.get("notes", ""),
+                value_for(row, "notes"),
             ])
             + " |"
         )
@@ -161,11 +178,11 @@ def main(argv: list[str]) -> int:
         "outputs_catalog": repo_relative(outputs_path, root),
         "rows": [
             {
-                "variable": row.get("variable", ""),
-                "category": row.get("category", ""),
-                "description": row.get("description") or row.get("variable", ""),
-                "type": row.get("type", ""),
-                "levels": row.get("levels", ""),
+                "variable": value_for(row, "variable"),
+                "category": value_for(row, "category"),
+                "description": value_for(row, "description") or value_for(row, "variable"),
+                "type": value_for(row, "type"),
+                "levels": value_for(row, "levels"),
             }
             for row in selected
         ],

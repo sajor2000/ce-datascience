@@ -1,9 +1,19 @@
 ---
 name: ce-compound-refresh
-description: Refresh stale learning docs and pattern docs under docs/solutions/ by reviewing them against the current codebase, then updating, consolidating, replacing, or deleting the drifted ones. Trigger this skill when the user asks to refresh, audit, sweep, clean up, or consolidate stale docs in docs/solutions/ (phrases like "refresh my learnings", "audit docs/solutions/", "clean up stale learnings", "consolidate overlapping docs", "compound refresh", "/ce-compound-refresh"), or when ce-compound has just captured a new learning and flagged a specific older doc in docs/solutions/ as now inaccurate or superseded — invoke with the narrow scope hint ce-compound provides. Also trigger when the user points at a specific learning or pattern doc under docs/solutions/ and calls it stale, outdated, overlapping, or drifted. Do not trigger for general refactor, migration, debugging, or code-review work unless the user has explicitly directed attention to docs/solutions/ itself.
+description: "Audit existing docs/solutions guidance for drift, then keep, update, consolidate, replace, or mark stale."
 ---
 
 # Compound Refresh
+
+
+## Skill Value
+
+- **Problem it solves:** Old solution notes can mislead future agents when the codebase or workflow has changed.
+- **Use when:** The user asks to refresh, audit, sweep, consolidate, or clean stale docs/solutions learnings.
+- **Output:** A report of applied and recommended actions, with updated solution docs when safe.
+- **Ask only if:** Only for borderline stale/consolidation decisions or edits that need human confirmation in interactive mode.
+- **Do not do:** Do not delete or replace uncertain guidance without evidence.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Maintain the quality of `docs/solutions/` over time. This workflow reviews existing learnings against the current codebase, then refreshes any derived pattern docs that depend on them.
 
@@ -31,7 +41,7 @@ Check if `$ARGUMENTS` contains `mode:autofix`. If present, strip it from argumen
 
 Follow the same interaction style as `ce-brainstorm`:
 
-- Ask questions **one at a time** — use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in plain text only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 - Prefer **multiple choice** when natural options exist
 - Start with **scope and intent**, then narrow only when needed
 - Do **not** ask the user to make decisions before you have evidence
@@ -492,6 +502,7 @@ After the refresh report is generated, check whether the project's instruction f
 
       `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
       ```
-   c. In interactive mode, explain to the user why this matters — agents working in this repo (including fresh sessions, other tools, or collaborators without the plugin) won't know to check `docs/solutions/` unless the instruction file surfaces it. Show the proposed change and where it would go, then use the platform's blocking question tool to get consent before making the edit: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting the proposal in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question. In autofix mode, include it as a "Discoverability recommendation" line in the report — do not attempt to edit instruction files (autofix scope is doc maintenance, not project config).
+
+      If the instruction-file placement is ambiguous, ask one concise placement question using the Skill Value interaction rule above before editing.
 
 5. **Amend or create a follow-up commit when the check produces edits.** If step 4 resulted in an edit to an instruction file and Phase 5 already committed the refresh changes, stage the newly edited file and either amend the existing commit (if still on the same branch and no push has occurred) or create a small follow-up commit (e.g., `docs: add docs/solutions/ discoverability to AGENTS.md`). If Phase 5 already pushed the branch to a remote (e.g., the branch+PR path), push the follow-up commit as well so the open PR includes the discoverability change. This keeps the working tree clean and the remote in sync at the end of the run. If the user chose "Don't commit" in Phase 5, leave the instruction-file edit unstaged alongside the other uncommitted refresh changes — no separate commit logic needed.

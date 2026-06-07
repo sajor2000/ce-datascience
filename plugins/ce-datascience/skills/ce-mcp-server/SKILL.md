@@ -1,10 +1,20 @@
 ---
 name: ce-mcp-server
-description: 'Register the ce-datascience MCP server for IDE-agnostic access to literature search, stack profile, SAP, and reporting compliance tools. Use when setting up ce-datascience in Cursor, Windsurf, VS Code+Cline, or any MCP-compatible IDE.'
+description: "Register and explain the ce-datascience MCP server for stack profiles, SAPs, data locks, compliance checks, and learning artifacts."
 argument-hint: "[install|status|tools]"
 ---
 
 # CE DataScience MCP Server
+
+
+## Skill Value
+
+- **Problem it solves:** MCP setup can point at the wrong root or confuse bundled plugin assets with user project outputs.
+- **Use when:** The user wants MCP setup, tool registration, stack-profile tools, SAP tools, or project-root behavior.
+- **Output:** Platform-specific MCP setup guidance and verified runtime path expectations.
+- **Ask only if:** Only when the target platform or install root cannot be inferred.
+- **Do not do:** Do not write user project artifacts under the plugin cache.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Register and manage the ce-datascience MCP server for IDE-agnostic deployment. This skill exposes key ce-datascience capabilities as MCP tools that any MCP-compatible IDE can invoke.
 

@@ -143,11 +143,13 @@ bash "$repo_root/scripts/install/install-claude-aliases.sh" \
   --plugin-dir "$plugin_src" \
   --commands-dir "$alias_stage/commands"
 cp "$repo_root/scripts/install/install-claude-aliases.sh" "$alias_stage/install-claude-aliases.sh"
+cp "$repo_root/install.ps1" "$alias_stage/install.ps1"
 
 mkdir -p "$codex_stage/plugins" "$codex_stage/.agents/plugins" "$codex_stage/codex-agent-bridge"
 copy_filtered_dir "$plugin_src" "$codex_stage/plugins/ce-datascience"
 cp "$repo_root/.agents/plugins/marketplace.json" "$codex_stage/.agents/plugins/marketplace.json"
 cp "$repo_root/scripts/install/install-codex-offline.sh" "$codex_stage/install-codex-offline.sh"
+cp "$repo_root/install.ps1" "$codex_stage/install.ps1"
 
 bridge_home="$staging_dir/codex-bridge-home"
 rm -rf "$bridge_home"

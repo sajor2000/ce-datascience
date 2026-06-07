@@ -32,6 +32,8 @@ describe("CLIF guidance", () => {
     expect(combined).toContain("2.1.0")
     expect(combined).toContain("last verified 2026-06-06")
     expect(combined).not.toContain("last verified 2026-06-02")
+    expect(combined).toContain("https://clif-icu.com/")
+    expect(combined).toContain("Core source")
     expect(combined).not.toContain("2.1.1")
     expect(combined).not.toContain("2.2.0")
     expect(combined).not.toContain("latest stable release")
@@ -43,6 +45,7 @@ describe("CLIF guidance", () => {
     expectContainsAll(recipes, [
       "python3 -m pip install --upgrade clifpy",
       "uv add clifpy",
+      "https://clif-icu.com/",
       "Always prefer the latest clifpy release",
       "Package profile from current CLIF repos",
       "Core CLIF runtime: `clifpy`, `duckdb`, `pyarrow`, `polars`, `pandas`",

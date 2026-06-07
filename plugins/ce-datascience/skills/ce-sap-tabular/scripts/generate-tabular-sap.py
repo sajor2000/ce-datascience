@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Render the 5 SAP-tables CSVs into a single multi-sheet .xlsx workbook.
+"""Render SAP-tables CSVs into a single multi-sheet .xlsx workbook.
 
 Usage:
     python3 generate-tabular-sap.py <slug> <input_dir> <output_xlsx>
 
-Where <input_dir> contains 01-overview.csv, 02-outputs.csv, 03-variables.csv,
-04-file1-long-sample.csv, 05-file2-wide-sample.csv (any subset is OK; missing
-files become empty sheets with a placeholder row).
+Where <input_dir> contains the three core biostatistics SAP sheets:
+01-overview.csv, 02-outputs.csv, and 03-variables.csv. Optional synthetic
+sample sheets, 04-file1-long-sample.csv and 05-file2-wide-sample.csv, are
+included when present.
 
 If openpyxl is not installed, the script exits 0 with a notice; the CSVs alone
 are still a valid output.
@@ -18,27 +19,54 @@ import csv
 import sys
 from pathlib import Path
 
-SHEET_FILES = [
+CORE_SHEET_FILES = [
     ("Overview", "01-overview.csv"),
     ("Outputs", "02-outputs.csv"),
     ("Master Variables", "03-variables.csv"),
+]
+
+OPTIONAL_SHEET_FILES = [
     ("File 1 (Long)", "04-file1-long-sample.csv"),
     ("File 2 (Wide)", "05-file2-wide-sample.csv"),
 ]
 
 SECTION_FILL = {
     "DIAGNOSTIC OUTPUTS": "BDD7EE",
+    "SETUP / DIAGNOSTICS": "BDD7EE",
     "TABLE OUTPUTS": "FFE699",
     "MODEL OUTPUTS": "C6E0B4",
     "FIGURE DATA OUTPUTS": "F4B084",
+    "SUBGROUP / SENSITIVITY OUTPUTS": "D9EAD3",
 }
 
+DEFAULT_SECTION_FILL = "D9E1F2"
 
-def read_csv(path: Path) -> list[list[str]]:
+
+def read_csv(path: Path, *, required: bool) -> list[list[str]]:
     if not path.exists():
-        return [["(no rows; this sheet was not generated)"]]
+        if required:
+            raise FileNotFoundError(f"Required SAP table missing: {path}")
+        return []
     with path.open(newline="", encoding="utf-8") as f:
         return list(csv.reader(f))
+
+
+def is_banner_row(row: list[str], expected_cols: int) -> bool:
+    """Workbook-style output section row: first cell has text, the rest blank."""
+    if not row or not row[0].strip():
+        return False
+    padded = row + [""] * max(0, expected_cols - len(row))
+    return all(not value.strip() for value in padded[1:expected_cols])
+
+
+def section_fill(section: str) -> str:
+    upper = section.strip().upper()
+    if upper in SECTION_FILL:
+        return SECTION_FILL[upper]
+    for prefix, fill in SECTION_FILL.items():
+        if upper.startswith(prefix):
+            return fill
+    return DEFAULT_SECTION_FILL
 
 
 def main(argv: list[str]) -> int:
@@ -70,9 +98,13 @@ def main(argv: list[str]) -> int:
     title_font = Font(bold=True, size=14)
     header_font = Font(bold=True)
 
-    for sheet_name, filename in SHEET_FILES:
+    sheet_files = CORE_SHEET_FILES + [
+        sheet for sheet in OPTIONAL_SHEET_FILES if (input_dir / sheet[1]).exists()
+    ]
+
+    for sheet_name, filename in sheet_files:
         ws = wb.create_sheet(sheet_name)
-        rows = read_csv(input_dir / filename)
+        rows = read_csv(input_dir / filename, required=(sheet_name in {"Overview", "Outputs", "Master Variables"}))
 
         # Title row
         ws.cell(row=1, column=1, value=f"{sheet_name} -- {slug}")
@@ -81,7 +113,8 @@ def main(argv: list[str]) -> int:
         if not rows:
             continue
 
-        # Determine if 02-outputs has a 'section' column
+        # Determine if 02-outputs has a legacy 'section' column. The preferred
+        # biostatistics workbook format uses section banner rows instead.
         has_section_col = (
             sheet_name == "Outputs"
             and rows
@@ -100,21 +133,41 @@ def main(argv: list[str]) -> int:
         current_section = None
         out_row = 4
         for raw_row in rows[1:]:
+            if sheet_name == "Outputs" and not has_section_col and is_banner_row(raw_row, len(header)):
+                section = raw_row[0].strip()
+                banner = ws.cell(row=out_row, column=1, value=section)
+                banner.font = Font(bold=True)
+                fill_color = section_fill(section)
+                for col_idx in range(1, len(header) + 1):
+                    cell = ws.cell(row=out_row, column=col_idx)
+                    cell.fill = PatternFill(
+                        start_color=fill_color,
+                        end_color=fill_color,
+                        fill_type="solid",
+                    )
+                ws.merge_cells(
+                    start_row=out_row,
+                    start_column=1,
+                    end_row=out_row,
+                    end_column=len(header),
+                )
+                out_row += 1
+                continue
+
             if has_section_col and raw_row and raw_row[0].strip():
                 section = raw_row[0].strip()
                 if section != current_section:
                     # Insert a banner row with the section name spanning all columns
                     banner = ws.cell(row=out_row, column=1, value=section)
                     banner.font = Font(bold=True)
-                    fill_color = SECTION_FILL.get(section)
-                    if fill_color:
-                        for col_idx in range(1, len(header) + 1):
-                            cell = ws.cell(row=out_row, column=col_idx)
-                            cell.fill = PatternFill(
-                                start_color=fill_color,
-                                end_color=fill_color,
-                                fill_type="solid",
-                            )
+                    fill_color = section_fill(section)
+                    for col_idx in range(1, len(header) + 1):
+                        cell = ws.cell(row=out_row, column=col_idx)
+                        cell.fill = PatternFill(
+                            start_color=fill_color,
+                            end_color=fill_color,
+                            fill_type="solid",
+                        )
                     ws.merge_cells(
                         start_row=out_row,
                         start_column=1,
