@@ -51,7 +51,7 @@ installed files are self-contained.
 ## 2026-06-07 RC Certification
 
 The release-candidate smoke path passed with the current plugin inventory:
-55 agents, 48 skills, and 1 MCP server.
+55 agents, 49 skills, and 1 MCP server.
 
 Automated checks:
 
@@ -68,7 +68,7 @@ Manual temp-root checks:
   `ce-datascience-codex-local.zip`.
 - Verified ZIP contents exclude `__pycache__`, `.pyc`, `.pyo`,
   `node_modules`, `.git`, `tests`, and `.DS_Store`.
-- Installed 48 Claude alias command files into a temp command root and verified
+- Installed 49 Claude alias command files into a temp command root and verified
   `ce-setup.md` delegates to `/ce-datascience:ce-setup $ARGUMENTS`.
 - Installed the Codex offline package into a fresh temp profile and verified
   marketplace metadata, generated bridge agents, and MCP config paths point to

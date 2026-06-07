@@ -35,7 +35,7 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2).
 7. Use precise statistical language -- name specific tests, models, and adjustment methods.
 
-When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
+When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`, or `path=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.
 
 ## 2. Canonical handoff-signal envelopes
 
@@ -45,6 +45,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 |--------|------------------|------------|-------------------|
 | `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `/ce-research-question` | SAP-1 framing, SAP-2.1 hypothesis |
 | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `/ce-pubmed` | SAP-1 background, SAP-2 rationale |
+| `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `/ce-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-4 analysis-plan justification |
 | `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `/ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
 | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `/ce-checklist-match` | SAP frontmatter `reporting_checklist` |
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `/ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |

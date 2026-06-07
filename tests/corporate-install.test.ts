@@ -49,6 +49,84 @@ async function publicSkillNames(): Promise<string[]> {
 }
 
 describe("corporate install artifacts", () => {
+  test("easy installer exposes Compound Engineering-style setup paths", async () => {
+    const installer = path.join(repoRoot, "install.sh")
+    const codexHome = path.join(os.tmpdir(), "ce-easy-install-codex")
+    const agentsHome = path.join(os.tmpdir(), "ce-easy-install-agents")
+
+    const claude = await run(["bash", installer, "claude", "--aliases", "--dry-run"])
+    expect(claude.stdout).toContain("claude plugin marketplace add")
+    expect(claude.stdout).toContain("claude plugin install ce-datascience@ce-datascience-plugin")
+    expect(claude.stdout).toContain("install-claude-aliases.sh")
+    expect(claude.stdout).toContain("/ce-setup")
+
+    const codex = await run([
+      "bash",
+      installer,
+      "codex",
+      "--codex-home",
+      codexHome,
+      "--agents-home",
+      agentsHome,
+      "--dry-run",
+    ])
+    expect(codex.stdout).toContain("codex plugin marketplace add")
+    expect(codex.stdout).toContain("bun run src/index.ts install ./plugins/ce-datascience --to codex")
+    expect(codex.stdout).toContain(codexHome)
+    expect(codex.stdout).toContain("Restart Codex, open /plugins, install CE DataScience")
+
+    const windowsCodex = await run([
+      "bash",
+      installer,
+      "codex",
+      "--codex-home",
+      "C:/Users/JCR/.codex",
+      "--agents-home",
+      "C:/Users/JCR/.agents",
+      "--dry-run",
+    ])
+    expect(windowsCodex.stdout).toContain('--codex-home "C:/Users/JCR/.codex"')
+    expect(windowsCodex.stdout).not.toContain(`${repoRoot}/C:/Users/JCR/.codex`)
+
+    const windowsOfflineCodex = await run([
+      "bash",
+      path.join(repoRoot, "scripts", "install", "install-codex-offline.sh"),
+      "--source",
+      pluginRoot,
+      "--codex-home",
+      "C:/Users/JCR/.codex",
+      "--agents-home",
+      "C:/Users/JCR/.agents",
+      "--dry-run",
+    ])
+    expect(windowsOfflineCodex.stdout).toContain("Marketplace: C:/Users/JCR/.agents/plugins/marketplace.json")
+    expect(windowsOfflineCodex.stdout).toContain("Plugin:      C:/Users/JCR/.codex/plugins/ce-datascience")
+    expect(windowsOfflineCodex.stdout).not.toContain(`${repoRoot}/C:/Users/JCR/.codex`)
+    expect(windowsOfflineCodex.stdout).not.toContain(`${repoRoot}/C:/Users/JCR/.agents`)
+
+    const powershellInstaller = await fs.readFile(path.join(repoRoot, "install.ps1"), "utf8")
+    expect(powershellInstaller).toContain("param(")
+    expect(powershellInstaller).toContain("Install-ClaudeAliases")
+    expect(powershellInstaller).toContain("Install-CodexOffline")
+    expect(powershellInstaller).toContain("ConvertTo-Json")
+    expect(powershellInstaller).toContain("CE_DATASCIENCE_ALIAS_MANAGED")
+    expect(powershellInstaller).toContain('Test-CommandAvailable "python3"')
+    expect(powershellInstaller).toContain('Test-CommandAvailable "py"')
+
+    const readme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
+
+    for (const doc of [readme, setupDocs, pluginReadme]) {
+      expect(doc).toContain("bash install.sh claude --aliases")
+      expect(doc).toContain("bash install.sh codex")
+      expect(doc).toContain(".\\install.ps1 claude -Aliases")
+      expect(doc).toContain(".\\install.ps1 codex")
+    }
+    expect(setupDocs).toContain("Windows PowerShell")
+    expect(setupDocs).toContain("Git Bash")
+  })
+
   test("Claude local aliases are managed, idempotent, and preserve user-owned commands", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-claude-aliases-"))
     const commandsDir = path.join(tempRoot, "commands")
@@ -106,6 +184,7 @@ describe("corporate install artifacts", () => {
 
     const aliasDir = path.join(stagingDir, "ce-datascience-claude-aliases")
     expect(await exists(path.join(aliasDir, "install-claude-aliases.sh"))).toBe(true)
+    expect(await exists(path.join(aliasDir, "install.ps1"))).toBe(true)
     const setupAlias = await fs.readFile(path.join(aliasDir, "commands", "ce-setup.md"), "utf8")
     expect(setupAlias).toContain("/ce-datascience:ce-setup $ARGUMENTS")
 
@@ -113,6 +192,7 @@ describe("corporate install artifacts", () => {
     expect(await exists(path.join(codexPackage, ".agents", "plugins", "marketplace.json"))).toBe(true)
     expect(await exists(path.join(codexPackage, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"))).toBe(true)
     expect(await exists(path.join(codexPackage, "install-codex-offline.sh"))).toBe(true)
+    expect(await exists(path.join(codexPackage, "install.ps1"))).toBe(true)
     expect(await exists(path.join(codexPackage, "codex-agent-bridge", "config.toml.template"))).toBe(true)
     expect(await exists(path.join(codexPackage, "codex-agent-bridge", "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
   })

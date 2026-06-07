@@ -13,6 +13,7 @@ set -o pipefail
 deps=(
   "R|R --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q r|https://cran.r-project.org"
   "python3|python3 --version|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q python|https://www.python.org/downloads/"
+  "uv|command -v uv|optional|python3 -m pip install --user uv|https://docs.astral.sh/uv/getting-started/installation/"
   "quarto|quarto --version|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q quarto|https://quarto.org/docs/get-started/"
   "jq|command -v jq|recommended|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q jq|https://jqlang.github.io/jq/"
   "gh|command -v gh|optional|NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q gh|https://cli.github.com"
