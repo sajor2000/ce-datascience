@@ -78,7 +78,7 @@ abs_existing_path() {
 
 abs_target_path() {
   case "$1" in
-    /*) printf '%s\n' "$1" ;;
+    /*|[A-Za-z]:/*|[A-Za-z]:\\*) printf '%s\n' "$1" ;;
     *) printf '%s/%s\n' "$PWD" "$1" ;;
   esac
 }

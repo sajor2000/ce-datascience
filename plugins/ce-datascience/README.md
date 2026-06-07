@@ -7,6 +7,53 @@ Compound engineering for computational scientists. SAP management, statistical r
 For complete copy-paste setup across Claude Code, Codex, OpenCode, Gemini CLI,
 Kiro, Pi, and Qwen Code, see [`../../docs/setup.md`](../../docs/setup.md).
 
+Fastest normal Claude Code setup:
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 claude -Aliases
+claude
+```
+
+Then run `/ce-setup`. The alias flag gives you the same bare-command feel as
+the original Compound Engineering plugin. Without aliases, use the native
+namespaced form `/ce-datascience:ce-setup`.
+
+Fastest normal Codex setup:
+
+macOS, Linux, WSL, or Git Bash:
+
+```bash
+git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
+cd "$HOME\ce-datascience"
+.\install.ps1 codex
+codex
+```
+
+Inside Codex, install **CE DataScience** from `/plugins`, restart, then ask
+Codex to use CE DataScience for setup.
+
 Locked-down laptops can use approved local artifacts without Bun, Git, GitHub
 CLI, or Quarto:
 
@@ -24,16 +71,6 @@ In native Claude plugin installs, commands are namespaced:
 
 Bare commands such as `/ce-setup` require optional local alias files in
 `.claude/commands`; they are not guaranteed by plugin loading itself.
-
-Fastest local Claude Code setup from a fresh checkout:
-
-```bash
-export CE_DS_REPO="$HOME/ce-datascience"
-git clone https://github.com/sajor2000/ce-datascience.git "$CE_DS_REPO"
-cd "$CE_DS_REPO"
-bun install
-claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"
-```
 
 After installing, run `/ce-datascience:ce-setup` in any project. It configures your stack
 profile (language, IDE, libraries, reporting framework) and bootstraps project
