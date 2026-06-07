@@ -1,10 +1,20 @@
 ---
 name: ce-code-review
-description: "Structured code review using tiered persona agents, confidence-gated findings, and a merge/dedup pipeline. Use when reviewing code changes before creating a PR."
+description: "Review code changes with ce-datascience reviewer personas, confidence-gated findings, and optional autofix routing before merge."
 argument-hint: "[blank to review current branch, or provide PR link]"
 ---
 
 # Code Review
+
+
+## Skill Value
+
+- **Problem it solves:** Data science code review needs correctness, testing, reproducibility, SAP drift, PHI, methods, and platform checks in one pass.
+- **Use when:** The user asks for code review, PR review, review before merge, or fixable findings on current changes.
+- **Output:** Prioritized P0-P3 findings, applied safe fixes when allowed, residual work, and verification summary.
+- **Ask only if:** Only in interactive mode when a routing decision materially changes whether to apply, defer, file, or ignore findings.
+- **Do not do:** Do not invent findings without evidence, mutate in report-only mode, or merge/push without explicit workflow routing.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Reviews code changes using dynamically selected reviewer personas. Spawns parallel sub-agents that return structured JSON, then merges and deduplicates findings into a single report.
 
@@ -79,7 +89,7 @@ Sequence:
 
 ### Headless mode rules
 
-- **Skip all user questions.** Never use the platform question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)) or other interactive prompts. Infer intent conservatively if the diff metadata is thin.
+- **Skip all user questions.** Never pause for approval or clarification. Infer intent conservatively from the available branch, PR, diff, and caller context.
 - **Require a determinable diff scope.** If headless mode cannot determine a diff scope (no branch, PR, or `base:` ref determinable without user interaction), emit `Review failed (headless mode). Reason: no diff scope detected. Re-invoke with a branch name, PR number, or base:<ref>.` and stop without dispatching agents.
 - **Apply only `safe_auto -> review-fixer` findings in a single pass.** No bounded re-review rounds. Leave `gated_auto`, `manual`, `human`, and `release` work unresolved and return them in the structured output.
 - **Return all non-auto findings as structured text output.** Use the headless output envelope format (see Stage 6 below) preserving severity, autofix_class, owner, requires_verification, confidence, pre_existing, and suggested_fix per finding. Enrich with detail-tier fields (why_it_matters, evidence[]) from the per-agent artifact files on disk (see Detail enrichment in Stage 6).
@@ -92,8 +102,7 @@ Sequence:
 
 ### Interactive mode rules
 
-- **Pre-load the platform question tool before any question fires.** In Claude Code, `AskUserQuestion` is a deferred tool — its schema is not available at session start. At the start of Interactive-mode work (before Stage 2 intent-ambiguity questions, the After-Review routing question, walk-through per-finding questions, bulk-preview Proceed/Cancel, and tracker-defer failure sub-questions), call `ToolSearch` with query `select:AskUserQuestion` to load the schema. Load it **once, eagerly, at the top of the Interactive flow** — do not wait for the first question site and do not decide it on a per-site basis. On Codex, Gemini, and Pi this preload step does not apply.
-- **The numbered-list fallback only applies when the harness genuinely lacks a blocking question tool** — `ToolSearch` returns no match, the tool call explicitly fails, or the runtime mode does not expose it (e.g., Codex edit modes where `request_user_input` is unavailable). A pending schema load is not a fallback trigger; call `ToolSearch` first per the pre-load rule. Rendering a question as narrative text because the tool feels inconvenient, because the model is in report-formatting mode, or because the instruction was buried in a long skill is a bug. A question that calls for a user decision must either fire the tool or fall back loudly.
+- **Question handling.** Follow the Skill Value interaction rule above for every routing or policy question. Ask once at each decision point and wait for the answer before proceeding.
 
 ## Severity Scale
 
@@ -199,7 +208,7 @@ Then produce the same output as the other paths:
 echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:" && git diff -U10 $BASE && echo "UNTRACKED:" && git ls-files --others --exclude-standard
 ```
 
-This path works with any ref — a SHA, `origin/main`, a branch name. Automated callers (ce-work, lfg, slfg) should prefer this to avoid the detection overhead. **Do not combine `base:` with a PR number or branch target.** If both are present, stop with an error: "Cannot use `base:` with a PR number or branch target — `base:` implies the current checkout is already the correct branch. Pass `base:` alone, or pass the target alone and let scope detection resolve the base." This avoids scope/intent mismatches where the diff base comes from one source but the code and metadata come from another.
+This path works with any ref — a SHA, `origin/main`, a branch name. Automated callers (`ce-work`, or external core Compound Engineering callers such as `lfg`/`slfg` when installed) should prefer this to avoid the detection overhead. **Do not combine `base:` with a PR number or branch target.** If both are present, stop with an error: "Cannot use `base:` with a PR number or branch target — `base:` implies the current checkout is already the correct branch. Pass `base:` alone, or pass the target alone and let scope detection resolve the base." This avoids scope/intent mismatches where the diff base comes from one source but the code and metadata come from another.
 
 **If a PR number or GitHub URL is provided as an argument:**
 
@@ -351,7 +360,7 @@ Pass this to every reviewer in their spawn prompt. Intent shapes *how hard each 
 
 **When intent is ambiguous:**
 
-- **Interactive mode:** Ask one question using the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)): "What is the primary goal of these changes?" Do not spawn reviewers until intent is established. **Claude Code only:** if `AskUserQuestion` has not yet been loaded this session (per the Interactive mode rules pre-load), call `ToolSearch` with query `select:AskUserQuestion` first before asking. Fall back to numbered options in chat only when the harness genuinely lacks a blocking tool or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+- **Interactive mode:** Ask one concise intent question using the Skill Value interaction rule, then pass the resolved intent to every reviewer.
 - **Autofix/report-only/headless modes:** Infer intent conservatively from the branch name, diff, PR metadata, and caller context. Note the uncertainty in Coverage or Verdict reasoning instead of blocking.
 
 ### Stage 2b: Plan discovery (requirements verification)
@@ -709,8 +718,7 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 - Apply `safe_auto -> review-fixer` findings automatically without asking. These are safe by definition.
 - **Zero-remaining case:** if no `gated_auto` or `manual` findings remain after the `safe_auto` pass, skip the routing question entirely. Emit a one-line completion summary phrased so advisory and pre-existing findings (which are not handled by this flow) are not implied to be cleared. When no advisory or pre-existing findings remain in the report, `All findings resolved — N safe_auto fixes applied.` is accurate. When advisory and/or pre-existing findings do remain, use the qualified form `All actionable findings resolved — N safe_auto fixes applied. (K advisory, J pre-existing findings remain in the report.)`, omitting any zero-count clause. Follow the summary with the existing end-of-review verdict, then proceed to Step 5 per the gating rule there.
 - **Tracker pre-detection:** before rendering the routing question, consult `references/tracker-defer.md` for the session's tracker tuple `{ tracker_name, confidence, named_sink_available, any_sink_available }`. The probe runs at most once per session and is cached for the rest of the run. `named_sink_available` drives the option C label (inline tracker name only when the named sink can actually be invoked). `any_sink_available` drives whether option C is offered at all (it can still be offered when the named tracker is unreachable but GitHub Issues via `gh` works).
-- **Verify question-tool pre-load (checklist, Claude Code only).** Before firing the routing question in Claude Code, confirm `AskUserQuestion` is loaded (per Interactive mode rules at the top of this skill). If not yet loaded this session, call `ToolSearch` with query `select:AskUserQuestion` now. Do not proceed to the routing question without this verification. Rendering the question as narrative text because the schema isn't loaded yet is a bug, not a valid fallback. On Codex, Gemini, and Pi this checklist does not apply — there is no `ToolSearch` preload step to perform. (If `request_user_input` is unavailable in the current Codex runtime mode, use the numbered-list fallback described below.)
-- **Routing question.** Ask using the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). Stem: `What should the agent do with the remaining N findings?` — use third-person voice referring to "the agent", not first-person "me" / "I". Options:
+- **Routing question:** Follow the Skill Value interaction rule, then present:
 
   ```
   (A) Review each finding one by one — accept the recommendation or choose another action
@@ -720,8 +728,6 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
   ```
 
   Render option C per `references/tracker-defer.md`: when `confidence = high` AND `named_sink_available = true`, replace `[TRACKER]` with the concrete name and keep the full label (e.g., `File a Linear ticket per finding without applying fixes`). When `any_sink_available = true` but either `confidence = low` or `named_sink_available = false` (GitHub Issues via `gh` is working as the fallback), use the generic label `File an issue per finding without applying fixes` — this is a whole-label substitution, not a `[TRACKER]` token swap. When `any_sink_available = false`, **omit option C entirely** and add one line to the stem explaining that no issue tracker is configured for this checkout (Linear, GitHub Issues, etc., were probed and unavailable). Phrase it for a developer audience — avoid `tracker sink` jargon, and avoid `platform` since the missing piece is per-project, not per-agent-platform. The three remaining options (A, B, D) survive.
-
-  The numbered-list text fallback applies when `ToolSearch` explicitly returns no match for the platform's question tool or the tool call errors (including Codex runtime modes where `request_user_input` is unavailable). It does not apply when the agent simply hasn't loaded the tool yet — in that case, load it now (see the verification checklist above). When the fallback applies, present the options as a numbered list and wait for the user's reply — never silently skip the question.
 
 - **Dispatch on selection.** Route by the option letter (A / B / C / D), not by the rendered label string. The option-C label varies by tracker-detection confidence (`File a [TRACKER] ticket per finding without applying fixes` for a named tracker, `File an issue per finding without applying fixes` as the generic fallback, or omitted entirely when no sink is available — see `references/tracker-defer.md`), and options A / B / D have a single canonical label each. The letter is the stable dispatch signal; the canonical labels below are shown for documentation only. A low-confidence run that rendered option C as the generic label routes to the same branch as a high-confidence run that rendered it with the named tracker.
   - (A) `Review each finding one by one` — load `references/walkthrough.md` and enter the per-finding walk-through loop. The walk-through accumulates Apply decisions in memory; Defer decisions execute inline via `references/tracker-defer.md`; Skip / Acknowledge decisions are recorded as no-action. `Auto-resolve with best judgment on the rest` exits the walk-through loop and dispatches **one** fixer pass on the union of (already-accumulated Apply set ∪ remaining undecided findings) — there is no second end-of-loop dispatch in this branch, so the "one fixer, consistent tree" contract holds. When the user works through every finding without invoking the auto-resolve-the-rest option, dispatch one fixer subagent for the accumulated Apply set at end of loop (Step 3). Emit the unified completion report after dispatch.
@@ -735,8 +741,6 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
        - `Ignore — leave them in the report` — record the failed list as residual actionable work in the report. No further action.
 
        After the user's choice executes (tickets filed, walk-through completed, or ignore recorded), emit the unified completion report. The report reflects the final state including any tickets filed or additional fixes applied during walk-through re-entry.
-
-    Numbered-list fallback applies when `ToolSearch` explicitly returns no match or the tool call errors (Codex edit modes without `request_user_input`) — never silently skip the question.
 
   - (C) `File a [TRACKER] ticket per finding without applying fixes` (or the generic `File an issue per finding without applying fixes` when the named-tracker label is not used) — first run Stage 5b validation on every pending finding. Drop validator-rejected findings with their reasons recorded in Coverage. Then load `references/bulk-preview.md` with every surviving finding in the file-tickets bucket. On `Proceed`, route every finding through `references/tracker-defer.md`; no fixes are applied. On `Cancel`, return to this routing question. Emit the unified completion report.
   - (D) `Report only — take no further action` — do not enter any dispatch phase. Emit the completion report, then proceed to Step 5 per its gating rule (`fixes_applied_count > 0` from earlier `safe_auto` passes). If no fixes were applied this run, stop after the report.
@@ -799,7 +803,7 @@ The fixer accepts two queue shapes depending on which caller invoked it:
   - residual actionable work
   - advisory-only outputs
   Per-agent full-detail JSON files (`{reviewer_name}.json`) are already present in this directory from Stage 4 dispatch.
-- Also write `metadata.json` alongside the findings so downstream skills (e.g., `ce-polish-beta`) can verify the artifact matches the current branch and HEAD. Minimum fields:
+- Also write `metadata.json` alongside the findings so downstream skills or external core Compound Engineering callers can verify the artifact matches the current branch and HEAD. Minimum fields:
   ```json
   {
     "run_id": "<run-id>",

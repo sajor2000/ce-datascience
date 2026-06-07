@@ -93,7 +93,7 @@ Example: A date night plan should present 2-3 restaurant options, 2-3 activity o
 
 ## Step 3: Save or Share
 
-After structuring the plan, ask the user how they want to receive it using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+After structuring the plan, ask the user how they want to receive it using the current harness's blocking question UI when available; otherwise present numbered options and wait. Never silently skip the question.
 
 **Question:** "Plan ready. How would you like to receive it?"
 
@@ -107,7 +107,7 @@ After structuring the plan, ask the user how they want to receive it using the p
    - Use filename convention: `YYYY-MM-DD-<descriptive-name>-plan.md`
    - Start the document with a `# Title` heading, followed by `Created: YYYY-MM-DD` on the next line. No YAML frontmatter.
 
-2. **Open in Proof (web app) — review and comment to iterate with the agent** — Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Load the `ce-proof` skill to create and open the document.
+2. **Open in Proof (web app) — review and comment to iterate with the agent** — Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Use the core Compound Engineering `ce-proof` skill when it is installed. If it is not available in the current harness, fall back to saving the markdown file and tell the user Proof review requires the core Compound Engineering plugin.
 
 3. **Save to disk AND open in Proof** — Do both: write the markdown file to disk and open the doc in Proof for review.
 

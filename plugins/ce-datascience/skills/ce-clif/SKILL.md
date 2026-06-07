@@ -1,12 +1,24 @@
 ---
 name: ce-clif
-description: 'Activates a CLIF-safe profile for Common Longitudinal ICU data Format consortium repos and CLIF-derived projects. Enforces Parquet-only storage, UTC datetimes, mCIDE vocabulary validation, three-script architecture, and no-PHI output rules. Use when the repo has CLIF_CLAUDE.md, a mCIDE/ directory, clif_*.parquet files, or a clif-consortium/clif-icu git remote. Does NOT activate for generic EHR, OMOP, or claims projects — those use ce-cohort-build without the CLIF profile.'
+description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including Parquet, UTC datetime, mCIDE, and no-PHI output rules."
 argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 ---
 
 # CLIF-Safe Profile
 
+
+## Skill Value
+
+- **Problem it solves:** CLIF projects have consortium-specific invariants that generic EHR analysis workflows can violate.
+- **Use when:** The repo has CLIF_CLAUDE.md, CLIF tables, mCIDE content, CLIF remotes, or the user asks for CLIF-specific analysis.
+- **Output:** A CLIF activation signal plus language-specific CLIF workflow and validation guidance.
+- **Ask only if:** Only when CLIF signals are weak or ambiguous and activation could be wrong.
+- **Do not do:** Do not treat generic OMOP, claims, or EHR projects as CLIF without evidence.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
+
 Loads the CLIF (Common Longitudinal ICU data Format) ruleset whenever a session is operating against a CLIF consortium repo or a CLIF-derived project. The goal is simple: when a user is doing CLIF work, the rest of the `ce-*` lifecycle should automatically respect CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
+
+**Core source:** Treat `https://clif-icu.com/` as the authoritative public CLIF source for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details only after anchoring the project to the CLIF site and declared data dictionary version.
 
 ## When this skill activates
 
@@ -46,7 +58,7 @@ When activated, print one acknowledgment line and emit the handoff signal:
 __CE_CLIF__ active=true version=2.1.0 strict=<true|false> rules=references/clif-rules.md
 ```
 
-Default `version=2.1.0` (current public CLIF structured ICU data dictionary; verified from the official CLIF site and CLIF-MIMIC repository on 2026-06-02). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. CLIF v3.0 is planned as a multimodal release; opt in explicitly only when a project declares that data dictionary.
+Default `version=2.1.0` (current public CLIF structured ICU data dictionary; verified from `clif-icu.com` on 2026-06-06). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. CLIF v3.0 is planned as a multimodal release; opt in explicitly only when a project declares that data dictionary.
 
 When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
 

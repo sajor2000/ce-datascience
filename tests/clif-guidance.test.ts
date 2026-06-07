@@ -19,7 +19,9 @@ describe("CLIF guidance", () => {
     const combined = files.join("\n")
 
     expect(combined).toContain("2.1.0")
-    expect(combined).toContain("last verified 2026-06-02")
+    expect(combined).toContain("last verified 2026-06-06")
+    expect(combined).toContain("https://clif-icu.com/")
+    expect(combined).toContain("Core source")
     expect(combined).not.toContain("2.1.1")
     expect(combined).not.toContain("2.2.0")
     expect(combined).not.toContain("latest stable release")
@@ -30,6 +32,7 @@ describe("CLIF guidance", () => {
 
     expect(recipes).toContain("python3 -m pip install --upgrade clifpy")
     expect(recipes).toContain("Always prefer the latest clifpy release")
+    expect(recipes).toContain("https://clif-icu.com/")
     expect(recipes).not.toContain("0.4.9")
     expect(recipes).not.toContain("clifpy==")
     expect(recipes).toContain("Python >=3.9")

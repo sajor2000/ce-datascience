@@ -124,7 +124,7 @@ Decide whether to include an evidence section in the body.
 **Decision logic:**
 
 1. **Existing PR body contains a `## Demo` or `## Screenshots` section with image embeds:** preserve it verbatim unless the user's focus asks to refresh or remove it. Include the preserved block in the body.
-2. **No existing evidence block:** omit the evidence section entirely unless the caller already captured evidence and passed it in (e.g., a `ce-demo-reel` URL).
+2. **No existing evidence block:** omit the evidence section entirely unless the caller already captured evidence and passed it in (for example, a URL or local path from the core Compound Engineering `ce-demo-reel` skill).
 
 Do not label test output as "Demo" or "Screenshots". Place any preserved evidence block before the CE DataScience badge.
 

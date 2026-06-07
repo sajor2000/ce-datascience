@@ -1,10 +1,20 @@
 ---
 name: ce-optimize
-description: "Run metric-driven iterative optimization loops for data science. Define a measurable goal (AUC, calibration slope, Brier score, feature selection), build measurement scaffolding, then run parallel experiments against hard gates and/or LLM-as-judge quality scores. Use when optimizing model hyperparameters, prediction thresholds, feature sets, clustering quality, or any measurable analytical outcome. Respects cross-validation splits, guards against data leakage, and logs to mlflow/wandb when configured. If a SAP exists, verifies the optimization target aligns with the pre-registered primary endpoint."
+description: "Run metric-driven prompt, workflow, or implementation optimization loops with sampling, scoring, and bounded iteration."
 argument-hint: "[path to optimization spec YAML, or describe the optimization goal]"
 ---
 
 # Iterative Optimization Loop
+
+
+## Skill Value
+
+- **Problem it solves:** Optimization work drifts when success metrics, samples, judges, and stopping criteria are unclear.
+- **Use when:** The user wants to optimize a prompt, workflow, model behavior, or scored process.
+- **Output:** An optimization spec, scored iterations, winning candidate, and residual risks.
+- **Ask only if:** Only when objective, sample set, scoring rubric, or acceptable tradeoff is unclear.
+- **Do not do:** Do not optimize without a measurable target or representative cases.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Run metric-driven iterative optimization. Define a goal, build measurement scaffolding, then run parallel experiments that converge toward the best solution.
 
@@ -22,7 +32,7 @@ These guardrails apply to every optimization run in this plugin. They are not op
 
 ## Interaction Method
 
-Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 ## Input
 

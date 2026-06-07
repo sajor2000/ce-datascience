@@ -1,10 +1,20 @@
 ---
 name: ce-sap-tabular
-description: 'Generates a biostatistics-style tabular SAP companion (Overview, Outputs, Master Variables, plus optional synthetic file-shape samples) to the prose SAP and emits CSVs plus a styled .xlsx. The catalog drives /ce-work task seeding (one task per output row) and gates /ce-sprint scope (only catalogued outputs are in-scope). Use whenever the user mentions SAP companion table, tabular SAP, output catalog, variables catalog, "make me a programmer-handoff sheet for the SAP", "lock down the output inventory", section-banner highlighting, or finishes /ce-plan SAP and is heading to /ce-sprint or /ce-work. Use AFTER the prose SAP exists and BEFORE any analysis code runs -- the catalog is the contract /ce-work executes against. Refuses to run when no SAP exists.'
+description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets."
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 
 # Tabular SAP Companion
+
+
+## Skill Value
+
+- **Problem it solves:** Prose SAPs do not give programmers a concrete output inventory or variable contract.
+- **Use when:** The user has a prose SAP and needs programmer handoff sheets, output catalog, variable catalog, or workbook contract.
+- **Output:** CSV sheets and styled .xlsx workbook under the SAP tables/output location.
+- **Ask only if:** Only when SAP content lacks analysis rows, outputs, variable definitions, or file-shape assumptions.
+- **Do not do:** Do not invent analyses, variables, or outputs missing from the SAP.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 The prose SAP narrates methods; this skill generates the **executable inventory**: which analyses exist, which artifacts each one produces, which variables each one consumes, and what the data files look like. The output mirrors the structure of a real-world stats-team SAP workbook: three core sheets (`Overview`, `Outputs`, `Master Variables`) plus optional synthetic file-shape sample sheets when useful. A programmer should be able to implement against it row-by-row and a coordinating center should be able to audit it cell-by-cell.
 

@@ -1,9 +1,20 @@
+---
 name: ce-language-detect
-description: "Detect the primary analysis language from repository signals only and emit __CE_LANG__ for downstream skills. Use when code generation needs language routing (R vs Python), especially in CLIF workflows."
+description: "Detect R, Python, or mixed-language data science signals from repo files and emit a machine-readable language handoff."
 argument-hint: "[optional: --off]"
 ---
 
 # Repository Language Detection
+
+
+## Skill Value
+
+- **Problem it solves:** Setup and workflow routing need repo evidence before asking users about language preference.
+- **Use when:** Another skill needs language evidence, or the user asks what stack the repo appears to use.
+- **Output:** __CE_LANG__ with primary, secondary, and source fields.
+- **Ask only if:** No user question normally; detection is evidence-only.
+- **Do not do:** Do not treat detection as final user preference when later IDE or explicit user choices narrow the stack.
+- **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
 
 Detects whether the current repository is primarily `python`, `r`, `both`, or `unknown` using file-system and code-pattern signals only. Do not ask the user to choose a language in this skill. SAS/Stata signals do not become `primary` values; when they dominate, emit `primary=unknown` and recommend `/ce-sas-stata-assess`.
 

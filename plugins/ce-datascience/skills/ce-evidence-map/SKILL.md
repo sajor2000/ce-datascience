@@ -6,6 +6,14 @@ argument-hint: "[research query, optional: --source pmc|abstracts|trials|fda --m
 
 # Evidence Map
 
+## Skill Value
+
+- **Problem it solves:** Literature grounding needs a traceable map from claims to PubMed records, optional full-text evidence, and downstream SAP/method decisions.
+- **Use when:** The user needs evidence for a SAP, method justification, effect-size selection, manuscript background, or review pack.
+- **Output:** `analysis/evidence-map/<query-slug>-evidence-map.md` plus a `__CE_EVIDENCE_MAP__` handoff signal.
+- **Ask only if:** No research query or PubMed handoff is available, or the user must choose a non-default Paperclip source or figure-review target.
+- **Do not do:** Do not replace `/ce-pubmed`, install/authenticate Paperclip automatically, pool effect sizes, or finalize SAP methods before data QA.
+
 Create a traceable evidence map for SAPs, method justification, effect-size
 selection, manuscript background, or review-pack evidence summaries.
 

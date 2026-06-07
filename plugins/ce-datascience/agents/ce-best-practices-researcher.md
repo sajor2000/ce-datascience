@@ -24,14 +24,14 @@ Before going online, check if curated knowledge already exists in skills:
    - Use the platform's native file-read capability to examine skill descriptions and understand what each covers
 
 2. **Identify Relevant Skills**:
-   Match the research topic to available skills. Common mappings:
-   - Rails/Ruby → `ce-dhh-rails-style`
-   - Frontend/Design → `ce-frontend-design`, `swiss-design`
+   Match the research topic to available skills. Common mappings; use the core Compound Engineering skills only when they are installed in the current environment:
+   - Rails/Ruby → core `ce-dhh-rails-style`
+   - Frontend/Design → core `ce-frontend-design`, or any available design-system skill such as `swiss-design`
    - TypeScript/React → `react-best-practices`
-   - AI/Agents → `ce-agent-native-architecture`
+   - AI/Agents → core `ce-agent-native-architecture`
    - Documentation → `ce-compound`
    - File operations → `rclone`, `ce-worktree`
-   - Image generation → `ce-gemini-imagegen`
+   - Image generation → core `ce-gemini-imagegen`
 
 3. **Extract Patterns from Skills**:
    - Read the full content of relevant SKILL.md files

@@ -1,9 +1,19 @@
 ---
 name: ce-worktree
-description: Create an isolated git worktree for parallel feature work or PR review. Use when starting work that should not disturb the current checkout, or when `ce-work` or `ce-code-review` offers a worktree option.
+description: "Create an isolated git worktree and branch for parallel feature work or PR review without disturbing the current checkout."
 ---
 
 # Worktree Creation
+
+
+## Skill Value
+
+- **Problem it solves:** Parallel or risky work can dirty the main checkout and make branch state hard to recover.
+- **Use when:** The user wants a worktree, isolated branch, parallel task, or safe PR review workspace.
+- **Output:** New worktree path, branch name, and cleanup guidance.
+- **Ask only if:** No user question normally unless branch name or base ref is ambiguous.
+- **Do not do:** Do not delete existing worktrees or overwrite branch state.
+- **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
 
 Create a worktree under `.worktrees/<branch>` with branch-specific setup that `git worktree add` alone does not handle:
 

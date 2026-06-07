@@ -1,9 +1,19 @@
 ---
 name: ce-compound
-description: "Document validated analytical approaches, statistical decisions, and domain methods to compound your team's data science knowledge"
+description: "Capture validated analytical approaches, decisions, and reusable patterns into durable docs/solutions knowledge."
 ---
 
 # /ce-compound
+
+
+## Skill Value
+
+- **Problem it solves:** Good methods and debugging decisions get lost after a session unless they are turned into reusable team knowledge.
+- **Use when:** The user wants to document learnings, preserve a validated approach, or compound a data science pattern.
+- **Output:** A concise solution or learning document under docs/solutions/ plus any discoverability recommendation.
+- **Ask only if:** Only to choose lightweight vs full capture or to approve project-instruction discoverability changes.
+- **Do not do:** Do not write memory files or document unvalidated speculation as a durable pattern.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Coordinate multiple subagents working in parallel to document a recently solved problem.
 
@@ -40,7 +50,7 @@ When spawning subagents, pass the relevant file contents into the task prompt so
 
 ## Execution Strategy
 
-Present the user with two options before proceeding, using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
 ```
 1. Full (recommended) — the complete compound workflow. Researches,
@@ -330,7 +340,8 @@ After the learning is written and the refresh decision is made, check whether th
 
       `docs/solutions/` — documented solutions to past problems (bugs, statistical methods, data quality patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
       ```
-   c. In full mode, explain to the user why this matters — agents working in this repo (including fresh sessions, other tools, or collaborators without the plugin) won't know to check `docs/solutions/` unless the instruction file surfaces it. Show the proposed change and where it would go, then use the platform's blocking question tool to get consent before making the edit: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting the proposal in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question. In lightweight mode, output a one-liner note and move on
+
+      If the instruction-file placement is ambiguous, ask one concise placement question using the Skill Value interaction rule above before editing.
 
 ### Phase 3: Optional Enhancement
 

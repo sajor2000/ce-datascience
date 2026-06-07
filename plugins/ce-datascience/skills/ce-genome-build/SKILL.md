@@ -1,10 +1,20 @@
 ---
 name: ce-genome-build
-description: 'Pins the genome build (GRCh37/GRCh38/T2T-CHM13) and annotation version (GENCODE/Ensembl) used in a bioinformatics study and audits every output (BAM @SQ headers, VCF ##contig lines, GTF, count matrices) for cross-build mixing. Generates a build-manifest YAML, a per-output traceability table, and exits non-zero on any mismatch. Use whenever the user mentions genome build, GRCh37, GRCh38, hg19, hg38, T2T, CHM13, GENCODE version, Ensembl release, "pin the reference", "audit the build", or anything touching reference fasta + annotation across multiple bioinformatics outputs. Genome-build mismatches are a top-5 cause of bioinformatics retractions; this skill makes them detectable.'
+description: "Pin genome build, annotation, contig naming, and liftover assumptions for genomics workflows."
 argument-hint: "[--ref-fasta path, --annotation-gtf path, --check]"
 ---
 
 # Genome Build Traceability
+
+
+## Skill Value
+
+- **Problem it solves:** Genomics analyses silently break when build, annotation, or contig conventions drift.
+- **Use when:** The user mentions genome build, GRCh37/38, hg19/hg38, annotation versions, liftover, or VCF/BAM compatibility.
+- **Output:** Genome-build decision record with reference sources and downstream constraints.
+- **Ask only if:** Only when build, annotation source, or target assay cannot be inferred.
+- **Do not do:** Do not run variant analysis or liftover without explicit workflow scope.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Pins the reference genome and annotation versions used in a bioinformatics study, and audits every output for build consistency. Without this, a paper claiming "we used GRCh38" can have outputs silently aligned to GRCh37 because a single tool defaulted to its bundled reference.
 

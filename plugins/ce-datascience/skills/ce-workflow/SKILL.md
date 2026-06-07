@@ -1,9 +1,19 @@
 ---
 name: ce-workflow
-description: "Lifecycle navigator for science projects. Detects project type (observational, RCT, prediction model, bioinformatics) and data layer (OMOP, CLIF, admin claims), then shows the ordered skill sequence with current progress and next-step recommendation. Routes by language (Python Jupyter, Python Marimo, R). Use when starting a new project, resuming work, or unsure which skill to run next."
+description: "Show the ordered ce-datascience lifecycle for the current project and recommend the next safe skill to run."
 ---
 
 # Workflow Navigator
+
+
+## Skill Value
+
+- **Problem it solves:** Users do not know which slash skill comes next after setup, QA, SAP, sprint, or analysis work.
+- **Use when:** The user starts or resumes a science project, feels unsure what to run next, or wants lifecycle status.
+- **Output:** Lifecycle card with detected project type, current status, and next recommended skill.
+- **Ask only if:** Only when project type remains ambiguous after scanning repo and stack-profile signals.
+- **Do not do:** Do not run lifecycle skills or modify project state.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Shows the ordered skill sequence for a science project, detects progress, and recommends the next step. Read-only guidance — does not replace any existing skill.
 
@@ -50,7 +60,7 @@ If signals clearly indicate a project type, auto-route and print a one-line bann
 [ce-workflow] Auto-detected: Observational study (CLIF data layer, R)
 ```
 
-If signals are absent or ambiguous, ask using the platform's blocking question tool (`AskUserQuestion` in Claude Code — call `ToolSearch` with `select:AskUserQuestion` first if its schema is not loaded; `request_user_input` in Codex; `ask_user` in Gemini/Pi). Fall back to numbered options in chat only when the blocking tool errors.
+If project type remains unclear after scanning available files, ask this routing question using the Skill Value interaction rule above.
 
 **Question:** "What type of project is this?"
 

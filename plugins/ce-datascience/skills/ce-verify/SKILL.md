@@ -1,10 +1,20 @@
 ---
 name: ce-verify
-description: "Lightweight mid-workflow analysis verification gate. Checks sample size, data leakage, effect direction, missing data, PHI in output, figure quality, and reproducibility. Runs between analysis steps to catch errors before the reporting-checklist review at manuscript time. Use after completing an analysis step, before marking a task done in ce-work, or anytime you want a quick sanity check on analysis outputs."
+description: "Run a lightweight mid-workflow verification gate for sample size, leakage, effect direction, missingness, PHI, figures, and reproducibility."
 argument-hint: "[optional: path to specific output file or directory to verify]"
 ---
 
 # Analysis Verification Gate
+
+
+## Skill Value
+
+- **Problem it solves:** Analysis errors are cheaper to catch between steps than at final manuscript or code review.
+- **Use when:** The user finishes an analysis step or wants a quick sanity check before marking work done.
+- **Output:** Pass/fail verification notes with blockers and recommended fixes.
+- **Ask only if:** Only when target output, SAP section, or expected direction cannot be inferred.
+- **Do not do:** Do not replace full code review, reporting-checklist review, or data QA.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Quick mid-workflow sanity check on analysis outputs. Distinct from the reporting checklist (`ce-checklist-match` + `ce-reporting-checklist-reviewer`) which fires at manuscript time — this skill catches errors during analysis execution.
 

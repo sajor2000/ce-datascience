@@ -46,6 +46,7 @@ Full biomedical lifecycle — 14 steps. Most common path for EHR, OMOP, CLIF, an
 
 **CLIF (Common Longitudinal ICU Format):**
 - `ce-clif` activates automatically — emits `__CE_CLIF__ active=true`
+- Core source is `https://clif-icu.com/`; GitHub repos provide implementation details after the data dictionary version is known.
 - Step 4: routes to STROBE + RECORD (default)
 - Step 7: cohort follows three-script architecture (`code/01_qc_*`, `code/02_cohort_*`, `code/03_analysis_*`)
 - Step 9: skip — mCIDE vocabulary handles phenotype definitions; no chart-review needed

@@ -1,9 +1,19 @@
 ---
 name: ce-commit
-description: Create a git commit with a clear, value-communicating message. Use when the user says "commit", "commit this", "save my changes", "create a commit", or wants to commit staged or unstaged work. Produces well-structured commit messages that follow repo conventions when they exist, and defaults to conventional commit format otherwise.
+description: "Create a focused git commit with a value-oriented conventional message while preserving branch and staging safety."
 ---
 
 # Git Commit
+
+
+## Skill Value
+
+- **Problem it solves:** Uncommitted work needs to be saved without staging unrelated files or producing vague commit messages.
+- **Use when:** The user says commit, save changes, or create a commit for current staged or unstaged work.
+- **Output:** One or more focused commits with repo-convention messages.
+- **Ask only if:** Only when branch safety, detached HEAD state, or ambiguous grouping blocks a safe commit.
+- **Do not do:** Do not stage unrelated files or commit directly to the default branch without following repo policy.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Create a single, well-crafted git commit from the current working tree changes.
 
@@ -56,7 +66,7 @@ If both fail, fall back to `main`.
 
 If the git status from the context above shows a clean working tree (no staged, modified, or untracked files), report that there is nothing to commit and stop.
 
-If the current branch from the context above is empty, the repository is in detached HEAD state. Explain that a branch is required before committing if the user wants this work attached to a branch. Ask whether to create a feature branch now. Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to presenting options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+If HEAD is detached and the branch decision cannot be inferred, ask the branch question using the Skill Value interaction rule above.
 
 - If the user chooses to create a branch, derive the name from the change content, create it with `git checkout -b <branch-name>`, then run `git branch --show-current` again and use that result as the current branch name for the rest of the workflow.
 - If the user declines, continue with the detached HEAD commit.
