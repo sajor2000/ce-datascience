@@ -11,7 +11,6 @@ import type {
 const RELEASE_COMPONENTS: ReleaseComponent[] = [
   "cli",
   "ce-datascience",
-  "coding-tutor",
   "marketplace",
   "cursor-marketplace",
 ]
@@ -24,10 +23,6 @@ const FILE_COMPONENT_MAP: Array<{ component: ReleaseComponent; prefixes: string[
   {
     component: "ce-datascience",
     prefixes: ["plugins/ce-datascience/"],
-  },
-  {
-    component: "coding-tutor",
-    prefixes: ["plugins/coding-tutor/"],
   },
   {
     component: "marketplace",
@@ -43,7 +38,6 @@ const SCOPES_TO_COMPONENTS: Record<string, ReleaseComponent> = {
   cli: "cli",
   compound: "ce-datascience",
   "compound-engineering": "ce-datascience",
-  "coding-tutor": "coding-tutor",
   marketplace: "marketplace",
   "cursor-marketplace": "cursor-marketplace",
 }
