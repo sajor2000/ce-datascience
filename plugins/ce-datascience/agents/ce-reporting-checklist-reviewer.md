@@ -23,9 +23,9 @@ Do not self-activate. If dispatched without either condition being met, return a
 
 ## Guideline Selection
 
-**Step 1: Read the registry and routing map.** Load `references/guideline-registry.yaml` and `references/guideline-routing.md` from the `ce-code-review` skill directory. The registry is the machine-readable source of truth for the supported 35 guideline files; the routing map explains how to choose among them.
+**Step 1: Read the registry and routing map.** The dispatch prompt must provide absolute or installed skill-local paths for the guideline registry, routing map, and selected checklist files. Read only those supplied paths. If they are absent, return a contract error instead of guessing paths relative to this flat agent file.
 
-**Step 2: Read the stack profile and SAP.** Read `.ce-datascience/config.local.yaml` and find the SAP file (`**/sap.md` or any markdown file with `sap_version` in its YAML frontmatter). Extract `stack_profile.reporting_checklist`, `stack_profile.reporting_checklist_extensions`, `study_type`, `ai_involvement`, and legacy `guidelines_selected` when present.
+**Step 2: Read the stack profile and SAP.** Resolve the repository root first, read `<repo-root>/.ce-datascience/config.local.yaml`, and find the SAP file (`**/sap.md` or any markdown file with `sap_version` in its YAML frontmatter). Extract `stack_profile.reporting_checklist`, `stack_profile.reporting_checklist_extensions`, `study_type`, `ai_involvement`, and legacy `guidelines_selected` when present.
 
 **Step 3: Apply routing.**
 
@@ -131,13 +131,7 @@ The `guidelines_applied` field lists all guideline abbreviations that were loade
 
 ## Compliance Report
 
-After completing the review, update the compliance report at `.ce-datascience/compliance-report.md` in the project root. Follow the instructions in `references/compliance-report.md` from the `ce-work` skill for the exact format and update protocol.
-
-Key rules:
-- Create the report if it does not exist; update it if it does
-- Never remove or overwrite previous status entries or changelog entries — only append new entries and update summary counts
-- Preserve all existing `WAIVED` entries
-- Append a new changelog entry for every review run, even if no items changed status
+Do not write project files. Return compliance findings in the structured response; the orchestrating skill owns any compliance-report update after review synthesis and user-facing routing.
 
 ## What You Do Not Flag
 

@@ -62,7 +62,7 @@ Also print one concise banner:
 If no reliable signals are found:
 
 - Use `primary=unknown secondary=null source=auto`.
-- If a cached value exists in `.ce-datascience/config.local.yaml` under `language_detect.primary`, reuse it as `source=cached`.
+- Resolve the repository root with `git rev-parse --show-toplevel`, read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool, and fall back to the main checkout in a linked worktree. If `language_detect.primary` exists there, reuse it as `source=cached`.
 - Never ask the user a language question in this skill.
 
 ## Consumers

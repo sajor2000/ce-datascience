@@ -27,13 +27,24 @@ Run the discovery script to fetch the latest remote state and identify gone bran
 bash scripts/clean-gone
 ```
 
-[scripts/clean-gone](./scripts/clean-gone)
+`scripts/clean-gone`
 
 The script runs `git fetch --prune` first, then parses `git branch -vv` for branches marked `: gone]`.
 
 If the script outputs `__NONE__`, report that no stale branches were found and stop.
 
-### Step 2: Present branches and ask for confirmation
+### Step 2: Inspect safety and present branches
+
+For every candidate, inspect the associated worktree with `git status --short` and compare unique commits against the default branch with `git log <default>..<branch> --oneline`. A gone upstream only means the remote ref disappeared; it does not prove the work was merged or the worktree is clean.
+
+Classify each branch:
+
+- **Safe:** no dirty worktree and no commits unique to the branch.
+- **Needs force approval:** dirty worktree, unique commits, or merge state cannot be established.
+
+Show the classification and evidence before asking for deletion. Never combine safe and force-required branches behind one yes/no question.
+
+### Step 3: Confirm safe cleanup
 
 Show the user the list of branches that will be deleted. Format as a simple list:
 
@@ -49,15 +60,21 @@ Delete all of them? (y/n)
 
 When this skill asks a user-facing question, follow the Skill Value interaction rule above.
 
-This is a yes-or-no decision on the entire list -- do not offer multi-selection or per-branch choices.
+This confirmation applies only to branches classified Safe.
 
-### Step 3: Delete confirmed branches
+### Step 4: Delete confirmed safe branches
 
 If the user confirms, delete each branch. For each branch:
 
-1. Check if it has an associated worktree (`git worktree list | grep "\\[$branch\\]"`)
-2. If a worktree exists and is not the main repo root, remove it first: `git worktree remove --force "$worktree_path"`
-3. Delete the branch: `git branch -D "$branch"`
+1. Check whether it has an associated worktree.
+2. If the worktree is clean and is not the main repository root, remove it with `git worktree remove "$worktree_path"` without `--force`.
+3. Delete the branch with `git branch -d "$branch"`.
+
+If either non-force command refuses, stop for that branch and report why. Do not escalate automatically.
+
+### Step 5: Optional force cleanup
+
+For each branch classified Needs force approval, present the dirty paths and unique commits and request a separate explicit force confirmation naming that branch. Only after that confirmation may `git worktree remove --force` or `git branch -D` be used. A general "delete all" answer from Step 3 is not force approval.
 
 Report results as you go:
 

@@ -33,9 +33,9 @@ Read the user arguments from `$ARGUMENTS`.
 
 ## Phase 0: Detect Existing Config
 
-**Config detection (pre-resolved):** !`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+**Resolve config root:** !`git rev-parse --show-toplevel 2>/dev/null || true`
 
-If the line above resolved to valid YAML (not `__NO_CONFIG__`), an existing config was found. Parse the current `stack_profile` values and display them:
+If the line above is an absolute path, use it as `<repo-root>`. Otherwise resolve the root at runtime with `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree where the file is absent, try the main checkout derived from the absolute common Git directory. If valid YAML is found, parse the current `stack_profile` values and display them:
 
 ```
 Existing stack profile detected:
@@ -56,7 +56,7 @@ What would you like to do?
 
 If the user selects "Modify this profile", proceed to Phase 1 but pre-fill each question with the current value as the default. If "Start fresh", proceed to Phase 1 with no defaults. If "Skip", jump to Phase 2.
 
-If `__NO_CONFIG__`, this is a first-time setup. Display: "No stack profile found. Let's configure your data science environment." Proceed to Phase 1.
+If no config can be read, this is a first-time setup. Display: "No stack profile found. Let's configure your data science environment." Proceed to Phase 1.
 
 ## Phase 0.5: Auto-detect language from repo signals (no question)
 

@@ -66,15 +66,17 @@ Do not proceed until you have a research question description from the user.
 
 Determine `OUTPUT_FORMAT` before any other phase fires. Output mode is **exclusive** -- the requirements document is written as either markdown (`.md`) OR HTML (`.html`), never both. Precedence: CLI arg > config > default (`md`), with a hard pipeline-mode override.
 
-**Read config (pre-resolved at skill load):**
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+**Read config.** The repository root is pre-resolved at skill load:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
+
+If the line above is an absolute path, use it as `<repo-root>`. If it is empty or still shows a backtick command string on a harness that did not execute pre-resolution, resolve `<repo-root>` at runtime with `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. If the root cannot be resolved or the file does not exist, fall through to defaults. In a linked worktree where the file is absent, resolve the absolute common Git directory and try the main checkout's `.ce-datascience/config.local.yaml` before falling through.
 
 Resolution steps:
 
 1. **CLI arg.** Scan `$ARGUMENTS` for a token starting with the literal prefix `output:`. If found, strip it from arguments before treating the remainder as the research description, and match its value case-insensitively against `md` and `html`.
    - `output:` alone (no value) -> no-op, fall through to step 2.
    - `output:<unknown>` (e.g., `output:pdf`) -> drop the token, fall through to step 2, and remember to emit a one-line note above the post-generation menu after final resolution: `Ignored unknown output: value '<value>' -- using <resolved_format> instead.`
-2. **Config.** If step 1 did not resolve and the pre-resolved YAML above has an active, non-commented `brainstorm_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
+2. **Config.** If step 1 did not resolve and the config has an active, non-commented `brainstorm_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
 3. **Default.** Otherwise `OUTPUT_FORMAT=md`.
 4. **Pipeline override.** When invoked from LFG or any `disable-model-invocation` context, force `OUTPUT_FORMAT=md` regardless of steps 1-3. Downstream consumers parse markdown reliably; HTML in pipeline runs is unnecessary friction.
 

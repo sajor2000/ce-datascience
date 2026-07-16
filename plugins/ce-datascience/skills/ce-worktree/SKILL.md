@@ -1,87 +1,87 @@
 ---
 name: ce-worktree
-description: "Create an isolated git worktree and branch for parallel feature work or PR review without disturbing the current checkout."
+description: Set up isolated git worktrees — create a new branch for fresh work, or attach a worktree to an existing branch/PR/commit to work on it in isolation. Use when starting isolated work or isolating an existing ref; detects existing isolation first.
 ---
 
-# Worktree Creation
-
+# Worktree Isolation
 
 ## Skill Value
 
-- **Problem it solves:** Parallel or risky work can dirty the main checkout and make branch state hard to recover.
-- **Use when:** The user wants a worktree, isolated branch, parallel task, or safe PR review workspace.
-- **Output:** New worktree path, branch name, and cleanup guidance.
-- **Ask only if:** No user question normally unless branch name or base ref is ambiguous.
-- **Do not do:** Do not delete existing worktrees or overwrite branch state.
-- **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
+- **Problem it solves:** Worktree creation can duplicate existing isolation or create host-invisible state.
+- **Use when:** The user or another workflow requests isolated branch or pull-request work.
+- **Output:** The existing or newly created isolated workspace path and branch or ref.
+- **Ask only if:** Isolation creation fails and continuing in the current checkout needs explicit approval.
+- **Do not do:** Do not nest worktrees, force duplicate branch checkouts, or silently fall back to the current checkout.
+- **Interaction:** Check isolation first and use the repository's shared interaction rule for any blocking decision.
 
-Create a worktree under `.worktrees/<branch>` with branch-specific setup that `git worktree add` alone does not handle:
+Ensure the current work happens in an isolated workspace, without disturbing the user's main checkout. Most coding harnesses now create a worktree by default at session start, so the common case is that **isolation already exists** — detect that first and do not create a redundant one.
 
-- Copies `.env`, `.env.local`, `.env.test`, etc. from the main repo (skips `.env.example`)
-- Trusts `mise`/`direnv` configs, with branch-aware safety rules so review branches do not auto-grant trust to untrusted `.envrc` content
-- Adds `.worktrees` to `.gitignore` if not already ignored
-- Does not modify the main repo checkout — `from-branch` is fetched, not checked out
+Order of operations: **detect existing isolation -> prefer a native worktree tool -> fall back to plain git.** Never create a worktree the harness cannot see.
 
-## Creating a worktree
+**Two modes, set by the caller's need:**
+
+- **New work (default).** No specific ref named — create a fresh branch from a base (trunk). This is what `ce-work` uses.
+- **Isolate an existing ref.** The caller names a ref to work on in isolation — a PR head, an existing branch, or a commit. Attach the worktree to that ref instead of creating a branch. A branch can be checked out in only one worktree at a time. If the ref is already checked out, report its path and let the caller work there or explicitly choose a detached worktree.
+
+## Step 0: Detect existing isolation
+
+Compare resolved absolute paths, because Git mixes relative and absolute output from subdirectories:
 
 ```bash
-bash scripts/worktree-manager.sh create <branch-name> [from-branch]
+git rev-parse --absolute-git-dir
+(cd "$(git rev-parse --git-common-dir)" && pwd -P)
 ```
 
-Defaults:
-- `from-branch` defaults to origin's default branch (or `main` if that cannot be resolved)
-- The new branch is created at `origin/<from-branch>` (or the local ref if the remote is unavailable)
+If the paths differ, distinguish a linked worktree from a submodule:
 
-Examples:
 ```bash
-bash scripts/worktree-manager.sh create feat/login
-bash scripts/worktree-manager.sh create fix/email-validation develop
+git rev-parse --show-superproject-working-tree
 ```
 
-After creation, switch to the worktree with `cd .worktrees/<branch-name>`.
+- Non-empty output -> this is a submodule; continue to Step 1.
+- Empty output -> this is already an isolated worktree. If the caller requested new work or the current ref matches the requested existing ref, report its root and branch and work in place. If the caller requested a different existing ref, do not silently use the current checkout: inspect `git worktree list`, report an existing worktree for that ref when present, or request an explicit choice between switching to that path and creating an approved detached isolation. Never nest another worktree inside the current one.
+
+## Step 1: Prefer the harness's native worktree tool
+
+If the harness provides a native worktree primitive, use it and stop. Native tools place, track, and clean up the worktree so the harness can manage it. A behind-the-back `git worktree add` creates state the harness cannot navigate to or clean up.
+
+## Step 2: Git fallback
+
+Use plain Git only when no native tool exists and Step 0 found no existing isolation.
+
+1. Run from the repository root: `cd "$(git rev-parse --show-toplevel)"`.
+2. Choose a meaningful branch name from the work description and determine the base branch from the remote default, falling back to `main`.
+3. Ensure `.worktrees/` is ignored before creating anything. Check `git check-ignore -q .worktrees/` with the trailing slash; add `.worktrees/` to `.gitignore` only when needed.
+4. Best-effort fetch the base branch without changing the current checkout. A missing remote is non-fatal; use the local ref.
+5. Create the worktree according to the caller's mode:
+   - New work: `git worktree add -b <branch-name> .worktrees/<branch-name> origin/<from-branch>`; use the local base when the remote ref does not exist.
+   - Existing branch or tag: `git worktree add .worktrees/<slug> <target-ref>`.
+   - PR: create a local branch first with `git fetch origin pull/<n>/head:pr-<n>`, then run `git worktree add .worktrees/pr-<n> pr-<n>`. Never leave a PR worktree detached if the caller intends to commit fixes.
+6. Switch into the new worktree.
+
+If creation fails because of sandbox or permission restrictions, stop and request a blocking user decision through the current harness's standard interaction mechanism before touching the current checkout. If no blocking interaction mechanism exists or it errors, present numbered options and wait. Continue in the current checkout only with explicit confirmation.
 
 ## Other worktree operations
 
-Use `git` directly — no wrapper is needed and none is provided:
+Use Git directly:
 
 ```bash
-git worktree list                          # list worktrees
-git worktree remove .worktrees/<branch>    # remove a worktree
-cd .worktrees/<branch>                     # switch to a worktree
-cd "$(git rev-parse --show-toplevel)"      # return to main checkout
+git worktree list
+git worktree remove .worktrees/<branch>
+cd .worktrees/<branch>
+cd "$(git rev-parse --show-toplevel)"
 ```
-
-To copy `.env*` files into an existing worktree created without them, run this from the main repo (not from inside the worktree, since branch names often contain slashes like `feat/login`):
-```bash
-cp .env* .worktrees/<branch>/
-```
-
-## Dev tool trust behavior
-
-When mise or direnv configs are present, the script attempts to trust them so hooks and scripts do not block on interactive prompts. Trust is baseline-checked against a reference branch:
-
-- **Trusted base branches** (`main`, `develop`, `dev`, `trunk`, `staging`, `release/*`): the new worktree's configs are compared against that branch; unchanged configs are auto-trusted. `direnv allow` is permitted.
-- **Other branches** (feature branches, PR review branches): configs are compared against the default branch; `direnv allow` is skipped regardless, because `.envrc` can source files that direnv does not validate.
-
-Modified configs are never auto-trusted. The script prints the manual trust command to run after review.
 
 ## When to create a worktree
 
-Create a worktree when:
-- Reviewing a PR while keeping the main checkout free for other work
-- Running multiple features in parallel without branch-switching overhead
-- Keeping the default branch free of in-progress state
-
-Do not create a worktree for single-task work that can happen on a branch in the main checkout.
+Create one only when the current checkout is not already isolated and a separate workspace is useful for PR review or parallel work. Do not create one for a single task that can happen safely on a feature branch.
 
 ## Integration
 
-`ce-work` and `ce-code-review` offer this skill as an option. When the user selects "worktree" in those flows, invoke `bash scripts/worktree-manager.sh create <branch>` with a meaningful branch name derived from the work description (e.g., `feat/crowd-sniff`, `fix/email-validation`). Avoid auto-generated names like `worktree-jolly-beaming-raven` that obscure the work.
+When `ce-work` or `ce-code-review` selects this skill, run Step 0 first. Proceed in place when already isolated; otherwise prefer native isolation and use a meaningful branch name.
 
 ## Troubleshooting
 
-**"Worktree already exists"**: the path is already in use. Either switch to it (`cd .worktrees/<branch>`) or remove it (`git worktree remove .worktrees/<branch>`) before recreating.
+**Worktree already exists:** switch to its reported path or remove it before recreating it.
 
-**"Cannot remove worktree: it is the current worktree"**: `cd` out of the worktree first, then `git worktree remove`.
-
-**Dev tool trust was skipped**: the script prints the manual command. Review the config diff (`git diff <base-ref> -- .envrc`), then run the printed command from the worktree directory.
+**Cannot remove the current worktree:** change to another checkout before running `git worktree remove`.

@@ -204,17 +204,13 @@ When dispatching sub-agents, **omit the `mode` parameter** on the Agent/Task too
 
 ### Reading Config Files from Skills
 
-Plugin config lives at `.ce-datascience/config.local.yaml` in the repo root. This file is gitignored (machine-local settings), which creates two gotchas:
+Plugin config lives at `.ce-datascience/config.local.yaml` in the repo root and is machine-local.
 
-1. **Path resolution:** Never read the config relative to CWD — the user may invoke a skill from a subdirectory. Always resolve from the repo root. In pre-resolution commands, use `git rev-parse --show-toplevel` to find the root.
-
-2. **Worktrees:** Gitignored files are per-worktree. A config file created in the main checkout does not exist in worktrees. When reading config, fall back to the main repo root if the file is missing in the current worktree:
-   ```
-   !`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
-   ```
-   The first subshell tries the current worktree root. The second derives the main repo root from `git-common-dir` as a fallback. The `[ -n "$top" ]` and `[ -n "$common" ]` guards matter: outside a git repo, both `git rev-parse` invocations emit empty, and an unguarded `cat "$(dirname "")/.ce-datascience/config.local.yaml"` would resolve to a CWD-relative `./...config.local.yaml` and could succeed against a stray file in the user's working directory. Guarded, both branches simply fail and the `__NO_CONFIG__` sentinel takes over. In a regular (non-worktree) checkout, both repo paths are identical.
-
-If neither path has the file, fall through to defaults — never fail or block on missing config.
+1. Pre-resolve only the repository root with `!` backtick syntax. Do not embed config contents through `cat`; non-Claude platforms may leave the command literal in the prompt.
+2. If pre-resolution did not yield an absolute path, resolve the root at runtime with `git rev-parse --show-toplevel`.
+3. Read the config through the platform's native file-read tool.
+4. In a linked worktree where the config is absent, resolve the absolute common Git directory and try the main checkout.
+5. Fall through to defaults when neither path has a config; never fail or block on a missing machine-local file.
 
 ### Quick Validation Command
 

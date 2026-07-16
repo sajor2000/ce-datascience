@@ -18,11 +18,12 @@ argument-hint: "[optional: path to specific output file or directory to verify]"
 
 Quick mid-workflow sanity check on analysis outputs. Distinct from the reporting checklist (`ce-checklist-match` + `ce-reporting-checklist-reviewer`) which fires at manuscript time — this skill catches errors during analysis execution.
 
-## Stack Profile (pre-resolved)
+## Stack Profile
 
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+The repository root is pre-resolved at skill load:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Parse for `language`, `data_root`, and `reporting` fields. If `__NO_CONFIG__`, infer from project files.
+Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `data_root`, and `reporting`; if no config can be read, infer them from project files.
 
 ## Input
 

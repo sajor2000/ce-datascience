@@ -380,8 +380,8 @@ B. Exit without further action
 
 The `<next stage>` substitution uses the document type from Phase 1:
 
-- Requirements document → `ce-plan`
-- Plan document → `ce-work`
+- Requirements document or `unified-requirements` → `ce-plan`
+- Plan document or `unified-plan` → `ce-work`
 
 **Label adaptation:** when no decisions are queued to apply, the primary option drops the `Apply decisions and` prefix — the label should match what the system is doing. `Apply decisions and proceed` when fixes are queued; `Proceed` when nothing is queued.
 

@@ -1,7 +1,7 @@
 ---
 name: ce-code-review
-description: "Review code changes with ce-datascience reviewer personas, confidence-gated findings, and optional autofix routing before merge."
-argument-hint: "[blank to review current branch, or provide PR link]"
+description: "Review code changes with ce-datascience reviewer personas and confidence-gated findings. Use mode:agent for a read-only JSON handoff to workflow callers."
+argument-hint: "[mode:agent] [blank to review current branch, or provide PR link]"
 ---
 
 # Code Review
@@ -32,6 +32,7 @@ Parse `$ARGUMENTS` for the following optional tokens. Strip each recognized toke
 
 | Token | Example | Effect |
 |-------|---------|--------|
+| `mode:agent` | `mode:agent` | Current CE programmatic contract: strictly read-only and return one raw JSON object plus `review.json` in the run artifact directory |
 | `mode:autofix` | `mode:autofix` | Select autofix mode (see Mode Detection below) |
 | `mode:report-only` | `mode:report-only` | Select report-only mode |
 | `mode:headless` | `mode:headless` | Select headless mode for programmatic callers (see Mode Detection below) |
@@ -41,9 +42,12 @@ All tokens are optional. Each one present means one less thing to infer. When ab
 
 ## Blinding-state awareness
 
-Read `stack_profile.blinding_state` from `.ce-datascience/config.local.yaml`. When it is `blinded`, the diff is treated as blinded EDA: do not spawn `ce-methods-reviewer` or `ce-multiplicity-reviewer`, and emit a P0 block finding titled "Inferential code on assignment variable during blinded EDA" if the diff contains regression / hypothesis-test / survival / chi-square code that references the assignment / treatment / arm variable. When the field is `unblinded` or `n/a` (or absent), proceed normally. No flag for the user to type.
+Resolve the repository root before reading config:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
 
-**Conflicting mode flags:** If multiple mode tokens appear in arguments, stop and do not dispatch agents. If `mode:headless` is one of the conflicting tokens, emit the headless error envelope: `Review failed (headless mode). Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.` Otherwise emit the generic form: `Review failed. Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.`
+Use the resolved absolute path or resolve it at runtime, then read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool; in a linked worktree, fall back to the main checkout when needed. Read `stack_profile.blinding_state`. When it is `blinded`, the diff is treated as blinded EDA: do not spawn `ce-methods-reviewer` or `ce-multiplicity-reviewer`, and emit a P0 block finding titled "Inferential code on assignment variable during blinded EDA" if the diff contains regression / hypothesis-test / survival / chi-square code that references the assignment / treatment / arm variable. When the field is `unblinded` or `n/a` (or absent), proceed normally. No flag for the user to type.
+
+**Conflicting mode flags:** If multiple distinct mode tokens appear in arguments, stop and do not dispatch agents. In `mode:agent`, emit `{"status":"failed","reason":"conflicting mode flags"}`. If `mode:headless` is one of the conflicting tokens, emit the headless error envelope: `Review failed (headless mode). Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.` Otherwise emit the generic form: `Review failed. Reason: conflicting mode flags — <mode_a> and <mode_b> cannot be combined.`
 
 ## Quick Review Short-Circuit
 
@@ -51,7 +55,7 @@ If `$ARGUMENTS` indicates the user wants a quick, fast, or light code review, do
 
 **Announce the chosen path** before any other work (Quick review vs Multi-agent review).
 
-Programmatic callers (`mode:autofix`, `mode:report-only`, or `mode:headless`) skip this announcement and bypass the short-circuit -- the orchestrator owns user-facing messaging.
+Programmatic callers (`mode:agent`, `mode:autofix`, `mode:report-only`, or `mode:headless`) skip this announcement and bypass the short-circuit -- the orchestrator owns user-facing messaging.
 
 Sequence:
 
@@ -67,9 +71,18 @@ Sequence:
 | Mode | When | Behavior |
 |------|------|----------|
 | **Interactive** (default) | No mode token present | Review, apply safe_auto fixes automatically, present findings, ask for policy decisions on gated/manual findings, and optionally continue into fix/push/PR next steps |
+| **Agent** | `mode:agent` in arguments | Current CE machine handoff: no questions or mutations; return one raw JSON object and write the same payload to `review.json` in the run artifact directory |
 | **Autofix** | `mode:autofix` in arguments | No user interaction. Review, apply only policy-allowed `safe_auto` fixes, re-review in bounded rounds, write a run artifact capturing residual downstream work |
 | **Report-only** | `mode:report-only` in arguments | Strictly read-only. Review and report only, then stop with no edits, artifacts, commits, pushes, or PR actions |
 | **Headless** | `mode:headless` in arguments | Programmatic mode for skill-to-skill invocation. Apply `safe_auto` fixes silently (single pass), return all other findings as structured text output, write run artifacts, and return "Review complete" signal. No interactive prompts. |
+
+### Agent mode rules
+
+- **Strictly read-only.** Do not edit, apply fixes, commit, push, create pull requests, file tickets, or switch the checkout. The caller owns all mutation.
+- **No blocking questions.** Infer scope and intent from arguments, Git metadata, the diff, and caller context; record uncertainty in the payload.
+- **One parseable response.** Emit exactly one raw JSON object with no markdown fence or trailing prose, and write the same payload to `/tmp/ce-datascience/ce-code-review/<run-id>/review.json`.
+- **Full pipeline.** Bypass quick-review short circuits and use the normal reviewer selection, merge, confidence gating, and requirements checks.
+- **Failures are JSON.** Use `status: failed`, `degraded`, or `skipped` with a one-sentence `reason` when the review cannot complete normally.
 
 ### Autofix mode rules
 
@@ -155,12 +168,12 @@ Routing rules:
 | `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, or figure files in diff, OR `stack_profile.data_root` is inside the repo |
 | `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
 | `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
-| `ce-reporting-checklist-reviewer` | `stack_profile.reporting_checklist` set to a non-null string (e.g., `STROBE`, `TRIPOD+AI`) AND a SAP exists. Pass the value plus any `stack_profile.reporting_checklist_extensions` list to the reviewer as the checklist identifier. |
+| `ce-reporting-checklist-reviewer` | `stack_profile.reporting_checklist` set to a non-null string (e.g., `STROBE`, `TRIPOD+AI`) AND a SAP exists. Pass the value, any `stack_profile.reporting_checklist_extensions`, and the resolved skill-local paths for `references/guideline-registry.yaml`, `references/guideline-routing.md`, and the selected checklist files. |
 | `ce-data-leakage-reviewer` | ML training/eval code in diff (sklearn, lightgbm, xgboost, pytorch, tensorflow, keras, lifelines, sksurv, tidymodels) |
 | `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
 | `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
 | `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or `analysis/cohort/concept-sets/` in diff |
-| `ce-clif-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, clif-icu/clif-consortium git remote — NOT mCIDE/ or WORKFLOW.md alone). Block diffs touching mCIDE/**, ddl/**, outlier-handling/**, reference_ranges/**, WORKFLOW.md without POC sign-off. Block CSV/Feather for CLIF tables, tz-naive `*_dttm`, integer patient_id/hospitalization_id, unknown `*_category` strings. Block patient-level rows in `output/`. |
+| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, clif-icu/clif-consortium git remote — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules; do not dispatch a nonexistent `ce-clif-reviewer`. |
 | `ce-administrative-data-reviewer` | claims / billing / payer / administrative healthcare data in diff (Medicare, Medicaid, MarketScan, Optum, OMOP claims-flavor) |
 | `ce-concept-drift-reviewer` | concept sets, ICD/CPT/LOINC/SNOMED code lists in diff AND data spans multiple refresh waves or multiple years |
 | `ce-causal-inference-reviewer` | observational analysis with causal aim in diff (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target-trial emulation) |
@@ -212,7 +225,7 @@ This path works with any ref — a SHA, `origin/main`, a branch name. Automated 
 
 **If a PR number or GitHub URL is provided as an argument:**
 
-If `mode:report-only` or `mode:headless` is active, do **not** run `gh pr checkout <number-or-url>` on the shared checkout. For `mode:report-only`, tell the caller: "mode:report-only cannot switch the shared checkout to review a PR target. Run it from an isolated worktree/checkout for that PR, or run report-only with no target argument on the already checked out branch." For `mode:headless`, emit `Review failed (headless mode). Reason: cannot switch shared checkout. Re-invoke with base:<ref> to review the current checkout, or run from an isolated worktree.` Stop here unless the review is already running in an isolated checkout.
+If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** run `gh pr checkout <number-or-url>` on the shared checkout. In `mode:agent`, return JSON with `status: failed` and a reason directing the caller to review the already checked-out PR via `base:<ref>` or an isolated checkout. For `mode:report-only`, tell the caller: "mode:report-only cannot switch the shared checkout to review a PR target. Run it from an isolated worktree/checkout for that PR, or run report-only with no target argument on the already checked out branch." For `mode:headless`, emit `Review failed (headless mode). Reason: cannot switch shared checkout. Re-invoke with base:<ref> to review the current checkout, or run from an isolated worktree.` Stop here unless the review is already running in an isolated checkout.
 
 **Skip-condition pre-check.** Before checkout or scope detection, run a PR-state probe to decide whether the review should proceed:
 
@@ -281,7 +294,7 @@ Extract PR title/body, base branch, and PR URL from `gh pr view`, then extract t
 
 Check out the named branch, then diff it against the base branch. Substitute the provided branch name (shown here as `<branch>`).
 
-If `mode:report-only` or `mode:headless` is active, do **not** run `git checkout <branch>` on the shared checkout. For `mode:report-only`, tell the caller: "mode:report-only cannot switch the shared checkout to review another branch. Run it from an isolated worktree/checkout for `<branch>`, or run report-only on the current checkout with no target argument." For `mode:headless`, emit `Review failed (headless mode). Reason: cannot switch shared checkout. Re-invoke with base:<ref> to review the current checkout, or run from an isolated worktree.` Stop here unless the review is already running in an isolated checkout.
+If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** run `git checkout <branch>` on the shared checkout. In `mode:agent`, return JSON with `status: failed` and a reason directing the caller to use `base:<ref>` on the current checkout or an isolated checkout. For `mode:report-only`, tell the caller: "mode:report-only cannot switch the shared checkout to review another branch. Run it from an isolated worktree/checkout for `<branch>`, or run report-only on the current checkout with no target argument." For `mode:headless`, emit `Review failed (headless mode). Reason: cannot switch shared checkout. Re-invoke with base:<ref> to review the current checkout, or run from an isolated worktree.` Stop here unless the review is already running in an isolated checkout.
 
 First, verify the worktree is clean before switching branches:
 
@@ -333,7 +346,7 @@ echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:"
 
 Using `git diff $BASE` (without `..HEAD`) diffs the merge-base against the working tree, which includes committed, staged, and unstaged changes together.
 
-**Untracked file handling:** Always inspect the `UNTRACKED:` list, even when `FILES:`/`DIFF:` are non-empty. Untracked files are outside review scope until staged. If the list is non-empty, tell the user which files are excluded. If any of them should be reviewed, stop and tell the user to `git add` them first and rerun. Only continue when the user is intentionally reviewing tracked changes only. In `mode:headless` or `mode:autofix`, do not stop to ask — proceed with tracked changes only and note the excluded untracked files in the Coverage section of the output.
+**Untracked file handling:** Always inspect the `UNTRACKED:` list, even when `FILES:`/`DIFF:` are non-empty. Untracked files are outside review scope until staged. If the list is non-empty, tell the user which files are excluded. If any of them should be reviewed, stop and tell the user to `git add` them first and rerun. Only continue when the user is intentionally reviewing tracked changes only. In `mode:agent`, `mode:headless`, or `mode:autofix`, do not stop to ask — proceed with tracked changes only and note the excluded untracked files in Coverage.
 
 ### Stage 2: Intent discovery
 
@@ -361,7 +374,7 @@ Pass this to every reviewer in their spawn prompt. Intent shapes *how hard each 
 **When intent is ambiguous:**
 
 - **Interactive mode:** Ask one concise intent question using the Skill Value interaction rule, then pass the resolved intent to every reviewer.
-- **Autofix/report-only/headless modes:** Infer intent conservatively from the branch name, diff, PR metadata, and caller context. Note the uncertainty in Coverage or Verdict reasoning instead of blocking.
+- **Agent/autofix/report-only/headless modes:** Infer intent conservatively from the branch name, diff, PR metadata, and caller context. Note the uncertainty in Coverage or Verdict reasoning instead of blocking.
 
 ### Stage 2b: Plan discovery (requirements verification)
 
@@ -529,7 +542,7 @@ A finding qualifies for demotion when **all** of these hold:
    - **All** contributing reviewers are `testing` or `maintainability` — if any other persona also flagged this finding, cross-reviewer corroboration is present and the finding stays in primary findings regardless of its severity or advisory status (expand the weak-signal list later only with evidence)
 
 When a finding qualifies, route by mode:
-   - **Interactive and report-only modes:** Move the finding out of the primary findings set. If the contributing reviewer is `testing`, append `<file:line> -- <title>` to `testing_gaps`. If `maintainability`, append the same to `residual_risks`. Record the demotion count for Coverage. The finding does not appear in the Stage 6 findings table. (Use title only -- the compact return omits `why_it_matters`, and report-only mode skips artifact files entirely. Soft-bucket entries are FYI items; readers who want depth can open the per-agent artifact when one exists.)
+   - **Interactive, agent, and report-only modes:** Move the finding out of the primary findings set. If the contributing reviewer is `testing`, append `<file:line> -- <title>` to `testing_gaps`. If `maintainability`, append the same to `residual_risks`. Record the demotion count for Coverage. The finding does not appear in the Stage 6 findings table. (Use title only because the compact return omits `why_it_matters`; enrich from detail artifacts when available. Soft-bucket entries are FYI items.)
    - **Headless and autofix modes:** Suppress the finding entirely. Record the suppressed count in Coverage as "mode-aware demotion suppressions" so the user can see what was filtered.
 
 Demotion is intentionally narrow. The conservative scope (testing/maintainability + P2/P3 + advisory) is the starting point; do not expand the rule by guessing which other personas overproduce noise. If real review runs show another persona consistently emitting weak signal, expand with evidence.
@@ -551,6 +564,7 @@ Independent verification gate. Spawn one validator sub-agent per surviving findi
 
 | Mode | Runs Stage 5b? | Where |
 |------|---------------|-------|
+| `agent` | Yes, eagerly and read-only | Between Stage 5 and Stage 6 |
 | `headless` | Yes, eagerly | Between Stage 5 and Stage 6 |
 | `autofix` | Yes, eagerly | Between Stage 5 and Stage 6 |
 | `interactive`, walk-through routing (option A) — per-finding phase | No -- the user is the per-finding validator | n/a |
@@ -586,7 +600,7 @@ When Stage 5b does not run, the merged finding set from Stage 5 flows through to
 
 ### Stage 6: Synthesize and present
 
-Assemble the final report using **pipe-delimited markdown tables for findings** from the review output template included below. The table format is mandatory for finding rows in interactive mode — do not render findings as freeform text blocks or horizontal-rule-separated prose. Other report sections (Applied Fixes, Learnings, Coverage, etc.) use bullet lists and the `---` separator before the verdict, as shown in the template.
+In `mode:agent`, skip markdown and emit the JSON contract below. In all other modes, assemble the final report using **pipe-delimited markdown tables for findings** from the review output template included below. The table format is mandatory for finding rows in interactive mode — do not render findings as freeform text blocks or horizontal-rule-separated prose. Other report sections (Applied Fixes, Learnings, Coverage, etc.) use bullet lists and the `---` separator before the verdict, as shown in the template.
 
 1. **Header.** Scope, intent, mode, reviewer team with per-conditional justifications.
 2. **Findings.** Rendered as pipe-delimited tables grouped by severity (`### P0 -- Critical`, `### P1 -- High`, `### P2 -- Moderate`, `### P3 -- Low`). Each finding row shows `#`, file, issue, reviewer(s), confidence, and synthesized route. Omit empty severity levels. Never render findings as freeform text blocks or numbered lists.
@@ -604,6 +618,42 @@ Assemble the final report using **pipe-delimited markdown tables for findings** 
 Do not include time estimates.
 
 **Format verification:** Before delivering the report, verify the findings sections use pipe-delimited table rows (`| # | File | Issue | ... |`) not freeform text. If you catch yourself rendering findings as prose blocks separated by horizontal rules or bullet points, stop and reformat into tables.
+
+### JSON output format (`mode:agent` only)
+
+Emit one raw JSON object as the entire response, without a markdown fence or trailing prose. Write the identical payload to `/tmp/ce-datascience/ce-code-review/<run-id>/review.json`.
+
+Minimum shape:
+
+```json
+{
+  "status": "complete",
+  "verdict": "Ready to merge | Ready with fixes | Not ready",
+  "scope": {
+    "base": "<merge-base sha, pr:NNN marker, or base ref>",
+    "branch": "<current branch>",
+    "head_sha": "<git rev-parse HEAD>",
+    "pr_url": null,
+    "files_changed": 0
+  },
+  "intent": "<summary>",
+  "intent_confidence": "explicit | inferred | uncertain",
+  "reviewers": [],
+  "findings": [],
+  "actionable_findings": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [],
+  "coverage": {},
+  "artifact_path": "/tmp/ce-datascience/ce-code-review/<run-id>/",
+  "run_id": "<run-id>"
+}
+```
+
+Each `findings` object carries the merged finding fields including stable `#`, title, severity, file, line, confidence, autofix_class, owner, requires_verification, pre_existing, suggested_fix, why_it_matters, evidence, and reviewers. `actionable_findings` is the `gated_auto` or `manual` subset owned by `downstream-resolver`. Agent mode never includes applied fixes because it never mutates. On failure return `{"status":"failed","reason":"<one sentence>"}`; use `degraded` when all reviewers fail and `skipped` when a review skip rule fires.
 
 ### Headless output format
 
@@ -710,6 +760,7 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 - **Residual actionable queue:** unresolved `gated_auto` or `manual` findings whose final owner is `downstream-resolver`.
 - **Report-only queue:** `advisory` findings and any outputs owned by `human` or `release`.
 - **Never convert advisory-only outputs into fix work or ticket handoff.** Deployment notes, residual risks, and release-owned items stay in the report.
+- **Agent-mode hard gate:** when `mode:agent` is active, build `actionable_findings` for the JSON handoff but never build or dispatch a fixer queue.
 
 #### Step 2: Choose policy by mode
 
@@ -754,6 +805,12 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 - Leave `gated_auto`, `manual`, `human`, and `release` items unresolved.
 - Prepare residual work only for unresolved actionable findings whose final owner is `downstream-resolver`.
 
+**Agent mode**
+
+- Ask no questions and perform no mutations.
+- Skip every fixer, ticket, commit, push, pull-request, and checkout-switch path.
+- Serialize the complete merged finding set and the actionable subset through the Stage 6 JSON contract, write `review.json`, and stop.
+
 **Report-only mode**
 
 - Ask no questions.
@@ -797,7 +854,7 @@ The fixer accepts two queue shapes depending on which caller invoked it:
 
 #### Step 4: Emit artifacts and downstream handoff
 
-- In interactive, autofix, and headless modes, write a per-run artifact under `/tmp/ce-datascience/ce-code-review/<run-id>/` containing:
+- In interactive, agent, autofix, and headless modes, write a per-run artifact under `/tmp/ce-datascience/ce-code-review/<run-id>/` containing:
   - synthesized findings (merged output from Stage 5)
   - applied fixes
   - residual actionable work
@@ -846,7 +903,7 @@ Common outcomes:
 If "Create a PR": first publish the branch with `git push --set-upstream origin HEAD`, then use `gh pr create` with a title and summary derived from the branch changes.
 If "Push fixes": push the branch with `git push` to update the existing PR.
 
-**Autofix, report-only, and headless modes:** stop after the report, artifact emission, and residual-work handoff. Do not commit, push, or create a PR.
+**Agent, autofix, report-only, and headless modes:** stop after the report, artifact emission when allowed, and residual-work handoff. Do not commit, push, or create a PR. In `mode:agent`, emit nothing after the single JSON object.
 
 ## Fallback
 

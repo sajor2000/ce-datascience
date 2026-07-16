@@ -18,11 +18,12 @@ argument-hint: "[Plan doc path or description of work. Blank to auto use latest 
 
 Execute work efficiently while maintaining quality and finishing features. When a Statistical Analysis Plan (SAP) exists, tracks which SAP sections have been implemented and labels non-SAP analyses as exploratory. Generates analysis code scaffolding adapted to the user's stack profile (language, IDE, libraries).
 
-## Stack Profile (pre-resolved)
+## Stack Profile
 
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+The repository root is pre-resolved at skill load:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
 
-If the block above resolved to YAML content, parse it for `language`, `ide`, `libraries`, and `notebook_format` fields. These drive scaffolding decisions -- see `references/scaffolding-templates.md`. If the block resolved to `__NO_CONFIG__`, infer the stack from existing project files and fall through to defaults.
+If the line above is an absolute path, use it as `<repo-root>`. Otherwise resolve the root at runtime with `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree where the file is absent, try the main checkout derived from the absolute common Git directory. Parse `language`, `ide`, `libraries`, and `notebook_format`; these drive `references/scaffolding-templates.md`. If no config can be read, infer the stack from project files and use defaults.
 
 ## Introduction
 
@@ -36,7 +37,9 @@ This command takes a work document (plan or specification) or a bare prompt desc
 
 ### Phase 0: Input Triage
 
-Determine how to proceed based on what was provided in `<input_document>`.
+**First, parse a leading mode token.** If `<input_document>` begins with `mode:return-to-caller` (or legacy aliases `mode:caller-owned-tail` / `caller:lfg`), strip it before classifying the input. The remainder must be a plan path. This run is now in **Return-to-Caller Mode**: implement and locally verify, then return the structured envelope below instead of running the standalone shipping tail. A mode token without a following path is an error, not a bare prompt.
+
+Determine how to proceed based on what was provided in `<input_document>` after stripping any mode token.
 
 **Plan document** (input is a file path to an existing plan or specification) → skip to Phase 1.
 
@@ -319,20 +322,13 @@ Determine how to proceed based on what was provided in `<input_document>`.
 
 5. **Simplify as You Go**
 
+   **Skip this step in Return-to-Caller Mode.** The owning orchestrator is responsible for simplification after it receives the implementation and verification envelope.
+
    After completing a cluster of related implementation units (or every 2-3 units), review recently changed files for simplification opportunities — consolidate duplicated patterns, extract shared helpers, and improve code reuse and efficiency. This is especially valuable when using subagents, since each agent works with isolated context and can't see patterns emerging across units.
 
    Don't simplify after every single unit — early patterns may look duplicated but diverge intentionally in later units. Wait for a natural phase boundary or when you notice accumulated complexity.
 
    If a `/simplify` skill or equivalent is available, use it. Otherwise, review the changed files yourself for reuse and consolidation opportunities.
-
-6. **Figma Design Sync** (if applicable)
-
-   For UI work with Figma designs:
-
-   - Implement components following design specs
-   - Use ce-figma-design-sync agent iteratively to compare
-   - Fix visual differences identified
-   - Repeat until implementation matches design
 
 6. **Track Progress**
    - Keep the task list updated as you complete tasks
@@ -343,7 +339,28 @@ Determine how to proceed based on what was provided in `<input_document>`.
 
 ### Phase 3-4: Quality Check and Ship It
 
+If Return-to-Caller Mode is active, skip this phase and use the Return-to-Caller contract below.
+
 When all Phase 2 tasks are complete and execution transitions to quality check, read `references/shipping-workflow.md` for the full shipping workflow: quality checks, code review, final validation, PR creation, and notification.
+
+## Return-to-Caller Mode
+
+`mode:return-to-caller <plan-path>` is reserved for an orchestrator that owns simplification, code review, pull-request creation, and CI watching. The legacy aliases `mode:caller-owned-tail` and `caller:lfg` have the same behavior. In this mode, implement and locally verify only; do not run the standalone shipping tail and do not emit a manual-paste workflow prompt.
+
+Return one structured envelope containing:
+
+- `status`: `complete`, `blocked`, or `failed`
+- `plan_path`
+- `changed_files`
+- `u_ids_attempted`
+- `u_ids_completed`
+- `verification_results`
+- `verification_evidence`: one entry per attempted behavior-bearing unit, plus any non-behavioral unit where tests were intentionally skipped; include whether behavior changed, existing tests inspected, tests added or changed, unchanged tests used, red failure or characterization observed when applicable, commands/results, and any exception reason
+- `blockers`
+- `behavior_change`
+- `standalone_shipping_skipped: true`
+
+Return `status: complete` only when behavior-bearing work has verification evidence or a deliberate exception. For subagent work, assemble evidence from each worker's return instead of reconstructing red-before-implementation observations from the final diff. On a repeated invocation, inspect existing work and complete missing evidence without reimplementing completed units.
 
 ## Key Principles
 

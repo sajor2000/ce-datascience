@@ -6,7 +6,7 @@ This reference defines how `/ce-work` generates analysis code scaffolding adapte
 
 ## Stack Profile Resolution
 
-The stack profile is read from `.ce-datascience/config.local.yaml` via pre-resolution at skill load time. The relevant fields are:
+The stack profile is read from `.ce-datascience/config.local.yaml` after resolving the repository root. The relevant fields are:
 
 ```yaml
 language: R | python          # Primary analysis language
@@ -17,7 +17,7 @@ libraries:                     # Key libraries in the stack
 notebook_format: qmd | rmd | ipynb | marimo | script  # Preferred output format
 ```
 
-If the config resolves to `__NO_CONFIG__` or is missing fields, fall through to defaults:
+If the config cannot be read or is missing fields, fall through to defaults:
 - **No `language`:** infer from existing files in the project (`.R`/`.qmd` files -> R, `.py` files -> Python). If no signal, default to Python.
 - **No `notebook_format`:** infer from `language` (R -> `qmd`, Python -> `script`).
 - **No `libraries`:** use the golden path defaults for the detected language.

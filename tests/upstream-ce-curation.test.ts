@@ -109,4 +109,13 @@ describe("upstream Compound Engineering curation", () => {
     expect(combined).not.toContain("request_user_input")
     expect(combined).not.toContain("pi-ask-user")
   })
+
+  test("worktree workflow detects harness isolation before using git fallback", async () => {
+    const worktree = await readSkillFile("ce-worktree/SKILL.md")
+
+    expect(worktree).toContain("git rev-parse --absolute-git-dir")
+    expect(worktree).toContain("Prefer the harness's native worktree tool")
+    expect(worktree).toContain("Never nest another worktree")
+    expect(worktree).not.toContain("worktree-manager.sh")
+  })
 })
