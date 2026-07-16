@@ -17,11 +17,12 @@ description: "Show the ordered ce-datascience lifecycle for the current project 
 
 Shows the ordered skill sequence for a science project, detects progress, and recommends the next step. Read-only guidance — does not replace any existing skill.
 
-## Stack Profile (pre-resolved)
+## Stack Profile
 
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+The repository root is pre-resolved at skill load:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Parse the resolved block for `language`, `ide`, `reporting`, and `data_layer` fields. If `__NO_CONFIG__`, infer from project files.
+Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `ide`, `reporting`, and `data_layer`; if no config can be read, infer them from project files.
 
 ## Phase 0: Detect Signals
 

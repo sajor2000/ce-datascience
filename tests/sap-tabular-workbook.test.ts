@@ -2,9 +2,13 @@ import { describe, expect, test } from "bun:test"
 import { mkdtemp, readFile, writeFile } from "fs/promises"
 import os from "os"
 import path from "path"
+import { spawnSync } from "child_process"
 
 const skillRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-sap-tabular")
 const script = path.join(skillRoot, "scripts", "generate-tabular-sap.py")
+const hasOpenpyxl = spawnSync("python3", ["-c", "import openpyxl"], {
+  stdio: "ignore",
+}).status === 0
 
 async function run(command: string[], cwd = process.cwd()): Promise<string> {
   const proc = Bun.spawn(command, {
@@ -24,7 +28,7 @@ async function run(command: string[], cwd = process.cwd()): Promise<string> {
 }
 
 describe("ce-sap-tabular biostatistics workbook", () => {
-  test("renders the three core sheets with workbook-style output section banners", async () => {
+  test.skipIf(!hasOpenpyxl)("renders the three core sheets with workbook-style output section banners", async () => {
     const temp = await mkdtemp(path.join(os.tmpdir(), "ce-sap-tabular-"))
     const out = path.join(temp, "demo-tabular-sap.xlsx")
 

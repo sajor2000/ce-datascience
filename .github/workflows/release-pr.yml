@@ -83,6 +83,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Install Python test dependencies
+        run: python3 -m pip install "openpyxl>=3.1,<4"
+
       - name: Run tests
         run: bun test
 

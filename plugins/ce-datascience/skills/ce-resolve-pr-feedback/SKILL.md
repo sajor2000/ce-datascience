@@ -49,10 +49,10 @@ After determining mode, read the matching reference and follow it. Each referenc
 
 ## Scripts
 
-- [scripts/get-pr-comments](scripts/get-pr-comments) -- GraphQL query for unresolved review threads
-- [scripts/get-thread-for-comment](scripts/get-thread-for-comment) -- Map a comment node ID to its parent thread (for targeted mode)
-- [scripts/reply-to-pr-thread](scripts/reply-to-pr-thread) -- GraphQL mutation to reply within a review thread
-- [scripts/resolve-pr-thread](scripts/resolve-pr-thread) -- GraphQL mutation to resolve a thread by ID
+- `scripts/get-pr-comments` -- GraphQL query for unresolved review threads
+- `scripts/get-thread-for-comment` -- Map a comment node ID to its parent thread (for targeted mode)
+- `scripts/reply-to-pr-thread` -- GraphQL mutation to reply within a review thread
+- `scripts/resolve-pr-thread` -- GraphQL mutation to resolve a thread by ID
 
 ## Success Criteria
 

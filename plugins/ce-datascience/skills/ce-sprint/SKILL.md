@@ -78,13 +78,12 @@ sprint:
    __CE_SPRINT_AUDIT_DISPATCH__ sprint=<name> reviewer=ce-sprint-audit-reviewer human_reviewer=<name> scope=<csv> commit_open=<sha> commit_close=<sha>
    ```
 
-2. Parse the `__CE_SPRINT_AUDIT_DISPATCH__` line into its key=value fields and fire the Task tool using this literal template (substitute `<name>`, `<scope>`, `<commit_open>`, `<commit_close>`, `<human_reviewer>` from the parsed line):
+2. Parse the `__CE_SPRINT_AUDIT_DISPATCH__` line into its key=value fields and dispatch `ce-sprint-audit-reviewer` through the platform's subagent primitive (`Agent`/`Task` in Claude Code, `spawn_agent` in Codex, or `subagent` in Pi). Omit permission-mode overrides. If no subagent primitive exists, run the audit sequentially in the current agent. Use this prompt contract:
 
    ```
-   Task(
-     subagent_type = "ce-sprint-audit-reviewer",
-     description   = "Audit sprint <name>",
-     prompt        = """
+   Agent: ce-sprint-audit-reviewer
+   Description: Audit sprint <name>
+   Prompt:
        Sprint name:   <name>
        Human reviewer: <human_reviewer>
        Scope (SAP sections in this sprint): <scope>
@@ -115,8 +114,6 @@ sprint:
            "blocking_findings": [ {file, line, severity, title}, ... ],
            "advisory_findings": [ ... ]
          }
-     """
-   )
    ```
 
 3. On a passing audit verdict, write the sprint summary to `analysis/sprints/<name>/summary.md`. On a failing verdict, flip the sprint back to `status: open` so the user can address findings; do not write a summary.

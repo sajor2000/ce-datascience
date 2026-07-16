@@ -66,6 +66,11 @@ When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills res
 
 None. The skill is a guardrail layer; it reads context but does not require a stack profile.
 
+Resolve the repository root before reading optional config:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
+
+Use the resolved absolute path or resolve it at runtime, then read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the config is absent.
+
 ## Core workflow
 
 ### Step 1: Detect or confirm
@@ -86,7 +91,7 @@ Then ensure `__CE_LANG__` exists:
 
 ### Step 3: Read the project's local override (optional)
 
-If `.ce-datascience/config.local.yaml` contains a `clif:` block, merge it over the defaults. Recognized keys:
+If the resolved config contains a `clif:` block, merge it over the defaults. Recognized keys:
 
 ```yaml
 profile: clif

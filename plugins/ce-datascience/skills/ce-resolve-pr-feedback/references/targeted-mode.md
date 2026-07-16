@@ -15,7 +15,7 @@ gh api repos/OWNER/REPO/pulls/comments/COMMENT_ID \
   --jq '{node_id, path, line, body}'
 ```
 
-**Step 2** -- Map comment to its thread ID. Use [scripts/get-thread-for-comment](../scripts/get-thread-for-comment):
+**Step 2** -- Map comment to its thread ID. Use `scripts/get-thread-for-comment`:
 ```bash
 bash scripts/get-thread-for-comment PR_NUMBER COMMENT_NODE_ID [OWNER/REPO]
 ```

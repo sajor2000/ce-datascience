@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'plugins/ce-datascience/docs/**'
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
@@ -32,7 +32,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: 'plugins/ce-datascience/docs'
+          path: "docs"
 
       - name: Deploy to GitHub Pages
         id: deployment

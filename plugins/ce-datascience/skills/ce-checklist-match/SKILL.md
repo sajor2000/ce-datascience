@@ -108,7 +108,7 @@ If the answers don't fit a row, ask a clarifying question rather than guessing.
 
 ### Step 3: Write the selection to stack profile
 
-Update `.ce-datascience/config.local.yaml`. The shape that `/ce-code-review` and `/ce-plan` read is the canonical surface — keep these field names exact:
+Resolve the repository root with `git rev-parse --show-toplevel` and update `<repo-root>/.ce-datascience/config.local.yaml`; never write relative to the current subdirectory. The shape that `/ce-code-review` and `/ce-plan` read is the canonical surface — keep these field names exact:
 
 ```yaml
 stack_profile:

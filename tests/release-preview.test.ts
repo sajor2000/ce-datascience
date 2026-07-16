@@ -15,21 +15,21 @@ describe("release preview", () => {
     expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["ce-datascience"], "patch"))
   })
 
-  test("supports per-component overrides without affecting unrelated components", async () => {
+  test("supports per-component overrides", async () => {
     const versions = await loadCurrentVersions()
     const preview = await buildReleasePreview({
-      title: "fix: update coding tutor prompts",
-      files: ["plugins/coding-tutor/README.md"],
+      title: "fix: update ce-datascience prompts",
+      files: ["plugins/ce-datascience/README.md"],
       overrides: {
-        "coding-tutor": "minor",
+        "ce-datascience": "minor",
       },
     })
 
     expect(preview.components).toHaveLength(1)
-    expect(preview.components[0].component).toBe("coding-tutor")
+    expect(preview.components[0].component).toBe("ce-datascience")
     expect(preview.components[0].inferredBump).toBe("patch")
     expect(preview.components[0].effectiveBump).toBe("minor")
-    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["coding-tutor"], "minor"))
+    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["ce-datascience"], "minor"))
   })
 
   test("docs-only changes remain non-releasable by default", async () => {

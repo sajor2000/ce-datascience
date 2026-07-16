@@ -100,15 +100,17 @@ A plan is ready when an implementer can start confidently without needing the pl
 
 Determine `OUTPUT_FORMAT` before any other phase fires. Output mode is **exclusive** -- the plan is written as either markdown (`.md`) OR HTML (`.html`), never both. Precedence: CLI arg > config > default (`md`), with a hard pipeline-mode override.
 
-**Read config (pre-resolved at skill load):**
-!`(top=$(git rev-parse --show-toplevel 2>/dev/null); [ -n "$top" ] && cat "$top/.ce-datascience/config.local.yaml" 2>/dev/null) || (common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); [ -n "$common" ] && cat "$(dirname "$common")/.ce-datascience/config.local.yaml" 2>/dev/null) || echo '__NO_CONFIG__'`
+**Read config.** The repository root is pre-resolved at skill load:
+!`git rev-parse --show-toplevel 2>/dev/null || true`
+
+If the line above is an absolute path, use it as `<repo-root>`. If it is empty or still shows a backtick command string on a harness that did not execute pre-resolution, resolve `<repo-root>` at runtime with `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. If the root cannot be resolved or the file does not exist, fall through to defaults. In a linked worktree where the file is absent, resolve the absolute common Git directory and try the main checkout's `.ce-datascience/config.local.yaml` before falling through.
 
 Resolution steps:
 
 1. **CLI arg.** Scan `$ARGUMENTS` for a token starting with the literal prefix `output:`. If found, strip it from arguments before treating the remainder as the feature description, and match its value case-insensitively against `md` and `html`.
    - `output:` alone (no value) -> no-op, fall through to step 2.
    - `output:<unknown>` (e.g., `output:pdf`) -> drop the token, fall through to step 2, and remember to emit a one-line note above the post-generation menu after final resolution: `Ignored unknown output: value '<value>' -- using <resolved_format> instead.`
-2. **Config.** If step 1 did not resolve and the pre-resolved YAML above has an active, non-commented `plan_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
+2. **Config.** If step 1 did not resolve and the config has an active, non-commented `plan_output:` key whose value matches `md` or `html` (case-insensitive), use it. Missing, invalid, or commented values fall through silently.
 3. **Default.** Otherwise `OUTPUT_FORMAT=md`.
 4. **Pipeline override.** When invoked from LFG or any `disable-model-invocation` context, force `OUTPUT_FORMAT=md` regardless of steps 1-3. Downstream automation parses markdown reliably; HTML in pipeline runs is unnecessary friction.
 
@@ -123,7 +125,8 @@ Load the format-rendering reference based on the resolved value. Section content
 
 If the user references an existing plan file or there is an obvious recent matching plan in `docs/plans/`:
 - Read it
-- Confirm whether to update it in place or create a new plan
+- If it has `artifact_contract: ce-unified-plan/v1` and `artifact_readiness: requirements-only`, update it in place and do not offer to create a sibling plan; this is the canonical brainstorm-to-plan handoff.
+- Otherwise, confirm whether to update it in place or create a new plan
 - If updating, revise only the still-relevant sections. Plans do not carry per-unit progress state — progress is derived from git by `ce-work`, so there is no progress to preserve across edits
 
 **Deepen intent:** The word "deepen" (or "deepening") in reference to a plan is the primary trigger for the deepening fast path. When the user says "deepen the plan", "deepen my plan", "run a deepening pass", or similar, the target document is a **plan** in `docs/plans/`, not a requirements document. Use any path, keyword, or context the user provides to identify the right plan. If a path is provided, verify it is actually a plan document. If the match is not obvious, confirm with the user before proceeding.
@@ -158,7 +161,7 @@ Otherwise, read `references/universal-planning.md` and follow that workflow inst
 
 #### 0.2 Find Upstream Requirements Document
 
-Before asking planning questions, search `docs/brainstorms/` for files matching `*-requirements.md` or `*-requirements.html` (`ce-brainstorm` emits whichever extension matches its resolved output format; both are valid upstream requirements docs and either may be carried as the plan's `origin:`).
+Before asking planning questions, first search `docs/plans/` for a matching current-CE unified artifact with `artifact_contract: ce-unified-plan/v1` and `artifact_readiness: requirements-only`. This is the preferred source: planning enriches that same artifact in place and changes readiness to `implementation-ready`, preserving its Product Contract and stable IDs. If none matches, search the legacy data-science location `docs/brainstorms/` for `*-requirements.md` or `*-requirements.html`; those remain valid inputs and are converted into a new plan with `origin:` provenance.
 
 **Relevance criteria:** A requirements document is relevant if:
 - The topic semantically matches the feature description
@@ -183,6 +186,7 @@ If a relevant requirements document exists:
 4. Use the source document as the primary input to planning and research
 5. Reference important carried-forward decisions in the plan with `(see origin: <source-path>)`
 6. Do not silently omit source content — if the origin document discussed it, the plan must address it even if briefly. Before finalizing, scan each section of the origin document to verify nothing was dropped.
+7. When the source uses `artifact_contract: ce-unified-plan/v1`, preserve its Product Contract verbatim except for explicitly resolved corrections, add the Planning Contract and execution sections to the same file, and retain its path as the canonical plan path.
 
 If no relevant requirements document exists, planning may proceed from the user's request directly.
 
@@ -470,7 +474,9 @@ If the plan originated from a requirements document, re-read that document and v
 
 **REQUIRED: Write the plan file to disk before presenting any options.**
 
-Use the Write tool to save the complete plan to:
+For a current-CE unified requirements artifact (`artifact_contract: ce-unified-plan/v1`, `artifact_readiness: requirements-only`), update that same canonical file in place, set `artifact_readiness: implementation-ready`, and preserve the Product Contract and stable R/A/F/AE identifiers. Do not create a sibling `*-plan` file.
+
+For legacy requirements or direct prompts, use the Write tool to save the complete plan to:
 
 ```text
 docs/plans/YYYY-MM-DD-NNN-<type>-<descriptive-name>-plan.<md|html>

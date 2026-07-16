@@ -112,7 +112,7 @@ Launch research subagents. Each returns text data to the orchestrator.
 
 **Dispatch order:**
 - Launch `Context Analyzer`, `Solution Extractor`, and `Related Docs Finder` in parallel (background)
-- Then dispatch `ce-session-historian` in foreground — it reads session files outside the working directory that background agents may not have access to
+- Then invoke the `ce-sessions` skill in foreground with the problem topic and the compounding output schema. `ce-sessions` owns bounded extraction and dispatches `ce-session-historian` only after scratch files exist.
 - The foreground dispatch runs while the background agents work, adding no wall-clock time
 
 <parallel_tasks>
@@ -186,7 +186,7 @@ Launch research subagents. Each returns text data to the orchestrator.
 
 #### 4. **Session Historian** (foreground, after launching the above — only if the user opted in)
    - **Skip entirely** if the user declined session history in the follow-up question
-   - Dispatched as `ce-session-historian`
+   - Invoke `ce-sessions`; do not dispatch `ce-session-historian` directly
    - Dispatch in **foreground** — this agent reads session files outside the working directory (`~/.claude/projects/`, `~/.codex/sessions/`, `~/.cursor/projects/`) which background agents may not have access to
    - Omit the `mode` parameter so the user's configured permission settings apply
    - Dispatch on the mid-tier model (e.g., `model: "sonnet"` in Claude Code) — the synthesis feeds into compound assembly and doesn't need frontier reasoning
@@ -353,11 +353,11 @@ Based on problem type, optionally invoke specialized agents to review the docume
 
 - **performance_issue** -> `ce-performance-oracle`
 - **security_issue** -> `ce-security-sentinel`
-- **database_issue** -> `ce-data-integrity-guardian`
+- **database_issue** -> `ce-data-mapping-reviewer`
 - Any code-heavy issue -> always run `ce-code-simplicity-reviewer`, and additionally run the kieran reviewer that matches the repo's primary stack:
   - Python -> also run `ce-kieran-python-reviewer`
-  - R -> also run `ce-kieran-r-reviewer`
-  - TypeScript/JavaScript -> also run `ce-kieran-typescript-reviewer`
+  - R -> also run `ce-r-code-reviewer`
+  - TypeScript/JavaScript -> use `ce-code-simplicity-reviewer`; no separate TypeScript specialist ships in ce-datascience
   - Other stacks -> no kieran reviewer needed
 
 </parallel_tasks>
@@ -426,15 +426,14 @@ Based on problem type, these agents can enhance documentation:
 
 ### Code Quality & Review
 - **ce-kieran-python-reviewer**: Reviews code examples for Python best practices
-- **ce-kieran-r-reviewer**: Reviews code examples for R best practices
-- **ce-kieran-typescript-reviewer**: Reviews code examples for TypeScript best practices
+- **ce-r-code-reviewer**: Reviews code examples for R best practices
 - **ce-code-simplicity-reviewer**: Ensures solution code is minimal and clear
 - **ce-pattern-recognition-specialist**: Identifies anti-patterns or repeating issues
 
 ### Specific Domain Experts
 - **ce-performance-oracle**: Analyzes performance_issue category solutions
 - **ce-security-sentinel**: Reviews security_issue solutions for vulnerabilities
-- **ce-data-integrity-guardian**: Reviews database_issue migrations and queries
+- **ce-data-mapping-reviewer**: Reviews database mappings, transformations, and consistency
 
 ### Enhancement & Research
 - **ce-best-practices-researcher**: Enriches solution with industry best practices

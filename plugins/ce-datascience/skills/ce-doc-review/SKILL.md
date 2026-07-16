@@ -56,6 +56,13 @@ If `mode:headless` is not present, the skill runs in its default interactive mod
 
 Classify the document by reading its **content shape**, not its file path. Path is a tie-breaker hint, not the primary signal -- a brainstorm-style doc placed under `docs/plans/` should still classify as `requirements`, and a plan-shaped doc under `docs/brainstorms/` should still classify as `plan`.
 
+First check the current unified artifact contract:
+
+- `artifact_contract: ce-unified-plan/v1` with `artifact_readiness: requirements-only` -> classify as `unified-requirements`. Review the Product Contract only; missing Planning Contract, Implementation Units, Verification Contract, or Definition of Done is expected and is not a finding.
+- `artifact_contract: ce-unified-plan/v1` with `artifact_readiness: implementation-ready` -> classify as `unified-plan`. Review the Product Contract and Planning Contract with their distinct lenses, then review Implementation Units, verification, and Definition of Done for execution completeness.
+- Invalid progress-like readiness values such as `active`, `in_progress`, `completed`, or `done` are document-contract findings; readiness describes artifact shape, not execution state.
+- Unified HTML artifacts are report-only. Never apply markdown mutation paths to HTML.
+
 Use these signals to decide:
 
 **`requirements` signals (what-to-study or what-to-build documents):**
@@ -75,7 +82,7 @@ Use these signals to decide:
 
 **Tie-breaker rule.** When the content signals are mixed or sparse, fall back to path: `docs/brainstorms/` -> `requirements`, `docs/plans/` -> `plan`. When neither path location applies, treat the dominant content shape as authoritative; if shape is genuinely ambiguous, default to `requirements` (the more conservative classification).
 
-Pass the classification result to each persona via the `{document_type}` slot in the subagent template. Extract the document's `origin:` frontmatter field once during this phase when present; pass it through `{origin_path}` as described below.
+Pass the classification result (`requirements`, `plan`, `unified-requirements`, or `unified-plan`) to each persona via the `{document_type}` slot in the subagent template. Extract the document's `origin:` frontmatter field once during this phase when present; pass it through `{origin_path}` as described below.
 
 ### Select Conditional Personas
 
