@@ -8,6 +8,10 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 
 ![Workflow — From PICO to Publication](docs/workflow-diagram.png)
 
+## How the package works
+
+![CE DataScience package workflow: install, set up a project, run skills, and create research artifacts](docs/ce-datascience-package-workflow.png)
+
 ---
 
 ## Get started like Compound Engineering
@@ -69,6 +73,39 @@ Inside Codex, open `/plugins`, install **CE DataScience**, restart Codex, then
 start a new thread and ask Codex to use CE DataScience for setup. The helper
 also installs the generated agent bridge when Bun is available.
 
+### Use the plugin after installation
+
+Installation makes CE DataScience available to the agent; setup configures it
+for each individual code or research project. After installing:
+
+1. Restart Claude Code or Codex so it loads the new plugin.
+2. Open the project or study directory you want CE DataScience to work on.
+3. Configure that project with the setup skill.
+4. Run the workflow skill to see the ordered research or engineering lifecycle
+   and the next recommended skill.
+
+In Claude Code, native plugin commands are namespaced:
+
+```text
+/ce-datascience:ce-setup
+/ce-datascience:ce-workflow
+```
+
+When `--aliases` or `-Aliases` was used, the shorter `/ce-setup` and
+`/ce-workflow` forms work too. In Codex, start a new task and say:
+
+```text
+Use the CE DataScience ce-setup skill for this project.
+Then use the CE DataScience ce-workflow skill and recommend the next step.
+```
+
+After that, request a specific skill in plain language or use its displayed
+name, for example `ce-research-question`, `ce-data-qa`, `ce-plan`, or
+`ce-code-review`. The plugin works in the currently open project; repeat setup
+when moving to a different project with a different stack or data layer.
+
+![Steps for using CE DataScience setup, workflow, and task-specific slash commands](docs/ce-datascience-skill-commands.png)
+
 ### Locked-down or demo laptop
 
 Use the offline release artifacts when package managers, GitHub CLI, Git, Bun,
@@ -112,6 +149,25 @@ Restart Codex, open `/plugins`, install CE DataScience from the local
 marketplace, then restart again. The installer writes the personal marketplace
 file under `.agents/plugins/marketplace.json` and points it at
 `./.codex/plugins/ce-datascience` relative to that marketplace root.
+
+### Recommended research add-ons
+
+CE DataScience's bundled `/ce-pubmed` workflow works on its own. For agent-native
+PubMed, Europe PMC, MeSH, citation, and related-article tools, optionally add
+[cyanheads/pubmed-mcp-server](https://github.com/cyanheads/pubmed-mcp-server).
+For full-text synthesis, claim verification, figures, trials, regulatory
+documents, preprints, and biological databases, optionally add the
+[Paperclip CLI and its official Paperclip skill, or its MCP server](https://paperclip.gxl.ai/docs).
+
+Start with PubMed MCP for lightweight biomedical discovery; add Paperclip when
+research planning needs deeper full-text or cross-source evidence. Neither is
+required or installed automatically. Review institutional privacy and network
+policy before connecting a hosted research service. See the
+[optional research add-ons setup](docs/setup.md#8-optional-research-add-ons).
+The Paperclip skill is fetched and maintained by Paperclip, not bundled with CE
+DataScience. CE workflows currently auto-detect the Paperclip CLI only; external
+MCP or provider-skill results are direct agent capabilities, not automatic CE
+artifact handoffs.
 
 ### Source checkout for contributors
 
@@ -384,7 +440,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 48 |
+| Skills | 49 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 
