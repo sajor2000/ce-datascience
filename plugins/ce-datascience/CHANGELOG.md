@@ -9,6 +9,13 @@ All notable changes to the ce-datascience plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.2](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.4.1...ce-datascience-v3.4.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* align CE workflows and release validation ([#22](https://github.com/sajor2000/ce-datascience/issues/22)) ([5e7dc1d](https://github.com/sajor2000/ce-datascience/commit/5e7dc1dad1dc8fe8ffd81e2bd00f20d59a0e181a))
+
 ## [3.4.1](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.4.0...ce-datascience-v3.4.1) (2026-06-07)
 
 

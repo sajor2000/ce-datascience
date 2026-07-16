@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.2](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.1...cli-v3.4.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* align CE workflows and release validation ([#22](https://github.com/sajor2000/ce-datascience/issues/22)) ([5e7dc1d](https://github.com/sajor2000/ce-datascience/commit/5e7dc1dad1dc8fe8ffd81e2bd00f20d59a0e181a))
+
 ## [3.4.1](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.0...cli-v3.4.1) (2026-06-07)
 
 
