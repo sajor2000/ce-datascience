@@ -4,6 +4,12 @@ This guide is the fastest path from a fresh machine to a working `ce-datascience
 install. Use Bash on macOS, Linux, WSL, or Git Bash. Use PowerShell on native
 Windows.
 
+## Visual Overview
+
+![CE DataScience package workflow: install, set up a project, run skills, and create research artifacts](ce-datascience-package-workflow.png)
+
+![Steps for using CE DataScience setup, workflow, and task-specific slash commands](ce-datascience-skill-commands.png)
+
 ## OS Support Matrix
 
 | OS | Recommended shell | Easiest command | Notes |
@@ -74,6 +80,18 @@ Inside Codex, run `/plugins`, install **CE DataScience**, restart Codex, then
 start a new thread and ask Codex to use CE DataScience for setup. If Bun is
 available, the helper also installs the generated CE agents into the selected
 `CODEX_HOME`.
+
+### What the easy installer does
+
+| Target | Installer action | Required finish |
+|---|---|---|
+| Claude Code | Registers this checkout as a local marketplace, installs `ce-datascience`, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
+| Codex | Registers the local marketplace and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
+
+The installer does not configure every research project globally. The
+`ce-setup` skill creates project-local configuration after the plugin is loaded.
+Run setup again when a different project uses a different language, IDE, data
+layer, or reporting workflow.
 
 ## 2. Locked-Down Or Demo Laptop
 
@@ -302,17 +320,36 @@ targets that are detected on the machine.
 
 ## 7. First Run In A Project
 
-Start in the project or study repo where you want help, then run:
+Installation and project setup are separate. First restart the agent, then open
+the project or study directory where you want help.
+
+For Claude Code, run the native namespaced skills:
 
 ```text
 /ce-datascience:ce-setup
 /ce-datascience:ce-workflow
 ```
 
-`ce-setup` records the project stack profile. `ce-workflow` shows the next
-recommended skill sequence for the project type, data layer, and language.
-If optional aliases are installed, the bare forms `/ce-setup` and
-`/ce-workflow` work too.
+If optional aliases were installed, the bare forms `/ce-setup` and
+`/ce-workflow` work too. The namespaced form is the reliable default for a
+native Claude plugin install.
+
+For Codex, start a new task in the project and ask:
+
+```text
+Use the CE DataScience ce-setup skill for this project.
+Then use the CE DataScience ce-workflow skill and recommend the next step.
+```
+
+For generated targets such as OpenCode, Gemini CLI, Kiro, and Pi, restart the
+agent after generation, open the output workspace, and invoke the generated
+`ce-setup` and `ce-workflow` skills using that agent's normal skill interface.
+
+`ce-setup` inspects the current project and records its stack profile.
+`ce-workflow` reads that profile and existing artifacts, shows the ordered
+lifecycle for the project type, data layer, and language, and recommends the
+next safe skill. Neither skill performs an analysis merely because the plugin
+was installed; the user chooses the next workflow action.
 
 The first pass is evidence-first: setup and workflow inspect existing config,
 lockfiles, notebooks, IDE files, SAP artifacts, and recent verified connection
@@ -339,6 +376,12 @@ Good first workflows:
 /ce-code-review
 ```
 
+Those examples use the short names for readability. In Claude Code without
+aliases, prefix each one with `/ce-datascience:`, such as
+`/ce-datascience:ce-research-question`. In Codex, ask it to use the named CE
+DataScience skill. Skills operate on the currently open project and should be
+given the scientific question, analysis goal, or code task they need.
+
 Each public skill starts with a `Skill Value` block that names the problem it
 solves, when to use it, expected output, when it should ask questions, and what
 it should not do. Use that block to choose the right slash command during a demo
@@ -362,7 +405,77 @@ For locked-down laptops, run setup in no-install mode:
 This reports missing tools but does not offer Homebrew, pip, npm, GitHub CLI, or
 Quarto install commands.
 
-## 8. Update An Existing Checkout
+## 8. Optional Research Add-ons
+
+CE DataScience works without external research services: `/ce-pubmed` uses the
+bundled NCBI E-utilities workflow, and `/ce-evidence-map` falls back to that
+PubMed baseline. For deeper scientific research and planning, consider one of
+these optional add-ons:
+
+| Add-on | Recommended when you need | Connection |
+|---|---|---|
+| [PubMed MCP Server](https://github.com/cyanheads/pubmed-mcp-server) | Agent-native PubMed and Europe PMC search, MeSH lookup, related/citing articles, identifier conversion, citation formatting, and available open full text | Prefer local stdio with `npx -y @cyanheads/pubmed-mcp-server@latest`; a public hosted endpoint is also available from the project |
+| [Paperclip](https://paperclip.gxl.ai/docs) | Full-text corpus search, parallel evidence extraction, claim verification, figures, regulatory documents, trials, preprints, and biological databases | Install the CLI and Paperclip's official agent skill in your own terminal, or configure its hosted MCP endpoint |
+
+Choose the PubMed MCP server as the lightweight default for biomedical search
+and research-question refinement. Add Paperclip when the project needs deeper
+full-text synthesis or sources beyond PubMed. They can be used together:
+PubMed remains the canonical metadata baseline, while Paperclip deepens selected
+claims and methods against full text.
+
+CE's artifact-producing workflows currently auto-detect only the Paperclip CLI.
+PubMed MCP and Paperclip's external skill or MCP server are direct agent
+capabilities; CE does not automatically translate their results into the
+`__CE_PUBMED_RESULTS__` CSV handoff or `__CE_EVIDENCE_MAP__` artifact. Continue
+through `/ce-pubmed` and `/ce-evidence-map` when downstream CE skills need those
+handoffs.
+
+Example local PubMed MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "pubmed-mcp-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@cyanheads/pubmed-mcp-server@latest"],
+      "env": {
+        "MCP_TRANSPORT_TYPE": "stdio",
+        "MCP_LOG_LEVEL": "info",
+        "NCBI_API_KEY": "your-optional-key"
+      }
+    }
+  }
+}
+```
+
+Remove `NCBI_API_KEY` when no key is available. Follow the add-on's client guide
+for the correct MCP configuration file and restart the agent after changing it.
+For Paperclip, follow its current installation guide, verify CLI access with
+`paperclip config`, then install the official Paperclip skill from Paperclip:
+
+```bash
+paperclip install
+```
+
+`paperclip install` provides an interactive agent picker and fetches the skill
+from Paperclip. Use `paperclip install --dir /path/to/project` for a specific
+project. Agents should load the provider's current instructions with
+`paperclip skill` before Paperclip work. CE DataScience links to this external
+skill; it does not vendor, fork, or maintain it.
+
+Privacy and network safety: both add-ons are third-party services. Review their
+licenses, data handling, network destinations, and institutional policy before
+use. Never send protected
+health information, credentials, private manuscripts, or confidential research
+queries to a hosted endpoint without approval. Prefer local stdio where policy
+requires local process control. CE DataScience must not install or authenticate
+either add-on automatically. Explicitly running `/ce-evidence-map` authorizes
+its documented optional deepening: when the Paperclip CLI is installed and
+authenticated, that workflow may contact Paperclip. Use `/ce-pubmed` alone when
+Paperclip network access is not permitted.
+
+## 9. Update An Existing Checkout
 
 ```bash
 cd "$CE_DS_REPO"
@@ -374,7 +487,7 @@ bun run release:validate
 Then restart the agent. For generated targets, rerun the install command for
 that target so generated files and MCP paths refresh.
 
-## 9. Build Offline Artifacts
+## 10. Build Offline Artifacts
 
 Release owners with a working source checkout can build the corporate ZIPs:
 

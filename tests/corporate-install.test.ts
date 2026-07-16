@@ -302,4 +302,116 @@ describe("corporate install artifacts", () => {
     expect(stackTemplate).toContain("For database-first projects, this may stay null")
     expect(setupDocs).toContain("__CE_CONNECTION__ name=healthmap-connection type=postgres database=healthmap_dev auth=entra status=verified")
   })
+
+  test("every public documentation entry point explains installation and first use", async () => {
+    const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
+    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
+    const markdownContracts = [
+      {
+        install: rootReadme.match(/## Get started like Compound Engineering[\s\S]*?(?=\n### Use the plugin after installation)/)?.[0],
+        firstUse: rootReadme.match(/### Use the plugin after installation[\s\S]*?(?=\n### Locked-down or demo laptop)/)?.[0],
+      },
+      {
+        install: setupDocs.match(/## 1\. Easiest Install Path[\s\S]*?(?=\n## 2\.)/)?.[0],
+        firstUse: setupDocs.match(/## 7\. First Run In A Project[\s\S]*?(?=\n## 8\.)/)?.[0],
+      },
+      {
+        install: pluginReadme.match(/## Getting Started[\s\S]*?(?=\n### Use the plugin after installation)/)?.[0],
+        firstUse: pluginReadme.match(/### Use the plugin after installation[\s\S]*?(?=\nLocked-down laptops)/)?.[0],
+      },
+    ]
+
+    for (const contract of markdownContracts) {
+      expect(contract.install).toBeDefined()
+      expect(contract.firstUse).toBeDefined()
+      const install = contract.install ?? ""
+      const firstUse = contract.firstUse ?? ""
+      const firstUseSetup = firstUse.indexOf("/ce-datascience:ce-setup")
+      const firstUseWorkflow = firstUse.indexOf("/ce-datascience:ce-workflow")
+
+      expect(install).toContain("bash install.sh claude --aliases")
+      expect(install).toContain("bash install.sh codex")
+      expect(install.indexOf("bash install.sh codex")).toBeLessThan(install.indexOf("/plugins"))
+      expect(install).toMatch(/restart/i)
+      expect(firstUse).toMatch(/project (?:or study )?(?:directory|repo)/i)
+      expect(firstUseSetup).toBeGreaterThanOrEqual(0)
+      expect(firstUseSetup).toBeLessThan(firstUseWorkflow)
+    }
+
+    const docsIndexSection = docsIndex.match(/<h2>Install and use CE DataScience<\/h2>[\s\S]*?(?=\n    <p>\n      <a href=)/)?.[0]
+    expect(docsIndexSection).toBeDefined()
+    const indexSection = docsIndexSection ?? ""
+    const claudeInstall = indexSection.indexOf("bash install.sh claude --aliases")
+    const claudeRestart = indexSection.indexOf("After Claude Code restarts")
+    const claudeSetup = indexSection.indexOf("/ce-datascience:ce-setup")
+    const claudeWorkflow = indexSection.indexOf("/ce-datascience:ce-workflow")
+    const codexInstall = indexSection.indexOf("bash install.sh codex")
+    const codexPlugins = indexSection.indexOf("/plugins", codexInstall)
+    const codexSetup = indexSection.indexOf("<code>ce-setup</code>", codexPlugins)
+    const codexWorkflow = indexSection.indexOf("<code>ce-workflow</code>", codexSetup)
+
+    expect(claudeInstall).toBeLessThan(claudeRestart)
+    expect(claudeRestart).toBeLessThan(claudeSetup)
+    expect(claudeSetup).toBeLessThan(claudeWorkflow)
+    expect(codexInstall).toBeLessThan(codexPlugins)
+    expect(codexPlugins).toBeLessThan(codexSetup)
+    expect(codexSetup).toBeLessThan(codexWorkflow)
+    expect(indexSection).toContain("project or study directory")
+  })
+
+  test("public documentation ships and references both workflow images", async () => {
+    const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
+    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
+    const imageNames = [
+      "ce-datascience-package-workflow.png",
+      "ce-datascience-skill-commands.png",
+    ]
+
+    for (const imageName of imageNames) {
+      const image = await fs.stat(path.join(repoRoot, "docs", imageName))
+      expect(image.isFile()).toBe(true)
+      expect(image.size).toBeGreaterThan(100_000)
+      expect(rootReadme).toContain(`docs/${imageName}`)
+      expect(setupDocs).toContain(`](${imageName})`)
+      expect(pluginReadme).toContain(`../../docs/${imageName}`)
+      expect(docsIndex).toContain(`src="${imageName}"`)
+    }
+  })
+
+  test("user-facing docs recommend optional scientific research add-ons safely", async () => {
+    const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
+    const sections = [
+      rootReadme.match(/### Recommended research add-ons[\s\S]*?(?=\n### )/)?.[0],
+      setupDocs.match(/## 8\. Optional Research Add-ons[\s\S]*?(?=\n## 9\.)/)?.[0],
+      pluginReadme.match(/### Recommended research add-ons[\s\S]*?(?=\n## Components)/)?.[0],
+    ]
+
+    for (const section of sections) {
+      expect(section).toBeDefined()
+      expect(section).toContain("cyanheads/pubmed-mcp-server")
+      expect(section).toContain("paperclip.gxl.ai/docs")
+      expect(section).toContain("/ce-pubmed")
+      expect(section).toMatch(/PubMed MCP/i)
+      expect(section).toMatch(/Paperclip[\s\S]*full-text|full-text[\s\S]*Paperclip/i)
+      expect(section).toMatch(/privacy/i)
+      expect(section).toMatch(/Neither (?:add-on )?is\s+required or installed automatically|must not install/i)
+    }
+
+    expect(setupDocs).toContain("@cyanheads/pubmed-mcp-server@latest")
+    expect(setupDocs).toContain("paperclip config")
+    expect(setupDocs).toContain("paperclip install")
+    expect(setupDocs).toContain("paperclip skill")
+    expect(setupDocs).toContain("does not vendor, fork, or maintain it")
+    expect(setupDocs).toContain("currently auto-detect only the Paperclip CLI")
+    expect(setupDocs).toContain("does not automatically translate their results")
+    expect(setupDocs).toMatch(/Never send protected\s+health information/)
+    expect(setupDocs).toMatch(/must not install or authenticate\s+either add-on automatically/)
+    expect(setupDocs).toMatch(/running `\/ce-evidence-map` authorizes\s+its documented optional deepening/)
+  })
 })

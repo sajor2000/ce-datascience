@@ -2,6 +2,12 @@
 
 Compound engineering for computational scientists. SAP management, statistical review, and full reporting guideline compliance for R and Python workflows — covering 35 standards across all study types and AI extensions.
 
+## How It Works
+
+![CE DataScience package workflow: install, set up a project, run skills, and create research artifacts](../../docs/ce-datascience-package-workflow.png)
+
+![Steps for using CE DataScience setup, workflow, and task-specific slash commands](../../docs/ce-datascience-skill-commands.png)
+
 ## Getting Started
 
 For complete copy-paste setup across Claude Code, Codex, OpenCode, Gemini CLI,
@@ -51,8 +57,36 @@ cd "$HOME\ce-datascience"
 codex
 ```
 
-Inside Codex, install **CE DataScience** from `/plugins`, restart, then ask
+Inside Codex, open `/plugins`, install **CE DataScience**, restart, then ask
 Codex to use CE DataScience for setup.
+
+### Use the plugin after installation
+
+1. Restart Claude Code or Codex after installing the plugin.
+2. Open the project or study directory where the work should happen.
+3. Run setup once for that project.
+4. Run workflow to see the lifecycle and next recommended skill.
+
+Claude Code's native plugin commands are namespaced:
+
+```text
+/ce-datascience:ce-setup
+/ce-datascience:ce-workflow
+```
+
+If the installer was run with `--aliases` or `-Aliases`, `/ce-setup` and
+`/ce-workflow` are equivalent convenience aliases. In Codex, start a new task
+and say:
+
+```text
+Use the CE DataScience ce-setup skill for this project.
+Then use the CE DataScience ce-workflow skill and recommend the next step.
+```
+
+Setup records project-local stack and data-layer choices; it is not a global
+one-time configuration for every study. Once workflow recommends a step, ask
+the agent to use the named skill, such as `ce-research-question`, `ce-data-qa`,
+`ce-plan`, or `ce-code-review`, and include the scientific or engineering goal.
 
 Locked-down laptops can use approved local artifacts without Bun, Git, GitHub
 CLI, or Quarto:
@@ -88,12 +122,32 @@ Connection skills can hand setup a verified database default by emitting
 For database-backed projects, `data_root` stays optional and is used only for
 local extracts or cache files.
 
+### Recommended research add-ons
+
+The plugin's bundled `/ce-pubmed` workflow remains the portable baseline.
+Optionally connect the PubMed MCP server,
+[cyanheads/pubmed-mcp-server](https://github.com/cyanheads/pubmed-mcp-server)
+for agent-native PubMed/Europe PMC, MeSH, citation, and related-article tools.
+Add the
+[Paperclip CLI and its official Paperclip skill, or its MCP server](https://paperclip.gxl.ai/docs)
+when a study needs deeper full-text synthesis, claim verification, figures,
+trials, regulatory documents, preprints, or biological databases. The skill is
+fetched and maintained by Paperclip; CE DataScience does not bundle or fork it.
+CE workflows currently auto-detect the Paperclip CLI only; external MCP or
+provider-skill results are direct agent capabilities, not automatic CE artifact
+handoffs.
+
+Neither add-on is required or installed automatically. Review institutional
+privacy and network policy before connecting hosted services. The canonical
+configuration examples and selection guidance are in
+[`../../docs/setup.md`](../../docs/setup.md#8-optional-research-add-ons).
+
 ## Components
 
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 48 |
+| Skills | 49 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 

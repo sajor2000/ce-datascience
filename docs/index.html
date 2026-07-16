@@ -25,6 +25,17 @@
         height: auto;
         margin: 1.5rem 0;
       }
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background: #f3f6fa;
+        font-size: 0.82rem;
+      }
     </style>
   </head>
   <body>
@@ -37,6 +48,45 @@
       src="workflow-diagram.png"
       alt="CE DataScience workflow from research question through publication"
     />
+    <h2>How the package works</h2>
+    <img
+      src="ce-datascience-package-workflow.png"
+      alt="CE DataScience package workflow: install, set up a project, run skills, and create research artifacts"
+    />
+    <h2>How to use CE slash commands</h2>
+    <img
+      src="ce-datascience-skill-commands.png"
+      alt="Steps for using CE DataScience setup, workflow, and task-specific slash commands"
+    />
+    <h2>Install and use CE DataScience</h2>
+    <p>
+      Clone the repository, run the installer for your agent, restart the agent,
+      and open the project or study directory where you want the plugin to work.
+    </p>
+    <h3>Claude Code</h3>
+    <pre><code>git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh claude --aliases
+claude</code></pre>
+    <p>After Claude Code restarts, configure the open project and view its workflow:</p>
+    <pre><code>/ce-datascience:ce-setup
+/ce-datascience:ce-workflow</code></pre>
+    <p>
+      The optional aliases installed above also allow <code>/ce-setup</code> and
+      <code>/ce-workflow</code>.
+    </p>
+    <h3>Codex</h3>
+    <pre><code>git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
+cd ~/ce-datascience
+bash install.sh codex
+codex</code></pre>
+    <p>
+      Restart Codex, open <code>/plugins</code>, install <strong>CE
+      DataScience</strong>, restart again, and start a new task in the target
+      project. Ask Codex to use the CE DataScience <code>ce-setup</code> skill,
+      then the <code>ce-workflow</code> skill. The setup guide includes Windows,
+      offline, and additional-agent instructions.
+    </p>
     <p>
       <a href="https://github.com/sajor2000/ce-datascience"
         >Repository and README</a
