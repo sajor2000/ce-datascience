@@ -74,4 +74,64 @@ describe("data-first planning invariant", () => {
     expect(gapChecklist).toContain("No tabular SAP workbook contract")
     expect(lifecycle).toContain("Every new SAP must then get the biostatistics-style tabular workbook contract")
   })
+
+  test("ce-plan blocks causal or observational SAP finalization until analysis assumptions are explicit", async () => {
+    const plan = await skillFile("ce-plan/SKILL.md")
+    const sapWorkflow = await skillFile("ce-plan/references/sap-mode-workflow.md")
+    const gapChecklist = await skillFile("ce-plan/references/sap-gap-checklist.md")
+
+    expect(plan).toContain("Causal/observational analysis guardrail")
+    expect(plan).toContain("estimand")
+    expect(plan).toContain("time zero")
+    expect(plan).toContain("unresolved methodological choices block finalization")
+    expect(sapWorkflow).toContain("analysis assumptions: estimand, causal assumptions, unit/grain, key fields, time zero, and success criteria")
+    expect(gapChecklist).toContain("Unresolved causal/observational analysis assumptions")
+  })
+
+  test("ce-data-qa fails loudly on confirmed causal-workflow integrity violations and warns for ambiguous stack risks", async () => {
+    const dataQa = await skillFile("ce-data-qa/SKILL.md")
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+
+    expect(dataQa).toContain("Causal workflow integrity checks (Python data stacks)")
+    expect(dataQa).toContain("confirmed integrity failures are `block`; ambiguous methodological or stack-specific risks are `warn`")
+    expect(checks).toContain("QA-17: Join cardinality and row-count reconciliation")
+    expect(checks).toContain("QA-18: Key uniqueness before joins")
+    expect(checks).toContain("QA-19: Type stability across inputs")
+    expect(checks).toContain("QA-20: Pandas index alignment")
+    expect(checks).toContain("QA-21: Declared missing-data handling")
+    expect(checks).toContain("QA-22: Synthetic or fallback data detection")
+    expect(checks).toContain("QA-23: Polars, DuckDB, and large eager-load risks")
+    expect(checks).toContain("confirmed integrity violation")
+    expect(checks).toContain("warn")
+  })
+
+  test("ce-data-qa warns for an unvalidated merge but blocks an observed integrity violation", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+
+    expect(checks).toMatch(/unvalidated merge.*`warn`/i)
+    expect(checks).toMatch(/observed duplicate.*declared.*key.*`block`/i)
+  })
+
+  test("ce-data-qa keeps QA-17 and QA-22 risk gates scoped to their checks", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+    const qa17 = checks.match(/### QA-17:[\s\S]*?(?=### QA-18:)/)?.[0]
+    const qa22 = checks.match(/### QA-22:[\s\S]*?(?=### QA-23:)/)?.[0]
+
+    expect(qa17).toBeDefined()
+    expect(qa17).toMatch(/unvalidated merge.*`warn`/i)
+    expect(qa17).toMatch(/`block` when observed join cardinality/i)
+
+    expect(qa22).toBeDefined()
+    expect(qa22).toMatch(/`block` when.*replaced by synthetic/i)
+    expect(qa22).toMatch(/`warn` when provenance cannot establish/i)
+  })
+
+  test("ce-data-qa warns about uncoordinated DuckDB writers without treating risk alone as corruption", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+    const qa23 = checks.match(/### QA-23:[\s\S]*?(?=## Adding a new check)/)?.[0]
+
+    expect(qa23).toBeDefined()
+    expect(qa23).toMatch(/\*\*Bucket\*\*: `warn`[\s\S]*unsafe concurrent DuckDB writers without transaction coordination/i)
+    expect(qa23).toMatch(/elevate to `block` only when an observed integrity impact/i)
+  })
 })

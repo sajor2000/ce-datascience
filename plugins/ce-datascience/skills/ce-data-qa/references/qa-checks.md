@@ -133,6 +133,59 @@ Each check has: id, applies_when, bucket, language-agnostic intent, R/Python rec
 - **Why**: PHI must never enter the git tree
 - **Finding format**: "Column `MRN` matches PHI pattern; data_root is inside repo. STOP and re-extract de-identified."
 
+## Causal workflow integrity checks (Python/Pandas/Polars/DuckDB)
+
+Run QA-17 through QA-23 when Python/Pandas/Polars/DuckDB prepares a dataset for a causal analysis. A confirmed integrity violation is a `block`; an absent contract or a library-specific risk that cannot be confirmed from the available artifacts is a `warn` for analyst resolution.
+
+### QA-17: Join cardinality and row-count reconciliation
+
+- **Bucket**: an unvalidated merge is `warn` when the relationship or expected count was not declared; it is `block` when observed join cardinality conflicts with the declared relationship, or when post-join rows cannot reconcile to the declared input counts, cohort waterfall, or expected analysis population.
+- **Why**: accidental many-to-many joins duplicate people or person-time and can change a causal estimate without an error.
+- **Python**: in Pandas use `merge(..., validate="one_to_one" | "one_to_many" | "many_to_one")` and compare pre/post row counts; in Polars or DuckDB group by join keys and reconcile source, matched, unmatched, and output counts.
+- **Finding format**: "Join `exposure -> outcome` declared many-to-one; observed many-to-many and output N=Y cannot reconcile to input N=X."
+
+### QA-18: Key uniqueness before joins
+
+- **Bucket**: an observed duplicate in a declared entity or person-time key is `block` when that relation is asserted to be unique; `warn` if the intended key or grain was not declared.
+- **Why**: key duplication makes join cardinality and the unit of analysis unreliable.
+- **Python**: Pandas `df.duplicated(subset=key_columns).sum()`; Polars `df.group_by(key_columns).len().filter(pl.col("len") > 1)`; DuckDB `SELECT key_columns, count(*) FROM relation GROUP BY ALL HAVING count(*) > 1`.
+- **Finding format**: "Declared key `patient_id, index_date` has X duplicate rows before the outcome join."
+
+### QA-19: Type stability across inputs
+
+- **Bucket**: `block` if a declared schema contract is violated or a confirmed type change changes key, date, exposure, outcome, or covariate interpretation; `warn` when no stable type contract exists.
+- **Why**: a string/numeric identifier mismatch, timezone loss, or categorical-to-numeric coercion can silently alter matching, ordering, or model inputs.
+- **Python**: compare Pandas `df.dtypes`, Polars `df.schema`, or DuckDB `DESCRIBE relation` to the prior approved extract or declared schema; report changed columns and nulls introduced by coercion.
+- **Finding format**: "`index_date` changed from timezone-aware timestamp to string; declared schema violated."
+
+### QA-20: Pandas index alignment
+
+- **Bucket**: `block` when observed label-based alignment creates unmatched rows, unexpected nulls, or row-count changes in a declared paired operation; `warn` when intent (positional versus label alignment) cannot be established.
+- **Why**: Pandas aligns Series and DataFrames on index labels, so arithmetic or assignment can pair different subjects while preserving plausible values.
+- **Python**: assert `left.index.equals(right.index)` before paired operations, or reset/reindex explicitly and reconcile unmatched labels; record the before/after null count.
+- **Finding format**: "Exposure assignment aligned on nonmatching indexes and introduced X unmatched rows."
+
+### QA-21: Declared missing-data handling
+
+- **Bucket**: `block` when prepared analysis data violates the SAP-declared missing-data rule or a required missingness indicator/imputation input is absent; `warn` when the SAP has no declared handling rule.
+- **Why**: silently switching between complete-case, imputation, weighting, or a fallback fill value changes the target analysis.
+- **Python**: compare missingness indicators, retained rows, and imputation inputs with the SAP rule; never replace missing values with a default without recording it.
+- **Finding format**: "SAP declares multiple imputation for `income`; prepared data drops X missing records and supplies no imputation input."
+
+### QA-22: Synthetic or fallback data detection
+
+- **Bucket**: `block` when provenance, a file marker, or the pipeline confirms that a required real extract was replaced by synthetic, mock, sample, or fallback data; `warn` when provenance cannot establish which input was used.
+- **Why**: a plausible synthetic fallback can produce a credible-looking but invalid analysis result.
+- **Python**: verify registered extract hash/path and inspect configured fallback branches or dataset markers before analysis; fail loudly instead of continuing with a substitute.
+- **Finding format**: "Expected registered extract `wave_004`; pipeline used `sample_data.csv` after source read failure."
+
+### QA-23: Polars, DuckDB, and large eager-load risks
+
+- **Bucket**: `warn` for unverified eager collection/materialization, DuckDB-to-memory transfer, Polars execution-plan concerns, or unsafe concurrent DuckDB writers without transaction coordination; elevate to `block` only when an observed integrity impact, such as truncation, dropped rows, failed predicate application, an inconsistent write snapshot, or an unreconciled output count, is confirmed.
+- **Why**: these patterns can be expensive or fragile, and uncoordinated writers can expose an incomplete or inconsistent result, but their presence alone does not prove the analysis data are wrong.
+- **Python**: inspect Polars `collect()`/`fetch()` and DuckDB `.df()`/`.fetchdf()` boundaries, record row counts before and after materialization, identify concurrent DuckDB write paths and their transaction boundaries, and prefer lazy/SQL profiling when practical.
+- **Finding format**: "WARN: DuckDB result materialized eagerly; output count is not yet reconciled to the source query."
+
 ## Adding a new check
 
 Each check is a row in this table. To add: pick a unique QA-N id, declare bucket, write the language-agnostic intent + R + Python recipes, and document the finding format. Then add the check to `step 3` of SKILL.md.

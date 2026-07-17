@@ -77,6 +77,10 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 - **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
 - **Canonical implementation**: prefer upstream CLIF tooling when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator` DQA path. `__CE_LANG__ primary=r` -> use the CLIF project-template QC and outlier-handler pattern. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.
 
+### Causal workflow integrity checks (Python data stacks)
+
+For Python/Pandas/Polars/DuckDB workflows that prepare a causal analysis dataset, run QA-17 through QA-23 in addition to the generic checks. Preserve the risk-based gate: confirmed integrity failures are `block`; ambiguous methodological or stack-specific risks are `warn` and require analyst resolution. Never substitute synthetic or fallback data silently. Treat Polars, DuckDB, and large eager-load concerns as warnings unless the run confirms an integrity violation.
+
 Apply each check from `references/qa-checks.md` against the data. Generate findings into one of these buckets:
 
 | Bucket | Meaning | Effect on gate |

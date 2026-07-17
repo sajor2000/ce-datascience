@@ -613,3 +613,52 @@ describe("testing-reviewer contract", () => {
     expect(content).toContain("Non-behavioral changes")
   })
 })
+
+describe("data-science and causal reviewer guardrails", () => {
+  test("requires evidence-backed integrity and causal-design findings with risk-based severity", async () => {
+    const pythonReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-python-ds-reviewer.md",
+    )
+    const causalReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+    )
+
+    expect(pythonReviewer).toMatch(/unvalidated joins/i)
+    expect(pythonReviewer).toMatch(/type drift/i)
+    expect(pythonReviewer).toMatch(/hidden fallback/i)
+    expect(pythonReviewer).toMatch(/premature materialization/i)
+    expect(pythonReviewer).toMatch(/unsafe DuckDB access/i)
+    expect(pythonReviewer).toMatch(/confirmed integrity defects.*blocking/i)
+    expect(pythonReviewer).toMatch(/evidence/i)
+
+    expect(causalReviewer).toMatch(/unclear estimand/i)
+    expect(causalReviewer).toMatch(/covariate timing/i)
+    expect(causalReviewer).toMatch(/balance.*AUC|AUC.*balance/i)
+    expect(causalReviewer).toMatch(/immortal time/i)
+    expect(causalReviewer).toMatch(/staggered.*DiD|DiD.*staggered/i)
+    expect(causalReviewer).toMatch(/document.*analyst resolution/i)
+    expect(causalReviewer).toMatch(
+      /do not raise a finding without observable code, methods, or analysis-artifact evidence/i,
+    )
+  })
+
+  test("keeps demonstrated integrity defects blocking and contextual causal concerns in analyst resolution", async () => {
+    const causalReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+    )
+    const evidenceBoundary = causalReviewer.match(
+      /## Evidence and severity boundary[\s\S]*?(?=## Confidence calibration)/,
+    )?.[0]
+    const sensitivityChecks = causalReviewer.match(
+      /### 7\. Sensitivity analyses missing[\s\S]*?(?=### 8\. Software)/,
+    )?.[0]
+
+    expect(evidenceBoundary).toBeDefined()
+    expect(evidenceBoundary).toMatch(/directly demonstrated data-integrity defect.*blocking/i)
+    expect(evidenceBoundary).toMatch(/context-dependent methodological concern.*analyst resolution.*residual_risks/i)
+
+    expect(sensitivityChecks).toBeDefined()
+    expect(sensitivityChecks).toMatch(/absence of sensitivity analyses alone.*does not establish a blocking defect/i)
+    expect(sensitivityChecks).toMatch(/explicit mandatory protocol requirement.*blocking/i)
+  })
+})
