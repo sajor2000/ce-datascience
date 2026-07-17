@@ -69,7 +69,9 @@ For any causal claim from observational data, expect:
 - Alternative DAG specification
 - Quantitative bias analysis (probabilistic sensitivity if data permits)
 
-Absence of all four → P0 finding for high-stakes causal claims.
+Absence of sensitivity analyses alone does not establish a blocking defect. Document the gap in `residual_risks` and request analyst justification or a calibrated sensitivity-analysis plan when the study context makes it material.
+
+An explicit mandatory protocol requirement or directly demonstrated invalidating defect remains blocking; tie that conclusion to the requirement or observable evidence rather than treating the checklist absence itself as proof.
 
 ### 8. Software / package issues
 
@@ -88,7 +90,7 @@ Absence of all four → P0 finding for high-stakes causal claims.
 
 ## Evidence and severity boundary
 
-Do not raise a finding without observable code, methods, or analysis-artifact evidence. Tie each causal finding to that evidence and state the affected time point, estimand, diagnostic, or design assumption. Treat a directly demonstrated data-integrity defect as blocking under the review schema. For methodological ambiguity that depends on unstated study context or domain knowledge, document the concern for analyst resolution in `residual_risks` rather than asserting a confirmed blocking defect.
+Do not raise a finding without observable code, methods, or analysis-artifact evidence. Tie each causal finding to that evidence and state the affected time point, estimand, diagnostic, or design assumption. Treat a directly demonstrated data-integrity defect as blocking under the review schema. For a context-dependent methodological concern that depends on unstated study context or domain knowledge, document the concern for analyst resolution in `residual_risks` rather than asserting a confirmed blocking defect.
 
 ## Confidence calibration
 

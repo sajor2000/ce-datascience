@@ -111,4 +111,18 @@ describe("data-first planning invariant", () => {
     expect(checks).toMatch(/unvalidated merge.*`warn`/i)
     expect(checks).toMatch(/observed duplicate.*declared.*key.*`block`/i)
   })
+
+  test("ce-data-qa keeps QA-17 and QA-22 risk gates scoped to their checks", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+    const qa17 = checks.match(/### QA-17:[\s\S]*?(?=### QA-18:)/)?.[0]
+    const qa22 = checks.match(/### QA-22:[\s\S]*?(?=### QA-23:)/)?.[0]
+
+    expect(qa17).toBeDefined()
+    expect(qa17).toMatch(/unvalidated merge.*`warn`/i)
+    expect(qa17).toMatch(/`block` when observed join cardinality/i)
+
+    expect(qa22).toBeDefined()
+    expect(qa22).toMatch(/`block` when.*replaced by synthetic/i)
+    expect(qa22).toMatch(/`warn` when provenance cannot establish/i)
+  })
 })

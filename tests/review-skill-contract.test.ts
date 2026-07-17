@@ -641,4 +641,24 @@ describe("data-science and causal reviewer guardrails", () => {
       /do not raise a finding without observable code, methods, or analysis-artifact evidence/i,
     )
   })
+
+  test("keeps demonstrated integrity defects blocking and contextual causal concerns in analyst resolution", async () => {
+    const causalReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+    )
+    const evidenceBoundary = causalReviewer.match(
+      /## Evidence and severity boundary[\s\S]*?(?=## Confidence calibration)/,
+    )?.[0]
+    const sensitivityChecks = causalReviewer.match(
+      /### 7\. Sensitivity analyses missing[\s\S]*?(?=### 8\. Software)/,
+    )?.[0]
+
+    expect(evidenceBoundary).toBeDefined()
+    expect(evidenceBoundary).toMatch(/directly demonstrated data-integrity defect.*blocking/i)
+    expect(evidenceBoundary).toMatch(/context-dependent methodological concern.*analyst resolution.*residual_risks/i)
+
+    expect(sensitivityChecks).toBeDefined()
+    expect(sensitivityChecks).toMatch(/absence of sensitivity analyses alone.*does not establish a blocking defect/i)
+    expect(sensitivityChecks).toMatch(/explicit mandatory protocol requirement.*blocking/i)
+  })
 })
