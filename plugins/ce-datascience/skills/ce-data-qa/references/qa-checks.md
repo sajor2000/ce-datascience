@@ -181,9 +181,9 @@ Run QA-17 through QA-23 when Python/Pandas/Polars/DuckDB prepares a dataset for 
 
 ### QA-23: Polars, DuckDB, and large eager-load risks
 
-- **Bucket**: `warn` for unverified eager collection/materialization, DuckDB-to-memory transfer, or Polars execution-plan concerns; escalate to `block` only for a confirmed integrity violation such as truncation, dropped rows, failed predicate application, or an unreconciled output count.
-- **Why**: these patterns can be expensive or fragile, but their presence alone does not prove the analysis data are wrong.
-- **Python**: inspect Polars `collect()`/`fetch()` and DuckDB `.df()`/`.fetchdf()` boundaries, record row counts before and after materialization, and prefer lazy/SQL profiling when practical.
+- **Bucket**: `warn` for unverified eager collection/materialization, DuckDB-to-memory transfer, Polars execution-plan concerns, or unsafe concurrent DuckDB writers without transaction coordination; elevate to `block` only when an observed integrity impact, such as truncation, dropped rows, failed predicate application, an inconsistent write snapshot, or an unreconciled output count, is confirmed.
+- **Why**: these patterns can be expensive or fragile, and uncoordinated writers can expose an incomplete or inconsistent result, but their presence alone does not prove the analysis data are wrong.
+- **Python**: inspect Polars `collect()`/`fetch()` and DuckDB `.df()`/`.fetchdf()` boundaries, record row counts before and after materialization, identify concurrent DuckDB write paths and their transaction boundaries, and prefer lazy/SQL profiling when practical.
 - **Finding format**: "WARN: DuckDB result materialized eagerly; output count is not yet reconciled to the source query."
 
 ## Adding a new check

@@ -125,4 +125,13 @@ describe("data-first planning invariant", () => {
     expect(qa22).toMatch(/`block` when.*replaced by synthetic/i)
     expect(qa22).toMatch(/`warn` when provenance cannot establish/i)
   })
+
+  test("ce-data-qa warns about uncoordinated DuckDB writers without treating risk alone as corruption", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+    const qa23 = checks.match(/### QA-23:[\s\S]*?(?=## Adding a new check)/)?.[0]
+
+    expect(qa23).toBeDefined()
+    expect(qa23).toMatch(/\*\*Bucket\*\*: `warn`[\s\S]*unsafe concurrent DuckDB writers without transaction coordination/i)
+    expect(qa23).toMatch(/elevate to `block` only when an observed integrity impact/i)
+  })
 })
