@@ -27,6 +27,7 @@ You are the conditional reviewer for causal inference in observational data. Cau
 - Patients selected based on POST-baseline characteristics ("we excluded those who died in 30 days")
 - Immortal time bias: follow-up clock for one group includes a period when the event was unobservable
 - Time-varying treatment treated as time-invariant
+- **Covariate timing**: adjustment variables must be measured before treatment assignment and time zero; flag covariates measured post-baseline or with an undocumented look-back window rather than assuming they are baseline confounders
 
 ### 3. Confounder set wrong
 
@@ -46,15 +47,17 @@ You are the conditional reviewer for causal inference in observational data. Cau
 ### 5. Method-design mismatch
 
 - IPTW reported with no balance diagnostics (standardized mean differences, Love plot)
+- **Balance versus AUC**: propensity-model AUC or classification accuracy is not evidence of covariate balance; require post-weighting or post-matching balance diagnostics such as standardized mean differences alongside any discrimination metric
 - Propensity matching with no caliper, no replacement strategy declared
 - Doubly-robust estimator that uses the same model for outcome and treatment — not actually doubly robust
 - Instrumental variable with no relevance test (weak IV) and no exclusion-restriction defense
 - Regression discontinuity with no bandwidth sensitivity, no manipulation check (McCrary test)
 - Difference-in-differences with no pre-trends visualization, no parallel-trends test
+- **Staggered-DiD misuse**: a two-way fixed-effects estimate with staggered adoption can use already-treated units as controls and misweight heterogeneous effects; require cohort/event-time diagnostics and an estimator appropriate to the adoption pattern, or an explicit justification for the simpler design
 
 ### 6. Estimand confusion
 
-- Reports "treatment effect" without specifying ATE / ATT / ATU / LATE / CATE
+- **Unclear estimand**: reports "treatment effect" without specifying ATE / ATT / ATU / LATE / CATE, the target population, or treatment strategy
 - Estimand differs from the policy-relevant question (e.g., ATT reported when ATE is the decision-relevant estimate)
 - Marginal vs conditional effect not distinguished — different scales, different interpretations
 
@@ -82,6 +85,10 @@ Absence of all four → P0 finding for high-stakes causal claims.
 - Stata: `teffects`, `ipwra`, `psmatch2`, `xtdidregress`
 - DAG tools: `dagitty`, `ggdag` — look for these in code or referenced figures
 - Methods sections: words like "causal effect", "controlled for confounders", "after adjustment" → triggers a look
+
+## Evidence and severity boundary
+
+Tie each causal finding to observable code, a methods statement, or an analysis artifact; state the affected time point, estimand, diagnostic, or design assumption. Treat a directly demonstrated data-integrity defect as blocking under the review schema. For methodological ambiguity that depends on unstated study context or domain knowledge, document the concern for analyst resolution in `residual_risks` rather than asserting a confirmed blocking defect.
 
 ## Confidence calibration
 

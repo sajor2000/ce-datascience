@@ -613,3 +613,29 @@ describe("testing-reviewer contract", () => {
     expect(content).toContain("Non-behavioral changes")
   })
 })
+
+describe("data-science and causal reviewer guardrails", () => {
+  test("requires evidence-backed integrity and causal-design findings with risk-based severity", async () => {
+    const pythonReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-python-ds-reviewer.md",
+    )
+    const causalReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+    )
+
+    expect(pythonReviewer).toMatch(/unvalidated joins/i)
+    expect(pythonReviewer).toMatch(/type drift/i)
+    expect(pythonReviewer).toMatch(/hidden fallback/i)
+    expect(pythonReviewer).toMatch(/premature materialization/i)
+    expect(pythonReviewer).toMatch(/unsafe DuckDB access/i)
+    expect(pythonReviewer).toMatch(/confirmed integrity defects.*blocking/i)
+    expect(pythonReviewer).toMatch(/evidence/i)
+
+    expect(causalReviewer).toMatch(/unclear estimand/i)
+    expect(causalReviewer).toMatch(/covariate timing/i)
+    expect(causalReviewer).toMatch(/balance.*AUC|AUC.*balance/i)
+    expect(causalReviewer).toMatch(/immortal time/i)
+    expect(causalReviewer).toMatch(/staggered.*DiD|DiD.*staggered/i)
+    expect(causalReviewer).toMatch(/document.*analyst resolution/i)
+  })
+})
