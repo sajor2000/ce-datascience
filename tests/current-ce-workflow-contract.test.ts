@@ -19,6 +19,16 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(content).toMatch(/skip this phase and use the Return-to-Caller contract/i)
   })
 
+  test("ce-work fails loudly at analytical data boundaries", async () => {
+    const content = await skill("ce-work")
+    expect(content).toMatch(/do not swallow exceptions with bare catch-all handlers/i)
+    expect(content).toMatch(/do not invent fallback data/i)
+    expect(content).toMatch(/do not silently coerce values/i)
+    expect(content).toMatch(/do not replace failed inputs with synthetic data/i)
+    expect(content).toMatch(/assert validation at critical input, join, transformation, and output boundaries/i)
+    expect(content).toMatch(/without expanding the requested analysis scope/i)
+  })
+
   test("ce-code-review supports the current read-only agent JSON contract", async () => {
     const content = await skill("ce-code-review")
     expect(content).toContain("`mode:agent`")

@@ -243,6 +243,8 @@ Determine how to proceed based on what was provided in `<input_document>` after 
    - Do not over-implement beyond the current behavior slice when working test-first
    - Skip test-first discipline for trivial renames, pure configuration, and pure styling work
 
+   **Fail-loud analytical execution:** For generated analytical transformations, do not swallow exceptions with bare catch-all handlers, do not invent fallback data, do not silently coerce values, and do not replace failed inputs with synthetic data. Assert validation at critical input, join, transformation, and output boundaries; surface failures for diagnosis rather than masking them, without expanding the requested analysis scope.
+
    **Test Discovery** — Before implementing changes to a file, find its existing test files (search for test/spec files that import, reference, or share naming patterns with the implementation file). When a plan specifies test scenarios or test files, start there, then check for additional test coverage the plan may not have enumerated. Changes to implementation files should be accompanied by corresponding test updates — new tests for new behavior, modified tests for changed behavior, removed or updated tests for deleted behavior.
 
    **Test Scenario Completeness** — Before writing tests for a feature-bearing unit, check whether the plan's `Test scenarios` cover all categories that apply to this unit. If a category is missing or scenarios are vague (e.g., "validates correctly" without naming inputs and expected outcomes), supplement from the unit's own context before writing tests:
