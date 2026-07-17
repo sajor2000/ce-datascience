@@ -134,4 +134,17 @@ describe("data-first planning invariant", () => {
     expect(qa23).toMatch(/\*\*Bucket\*\*: `warn`[\s\S]*unsafe concurrent DuckDB writers without transaction coordination/i)
     expect(qa23).toMatch(/elevate to `block` only when an observed integrity impact/i)
   })
+
+  test("claims-based SAP planning is schema-first and preserves methodological guardrails", async () => {
+    const sap = await skillFile("ce-statistical-analysis-plan/SKILL.md")
+
+    expect(sap).toContain("Schema-first, prose-second")
+    expect(sap).toContain("Claims-based organization")
+    expect(sap).toContain("Dataset-grain awareness")
+    expect(sap).toContain("No method choice before `unit_of_analysis` and dataset grain")
+    expect(sap).toContain("No analysis without an explicit missing-data strategy and at least one diagnostic entry")
+    expect(sap).toContain("Paperclip")
+    expect(sap).toContain("curl PubMed")
+    expect(sap).toContain("[PROVISIONAL — unit of analysis not yet confirmed]")
+  })
 })
