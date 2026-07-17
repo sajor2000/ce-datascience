@@ -139,14 +139,14 @@ Run QA-17 through QA-23 when Python/Pandas/Polars/DuckDB prepares a dataset for 
 
 ### QA-17: Join cardinality and row-count reconciliation
 
-- **Bucket**: `block` when an observed join cardinality conflicts with the declared relationship, or when post-join rows cannot reconcile to the declared input counts, cohort waterfall, or expected analysis population; `warn` when the relationship or expected count was not declared.
+- **Bucket**: an unvalidated merge is `warn` when the relationship or expected count was not declared; it is `block` when observed join cardinality conflicts with the declared relationship, or when post-join rows cannot reconcile to the declared input counts, cohort waterfall, or expected analysis population.
 - **Why**: accidental many-to-many joins duplicate people or person-time and can change a causal estimate without an error.
 - **Python**: in Pandas use `merge(..., validate="one_to_one" | "one_to_many" | "many_to_one")` and compare pre/post row counts; in Polars or DuckDB group by join keys and reconcile source, matched, unmatched, and output counts.
 - **Finding format**: "Join `exposure -> outcome` declared many-to-one; observed many-to-many and output N=Y cannot reconcile to input N=X."
 
 ### QA-18: Key uniqueness before joins
 
-- **Bucket**: `block` if a declared entity or person-time key is duplicated in a relation asserted to be unique; `warn` if the intended key or grain was not declared.
+- **Bucket**: an observed duplicate in a declared entity or person-time key is `block` when that relation is asserted to be unique; `warn` if the intended key or grain was not declared.
 - **Why**: key duplication makes join cardinality and the unit of analysis unreliable.
 - **Python**: Pandas `df.duplicated(subset=key_columns).sum()`; Polars `df.group_by(key_columns).len().filter(pl.col("len") > 1)`; DuckDB `SELECT key_columns, count(*) FROM relation GROUP BY ALL HAVING count(*) > 1`.
 - **Finding format**: "Declared key `patient_id, index_date` has X duplicate rows before the outcome join."

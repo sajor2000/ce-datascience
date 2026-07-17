@@ -104,4 +104,11 @@ describe("data-first planning invariant", () => {
     expect(checks).toContain("confirmed integrity violation")
     expect(checks).toContain("warn")
   })
+
+  test("ce-data-qa warns for an unvalidated merge but blocks an observed integrity violation", async () => {
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+
+    expect(checks).toMatch(/unvalidated merge.*`warn`/i)
+    expect(checks).toMatch(/observed duplicate.*declared.*key.*`block`/i)
+  })
 })

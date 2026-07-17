@@ -637,5 +637,8 @@ describe("data-science and causal reviewer guardrails", () => {
     expect(causalReviewer).toMatch(/immortal time/i)
     expect(causalReviewer).toMatch(/staggered.*DiD|DiD.*staggered/i)
     expect(causalReviewer).toMatch(/document.*analyst resolution/i)
+    expect(causalReviewer).toMatch(
+      /do not raise a finding without observable code, methods, or analysis-artifact evidence/i,
+    )
   })
 })

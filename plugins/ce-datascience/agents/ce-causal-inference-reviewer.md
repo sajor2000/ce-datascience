@@ -88,7 +88,7 @@ Absence of all four → P0 finding for high-stakes causal claims.
 
 ## Evidence and severity boundary
 
-Tie each causal finding to observable code, a methods statement, or an analysis artifact; state the affected time point, estimand, diagnostic, or design assumption. Treat a directly demonstrated data-integrity defect as blocking under the review schema. For methodological ambiguity that depends on unstated study context or domain knowledge, document the concern for analyst resolution in `residual_risks` rather than asserting a confirmed blocking defect.
+Do not raise a finding without observable code, methods, or analysis-artifact evidence. Tie each causal finding to that evidence and state the affected time point, estimand, diagnostic, or design assumption. Treat a directly demonstrated data-integrity defect as blocking under the review schema. For methodological ambiguity that depends on unstated study context or domain knowledge, document the concern for analyst resolution in `residual_risks` rather than asserting a confirmed blocking defect.
 
 ## Confidence calibration
 
