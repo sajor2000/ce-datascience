@@ -25,6 +25,10 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing /ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `/ce-data-qa` as a required next step before `/ce-sap-tabular`, `/ce-sprint`, `/ce-work`, coding, or modeling.
 5. If `/ce-data-qa` reports blockers, do not write a final SAP. Plan data remediation or re-extraction first.
 
+### Causal/observational analysis guardrail
+
+For an observational study or causal claim, record explicit analysis assumptions: estimand, causal assumptions, unit/grain, key fields, time zero, and success criteria. Treat unresolved choices about the target population, exposure/intervention, comparator, outcome, follow-up horizon, confounder adjustment, or missing-data approach as blockers when they would change the estimand or interpretation. Ask the analyst to resolve the choice or document an approved assumption; keep `status: draft` and do not finalize while a methodological choice remains unresolved.
+
 ## 1. SAP Phase 3: Structure the SAP
 
 1. Read the SAP template from `references/sap-template.md`.
@@ -32,7 +36,7 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 3. Fill each SAP section (SAP-1 through SAP-10) from the input document, the upstream signal artifacts from step 2, and research findings.
 4. Carry forward all study design decisions from the origin document -- do not re-litigate design choices made during brainstorming.
 5. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank.
-6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2).
+6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2 and the causal/observational guardrail when it applies).
 7. Use precise statistical language -- name specific tests, models, and adjustment methods.
 
 When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`, or `path=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `/ce-plan deepen` after.

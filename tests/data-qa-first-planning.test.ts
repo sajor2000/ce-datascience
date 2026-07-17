@@ -74,4 +74,34 @@ describe("data-first planning invariant", () => {
     expect(gapChecklist).toContain("No tabular SAP workbook contract")
     expect(lifecycle).toContain("Every new SAP must then get the biostatistics-style tabular workbook contract")
   })
+
+  test("ce-plan blocks causal or observational SAP finalization until analysis assumptions are explicit", async () => {
+    const plan = await skillFile("ce-plan/SKILL.md")
+    const sapWorkflow = await skillFile("ce-plan/references/sap-mode-workflow.md")
+    const gapChecklist = await skillFile("ce-plan/references/sap-gap-checklist.md")
+
+    expect(plan).toContain("Causal/observational analysis guardrail")
+    expect(plan).toContain("estimand")
+    expect(plan).toContain("time zero")
+    expect(plan).toContain("unresolved methodological choices block finalization")
+    expect(sapWorkflow).toContain("analysis assumptions: estimand, causal assumptions, unit/grain, key fields, time zero, and success criteria")
+    expect(gapChecklist).toContain("Unresolved causal/observational analysis assumptions")
+  })
+
+  test("ce-data-qa fails loudly on confirmed causal-workflow integrity violations and warns for ambiguous stack risks", async () => {
+    const dataQa = await skillFile("ce-data-qa/SKILL.md")
+    const checks = await skillFile("ce-data-qa/references/qa-checks.md")
+
+    expect(dataQa).toContain("Causal workflow integrity checks (Python data stacks)")
+    expect(dataQa).toContain("confirmed integrity failures are `block`; ambiguous methodological or stack-specific risks are `warn`")
+    expect(checks).toContain("QA-17: Join cardinality and row-count reconciliation")
+    expect(checks).toContain("QA-18: Key uniqueness before joins")
+    expect(checks).toContain("QA-19: Type stability across inputs")
+    expect(checks).toContain("QA-20: Pandas index alignment")
+    expect(checks).toContain("QA-21: Declared missing-data handling")
+    expect(checks).toContain("QA-22: Synthetic or fallback data detection")
+    expect(checks).toContain("QA-23: Polars, DuckDB, and large eager-load risks")
+    expect(checks).toContain("confirmed integrity violation")
+    expect(checks).toContain("warn")
+  })
 })
