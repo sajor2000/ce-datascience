@@ -22,7 +22,12 @@ Shows the ordered skill sequence for a science project, detects progress, and re
 The repository root is pre-resolved at skill load:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `ide`, `reporting`, and `data_layer`; if no config can be read, infer them from project files.
+Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `ide`, `reporting`, `data_layer`, and the optional `stack_profile.inference` map; if no config can be read, infer them from project files.
+
+Treat a saved inference value with its `confidence` and `evidence` as a reusable
+setup handoff. Do not re-ask a setup question when a high-confidence value is
+available. If routing must use a fallback, say so and name the missing evidence
+that would refine it.
 
 ## Phase 0: Detect Signals
 
@@ -51,14 +56,20 @@ Do NOT route to CLIF for: generic `patient.parquet`, `vitals`, `labs`, `renv.loc
 - `Snakefile`, `nextflow.config`, or `workflow/Snakefile` exists
 - `Bioconductor` in `renv.lock` or `DESCRIPTION`
 
-**No biomedical signals** → default to Technical / software path without asking.
+**Claims signals** (any one → observational-study + claims overlay):
+- Medicare, Medicaid, MarketScan, NDC, enrollment-gap, or payer-claim logic in active analysis files
+
+**Generic EHR signals** (two or more → observational-study + generic-EHR overlay):
+- cohort, encounter, diagnosis, medication, laboratory, or vital-sign fields in active analysis files
+
+**No biomedical signals** → default to Technical / software path without asking and label the route `fallback: no biomedical project evidence`.
 
 ## Phase 1: Detect or Ask Project Type
 
-If signals clearly indicate a project type, auto-route and print a one-line banner:
+If signals clearly indicate a project type, auto-route and print a one-line banner with its evidence:
 
 ```
-[ce-workflow] Auto-detected: Observational study (CLIF data layer, R)
+[ce-workflow] Auto-detected: Observational study (CLIF data layer, R; evidence: CLIF_CLAUDE.md, clif_*.parquet)
 ```
 
 If project type remains unclear after scanning available files, ask this routing question using the Skill Value interaction rule above.
@@ -79,7 +90,12 @@ Read `references/lifecycle-paths.md` for the skill sequence matching the project
 - In progress: artifact exists but is partial or ambiguous
 - Not started: no artifact found
 
-Resolve the language from `__CE_LANG__` or the stack profile. Resolve the data layer from Phase 0 signals (OMOP, CLIF, admin claims, or generic EHR).
+Resolve language from the highest-confidence compatible source in this order:
+explicit current request, saved profile, saved inference, `__CE_LANG__`, then
+project files. Resolve data domain from Phase 0 signals or saved inference
+(OMOP, CLIF, admin claims, bioinformatics, generic EHR, or generic data). Never
+convert an unknown language to `both`; show `unknown` and recommend setup only
+when the selected lifecycle needs a language-specific artifact.
 
 Emit the lifecycle card:
 
@@ -110,7 +126,7 @@ Inline language-specific and data-layer notes at the steps where they matter (e.
 
 If all steps are complete, emit: "All lifecycle steps complete. Run `/ce-compound` to document learnings."
 
-If no stack profile exists, append: "Run the setup skill first to configure your stack profile. In Claude plugin installs, use `/ce-datascience:ce-setup`; bare `/ce-setup` works only when local aliases are installed."
+If no stack profile exists, append: "Run the setup skill first to review the detected profile. In Claude plugin installs, use `/ce-datascience:ce-setup`; bare `/ce-setup` works only when local aliases are installed."
 
 ## What this skill does NOT do
 

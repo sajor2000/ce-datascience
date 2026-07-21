@@ -245,6 +245,21 @@ describe("corporate install artifacts", () => {
     const installedRunPy = path.join(installedPlugin, "skills", "ce-mcp-server", "mcp_server", "run.py")
     expect(config).toContain(installedRunPy)
     expect(config).not.toContain(path.join(repoRoot, "plugins", "ce-datascience"))
+
+    await fs.appendFile(path.join(codexHome, "config.toml"), "\n[features]\nuser_owned = true\n")
+    await run([
+      "bash",
+      path.join(codexPackage, "install-codex-offline.sh"),
+      "--source",
+      codexPackage,
+      "--codex-home",
+      codexHome,
+      "--agents-home",
+      agentsHome,
+    ])
+    const rerunConfig = await fs.readFile(path.join(codexHome, "config.toml"), "utf8")
+    expect(rerunConfig).toContain("user_owned = true")
+    expect(rerunConfig.match(/BEGIN CE DataScience plugin MCP/g)).toHaveLength(1)
   })
 
   test("Claude MCP manifest uses plugin-root paths that converters can rewrite", async () => {
@@ -257,6 +272,7 @@ describe("corporate install artifacts", () => {
 
   test("setup intake supports corporate no-install mode and keeps Quarto optional", async () => {
     const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
     const healthScript = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "scripts", "check-health"), "utf8")
 
     expect(setupSkill).toContain("--locked-down")
@@ -266,33 +282,50 @@ describe("corporate install artifacts", () => {
     expect(healthScript).toContain("quarto|quarto --version|optional")
     expect(healthScript).toContain("git|command -v git|optional")
     expect(healthScript).toContain("locked-down mode: no install command offered")
-    expect(setupSkill).toContain("optional tools are reported as yellow but do not require Phase 3")
+    expect(normalizedSetupSkill).toContain("optional tools are reported as yellow but do not require Phase 3")
   })
 
-  test("setup narrows auto-detected both language after Python-only IDE selection", async () => {
+  test("setup uses a concise evidence-first profile before optional detail", async () => {
     const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
+    const inference = await fs.readFile(
+      path.join(pluginRoot, "skills", "ce-setup", "references", "profile-inference.md"),
+      "utf8",
+    )
+    const survey = await fs.readFile(
+      path.join(pluginRoot, "skills", "ce-setup", "references", "full-survey.md"),
+      "utf8",
+    )
 
-    expect(setupSkill).toContain("Do not treat `language_detect.primary=both` as a final user preference")
-    expect(setupSkill).toContain("If `detected_language=both` and the user selects Marimo or JupyterLab / Jupyter Notebook, set `stack_profile.language=python`")
-    expect(setupSkill).toContain("If `detected_language=both` and the user selects RStudio, set `stack_profile.language=r`")
-    expect(setupSkill).toContain("If `detected_language=both` and the user selects VS Code or Quarto, keep `stack_profile.language=both`")
-    expect(setupSkill).toContain("Do not ask R data-library, R statistical-package, R environment-manager, or R project-type questions after a Python-only IDE choice such as Marimo or Jupyter")
-    expect(setupSkill).toContain("Do not ask Python package questions after an RStudio-only choice")
-    expect(setupSkill).toContain("Present library options based on the refined `stack_profile.language`, not the raw auto-detected language")
+    expect(normalizedSetupSkill).toContain("Detected profile")
+    expect(normalizedSetupSkill).toContain("Continue with detected profile")
+    expect(normalizedSetupSkill).toContain("Adjust a field")
+    expect(normalizedSetupSkill).toContain("Full survey")
+    expect(normalizedSetupSkill).toContain("Never default an unknown repository to `both`")
+    expect(normalizedSetupSkill).toContain("ask one focused question")
+    expect(normalizedSetupSkill).toContain("Do not request data libraries, statistical packages")
+    expect(normalizedSetupSkill).toContain("stack_profile.inference")
+    expect(normalizedSetupSkill).toContain("Do not ask R data-library, R statistical-package, R environment-manager, or R project-type questions after a Python-only IDE choice such as Marimo or Jupyter")
+    expect(normalizedSetupSkill).toContain("Do not ask Python package questions after an RStudio-only choice")
+    expect(inference).toContain("value`, `confidence`, and short `evidence`")
+    expect(inference).toContain("generic EHR")
+    expect(inference).toContain("generic data")
+    expect(survey).toContain("only after the user explicitly selects **Full survey**")
+    expect(survey).toContain("Treat `both` as a deliberate user choice")
   })
 
   test("setup consumes verified connection handoffs without requiring data_root", async () => {
     const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
     const configTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "config-template.yaml"), "utf8")
     const stackTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "stack-profile-template.yaml"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
 
     const connectionSignal = "__CE_CONNECTION__ name=<connection-name> type=<postgres|sqlite|duckdb|other> database=<db-name> auth=<auth-mode> status=verified"
     expect(setupSkill).toContain(connectionSignal)
-    expect(setupSkill).toContain("Verified database connection detected: healthmap-connection (postgres, database=healthmap_dev, auth=entra).")
-    expect(setupSkill).toContain("SQL database (recommended: use verified healthmap-connection)")
-    expect(setupSkill).toContain("Do not write the connection into `data_root`")
-    expect(setupSkill).toContain("set `stack_profile.data_root: null`")
+    expect(normalizedSetupSkill).toContain("report it as high-confidence database evidence")
+    expect(normalizedSetupSkill).toContain("Do not write the connection into `data_root`")
+    expect(normalizedSetupSkill).toContain("stack_profile.data_root: null")
     expect(setupSkill).toContain("data_wave_register(location=...)")
 
     expect(configTemplate).toContain("data_connection:")
@@ -333,6 +366,8 @@ describe("corporate install artifacts", () => {
 
       expect(install).toContain("bash install.sh claude --aliases")
       expect(install).toContain("bash install.sh codex")
+      expect(install).toContain("pi install npm:pi-subagents")
+      expect(install).toContain("--to pi --pi-home")
       expect(install.indexOf("bash install.sh codex")).toBeLessThan(install.indexOf("/plugins"))
       expect(install).toMatch(/restart/i)
       expect(firstUse).toMatch(/project (?:or study )?(?:directory|repo)/i)
@@ -359,6 +394,7 @@ describe("corporate install artifacts", () => {
     expect(codexPlugins).toBeLessThan(codexSetup)
     expect(codexSetup).toBeLessThan(codexWorkflow)
     expect(indexSection).toContain("project or study directory")
+    expect(indexSection).toContain("pi install npm:pi-subagents")
   })
 
   test("public documentation ships and references both workflow images", async () => {

@@ -63,7 +63,7 @@ describe("CLIF guidance", () => {
     const stackTemplate = await readSetup("references/stack-profile-template.yaml")
     const healthScript = await readSetup("scripts/check-health")
 
-    expectContainsAll(setupSkill, [
+    expectContainsAll(setupSkill.replace(/\s+/g, " "), [
       "clif_profile_active=true",
       "Weak CLIF signals require two or more matches",
       "profile: clif",

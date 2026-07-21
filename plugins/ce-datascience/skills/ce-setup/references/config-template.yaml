@@ -11,6 +11,15 @@
 #   clif:
 #     data_dictionary_version: "2.1.0"
 #   language: python           # r | python | both
+#   inference:                  # optional evidence used to avoid repeat setup questions
+#     language:
+#       value: python
+#       confidence: high
+#       evidence: [pyproject.toml, analysis/model.py]
+#     data_domain:
+#       value: generic-ehr
+#       confidence: medium
+#       evidence: [cohort fields, encounter fields]
 #   ide: vscode                # rstudio | jupyter | marimo | quarto | vscode
 #   data_libraries:
 #     r: [tidyverse]           # tidyverse | data.table | arrow | here | jsonlite | knitr
