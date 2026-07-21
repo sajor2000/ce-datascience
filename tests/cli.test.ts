@@ -100,6 +100,50 @@ describe("CLI", () => {
     expect(await exists(path.join(tempRoot, ".config", "opencode", "agents", "repo-research-analyst.md"))).toBe(true)
   })
 
+  test("install writes a repeatable clean-room Pi profile without touching user files", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-pi-clean-room-"))
+    const piHome = path.join(tempRoot, ".pi", "agent")
+    const repoRoot = path.join(import.meta.dir, "..")
+    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const userFile = path.join(piHome, "prompts", "user-note.md")
+    await fs.mkdir(path.dirname(userFile), { recursive: true })
+    await fs.writeFile(userFile, "user-owned Pi prompt\n")
+
+    for (const runNumber of [1, 2]) {
+      const proc = Bun.spawn([
+        "bun",
+        "run",
+        path.join(repoRoot, "src", "index.ts"),
+        "install",
+        pluginRoot,
+        "--to",
+        "pi",
+        "--pi-home",
+        piHome,
+      ], {
+        cwd: repoRoot,
+        stdout: "pipe",
+        stderr: "pipe",
+        env: { ...process.env, HOME: tempRoot },
+      })
+      const exitCode = await proc.exited
+      const stdout = await new Response(proc.stdout).text()
+      const stderr = await new Response(proc.stderr).text()
+      if (exitCode !== 0) {
+        throw new Error(`Pi clean-room install ${runNumber} failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
+      }
+      expect(stdout).toContain(`Installed ce-datascience to ${piHome}`)
+    }
+
+    expect(await exists(path.join(piHome, "skills", "ce-setup", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(piHome, "agents", "ce-security-reviewer.md"))).toBe(true)
+    expect(await exists(path.join(piHome, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await fs.readFile(userFile, "utf8")).toBe("user-owned Pi prompt\n")
+    const agents = await fs.readFile(path.join(piHome, "AGENTS.md"), "utf8")
+    expect(agents).toContain("pi-subagents")
+    expect(agents).toContain("pi-ask-user")
+  })
+
   test("install rejects native marketplace-only plugin targets", async () => {
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
     const repoRoot = path.join(import.meta.dir, "..")

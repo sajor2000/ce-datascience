@@ -45,16 +45,15 @@ cd "$HOME\ce-datascience"
 claude
 ```
 
-Then run:
+Then open the target project and run:
 
 ```text
-/ce-setup
+/ce-datascience:ce-setup
 ```
 
 The helper registers the local Claude marketplace and installs the plugin. The
-`--aliases` flag also installs safe local command aliases so bare `/ce-*`
-commands work for demos. If you skip aliases, use namespaced plugin commands
-such as `/ce-datascience:ce-setup`.
+namespaced command is the reliable default. `--aliases` is optional and adds
+safe local bare `/ce-*` demo commands.
 
 ### Codex
 
@@ -81,17 +80,43 @@ start a new thread and ask Codex to use CE DataScience for setup. If Bun is
 available, the helper also installs the generated CE agents into the selected
 `CODEX_HOME`.
 
+### Pi
+
+Pi uses the generated installation path rather than a native marketplace.
+
+```bash
+pi install npm:pi-subagents
+pi install npm:pi-ask-user
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"
+```
+
+Restart Pi, open the project, and invoke `ce-setup` using Pi's normal skill
+interface. `pi-subagents` is required for CE subagent workflows; `pi-ask-user`
+is recommended for the compact setup confirmation.
+
 ### What the easy installer does
 
 | Target | Installer action | Required finish |
 |---|---|---|
 | Claude Code | Registers this checkout as a local marketplace, installs `ce-datascience`, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
 | Codex | Registers the local marketplace and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
+| Pi | Writes generated CE skills, agents, prompts, and MCP configuration under the selected Pi home | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
 
 The installer does not configure every research project globally. The
 `ce-setup` skill creates project-local configuration after the plugin is loaded.
 Run setup again when a different project uses a different language, IDE, data
 layer, or reporting workflow.
+
+### What setup asks
+
+Setup inspects manifests, lockfiles, notebooks, imports, IDE files, existing CE
+configuration, verified database handoffs, and data-file patterns first. It
+shows a single detected-profile card and offers **Continue with detected
+profile**, **Adjust a field**, or **Full survey**. The normal path leaves
+optional library, statistics, environment, reporting, data-root, blinding, and
+checklist choices unset until the active workflow needs them; unknown language
+is never silently treated as mixed R + Python.
 
 ## 2. Locked-Down Or Demo Laptop
 

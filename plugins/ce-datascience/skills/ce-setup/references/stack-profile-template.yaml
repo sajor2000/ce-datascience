@@ -28,6 +28,18 @@ stack_profile:
   # both    - R and Python (polyglot projects)
   language: r | python | both
 
+  # Optional evidence-first setup handoff. Older profiles remain valid without
+  # it; workflow uses it only to avoid re-asking high-confidence decisions.
+  inference:
+    language:
+      value: r | python | both | unknown
+      confidence: high | medium | low
+      evidence: [pyproject.toml, analysis/model.py]
+    data_domain:
+      value: clif | omop | claims | bioinformatics | generic-ehr | generic-data
+      confidence: high | medium | low
+      evidence: [project signals]
+
   # Development environment
   # rstudio  - RStudio IDE
   # jupyter  - JupyterLab / Jupyter Notebook

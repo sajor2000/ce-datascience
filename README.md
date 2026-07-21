@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-49 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+50 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -39,15 +39,15 @@ cd "$HOME\ce-datascience"
 claude
 ```
 
-Then run:
+Then open the target project and run the native command:
 
 ```text
-/ce-setup
+/ce-datascience:ce-setup
 ```
 
-The `--aliases` flag installs safe local command aliases so the demo-friendly
-bare `/ce-*` commands work. Without aliases, native Claude plugin commands are
-namespaced, for example `/ce-datascience:ce-setup`.
+The `--aliases` flag is optional; it installs safe local aliases so the
+demo-friendly bare `/ce-*` commands work. The namespaced command above is the
+reliable default for every native Claude plugin install.
 
 ### Codex, easiest path
 
@@ -73,12 +73,28 @@ Inside Codex, open `/plugins`, install **CE DataScience**, restart Codex, then
 start a new thread and ask Codex to use CE DataScience for setup. The helper
 also installs the generated agent bridge when Bun is available.
 
+### Pi, generated install
+
+Install Pi's two workflow extensions once, then generate the CE files into the
+Pi agent root:
+
+```bash
+pi install npm:pi-subagents
+pi install npm:pi-ask-user
+cd ~/ce-datascience
+bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"
+```
+
+Restart Pi, open the project, then invoke `ce-setup` with Pi's normal skill
+interface. `pi-subagents` is required for CE review/workflow delegation;
+`pi-ask-user` enables the short setup confirmation UI.
+
 ### Use the plugin after installation
 
 Installation makes CE DataScience available to the agent; setup configures it
 for each individual code or research project. After installing:
 
-1. Restart Claude Code or Codex so it loads the new plugin.
+1. Restart Claude Code, Codex, or Pi so it loads the new plugin files.
 2. Open the project or study directory you want CE DataScience to work on.
 3. Configure that project with the setup skill.
 4. Run the workflow skill to see the ordered research or engineering lifecycle
@@ -103,6 +119,11 @@ After that, request a specific skill in plain language or use its displayed
 name, for example `ce-research-question`, `ce-data-qa`, `ce-plan`, or
 `ce-code-review`. The plugin works in the currently open project; repeat setup
 when moving to a different project with a different stack or data layer.
+
+Setup starts with one detected-profile summary instead of a full questionnaire.
+It shows inferred language, environment, reporting format, storage, and data
+domain with evidence, then offers **Continue**, **Adjust**, or **Full survey**.
+It asks only for values that are ambiguous or needed by the current workflow.
 
 ![Steps for using CE DataScience setup, workflow, and task-specific slash commands](docs/ce-datascience-skill-commands.png)
 
@@ -440,7 +461,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 49 |
+| Skills | 50 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

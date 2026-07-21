@@ -87,6 +87,16 @@ codex</code></pre>
       then the <code>ce-workflow</code> skill. The setup guide includes Windows,
       offline, and additional-agent instructions.
     </p>
+    <h3>Pi</h3>
+    <pre><code>pi install npm:pi-subagents
+pi install npm:pi-ask-user
+bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"</code></pre>
+    <p>
+      Restart Pi, open the target project, then invoke <code>ce-setup</code>
+      with Pi's skill interface. The setup skill first shows a concise detected
+      profile and lets the user continue, adjust one field, or open the full
+      survey.
+    </p>
     <p>
       <a href="https://github.com/sajor2000/ce-datascience"
         >Repository and README</a

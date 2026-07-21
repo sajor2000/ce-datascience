@@ -33,9 +33,9 @@ cd "$HOME\ce-datascience"
 claude
 ```
 
-Then run `/ce-setup`. The alias flag gives you the same bare-command feel as
-the original Compound Engineering plugin. Without aliases, use the native
-namespaced form `/ce-datascience:ce-setup`.
+Then open the target project and run `/ce-datascience:ce-setup`. The alias flag
+is optional and gives you the same bare-command feel as the original Compound
+Engineering plugin; the namespaced form is the reliable default.
 
 Fastest normal Codex setup:
 
@@ -59,6 +59,18 @@ codex
 
 Inside Codex, open `/plugins`, install **CE DataScience**, restart, then ask
 Codex to use CE DataScience for setup.
+
+Pi uses generated files rather than a native marketplace:
+
+```bash
+pi install npm:pi-subagents
+pi install npm:pi-ask-user
+bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"
+```
+
+Restart Pi, open the target project, and invoke `ce-setup` using Pi's skill
+interface. `pi-subagents` is required for CE delegation; `pi-ask-user` enables
+the compact confirmation interaction.
 
 ### Use the plugin after installation
 
@@ -116,6 +128,11 @@ Setup and workflow inspect available project evidence before asking. Each public
 skill starts with a `Skill Value` block naming the problem it solves, when to use
 it, expected output, question boundary, and non-goal so demos and first projects
 route to the right command quickly.
+
+The normal setup path is a one-screen detected profile: continue with evidence,
+adjust one field, or choose the full survey. It infers language, environment,
+reporting, storage, and data domain from project files and leaves optional
+preferences unset instead of forcing a long questionnaire.
 
 Connection skills can hand setup a verified database default by emitting
 `__CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified`.
