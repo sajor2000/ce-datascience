@@ -661,4 +661,21 @@ describe("data-science and causal reviewer guardrails", () => {
     expect(sensitivityChecks).toMatch(/absence of sensitivity analyses alone.*does not establish a blocking defect/i)
     expect(sensitivityChecks).toMatch(/explicit mandatory protocol requirement.*blocking/i)
   })
+
+  test("requires decision-aligned time-dependent AUC for dynamic survival models", async () => {
+    const calibrationReviewer = await readRepoFile(
+      "plugins/ce-datascience/agents/ce-calibration-reviewer.md",
+    )
+    const catalog = await readRepoFile(
+      "plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md",
+    )
+
+    expect(calibrationReviewer).toContain("Cumulative/dynamic AUC")
+    expect(calibrationReviewer).toContain("Incident/dynamic AUC")
+    expect(calibrationReviewer).toContain("censoring-aware estimator")
+    expect(calibrationReviewer).toContain("time-dependent AUC at")
+    expect(calibrationReviewer).toContain("survival-time-dependent-auc-missing")
+    expect(calibrationReviewer).toContain("doi:10.1177/0272989X18801312")
+    expect(catalog).toContain("censoring-aware time-dependent AUC for survival models")
+  })
 })
