@@ -56,9 +56,18 @@ When signals are ambiguous (only weak signals, or the user mentions a CLIF table
 Read `references/version-families.md` before selecting a family. Inspect, in
 order, an explicit `--version`, `clif.data_dictionary_version` and
 `clif.mcide_version` in local config, a project data-dictionary declaration,
-and a documented source manifest. Treat a matching pair as a direct selection:
-`2.1.0` + `2.1.0` or `3.0.0` + `3.0.0`. Never infer `3.0.0` merely from an
-`mCIDE/` directory, a table name, or missing language evidence.
+and a documented source manifest. Treat `--version` as a full direct call:
+
+```text
+/ce-clif --version 2.1.0  -> CLIF 2.1.0 + mCIDE 2.1.0
+/ce-clif --version 3.0.0  -> CLIF 3.0.0 + mCIDE 3.0.0
+```
+
+An accepted direct call emits `selection=explicit` and needs no extra version
+question. If it conflicts with an explicitly declared local or project pair,
+show the mismatch and ask which source is intended before category work. Never
+infer `3.0.0` merely from an `mCIDE/` directory, a table name, or missing
+language evidence.
 
 When no matching pair is declared, signals conflict, or only one version is
 known, ask this blocking question before generating category filters or
@@ -79,7 +88,7 @@ When selected, print one acknowledgment line and emit the handoff signal:
 
 ```
 [ce-clif] CLIF profile active (data dictionary v<dd-version>, mCIDE v<mcide-version>); protected paths read-only without POC sign-off.
-__CE_CLIF__ active=true version=<dd-version> mcide_version=<mcide-version> selection=<declared|selected> strict=<true|false> rules=references/clif-rules.md
+__CE_CLIF__ active=true version=<dd-version> mcide_version=<mcide-version> selection=<explicit|declared|selected> strict=<true|false> rules=references/clif-rules.md
 ```
 
 When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
@@ -157,7 +166,7 @@ When the session is about to edit any `protected_paths` entry, the skill's guard
 ## Handoff signal (canonical envelope)
 
 ```
-__CE_CLIF__ active=<true|false> version=<dd-version> mcide_version=<mcide-version> selection=<declared|selected> strict=<true|false> rules=<path-to-clif-rules.md>
+__CE_CLIF__ active=<true|false> version=<dd-version> mcide_version=<mcide-version> selection=<explicit|declared|selected> strict=<true|false> rules=<path-to-clif-rules.md>
 ```
 
 Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; they parse `version=` and `mcide_version=` as one selected family before validating categories; they parse `strict=true` to escalate warnings into refusals. If `mcide_version=` is absent, stop category validation and route back to this skill rather than assuming the v2.1 cache applies.

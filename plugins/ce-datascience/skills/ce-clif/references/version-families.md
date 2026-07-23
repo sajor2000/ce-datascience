@@ -10,16 +10,19 @@ review needs a data-dictionary or mCIDE version.
 
 ## Selection precedence
 
-1. Honor an explicit `--version` only when its matching mCIDE family is also
-   selected or declared.
+1. Treat `--version 2.1.0` as the explicit CLIF 2.1 + mCIDE 2.1 call, and
+   `--version 3.0.0` as the explicit CLIF 3.0 + mCIDE 3.0 call. Record
+   `selection=explicit`; do not require a separate mCIDE argument.
 2. Honor a matching `data_dictionary_version` + `mcide_version` pair in
    `.ce-datascience/config.local.yaml`.
 3. Honor a matching pair stated in the repository data dictionary or source
    manifest.
 4. Otherwise ask the user to choose one of the two supported families.
 
-Do not mix families silently. Treat an incomplete or mixed declaration as a
-blocking ambiguity for category validation and category-filter generation.
+Do not mix families silently. If a direct call conflicts with an explicitly
+declared pair, ask which source is intended. Treat an incomplete or mixed
+declaration as a blocking ambiguity for category validation and category-filter
+generation.
 
 ## Version-specific safeguards
 

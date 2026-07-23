@@ -33,12 +33,15 @@ describe("CLIF guidance", () => {
     expectContainsAll(combined, [
       "CLIF 2.1 + mCIDE 2.1",
       "CLIF 3.0 + mCIDE 3.0",
+      "/ce-clif --version 2.1.0  -> CLIF 2.1.0 + mCIDE 2.1.0",
+      "/ce-clif --version 3.0.0  -> CLIF 3.0.0 + mCIDE 3.0.0",
+      "selection=explicit",
       "mcide_version=",
       "Which CLIF and mCIDE version family should this project use?",
-      "Never infer `3.0.0` merely from an",
       "Never silently choose a family",
       "Do not validate against the bundled v2.1 cache",
     ])
+    expect(combined).toMatch(/Never\s+infer `3\.0\.0` merely from an/)
     expect(combined).toMatch(/lowercase\s+snake_case mCIDE permissible values/)
     expect(combined).not.toContain("last verified 2026-06-02")
     expect(combined).toContain("https://clif-icu.com/")
