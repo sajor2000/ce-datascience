@@ -20,7 +20,9 @@ stack_profile:
   profile: clif | null
 
   clif:
-    data_dictionary_version: "2.1.0"
+    # Confirm one matching version family during CLIF setup.
+    data_dictionary_version: "2.1.0" # 2.1.0 | 3.0.0
+    mcide_version: "2.1.0"           # 2.1.0 | 3.0.0; normally matches the dictionary
 
   # Primary analysis language
   # r       - R only

@@ -22,7 +22,7 @@ Shows the ordered skill sequence for a science project, detects progress, and re
 The repository root is pre-resolved at skill load:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `ide`, `reporting`, `data_layer`, and the optional `stack_profile.inference` map; if no config can be read, infer them from project files.
+Use the resolved absolute path or resolve it at runtime, then read `.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the machine-local file is absent. Parse `language`, `ide`, `reporting`, `data_layer`, `clif.data_dictionary_version`, `clif.mcide_version`, and the optional `stack_profile.inference` map; if no config can be read, infer them from project files.
 
 Treat a saved inference value with its `confidence` and `evidence` as a reusable
 setup handoff. Do not re-ask a setup question when a high-confidence value is
@@ -46,6 +46,12 @@ Weak (need 2+ together):
 - `WORKFLOW.md` at repo root
 
 Do NOT route to CLIF for: generic `patient.parquet`, `vitals`, `labs`, `renv.lock` alone, or `WORKFLOW.md` alone — these appear in non-CLIF EHR projects.
+
+When CLIF routes, reuse a matching saved `data_dictionary_version` +
+`mcide_version` pair or a matching `__CE_CLIF__` handoff. If the family is
+absent, incomplete, or mixed, recommend `ce-clif` as the next safe skill and
+state that it will ask the user to choose CLIF 2.1 + mCIDE 2.1 or CLIF 3.0 +
+mCIDE 3.0. Do not infer 3.0 from `mCIDE/` alone or silently apply v2.1.
 
 **OMOP signals** (any one → observational study + OMOP overlay):
 - SQL files referencing `cdm_source`, `concept`, `person`, or `observation_period`

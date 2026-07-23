@@ -1,6 +1,6 @@
 # CLIF-Safe Rules
 
-These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and declared data dictionary version. Pinned default: data dictionary **v2.1.0** (current public CLIF structured ICU data dictionary; last verified 2026-06-06). CLIF v3.0 is a planned multimodal release and must be opted into explicitly per project. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-TableOne`, and `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
+These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and selected data-dictionary/mCIDE family. Support CLIF 2.1 + mCIDE 2.1 and CLIF 3.0 + mCIDE 3.0. Read `version-families.md` before category validation; never apply the v2.1 cache to v3. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-TableOne`, and `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
 
@@ -24,7 +24,7 @@ These rules apply whenever `__CE_CLIF__ active=true` is present in chat context.
 
 ## 4. mCIDE vocabularies
 
-- Every `*_category` column has an allow-listed vocabulary. See `mcide-vocab.md` for the full set. Never invent new category strings; never silently relabel.
+- Every `*_category` column has an allow-listed vocabulary. For CLIF 2.1 + mCIDE 2.1, see `mcide-vocab.md`; for CLIF 3.0 + mCIDE 3.0, read the declared v3 mCIDE source. Never invent new category strings; never silently relabel or use the v2.1 cache for v3.
 - When a source value cannot be mapped, write `Other` (where the vocab includes it) and preserve the raw value in the corresponding `*_name` column.
 - Validate before writing: `assert df["location_category"].is_in(ALLOWED_LOCATION_CATEGORIES).all()`.
 

@@ -9,7 +9,8 @@
 # stack_profile:
 #   profile: clif             # optional: clif when CLIF mode is active
 #   clif:
-#     data_dictionary_version: "2.1.0"
+#     data_dictionary_version: "2.1.0" # confirmed: 2.1.0 or 3.0.0
+#     mcide_version: "2.1.0"           # must match unless an authoritative exception is documented
 #   language: python           # r | python | both
 #   inference:                  # optional evidence used to avoid repeat setup questions
 #     language:
