@@ -19,6 +19,15 @@ One plugin gives your coding agent the entire biomedical research lifecycle: fra
 The normal path is intentionally short: install the plugin, start your agent,
 then run setup. For complete platform details, see [docs/setup.md](docs/setup.md).
 
+### Choose your install route
+
+From a source checkout, run `bash install.sh doctor` to see which local tools
+are available and the exact standard or locked-down route. Use the standard
+route on a personal or managed laptop that can run Git and the agent CLI. On a
+corporate or locked-down laptop, ask IT for the approved offline artifact and
+use the artifact-specific path below; Bun, Git, GitHub CLI, and Quarto are not
+required for basic use.
+
 ### Claude Code, easiest path
 
 macOS, Linux, WSL, or Git Bash:
@@ -268,6 +277,29 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 /ce-compound
 ```
 
+### Keep analysis decisions explicit
+
+The lifecycle now makes the most consequential analytical assumptions visible
+before code is written or trusted:
+
+- `/ce-data-qa` reconciles row counts and joins, checks keys and type stability,
+  records missing-data handling, and returns GO, WARN, or NO-GO rather than
+  silently substituting fallback data.
+- `/ce-plan` and `/ce-statistical-analysis-plan` require the estimand, intended
+  grain, keys, time zero, and success criteria for observational or causal
+  work; unresolved choices remain questions for the analyst.
+- `/ce-work` fails loudly at missing or corrupt inputs. `/ce-code-review`
+  checks integrity and causal timing, and requires censoring-aware,
+  decision-aligned time-dependent AUC for dynamic survival models.
+
+For an administrative claims study, use the claims-oriented SAP workflow when
+you need a linked methods section, variables dictionary, analyses, diagnostics,
+outputs, and decision evidence:
+
+```text
+/ce-statistical-analysis-plan
+```
+
 ### Build a prediction model
 
 ```
@@ -285,10 +317,17 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ### Work with CLIF consortium data
 
 ```
-# Anchored to clif-icu.com; activates automatically for CLIF repos
+# Anchored to clif-icu.com; setup can infer a declared matching family.
+# Use an explicit call when choosing the family for this task:
+/ce-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
+# or
+/ce-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
 /ce-workflow
 /ce-work
 ```
+
+If a direct call conflicts with an explicitly declared project pair, CE asks
+which source is intended before it validates categories or generates filters.
 
 ### Analyze omics data
 
@@ -335,7 +374,7 @@ These workflow utilities are adapted from the original compound-engineering plug
 | Data layer | How it activates | What it does |
 |---|---|---|
 | **OMOP CDM** | SQL with `cdm_source`, `concept`, `person` | OMOP SQL + concept sets, vocabulary pinning |
-| **CLIF** | `CLIF_CLAUDE.md`, `clif-icu` remote, or CLIF handoff | Anchors to clif-icu.com; Parquet-only, mCIDE vocab, POC sign-off |
+| **CLIF** | `CLIF_CLAUDE.md`, `clif-icu` remote, or CLIF handoff | Anchors to clif-icu.com; explicit CLIF/mCIDE 2.1 or 3.0 family, Parquet-only, version-correct mCIDE vocab, POC sign-off |
 | **Admin claims** | Medicare/Medicaid/MarketScan in code | Enrollment gaps, NDC-to-RxNorm, claims reviewer |
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |

@@ -19,6 +19,7 @@ usage() {
 Usage:
   bash install.sh claude [options]
   bash install.sh codex [options]
+  bash install.sh doctor [options]
   bash scripts/install/easy-install.sh --target claude [options]
   bash scripts/install/easy-install.sh --target codex [options]
 
@@ -33,6 +34,7 @@ Options:
   --help                 Show this help
 
 Examples:
+  bash install.sh doctor
   bash install.sh claude --aliases
   bash install.sh codex --codex-home "${CODEX_HOME:-$HOME/.codex}"
   bash install.sh codex --source /approved/path/ce-datascience-codex-local
@@ -41,7 +43,7 @@ USAGE
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    claude|codex)
+    claude|codex|doctor)
       target="$1"
       shift
       ;;
@@ -91,9 +93,9 @@ while [ "$#" -gt 0 ]; do
 done
 
 case "$target" in
-  claude|codex) ;;
-  "") echo "Choose a target: bash install.sh claude or bash install.sh codex" >&2; usage >&2; exit 2 ;;
-  *) echo "--target must be claude or codex" >&2; exit 2 ;;
+  claude|codex|doctor) ;;
+  "") echo "Choose a target: bash install.sh claude, bash install.sh codex, or bash install.sh doctor" >&2; usage >&2; exit 2 ;;
+  *) echo "--target must be claude, codex, or doctor" >&2; exit 2 ;;
 esac
 
 case "$scope" in
@@ -135,6 +137,48 @@ require_command() {
     echo "$1 is required for this install path." >&2
     exit 2
   }
+}
+
+command_status() {
+  if command -v "$1" >/dev/null 2>&1; then
+    printf 'available (%s)' "$(command -v "$1")"
+  else
+    printf 'not found'
+  fi
+}
+
+source_status() {
+  if [ -f "$source_root/.claude-plugin/marketplace.json" ] && [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
+    printf 'source checkout (standard Claude and Codex installer paths available)'
+  elif [ -f "$source_root/install-codex-offline.sh" ]; then
+    printf 'unpacked Codex offline package'
+  elif [ -d "$source_root/skills" ] && [ -d "$source_root/.claude-plugin" ]; then
+    printf 'unpacked Claude plugin folder'
+  elif [[ "$source_root" == *.zip ]]; then
+    printf 'Claude plugin ZIP'
+  else
+    printf 'unrecognized; expected a source checkout or approved offline artifact'
+  fi
+}
+
+print_doctor() {
+  echo "CE DataScience install check"
+  echo "Source: $source_root"
+  echo "Source type: $(source_status)"
+  echo "Claude Code CLI: $(command_status claude)"
+  echo "Codex CLI: $(command_status codex)"
+  echo "Bun (optional for Codex agent bridge): $(command_status bun)"
+  echo ""
+  echo "Standard laptop:"
+  echo "  bash install.sh claude --aliases"
+  echo "  bash install.sh codex"
+  echo ""
+  echo "Locked-down or corporate laptop:"
+  echo "  Claude: claude --plugin-dir /approved/path/ce-datascience.zip"
+  echo "  Codex:  bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local"
+  echo ""
+  echo "Codex always requires the final host step: restart Codex, open /plugins,"
+  echo "install CE DataScience from the local marketplace, then restart once more."
 }
 
 install_claude_aliases() {
@@ -224,4 +268,5 @@ install_codex() {
 case "$target" in
   claude) install_claude ;;
   codex) install_codex ;;
+  doctor) print_doctor ;;
 esac

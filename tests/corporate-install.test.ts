@@ -60,6 +60,12 @@ describe("corporate install artifacts", () => {
     expect(claude.stdout).toContain("install-claude-aliases.sh")
     expect(claude.stdout).toContain("/ce-setup")
 
+    const doctor = await run(["bash", installer, "doctor"])
+    expect(doctor.stdout).toContain("CE DataScience install check")
+    expect(doctor.stdout).toContain("Standard laptop:")
+    expect(doctor.stdout).toContain("Locked-down or corporate laptop:")
+    expect(doctor.stdout).toContain("Codex always requires the final host step")
+
     const codex = await run([
       "bash",
       installer,
@@ -112,6 +118,7 @@ describe("corporate install artifacts", () => {
     expect(powershellInstaller).toContain("CE_DATASCIENCE_ALIAS_MANAGED")
     expect(powershellInstaller).toContain('Test-CommandAvailable "python3"')
     expect(powershellInstaller).toContain('Test-CommandAvailable "py"')
+    expect(powershellInstaller).toContain('"doctor" { Show-Doctor }')
 
     const readme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
@@ -122,6 +129,7 @@ describe("corporate install artifacts", () => {
       expect(doc).toContain("bash install.sh codex")
       expect(doc).toContain(".\\install.ps1 claude -Aliases")
       expect(doc).toContain(".\\install.ps1 codex")
+      expect(doc).toContain("install.sh doctor")
     }
     expect(setupDocs).toContain("Windows PowerShell")
     expect(setupDocs).toContain("Git Bash")
@@ -449,5 +457,27 @@ describe("corporate install artifacts", () => {
     expect(setupDocs).toMatch(/Never send protected\s+health information/)
     expect(setupDocs).toMatch(/must not install or authenticate\s+either add-on automatically/)
     expect(setupDocs).toMatch(/running `\/ce-evidence-map` authorizes\s+its documented optional deepening/)
+  })
+
+  test("public docs describe the current method and CLIF safeguards", async () => {
+    const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
+    const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
+    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
+
+    for (const doc of [rootReadme, setupDocs, pluginReadme, docsIndex]) {
+      expect(doc).toContain("--version 2.1.0")
+      expect(doc).toContain("--version 3.0.0")
+      expect(doc).toMatch(/time-dependent AUC/i)
+    }
+
+    for (const doc of [rootReadme, setupDocs, pluginReadme]) {
+      expect(doc).toMatch(/estimand/i)
+      expect(doc).toMatch(/missing-data/i)
+      expect(doc).toMatch(/synthetic\/fallback|fallback data|fabricating fallbacks/i)
+    }
+
+    expect(pluginReadme).toContain("GO/WARN/NO-GO")
+    expect(setupDocs).toContain("pi-ask-user")
   })
 })
