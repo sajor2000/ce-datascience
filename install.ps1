@@ -1,6 +1,6 @@
 param(
   [Parameter(Position = 0)]
-  [ValidateSet("claude", "codex")]
+  [ValidateSet("claude", "codex", "doctor")]
   [string]$Target,
 
   [string]$Source = "",
@@ -29,6 +29,7 @@ Usage:
   .\install.ps1 claude [-Aliases] [-Scope user|project|local]
   .\install.ps1 codex [-CodexHome PATH] [-AgentsHome PATH]
   .\install.ps1 codex -Source C:\approved\ce-datascience-codex-local
+  .\install.ps1 doctor
 
 Options:
   -Source PATH       Repo root, unpacked offline package, plugin folder, or plugin ZIP
@@ -92,6 +93,41 @@ function Assert-Command([string]$Name) {
   if (-not (Test-CommandAvailable $Name)) {
     throw "$Name is required for this install path."
   }
+}
+
+function Get-CommandStatus([string]$Name) {
+  $command = Get-Command $Name -ErrorAction SilentlyContinue
+  if ($null -ne $command) { return "available ($($command.Source))" }
+  return "not found"
+}
+
+function Get-SourceStatus {
+  if ((Test-Path (Join-Path $Source ".claude-plugin\marketplace.json")) -and (Test-Path (Join-Path $Source "plugins\$PluginName"))) {
+    return "source checkout (standard Claude and Codex installer paths available)"
+  }
+  if (Test-Path (Join-Path $Source "install-codex-offline.sh")) { return "unpacked Codex offline package" }
+  if ((Test-Path (Join-Path $Source "skills")) -and (Test-Path (Join-Path $Source ".claude-plugin"))) { return "unpacked Claude plugin folder" }
+  if ($Source.EndsWith(".zip", [System.StringComparison]::OrdinalIgnoreCase)) { return "Claude plugin ZIP" }
+  return "unrecognized; expected a source checkout or approved offline artifact"
+}
+
+function Show-Doctor {
+  Write-Output "CE DataScience install check"
+  Write-Output "Source: $Source"
+  Write-Output "Source type: $(Get-SourceStatus)"
+  Write-Output "Claude Code CLI: $(Get-CommandStatus 'claude')"
+  Write-Output "Codex CLI: $(Get-CommandStatus 'codex')"
+  Write-Output "Bun (optional for Codex agent bridge): $(Get-CommandStatus 'bun')"
+  Write-Output ""
+  Write-Output "Standard laptop:"
+  Write-Output "  .\install.ps1 claude -Aliases"
+  Write-Output "  .\install.ps1 codex"
+  Write-Output ""
+  Write-Output "Locked-down or corporate laptop:"
+  Write-Output "  Claude: claude --plugin-dir C:\approved\ce-datascience.zip"
+  Write-Output "  Codex:  .\install.ps1 codex -Source C:\approved\ce-datascience-codex-local"
+  Write-Output ""
+  Write-Output "Codex always requires the final host step: restart Codex, open /plugins, install CE DataScience from the local marketplace, then restart once more."
 }
 
 function Get-ClaudeCommandsDir {
@@ -386,4 +422,5 @@ function Install-Codex {
 switch ($Target) {
   "claude" { Install-Claude }
   "codex" { Install-Codex }
+  "doctor" { Show-Doctor }
 }

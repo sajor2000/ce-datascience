@@ -20,6 +20,26 @@ Windows.
 | Windows with Git Bash | Git Bash | `bash install.sh claude --aliases` or `bash install.sh codex` | `C:/Users/...` paths are accepted by the Bash helper. |
 | Windows PowerShell | PowerShell | `.\install.ps1 claude -Aliases` or `.\install.ps1 codex` | Native Windows path handling and Codex offline install support. |
 
+## Choose Your Install Route
+
+If you have a source checkout, run the read-only install check first:
+
+```bash
+bash install.sh doctor
+```
+
+On Windows PowerShell, use:
+
+```powershell
+.\install.ps1 doctor
+```
+
+The check reports whether the checkout or approved artifact is recognized and
+whether the local Claude, Codex, and optional Bun tools are available. Use the
+standard route below on a personal or managed laptop that can run Git and the
+agent CLI. On a locked-down or corporate laptop, skip source-build tooling and
+use the approved offline artifact route in section 2.
+
 ## 1. Easiest Install Path
 
 This mirrors the original Compound Engineering plugin experience: install once,
@@ -332,6 +352,10 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"
 ```
 
+`pi-subagents` is required for CE workflows that delegate work. Add
+`pi install npm:pi-ask-user` when you want Pi's compact blocking-question UI;
+without it, skills use their documented numbered-choice fallback.
+
 ### Qwen Code
 
 Qwen Code uses its native extension installer:
@@ -381,6 +405,22 @@ lockfiles, notebooks, IDE files, SAP artifacts, and recent verified connection
 handoffs before asking. Follow-up questions should be limited to decisions that
 change generated config, routing, or scientific scope.
 
+### Versioned CLIF projects
+
+For a CLIF repository, setup and workflow reuse a matching declared CLIF data
+dictionary and mCIDE family. When you need to choose explicitly, invoke one of
+these calls before category work:
+
+```text
+/ce-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
+/ce-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+```
+
+An explicit call does not prompt again. If it conflicts with an explicitly
+declared local or project pair, CE shows the mismatch and asks which source is
+intended. It never infers CLIF 3.0 from a folder name or missing language
+signals.
+
 If another skill verifies a database connection first, it can emit a generic
 handoff such as:
 
@@ -406,6 +446,19 @@ aliases, prefix each one with `/ce-datascience:`, such as
 `/ce-datascience:ce-research-question`. In Codex, ask it to use the named CE
 DataScience skill. Skills operate on the currently open project and should be
 given the scientific question, analysis goal, or code task they need.
+
+Before planning or modeling, keep the integrity gate in place: `ce-data-qa`
+reconciles rows and joins, validates keys and types, and records missing-data
+handling. It returns NO-GO for confirmed corruption or undeclared
+synthetic/fallback data. For observational or causal work, planning requires an
+estimand, analysis grain, keys, time zero, assumptions, and success criteria;
+unresolved methodological choices remain analyst questions.
+
+For dynamic survival models, `ce-code-review` routes to the calibration reviewer
+for decision-aligned, censoring-aware time-dependent AUC rather than treating a
+generic AUC or C-index as sufficient. For claims-based studies, use
+`/ce-statistical-analysis-plan` to produce the linked SAP, variables,
+diagnostics, outputs, and decision-evidence contract.
 
 Each public skill starts with a `Skill Value` block that names the problem it
 solves, when to use it, expected output, when it should ask questions, and what

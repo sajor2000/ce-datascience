@@ -1,13 +1,9 @@
 # Changelog
 
-This file is no longer the canonical changelog for ce-datascience releases.
-
-Historical entries are preserved below, but new release history is recorded in the root [`CHANGELOG.md`](../../CHANGELOG.md).
-
-All notable changes to the ce-datascience plugin will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+This generated historical file is maintained only by Release Please in its
+release pull requests. Canonical current release notes are the repository's
+[GitHub Releases](https://github.com/sajor2000/ce-datascience/releases) and
+open release PRs. Do not hand-add entries from feature or documentation work.
 
 ## [3.4.2](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.4.1...ce-datascience-v3.4.2) (2026-07-16)
 

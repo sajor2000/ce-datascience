@@ -13,6 +13,12 @@ Compound engineering for computational scientists. SAP management, statistical r
 For complete copy-paste setup across Claude Code, Codex, OpenCode, Gemini CLI,
 Kiro, Pi, and Qwen Code, see [`../../docs/setup.md`](../../docs/setup.md).
 
+From a source checkout, run `bash install.sh doctor` (or
+`.\install.ps1 doctor` in PowerShell) for a read-only check of the standard and
+locked-down routes. It detects the local agent CLIs and optional Bun bridge,
+then prints the appropriate next command. Corporate users can use approved
+offline artifacts without Git, Bun, GitHub CLI, or Quarto.
+
 Fastest normal Claude Code setup:
 
 macOS, Linux, WSL, or Git Bash:
@@ -134,6 +140,27 @@ adjust one field, or choose the full survey. It infers language, environment,
 reporting, storage, and data domain from project files and leaves optional
 preferences unset instead of forcing a long questionnaire.
 
+### Safety gates in current workflows
+
+CE DataScience keeps method decisions explicit rather than filling gaps with
+defaults. `ce-data-qa` checks row-count reconciliation, key uniqueness, join
+cardinality, type stability, index alignment, and declared missing-data
+handling before it emits GO, WARN, or NO-GO. Confirmed corruption or undeclared
+synthetic/fallback data is a NO-GO.
+
+For observational or causal work, `ce-plan` and
+`ce-statistical-analysis-plan` require an estimand, intended grain, keys, time
+zero, assumptions, and success criteria before finalization. `ce-work` fails
+loudly at missing, corrupt, or incompatible inputs. `ce-code-review` separates
+demonstrated integrity defects (blocking) from methodological questions that
+need analyst resolution, including causal timing and dynamic survival-model
+evaluation.
+
+For dynamic survival decisions, the calibration reviewer requires a stated
+decision time and horizon, a case/control definition, censoring-aware
+time-dependent AUC with confidence intervals, and calibration at the matching
+horizon. A generic binary AUC or Harrell C-index does not answer that question.
+
 Connection skills can hand setup a verified database default by emitting
 `__CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified`.
 For database-backed projects, `data_root` stays optional and is used only for
@@ -219,14 +246,14 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
 | `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks, with Markdown/HTML output modes and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Create claims-based SAPs, methods prose, variable dictionaries, and analysis workbooks with explicit grain, diagnostics, decision evidence, and literature grounding |
-| `/ce-code-review` | Statistical and methodological review with confidence-calibrated findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
-| `/ce-work` | Execute analysis tasks with SAP tracking -- surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
+| `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
+| `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
 | `/ce-notebook-edit` | Safely insert reviewed cells into existing Jupyter notebooks using unique metadata tags, backups, and structural validation |
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
 | `/ce-sap-tabular` | Generate the biostatistics-style tabular companion to the prose SAP -- Overview, Outputs, Master Variables, and optional long/wide sample sheets that statisticians hand to programmers |
-| `/ce-data-qa` | Data QA gate with 16 numbered checks, GO/NO-GO emit, missingness pattern catalog, and PI sign-off block. Runs between data extraction and modeling |
+| `/ce-data-qa` | Data QA gate for row counts, joins, keys, types, missingness, and stack-specific integrity risks; emits GO/WARN/NO-GO, a missingness catalog, and PI sign-off block. Runs between data extraction and modeling |
 | `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
 
@@ -253,7 +280,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- anchors to clif-icu.com, confirms the CLIF/mCIDE 2.1 or 3.0 family when not declared, then enforces Parquet-only, version-correct mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; otherwise confirms a declared family before enforcing Parquet-only, version-correct mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 
@@ -348,7 +375,7 @@ Agents are specialized subagents invoked by skills.
 |-------|-------------|
 | `ce-data-leakage-reviewer` | Target leakage, train-test contamination, look-ahead bias in time-series, normalization fit on test set, subject-in-both-splits |
 | `ce-fairness-reviewer` | Subgroup performance auditing (sex / race / age / hospital / payer / language) for clinical prediction models, against TRIPOD+AI and FDA AI/ML guidance |
-| `ce-calibration-reviewer` | Calibration plot, intercept and slope, Brier, ICI, decision-curve analysis -- catches the AUC-only TRIPOD+AI gap |
+| `ce-calibration-reviewer` | Calibration plot, intercept and slope, Brier, ICI, decision-curve analysis, and censoring-aware time-dependent AUC for dynamic survival decisions -- catches the AUC-only TRIPOD+AI gap |
 
 ### EHR & Administrative Data Review
 

@@ -1,5 +1,11 @@
 # Changelog
 
+This generated history is updated only by Release Please in its release pull
+requests. For the current release status and notes, use the repository's
+[GitHub Releases](https://github.com/sajor2000/ce-datascience/releases) and
+open release PRs; do not hand-add release entries from feature or documentation
+work.
+
 ## [3.4.2](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.1...cli-v3.4.2) (2026-07-16)
 
 
