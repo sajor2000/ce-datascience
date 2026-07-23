@@ -19,8 +19,7 @@ The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for 
 13. `position` — prone / not_prone.
 14. `patient_procedures` — procedure code formats.
 15. Validation patterns (Python / polars and R / arrow + dplyr).
-16. CLIF v3 concept tables and opt-in extensions.
-17. When the cache is incomplete (refresh policy).
+16. When the cache is incomplete (refresh policy).
 
 ## adt
 
@@ -133,15 +132,6 @@ bad <- adt %>% filter(!location_category %in% allowed) %>% collect()
 stopifnot(nrow(bad) == 0)
 ```
 
-## CLIF v3 concept tables and opt-in extensions
-
-CLIF v3 concept work expands beyond the core CLIF 2.x ICU tabular family. Treat these as opt-in unless the project declares a v3 data dictionary:
-
-- `mCIDE/ecmo_mcs/` — ECMO and mechanical circulatory support categories.
-- `mCIDE/output/` — output table categories (fluid balance variants).
-
-Set `clif.data_dictionary_version: "3.0.0"` in `.ce-datascience/config.local.yaml` only when the source project says it is using CLIF v3. Otherwise `2.1.0` remains the default.
-
 ## When the cache here is incomplete (refresh policy)
 
-This file mirrors the major closed vocabularies for the CLIF 2.1.0 family. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** before validating. The mCIDE directory is the source of truth; this file is a cache. Note also that some upstream paths historically used `postion/` instead of `position/`; preserve upstream spelling when validating source repos. Refresh from upstream when the consortium publishes a new data dictionary release.
+This file mirrors the major closed vocabularies for the CLIF 2.1.0 + mCIDE 2.1 family only. For tables with large open vocabularies (`labs.lab_category`, `microbiology_culture.organism_category`, `medication_admin_*.med_category`), **fetch the live mCIDE CSV** before validating. The mCIDE directory is the source of truth; this file is a cache. For CLIF 3.0 + mCIDE 3.0, do not use this cache: read the declared v3 dictionary and mCIDE sources, then document the mapping from any 2.1 input values. Note also that some upstream paths historically used `postion/` instead of `position/`; preserve upstream spelling when validating source repos.

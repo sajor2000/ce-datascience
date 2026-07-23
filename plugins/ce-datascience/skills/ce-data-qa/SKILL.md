@@ -67,12 +67,12 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 
 ### Step 3: Run the QA checks
 
-**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the `version=` value in the CLIF handoff as the authoritative data dictionary source.
+**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative family. If either version is missing, incomplete, or mixed, stop the category check and route to `ce-clif`; do not use a v2.1 cache by default.
 
 - **Storage check**: refuse to QA non-Parquet inputs for CLIF tables; emit a `block` finding if asked to QA CSV/Feather data declared as CLIF.
 - **ID type check**: `patient_id` and `hospitalization_id` are VARCHAR — `block` if cast to int.
 - **Datetime check**: every `*_dttm` column is timezone-aware UTC — `block` if any tz-naive timestamps exist.
-- **mCIDE vocabulary check**: every `*_category` column conforms to the declared CLIF data dictionary and mCIDE allow-list. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
+- **mCIDE vocabulary check**: every `*_category` column conforms to the selected CLIF/mCIDE family. Use the bundled allow-list only for 2.1 + 2.1; for 3.0 + 3.0, read the project’s declared v3 mCIDE source and record it in the report. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
 - **Outlier-handling check**: physiologic ranges follow `outlier-handling/` thresholds when present; `warn` on out-of-range, never silently clip.
 - **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
 - **Canonical implementation**: prefer upstream CLIF tooling when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator` DQA path. `__CE_LANG__ primary=r` -> use the CLIF project-template QC and outlier-handler pattern. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.

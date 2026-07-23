@@ -253,7 +253,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- anchors to clif-icu.com, then enforces Parquet-only, mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- anchors to clif-icu.com, confirms the CLIF/mCIDE 2.1 or 3.0 family when not declared, then enforces Parquet-only, version-correct mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 

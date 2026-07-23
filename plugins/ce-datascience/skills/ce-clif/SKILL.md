@@ -1,6 +1,6 @@
 ---
 name: ce-clif
-description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including Parquet, UTC datetime, mCIDE, and no-PHI output rules."
+description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including a selected CLIF/mCIDE 2.1 or 3.0 family, Parquet, UTC datetime, and no-PHI output rules."
 argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 ---
 
@@ -51,14 +51,36 @@ When signals are ambiguous (only weak signals, or the user mentions a CLIF table
 
 `/ce-clif --off` forces deactivation for the session.
 
-When activated, print one acknowledgment line and emit the handoff signal:
+### Select the CLIF and mCIDE family
+
+Read `references/version-families.md` before selecting a family. Inspect, in
+order, an explicit `--version`, `clif.data_dictionary_version` and
+`clif.mcide_version` in local config, a project data-dictionary declaration,
+and a documented source manifest. Treat a matching pair as a direct selection:
+`2.1.0` + `2.1.0` or `3.0.0` + `3.0.0`. Never infer `3.0.0` merely from an
+`mCIDE/` directory, a table name, or missing language evidence.
+
+When no matching pair is declared, signals conflict, or only one version is
+known, ask this blocking question before generating category filters or
+validating vocabularies. Follow the interaction contract in Skill Value; if the
+blocking question UI is unavailable, present the same numbered choices in chat
+and wait. Never silently choose a family.
+
+> Which CLIF and mCIDE version family should this project use?
+>
+> 1. CLIF 2.1 + mCIDE 2.1 — current released structured dictionary.
+> 2. CLIF 3.0 + mCIDE 3.0 — multimodal release family; use only when the project explicitly targets it.
+
+Reject an undeclared mixed pair such as CLIF 3.0 with mCIDE 2.1. Record a
+project-specific exception only after the user supplies its source and states
+which vocabulary is authoritative.
+
+When selected, print one acknowledgment line and emit the handoff signal:
 
 ```
-[ce-clif] CLIF profile active (data dictionary v2.1.0); protected paths read-only without POC sign-off.
-__CE_CLIF__ active=true version=2.1.0 strict=<true|false> rules=references/clif-rules.md
+[ce-clif] CLIF profile active (data dictionary v<dd-version>, mCIDE v<mcide-version>); protected paths read-only without POC sign-off.
+__CE_CLIF__ active=true version=<dd-version> mcide_version=<mcide-version> selection=<declared|selected> strict=<true|false> rules=references/clif-rules.md
 ```
-
-Default `version=2.1.0` (current public CLIF structured ICU data dictionary; verified from `https://clif-icu.com/`, CLIF-MIMIC, and current CLIF project manifests on 2026-06-06). Override per project via `clif.data_dictionary_version` in `.ce-datascience/config.local.yaml`. CLIF v3.0 is planned as a multimodal release; opt in explicitly only when a project declares that data dictionary.
 
 When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills resume default behavior.
 
@@ -96,7 +118,8 @@ If the resolved config contains a `clif:` block, merge it over the defaults. Rec
 ```yaml
 profile: clif
 clif:
-  data_dictionary_version: "2.1.0"   # default; current public CLIF structured ICU data dictionary
+  data_dictionary_version: "2.1.0"   # selected family: 2.1.0 or 3.0.0
+  mcide_version: "2.1.0"             # must match data_dictionary_version unless an authoritative exception is documented
   parquet_only: true                  # refuse CSV/Feather for CLIF tables
   protected_paths:                    # in addition to the built-in list
     - mCIDE/**
@@ -134,10 +157,10 @@ When the session is about to edit any `protected_paths` entry, the skill's guard
 ## Handoff signal (canonical envelope)
 
 ```
-__CE_CLIF__ active=<true|false> version=<dd-version> strict=<true|false> rules=<path-to-clif-rules.md>
+__CE_CLIF__ active=<true|false> version=<dd-version> mcide_version=<mcide-version> selection=<declared|selected> strict=<true|false> rules=<path-to-clif-rules.md>
 ```
 
-Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; they parse `version=` to know which data dictionary applies; they parse `strict=true` to escalate warnings into refusals.
+Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; they parse `version=` and `mcide_version=` as one selected family before validating categories; they parse `strict=true` to escalate warnings into refusals. If `mcide_version=` is absent, stop category validation and route back to this skill rather than assuming the v2.1 cache applies.
 
 ## Code recipes (drawn from the upstream CLIF org)
 
@@ -152,6 +175,8 @@ When the user is writing CLIF analysis code, surface canonical recipes from the 
 @./references/clif-rules.md — Core rules (Parquet-only, UTC datetimes, mCIDE vocab, project layout, PHI rules, three-script architecture)
 
 @./references/mcide-vocab.md — Allow-listed values for every `_category` column across the 16 beta tables, plus pointers to mCIDE CSV sources
+
+`references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
 
 @./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
 

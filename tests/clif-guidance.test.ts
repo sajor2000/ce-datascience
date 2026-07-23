@@ -20,23 +20,32 @@ function expectContainsAll(text: string, snippets: string[]): void {
 }
 
 describe("CLIF guidance", () => {
-  test("uses the current public CLIF 2.1.0 default instead of stale version claims", async () => {
+  test("selects an explicit matching CLIF and mCIDE version family", async () => {
     const files = await Promise.all([
       readClif("SKILL.md"),
       readClif("references/clif-rules.md"),
       readClif("references/mcide-vocab.md"),
+      readClif("references/version-families.md"),
       readClif("references/r-template-recipes.md"),
     ])
     const combined = files.join("\n")
 
-    expect(combined).toContain("2.1.0")
-    expect(combined).toContain("last verified 2026-06-06")
+    expectContainsAll(combined, [
+      "CLIF 2.1 + mCIDE 2.1",
+      "CLIF 3.0 + mCIDE 3.0",
+      "mcide_version=",
+      "Which CLIF and mCIDE version family should this project use?",
+      "Never infer `3.0.0` merely from an",
+      "Never silently choose a family",
+      "Do not validate against the bundled v2.1 cache",
+    ])
+    expect(combined).toMatch(/lowercase\s+snake_case mCIDE permissible values/)
     expect(combined).not.toContain("last verified 2026-06-02")
     expect(combined).toContain("https://clif-icu.com/")
     expect(combined).toContain("Core source")
     expect(combined).not.toContain("2.1.1")
     expect(combined).not.toContain("2.2.0")
-    expect(combined).not.toContain("latest stable release")
+    expect(combined).not.toContain("Default `version=2.1.0`")
   })
 
   test("points Python users at current clifpy install guidance", async () => {
@@ -67,6 +76,8 @@ describe("CLIF guidance", () => {
       "clif_profile_active=true",
       "Weak CLIF signals require two or more matches",
       "profile: clif",
+      "mcide_version",
+      "Which CLIF and mCIDE version family should this project use?",
       "CLIF Parquet files (recommended)",
       "clifpy (recommended official CLIF client)",
       "polars (recommended for large CLIF tables)",
@@ -80,9 +91,10 @@ describe("CLIF guidance", () => {
       "uv (recommended for current CLIF Python repos and reproducible uv.lock files)",
       "Marimo (recommended for current CLIF Python examples)",
     ])
-    expectContainsAll(configTemplate, ["python: uv", "python: [clifpy, polars]"])
+    expectContainsAll(configTemplate, ["mcide_version", "python: uv", "python: [clifpy, polars]"])
     expectContainsAll(stackTemplate, [
       "CLIF + uv + clifpy/polars + Marimo/Jupyter",
+      "mcide_version",
       "python: [uv, venv, conda, poetry, pixi, none]",
     ])
     expect(healthScript).toContain("uv|command -v uv|optional")

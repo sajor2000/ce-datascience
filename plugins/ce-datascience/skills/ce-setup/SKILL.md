@@ -64,7 +64,8 @@ explicit CLIF/mCIDE request) or two weak signals. Weak CLIF signals require two 
 stack_profile:
   profile: clif
   clif:
-    data_dictionary_version: "2.1.0"
+    data_dictionary_version: "<confirmed 2.1.0 or 3.0.0>"
+    mcide_version: "<matching confirmed 2.1.0 or 3.0.0>"
 ```
 
 ## Phase 1: Confirm an adaptive profile
@@ -111,6 +112,15 @@ unneeded setup preferences.
   otherwise leave them unset until an analysis needs them.
 
 If CLIF is active, use the detected profile as CLIF-aware guidance: CLIF Parquet files (recommended), clifpy (recommended official CLIF client), polars (recommended for large CLIF tables), duckdb, pyarrow, pandera (schema validation; used in CLIF-MIMIC), sf-hamilton (pipeline DAGs; used in CLIF-MIMIC), tableone (Table 1; used in CLIF project repos), gtsummary (Table 1 and summaries; CLIF template), cmprsk (competing risks; used in CLIF mobilization analyses), uv (recommended for current CLIF Python repos and reproducible uv.lock files), and Marimo (recommended for current CLIF Python examples). Present these only when the user adjusts the relevant field or opens the full survey.
+
+Before saving a CLIF profile, inspect the existing local config, repository data
+dictionary, and source manifest for a matching CLIF/mCIDE pair. Reuse an
+explicit pair without asking. If absent, incomplete, or conflicting, ask one
+focused blocking question: `Which CLIF and mCIDE version family should this
+project use?` Offer `CLIF 2.1 + mCIDE 2.1` and `CLIF 3.0 + mCIDE 3.0`; use the
+platform question tool specified above, with numbered chat fallback. Do not
+default an unknown CLIF project to 2.1, infer 3.0 from `mCIDE/` alone, or save
+an undeclared mixed pair. Route the selected pair through `__CE_CLIF__`.
 
 ### Adjust a field
 
