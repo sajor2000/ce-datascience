@@ -1,6 +1,6 @@
 {
-  ".": "3.5.0",
-  "plugins/ce-datascience": "3.5.0",
+  ".": "3.6.0",
+  "plugins/ce-datascience": "3.6.0",
   ".claude-plugin": "0.2.0",
   ".cursor-plugin": "0.2.0"
 }
