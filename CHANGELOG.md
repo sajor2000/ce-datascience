@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.5.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.2...cli-v3.5.0) (2026-07-23)
+
+
+### Features
+
+* **calibration:** review time-dependent survival AUC ([9dbee81](https://github.com/sajor2000/ce-datascience/commit/9dbee81344a53d7235c0dd8b27c8c0042d662b91))
+* **calibration:** review time-dependent survival AUC ([8f69cf7](https://github.com/sajor2000/ce-datascience/commit/8f69cf7bc6bc4052683183f417083ca69c2a8cc3))
+* **sap:** add claims-based planning workflow ([565c06a](https://github.com/sajor2000/ce-datascience/commit/565c06a070c898e52d4e91f81a58407db7e180c6))
+* **statistical-analysis-plan:** add claims-based SAP workflow ([b78c861](https://github.com/sajor2000/ce-datascience/commit/b78c861feca64bbb75f3f0f07ce028b44ed0b518))
+
+
+### Bug Fixes
+
+* **ce-work:** fail loudly at analytical boundaries ([c582aed](https://github.com/sajor2000/ce-datascience/commit/c582aede741bc4d82d90eb3b954ba9fcdc4bb805))
+* **clif:** require explicit dictionary family ([5f48d44](https://github.com/sajor2000/ce-datascience/commit/5f48d448e2edec68686104f6ab6eff65fb85f078))
+* **clif:** require explicit dictionary family ([d681020](https://github.com/sajor2000/ce-datascience/commit/d6810209b89d3725cb4047e44b789570c9781662))
+* **clif:** support direct version selection ([9c71366](https://github.com/sajor2000/ce-datascience/commit/9c71366f7dd55a26db18fc87048c64e90b916685))
+* **data-qa:** warn on unsafe DuckDB writers ([71792cb](https://github.com/sajor2000/ce-datascience/commit/71792cbe3503a51dcc9a18f7e94618dfceb21c4c))
+* **guardrails:** enforce analytical integrity gates ([5976a36](https://github.com/sajor2000/ce-datascience/commit/5976a36ca0e69ac22b27f1a80e86010443933f9f))
+* **guardrails:** enforce causal planning and data checks ([5bb6d27](https://github.com/sajor2000/ce-datascience/commit/5bb6d271ef8df55a51915246d4ce15537278aba6))
+* **review:** clarify evidence-based method guardrails ([ddbb372](https://github.com/sajor2000/ce-datascience/commit/ddbb3723d3382e1011ccd8662cc2d5ed75b107b2))
+* **review:** preserve risk-based causal gates ([56f4ad0](https://github.com/sajor2000/ce-datascience/commit/56f4ad0956dbb0d46cea52a8554d7918a5d5dcdc))
+* **review:** strengthen analytical guardrails ([bd40f14](https://github.com/sajor2000/ce-datascience/commit/bd40f14d9f61f4695964676c863c497449cfd193))
+* **setup:** streamline evidence-first onboarding ([3179be3](https://github.com/sajor2000/ce-datascience/commit/3179be39dc20aef2adbceeb6283d236bdb66e5ae))
+* **setup:** streamline evidence-first onboarding ([f0b9123](https://github.com/sajor2000/ce-datascience/commit/f0b9123a2c82d8d6290bab2f896262b7e93914f9))
+
 ## [3.4.2](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.1...cli-v3.4.2) (2026-07-16)
 
 
