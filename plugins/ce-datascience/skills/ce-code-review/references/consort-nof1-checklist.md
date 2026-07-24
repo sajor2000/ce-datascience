@@ -1,11 +1,11 @@
 # CONSORT Extension for N-of-1 Trials
 
 Consolidated Standards of Reporting Trials (CONSORT) extension for N-of-1 trials.
-Supplements the core CONSORT 2010 checklist with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series.
+Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series.
 
 **Primary reference:** Vohra S, Shamseer L, Sampson M, et al. CONSORT extension for reporting N-of-1 trials (CENT) 2015 statement. J Clin Epidemiol. 2015;76:9-17. doi:10.1016/j.jclinepi.2015.05.004. PMID: 26272792.
 
-Apply this checklist alongside the core CONSORT 2010 checklist. Items below represent additions or modifications to base CONSORT items required for N-of-1 trial designs. Each item includes the description and what to look for in analysis code and outputs.
+Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for N-of-1 trial designs. Each item includes the description and what to look for in analysis code and outputs.
 
 ---
 

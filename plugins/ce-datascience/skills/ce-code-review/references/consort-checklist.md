@@ -1,13 +1,15 @@
-# CONSORT Checklist for Randomized Controlled Trials
+# CONSORT 2025 Checklist for Randomized Controlled Trials
 
-Consolidated Standards of Reporting Trials (CONSORT) 2010 Statement.
-25-item checklist applicable to parallel-group randomized controlled trials (the most common RCT design).
+Consolidated Standards of Reporting Trials (CONSORT) 2025 Statement.
+Current core checklist for randomized trials; the 2010 checklist remains a legacy reference for older extensions and manuscripts.
 
-**Primary reference:** Schulz KF, Altman DG, Moher D; CONSORT Group. CONSORT 2010 statement: updated guidelines for reporting parallel group randomised trials. BMJ. 2010;340:c332. doi:10.1136/bmj.c332. PMID: 20332509.
+**Current primary reference:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. BMJ. 2025;389:e081123. doi:10.1136/bmj-2024-081123. PMID: 40228833.
+
+**Legacy reference:** Schulz KF, Altman DG, Moher D; CONSORT Group. CONSORT 2010 statement: updated guidelines for reporting parallel group randomised trials. BMJ. 2010;340:c332. doi:10.1136/bmj.c332. PMID: 20332509.
 
 **Explanation and elaboration:** Moher D, Hopewell S, Schulz KF, et al. CONSORT 2010 explanation and elaboration: updated guidelines for reporting parallel group randomised trials. BMJ. 2010;340:c869. doi:10.1136/bmj.c869. PMID: 20332511.
 
-Extensions exist for cluster-randomized, non-inferiority, crossover, adaptive, and other designs. This checklist covers the core parallel-group trial. Apply the relevant extension when the study design departs from standard parallel-group randomization.
+Extensions exist for cluster-randomized, non-inferiority, crossover, adaptive, and other designs. Apply the current CONSORT core together with the relevant design-specific extension; do not treat CONSORT 2010 as the current primary standard.
 
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.

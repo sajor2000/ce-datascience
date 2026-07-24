@@ -3,7 +3,7 @@
 TARGET (TArgeted Reporting of observational studies emulating a randomized trial using the TARGET framework).
 Reporting checklist for observational studies that explicitly emulate a hypothetical target trial.
 
-**Primary reference:** Hansford HJ, Cashin AG, Jones MD, Swanson SA, Islam N, Douglas SR, Camacho EM, Furlan AD, Golub RM, Hopewell S, Lee H, Maas ET, Mathieson S, McCord KA, Moher D, Moreno-Betancur M, Rijnhart JJW, Rogers KD, Sandbrink F, Schriger DL, Turk DC, Williamson E, McAuley JH; TARGET Working Group. The TARGET statement: a framework for the reporting of studies that emulate a target trial using observational data. BMJ. 2025;388:e081680.
+**Primary reference:** Cashin AG, Hansford HJ, Hernan MA, et al. Transparent reporting of observational studies emulating a target trial: the TARGET statement. BMJ. 2025. doi:10.1136/bmj-2025-087179. PMID: 40903028.
 
 This checklist applies to observational studies that frame their analysis as an emulation of a hypothetical randomized trial. Use alongside STROBE and, where applicable, RECORD.
 

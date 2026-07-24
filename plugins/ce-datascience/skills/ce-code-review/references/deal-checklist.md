@@ -1,10 +1,12 @@
-# DEAL Checklist for Deep Learning in Pathology
+# DEAL Candidate Checklist for Deep Learning in Pathology
 
 AI EXTENSION checklist providing reporting guidelines for studies using deep learning in computational pathology.
 
 **Base guideline:** Varies by study type (TRIPOD+AI for prediction models, STARD for diagnostic accuracy, CONSORT for trials)
 
-**Primary reference:** Baxi V, Edwards R, Montalto M, Saha S. Digital pathology and artificial intelligence in translational medicine and clinical practice. Mod Pathol. 2022;35(1):23-32. doi:10.1038/s41379-021-00919-2. PMID: 34611303. Citation: The DEAL (DEep Learning in pAthology) reporting guideline was developed by the computational pathology community as a domain-specific extension. PubMed PMID not available for the primary DEAL checklist document -- published in pathology/AI venues as a community consensus guideline. The reference above provides foundational context for deep learning reporting in pathology.
+**Evidence status:** Unverified. The cited paper is background literature, not a verified primary DEAL checklist publication. Do not route DEAL as an authoritative reporting guideline until a primary source and stable checklist are identified.
+
+**Background reference:** Baxi V, Edwards R, Montalto M, Saha S. Digital pathology and artificial intelligence in translational medicine and clinical practice. Mod Pathol. 2022;35(1):23-32. doi:10.1038/s41379-021-00919-2. PMID: 34611303.
 
 This checklist provides items specific to deep learning in computational pathology. Apply alongside the primary reporting guideline appropriate for the study design.
 

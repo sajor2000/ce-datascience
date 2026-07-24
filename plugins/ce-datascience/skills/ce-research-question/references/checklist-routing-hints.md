@@ -21,7 +21,7 @@ Default mapping from `suggested_design` → primary EQUATOR checklist. This is a
 | Diagnostic accuracy (AI) | STARD-AI | CLAIM if imaging |
 | Imaging AI | CLAIM | TRIPOD+AI or STARD-AI depending on aim |
 | ML methods paper | REFORMS | TRIPOD+AI if clinical |
-| Generative AI / LLM paper | CHART or DEAL | PDSQI-9 if patient-facing |
+| Generative AI / LLM paper | Ask whether the study is chatbot health advice, a trial, a diagnostic test, or a prediction model | Apply CHART only to chatbot health-advice reporting; do not auto-route provisional or unverified DEAL/PDSQI-9 |
 | Systematic review / meta-analysis | PRISMA | PRISMA-DTA (diagnostic), PRISMA-NMA (network) |
 | Scoping review | PRISMA-ScR | — |
 | Case report | CARE | — |

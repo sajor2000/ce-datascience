@@ -3,9 +3,12 @@
 Structured Template for Planning and Reporting on the Implementation of Real World Evidence (STaRT-RWE).
 Checklist for planning and reporting real-world evidence studies intended for regulatory decision-making.
 
-**Primary reference:** Wang SV, Schneeweiss S, RWE DUPLICATE Initiative Working Group, et al. Emulation of Randomized Clinical Trials With Nonrandomized Database Studies: Results of 32 Clinical Trials. JAMA. 2023;330(16):1557-1566. doi:10.1001/jama.2023.19572. For the STaRT-RWE checklist specifically: Wang SV, Pottegard A, Crown W, Norgaard M, Ekstrom CT, Feldman W, et al. HARmonized Protocol Template to Enhance Reproducibility of Hypothesis Evaluating Real-World Evidence Studies on Treatment Effects: A Good Practices Report of a Joint ISPE/ISPOR Task Force. Pharmacoepidemiol Drug Saf. 2021;30(1):44-55. doi:10.1002/pds.5169. PMID: 33210386. For the original STaRT-RWE statement: Wang SV, Pottegard A, Crown W, et al. STaRT-RWE: Structured Template for Planning and Reporting on the Implementation of Real World Evidence Studies. BMJ. 2021;372:n48. doi:10.1136/bmj.n48. PMID: 33472779.
+**Related and legacy references:** Wang SV, Schneeweiss S, RWE DUPLICATE Initiative Working Group, et al. Emulation of Randomized Clinical Trials With Nonrandomized Database Studies: Results of 32 Clinical Trials. JAMA. 2023;330(16):1557-1566. doi:10.1001/jama.2023.19572. For the related HARmonized protocol template: Wang SV, Pottegard A, Crown W, Norgaard M, Ekstrom CT, Feldman W, et al. HARmonized Protocol Template to Enhance Reproducibility of Hypothesis Evaluating Real-World Evidence Studies on Treatment Effects: A Good Practices Report of a Joint ISPE/ISPOR Task Force. Pharmacoepidemiol Drug Saf. 2021;30(1):44-55. doi:10.1002/pds.5169. PMID: 33210386.
+**Current primary reference:** Wang SV, Pottegard A, Crown W, et al. STaRT-RWE: structured template for planning and reporting on the implementation of real world evidence studies. BMJ. 2021;372:n48. doi:10.1136/bmj.n48. PMID: 33472779.
 
-Apply when planning or reporting a real-world evidence (RWE) study on treatment effects using non-interventional data (electronic health records, claims, registries) in contexts where results may inform regulatory, coverage, or clinical guideline decisions. STaRT-RWE is designed to support transparency, pre-specification, and replicability of RWE analyses.
+**Related protocol-template reference:** Wang SV, Pottegard A, Crown W, et al. HARmonized protocol template to enhance reproducibility of hypothesis evaluating real-world evidence studies on treatment effects. Pharmacoepidemiol Drug Saf. 2021;30(1):44-55. doi:10.1002/pds.5169. PMID: 33210386.
+
+Apply as a planning/reporting template for real-world evidence studies on treatment effects using non-interventional data. It is not a replacement for STROBE, RECORD, RECORD-PE, or TARGET when those design-specific guidelines apply.
 
 ---
 

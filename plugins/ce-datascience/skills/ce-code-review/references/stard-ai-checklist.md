@@ -3,11 +3,11 @@
 Standards for Reporting of Diagnostic Accuracy Studies -- Artificial Intelligence (STARD-AI).
 Extension of STARD for studies evaluating AI/ML-based diagnostic tests against a reference standard.
 
-**Primary reference:** Sounderajah V, Ashrafian H, Aggarwal R, De Fauw J, Denniston AK, Greaves F, Karthikesalingam A, King D, Liu X, Markar SR, McInnes MDF, Panch T, Pearson-Stuttard J, Ting DSW, Golub RM, Moher D, Bossuyt PM, Darzi A. Developing specific reporting guidelines for diagnostic accuracy studies assessing AI interventions: The STARD-AI Steering Group. Nat Med. 2020;26(6):807-808. doi:10.1038/s41591-020-0941-1. PMID: 32514173.
+**Primary reference:** Sounderajah V, Guni A, Liu X, et al. The STARD-AI reporting guideline for diagnostic accuracy studies using artificial intelligence. Nat Med. 2025. doi:10.1038/s41591-025-03953-8. PMID: 40954311.
 
-**Companion:** Defined based on Sounderajah V et al. A quality assessment tool for artificial intelligence-centered diagnostic test accuracy studies: QUADAS-AI. Nat Med. 2024. And the STARD-AI extension items published alongside the STARD 2015 update.
+**Development protocol:** Sounderajah V, Ashrafian H, Golub RM, et al. Developing a reporting guideline for artificial intelligence-centred diagnostic test accuracy studies: the STARD-AI protocol. BMJ Open. 2021;11:e047709. doi:10.1136/bmjopen-2020-047709. PMID: 34183345.
 
-This checklist supplements STARD 2015. Apply alongside the base STARD checklist when the index test uses AI/ML.
+This checklist supplements STARD 2015. Apply alongside the base STARD checklist when the index test uses AI/ML; the 2020 protocol is not the final reporting standard.
 
 ---
 

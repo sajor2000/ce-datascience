@@ -1,12 +1,12 @@
-# PDSQI-9 Checklist for Prediction Model Dataset Quality
+# PDSQI-9 Candidate Tool for Prediction Model Dataset Quality
 
 AI EXTENSION checklist for assessing the quality of datasets used in predictive model studies, particularly those built from electronic health records (EHR) and administrative data.
 
 **Base guideline:** TRIPOD+AI (when building prediction models from EHR or administrative data)
 
-**Primary reference:** Goldstein BA, Cerullo M, Engstrom B, et al. Development and performance of a clinical prediction model dataset quality indicator. Unpublished / pre-print. Citation: The PDSQI-9 (Prediction model Data Set Quality Indicator) is a 9-item tool for evaluating the quality of datasets underlying clinical prediction models. PubMed PMID not available -- the tool has been referenced in the prediction model methodology literature and is used as a complement to TRIPOD reporting.
+**Evidence status:** Unverified. The repository has not identified a primary publication establishing the PDSQI-9 acronym and checklist represented here. Do not present this file as a published reporting guideline or route it automatically.
 
-This checklist supplements TRIPOD+AI for studies using EHR or administrative datasets. Apply both checklists together when developing prediction models from routinely collected health data.
+This candidate may be used only as an explicitly labeled local data-quality aid after the study team verifies the intended source. It does not replace TRIPOD or TRIPOD+AI.
 
 ---
 
