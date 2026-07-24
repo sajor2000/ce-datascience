@@ -26,6 +26,6 @@ argument-hint: "[data-wrangling|joins|plots|refactor]"
 
 ## Validation
 
-Use `/ce-data-qa` for join, type, and missingness gates. Add lightweight `stopifnot()` or testthat expectations at critical input/output boundaries rather than fabricating a fallback tibble.
+Load the `ce-data-qa` skill for join, type, and missingness gates. Add lightweight `stopifnot()` or testthat expectations at critical input/output boundaries rather than fabricating a fallback tibble.
 
 Before relying on dplyr's join arguments, use Ref MCP to check the documentation for the project-pinned version when available. If that evidence is unavailable, use explicit key/row-count assertions and report the version gap.

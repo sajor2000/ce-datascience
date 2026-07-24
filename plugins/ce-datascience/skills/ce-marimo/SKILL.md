@@ -22,12 +22,12 @@ argument-hint: "[new|edit|validate|export]"
 4. Treat widgets as user inputs, not hidden defaults. In script mode, use declared test/config inputs only; do not replace failed production sources with synthetic data.
 5. Keep mutable state out of cross-cell objects when a pure derived value can represent the same result.
 6. Run `marimo check <notebook.py>` through the project runner when available, then execute the notebook's non-interactive path or report the validation gap.
-7. Use `/ce-data-qa`, `/ce-plan`, and `/ce-code-review` for analytical work inside the notebook; Marimo structure does not waive the data or method gates.
+7. Load the `ce-data-qa`, `ce-plan`, and `ce-code-review` skills for analytical work inside the notebook; Marimo structure does not waive the data or method gates.
 
 ## Existing notebooks
 
 - For a bounded edit to an existing Marimo `.py` notebook, preserve the app structure and modify only the requested cells.
-- Prefer `/ce-notebook-edit` when the target is Jupyter `.ipynb`; do not treat JSON notebook cells as Marimo functions.
+- Load the `ce-notebook-edit` skill when the target is Jupyter `.ipynb`; do not treat JSON notebook cells as Marimo functions.
 - Keep PEP 723 dependency metadata, if present, synchronized with imports. Do not pin or install packages unless the user asks.
 
 ## Fail-loud rules

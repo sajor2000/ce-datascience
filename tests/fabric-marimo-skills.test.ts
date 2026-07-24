@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test"
 import { readFile } from "fs/promises"
+import { promises as fs } from "fs"
+import os from "os"
 import path from "path"
+import { convertClaudeToOpenCode } from "../src/converters/claude-to-opencode"
+import { loadClaudePlugin } from "../src/parsers/claude"
+import { writeOpenCodeBundle } from "../src/targets/opencode"
 
 const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
 
@@ -21,11 +26,14 @@ describe("Fabric and Marimo workflow skills", () => {
     const skills = await Promise.all(names.map(readSkill))
 
     expect(skills[0]).toContain("Microsoft Fabric Router")
-    expect(skills[0]).toContain("/ce-fabric-coding")
-    expect(skills[0]).toContain("/ce-fabric-pipelines")
-    expect(skills[0]).toContain("/ce-fabric-semantic-models")
-    expect(skills[0]).toContain("/ce-fabric-ml")
-    expect(skills[0]).toContain("/ce-fabric-kql")
+    expect(skills[0]).toContain("load its named skill")
+    expect(skills[0]).toContain("`ce-fabric-coding` skill")
+    expect(skills[0]).toContain("`ce-fabric-pipelines` skill")
+    expect(skills[0]).toContain("`ce-fabric-semantic-models` skill")
+    expect(skills[0]).toContain("`ce-fabric-ml` skill")
+    expect(skills[0]).toContain("`ce-fabric-kql` skill")
+    expect(skills[0]).toContain("blocking question UI")
+    expect(skills[0]).toContain("free-form input")
     expect(skills.join("\n")).toContain("data_layer: fabric")
     expect(skills.join("\n")).toContain("fail-loud")
     expect(skills.join("\n")).toContain("SQL analytics endpoint")
@@ -37,9 +45,30 @@ describe("Fabric and Marimo workflow skills", () => {
     expect(marimo).toContain("import marimo as mo")
     expect(marimo).toContain("@app.cell")
     expect(marimo).toContain("marimo check <notebook.py>")
-    expect(marimo).toContain("/ce-data-qa")
+    expect(marimo).toContain("`ce-data-qa`")
     expect(marimo).toContain("Do not silently convert a Jupyter notebook")
     expect(marimo).toContain("Do not wrap ordinary reactive dependencies in broad")
+  })
+
+  test("keeps Fabric handoffs usable after OpenCode conversion", async () => {
+    const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+    const plugin = await loadClaudePlugin(pluginRoot)
+    const bundle = convertClaudeToOpenCode(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+    const outputRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-fabric-opencode-"))
+
+    await writeOpenCodeBundle(outputRoot, bundle)
+
+    const converted = await fs.readFile(
+      path.join(outputRoot, ".opencode", "skills", "ce-fabric", "SKILL.md"),
+      "utf8",
+    )
+    expect(converted).toContain("load its named skill")
+    expect(converted).toContain("`ce-fabric-coding` skill")
+    expect(converted).not.toMatch(/`\/ce-[a-z0-9-]+`/)
   })
 
   test("ships original R workflows for the curated R-statistics categories", async () => {

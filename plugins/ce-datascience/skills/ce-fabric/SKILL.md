@@ -13,32 +13,36 @@ argument-hint: "[coding|pipelines|semantic-models|ml|kql]"
 - **Output:** A selected Fabric route, the applicable CE guardrails, and a bounded next action.
 - **Ask only if:** The requested outcome could be implemented by more than one Fabric engine.
 - **Do not do:** Do not guess a workspace, capacity, identity, or write permission; do not move data or create cloud resources without authorization.
-- **Interaction:** Inspect project and connection evidence first. Ask one decision-changing question at a time.
+- **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 ## Route
 
-Choose the narrowest route and activate its skill before writing code:
+Choose the narrowest route and load its named skill before writing code:
 
 | Task | Route |
 |---|---|
-| Lakehouse/OneLake, PySpark, Spark SQL, Python notebook, Warehouse T-SQL, Delta tables | `/ce-fabric-coding` |
-| Data Factory pipelines, Copy activity/job, Dataflows Gen2, gateway, scheduling, alerts | `/ce-fabric-pipelines` |
-| Direct Lake, DAX, RLS/OLS, semantic-link/sempy, model refresh | `/ce-fabric-semantic-models` |
-| MLflow, experiments, registered models, batch scoring, AI functions | `/ce-fabric-ml` |
-| Eventhouse, KQL, Eventstreams, Real-Time Dashboards, Activator | `/ce-fabric-kql` |
+| Lakehouse/OneLake, PySpark, Spark SQL, Python notebook, Warehouse T-SQL, Delta tables | Load the `ce-fabric-coding` skill |
+| Data Factory pipelines, Copy activity/job, Dataflows Gen2, gateway, scheduling, alerts | Load the `ce-fabric-pipelines` skill |
+| Direct Lake, DAX, RLS/OLS, semantic-link/sempy, model refresh | Load the `ce-fabric-semantic-models` skill |
+| MLflow, experiments, registered models, batch scoring, AI functions | Load the `ce-fabric-ml` skill |
+| Eventhouse, KQL, Eventstreams, Real-Time Dashboards, Activator | Load the `ce-fabric-kql` skill |
 
-If the route is unclear, ask:
+If the route is unclear, follow the Skill Value interaction rule. Because there are five distinct destinations, present the numbered options below in chat when the blocking-question UI cannot show all five, accept free-form input, and wait for the user's response:
 
-> Which Fabric surface owns this task: Lakehouse/Warehouse code, pipeline orchestration, semantic model, ML, or Eventhouse/KQL?
+1. Lakehouse/Warehouse code
+2. Pipeline orchestration
+3. Semantic model
+4. ML
+5. Eventhouse/KQL
 
 ## Shared research workflow
 
-1. Run `/ce-setup` or inspect the existing stack profile. Record `data_layer: fabric` only when repository or user evidence supports it.
+1. Load the `ce-setup` skill or inspect the existing stack profile. Record `data_layer: fabric` only when repository or user evidence supports it.
 2. State the analytical grain, source item, read/write boundary, and intended artifact before generating transformations.
-3. Run `/ce-data-qa` at data boundaries. Reconcile source and target row counts, keys, joins, types, and missing-data handling.
-4. Use `/ce-plan` for a study or `/ce-statistical-analysis-plan` for claims work before scope-expanding analysis code.
-5. Use `/ce-work` to execute the selected route and preserve the fail-loud rule: no fabricated inputs, silent coercions, or hidden fallback datasets.
-6. Use `/ce-code-review` before relying on outputs for a scientific or operational decision.
+3. Load the `ce-data-qa` skill at data boundaries. Reconcile source and target row counts, keys, joins, types, and missing-data handling.
+4. Load the `ce-plan` skill for a study or the `ce-statistical-analysis-plan` skill for claims work before scope-expanding analysis code.
+5. Load the `ce-work` skill to execute the selected route and preserve the fail-loud rule: no fabricated inputs, silent coercions, or hidden fallback datasets.
+6. Load the `ce-code-review` skill before relying on outputs for a scientific or operational decision.
 
 ## Non-negotiable boundaries
 

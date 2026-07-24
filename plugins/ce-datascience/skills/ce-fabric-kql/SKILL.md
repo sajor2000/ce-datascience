@@ -20,8 +20,8 @@ argument-hint: "[query|ingestion|policy|dashboard|debug]"
 2. State the join kind and expected cardinality. Validate row counts before and after a join; do not accept an empty or reduced result without an explanation.
 3. For ingestion and update policies, document the source, target, mapping, schema evolution rule, backfill/replay plan, and failure behavior.
 4. Validate a bounded time window with known events before attaching a dashboard, model, or alerting workflow.
-5. Use `/ce-data-qa` when Eventhouse output becomes an analytical dataset; preserve source-to-target reconciliation.
-6. Use `/ce-code-review` for decisions based on time-varying or censored outcomes, not a dashboard aggregate alone.
+5. Load the `ce-data-qa` skill when Eventhouse output becomes an analytical dataset; preserve source-to-target reconciliation.
+6. Load the `ce-code-review` skill for decisions based on time-varying or censored outcomes, not a dashboard aggregate alone.
 
 ## Guardrails
 
