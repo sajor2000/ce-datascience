@@ -18,23 +18,23 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 
 | Task | Skill |
 |---|---|
-| R analysis design, base R, modeling, sensitivity analysis | `/ce-rstats` |
-| Read-only R code review | `/ce-r-review` |
-| dplyr, tidyr, ggplot2, purrr, joins | `/ce-r-tidyverse` |
-| Event-study or staggered adoption design | `/ce-r-event-studies` |
-| Package API, documentation, release structure | `/ce-r-package-development` |
-| testthat fixtures, snapshots, mocks | `/ce-r-package-testing` |
-| CRAN readiness and submission preparation | `/ce-r-cran` |
-| Profiling and performance improvement | `/ce-r-performance` |
-| `targets` pipeline authoring and validation | `/ce-r-targets` |
+| R analysis design, base R, modeling, sensitivity analysis | Load the `ce-rstats` skill |
+| Read-only R code review | Load the `ce-r-review` skill |
+| dplyr, tidyr, ggplot2, purrr, joins | Load the `ce-r-tidyverse` skill |
+| Event-study or staggered adoption design | Load the `ce-r-event-studies` skill |
+| Package API, documentation, release structure | Load the `ce-r-package-development` skill |
+| testthat fixtures, snapshots, mocks | Load the `ce-r-package-testing` skill |
+| CRAN readiness and submission preparation | Load the `ce-r-cran` skill |
+| Profiling and performance improvement | Load the `ce-r-performance` skill |
+| `targets` pipeline authoring and validation | Load the `ce-r-targets` skill |
 
 ## Shared R workflow
 
 1. Inspect `renv.lock`, `DESCRIPTION`, `_targets.R`, Quarto/R Markdown files, and existing project conventions before proposing packages or file layout.
-2. For research analysis, lock the estimand, grain, time zero, keys, missing-data handling, and success criteria with `/ce-plan` or `/ce-statistical-analysis-plan`.
-3. Use `/ce-data-qa` before model code and keep R transformations fail-loud at schema, join, and type boundaries.
+2. For research analysis, load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the estimand, grain, time zero, keys, missing-data handling, and success criteria.
+3. Load the `ce-data-qa` skill before model code and keep R transformations fail-loud at schema, join, and type boundaries.
 4. Preserve lockfiles and record `sessionInfo()` or the project-equivalent environment evidence with any reproducible result.
-5. Use `/ce-code-review` for causal, survival, or reporting claims; language-specific R syntax does not validate methodology by itself.
+5. Load the `ce-code-review` skill for causal, survival, or reporting claims; language-specific R syntax does not validate methodology by itself.
 
 ## Evidence-first R guidance
 

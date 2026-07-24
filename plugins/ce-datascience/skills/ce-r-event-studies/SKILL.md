@@ -28,4 +28,4 @@ If a research tool is unavailable, disclose that the method-source check could n
 
 ## Handoff
 
-Use `/ce-plan` or `/ce-statistical-analysis-plan` to lock the design, then `/ce-code-review` to audit timing, immortal-time risk, and estimator assumptions before reporting effects.
+Load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the design, then load the `ce-code-review` skill to audit timing, immortal-time risk, and estimator assumptions before reporting effects.

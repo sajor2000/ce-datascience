@@ -21,7 +21,7 @@ argument-hint: "[design|debug|incremental-load|alerting]"
 3. For incremental work, declare the watermark field, initial-load rule, late-arriving-data policy, and idempotent target key.
 4. Make the failure route observable. Test a representative failed dependency and inspect the pipeline-level status rather than assuming an activity failure propagates as intended.
 5. For notebook activities, validate input parameters, return values, and execution identity with a non-production probe where available.
-6. Reconcile source and target counts, duplicates, and watermark windows with `/ce-data-qa` before declaring a load valid.
+6. Load the `ce-data-qa` skill to reconcile source and target counts, duplicates, and watermark windows before declaring a load valid.
 
 ## Guardrails
 

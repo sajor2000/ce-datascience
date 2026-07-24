@@ -21,5 +21,5 @@ argument-hint: "[new|api|documentation|release]"
 3. Add dependencies only when existing base-R or installed-package patterns cannot meet the requirement.
 4. Keep examples, roxygen documentation, and tests synchronized with behavior.
 5. Run the repository's package checks and report platform or optional-dependency gaps explicitly.
-6. Route CRAN-readiness work to `/ce-r-cran` and test design to `/ce-r-package-testing`.
+6. Load the `ce-r-cran` skill for CRAN-readiness work and the `ce-r-package-testing` skill for test design.
 7. For package-tool APIs or current guidance, use Ref MCP against the official R, package, or rOpenSci documentation and capture the version consulted. Use Tavily MCP only to locate primary current guidance; do not add an API or dependency from search snippets.

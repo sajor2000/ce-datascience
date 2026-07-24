@@ -31,7 +31,7 @@ Before writing, identify the source item, target item, expected grain, key colum
 2. Use the attached/default Lakehouse only when the project explicitly declares it; otherwise request the item identifier or connection handoff.
 3. Prefer table APIs and declared Delta locations over ad hoc file paths. Record the full target path in the output artifact.
 4. Add assertions for schema, key uniqueness, row-count reconciliation, and post-write readability at every critical transformation boundary.
-5. Run `/ce-data-qa` before modeling or downstream publication artifacts.
+5. Load the `ce-data-qa` skill before modeling or downstream publication artifacts.
 6. On missing access, unsupported syntax, or incompatible table features, stop with the exact failed boundary. Never replace a failed source with samples or synthetic data.
 
 ## Review checks

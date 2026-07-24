@@ -98,6 +98,8 @@ describe("ce-datascience skill value contract", () => {
 
   test("interactive skills do not duplicate platform-specific question-tool boilerplate", async () => {
     const offenders: string[] = []
+    // This five-route router must carry the cross-platform interaction contract at runtime.
+    const explicitInteractionSkills = new Set(["ce-fabric/SKILL.md"])
     const forbidden = [
       "AskUserQuestion",
       "ToolSearch",
@@ -108,6 +110,7 @@ describe("ce-datascience skill value contract", () => {
 
     for (const file of await skillFiles()) {
       const rel = path.relative(skillsRoot, file)
+      if (explicitInteractionSkills.has(rel)) continue
       const content = await fs.readFile(file, "utf8")
       for (const phrase of forbidden) {
         if (content.includes(phrase)) offenders.push(`${rel}: ${phrase}`)
