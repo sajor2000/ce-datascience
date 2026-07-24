@@ -66,17 +66,21 @@ describe("Fabric and Marimo workflow skills", () => {
     })
     const outputRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-fabric-opencode-"))
 
-    await writeOpenCodeBundle(outputRoot, bundle)
+    try {
+      await writeOpenCodeBundle(outputRoot, bundle)
 
-    const converted = await fs.readFile(
-      path.join(outputRoot, ".opencode", "skills", "ce-fabric", "SKILL.md"),
-      "utf8",
-    )
-    expect(converted).toContain("load its named skill")
-    expect(converted).toContain("`ce-fabric-coding` skill")
-    expect(converted).toContain("`request_user_input` in Codex")
-    expect(converted).toContain("`ToolSearch` with `select:AskUserQuestion`")
-    expect(converted).not.toMatch(/`\/ce-[a-z0-9-]+`/)
+      const converted = await fs.readFile(
+        path.join(outputRoot, ".opencode", "skills", "ce-fabric", "SKILL.md"),
+        "utf8",
+      )
+      expect(converted).toContain("load its named skill")
+      expect(converted).toContain("`ce-fabric-coding` skill")
+      expect(converted).toContain("`request_user_input` in Codex")
+      expect(converted).toContain("`ToolSearch` with `select:AskUserQuestion`")
+      expect(converted).not.toMatch(/`\/ce-[a-z0-9-]+`/)
+    } finally {
+      await fs.rm(outputRoot, { recursive: true, force: true })
+    }
   })
 
   test("ships original R workflows for the curated R-statistics categories", async () => {
