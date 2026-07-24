@@ -1,6 +1,6 @@
 # TRIPOD+AI Checklist for Prediction Model Studies Using AI/ML
 
-AI EXTENSION checklist for transparent reporting of multivariable prediction models for individual prognosis or diagnosis, updated for studies using artificial intelligence and machine learning methods.
+Current primary checklist for transparent reporting of clinical prediction models using regression or artificial intelligence and machine learning methods.
 
 **Base guideline:** TRIPOD (Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis)
 
@@ -8,7 +8,7 @@ AI EXTENSION checklist for transparent reporting of multivariable prediction mod
 
 **Original TRIPOD reference:** Moons KGM, Altman DG, Reitsma JB, Ioannidis JPA, Macaskill P, Steyerberg EW, Vickers AJ, Ransohoff DF, Collins GS. Transparent Reporting of a multivariable prediction model for Individual Prognosis or Diagnosis (TRIPOD): explanation and elaboration. Ann Intern Med. 2015;162(1):W1-73. doi:10.7326/M14-0698. PMID: 25560730.
 
-This checklist supplements and supersedes the original TRIPOD 2015 checklist for AI/ML prediction model studies. Apply when developing, validating, or updating prediction models that use machine learning methods.
+This checklist supersedes the original TRIPOD 2015 checklist for AI/ML prediction model studies. Apply when developing, validating, or updating clinical prediction models that use regression or machine learning methods.
 
 ---
 

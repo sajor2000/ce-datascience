@@ -399,6 +399,8 @@ not packaged as ce-datascience slash skills.
 
 ## Reviews against 35 checklists
 
+The checklist registry records publication evidence, current versus legacy versions, and methodological roles. Reporting guidelines, appraisal tools, planning templates, and unresolved candidates are not treated as interchangeable routes; unresolved entries remain explicitly labeled rather than being presented as authoritative.
+
 | Study type | Primary | Extensions |
 |---|---|---|
 | Observational cohort | STROBE | RECORD, RECORD-PE, STROBE-MR, STREGA |

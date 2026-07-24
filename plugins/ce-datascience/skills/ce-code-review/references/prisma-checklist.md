@@ -1,9 +1,11 @@
-# PRISMA Checklist for Systematic Reviews and Meta-Analyses
+# PRISMA 2020 Checklist for Systematic Reviews and Meta-Analyses
 
-Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA).
-27-item checklist applicable to systematic reviews and meta-analyses.
+Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA 2020).
+Current checklist applicable to systematic reviews and meta-analyses.
 
-**Primary reference:** Moher D, Liberati A, Tetzlaff J, Altman DG; PRISMA Group. Preferred reporting items for systematic reviews and meta-analyses: the PRISMA statement. PLoS Med. 2009;6(7):e1000097. doi:10.1371/journal.pmed.1000097. PMID: 19621072.
+**Current primary reference:** Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71. PMID: 33782057.
+
+**Legacy reference:** Moher D, Liberati A, Tetzlaff J, Altman DG; PRISMA Group. Preferred reporting items for systematic reviews and meta-analyses: the PRISMA statement. PLoS Med. 2009;6(7):e1000097. doi:10.1371/journal.pmed.1000097. PMID: 19621072.
 
 **Explanation and elaboration:** Liberati A, Altman DG, Tetzlaff J, et al. The PRISMA statement for reporting systematic reviews and meta-analyses of studies that evaluate health care interventions: explanation and elaboration. PLoS Med. 2009;6(7):e1000100. doi:10.1371/journal.pmed.1000100. PMID: 19621070.
 

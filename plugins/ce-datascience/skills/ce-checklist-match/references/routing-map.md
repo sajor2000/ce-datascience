@@ -1,85 +1,74 @@
-# Routing Map: Study Type → Reporting Checklist
+# Routing Map: Study Type to Reporting Checklist
 
-This is the deterministic decision tree that the skill walks. Reuses logic from `ce-reporting-checklist-reviewer` references but applies it at PLAN time, not REVIEW time.
+This deterministic decision tree selects a primary reporting guideline and only adds extensions whose scope matches the study attributes. `guideline-registry.yaml` is the evidence-backed source of truth for supported files, roles, and publication status.
 
-## Step 1: Primary checklist
+## Primary Checklist
 
-```
+```text
 IF design == RCT:
-  IF ai_involvement == model-as-study-object:
-    primary = CONSORT-AI
-    protocol = SPIRIT-AI
-  ELSE:
-    primary = CONSORT
-    protocol = SPIRIT
+  primary = CONSORT
+  IF ai_involvement == model-as-study-object: extension += CONSORT-AI
+  IF protocol_stage == true AND ai_involvement == model-as-study-object: protocol = SPIRIT-AI
+  IF cluster_design: extension += CONSORT-CLUSTER
+  IF adaptive_design: extension += CONSORT-ADAPTIVE
+  IF n_of_1_design: extension += CONSORT-NOF1
 
-ELIF design == observational_cohort OR observational_case_control OR observational_cross_sectional:
+ELIF design IN [observational_cohort, observational_case_control, observational_cross_sectional]:
   primary = STROBE
-  IF data_source IN [EHR, claims, registry]:
-    extension += RECORD
-    IF data_source == claims:
-      extension += RECORD-PE
+  IF data_source IN [EHR, claims, registry]: extension += RECORD
+  IF data_source == claims AND pharmacoepidemiology == true: extension += RECORD-PE
+  IF mendelian_randomization == true: extension += STROBE-MR
+  IF genetic_association == true: extension += STREGA
+  IF target_trial_emulation == true: extension += TARGET
+  IF RWE_treatment_effect == true: extension += START-RWE
 
 ELIF design == prediction_model:
-  IF ai_involvement IN [model-as-study-object, model-as-tool]:
-    primary = TRIPOD+AI
-  ELSE:
-    primary = TRIPOD
-  development = CHARMS
+  primary = TRIPOD+AI when AI/ML is used else TRIPOD
+  IF systematic_review_of_prediction_models == true: extension += CHARMS as appraisal
+  IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically
 
 ELIF design == diagnostic_accuracy:
-  IF ai_involvement IN [model-as-study-object]:
-    primary = STARD-AI
-  ELSE:
-    primary = STARD
-  IF modality == imaging:
-    extension += CLAIM
-
-ELIF design == qualitative:
-  primary = COREQ  # or SRQR if user prefers
-
-ELIF design == animal:
-  primary = ARRIVE
+  primary = STARD-AI when the index test uses AI/ML else STARD
+  IF modality == imaging: extension += CLAIM
 
 ELIF design == systematic_review:
   primary = PRISMA
-  IF subtype == diagnostic_accuracy: extension += PRISMA-DTA
+  IF subtype == diagnostic_accuracy: extension += PRISMA-DTA and QUADAS-2 as appraisal
   IF subtype == network_meta: extension += PRISMA-NMA
-  IF subtype == individual_patient: extension += PRISMA-IPD
+  IF subtype == individual_patient_data: extension += PRISMA-IPD
+  IF subtype == scoping_review: extension += PRISMA-SCR
+  IF protocol_stage == true: note PRISMA-P as unsupported follow-up
 
-ELIF design == case_report:
-  primary = CARE
-
-ELIF design == economic_evaluation:
-  primary = CHEERS
-
-ELIF design == ml_methods AND clinical_application:
-  primary = REFORMS
-  extension += TRIPOD+AI
-
-ELIF design == generative_ai_evaluation:
-  IF type == hospital_chatbot OR patient_facing:
-    primary = CHART
-    extension += PDSQI-9
-  ELIF type == lifecycle_evaluation:
-    primary = DEAL
+ELIF design == qualitative: primary = COREQ
+ELIF design == mixed_methods: primary = GRAMMS with provisional evidence status
+ELIF design == animal: primary = ARRIVE
+ELIF design == case_report: primary = CARE
+ELIF design == economic_evaluation: primary = CHEERS
+ELIF design == quality_improvement: primary = SQUIRE
+ELIF design == chatbot_health_advice: primary = CHART
+ELIF design == ml_methods AND clinical_application: primary = REFORMS
+ELIF design == pathology_deep_learning: require verified-source override before DEAL
+ELSE: ask the user which supported guideline applies
 ```
 
-## Step 2: Always-add extensions
+## Selection Rules
 
-- `data_source IN [EHR, claims]` → add `RECORD` (or `RECORD-PE` for pharmacoepi)
-- `pre_registration == planned` → ensure SPIRIT / SPIRIT-AI / PRISMA-P (for SR) is included for the protocol stage
-- `subgroup_analyses_planned == true` → add adherence to subgroup-reporting items in the primary checklist
+1. Read canonical `stack_profile.reporting_checklist` and `reporting_checklist_extensions` first.
+2. Resolve each name through the evidence registry and reject unknown names.
+3. Do not route entries with `evidence_status: unverified` as authoritative.
+4. Treat `appraisal`, `template`, and `data-quality-tool` roles as distinct from primary reporting guidelines.
+5. Layer base and extension checklists; an extension never replaces its base unless the registry explicitly records supersession.
+6. When current and legacy versions coexist, select the current version and retain the legacy citation only for historical compatibility.
+7. If study attributes cannot distinguish competing routes, ask one decision-changing question rather than guessing.
 
-## Step 3: Edge cases
+## Edge Cases
 
-- **Mixed-methods**: list both quantitative (CONSORT/STROBE/etc.) and qualitative (COREQ); annotate sections by method
-- **Multi-arm RCT with prediction sub-analysis**: CONSORT primary, TRIPOD as a secondary for the prediction sub-analysis
-- **Pragmatic trial**: CONSORT-Pragmatic extension on top of CONSORT
-- **Cluster RCT**: CONSORT-Cluster on top of CONSORT
-- **Non-inferiority RCT**: CONSORT non-inferiority extension
-- **Stepped-wedge**: CONSORT extension for stepped-wedge
+- Mixed-methods studies may combine the applicable quantitative guideline with GRAMMS; label each section by method.
+- A prediction sub-analysis inside an RCT keeps CONSORT as the trial primary and applies TRIPOD/TRIPOD+AI only to the prediction analysis.
+- A target-trial emulation remains observational and uses STROBE underneath TARGET.
+- Generic AI involvement does not trigger CHART.
+- CLAIM is limited to medical imaging; DEAL and PDSQI-9 require an explicit verified-source override before authoritative use.
 
-## Step 4: When the user disagrees
+## Overrides
 
-If the user pushes back on the recommendation, capture the reason in `stack_profile.guidelines_override_reason` and proceed. The reviewer will validate against whatever was selected, but the override reason should be auditable.
+If the user selects a different supported guideline, preserve the choice in `stack_profile.guidelines_override_reason` and retain the evidence status in the review record.

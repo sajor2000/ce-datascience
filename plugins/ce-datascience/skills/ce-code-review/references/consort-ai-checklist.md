@@ -2,11 +2,11 @@
 
 AI EXTENSION checklist for reporting clinical trial reports that evaluate interventions with an artificial intelligence component.
 
-**Base guideline:** CONSORT 2010
+**Base guideline:** Current CONSORT core (CONSORT 2025); this extension was published against CONSORT 2010 and should be interpreted with the current core.
 
 **Primary reference:** Liu X, Cruz Rivera S, Moher D, Calvert MJ, Denniston AK; CONSORT-AI and SPIRIT-AI Steering Group. Reporting guidelines for clinical trial reports for interventions involving artificial intelligence: the CONSORT-AI extension. Lancet Digit Health. 2020;2(10):e537-e548. doi:10.1016/S2589-7500(20)30218-1. PMID: 33328048.
 
-This checklist supplements CONSORT 2010. Apply both checklists together.
+This checklist supplements the current CONSORT core. Apply both checklists together; the extension's original publication used CONSORT 2010 terminology.
 
 ---
 

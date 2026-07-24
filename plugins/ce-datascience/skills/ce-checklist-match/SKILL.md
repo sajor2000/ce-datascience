@@ -11,7 +11,7 @@ argument-hint: "[study description, optional --interactive]"
 
 - **Problem it solves:** Reporting requirements are often discovered too late, after the SAP or manuscript misses required design-specific items.
 - **Use when:** The user asks which checklist applies, mentions EQUATOR/reporting standards, or starts a study without a guideline.
-- **Output:** Canonical stack-profile fields for primary reporting_checklist and reporting_checklist_extensions.
+- **Output:** Canonical stack-profile fields for primary reporting_checklist and reporting_checklist_extensions, resolved through the evidence-backed guideline registry.
 - **Ask only if:** Only for routing facts that cannot be inferred from the research question, design, data source, or existing profile.
 - **Do not do:** Do not score a finished manuscript; reporting-checklist review happens during code/document review.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
@@ -81,7 +81,7 @@ If the description already answers some of these, skip those questions.
 
 ### Step 2: Apply the routing rules
 
-Use `references/routing-map.md` to map answers → checklist set.
+Use `references/routing-map.md` to map answers to a checklist set. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative.
 
 | Design | Direction | Aim | AI | Primary checklist | Extensions |
 |--------|-----------|-----|----|-----|------|
@@ -102,7 +102,7 @@ Use `references/routing-map.md` to map answers → checklist set.
 | Case report | n/a | descriptive | n/a | CARE | -- |
 | Economic evaluation | n/a | n/a | n/a | CHEERS | -- |
 | ML methods paper | n/a | predictive | model-as-study-object | REFORMS | + TRIPOD+AI if clinical |
-| Generative AI (LLM) | n/a | n/a | model-as-study-object | CHART or DEAL | + PDSQI-9 if patient-facing |
+| Generative AI (LLM) | n/a | n/a | chatbot health advice | CHART | Ask before applying any provisional or unverified domain tool |
 
 If the answers don't fit a row, ask a clarifying question rather than guessing.
 

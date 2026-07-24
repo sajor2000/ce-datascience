@@ -1,11 +1,11 @@
 # ACE Checklist for Adaptive Clinical Trial Designs
 
 Adaptive designs CONSORT Extension (ACE).
-Supplements the core CONSORT 2010 checklist with items specific to randomized controlled trials that use pre-planned adaptations based on accumulating data.
+Supplements the current CONSORT core with items specific to randomized controlled trials that use pre-planned adaptations based on accumulating data.
 
 **Primary reference:** Dimairo M, Pallmann P, Wason J, et al. The Adaptive designs CONSORT Extension (ACE) statement: a checklist with explanation and elaboration guideline for reporting randomised trials that use an adaptive design. BMJ. 2020;369:m115. doi:10.1136/bmj.m115. PMID: 32554564.
 
-Apply this checklist alongside the core CONSORT 2010 checklist. Items below represent additions or modifications to base CONSORT items required for adaptive trial designs. Each item describes what must be reported and what to look for in analysis code and outputs.
+Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for adaptive trial designs. Each item describes what must be reported and what to look for in analysis code and outputs.
 
 ---
 

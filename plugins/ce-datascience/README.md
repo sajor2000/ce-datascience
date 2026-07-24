@@ -1,6 +1,6 @@
 # CE DataScience
 
-Compound engineering for computational scientists. SAP management, statistical review, and full reporting guideline compliance for R and Python workflows — covering 35 standards across all study types and AI extensions.
+Compound engineering for computational scientists. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 35 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates.
 
 ## How It Works
 

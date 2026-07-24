@@ -1,12 +1,12 @@
-# CHART Checklist for Health-Related AI Reporting Transparency
+# CHART Checklist for Chatbot Health Advice Studies
 
-AI EXTENSION checklist for documenting and reporting clinical AI models intended for health-related deployment, focusing on transparency and responsible implementation.
+Chatbot Assessment Reporting Tool (CHART) statement for studies evaluating chatbots that provide health advice.
 
-**Base guideline:** Varies by study type (applies across prediction, diagnostic, and intervention studies involving clinical AI deployment)
+**Scope:** Reporting guideline for chatbot health-advice studies; it is not a generic extension for every clinical AI, prediction, diagnostic, or intervention study.
 
-**Primary reference:** Citation needs manual verification. The CHART (Checklist for Health-related AI Reporting for Transparency) framework draws on model documentation best practices including model cards (Mitchell et al., 2019), datasheets for datasets (Gebru et al., 2021), and FDA guidance on AI/ML-based Software as a Medical Device (SaMD). PubMed PMID not available -- published across AI governance and health informatics venues.
+**Primary reference:** Huo B, Collins G, Chartash D, et al; CHART Collaborative. Reporting guideline for Chatbot Health Advice studies: the CHART statement. BMC Med. 2025;23:306. doi:10.1186/s12916-025-04274-w. PMID: 40745595.
 
-This checklist focuses on transparency and documentation for clinical AI models. Apply alongside the primary reporting guideline appropriate for the study design.
+Apply when the study evaluates chatbot-generated health advice. Use the primary reporting guideline for the underlying study design separately when applicable.
 
 ---
 

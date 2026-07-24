@@ -1,11 +1,11 @@
 # CONSORT Extension for Cluster Randomized Trials
 
 Consolidated Standards of Reporting Trials (CONSORT) extension for cluster randomized trials (CRTs).
-Supplements the core CONSORT 2010 checklist with items specific to trials in which intact groups rather than individuals are randomized.
+Supplements the current CONSORT core with items specific to trials in which intact groups rather than individuals are randomized.
 
 **Primary reference:** Campbell MK, Piaggio G, Elbourne DR, Altman DG; CONSORT Group. Consort 2010 statement: extension to cluster randomised trials. BMJ. 2012;345:e5661. doi:10.1136/bmj.e5661. PMID: 22951546.
 
-Apply this checklist alongside the core CONSORT 2010 checklist. Items below represent additions or modifications to base CONSORT items required for cluster randomized trials. Each item includes the base CONSORT item number where applicable, the description, and what to look for in analysis code and outputs.
+Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for cluster randomized trials. Each item includes the base CONSORT item number where applicable, the description, and what to look for in analysis code and outputs.
 
 ---
 
