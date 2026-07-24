@@ -1,6 +1,6 @@
 # Routing Map: Study Type to Reporting Checklist
 
-This deterministic decision tree selects a primary reporting guideline and only adds extensions whose scope matches the study attributes. `guideline-registry.yaml` is the evidence-backed source of truth for supported files, roles, and publication status.
+This deterministic decision tree selects a primary reporting guideline and only adds extensions whose scope matches the study attributes. It is self-contained: it emits candidate names, while `ce-code-review` resolves those names against the canonical evidence registry before treating any selection as authoritative.
 
 ## Primary Checklist
 
@@ -54,7 +54,7 @@ ELSE: ask the user which supported guideline applies
 ## Selection Rules
 
 1. Read canonical `stack_profile.reporting_checklist` and `reporting_checklist_extensions` first.
-2. Resolve each name through the evidence registry and reject unknown names.
+2. Pass each selected name to `ce-code-review` for resolution against the canonical evidence registry; reject unknown names there.
 3. Do not route entries with `evidence_status: unverified` as authoritative.
 4. Treat `appraisal`, `template`, and `data-quality-tool` roles as distinct from primary reporting guidelines.
 5. Layer base and extension checklists; an extension never replaces its base unless the registry explicitly records supersession.

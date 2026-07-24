@@ -4,7 +4,7 @@ AI EXTENSION checklist providing reporting guidelines for studies using deep lea
 
 **Base guideline:** Varies by study type (TRIPOD+AI for prediction models, STARD for diagnostic accuracy, CONSORT for trials)
 
-**Evidence status:** Provisional. The cited paper is background literature, not a verified primary DEAL checklist publication. Do not route DEAL as an authoritative reporting guideline until a primary source and stable checklist are identified.
+**Evidence status:** Unverified. The cited paper is background literature, not a verified primary DEAL checklist publication. Do not route DEAL as an authoritative reporting guideline until a primary source and stable checklist are identified.
 
 **Background reference:** Baxi V, Edwards R, Montalto M, Saha S. Digital pathology and artificial intelligence in translational medicine and clinical practice. Mod Pathol. 2022;35(1):23-32. doi:10.1038/s41379-021-00919-2. PMID: 34611303.
 

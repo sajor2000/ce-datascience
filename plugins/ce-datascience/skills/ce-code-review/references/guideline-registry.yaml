@@ -69,7 +69,7 @@ guidelines:
     primary_for: [chatbot-health-advice]
     extension_for: []
     role: reporting-guideline
-    ai_extension: true
+    ai_extension: false
   CHEERS:
     file: cheers-checklist.md
     aliases: [cheers-2022]
@@ -130,23 +130,23 @@ guidelines:
     file: deal-checklist.md
     aliases: []
     primary_for: []
-    extension_for: [diagnostic-accuracy, prediction-model]
-    role: extension
-    ai_extension: true
+    extension_for: []
+    role: domain-extension
+    ai_extension: false
   GRAMMS:
     file: gramms-checklist.md
     aliases: []
     primary_for: []
     extension_for: [qualitative]
-    role: extension
+    role: mixed-methods-guideline
     ai_extension: false
   PDSQI-9:
     file: pdsqi-checklist.md
     aliases: [pdsqi]
     primary_for: []
-    extension_for: [prediction-model]
-    role: data-quality
-    ai_extension: true
+    extension_for: []
+    role: data-quality-tool
+    ai_extension: false
   PRISMA:
     file: prisma-checklist.md
     aliases: [prisma-2020]
@@ -208,7 +208,7 @@ guidelines:
     aliases: []
     primary_for: []
     extension_for: [prediction-model, rct, observational, diagnostic-accuracy]
-    role: extension
+    role: ML-science-guideline
     ai_extension: true
   SPIRIT-AI:
     file: spirit-ai-checklist.md
@@ -243,7 +243,7 @@ guidelines:
     aliases: [start rwe]
     primary_for: []
     extension_for: [observational]
-    role: extension
+    role: template
     ai_extension: false
   STREGA:
     file: strega-checklist.md
@@ -271,7 +271,7 @@ guidelines:
     aliases: []
     primary_for: []
     extension_for: [observational]
-    role: target-trial
+    role: target-trial-guideline
     ai_extension: false
   TRIPOD:
     file: tripod-checklist.md

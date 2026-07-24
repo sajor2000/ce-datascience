@@ -59,11 +59,15 @@ describe("reporting guideline registry", () => {
     const allowedSources = new Set(registry.verification.evidence_sources)
 
     for (const [name, evidence] of Object.entries(registry.evidence)) {
+      const guideline = registry.guidelines[name]
       expect(allowedStatuses.has(evidence.status), name).toBe(true)
       expect(evidence.title.length, `${name}:title`).toBeGreaterThan(0)
       expect(evidence.scope.length, `${name}:scope`).toBeGreaterThan(0)
       expect(evidence.role.length, name).toBeGreaterThan(0)
-      expect(new Date(evidence.verification_date).toISOString().slice(0, 10), `${name}:verification_date`).toBe("2026-07-24")
+      expect(guideline.role, `${name}:role parity`).toBe(evidence.role)
+      expect(new Date(evidence.verification_date).toISOString().slice(0, 10), `${name}:verification_date`).toBe(
+        new Date(registry.verification.verified_on).toISOString().slice(0, 10),
+      )
       expect(evidence.sources.length, name).toBeGreaterThan(0)
       for (const source of evidence.sources) expect(allowedSources.has(source), `${name}:${source}`).toBe(true)
 
@@ -101,7 +105,7 @@ describe("reporting guideline registry", () => {
 
     expect(registry.evidence.DEAL.status).toBe("unverified")
     expect(registry.evidence["PDSQI-9"].status).toBe("unverified")
-    expect(deal).toContain("Evidence status:** Provisional")
+    expect(deal).toContain("Evidence status:** Unverified")
     expect(pdsqi).toContain("Evidence status:** Unverified")
     expect(deal).not.toContain("**Primary reference:**")
     expect(pdsqi).not.toContain("**Primary reference:**")
