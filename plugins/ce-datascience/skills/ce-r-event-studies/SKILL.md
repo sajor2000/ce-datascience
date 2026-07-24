@@ -22,6 +22,9 @@ argument-hint: "[plan|implement|review]"
 4. Pre-specify event-window truncation, clustering, weights, and sensitivity analyses.
 5. Inspect cohort balance, treatment timing, and event-time support before fitting a model.
 6. Report diagnostics and limitations as evidence; never label an unsupported pre-trend as proof of parallel trends.
+7. Separate statistical-method evidence from package syntax: use Ref MCP for the pinned estimator package's documentation and use Tavily MCP only to discover primary methodological sources when needed. Do not infer an estimator's identification assumptions from its R interface.
+
+If a research tool is unavailable, disclose that the method-source check could not be completed and retain the design question as an analyst decision.
 
 ## Handoff
 

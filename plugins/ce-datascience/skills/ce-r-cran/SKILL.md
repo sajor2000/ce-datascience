@@ -21,6 +21,7 @@ argument-hint: "[audit|prepare|submit]"
 3. Verify URLs, package metadata, dependency declarations, examples, and documentation coverage.
 4. Treat external services, API keys, network access, and platform-specific behavior as release risks—not as checks to suppress.
 5. Produce a submission checklist that distinguishes fixed items, evidence, and remaining human decisions.
+6. Treat CRAN policy as time-sensitive. Use Tavily MCP, when available, to find the current official CRAN policy/check guidance, then verify the underlying CRAN page directly; use Ref MCP for package-tool documentation. Record the URL and access date, or state the verification gap.
 
 ## Boundary
 

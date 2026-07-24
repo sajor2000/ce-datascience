@@ -329,6 +329,8 @@ evidence gates rather than copying upstream prompts.
 | `/ce-r-performance` | Profile and optimize R code with before/after evidence and preserved analytical behavior |
 | `/ce-r-targets` | Build and validate reproducible `targets` pipelines, branching, and report integration |
 
+R skills are evidence-first: they begin with the project's pinned environment, use Ref MCP for exact package documentation when available, and use Tavily MCP only to discover primary current sources. If a research integration is unavailable, the skills surface the verification gap rather than guessing current APIs or CRAN policy.
+
 The R family is an original CE DataScience adaptation of the categories curated
 by [awesome-rstats-skills](https://github.com/christopherkenny/awesome-rstats-skills);
 it does not copy third-party skill text and preserves CE's methodological

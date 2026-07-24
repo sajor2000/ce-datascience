@@ -22,3 +22,4 @@ argument-hint: "[profile|benchmark|memory|parallel]"
 4. Evaluate vectorization, data.table, dplyr, database pushdown, or parallelism against the actual workload rather than ideology.
 5. Re-run data and result validations after optimization; compare key outputs, row counts, types, and numerical tolerances.
 6. Report baseline, changed condition, and residual limits. Never claim a speedup without comparable measurements.
+7. Verify profiler, parallel, and backend APIs against the project-pinned documentation with Ref MCP when available. Use Tavily MCP only to discover current primary guidance; a benchmark blog or a package landing page does not establish correctness for the project's workload.

@@ -64,4 +64,29 @@ describe("Fabric and Marimo workflow skills", () => {
     expect(combined).toContain("_targets.R")
     expect(combined).toContain("fail-loud")
   })
+
+  test("keeps R guidance version-aware and evidence-first", async () => {
+    const names = [
+      "ce-rstats",
+      "ce-r-review",
+      "ce-r-tidyverse",
+      "ce-r-event-studies",
+      "ce-r-package-development",
+      "ce-r-package-testing",
+      "ce-r-cran",
+      "ce-r-performance",
+      "ce-r-targets",
+    ]
+    const skills = await Promise.all(names.map(readSkill))
+    const combined = skills.join("\n")
+
+    expect(skills[0]).toContain("Ref MCP")
+    expect(skills[0]).toContain("Tavily MCP")
+    expect(skills[0]).toContain("verification gap")
+    expect(await readSkill("ce-r-tidyverse")).toContain("relationship")
+    expect(await readSkill("ce-r-tidyverse")).toContain("unmatched")
+    expect(await readSkill("ce-r-targets")).toContain("tar_outdated()")
+    expect(await readSkill("ce-r-cran")).toContain("time-sensitive")
+    expect(combined).toContain("pinned")
+  })
 })

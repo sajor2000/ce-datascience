@@ -21,6 +21,7 @@ argument-hint: "[path or scope]"
 3. Check that packages are declared through the project convention and that lockfile/environment evidence supports reproducibility.
 4. Validate joins, grouped summaries, and reshape operations with explicit row-count and uniqueness expectations.
 5. For causal, event-study, or survival work, route method findings to `/ce-code-review`; classify demonstrated integrity defects as blocking and unresolved design choices as analyst warnings.
+6. For a library-specific finding, establish the installed version from `renv.lock` or the environment, then use Ref MCP to verify the exact package/function behavior when available. Label any unverified version-dependent finding as a review gap, not a defect.
 
 ## Required review output
 

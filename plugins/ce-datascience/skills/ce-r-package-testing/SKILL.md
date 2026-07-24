@@ -22,3 +22,4 @@ argument-hint: "[add|audit|debug]"
 4. Use snapshots only when the output shape is intentionally stable and review snapshot changes as behavior changes.
 5. Add a regression test before or with a bug fix when a minimal reproducer exists.
 6. Run the narrow test file first, then the package's standard test/check command.
+7. Confirm version-sensitive testthat helpers and snapshot behavior against the pinned package documentation with Ref MCP when available. Do not claim a snapshot or `skip_on_cran()` policy is correct without inspecting the package's CRAN contract.
