@@ -298,6 +298,42 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema |
 | `/ce-optimize` | Run metric-driven iterative optimization loops for model hyperparameters, prediction thresholds, feature sets, or any measurable analytical outcome with cross-validation awareness and leakage guards |
 
+### Microsoft Fabric & Marimo
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-fabric` | Route Microsoft Fabric work to Lakehouse/Warehouse coding, pipelines, semantic models, ML, or Eventhouse/KQL while keeping CE data and method gates in place |
+| `/ce-fabric-coding` | Build or review Lakehouse, OneLake, Spark, Python-notebook, Warehouse T-SQL, and Delta-table work with declared read/write boundaries |
+| `/ce-fabric-pipelines` | Design or debug Data Factory pipelines, Copy, Dataflows Gen2, gateways, schedules, notebook activities, incremental loads, and failure routes |
+| `/ce-fabric-semantic-models` | Audit Direct Lake, DAX, RLS/OLS, refresh, semantic-link, and sempy workflows with evidence-backed data and identity checks |
+| `/ce-fabric-ml` | Run Fabric MLflow, experiment, registration, batch-scoring, model-endpoint, and AI-function workflows without weakening model-review gates |
+| `/ce-fabric-kql` | Write and validate Eventhouse, KQL, Eventstream, ingestion-policy, dashboard, and Activator workflows with explicit event-time and join semantics |
+| `/ce-marimo` | Create and review text-native reactive Marimo notebooks with explicit dependencies, validation, and fail-loud data boundaries |
+
+The Fabric family is an original CE DataScience adaptation of the routing areas
+documented in [sajor2000/fabric-skills](https://github.com/sajor2000/fabric-skills);
+it keeps those platform surfaces inside CE's research-design, data-QA, and
+evidence gates rather than copying upstream prompts.
+
+### R Statistics
+
+| Skill | Description |
+|-------|-------------|
+| `/ce-rstats` | Route R-first analysis projects to the appropriate CE R workflow while preserving CE study-design, QA, and review gates |
+| `/ce-r-review` | Perform a read-only audit of R scripts, Quarto/R Markdown analyses, and package code for correctness and reproducibility |
+| `/ce-r-tidyverse` | Use explicit tidyverse joins, groups, missing-value behavior, reshaping, and visualization validation |
+| `/ce-r-event-studies` | Plan and review event-study and staggered-adoption DiD designs with timing and estimand safeguards |
+| `/ce-r-package-development` | Build or review R package API, documentation, dependencies, and release structure |
+| `/ce-r-package-testing` | Create and audit testthat tests, fixtures, snapshots, mocks, and regression coverage |
+| `/ce-r-cran` | Audit R package CRAN readiness without submitting or claiming acceptance |
+| `/ce-r-performance` | Profile and optimize R code with before/after evidence and preserved analytical behavior |
+| `/ce-r-targets` | Build and validate reproducible `targets` pipelines, branching, and report integration |
+
+The R family is an original CE DataScience adaptation of the categories curated
+by [awesome-rstats-skills](https://github.com/christopherkenny/awesome-rstats-skills);
+it does not copy third-party skill text and preserves CE's methodological
+guardrails.
+
 ### Git Workflow
 
 | Skill | Description |

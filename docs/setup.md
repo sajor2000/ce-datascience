@@ -447,6 +447,24 @@ aliases, prefix each one with `/ce-datascience:`, such as
 DataScience skill. Skills operate on the currently open project and should be
 given the scientific question, analysis goal, or code task they need.
 
+### Fabric and Marimo projects
+
+For Microsoft Fabric, start with `/ce-fabric`; it routes Lakehouse/Warehouse
+coding, Data Factory pipelines, semantic models, ML, and Eventhouse/KQL work to
+the matching CE skill. The router keeps the standard data-QA and fail-loud
+boundaries in place and does not create cloud resources or guess workspace
+identities.
+
+For reactive Python notebooks, use `/ce-marimo`. It creates or reviews
+text-native Marimo `.py` notebooks, preserves reactive cell dependencies, and
+requires a `marimo check` validation pass when the project runner is
+available.
+
+For R-first projects, start with `/ce-rstats`. It routes to R review,
+tidyverse, event-study, package, CRAN, performance, and `targets` workflows
+while preserving the same estimand, data-QA, and reproducibility expectations
+as Python projects.
+
 Before planning or modeling, keep the integrity gate in place: `ce-data-qa`
 reconciles rows and joins, validates keys and types, and records missing-data
 handling. It returns NO-GO for confirmed corruption or undeclared
