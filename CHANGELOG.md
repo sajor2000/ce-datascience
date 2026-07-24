@@ -6,6 +6,14 @@ requests. For the current release status and notes, use the repository's
 open release PRs; do not hand-add release entries from feature or documentation
 work.
 
+## [3.6.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.5.0...cli-v3.6.0) (2026-07-23)
+
+
+### Features
+
+* **onboarding:** clarify installation and workflow safeguards ([a36b414](https://github.com/sajor2000/ce-datascience/commit/a36b4141695fc5b22fc3645b0ca8fab3b9b2dd60))
+* **onboarding:** clarify installation and workflow safeguards ([24363f7](https://github.com/sajor2000/ce-datascience/commit/24363f73bdb742cfddfcd41b039ec04192df7b74))
+
 ## [3.5.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.4.2...cli-v3.5.0) (2026-07-23)
 
 
