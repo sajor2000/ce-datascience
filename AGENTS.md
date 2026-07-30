@@ -69,6 +69,7 @@ Do not assume a repo change is "just CLI" or "just plugin" without checking whic
 
 When changing `plugins/ce-datascience/` content:
 
+- For maintainable, portable skill prose, follow [`docs/solutions/skill-design/predictable-skill-authoring.md`](docs/solutions/skill-design/predictable-skill-authoring.md). It is maintainer guidance only; runtime skills must remain self-contained.
 - Update substantive docs like `plugins/ce-datascience/README.md` when the plugin behavior, inventory, or usage changes.
 - Do not hand-bump release-owned versions in plugin or marketplace manifests.
 - Do not hand-add release entries to `CHANGELOG.md` or treat it as the canonical source for new releases.

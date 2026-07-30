@@ -29,6 +29,15 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(content).toMatch(/without expanding the requested analysis scope/i)
   })
 
+  test("ce-work keeps TDD opt-in, behavior-first, and vertically sliced", async () => {
+    const content = await skill("ce-work")
+    expect(content).toMatch(/first agree the public behavior and seam under test/i)
+    expect(content).toMatch(/do not test private implementation details/i)
+    expect(content).toMatch(/name the public behavior and test seam before writing the first test/i)
+    expect(content).toMatch(/one failing behavior test, the minimal implementation that makes it pass, then the next behavior slice/i)
+    expect(content).toMatch(/Skip test-first discipline for trivial renames, pure configuration, pure styling work, and analytical workflows unless/i)
+  })
+
   test("ce-code-review supports the current read-only agent JSON contract", async () => {
     const content = await skill("ce-code-review")
     expect(content).toContain("`mode:agent`")
@@ -62,5 +71,29 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(debug).toContain("#### 1.4 Check tracker and pull-request history for prior work")
     expect(debug).toMatch(/open pull request already contains the fix/i)
     expect(debug).toMatch(/do not offer a duplicate "Fix it now" path/i)
+  })
+
+  test("ce-debug requires a red-capable loop while retaining diagnosis-only", async () => {
+    const debug = await skill("ce-debug")
+    expect(debug).toContain("#### 1.0 Build a tight reproduction loop")
+    expect(debug).toMatch(/Symptom-specific.*user's reported failure/s)
+    expect(debug).toMatch(/Red-capable.*fail on this bug and pass after the fix/s)
+    expect(debug).toMatch(/Minimize the reproduction before proceeding/i)
+    expect(debug).toMatch(/Form 3-5 hypotheses.*ranked by likelihood before testing one/i)
+    expect(debug).toMatch(/Do not proceed to Phase 3 until the Phase 1 loop has been run red/i)
+    expect(debug).toContain("Diagnosis only — I'll take it from here")
+    expect(debug).toMatch(/re-run the original, un-minimized reproduction loop before handoff/i)
+  })
+
+  test("maintainer guidance covers predictable and portable skill authoring", async () => {
+    const [agents, guidance] = await Promise.all([
+      readFile(path.join(process.cwd(), "AGENTS.md"), "utf8"),
+      readFile(path.join(process.cwd(), "docs/solutions/skill-design/predictable-skill-authoring.md"), "utf8"),
+    ])
+    expect(agents).toContain("docs/solutions/skill-design/predictable-skill-authoring.md")
+    expect(guidance).toMatch(/checkable completion criterion/i)
+    expect(guidance).toMatch(/skill-local `references\//i)
+    expect(guidance).toMatch(/frontmatter descriptions as routing interfaces/i)
+    expect(guidance).toMatch(/runtime skills self-contained and portable/i)
   })
 })
