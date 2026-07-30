@@ -1,0 +1,5 @@
+row_id,report_id,district,facility,period,grain,tests,positives,clinical_notes_text
+row-101,rpt-101,North,Clinic-A,2026-02-01,facility-month,100,5,SYNTHETIC PERSON TOKEN ALPHA
+row-102,rpt-102,North,,2026-02-01,district-month,300,20,SYNTHETIC PERSON TOKEN BETA
+row-103,rpt-103,South,Clinic-B,2026-02-30,facility-month,40,6,SYNTHETIC PERSON TOKEN GAMMA
+row-104,rpt-103,South,Clinic-C,2026-02-01,facility-month,50,4,SYNTHETIC PERSON TOKEN DELTA

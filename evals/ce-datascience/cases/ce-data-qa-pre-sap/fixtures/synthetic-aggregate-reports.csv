@@ -1,0 +1,7 @@
+row_id,report_id,district,facility,period,tests,positives,report_status
+row-001,rpt-001,North,Clinic-A,2026-01-01,100,8,complete
+row-002,rpt-002,North,Clinic-A,2026-02-01,110,9,complete
+row-003,rpt-003,South,Clinic-B,2026-01-01,95,7,complete
+row-004,rpt-004,South,Clinic-B,2026-02-01,,6,incomplete
+row-005,rpt-005,South,Clinic-C,2026-02-01,-999,2,complete
+row-006,rpt-006,North,Clinic-A,2026-02-01,110,9,complete

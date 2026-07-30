@@ -22,7 +22,9 @@
     "release:preview": "bun run scripts/release/preview.ts",
     "release:sync-metadata": "bun run scripts/release/sync-metadata.ts --write",
     "release:validate": "bun run scripts/release/validate.ts",
-    "plugin:validate": "claude plugin validate .claude-plugin/marketplace.json && claude plugin validate plugins/ce-datascience"
+    "plugin:validate": "claude plugin validate .claude-plugin/marketplace.json && claude plugin validate plugins/ce-datascience",
+    "eval:validate": "bun run scripts/evals/validate.ts",
+    "eval:score": "bun run scripts/evals/score.ts"
   },
   "dependencies": {
     "citty": "^0.1.6",

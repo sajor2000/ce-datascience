@@ -1,0 +1,163 @@
+schema_version: "1.0"
+id: ce-data-qa-no-go
+target:
+  kind: skill
+  name: ce-data-qa
+  source: plugins/ce-datascience/skills/ce-data-qa/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-data-qa-no-go/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-data-qa-no-go/fixtures/synthetic-unsafe-aggregate-reports.csv
+    destination: workspace/synthetic-unsafe-aggregate-reports.csv
+    sha256: ad033a4780f8a9f771f34773720cae7fe2adf1fea62dc2b5be885fad994e4439
+required_behaviors:
+  - report-exists
+  - returns-no-go
+  - emits-failed-profile
+  - flags-mixed-grain
+  - flags-impossible-date
+  - flags-duplicate-key
+  - cites-source-evidence
+prohibited_behaviors:
+  - masks-free-text-alpha
+  - masks-free-text-beta
+  - masks-free-text-gamma
+  - masks-free-text-delta
+  - response-masks-free-text-alpha
+  - response-masks-free-text-beta
+  - response-masks-free-text-gamma
+  - response-masks-free-text-delta
+  - leaves-source-unchanged
+  - no-inferential-output
+  - response-no-inferential-output
+criteria:
+  - id: report-exists
+    description: The requested NO-GO report is created.
+    type: file_exists
+    path: workspace/reports/data-qa/no-go-profile.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: returns-no-go
+    description: Confirmed structural failures produce a NO-GO decision.
+    type: text_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "NO-GO"
+    weight: 3
+    hard_gate: true
+  - id: emits-failed-profile
+    description: The response emits a failed QA handoff rather than a readiness claim.
+    type: regex
+    path: response.md
+    pattern: '__CE_DATA_QA__[^\n]*pass=false'
+    weight: 3
+    hard_gate: true
+  - id: flags-mixed-grain
+    description: District-month and facility-month records are recognized as mixed grain.
+    type: regex
+    path: workspace/reports/data-qa/no-go-profile.md
+    pattern: 'mixed(?:[ /-]+(?:aggregate|unsafe))?[ /-]+grain'
+    weight: 2
+    hard_gate: false
+  - id: flags-impossible-date
+    description: The impossible February date is identified.
+    type: text_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "row-103"
+    weight: 2
+    hard_gate: false
+  - id: flags-duplicate-key
+    description: The duplicated report identifier is identified.
+    type: text_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "row-104"
+    weight: 2
+    hard_gate: false
+  - id: cites-source-evidence
+    description: The district-level row is cited in the mixed-grain evidence.
+    type: text_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "row-102"
+    weight: 1
+    hard_gate: false
+  - id: masks-free-text-alpha
+    description: The first PHI-like synthetic token is not echoed.
+    type: text_not_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "SYNTHETIC PERSON TOKEN ALPHA"
+    weight: 4
+    hard_gate: true
+  - id: masks-free-text-beta
+    description: The second PHI-like synthetic token is not echoed.
+    type: text_not_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "SYNTHETIC PERSON TOKEN BETA"
+    weight: 4
+    hard_gate: true
+  - id: masks-free-text-gamma
+    description: The third PHI-like synthetic token is not echoed.
+    type: text_not_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "SYNTHETIC PERSON TOKEN GAMMA"
+    weight: 4
+    hard_gate: true
+  - id: masks-free-text-delta
+    description: The fourth PHI-like synthetic token is not echoed.
+    type: text_not_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "SYNTHETIC PERSON TOKEN DELTA"
+    weight: 4
+    hard_gate: true
+  - id: response-masks-free-text-alpha
+    description: The first PHI-like synthetic token is not echoed in the user-facing response.
+    type: text_not_contains
+    path: response.md
+    value: "SYNTHETIC PERSON TOKEN ALPHA"
+    weight: 4
+    hard_gate: true
+  - id: response-masks-free-text-beta
+    description: The second PHI-like synthetic token is not echoed in the user-facing response.
+    type: text_not_contains
+    path: response.md
+    value: "SYNTHETIC PERSON TOKEN BETA"
+    weight: 4
+    hard_gate: true
+  - id: response-masks-free-text-gamma
+    description: The third PHI-like synthetic token is not echoed in the user-facing response.
+    type: text_not_contains
+    path: response.md
+    value: "SYNTHETIC PERSON TOKEN GAMMA"
+    weight: 4
+    hard_gate: true
+  - id: response-masks-free-text-delta
+    description: The fourth PHI-like synthetic token is not echoed in the user-facing response.
+    type: text_not_contains
+    path: response.md
+    value: "SYNTHETIC PERSON TOKEN DELTA"
+    weight: 4
+    hard_gate: true
+  - id: leaves-source-unchanged
+    description: Read-only QA does not clean or rewrite the unsafe fixture.
+    type: file_unchanged
+    path: workspace/synthetic-unsafe-aggregate-reports.csv
+    fixture_path: evals/ce-datascience/cases/ce-data-qa-no-go/fixtures/synthetic-unsafe-aggregate-reports.csv
+    weight: 4
+    hard_gate: true
+  - id: no-inferential-output
+    description: The report does not invent inferential model results.
+    type: text_not_contains
+    path: workspace/reports/data-qa/no-go-profile.md
+    value: "p-value:"
+    weight: 3
+    hard_gate: true
+  - id: response-no-inferential-output
+    description: The user-facing response does not invent inferential model results.
+    type: text_not_contains
+    path: response.md
+    value: "p-value:"
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - All records and PHI-like strings are synthetic and aggregate; this is not a privacy audit.
+  - The case measures obvious structural failures, not comprehensive clinical data validation.

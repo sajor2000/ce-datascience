@@ -1,0 +1,39 @@
+schema_version: "1.0"
+id: ce-doc-review-headless-missing-path
+target:
+  kind: skill
+  name: ce-doc-review
+  source: plugins/ce-datascience/skills/ce-doc-review/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-doc-review-headless-missing-path/prompt.md
+fixtures: []
+required_behaviors:
+  - emits-missing-path-error
+prohibited_behaviors:
+  - does-not-dispatch-reviewers
+  - does-not-create-workspace
+criteria:
+  - id: emits-missing-path-error
+    description: Headless mode fails with the documented corrective instruction.
+    type: text_contains
+    path: response.md
+    value: "Review failed: headless mode requires a document path"
+    weight: 4
+    hard_gate: true
+  - id: does-not-dispatch-reviewers
+    description: No reviewer output is produced when the required path is absent.
+    type: text_not_contains
+    path: response.md
+    value: "Document review complete"
+    weight: 3
+    hard_gate: true
+  - id: does-not-create-workspace
+    description: Failure occurs before any document workspace is created.
+    type: file_exists
+    path: workspace
+    expected: false
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - This case proves the visible fail-fast boundary, not internal subagent invocation telemetry.

@@ -1,0 +1,91 @@
+schema_version: "1.0"
+id: ce-doc-review-seeded
+target:
+  kind: skill
+  name: ce-doc-review
+  source: plugins/ce-datascience/skills/ce-doc-review/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-doc-review-seeded/prompt.md
+fixtures:
+  - path: tests/fixtures/ce-doc-review/seeded-plan.md
+    destination: workspace/seeded-plan.md
+    sha256: 6feb7e8614cc23272a63d2e5663c2e33d96f2dff6464158376cc949f05a647a1
+required_behaviors:
+  - applies-wrong-count-fix
+  - removes-stale-unit-reference
+  - reports-proposed-fixes
+  - reports-decisions
+  - reports-fyi
+  - reports-dropped-count
+prohibited_behaviors:
+  - preserves-gated-fallback-choice
+  - preserves-manual-abstraction-choice
+  - suppresses-style-nitpick
+criteria:
+  - id: applies-wrong-count-fix
+    description: The mechanically wrong requirement count is corrected.
+    type: text_contains
+    path: workspace/seeded-plan.md
+    value: "5 requirements planned:"
+    weight: 2
+    hard_gate: false
+  - id: removes-stale-unit-reference
+    description: The nonexistent Unit 7 cross-reference is removed.
+    type: text_not_contains
+    path: workspace/seeded-plan.md
+    value: "see Unit 7"
+    weight: 2
+    hard_gate: false
+  - id: reports-proposed-fixes
+    description: Concrete gated findings are presented for confirmation.
+    type: regex
+    path: response.md
+    pattern: '(?:Proposed|Suggested) fix(?:es)?'
+    weight: 2
+    hard_gate: false
+  - id: reports-decisions
+    description: Judgment-dependent findings are presented as decisions.
+    type: text_contains
+    path: response.md
+    value: "Decisions"
+    weight: 2
+    hard_gate: false
+  - id: reports-fyi
+    description: Advisory findings are separated as FYI observations.
+    type: text_contains
+    path: response.md
+    value: "FYI observations"
+    weight: 1
+    hard_gate: false
+  - id: reports-dropped-count
+    description: Suppressed low-confidence findings are accounted for.
+    type: regex
+    path: response.md
+    pattern: 'Dropped:\s*[1-9][0-9]*'
+    weight: 1
+    hard_gate: false
+  - id: preserves-gated-fallback-choice
+    description: The gated fallback decision is not silently applied.
+    type: text_contains
+    path: workspace/seeded-plan.md
+    value: "No fallback"
+    weight: 3
+    hard_gate: true
+  - id: preserves-manual-abstraction-choice
+    description: The manual AliasedCommand design choice is not silently removed.
+    type: text_contains
+    path: workspace/seeded-plan.md
+    value: "AliasedCommand"
+    weight: 3
+    hard_gate: true
+  - id: suppresses-style-nitpick
+    description: The seeded low-signal sentence-tightening nitpick is not surfaced.
+    type: text_not_contains
+    path: response.md
+    value: "Some sentences could be tighter"
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is synthetic and seeded; it does not measure performance on arbitrary documents.
+  - Equivalent finding wording is accepted, but the user-facing bucket names are contractual.
