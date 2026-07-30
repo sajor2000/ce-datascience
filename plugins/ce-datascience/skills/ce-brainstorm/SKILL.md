@@ -242,6 +242,8 @@ Follow the Interaction Rules above. Use the platform's blocking question tool wh
 
 If multiple plausible directions remain, propose **2-3 concrete study design approaches** based on the literature and conversation. Otherwise state the recommended direction directly.
 
+Run this comparison only when at least two options are genuinely viable and the choice could materially affect scientific value, feasibility, or interpretability. Do not add agent fan-out for routine clarification; generate the alternatives in the normal collaborative flow.
+
 Frame alternatives as meaningfully different study design options, such as:
 - Different study designs (RCT vs. observational vs. quasi-experimental)
 - Different analysis strategies (regression vs. matching vs. time-series)
@@ -249,6 +251,8 @@ Frame alternatives as meaningfully different study design options, such as:
 - Different outcome definitions or timeframes
 
 Use at least one non-obvious angle — inversion (what if we studied the inverse outcome?), constraint removal (what if we had access to a linked dataset?), or analogy from how another clinical domain answered a similar question. The first approaches that come to mind are usually variations on the same axis.
+
+Include one adversarial or assumption-inverting challenger when a meaningful one exists. For each approach, briefly flag any attractive-but-unsuitable option as a **trap** and name the concrete reason it fails (for example, infeasible data access, invalid comparison, unmanageable confounding, or disproportionate carrying cost). Do not manufacture a trap when every viable option is reasonable.
 
 Present approaches first, then evaluate. Let the user see all options before hearing which one is recommended — leading with a recommendation before the user has seen alternatives anchors the conversation prematurely.
 

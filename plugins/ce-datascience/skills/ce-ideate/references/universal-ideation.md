@@ -18,9 +18,9 @@ Match the tone to the stakes. For business or product decisions (pricing, positi
 
 Match depth to scope:
 
-- **Quick** — the user wants a starter set right now. Generate one round, critique briefly, present 3-5 survivors, done.
-- **Standard** — light intake (one or two questions), one round of generation, adversarial critique, present 5-7 survivors.
-- **Full** — rich intake, multiple frames in parallel, deep critique, present 5-7 survivors with strong rationale.
+- **Quick** — use the direct path: 1-3 warranted options, a brief critique, and no ideation fan-out.
+- **Standard** — use compact divergence: three isolated frames, four candidates each, an adversarial critic pass, and 3-5 survivors.
+- **Full** — use wide divergence only when the user explicitly asks to go wide or use ADHD mode: six frames in parallel, deep critique, and 5-7 survivors with strong rationale.
 
 Apply the discrimination test before asking anything. Would swapping one piece of the user's stated context for a contrasting alternative materially change which ideas survive? If yes, the context is load-bearing — proceed. If no, ask 1-3 narrowly chosen questions. Follow the questioning principles from SKILL.md Phase 0.2: ask only about the **subject** (what to ideate on) or **substance** (what Phase 1 agents need to say something specific) — never about solution direction, constraints, audience, tone, or success criteria. Those belong to `ce-brainstorm`. Build on what the user already provided rather than starting from a template. After each answer, re-apply the test before asking another. Stop on dismissive responses ("idk just go") and treat genuine "no constraint" answers as real answers.
 
@@ -30,7 +30,7 @@ When the user provides rich context up front (a paste, a brief, an existing draf
 
 ## How to generate
 
-Generate the full candidate list before critiquing any idea. Use the same six frames as software ideation, described in domain-agnostic language. Each frame is a **starting bias, not a constraint** — follow promising threads across frames.
+Generate the full candidate list before critiquing any idea. Apply SKILL.md's Divergence Gate: use no frames for direct requests, exactly three isolated frames for compact divergence, and all six only for an explicit wide request. Each generator sees the grounding summary, focus, and its frame only; never share another generator's candidates or critique. Generators produce candidates only, with no ranking, evaluation, or hedging. The critic runs only after the candidate pool is merged.
 
 - **Pain and friction** — what is consistently annoying, slow, or broken in the current state of the topic? Generate ideas that remove or reduce that friction.
 - **Inversion, removal, automation** — what would happen if a step were inverted, removed entirely, or automated away? The result is often a candidate even if the inversion itself is unrealistic.
@@ -39,7 +39,7 @@ Generate the full candidate list before critiquing any idea. Use the same six fr
 - **Cross-domain analogy** — how do completely different fields solve a structurally similar problem? The grounding domain is the user's topic; the analogy domain is anywhere else (other industries, biology, games, infrastructure, history). Push past the obvious analogy to non-obvious ones.
 - **Constraint-flipping** — invert the obvious constraint to its opposite or extreme. What if the budget were 10x or 0? What if there were one constraint instead of ten, or ten instead of one? Use the resulting design as a candidate even if the flip itself is not realistic.
 
-Aim for 5-8 ideas per frame. After generating, merge and dedupe; scan for cross-cutting combinations (3-5 additions at most; more in surprise-me mode, where different frames often discover different subjects and combinations are the magic layer).
+In compact mode, generate 4 ideas per frame and include at least one inversion, assumption-breaking, analogy, or constraint-flipping frame. In explicit wide mode, generate 5-8 ideas per frame. After generating, merge and dedupe; scan for cross-cutting combinations (3-5 additions at most; more in surprise-me mode, where different frames often discover different subjects and combinations are the magic layer).
 
 **Per-idea output contract (mirrors SKILL.md Phase 2):** each idea carries title, summary, **warrant** (required, tagged `direct:` quoted evidence / `external:` named prior art or domain research / `reasoned:` written-out first-principles argument), why-it-matters connecting the warrant to the move's significance, and a one-line meeting-test self-check (waived when tactical focus signals were detected in Phase 0.5). Warrant is required, not optional — unjustified speculation does not surface.
 
@@ -54,9 +54,9 @@ Aim for 5-8 ideas per frame. After generating, merge and dedupe; scan for cross-
 
 ## How to converge
 
-Apply adversarial critique. For each candidate, write a one-line reason if rejected. **Warrant-integrity check:** reject any idea lacking articulated warrant, any idea whose stated warrant does not actually support the claimed move (speculation dressed as ambition), and any idea that replaces the subject rather than operating on it. Score survivors using a consistent rubric weighing: groundedness in stated context, **warrant strength** (`direct:` > `external:` > `reasoned:`; none excluded, but direct-evidence ideas score higher all else equal), expected value, novelty, pragmatism, leverage, implementation burden, and overlap with stronger candidates.
+Apply adversarial critique in a separate orchestrator pass, never in a generator branch. For each candidate, write a one-line reason if rejected and flag attractive-but-unsuitable traps with their concrete downside. **Warrant-integrity check:** reject any idea lacking articulated warrant, any idea whose stated warrant does not actually support the claimed move (speculation dressed as ambition), and any idea that replaces the subject rather than operating on it. Score survivors using a consistent rubric weighing: groundedness in stated context, **warrant strength** (`direct:` > `external:` > `reasoned:`; none excluded, but direct-evidence ideas score higher all else equal), expected value, novelty, pragmatism, leverage, implementation burden, and overlap with stronger candidates. In compact mode, deepen only the top two non-trap survivors without another agent dispatch.
 
-Target 5-7 survivors by default. If too many survive, run a second stricter pass. If fewer than five survive, report that honestly rather than lowering the bar.
+Target 3-5 survivors in compact divergent mode and 5-7 in explicit wide mode. If too many survive, run a second stricter pass. If fewer than the applicable target survive, report that honestly rather than lowering the bar.
 
 ## When to wrap up
 

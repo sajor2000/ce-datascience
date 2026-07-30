@@ -51,6 +51,8 @@ If no argument is provided, proceed with open-ended ideation.
 2. **Generate many -> critique all -> explain survivors only** - The quality mechanism is explicit rejection with reasons, not optimistic ranking. Do not let extra process obscure this pattern.
 3. **Route action into brainstorming** - Ideation identifies promising directions; `ce-brainstorm` defines the selected one precisely enough for planning. Do not skip to planning from ideation output.
 
+**ADHD-inspired, CE-native pattern:** This skill borrows the isolated-divergence and separate-critic discipline from [ADHD](https://github.com/UditAkhourii/adhd), but uses a smaller default dispatch. Do not import its full high-cost loop or reuse its prose verbatim.
+
 ## Execution Flow
 
 ### Phase 0: Resume and Scope
@@ -198,8 +200,9 @@ Infer two things from the argument and any intake so far:
 - **Volume override** — any hint that changes candidate or survivor counts
 
 Default volume:
-- each ideation sub-agent generates about 6-8 ideas (yielding ~36-48 raw ideas across 6 frames in the default path, or ~24-32 across 4 frames in issue-tracker mode; roughly 25-30 survivors after dedupe in the 6-frame path and fewer in the 4-frame path)
-- keep the top 5-7 survivors
+- compact divergent mode: 3 sub-agents generate 4 ideas each, yielding about 12 raw candidates and 3-5 survivors after dedupe and critique
+- explicit wide mode: 6 sub-agents generate about 6-8 ideas each, yielding ~36-48 raw candidates and 5-7 survivors after dedupe and critique
+- direct mode: 1-3 warranted options with no ideation fan-out
 
 Honor clear overrides such as:
 - `top 3`
@@ -211,17 +214,25 @@ Honor clear overrides such as:
 
 Use reasonable interpretation rather than formal parsing.
 
+#### 0.5b Divergence Gate
+
+Before dispatching Phase 2, choose the smallest reasoning shape that fits the request:
+
+- **Direct** — use a concise grounded response with no ideation sub-agents when the request is closed, tactical, canonical, a syntax/lookup question, or a bug with a known root cause. Treat `quick`, `standard`, `canonical`, `textbook`, `just`, and similar language as direct-path signals unless the user explicitly asks to go wide. Keep the response to 1-3 warranted options and continue to the Phase 6 review loop without a raw-candidate fan-out.
+- **Compact divergent (default)** — use three isolated ideation sub-agents for an open-ended topic with multiple plausible directions. This is the normal `ce-ideate` path.
+- **Wide divergent** — use the existing six-frame path only when the user explicitly asks for `ADHD mode`, `go wide`, `wide exploration`, or an equivalent request for broad exploration. Never infer wide mode solely from a vague or high-stakes topic.
+
+State the selected path in the cost notice. Explicit wide requests override direct-path signals.
+
 #### 0.6 Cost Transparency Notice
 
-Before dispatching Phase 1, surface the agent count for the inferred mode in one short line so multi-agent cost is not invisible. Compute the count from the actual dispatch decision: 1 grounding-context agent (codebase scan in repo mode; user-context synthesis in elsewhere) + 1 learnings (skip in elsewhere-non-software) + 1 web researcher + 6 ideation = baseline 9 in repo mode and elsewhere-software, 8 in elsewhere-non-software. When issue-tracker intent triggers (repo mode only): add 1 for the issue-intelligence agent and drop ideation from 6 to 4, for a net -1 (baseline 8). Add 1 if the user opted into Slack research. Subtract 1 if the user issued a web-research skip phrase or V15 reuse will fire. In **surprise-me mode**, agent count is the same but per-agent exploration is deeper — note "(surprise-me mode: deeper exploration per agent)" when active.
+Before dispatching Phase 1, surface the selected reasoning path and agent count in one short line so multi-agent cost is not invisible. Compute the count from the actual dispatch decision: grounding agents + 0 direct-path ideation agents, 3 compact divergent agents, or 6 wide divergent agents. When issue-tracker intent triggers (repo mode only), add 1 for issue intelligence; compact mode still caps ideation at 3 and wide mode caps issue-theme ideation at 4. Add 1 if the user opted into Slack research. Subtract 1 if the user issued a web-research skip phrase or V15 reuse will fire. In **surprise-me mode**, note "(surprise-me mode: deeper exploration per agent)" when active.
 
 Examples (defaults, no skips, no opt-ins):
 
-- **Repo mode, specified subject:** "Will dispatch ~9 agents: codebase scan + learnings + web research + 6 ideation sub-agents. Skip phrases: 'no external research', 'no slack'."
-- **Repo mode, surprise-me:** "Will dispatch ~9 agents (surprise-me mode: deeper exploration per agent): codebase scan + learnings + web research + 6 ideation sub-agents. Skip phrases: 'no external research', 'no slack'."
-- **Repo mode, issue-tracker intent:** "Will dispatch ~8 agents: codebase scan + learnings + web research + issue intelligence + 4 ideation sub-agents. Skip phrases: 'no external research', 'no slack'." Reflects the successful-theme path; if issue intelligence returns insufficient signal (see Phase 1), ideation falls back to 6 sub-agents and the total becomes ~9.
-- **Elsewhere-software:** "Will dispatch ~9 agents: context synthesis + learnings + web research + 6 ideation sub-agents. Skip phrases: 'no external research'."
-- **Elsewhere-non-software:** "Will dispatch ~8 agents: context synthesis + web research + 6 ideation sub-agents. Skip phrases: 'no external research'."
+- **Compact repo mode:** "Compact divergent path: will dispatch ~6 agents: codebase scan + learnings + web research + 3 isolated ideation sub-agents. Skip phrases: 'no external research', 'no slack'."
+- **Wide repo mode:** "Wide divergent path: will dispatch ~9 agents: codebase scan + learnings + web research + 6 isolated ideation sub-agents. Skip phrases: 'no external research', 'no slack'."
+- **Direct elsewhere mode:** "Direct path: grounding only; no ideation sub-agents. Skip phrases: 'no external research'."
 
 The line is informational; users do not need to acknowledge it.
 
@@ -309,9 +320,11 @@ Consolidate all dispatched results into a short grounding summary using these se
 
 Generate the full candidate list before critiquing any idea.
 
-Dispatch parallel ideation sub-agents on the inherited model (do not tier down -- creative ideation needs the orchestrator's reasoning level). Omit the `mode` parameter so the user's configured permission settings apply. Dispatch count is mode-conditional: **4 sub-agents only when issue-tracker intent was detected in Phase 0.2 AND the issue intelligence agent returned usable themes** (see override below — cluster-derived frames capped at 4); **6 sub-agents otherwise**, including the insufficient-issue-signal fallback from Phase 1 where intent triggered but themes were not returned. Each targets ~6-8 ideas (yielding ~36-48 raw ideas across 6 frames or ~24-32 across 4 frames, roughly 25-30 survivors after dedupe in the 6-frame path and fewer in the 4-frame path). Adjust per-agent targets when volume overrides apply (e.g., "100 ideas" raises it, "top 3" may lower the survivor count instead).
+**Direct path:** Do not dispatch ideation agents. Produce the 1-3 concise, warranted options promised by the gate, state why the wider loop was unnecessary, then continue to the Phase 6 review loop.
 
-Give each sub-agent: the grounding summary, the focus hint, the per-agent volume target, and an instruction to generate raw candidates only (not critique). Each agent's first few ideas tend to be obvious -- push past them. Ground every idea in the Phase 1 grounding summary.
+**Compact and wide divergent paths:** Dispatch parallel ideation sub-agents on the inherited model (do not tier down -- creative ideation needs the orchestrator's reasoning level). Omit the `mode` parameter so the user's configured permission settings apply. Compact mode dispatches **exactly 3** sub-agents with **4 candidates each**. Wide mode dispatches **6** sub-agents with ~6-8 candidates each; when issue-tracker intent returned usable themes, wide mode caps cluster-derived frames at 4. Compact issue-tracker mode still uses exactly 3 theme-derived or padded frames. Adjust per-agent targets only for explicit volume overrides.
+
+Give each sub-agent only the grounding summary, focus hint, its assigned frame, and the per-agent volume target. Generator branches are isolated: do not pass one branch's output or critique to another. Instruct every generator to produce raw candidates only -- no ranking, evaluation, or hedging. Each agent's first few ideas tend to be obvious -- push past them. Ground every idea in the Phase 1 grounding summary.
 
 Assign each sub-agent a different ideation frame as a **starting bias, not a constraint**. Prompt each to begin from its assigned perspective but follow any promising thread -- cross-cutting ideas that span multiple frames are valuable.
 
@@ -324,7 +337,9 @@ Assign each sub-agent a different ideation frame as a **starting bias, not a con
 5. **Cross-domain analogy** — generate ideas by asking how completely different fields solve a structurally analogous problem. The grounding domain is the user's topic; the analogy domain is anywhere else (other industries, biology, games, infrastructure, history). Push past the obvious analogy to non-obvious ones.
 6. **Constraint-flipping** — invert the obvious constraint to its opposite or extreme. What if the budget were 10x or 0? What if the team were 100 people or 1? What if there were no users, or 1M? Use the resulting design as a candidate even if the constraint flip itself is not realistic.
 
-**Issue-tracker mode override (repo mode only).** When issue-tracker intent is active and themes were returned by the issue intelligence agent: each high/medium-confidence theme becomes a frame. Pad with frames from the 6-frame default pool (in the order listed above) if fewer than 3 cluster-derived frames. Cap at 4 total — issue-tracker mode keeps its tighter dispatch by design.
+In compact mode, select exactly three distinct frames. Include at least one of inversion/removal, assumption-breaking, cross-domain analogy, or constraint-flipping so the candidate set is not three variations on the obvious path. In wide mode, use all six frames unless issue-theme routing supplies the capped set.
+
+**Issue-tracker mode override (repo mode only).** When issue-tracker intent is active and themes were returned by the issue intelligence agent: each high/medium-confidence theme becomes a frame. Pad with frames from the 6-frame default pool (in the order listed above) if fewer than 3 cluster-derived frames. Compact mode caps the selected set at 3; explicit wide mode caps it at 4.
 
 **Per-idea output contract (uniform across all frames, all modes):**
 
@@ -352,13 +367,15 @@ Warrant is required, not optional. If a sub-agent cannot articulate warrant of a
 
 > No user-specified subject. Through your frame's lens, explore the Phase 1 material and identify the subject(s) you find most interesting for this frame. Different frames finding different subjects is the feature — cross-subject divergence is what makes surprise-me valuable. Each idea still carries warrant; warrant may include identification of the subject itself (why *this* subject is worth ideating on through your lens, citing what in the Phase 1 material signals it).
 
-After all sub-agents return:
+After compact or wide sub-agents return (skip these steps on the direct path):
 
 1. Merge and dedupe into one master candidate list.
 2. Synthesize cross-cutting combinations -- scan for ideas from different frames that combine into something stronger. In specified mode, expect 3-5 additions at most. **In surprise-me mode, cross-cutting is the magic layer** — frames often converge on overlapping subjects or find complementary angles; expect 5-8 additions and give this step more attention. Surface combinations that span multiple frame-chosen subjects as a distinctive surprise-me output pattern.
 3. If a focus was provided, weight the merged list toward it without excluding stronger adjacent ideas.
 4. Spread ideas across multiple dimensions when justified: workflow/DX, reliability, extensibility, missing capabilities, docs/knowledge compounding, quality/maintenance, leverage on future work.
 
-**Checkpoint A (V17).** Immediately after the cross-cutting synthesis step completes and the raw candidate list is consolidated, write `<scratch-dir>/raw-candidates.md` (using the absolute path captured in Phase 1) containing the full candidate list with sub-agent attribution. This protects the most expensive output (6 parallel sub-agent dispatches + dedupe) before Phase 3 critique potentially compacts context. Best-effort: if the write fails (disk full, permissions), log a warning and proceed; the checkpoint is not load-bearing. Not cleaned up at the end of the run (the run directory is preserved so the V15 cache remains reusable across run-ids in the same session — see Phase 6).
+**Separate critic pass:** The orchestrator, not a generator branch, now critiques the merged list. Score groundedness, novelty, fit, and feasibility; cluster by underlying angle; and list attractive-but-unsuitable traps with one concise reason. In compact mode, explain and deepen only the top 2 non-trap survivors; do not dispatch additional deepening agents. Wide mode may retain the existing broader survivor presentation, but must still keep criticism separate from generation.
+
+**Checkpoint A (V17).** Immediately after the cross-cutting synthesis step completes and the raw candidate list is consolidated, write `<scratch-dir>/raw-candidates.md` (using the absolute path captured in Phase 1) containing the full candidate list with sub-agent attribution. This protects the most expensive output (up to 6 parallel sub-agent dispatches + dedupe) before Phase 3 critique potentially compacts context. Best-effort: if the write fails (disk full, permissions), log a warning and proceed; the checkpoint is not load-bearing. Not cleaned up at the end of the run (the run directory is preserved so the V15 cache remains reusable across run-ids in the same session — see Phase 6).
 
 After merging and synthesis — and before presenting survivors — load `references/post-ideation-workflow.md`. This load is non-optional. The file contains the adversarial filtering rubric, artifact template, quality bar, and the canonical Phase 6 handoff menu (Refine, Open and iterate in Proof, Brainstorm, Save and end) — these options do not appear anywhere in this main body. Skipping the load silently degrades every subsequent step; the agent improvises the menu from memory instead of presenting the documented options. "Quickly" means fewer Phase 2 sub-agents, not skipping references. Do not load this file before Phase 2 agent dispatch completes.
