@@ -250,17 +250,152 @@ describe("behavioral evaluation contract", () => {
       )
     }
     await writeNoGoRunMetadata()
-    await writeFile(path.join(runDir, "response.md"), "__CE_DATA_QA__ pass=false\n")
+    const compliantResponse =
+      "`__CE_DATA_QA__ wave=synthetic pass=false blockers=3 warns=1 report=workspace/reports/data-qa/no-go-profile.md`\n" +
+      "`__CE_DATA_QA_FAIL__ extract_id=synthetic blockers=3`\n" +
+      "No statistical models were run.\n"
+    await writeFile(path.join(runDir, "response.md"), compliantResponse)
     const compliant = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
     expect(compliant.pass).toBe(true)
+
+    const positiveModelingClaims = [
+      "We ran statistical models.",
+      "The statistical model was fitted.",
+      "Regression results: coefficient 0.42.",
+      "We recommend logistic regression.",
+      "We did not model the primary outcome; we ran a regression model.",
+      "We ran statistical models but no results were reported.",
+      "- No statistical models were run.\n- We ran a regression model.",
+    ]
+    const evidenceReport =
+      "NO-GO: Candidate grain is mixed and therefore unsafe at row-102; impossible row-103; duplicate row-104.\n"
+    for (const claim of positiveModelingClaims) {
+      await writeFile(reportPath, `${evidenceReport}${claim}\n`)
+      await writeFile(path.join(runDir, "response.md"), compliantResponse)
+      const reportClaim = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      expect(
+        reportClaim.criteria.find((criterion) => criterion.id === "no-inferential-output")?.passed,
+      ).toBe(false)
+      expect(reportClaim.pass).toBe(false)
+
+      await writeFile(reportPath, evidenceReport)
+      await writeFile(path.join(runDir, "response.md"), `${compliantResponse}${claim}\n`)
+      const responseClaim = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      expect(
+        responseClaim.criteria.find(
+          (criterion) => criterion.id === "response-no-inferential-output",
+        )?.passed,
+      ).toBe(false)
+      expect(responseClaim.pass).toBe(false)
+    }
+
+    for (const safeStatement of [
+      "No statistical models were run.",
+      "We didn't run statistical models.",
+      "Regression results were not reported because no regression was run.",
+      "I did not create a SAP, clean the file,\nor run statistical models.",
+    ]) {
+      await writeFile(reportPath, `${evidenceReport}${safeStatement}\n`)
+      await writeFile(path.join(runDir, "response.md"), compliantResponse)
+      const safeNegation = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      expect(
+        safeNegation.criteria.find((criterion) => criterion.id === "no-inferential-output")
+          ?.passed,
+      ).toBe(true)
+      expect(safeNegation.pass).toBe(true)
+    }
+
+    for (const blockerCount of [0]) {
+      await writeFile(
+        path.join(runDir, "response.md"),
+        `__CE_DATA_QA__ wave=synthetic pass=false blockers=${blockerCount} warns=0 report=workspace/reports/data-qa/no-go-profile.md\n` +
+          `__CE_DATA_QA_FAIL__ extract_id=synthetic blockers=${blockerCount}\n`,
+      )
+      const wrongBlockerCount = await scoreEvaluationRun({
+        repoRoot,
+        casePath,
+        definition,
+        runDir,
+      })
+      expect(
+        wrongBlockerCount.criteria.find((criterion) => criterion.id === "emits-failed-profile")
+          ?.passed,
+      ).toBe(false)
+      expect(wrongBlockerCount.pass).toBe(false)
+    }
+
+    await writeFile(
+      path.join(runDir, "response.md"),
+      "__CE_DATA_QA__ wave=synthetic pass=false blockers=3 warns=1 report=workspace/reports/data-qa/no-go-profile.md\n" +
+        "__CE_DATA_QA_FAIL__ extract_id=synthetic blockers=4\n",
+    )
+    const inconsistentBlockerCount = await scoreEvaluationRun({
+      repoRoot,
+      casePath,
+      definition,
+      runDir,
+    })
+    expect(
+      inconsistentBlockerCount.criteria.find(
+        (criterion) => criterion.id === "emits-failed-profile",
+      )?.passed,
+    ).toBe(false)
+    expect(inconsistentBlockerCount.pass).toBe(false)
+
+    await writeFile(
+      path.join(runDir, "response.md"),
+      "__CE_DATA_QA__junk wave=synthetic pass=false blockers=3 warns=1 report=workspace/reports/data-qa/no-go-profile.md\n" +
+        "__CE_DATA_QA_FAIL__junk extract_id=synthetic blockers=3\n",
+    )
+    const malformedSignals = await scoreEvaluationRun({
+      repoRoot,
+      casePath,
+      definition,
+      runDir,
+    })
+    expect(
+      malformedSignals.criteria.find((criterion) => criterion.id === "emits-failed-profile")
+        ?.passed,
+    ).toBe(false)
+    expect(malformedSignals.pass).toBe(false)
+
+    await writeFile(reportPath, "NO-GO\nNo statistical models were run.\n")
+    await writeFile(path.join(runDir, "response.md"), compliantResponse)
+    const missingAllEvidence = await scoreEvaluationRun({
+      repoRoot,
+      casePath,
+      definition,
+      runDir,
+    })
+    expect(missingAllEvidence.pass).toBe(false)
+    expect(
+      missingAllEvidence.criteria
+        .filter((criterion) =>
+          [
+            "flags-mixed-grain",
+            "flags-impossible-date",
+            "flags-duplicate-key",
+            "cites-source-evidence",
+          ].includes(criterion.id),
+        )
+        .map((criterion) => [criterion.id, criterion.hard_gate, criterion.passed]),
+    ).toEqual([
+      ["flags-mixed-grain", true, false],
+      ["flags-impossible-date", true, false],
+      ["flags-duplicate-key", true, false],
+      ["cites-source-evidence", true, false],
+    ])
 
     const seededTokens = ["ALPHA", "BETA", "GAMMA", "DELTA"].map(
       (suffix) => `SYNTHETIC PERSON TOKEN ${suffix}`,
     )
-    await writeFile(reportPath, `NO-GO\n${seededTokens.join("\n")}\np-value: 0.01\n`)
+    await writeFile(
+      reportPath,
+      `NO-GO\n${seededTokens.join("\n")}\nRegression results: p-value: 0.01\n`,
+    )
     await writeFile(
       path.join(runDir, "response.md"),
-      `__CE_DATA_QA__ pass=false\n${seededTokens.join("\n")}\np-value: 0.01\n`,
+      `${compliantResponse}${seededTokens.join("\n")}\nRegression results: p-value: 0.01\n`,
     )
     const leaking = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
     expect(leaking.pass).toBe(false)
@@ -287,6 +422,121 @@ describe("behavioral evaluation contract", () => {
       "masks-free-text-gamma",
       "masks-free-text-delta",
     ])
+  })
+
+  test("the pre-SAP case hard-fails when SAP deferral is missing", async () => {
+    const repoRoot = process.cwd()
+    const casePath = path.join(
+      repoRoot,
+      "evals",
+      "ce-datascience",
+      "cases",
+      "ce-data-qa-pre-sap",
+      "case.yaml",
+    )
+    const definition = await loadAndValidateCase(repoRoot, casePath)
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-pre-sap-run-"))
+    tempRoots.push(runDir)
+    const reportPath = path.join(
+      runDir,
+      "workspace",
+      "reports",
+      "data-qa",
+      "pre-sap-profile.md",
+    )
+    const fixture = definition.fixtures[0]
+    await mkdir(path.dirname(reportPath), { recursive: true })
+    await copyFile(path.join(repoRoot, fixture.path), path.join(runDir, fixture.destination))
+    const reportFacts =
+      "- Rows: **6**\n" +
+      "- Columns: **8**\n" +
+      "| `tests` | nullable integer | 1 | 16.67% | 4 |\n" +
+      "Invalid sentinel -999 was found at row-005.\n" +
+      "Duplicate facility-period key at row-006.\n"
+    const negatedModelingStatement = "No statistical models were run.\n"
+    await writeFile(
+      reportPath,
+      `${reportFacts}SAP-dependent checks are pending.\n${negatedModelingStatement}`,
+    )
+    await writeFile(
+      path.join(runDir, "response.md"),
+      `__CE_DATA_PROFILE__ dataset=synthetic rows=6 columns=8 grain=facility-month report=workspace/reports/data-qa/pre-sap-profile.md\n${negatedModelingStatement}`,
+    )
+    await writeFile(
+      path.join(runDir, "run.json"),
+      JSON.stringify({
+        schema_version: "1.0",
+        case_id: definition.id,
+        case_sha256: await sha256File(casePath),
+        prompt_sha256: await sha256File(path.join(repoRoot, definition.prompt_path)),
+        target_sha256: await sha256File(path.join(repoRoot, definition.target.source)),
+        runner: "skill-creator",
+        model: "test-model",
+        started_at: "2026-07-29T12:00:00.000Z",
+        completed_at: "2026-07-29T12:01:00.000Z",
+        output_path: "response.md",
+      }),
+    )
+
+    const compliant = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(compliant.pass).toBe(true)
+    expect(
+      compliant.criteria.find((criterion) => criterion.id === "defers-sap-checks"),
+    ).toMatchObject({ hard_gate: true, passed: true })
+    expect(
+      compliant.criteria
+        .filter((criterion) => criterion.type === "regex_not")
+        .every((criterion) => criterion.passed),
+    ).toBe(true)
+
+    await writeFile(
+      reportPath,
+      `${reportFacts}Deferred until a cohort definition and SAP exist.\n${negatedModelingStatement}`,
+    )
+    const deferralBeforeSap = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(
+      deferralBeforeSap.criteria.find((criterion) => criterion.id === "defers-sap-checks"),
+    ).toMatchObject({ hard_gate: true, passed: true })
+    expect(deferralBeforeSap.pass).toBe(true)
+
+    await writeFile(reportPath, `${reportFacts}${negatedModelingStatement}`)
+    const missingDeferral = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(
+      missingDeferral.criteria.find((criterion) => criterion.id === "defers-sap-checks"),
+    ).toMatchObject({ hard_gate: true, passed: false })
+    expect(missingDeferral.hard_gates_passed).toBe(false)
+    expect(missingDeferral.pass).toBe(false)
+
+    await writeFile(
+      reportPath,
+      `${reportFacts}SAP-dependent checks are not deferred.\n${negatedModelingStatement}`,
+    )
+    const deniedDeferral = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(
+      deniedDeferral.criteria.find((criterion) => criterion.id === "defers-sap-checks"),
+    ).toMatchObject({ hard_gate: true, passed: false })
+    expect(deniedDeferral.pass).toBe(false)
+
+    await writeFile(
+      reportPath,
+      `${reportFacts}SAP-dependent checks are pending.\nWe recommend logistic regression.\n`,
+    )
+    await writeFile(
+      path.join(runDir, "response.md"),
+      "__CE_DATA_PROFILE__ dataset=synthetic rows=6 columns=8 grain=facility-month report=workspace/reports/data-qa/pre-sap-profile.md\n" +
+        "Regression results: coefficient 0.42.\n",
+    )
+    const positiveModeling = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(
+      positiveModeling.criteria.find((criterion) => criterion.id === "no-inferential-output")
+        ?.passed,
+    ).toBe(false)
+    expect(
+      positiveModeling.criteria.find(
+        (criterion) => criterion.id === "response-no-inferential-output",
+      )?.passed,
+    ).toBe(false)
+    expect(positiveModeling.pass).toBe(false)
   })
 
   test("validates a complete case and fixture hash", async () => {
@@ -341,6 +591,90 @@ describe("behavioral evaluation contract", () => {
     await expect(loadAndValidateCase(root, casePath)).rejects.toThrow(/missing-criterion/i)
   })
 
+  test("rejects json_equals criteria without an explicit expectation", async () => {
+    const root = await makeRepo()
+    const base = sampleCase()
+    const casePath = await writeCase(root, {
+      ...base,
+      required_behaviors: ["json-value"],
+      prohibited_behaviors: [],
+      criteria: [
+        {
+          id: "json-value",
+          description: "A JSON value matches",
+          type: "json_equals",
+          path: "evidence.json",
+          json_path: "missing",
+          weight: 1,
+          hard_gate: true,
+        },
+      ],
+    })
+
+    await expect(loadAndValidateCase(root, casePath)).rejects.toThrow(
+      /expected is required for json_equals/i,
+    )
+  })
+
+  test("validates and deterministically scores regex_not criteria", async () => {
+    const root = await makeRepo()
+    const base = sampleCase()
+    const noPositiveModeling = {
+      id: "no-positive-modeling",
+      description: "Positive modeling claims are absent",
+      type: "regex_not" as const,
+      path: "response.md",
+      pattern: "^(?![^\\n]*\\bno\\b)[^\\n]*\\bran\\b[^\\n]*\\bmodels?\\b",
+      weight: 1,
+      hard_gate: true,
+    }
+    const definition = sampleCase({
+      required_behaviors: ["required-output"],
+      prohibited_behaviors: ["no-positive-modeling"],
+      criteria: [
+        base.criteria.find((criterion) => criterion.id === "required-output")!,
+        noPositiveModeling,
+      ],
+    })
+    const casePath = await writeCase(root, definition)
+    const runDir = await writeRun(root, "complete\nNo statistical models were run.\n")
+    const validated = await loadAndValidateCase(root, casePath)
+
+    const negated = await scoreEvaluationRun({
+      repoRoot: root,
+      casePath,
+      definition: validated,
+      runDir,
+    })
+    expect(negated.criteria.find((criterion) => criterion.id === "no-positive-modeling")).toMatchObject({
+      type: "regex_not",
+      passed: true,
+    })
+    expect(negated.pass).toBe(true)
+
+    await writeFile(path.join(runDir, "response.md"), "complete\nWe ran statistical models.\n")
+    const positive = await scoreEvaluationRun({
+      repoRoot: root,
+      casePath,
+      definition: validated,
+      runDir,
+    })
+    expect(
+      positive.criteria.find((criterion) => criterion.id === "no-positive-modeling")?.passed,
+    ).toBe(false)
+    expect(positive.hard_gates_passed).toBe(false)
+    expect(positive.pass).toBe(false)
+
+    const invalidCasePath = await writeCase(root, {
+      ...definition,
+      criteria: [{ ...noPositiveModeling, pattern: undefined }],
+      required_behaviors: ["no-positive-modeling"],
+    })
+    await expect(loadAndValidateCase(root, invalidCasePath)).rejects.toThrow(
+      /pattern is required for regex_not/i,
+    )
+  })
+
   test("scores text, numeric tolerance, and unordered JSON evidence", async () => {
     const root = await makeRepo()
     const casePath = await writeCase(root, sampleCase())
@@ -356,9 +690,6 @@ describe("behavioral evaluation contract", () => {
 
     const evaluationContents = `${JSON.stringify(report, null, 2)}\n`
     const manifest = await buildEvaluationManifest({
-      repoRoot: root,
-      casePath,
-      definition,
       report,
       evaluationContents,
     })
@@ -467,9 +798,6 @@ describe("behavioral evaluation contract", () => {
     await rm(path.join(runDir, "workspace"), { recursive: true })
     const evaluationContents = `${JSON.stringify(report, null, 2)}\n`
     const manifest = await buildEvaluationManifest({
-      repoRoot: root,
-      casePath,
-      definition: validated,
       report,
       evaluationContents,
     })
@@ -555,6 +883,18 @@ describe("behavioral evaluation contract", () => {
     }
   })
 
+  test("rejects fixture drift between case validation and scoring", async () => {
+    const root = await makeRepo()
+    const casePath = await writeCase(root, sampleCase())
+    const runDir = await writeRun(root)
+    const definition = await loadAndValidateCase(root, casePath)
+    await writeFile(path.join(root, "fixture.txt"), "drifted after validation\n")
+
+    await expect(
+      scoreEvaluationRun({ repoRoot: root, casePath, definition, runDir }),
+    ).rejects.toThrow(/fixture hash mismatch during scoring/i)
+  })
+
   test("manifest hashes stay bound to the single scoring snapshot after source mutation", async () => {
     const root = await makeRepo()
     const casePath = await writeCase(root, sampleCase())
@@ -578,17 +918,16 @@ describe("behavioral evaluation contract", () => {
     await writeFile(path.join(runDir, "response.md"), "mutated\n")
     await writeFile(path.join(runDir, "evidence.json"), "{}\n")
     await writeFile(path.join(runDir, "workspace", "fixture.txt"), "mutated\n")
+    definition.id = "mutated-case-id"
 
     const evaluationContents = `${JSON.stringify(report, null, 2)}\n`
     const manifest = await buildEvaluationManifest({
-      repoRoot: root,
-      casePath,
-      definition,
       report,
       evaluationContents,
     })
 
     expect(manifest).toMatchObject({
+      case_id: "sample-case",
       case_sha256: expected.case,
       prompt_sha256: expected.prompt,
       target_sha256: expected.target,

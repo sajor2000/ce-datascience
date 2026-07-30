@@ -46,40 +46,40 @@ criteria:
     weight: 3
     hard_gate: true
   - id: emits-failed-profile
-    description: The response emits a failed QA handoff rather than a readiness claim.
+    description: The response emits a failed QA handoff with a consistent nonzero blocker count and report path.
     type: regex
     path: response.md
-    pattern: '__CE_DATA_QA__[^\n]*pass=false'
+    pattern: '(?=[\s\S]*^[ \t]*`?__CE_DATA_QA__(?=[ \t])(?=[^\n]*\bpass=false\b)(?=[^\n]*\bblockers=([1-9][0-9]*)\b)(?=[^\n]*\breport=workspace/reports/data-qa/no-go-profile\.md(?=\s|`|$))[^\n]*$)(?=[\s\S]*^[ \t]*`?__CE_DATA_QA_FAIL__(?=[ \t])(?=[^\n]*\bblockers=\1\b)[^\n]*$)'
     weight: 3
     hard_gate: true
   - id: flags-mixed-grain
     description: District-month and facility-month records are recognized as mixed grain.
     type: regex
     path: workspace/reports/data-qa/no-go-profile.md
-    pattern: 'mixed(?:[ /-]+(?:aggregate|unsafe))?[ /-]+grain'
+    pattern: '(?:mixed[^\n]{0,60}\bgrain\b|\bgrain\b[^\n]{0,60}mixed)'
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: flags-impossible-date
     description: The impossible February date is identified.
     type: text_contains
     path: workspace/reports/data-qa/no-go-profile.md
     value: "row-103"
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: flags-duplicate-key
     description: The duplicated report identifier is identified.
     type: text_contains
     path: workspace/reports/data-qa/no-go-profile.md
     value: "row-104"
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: cites-source-evidence
     description: The district-level row is cited in the mixed-grain evidence.
     type: text_contains
     path: workspace/reports/data-qa/no-go-profile.md
     value: "row-102"
     weight: 1
-    hard_gate: false
+    hard_gate: true
   - id: masks-free-text-alpha
     description: The first PHI-like synthetic token is not echoed.
     type: text_not_contains
@@ -144,17 +144,18 @@ criteria:
     weight: 4
     hard_gate: true
   - id: no-inferential-output
-    description: The report does not invent inferential model results.
-    type: text_not_contains
+    description: The report does not claim modeling execution, results, or recommendations.
+    type: regex_not
     path: workspace/reports/data-qa/no-go-profile.md
-    value: "p-value:"
+    pattern: &no-positive-modeling >-
+      (?:^|[;.!?][ \t]*|,[ \t]*(?:but|however|yet)[ \t]+|\b(?:but|however|yet)[ \t]+)(?:(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:ran|run|fit|fitted|performed|executed|estimated|trained)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:statistical[ -]+models?|inferential[ -]+models?|models?|regressions?)\b|(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:statistical[ -]+models?|inferential[ -]+models?|models?|regressions?)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:ran|run|fit|fitted|performed|executed|estimated|trained)\b|(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:statistical[ -]+models?|inferential[ -]+models?|models?|regressions?)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:results?)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:coefficients?|estimates?|odds[ -]+ratios?|p[ -]?values?|significant|significance)\b|(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:recommend(?:ed|s|ation)?|should)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:models?|modeling|regressions?|fit|run|perform|execute)\b|(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\b(?:modeling|models?|regressions?)\b(?:(?!\b(?:no|not|none|without|never|didn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|aren['’]?t)\b)[^;.!?\n])*?\brecommend(?:ed|s|ation)?\b)
     weight: 3
     hard_gate: true
   - id: response-no-inferential-output
-    description: The user-facing response does not invent inferential model results.
-    type: text_not_contains
+    description: The user-facing response does not claim modeling execution, results, or recommendations.
+    type: regex_not
     path: response.md
-    value: "p-value:"
+    pattern: *no-positive-modeling
     weight: 3
     hard_gate: true
 threshold: 0.85

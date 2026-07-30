@@ -33,9 +33,6 @@ const { casePath, definition } = await findCaseById(repoRoot, caseId)
 const report = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
 const evaluationContents = `${JSON.stringify(report, null, 2)}\n`
 const manifest = await buildEvaluationManifest({
-  repoRoot,
-  casePath,
-  definition,
   report,
   evaluationContents,
 })

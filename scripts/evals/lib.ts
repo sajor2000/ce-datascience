@@ -11,6 +11,7 @@ export type CriterionType =
   | "text_contains"
   | "text_not_contains"
   | "regex"
+  | "regex_not"
   | "numeric"
   | "json_equals"
   | "json_set_equals"
@@ -192,6 +193,7 @@ const ALLOWED_CRITERION_TYPES = new Set<CriterionType>([
   "text_contains",
   "text_not_contains",
   "regex",
+  "regex_not",
   "numeric",
   "json_equals",
   "json_set_equals",
@@ -359,9 +361,12 @@ function validateCriterionShape(criterion: EvaluationCriterion, index: number): 
   ) {
     errors.push(`${label}.value is required for ${criterion.type}`)
   }
-  if (["regex", "numeric"].includes(criterion.type) && typeof criterion.pattern !== "string") {
+  if (
+    ["regex", "regex_not", "numeric"].includes(criterion.type) &&
+    typeof criterion.pattern !== "string"
+  ) {
     errors.push(`${label}.pattern is required for ${criterion.type}`)
-  } else if (["regex", "numeric"].includes(criterion.type)) {
+  } else if (["regex", "regex_not", "numeric"].includes(criterion.type)) {
     try {
       new RegExp(criterion.pattern!)
     } catch (error) {
@@ -381,6 +386,12 @@ function validateCriterionShape(criterion: EvaluationCriterion, index: number): 
   }
   if (["json_equals", "json_set_equals"].includes(criterion.type) && !criterion.json_path) {
     errors.push(`${label}.json_path is required for ${criterion.type}`)
+  }
+  if (
+    criterion.type === "json_equals" &&
+    !Object.prototype.hasOwnProperty.call(criterion, "expected")
+  ) {
+    errors.push(`${label}.expected is required for json_equals`)
   }
   if (criterion.type === "json_set_equals" && !Array.isArray(criterion.expected)) {
     errors.push(`${label}.expected must be an array for json_set_equals`)
@@ -614,6 +625,27 @@ function normalizeText(value: string, caseSensitive: boolean | undefined): strin
   return caseSensitive ? value : value.toLowerCase()
 }
 
+function normalizeProseLineWraps(value: string): string {
+  const blockBoundary = /^(?:[-*+]\s+|\d+[.)]\s+|#{1,6}\s+|>\s*|\| |```|__CE_)/
+  let normalized = ""
+
+  for (const rawLine of value.replace(/\r\n?/g, "\n").split("\n")) {
+    const line = rawLine.trim()
+    if (!line) {
+      if (normalized && !/[;.!?]\s*$/.test(normalized)) normalized += "."
+      continue
+    }
+
+    if (normalized) {
+      if (blockBoundary.test(line) && !/[;.!?]\s*$/.test(normalized)) normalized += "."
+      normalized += " "
+    }
+    normalized += line
+  }
+
+  return normalized
+}
+
 async function evaluateCriterion(
   criterion: EvaluationCriterion,
   artifact: Buffer | undefined,
@@ -649,10 +681,18 @@ async function evaluateCriterion(
       const contains = haystack.includes(needle)
       passed = criterion.type === "text_contains" ? contains : !contains
       evidence = `${criterion.type} ${JSON.stringify(criterion.value)} => ${passed}`
-    } else if (criterion.type === "regex") {
+    } else if (criterion.type === "regex" || criterion.type === "regex_not") {
       const flags = criterion.case_sensitive ? "m" : "im"
-      passed = new RegExp(criterion.pattern!, flags).test(raw)
-      evidence = `regex /${criterion.pattern}/${flags} => ${passed}`
+      // Prohibited-behavior prose must not change meaning merely because Markdown
+      // wraps one sentence across lines. Positive regex criteria retain raw line
+      // structure because some contracts intentionally anchor exact handoffs.
+      const regexInput = criterion.type === "regex_not" ? normalizeProseLineWraps(raw) : raw
+      const matched = new RegExp(criterion.pattern!, flags).test(regexInput)
+      passed = criterion.type === "regex" ? matched : !matched
+      evidence =
+        `${criterion.type} /${criterion.pattern}/${flags}` +
+        `${criterion.type === "regex_not" ? " normalized-whitespace" : ""}` +
+        ` matched=${matched} => ${passed}`
     } else if (criterion.type === "numeric") {
       const flags = criterion.case_sensitive ? "m" : "im"
       const match = raw.match(new RegExp(criterion.pattern!, flags))
@@ -838,7 +878,14 @@ export async function scoreEvaluationRun(options: {
       resolveInside(canonicalRepo, fixture.path, "fixture.path"),
       "fixture.path",
     )
-    fixtureContents.set(fixture.path, await readOnce(fixturePath))
+    const contents = await readOnce(fixturePath)
+    const actualHash = sha256Contents(contents)
+    if (actualHash !== fixture.sha256) {
+      throw new Error(
+        `fixture hash mismatch during scoring for ${fixture.path}: expected ${fixture.sha256}, got ${actualHash}`,
+      )
+    }
+    fixtureContents.set(fixture.path, contents)
   }
 
   const scoredArtifactContents = new Map<string, Buffer>()
@@ -940,9 +987,6 @@ export async function scoreEvaluationRun(options: {
 }
 
 export async function buildEvaluationManifest(options: {
-  repoRoot: string
-  casePath: string
-  definition: EvaluationCase
   report: EvaluationReport
   evaluationContents: string
 }): Promise<EvaluationManifest> {
@@ -960,7 +1004,7 @@ export async function buildEvaluationManifest(options: {
   }
   return {
     schema_version: EVALUATION_SCHEMA_VERSION,
-    case_id: options.definition.id,
+    case_id: options.report.case_id,
     pass: options.report.pass,
     source_commit: options.report.source_commit,
     case_sha256: sha256Contents(snapshot.caseContents),
