@@ -27,6 +27,8 @@ Choose the narrowest route and load its named skill before writing code:
 | MLflow, experiments, registered models, batch scoring, AI functions | Load the `ce-fabric-ml` skill |
 | Eventhouse, KQL, Eventstreams, Real-Time Dashboards, Activator | Load the `ce-fabric-kql` skill |
 
+For new or materially extended Fabric Python notebooks, load the `ce-notebook-standards` skill before routing to the implementation skill.
+
 If the route is unclear, follow the Skill Value interaction rule. Because there are five distinct destinations, present the numbered options below in chat when the blocking-question UI cannot show all five, accept free-form input, and wait for the user's response:
 
 1. Lakehouse/Warehouse code

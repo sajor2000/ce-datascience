@@ -16,6 +16,8 @@ argument-hint: "[lakehouse|warehouse|spark|python-notebook]"
 
 ## Choose the engine
 
+For a new or materially extended Python notebook, load the `ce-notebook-standards` skill before creating cells.
+
 | Need | Preferred surface |
 |---|---|
 | Distributed transformation, Delta maintenance, large data | Spark notebook or Spark job |

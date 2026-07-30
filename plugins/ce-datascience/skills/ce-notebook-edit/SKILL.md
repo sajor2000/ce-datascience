@@ -28,20 +28,23 @@ Existing notebooks are fragile because cell order, metadata, outputs, and JSON s
 
 1. Prefer text-native formats for new work. If the user is starting fresh, route to `/ce-work` scaffolding instead of creating a new `.ipynb`.
 2. Inspect the notebook structure and identify a unique anchor tag in `cell.metadata.tags`.
-3. Put the new cell body in a small project file, then run:
+3. Load the `ce-notebook-standards` skill before adding or materially changing executable cells. Put the explanatory Markdown and new code body in small project files, then run:
 
 ```bash
-python3 scripts/notebook_edit.py --notebook analysis/notebook.ipynb --tag sap-5-1 --source analysis/notebook-edits/new-cell.py --cell-type code
+python3 scripts/notebook_edit.py --notebook analysis/notebook.ipynb --tag sap-5-1 --markdown-source analysis/notebook-edits/new-cell.md --source analysis/notebook-edits/new-cell.py --cell-type code
 ```
 
 4. Review the generated backup, modified notebook diff, and `.edit-report.md` file.
 5. Run the notebook top-to-bottom with the project's normal runner if available. If no runner exists, surface that as a verification gap.
+
+When an edit adds or changes code that reads, creates, transforms, validates, or renders analytical data or output, use the declared restricted data root for file-backed data (or the registered verified data connection). Synthetic, mock, sample, and fake-study data are allowed only when the user explicitly requests a clearly labeled test or demonstration; do not produce a synthetic study result. If the real source or QA provenance is unavailable, do not run the notebook and do not persist output. Record the real source location or registered extract ID/hash and validation evidence with each persisted study result. An explicitly requested synthetic test/demo may persist only as a clearly labeled non-study artifact with synthetic fixture or generator provenance, never in a study-output location.
 
 ## Guarantees
 
 - The script refuses absolute paths and paths outside the project root.
 - The script requires exactly one matching anchor tag.
 - The original notebook is copied to `<notebook>.bak` before writing.
+- A code-cell insertion requires `--markdown-source`; the tool inserts the explanatory Markdown directly before the code cell.
 - If `nbformat` is installed, the script validates the notebook schema before and after editing. If it is missing, the script still performs structural JSON checks and prints install guidance.
 
 ## What This Skill Does Not Do

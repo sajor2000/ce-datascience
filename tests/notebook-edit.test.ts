@@ -43,11 +43,55 @@ async function makeProject(): Promise<string> {
     }, null, 1),
   )
   await writeFile(path.join(root, "analysis", "notebook-edits", "new-cell.py"), "print('sensitivity')\n")
+  await writeFile(
+    path.join(root, "analysis", "notebook-edits", "new-cell.md"),
+    "## Sensitivity analysis\n\nUses the reviewed cohort and reports the requested sensitivity result.\n",
+  )
   return root
 }
 
 describe("notebook edit workflow", () => {
   test("inserts a code cell after a unique tagged notebook cell", async () => {
+    const root = await makeProject()
+    const notebookPath = path.join(root, "analysis", "notebook.ipynb")
+    const original = JSON.parse(await readFile(notebookPath, "utf8"))
+    const proc = Bun.spawn([
+      "python3",
+      scriptPath,
+      "--project-root",
+      root,
+      "--notebook",
+      "analysis/notebook.ipynb",
+      "--tag",
+      "sap-5-1",
+      "--markdown-source",
+      "analysis/notebook-edits/new-cell.md",
+      "--source",
+      "analysis/notebook-edits/new-cell.py",
+      "--cell-type",
+      "code",
+      "--new-tag",
+      "sap-5-1-sensitivity",
+    ], { stdout: "pipe", stderr: "pipe" })
+
+    expect(await proc.exited).toBe(0)
+    const notebook = JSON.parse(await readFile(notebookPath, "utf8"))
+    const backup = await readFile(path.join(root, "analysis", "notebook.ipynb.bak"), "utf8")
+    const report = await readFile(path.join(root, "analysis", "notebook.edit-report.md"), "utf8")
+
+    expect(notebook.cells).toHaveLength(3)
+    expect(notebook.cells[1].cell_type).toBe("markdown")
+    expect(notebook.cells[1].source).toContain("Sensitivity analysis")
+    expect(notebook.cells[1].metadata.tags).toEqual(["sap-5-1-sensitivity-documentation"])
+    expect(notebook.cells[2].source).toBe("print('sensitivity')\n")
+    expect(notebook.cells[2].metadata.tags).toEqual(["sap-5-1-sensitivity"])
+    expect(notebook.metadata).toEqual(original.metadata)
+    expect(notebook.cells[0]).toEqual(original.cells[0])
+    expect(backup).toContain("# Primary analysis")
+    expect(report).toContain("Result: EDITED-WITH-REVIEW")
+  })
+
+  test("requires explanatory Markdown for inserted code cells", async () => {
     const root = await makeProject()
     const proc = Bun.spawn([
       "python3",
@@ -62,20 +106,10 @@ describe("notebook edit workflow", () => {
       "analysis/notebook-edits/new-cell.py",
       "--cell-type",
       "code",
-      "--new-tag",
-      "sap-5-1-sensitivity",
     ], { stdout: "pipe", stderr: "pipe" })
 
-    expect(await proc.exited).toBe(0)
-    const notebook = JSON.parse(await readFile(path.join(root, "analysis", "notebook.ipynb"), "utf8"))
-    const backup = await readFile(path.join(root, "analysis", "notebook.ipynb.bak"), "utf8")
-    const report = await readFile(path.join(root, "analysis", "notebook.edit-report.md"), "utf8")
-
-    expect(notebook.cells).toHaveLength(2)
-    expect(notebook.cells[1].source).toBe("print('sensitivity')\n")
-    expect(notebook.cells[1].metadata.tags).toEqual(["sap-5-1-sensitivity"])
-    expect(backup).toContain("# Primary analysis")
-    expect(report).toContain("Result: EDITED-WITH-REVIEW")
+    expect(await proc.exited).toBe(2)
+    expect(await new Response(proc.stderr).text()).toContain("--markdown-source is required")
   })
 
   test("refuses ambiguous anchor tags before writing a backup", async () => {
@@ -98,6 +132,8 @@ describe("notebook edit workflow", () => {
       "analysis/notebook.ipynb",
       "--tag",
       "sap-5-1",
+      "--markdown-source",
+      "analysis/notebook-edits/new-cell.md",
       "--source",
       "analysis/notebook-edits/new-cell.py",
     ], { stdout: "pipe", stderr: "pipe" })

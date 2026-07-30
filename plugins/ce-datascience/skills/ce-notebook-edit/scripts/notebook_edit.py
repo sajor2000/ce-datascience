@@ -101,6 +101,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--notebook", required=True, help="Project-relative .ipynb path")
     parser.add_argument("--tag", required=True, help="Unique anchor tag in cell.metadata.tags")
     parser.add_argument("--source", required=True, help="Project-relative file containing the new cell source")
+    parser.add_argument(
+        "--markdown-source",
+        help="Project-relative Markdown source required when inserting a code cell",
+    )
     parser.add_argument("--cell-type", choices=["markdown", "code"], default="code")
     parser.add_argument("--new-tag", action="append", default=[], help="Tag to add to the inserted cell")
     parser.add_argument("--backup-suffix", default=".bak", help="Suffix for the pre-edit backup")
@@ -113,6 +117,11 @@ def main() -> int:
         root = resolve_project_root(args.project_root)
         notebook_path = resolve_relative(root, args.notebook, "--notebook")
         source_path = resolve_relative(root, args.source, "--source")
+        markdown_source_path = (
+            resolve_relative(root, args.markdown_source, "--markdown-source")
+            if args.markdown_source
+            else None
+        )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -125,6 +134,12 @@ def main() -> int:
         return 1
     if not source_path.exists():
         print(f"Source file not found: {source_path.relative_to(root)}", file=sys.stderr)
+        return 1
+    if args.cell_type == "code" and markdown_source_path is None:
+        print("--markdown-source is required when --cell-type code", file=sys.stderr)
+        return 2
+    if markdown_source_path is not None and not markdown_source_path.exists():
+        print(f"Markdown source file not found: {markdown_source_path.relative_to(root)}", file=sys.stderr)
         return 1
 
     nbformat = load_nbformat()
@@ -162,6 +177,14 @@ def main() -> int:
     source = source_path.read_text(encoding="utf-8")
     new_tags = args.new_tag or [f"inserted-after-{args.tag}"]
     insert_index = matches[0] + 1
+    if args.cell_type == "code":
+        assert markdown_source_path is not None
+        markdown_source = markdown_source_path.read_text(encoding="utf-8")
+        notebook["cells"].insert(
+            insert_index,
+            make_cell("markdown", markdown_source, [f"{new_tags[0]}-documentation"]),
+        )
+        insert_index += 1
     notebook["cells"].insert(insert_index, make_cell(args.cell_type, source, new_tags))
 
     post_validation_errors = validate_notebook(notebook, nbformat)
@@ -194,6 +217,7 @@ def main() -> int:
         "__CE_NOTEBOOK_EDIT__ "
         f"notebook={notebook_path.relative_to(root)} "
         f"inserted_after={args.tag} "
+        f"documentation={'inserted' if args.cell_type == 'code' else 'not-applicable'} "
         f"backup={backup_path.relative_to(root)} "
         f"report={report_path.relative_to(root)}"
     )

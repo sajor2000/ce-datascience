@@ -24,6 +24,8 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run inferential analyses, or learn from execution-time results. For study or analysis projects, it **does** require a data-column/QA preflight before SAP finalization or modeling recommendations: inspect available dataset columns and consume `/ce-data-qa` output before writing variable/model sections. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
 
+When the plan includes new or materially extended Marimo, Jupyter, R Markdown, or Quarto work, load the `ce-notebook-standards` skill and record its topology decision and notebook responsibilities in the plan.
+
 ## Interaction Method
 
 When this skill asks a user-facing question, follow the Skill Value interaction rule above.

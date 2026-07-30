@@ -93,6 +93,9 @@ statistical, or production validity.
 ## Case Authoring Rules
 
 - Prefer deterministic facts, evidence IDs, invariant safety boundaries, and post-run artifacts.
+- Use `regex_not` for deterministic prohibited language whose acceptable negations cannot be
+  represented safely by a literal substring check. Author the regular expression so explicit
+  negations remain valid; the scorer passes only when the expression does not match.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

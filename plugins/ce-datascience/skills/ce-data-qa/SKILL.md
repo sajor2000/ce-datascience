@@ -92,6 +92,8 @@ Apply each check from `references/qa-checks.md` against the data. Generate findi
 
 ### Step 4: Generate the report
 
+When generating the report as an R Markdown or Quarto notebook rather than a static report, load the `ce-notebook-standards` skill before creating or materially extending its executable chunks.
+
 Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extract_id>.html` (rendered Quarto / RMarkdown). Use `references/report-template.md`. Sections:
 
 1. **Summary banner** (GO / NO-GO / GO with PI sign-off)

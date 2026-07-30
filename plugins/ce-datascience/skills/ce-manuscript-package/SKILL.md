@@ -34,6 +34,8 @@ python3 scripts/build_package_manifest.py --project-root . --out-dir manuscript 
 
 ## Quarto Path
 
+Load the `ce-notebook-standards` skill before creating or materially extending executable Quarto analysis notebooks that feed the manuscript package.
+
 For Quarto projects, create or update a package manifest that expects:
 
 - `manuscript/manuscript.qmd`

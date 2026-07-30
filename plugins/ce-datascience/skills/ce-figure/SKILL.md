@@ -18,6 +18,8 @@ argument-hint: "[optional: --manifest analysis/publication/figures/figure-manife
 
 Create or validate figure manifests before figures enter a manuscript or journal package. A figure is ready only when its source data, source code, output file, caption, alt text, SAP link, and style profile are visible.
 
+When the requested figure workflow creates or materially extends a Marimo, Jupyter, R Markdown, or Quarto notebook, load the `ce-notebook-standards` skill before creating cells or chunks.
+
 ## Workflow
 
 1. Build or locate `analysis/publication/figures/figure-manifest.json`.

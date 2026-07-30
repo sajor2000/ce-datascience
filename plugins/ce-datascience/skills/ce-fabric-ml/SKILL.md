@@ -16,12 +16,13 @@ argument-hint: "[experiment|register|batch-score|endpoint|review]"
 
 ## Workflow
 
-1. Load the `ce-plan` skill to record the estimand or prediction target, cohort grain, index time, outcome horizon, split strategy, and success criteria.
-2. Verify tracking configuration before training. Record experiment name, run identifier, environment, data version, feature definition, and evaluation artifact.
-3. Validate model input schema and signature before registration or batch scoring. Stop on a mismatch rather than silently filling or dropping features.
-4. Load the `ce-data-qa` skill and conduct leakage review before training; preserve temporal and person-level separation.
-5. For survival or dynamic decision work, load the `ce-code-review` skill for censoring-aware, horizon-specific time-dependent AUC and calibration review.
-6. Treat endpoint creation, model registration, and batch writes as external actions that require explicit user authorization.
+1. For a new or materially extended Fabric notebook, load the `ce-notebook-standards` skill before creating cells.
+2. Load the `ce-plan` skill to record the estimand or prediction target, cohort grain, index time, outcome horizon, split strategy, and success criteria.
+3. Verify tracking configuration before training. Record experiment name, run identifier, environment, data version, feature definition, and evaluation artifact.
+4. Validate model input schema and signature before registration or batch scoring. Stop on a mismatch rather than silently filling or dropping features.
+5. Load the `ce-data-qa` skill and conduct leakage review before training; preserve temporal and person-level separation.
+6. For survival or dynamic decision work, load the `ce-code-review` skill for censoring-aware, horizon-specific time-dependent AUC and calibration review.
+7. Treat endpoint creation, model registration, and batch writes as external actions that require explicit user authorization.
 
 ## Guardrails
 
