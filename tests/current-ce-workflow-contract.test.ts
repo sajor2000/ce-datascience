@@ -29,6 +29,26 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(content).toMatch(/without expanding the requested analysis scope/i)
   })
 
+  test("notebook execution never substitutes synthetic study data", async () => {
+    const [work, marimo, standards, editor] = await Promise.all([
+      skill("ce-work"),
+      skill("ce-marimo"),
+      skill("ce-notebook-standards"),
+      skill("ce-notebook-edit"),
+    ])
+
+    for (const content of [work, marimo, standards, editor]) {
+      expect(content).toMatch(/synthetic.*only.*explicit/i)
+      expect(content).toMatch(/do not.*synthetic.*study result/i)
+      expect(content).toMatch(/restricted data root/i)
+      expect(content).toMatch(/QA (?:provenance|evidence)/i)
+      expect(content).toMatch(/do not.*persist output/i)
+      expect(content).toMatch(/synthetic fixture or generator/i)
+    }
+    expect(work).toMatch(/reads, creates, transforms, validates, or renders analytical data or output/i)
+    expect(standards).toMatch(/study-output location/i)
+  })
+
   test("ce-work keeps TDD opt-in, behavior-first, and vertically sliced", async () => {
     const content = await skill("ce-work")
     expect(content).toMatch(/first agree the public behavior and seam under test/i)

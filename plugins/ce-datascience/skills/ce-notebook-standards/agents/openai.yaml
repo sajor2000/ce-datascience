@@ -1,0 +1,4 @@
+interface:
+  display_name: "Notebook Standards"
+  short_description: "Structure clear, maintainable research notebooks."
+  default_prompt: "Use $ce-notebook-standards to structure this research notebook."

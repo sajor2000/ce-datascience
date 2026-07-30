@@ -18,6 +18,8 @@ argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --ou
 
 Create a publication-ready Table 1 shell from declared study artifacts. This skill does not compute statistics from raw data unless the user supplies an explicit analysis dataset and asks for that implementation; the default is a traceable table specification and shell that the analyst can verify.
 
+When the requested Table 1 workflow creates or materially extends a Marimo, Jupyter, R Markdown, or Quarto notebook, load the `ce-notebook-standards` skill before creating cells or chunks.
+
 ## Inputs
 
 Prefer these project-local files:

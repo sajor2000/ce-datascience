@@ -31,10 +31,11 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 ## Shared R workflow
 
 1. Inspect `renv.lock`, `DESCRIPTION`, `_targets.R`, Quarto/R Markdown files, and existing project conventions before proposing packages or file layout.
-2. For research analysis, load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the estimand, grain, time zero, keys, missing-data handling, and success criteria.
-3. Load the `ce-data-qa` skill before model code and keep R transformations fail-loud at schema, join, and type boundaries.
-4. Preserve lockfiles and record `sessionInfo()` or the project-equivalent environment evidence with any reproducible result.
-5. Load the `ce-code-review` skill for causal, survival, or reporting claims; language-specific R syntax does not validate methodology by itself.
+2. Load the `ce-notebook-standards` skill before creating or materially extending an `.Rmd` or `.qmd` analysis.
+3. For research analysis, load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the estimand, grain, time zero, keys, missing-data handling, and success criteria.
+4. Load the `ce-data-qa` skill before model code and keep R transformations fail-loud at schema, join, and type boundaries.
+5. Preserve lockfiles and record `sessionInfo()` or the project-equivalent environment evidence with any reproducible result.
+6. Load the `ce-code-review` skill for causal, survival, or reporting claims; language-specific R syntax does not validate methodology by itself.
 
 ## Evidence-first R guidance
 

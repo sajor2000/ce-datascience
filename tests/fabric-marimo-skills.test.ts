@@ -56,6 +56,44 @@ describe("Fabric and Marimo workflow skills", () => {
     expect(marimo).toContain("Do not wrap ordinary reactive dependencies in broad")
   })
 
+  test("routes notebook-capable workflows through shared notebook standards", async () => {
+    const names = [
+      "ce-marimo",
+      "ce-notebook-edit",
+      "ce-rstats",
+      "ce-work",
+      "ce-plan",
+      "ce-data-qa",
+      "ce-table1",
+      "ce-figure",
+      "ce-manuscript-package",
+      "ce-fabric",
+      "ce-fabric-coding",
+      "ce-fabric-ml",
+    ]
+    const skills = await Promise.all(names.map(readSkill))
+
+    for (const [index, content] of skills.entries()) {
+      expect(content, names[index]).toContain("`ce-notebook-standards` skill")
+    }
+  })
+
+  test("ships enforceable notebook topology, narrative, and cell-size standards", async () => {
+    const standards = await readSkill("ce-notebook-standards")
+
+    expect(standards).toMatch(/ask whether to use one master notebook or a multi-file workflow/i)
+    expect(standards).toContain("`AskUserQuestion` in Claude Code")
+    expect(standards).toContain("`request_user_input` in Codex")
+    expect(standards).toContain("`ToolSearch` with `select:AskUserQuestion`")
+    expect(standards).toContain("Only when no blocking tool exists or the call errors")
+    expect(standards).toMatch(/Markdown cell or narrative block immediately before every code cell/i)
+    expect(standards).toMatch(/fewer than 30 executable lines/i)
+    expect(standards).toMatch(/preceding Markdown says why splitting or extraction/i)
+    expect(standards).toMatch(/idempotent cells, few globals, no cross-cell mutation/i)
+    expect(standards).toMatch(/Preserve metadata and execution order/i)
+    expect(standards).toMatch(/named, scoped chunks with nearby narrative/i)
+  })
+
   test("keeps Fabric handoffs usable after OpenCode conversion", async () => {
     const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
     const plugin = await loadClaudePlugin(pluginRoot)
@@ -78,6 +116,32 @@ describe("Fabric and Marimo workflow skills", () => {
       expect(converted).toContain("`request_user_input` in Codex")
       expect(converted).toContain("`ToolSearch` with `select:AskUserQuestion`")
       expect(converted).not.toMatch(/`\/ce-[a-z0-9-]+`/)
+    } finally {
+      await fs.rm(outputRoot, { recursive: true, force: true })
+    }
+  })
+
+  test("keeps notebook topology questions usable after OpenCode conversion", async () => {
+    const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+    const plugin = await loadClaudePlugin(pluginRoot)
+    const bundle = convertClaudeToOpenCode(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+    const outputRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-notebook-standards-opencode-"))
+
+    try {
+      await writeOpenCodeBundle(outputRoot, bundle)
+
+      const converted = await fs.readFile(
+        path.join(outputRoot, ".opencode", "skills", "ce-notebook-standards", "SKILL.md"),
+        "utf8",
+      )
+      expect(converted).toMatch(/one master notebook or a multi-file workflow/i)
+      expect(converted).toContain("`request_user_input` in Codex")
+      expect(converted).toContain("`ToolSearch` with `select:AskUserQuestion`")
+      expect(converted).toContain("Only when no blocking tool exists or the call errors")
     } finally {
       await fs.rm(outputRoot, { recursive: true, force: true })
     }

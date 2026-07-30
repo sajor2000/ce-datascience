@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 50 |
+| Skills | 67 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -248,6 +248,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-statistical-analysis-plan` | Create claims-based SAPs, methods prose, variable dictionaries, and analysis workbooks with explicit grain, diagnostics, decision evidence, and literature grounding |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
+| `/ce-notebook-standards` | Set the master-notebook or multi-file decision and the documented, small-cell contract for Marimo, Jupyter, R Markdown, and Quarto work |
 | `/ce-notebook-edit` | Safely insert reviewed cells into existing Jupyter notebooks using unique metadata tags, backups, and structural validation |
 | `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |

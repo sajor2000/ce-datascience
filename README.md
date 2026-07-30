@@ -2,7 +2,7 @@
 
 **Your AI research assistant — from research question to publication.**
 
-66 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+67 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
 
 One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
 
@@ -502,7 +502,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 50 |
+| Skills | 67 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 
