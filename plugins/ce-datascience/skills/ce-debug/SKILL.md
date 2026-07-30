@@ -66,14 +66,28 @@ Read the full conversation — the original description AND every comment, with 
 
 ### Phase 1: Investigate
 
+#### 1.0 Build a tight reproduction loop
+
+Before tracing code or forming root-cause hypotheses, create and run one agent-runnable command that exercises the reported symptom. Prefer an existing failing test; otherwise use the narrowest suitable harness, CLI invocation, HTTP request, browser check, captured trace replay, or focused property loop.
+
+Record the command and observed result. The loop must be:
+
+- **Symptom-specific** — it asserts the user's reported failure, not merely that a command exits or the app starts.
+- **Red-capable** — it can fail on this bug and pass after the fix.
+- **Deterministic and tight** — it yields the same verdict with a fast enough turnaround to use repeatedly. For intermittent bugs, improve the reproduction rate and state the measured limitation.
+
+Minimize the reproduction before proceeding: remove inputs, setup, and steps one at a time until every remaining element is load-bearing. Keep the minimized case as the regression-test candidate.
+
+If no such loop can be built, state the exact attempts and missing condition, then ask the user for a captured artifact, access to the reproducing environment, or permission for temporary instrumentation. Do not infer a root cause without a loop unless the user explicitly authorizes a best-available diagnosis; label that diagnosis as unverified.
+
 #### 1.1 Reproduce the bug
 
-Confirm the bug exists and understand its behavior. Run the test, trigger the error, follow reported reproduction steps — whatever matches the input.
+Confirm the loop reaches the reported behavior. Run the test, trigger the error, or follow the reported reproduction steps — whatever matches the input.
 
 - **Browser bugs:** Prefer `agent-browser` if installed. Otherwise use whatever works — MCP browser tools, direct URL testing, screenshot capture, etc.
 - **Manual setup required:** If reproduction needs specific conditions the agent cannot create alone (data states, user roles, external services, environment config), document the exact setup steps and guide the user through them. Clear step-by-step instructions save significant time even when the process is fully manual.
 - **Does not reproduce after 2-3 attempts:** Read `references/investigation-techniques.md` for intermittent-bug techniques.
-- **Cannot reproduce at all in this environment:** Document what was tried and what conditions appear to be missing.
+- **Cannot reproduce at all in this environment:** Follow the 1.0 blocked-loop path; do not continue to root-cause inference by default.
 
 #### 1.2 Verify environment sanity
 
@@ -121,7 +135,7 @@ Read `references/anti-patterns.md` before forming hypotheses.
 
 **Assumption audit (before hypothesis formation):** List the concrete "this must be true" beliefs your understanding depends on — the framework behaves as expected here, this function returns what its name implies, the config loads before this runs, the caller passes a non-null value, the database is in the state the test implies. For each, mark *verified* (you read the code, checked state, or ran it) or *assumed*. Assumptions are the most common source of stuck debugging. Many "wrong hypotheses" are actually correct hypotheses tested against a wrong assumption.
 
-**Form hypotheses** ranked by likelihood. For each, state:
+**Form 3-5 hypotheses** ranked by likelihood before testing one. For each, state:
 - What is wrong and where (file:line)
 - The causal chain: how the trigger leads to the observed symptom, step by step
 - **For uncertain links in the chain**: a prediction — something in a different code path or scenario that must also be true if this link is correct
@@ -131,6 +145,8 @@ When the causal chain is obvious and has no uncertain links (missing import, cle
 Before forming a new hypothesis, review what has already been ruled out and why.
 
 **Causal chain gate:** Do not proceed to Phase 3 until you can explain the full causal chain — from the original trigger through every step to the observed symptom — with no gaps. The user can explicitly authorize proceeding with the best-available hypothesis if investigation is stuck.
+
+**Feedback-loop gate:** Do not proceed to Phase 3 until the Phase 1 loop has been run red against the reported symptom. A diagnosis authorized without that loop remains unverified and cannot be presented as a confirmed root cause.
 
 *Reminder: if a prediction was wrong but the fix appears to work, you found a symptom. The real cause is still active.*
 
@@ -216,6 +232,7 @@ Analyze how this was introduced and what allowed it to survive. Note any systemi
 ```
 ## Debug Summary
 **Problem**: [What was broken]
+**Reproduction Loop**: [Command run, exact symptom asserted, and any determinism limitation]
 **Root Cause**: [Full causal chain, with file:line references]
 **Recommended Tests**: [Tests to add/modify to prevent recurrence, with specific file and assertion guidance]
 **Fix**: [What was changed — or "diagnosis only" if Phase 3 was skipped]
@@ -225,7 +242,7 @@ Analyze how this was introduced and what allowed it to survive. Note any systemi
 
 **If Phase 3 was skipped** (user chose "Diagnosis only" in Phase 2), stop after the summary — the user already told you they were taking it from here. Do not prompt.
 
-**If Phase 3 ran**, the next move depends on whether the skill created the branch in Phase 3.
+**If Phase 3 ran**, re-run the original, un-minimized reproduction loop before handoff. Report its passing result alongside the regression test; if it still fails, return to Phase 2 instead of shipping. The next move then depends on whether the skill created the branch in Phase 3.
 
 #### Skill-owned branch (created in Phase 3): default to commit-and-PR without prompting
 

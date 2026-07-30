@@ -72,7 +72,7 @@ Determine how to proceed based on what was provided in `<input_document>` after 
    - Check for a `Deferred to Implementation` or `Implementation-Time Unknowns` section — these are questions the planner intentionally left for you to resolve during execution. Note them before starting so they inform your approach rather than surprising you mid-task
    - Check for a `Scope Boundaries` section — these are explicit non-goals. Refer back to them if implementation starts pulling you toward adjacent work
    - Review any references or links provided in the plan
-   - If the user explicitly asks for TDD, test-first, or characterization-first execution in this session, honor that request even if the plan has no `Execution note`
+   - If the user explicitly asks for TDD, test-first, or characterization-first execution in this session, honor that request even if the plan has no `Execution note`. For TDD, first agree the public behavior and seam under test; do not test private implementation details or unconfirmed internal boundaries.
    - If anything is unclear or ambiguous, ask clarifying questions now
    - If clarifying questions were needed above, get user approval on the resolved answers. If no clarifications were needed, proceed without a separate approval step — plan scope is the plan's authority, not something to renegotiate
    - **Do not skip this** - better to ask questions now than build the wrong thing
@@ -238,10 +238,12 @@ Determine how to proceed based on what was provided in `<input_document>` after 
    When a unit carries an `Execution note`, honor it. For test-first units, write the failing test before implementation for that unit. For characterization-first units, capture existing behavior before changing it. For units without an `Execution note`, proceed pragmatically.
 
    Guardrails for execution posture:
+   - For a test-first unit, name the public behavior and test seam before writing the first test. If the seam is unclear, resolve it with the user or the plan rather than testing internals by default.
    - Do not write the test and implementation in the same step when working test-first
    - Do not skip verifying that a new test fails before implementing the fix or feature
+   - Work in vertical slices: one failing behavior test, the minimal implementation that makes it pass, then the next behavior slice. Do not batch all tests before all implementation.
    - Do not over-implement beyond the current behavior slice when working test-first
-   - Skip test-first discipline for trivial renames, pure configuration, and pure styling work
+   - Skip test-first discipline for trivial renames, pure configuration, pure styling work, and analytical workflows unless the user or plan explicitly requests it
 
    **Fail-loud analytical execution:** For generated analytical transformations, do not swallow exceptions with bare catch-all handlers, do not invent fallback data, do not silently coerce values, and do not replace failed inputs with synthetic data. Assert validation at critical input, join, transformation, and output boundaries; surface failures for diagnosis rather than masking them, without expanding the requested analysis scope.
 
