@@ -6,7 +6,13 @@ The job of these frames is to land on a research question that has a defensible 
 
 ## Frames
 
-Dispatch one parallel sub-agent per frame, default 6 ideas per agent.
+Follow `SKILL.md`'s Divergence Gate and generation contract; this reference changes the frames and output shape, not the token budget.
+
+- **Direct:** dispatch no frame agents. Produce 1-3 warranted candidates inline, then continue to the generic critic pass and this reference's Phase 6 menu.
+- **Compact divergent (default):** dispatch exactly 3 isolated frame agents, each returning exactly 4 candidates. Always include PICO decomposition; select the other two frames from the remaining five based on the decision at hand and the available grounding. The agents must not see each other's candidates or rank, critique, or hedge during generation.
+- **Wide divergent:** only when the user explicitly requests ADHD mode, "go wide", or equivalent broad exploration, dispatch all 6 frames with about 6 candidates each.
+
+After merging candidates, use the generic separate critic pass in `SKILL.md`: deduplicate, cluster, score, list traps, and deepen only the top two non-trap survivors. Do not dispatch more biomedical generators for deepening.
 
 ### Frame 1 — PICO decomposition
 

@@ -46,6 +46,21 @@ describe("token-tight ADHD-inspired ideation", () => {
     expect(universalIdeation).toMatch(/5-7 in explicit wide mode/i)
   })
 
+  test("biomedical ideation keeps the direct and compact fan-out caps", async () => {
+    const biomedicalFrames = await readFile(
+      path.join(skillsRoot, "ce-ideate", "references", "biomedical-frames.md"),
+      "utf8",
+    )
+
+    expect(biomedicalFrames).toMatch(/Direct:.*dispatch no frame agents/i)
+    expect(biomedicalFrames).toContain(
+      "dispatch exactly 3 isolated frame agents, each returning exactly 4 candidates",
+    )
+    expect(biomedicalFrames).toMatch(/only when the user explicitly requests ADHD mode.*go wide/i)
+    expect(biomedicalFrames).toMatch(/dispatch all 6 frames/i)
+    expect(biomedicalFrames).toMatch(/generic separate critic pass/i)
+  })
+
   test("ce-brainstorm requires meaningful alternatives and optional trap checks", async () => {
     const content = await skill("ce-brainstorm")
 
