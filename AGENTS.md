@@ -98,6 +98,30 @@ Behavioral changes to a plugin agent or skill (anything under `plugins/*/agents/
 
 - **Mechanical changes do not have this restriction.** Skill scripts (e.g., `extract-metadata.py`), parser logic, conversion code, and anything `bun test` exercises always run the current source. The caching issue only affects LLM-driven agent or skill prose behavior dispatched through the plugin loader.
 
+### Repository-Owned Behavioral Evaluations
+
+For covered behavioral surfaces, use the versioned cases under
+`evals/ce-datascience/cases/` in addition to the `skill-creator` workflow above.
+Run `bun run eval:validate` for deterministic case validation. Save live runs
+under `/tmp/ce-datascience/behavioral-evals/<run-id>/`, then score them with
+`bun run eval:score --case <id> --run-dir <path>`.
+Before dispatch, record the case, prompt, and target SHA-256 digests in
+`run.json`; scoring fails closed if those inputs drift.
+
+- Material behavior changes to a covered skill or agent must update or add cases
+  when the expected behavior changes.
+- Run each affected case twice in independent fresh contexts through
+  `skill-creator`; every hard gate must pass in both runs.
+- Keep model calls out of normal CI. CI runs the deterministic contract tests
+  and case validation only.
+- Never commit live run directories, full model traces, private prompts,
+  credentials, PHI, or patient-level fixtures. Commit only synthetic or seeded
+  fixtures and sanitized evidence summaries.
+
+See
+[`docs/solutions/skill-design/behavioral-evaluation.md`](docs/solutions/skill-design/behavioral-evaluation.md)
+for the contract, run layout, acceptance policy, and interpretation limits.
+
 ## Coding Conventions
 
 - Prefer explicit mappings over implicit magic when converting between platforms.

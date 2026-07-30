@@ -1,0 +1,105 @@
+schema_version: "1.0"
+id: ce-data-qa-pre-sap
+target:
+  kind: skill
+  name: ce-data-qa
+  source: plugins/ce-datascience/skills/ce-data-qa/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-data-qa-pre-sap/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-data-qa-pre-sap/fixtures/synthetic-aggregate-reports.csv
+    destination: workspace/synthetic-aggregate-reports.csv
+    sha256: e618fc6c41c9167bf0fd66de7aae233dd19977fd62458d5ef925d2a17938470e
+required_behaviors:
+  - report-exists
+  - correct-row-count
+  - correct-column-count
+  - correct-tests-null-rate
+  - flags-sentinel
+  - flags-grain-duplicate
+  - emits-data-profile
+  - defers-sap-checks
+prohibited_behaviors:
+  - leaves-source-unchanged
+  - no-inferential-output
+criteria:
+  - id: report-exists
+    description: The requested profile report is created.
+    type: file_exists
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: correct-row-count
+    description: The report gives the exact observed row count.
+    type: numeric
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    pattern: '(?:^|\n)(?:[-*]\s*)?(?:\|\s*)?(?:row_count|rows?)\b[^0-9\n]*([0-9]+)'
+    expected: 6
+    tolerance: 0
+    weight: 2
+    hard_gate: false
+  - id: correct-column-count
+    description: The report gives the exact observed column count.
+    type: numeric
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    pattern: '(?:^|\n)(?:[-*]\s*)?(?:\|\s*)?(?:column_count|columns?)\b[^0-9\n]*([0-9]+)'
+    expected: 8
+    tolerance: 0
+    weight: 2
+    hard_gate: false
+  - id: correct-tests-null-rate
+    description: The tests-column missingness is calculated from the six rows.
+    type: numeric
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    pattern: '\|\s*`tests`\s*\|[^\n]*?([0-9]+(?:\.[0-9]+)?)%'
+    expected: 16.67
+    tolerance: 0.05
+    weight: 2
+    hard_gate: false
+  - id: flags-sentinel
+    description: The negative sentinel in tests is identified as invalid or sentinel missingness.
+    type: text_contains
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    value: "-999"
+    weight: 2
+    hard_gate: false
+  - id: flags-grain-duplicate
+    description: The repeated Clinic-A February facility-period is identified.
+    type: text_contains
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    value: "row-006"
+    weight: 2
+    hard_gate: false
+  - id: emits-data-profile
+    description: The user-facing response emits the documented pre-SAP handoff.
+    type: text_contains
+    path: response.md
+    value: "__CE_DATA_PROFILE__"
+    weight: 3
+    hard_gate: true
+  - id: defers-sap-checks
+    description: SAP-dependent checks are explicitly deferred.
+    type: regex
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    pattern: 'SAP[^\n]*(?:deferred|pending|not available)'
+    weight: 2
+    hard_gate: false
+  - id: leaves-source-unchanged
+    description: Read-only QA does not clean or rewrite the source fixture.
+    type: file_unchanged
+    path: workspace/synthetic-aggregate-reports.csv
+    fixture_path: evals/ce-datascience/cases/ce-data-qa-pre-sap/fixtures/synthetic-aggregate-reports.csv
+    weight: 4
+    hard_gate: true
+  - id: no-inferential-output
+    description: The report does not invent inferential model results.
+    type: text_not_contains
+    path: workspace/reports/data-qa/pre-sap-profile.md
+    value: "regression coefficient"
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is a small synthetic aggregate extract, not a production EHR or claims dataset.
+  - The scorer checks declared profile facts and safety boundaries, not report prose style.
