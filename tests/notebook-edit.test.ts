@@ -112,6 +112,36 @@ describe("notebook edit workflow", () => {
     expect(await new Response(proc.stderr).text()).toContain("--markdown-source is required")
   })
 
+  test("refuses blank explanatory Markdown before creating a backup", async () => {
+    const root = await makeProject()
+    const notebookPath = path.join(root, "analysis", "notebook.ipynb")
+    const original = await readFile(notebookPath, "utf8")
+    await writeFile(path.join(root, "analysis", "notebook-edits", "new-cell.md"), " \n\t")
+
+    const proc = Bun.spawn([
+      "python3",
+      scriptPath,
+      "--project-root",
+      root,
+      "--notebook",
+      "analysis/notebook.ipynb",
+      "--tag",
+      "sap-5-1",
+      "--markdown-source",
+      "analysis/notebook-edits/new-cell.md",
+      "--source",
+      "analysis/notebook-edits/new-cell.py",
+      "--cell-type",
+      "code",
+    ], { stdout: "pipe", stderr: "pipe" })
+
+    expect(await proc.exited).toBe(2)
+    expect(await new Response(proc.stderr).text()).toContain("must contain explanatory Markdown")
+    expect(await readFile(notebookPath, "utf8")).toBe(original)
+    await expect(Bun.file(path.join(root, "analysis", "notebook.ipynb.bak")).exists()).resolves.toBe(false)
+    await expect(Bun.file(path.join(root, "analysis", "notebook.edit-report.md")).exists()).resolves.toBe(false)
+  })
+
   test("refuses ambiguous anchor tags before writing a backup", async () => {
     const root = await makeProject()
     const notebookPath = path.join(root, "analysis", "notebook.ipynb")

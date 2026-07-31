@@ -142,6 +142,14 @@ def main() -> int:
         print(f"Markdown source file not found: {markdown_source_path.relative_to(root)}", file=sys.stderr)
         return 1
 
+    markdown_source: str | None = None
+    if args.cell_type == "code":
+        assert markdown_source_path is not None
+        markdown_source = markdown_source_path.read_text(encoding="utf-8")
+        if not markdown_source.strip():
+            print("--markdown-source must contain explanatory Markdown", file=sys.stderr)
+            return 2
+
     nbformat = load_nbformat()
     warning_lines: list[str] = []
     if nbformat is None:
@@ -178,8 +186,7 @@ def main() -> int:
     new_tags = args.new_tag or [f"inserted-after-{args.tag}"]
     insert_index = matches[0] + 1
     if args.cell_type == "code":
-        assert markdown_source_path is not None
-        markdown_source = markdown_source_path.read_text(encoding="utf-8")
+        assert markdown_source is not None
         notebook["cells"].insert(
             insert_index,
             make_cell("markdown", markdown_source, [f"{new_tags[0]}-documentation"]),
