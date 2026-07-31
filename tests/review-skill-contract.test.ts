@@ -15,6 +15,9 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("mode:autofix")
     expect(content).toContain("mode:report-only")
     expect(content).toContain("mode:headless")
+    expect(content).toContain("mode:non-interactive")
+    expect(content).toContain("depth:auto")
+    expect(content).toContain("depth:full")
     expect(content).toContain("/tmp/ce-datascience/ce-code-review/<run-id>/")
     expect(content).toContain("Do not write run artifacts.")
     expect(content).toContain(
@@ -24,6 +27,12 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("mode:report-only cannot switch the shared checkout to review another branch")
     expect(content).toContain("Resolve the base ref from the PR's actual base repository, not by assuming `origin`")
     expect(content).not.toContain("Which severities should I fix?")
+  })
+
+  test("uses a fail-closed lite roster only for trivial low-risk code diffs", async () => {
+    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    expect(content).toContain("Stage 3c: Apply the fail-closed lite-roster gate")
+    expect(content).toContain("This optimization never applies to analytical code, notebooks, statistical methods, or reporting artifacts")
   })
 
   test("documents headless mode contract for programmatic callers", async () => {

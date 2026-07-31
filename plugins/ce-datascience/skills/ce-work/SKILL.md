@@ -347,6 +347,8 @@ Determine how to proceed based on what was provided in `<input_document>` after 
 
 If Return-to-Caller Mode is active, skip this phase and use the Return-to-Caller contract below.
 
+Before the shipping workflow, perform a proportional post-implementation review of the changed files: remove accidental duplication, confirm every plan requirement remains in scope, and route material behavioral or safety changes through `ce-code-review`. This is a completion check, not authorization to expand the plan with tangential cleanup.
+
 When all Phase 2 tasks are complete and execution transitions to quality check, read `references/shipping-workflow.md` for the full shipping workflow: quality checks, code review, final validation, PR creation, and notification.
 
 ## Return-to-Caller Mode

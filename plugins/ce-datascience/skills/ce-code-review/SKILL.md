@@ -36,9 +36,12 @@ Parse `$ARGUMENTS` for the following optional tokens. Strip each recognized toke
 | `mode:autofix` | `mode:autofix` | Select autofix mode (see Mode Detection below) |
 | `mode:report-only` | `mode:report-only` | Select report-only mode |
 | `mode:headless` | `mode:headless` | Select headless mode for programmatic callers (see Mode Detection below) |
+| `mode:non-interactive` | `mode:non-interactive` | Preferred alias for `mode:headless`; normalize before conflict checks |
+| `depth:auto` | `depth:auto` | Default risk-aware roster selection; trivial low-risk code-only diffs may use the lite roster |
+| `depth:full` | `depth:full` | Force the complete reviewer roster; never use the lite roster |
 | `base:<sha-or-ref>` | `base:abc1234` or `base:origin/main` | Skip scope detection — use this as the diff base directly |
 | `plan:<path>` | `plan:docs/plans/2026-03-25-001-feat-foo-plan.md` | Load this plan for requirements verification |
-All tokens are optional. Each one present means one less thing to infer. When absent, fall back to existing behavior for that stage.
+All tokens are optional. Each one present means one less thing to infer. Treat `mode:non-interactive` as `mode:headless`; both aliases together name one mode, not a conflict. `depth:auto` is the default and conflicts only with `depth:full`. When absent, fall back to existing behavior for that stage.
 
 ## Blinding-state awareness
 
@@ -428,6 +431,12 @@ Before spawning sub-agents, find the file paths (not contents) of all relevant s
 2. Filter to those whose directory is an ancestor of at least one changed file. A standards file governs all files below it (e.g., `plugins/ce-datascience/AGENTS.md` applies to everything under `plugins/ce-datascience/`).
 
 Pass the resulting path list to the `project-standards` persona inside a `<standards-paths>` block in its review context (see Stage 4). The persona reads the files itself, targeting only the sections relevant to the changed file types. This keeps the orchestrator's work cheap (path discovery only) and avoids bloating the subagent prompt with content the reviewer may not fully need.
+
+### Stage 3c: Apply the fail-closed lite-roster gate
+
+`depth:full` always keeps the complete CE roster. With `depth:auto`, use the lite roster only when all of the following are known from the Stage 1 diff: 1-39 executable changed lines, no untracked or uncounted paths, no changed tests/configuration/instructions, no auth, privacy, PHI, data mutation, external API, credentials, serialization, concurrency, filesystem, or process-execution signal, and no conditional reviewer beyond project standards. Any uncertainty uses the complete roster.
+
+The lite roster is `ce-correctness-reviewer` plus `ce-project-standards-reviewer` when Stage 3b found an applicable standards file. Record the selected roster and the reason in Coverage. This optimization never applies to analytical code, notebooks, statistical methods, or reporting artifacts: those retain CE's methods, reproducibility, multiplicity, and stack-specific review paths regardless of size.
 
 ### Stage 4: Spawn sub-agents
 
