@@ -22,5 +22,13 @@ test("doc review keeps the canonical non-interactive compatibility contract and 
 })
 
 test("new skill directories are self-contained portable units", async () => {
-  await Promise.all(["ce-handoff", "ce-babysit-pr", "ce-retune"].map((name) => access(resolve(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))))
+  await Promise.all(["ce-handoff", "ce-babysit-pr", "ce-retune", "ce-clif-project-template"].map((name) => access(resolve(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))))
+})
+
+test("CLIF project-template support preserves version and PHI safeguards", async () => {
+  const template = await skill("ce-clif-project-template")
+  expect(template).toContain("ce-clif --version")
+  expect(template).toContain("non-empty directory")
+  expect(template).toContain("output/final_no_phi/")
+  expect(template).toContain("no reported cell smaller than 10")
 })

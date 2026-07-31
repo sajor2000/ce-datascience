@@ -179,6 +179,8 @@ When the user is writing CLIF analysis code, surface canonical recipes from the 
 - **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, the QC → cohort → analysis script split, and `output/` write conventions.
 - **`__CE_LANG__ primary=both`** or `unknown`: surface both files so the agent can choose.
 
+For a new consortium project or an audit of an existing template-derived repository, route to `ce-clif-project-template`. It owns template initialization and structural audit; this skill remains the CLIF version, vocabulary, and protected-path guardrail.
+
 ## References
 
 @./references/clif-rules.md — Core rules (Parquet-only, UTC datetimes, mCIDE vocab, project layout, PHI rules, three-script architecture)
