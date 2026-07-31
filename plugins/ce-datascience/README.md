@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 67 |
+| Skills | 68 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -247,6 +247,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks, with Markdown/HTML output modes and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Create claims-based SAPs, methods prose, variable dictionaries, and analysis workbooks with explicit grain, diagnostics, decision evidence, and literature grounding |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
+| `/ce-adversarial-review` | Independent adversarial code or plan review with quick/auto/deep, a read-only Claude Code/Codex peer pass, bounded evidence-based rebuttal, and explicit local-only or unresolved coverage when a peer cannot validate |
 | `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
 | `/ce-notebook-standards` | Set the master-notebook or multi-file decision and the documented, small-cell contract for Marimo, Jupyter, R Markdown, and Quarto work |
 | `/ce-notebook-edit` | Safely insert reviewed cells into existing Jupyter notebooks using unique metadata tags, backups, and structural validation |
