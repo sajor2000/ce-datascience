@@ -1,7 +1,7 @@
 ---
 name: ce-doc-review
 description: "Review plans, SAPs, manuscripts, requirements, or docs for clarity, completeness, scope control, and review readiness."
-argument-hint: "[mode:headless] [path/to/document.md]"
+argument-hint: "[mode:non-interactive|headless] [path/to/document.md]"
 ---
 
 # Document Review
@@ -24,9 +24,9 @@ When this skill asks a user-facing question, follow the Skill Value interaction 
 
 ## Phase 0: Detect Mode
 
-Check the skill arguments for `mode:headless`. Arguments may contain a document path, `mode:headless`, or both. Tokens starting with `mode:` are flags, not file paths — strip them from the arguments and use the remaining token (if any) as the document path for Phase 1.
+Check the skill arguments for `mode:non-interactive` or its backwards-compatible alias `mode:headless`. Arguments may contain a document path and either token. Tokens starting with `mode:` are flags, not file paths — normalize `mode:non-interactive` to `mode:headless`, strip it, and use the remaining token (if any) as the document path for Phase 1.
 
-If `mode:headless` is present, set **headless mode** for the rest of the workflow.
+If either alias is present, set **headless mode** for the rest of the workflow.
 
 **Headless mode** changes the interaction model, not the classification boundaries. ce-doc-review still applies the same judgment about which tier each finding belongs in. The only difference is how non-safe_auto findings are delivered:
 
@@ -36,13 +36,13 @@ If `mode:headless` is present, set **headless mode** for the rest of the workflo
 
 The caller receives findings with their original classifications intact and decides what to do with them.
 
-Callers invoke headless mode by including `mode:headless` in the skill arguments, e.g.:
+Callers should invoke non-interactive mode with `mode:non-interactive`; `mode:headless` remains supported for backwards compatibility, e.g.:
 
 ```
-Skill("ce-doc-review", "mode:headless docs/plans/my-plan.md")
+Skill("ce-doc-review", "mode:non-interactive docs/plans/my-plan.md")
 ```
 
-If `mode:headless` is not present, the skill runs in its default interactive mode with the routing question, walk-through, and bulk-preview behaviors documented in `references/walkthrough.md` and `references/bulk-preview.md`.
+If neither alias is present, the skill runs in its default interactive mode with the routing question, walk-through, and bulk-preview behaviors documented in `references/walkthrough.md` and `references/bulk-preview.md`.
 
 ## Phase 1: Get and Analyze Document
 

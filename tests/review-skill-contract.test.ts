@@ -15,6 +15,8 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("mode:autofix")
     expect(content).toContain("mode:report-only")
     expect(content).toContain("mode:headless")
+    expect(content).toContain("mode:non-interactive")
+    expect(content).toContain("when both aliases are supplied they name one mode, not a conflict")
     expect(content).toContain("/tmp/ce-datascience/ce-code-review/<run-id>/")
     expect(content).toContain("Do not write run artifacts.")
     expect(content).toContain(
