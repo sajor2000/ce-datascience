@@ -36,9 +36,10 @@ Parse `$ARGUMENTS` for the following optional tokens. Strip each recognized toke
 | `mode:autofix` | `mode:autofix` | Select autofix mode (see Mode Detection below) |
 | `mode:report-only` | `mode:report-only` | Select report-only mode |
 | `mode:headless` | `mode:headless` | Select headless mode for programmatic callers (see Mode Detection below) |
+| `mode:non-interactive` | `mode:non-interactive` | Preferred alias for `mode:headless`; normalize it to headless mode before conflict checks |
 | `base:<sha-or-ref>` | `base:abc1234` or `base:origin/main` | Skip scope detection — use this as the diff base directly |
 | `plan:<path>` | `plan:docs/plans/2026-03-25-001-feat-foo-plan.md` | Load this plan for requirements verification |
-All tokens are optional. Each one present means one less thing to infer. When absent, fall back to existing behavior for that stage.
+All tokens are optional. Each one present means one less thing to infer. Treat `mode:non-interactive` as `mode:headless` before interpreting modes; when both aliases are supplied they name one mode, not a conflict. When absent, fall back to existing behavior for that stage.
 
 ## Blinding-state awareness
 
