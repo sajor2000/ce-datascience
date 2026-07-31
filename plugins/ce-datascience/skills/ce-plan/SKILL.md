@@ -377,6 +377,10 @@ Examples:
 - Runtime behavior that depends on seeing actual test failures
 - Refactors that may become unnecessary once implementation starts
 
+#### 3.7 Keep tangential cleanup out of the implementation contract
+
+Record opportunistic cleanup, adjacent refactors, and unrelated test repairs under `Deferred to Follow-Up Work` unless they are required for the requested behavior, a defined safety boundary, or a failing verification gate. A plan must not convert a small implementation into an unbounded cleanup project.
+
 ### Phase 4: Write the Plan
 
 **NEVER CODE during this skill.** Research, decide, and write the plan — do not start implementation.

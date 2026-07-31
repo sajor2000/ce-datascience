@@ -231,6 +231,10 @@ Analyze how this was introduced and what allowed it to survive. Note any systemi
 
 ```
 ## Debug Summary
+
+#### Post-fix review tail
+
+Before handoff, re-run the minimized reproduction and the affected regression test, inspect the changed diff for a simpler correction, and run `ce-code-review` when the fix changes behavior across a boundary. Do not broaden a bug fix into unrelated polish; record any worthwhile cleanup as follow-up work.
 **Problem**: [What was broken]
 **Reproduction Loop**: [Command run, exact symptom asserted, and any determinism limitation]
 **Root Cause**: [Full causal chain, with file:line references]
