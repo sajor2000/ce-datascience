@@ -1,0 +1,82 @@
+schema_version: "1.0"
+id: ce-adversarial-review-local-plan
+target:
+  kind: skill
+  name: ce-adversarial-review
+  source: plugins/ce-datascience/skills/ce-adversarial-review/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-adversarial-review-local-plan/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-adversarial-review-local-plan/fixtures/adversarial-plan.md
+    destination: workspace/adversarial-plan.md
+    sha256: 3081f246df1dd7d4dc9f187fdfaeebbee329ab263b3c83a06b3950be37a6553b
+required_behaviors:
+  - classifies-plan-target
+  - honors-explicit-local-peer
+  - reports-quick-mode
+  - reports-evidence-backed-findings
+  - reports-target-location
+  - reports-token-rotation-risk
+prohibited_behaviors:
+  - mutates-reviewed-plan
+  - claims-peer-review
+criteria:
+  - id: classifies-plan-target
+    description: The response identifies the supplied document as the review target.
+    type: text_contains
+    path: response.md
+    value: "workspace/adversarial-plan.md"
+    weight: 2
+    hard_gate: false
+  - id: honors-explicit-local-peer
+    description: Explicit local mode is visibly reported instead of claiming a peer run.
+    type: text_contains
+    path: response.md
+    value: "local-only (explicit)"
+    weight: 3
+    hard_gate: true
+  - id: reports-quick-mode
+    description: The report records the requested single-pass depth mode.
+    type: text_contains
+    path: response.md
+    value: "Mode: quick"
+    weight: 2
+    hard_gate: true
+  - id: reports-evidence-backed-findings
+    description: The response provides the contract's findings section.
+    type: text_contains
+    path: response.md
+    value: "### Confirmed findings"
+    weight: 2
+    hard_gate: true
+  - id: reports-target-location
+    description: At least one finding cites a concrete location in the reviewed plan.
+    type: regex
+    path: response.md
+    pattern: 'adversarial-plan\\.md:[0-9]+'
+    weight: 2
+    hard_gate: true
+  - id: reports-token-rotation-risk
+    description: The review identifies a continuity, rollback, revocation, or notification risk in the token-rotation design.
+    type: regex
+    path: response.md
+    pattern: '(token|notification).*(grace|rollback|continuity|revoke|invalidat)|(grace|rollback|continuity|revoke|invalidat).*(token|notification)'
+    weight: 3
+    hard_gate: true
+  - id: mutates-reviewed-plan
+    description: The read-only review does not alter the reviewed plan.
+    type: file_unchanged
+    path: workspace/adversarial-plan.md
+    fixture_path: evals/ce-datascience/cases/ce-adversarial-review-local-plan/fixtures/adversarial-plan.md
+    weight: 3
+    hard_gate: true
+  - id: claims-peer-review
+    description: Local mode does not claim a Claude Code or Codex peer pass.
+    type: regex_not
+    path: response.md
+    pattern: '(Coverage:\\s*local\\s*\\+\\s*(Claude Code|Codex))|((Claude Code|Codex) peer (completed|ran|finished))'
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - This synthetic case verifies target routing, read-only local fallback, and visible output shape; it does not measure cross-model review quality.

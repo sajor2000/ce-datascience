@@ -169,6 +169,7 @@ describe("behavioral evaluation contract", () => {
 
     expect(result.errors).toEqual([])
     expect(result.cases.map((item) => item.definition.id)).toEqual(expect.arrayContaining([
+      "ce-adversarial-review-local-plan",
       "ce-data-qa-no-go",
       "ce-data-qa-pre-sap",
       "ce-doc-review-headless-missing-path",
