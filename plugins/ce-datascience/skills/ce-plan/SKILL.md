@@ -61,7 +61,7 @@ When SAP mode is active, replace Phases 3-5 with the SAP-specific workflow descr
 The reference covers:
 
 - SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
-- CLIF profile behavior under SAP mode (data dictionary version, three-script architecture, STROBE+RECORD default, protected-path scope rules).
+- CLIF profile behavior under SAP mode (data dictionary version, template workflow, STROBE+RECORD default, protected-path scope rules).
 - SAP Phase 4 — write the SAP file.
 - SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`/ce-sap-tabular`) for every new SAP.
 - SAP Phase 5 — gap check and review.

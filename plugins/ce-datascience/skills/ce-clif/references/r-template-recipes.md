@@ -30,7 +30,9 @@ project-root/
     config_template.json # commit this (no PHI)
     config.json          # do NOT commit (gitignored)
   outlier-thresholds/    # consortium-agreed clinical thresholds (CSV)
-  output/                # all derived files land here (gitignored)
+  output/
+    intermediate_phi/    # gitignored patient-level working data; never shared
+    final_no_phi/        # aggregate, shareable outputs only
   utils/
     config.R
     config.py            # Python sibling (kept for federated parity)
@@ -42,7 +44,7 @@ project-root/
 
 Three rules from `WORKFLOW.md`:
 - Site path lives **only** in `config/config.json`. Never hard-code paths in scripts.
-- All derived files write to `output/` (gitignored).
+- Patient-level derived files write only to `output/intermediate_phi/` (gitignored); aggregate, shareable results write to `output/final_no_phi/`.
 - `renv.lock` is committed; `renv/` library is gitignored.
 
 ## 2. `renv` bootstrap
@@ -111,7 +113,7 @@ tables_path <- config$tables_path
 
 ## 5. Cohort identification
 
-Source: `code/templates/R/01_cohort_identification_template.R`. Pattern: declare which CLIF tables this project needs as boolean flags, load them, derive a `hospitalization_id` cohort, write filtered tables to `output/`.
+Source: `code/templates/R/01_cohort_identification_template.R`. Pattern: declare which CLIF tables this project needs as boolean flags, load them, derive a `hospitalization_id` cohort, and write filtered patient-level tables only to `output/intermediate_phi/`.
 
 ```r
 library(knitr)
@@ -237,7 +239,7 @@ source("utils/outlier_handler.R")
 vitals_clean <- apply_outlier_thresholds(vitals, "vitals")
 ```
 
-Write the QC report to `output/qc/` so federated leads can inspect every site's report side-by-side.
+Write a disclosure-reviewed QC summary to `output/final_no_phi/qc/`; retain any patient-level QC artifacts only under `output/intermediate_phi/`.
 
 ## 7. Outlier handling
 
@@ -315,13 +317,13 @@ write_csv(flow_df, file.path("output", "cohort_flow.csv"))
 
 ## 8. Analysis
 
-Source: `code/templates/R/04_project_analysis_template.R`. Reads filtered, cleaned tables from `output/cohort/`, computes the analytic frame, writes `output/<site>_<artifact>.parquet`.
+Source: `code/templates/R/04_project_analysis_template.R`. Reads filtered, cleaned working tables from `output/intermediate_phi/`, computes the analytic frame, and writes aggregate site results to `output/final_no_phi/`.
 
 ```r
 source("utils/config.R")
 library(arrow); library(dplyr); library(gtsummary)
 
-cohort <- arrow::read_parquet("output/cohort/cohort_hospitalizations.parquet")
+cohort <- arrow::read_parquet("output/intermediate_phi/cohort_hospitalizations.parquet")
 
 # Example: SOFA-like derived features. For full SOFA, prefer clifpy's
 # compute_sofa_scores via reticulate; the R template keeps a simplified
@@ -336,7 +338,7 @@ results <- cohort |>
     mort_30d = mean(died_within_30d, na.rm = TRUE),
   )
 
-arrow::write_parquet(results, file.path("output", paste0(config$site_name, "_results.parquet")))
+arrow::write_parquet(results, file.path("output/final_no_phi", paste0(config$site_name, "_results.parquet")))
 ```
 
 ## 9. Reading Parquet via `arrow::open_dataset()`

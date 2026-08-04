@@ -73,7 +73,7 @@ Each check runs independently. Skip checks that don't apply to the current analy
 **Warn:** Column names suggestive of PHI but values appear de-identified (e.g., hashed IDs).
 **Fail:** Clear PHI detected (dates of birth, names, addresses in output files).
 
-**CLIF-specific:** When `__CE_CLIF__ active=true`, additionally verify that `output/` contains no patient-level rows (CLIF rule: only aggregate/summary data in output).
+**CLIF-specific:** When `__CE_CLIF__ active=true`, permit patient-level working data only in gitignored `output/intermediate_phi/`; verify it is never shared or committed. Require `output/final_no_phi/` to contain aggregate-only artifacts with no identifiers, raw data files, or reported cells below 10.
 
 ## 6. Figure Quality
 

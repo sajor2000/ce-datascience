@@ -1,164 +1,136 @@
-# clifpy Recipes (Python)
+# CLIFpy Recipes
 
-Canonical Python patterns for working with CLIF data, anchored to `https://clif-icu.com/` as the public CLIF source and drawn from `Common-Longitudinal-ICU-data-Format/clifpy/examples/`, the official clifpy docs, and current CLIF consortium project manifests. **Always prefer the latest clifpy release** (`python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`) over hand-rolled Parquet IO when the package is available. Last verified 2026-06-06: clifpy is the official Python client on PyPI and requires Python >=3.9. Do not pin a clifpy version in generated guidance unless the user's project already has a lockfile that controls dependency versions.
+Use these current `clifpy` patterns only with synthetic or approved demo data
+while an agent is in the loop. The researcher runs the same code against real
+CLIF data in their secure environment. Source: `https://clif-icu.com/`, the
+current `clifpy` user guide, and `Common-Longitudinal-ICU-data-Format/clifpy`.
+Recheck its API before upgrading an existing locked project.
 
-## Table of contents
+## 1. Load selected tables and validate them
 
-1. Install and quick start (`ClifOrchestrator`, `validate_all`).
-2. Compute SOFA scores.
-3. Build an hourly wide dataset.
-4. Vitals outlier handling.
-5. Encounter stitching (link related stays).
-6. Data Quality Assessment (DQA) pattern.
-7. Unit conversion for medications.
-8. MDRO / hospital-diagnosis flags.
-9. Where to read more.
-10. Package profile from current CLIF repos.
-
----
-
-## 1. Install and quick start
-
-Source: clifpy README + `examples/00_basic_usage.py`.
+Use the template's site-local JSON configuration. Load only the tables and
+categories required for the task before calling `validate_all()`.
 
 ```python
-# python3 -m pip install --upgrade clifpy
 from clifpy import ClifOrchestrator
 
-orchestrator = ClifOrchestrator(
-    data_directory='/path/to/clif/data',
-    timezone='US/Eastern',
+co = ClifOrchestrator(config_path="config/config.json")
+co.initialize(
+    tables=["hospitalization", "vitals", "labs"],
+    filters={
+        "vitals": {"hospitalization_id": cohort_ids,
+                   "vital_category": ["heart_rate", "sbp", "spo2"]},
+        "labs": {"hospitalization_id": cohort_ids,
+                 "lab_category": ["hemoglobin", "creatinine"]},
+    },
 )
-
-# Validate every table against the CLIF schema when the project exposes that method.
-orchestrator.validate_all()
-
-# Access individual tables (each is a thin wrapper around a polars / pandas frame).
-vitals = orchestrator.vitals.df
-labs = orchestrator.labs.df
-hospitalization = orchestrator.hospitalization.df
+co.validate_all()
 ```
 
-Configuration via YAML (preferred for federated projects):
+## 2. Create a wide dataset, then aggregate only if needed
+
+`create_wide_dataset()` creates event-level data; it does not automatically
+make an hourly dataset. Use `convert_wide_to_hourly()` only when a consistent
+time window is required.
 
 ```python
-co = ClifOrchestrator(config_path='config/config.yaml')
+co.create_wide_dataset(
+    tables_to_load=["vitals", "labs", "respiratory_support"],
+    category_filters={
+        "vitals": ["heart_rate", "sbp", "spo2"],
+        "labs": ["hemoglobin", "creatinine"],
+        "respiratory_support": ["device_category", "fio2_set", "peep_set"],
+    },
+    hospitalization_ids=cohort_ids,
+)
+hourly = co.convert_wide_to_hourly(
+    aggregation_config={"mean": ["heart_rate"], "min": ["sbp", "spo2"]},
+    hourly_window=1,
+)
 ```
 
-`config/config.yaml` keeps site-specific paths out of the analysis script — required by `WORKFLOW.md` for federated portability.
+## 3. Handle outliers and stitch encounters
 
-## 2. Compute SOFA scores
-
-Source: `examples/sofa_demo.py`. SOFA spans 6 organ systems (cardiovascular, coagulation, liver, respiratory, CNS, renal) and clifpy maps each to the right CLIF columns.
+`apply_outlier_handling()` modifies the supplied table object's `.df` in place.
+Enable encounter stitching at orchestrator construction; retrieve the mapping
+after initializing `hospitalization` and `adt`.
 
 ```python
-from clifpy.clif_orchestrator import ClifOrchestrator
+from clifpy import ClifOrchestrator
+from clifpy.utils.outlier_handler import apply_outlier_handling
 
-co = ClifOrchestrator(config_path='config/config.yaml')
+co = ClifOrchestrator(
+    config_path="config/config.json",
+    stitch_encounter=True,
+    stitch_time_interval=6,
+)
+co.initialize(["hospitalization", "adt", "vitals"])
+apply_outlier_handling(co.vitals)
+encounter_mapping = co.get_encounter_mapping()
+# To rerun explicitly after replacing either source table:
+co.run_stitch_encounters()
+```
 
-preferred_units_for_sofa = {
-    'norepinephrine': 'mcg/kg/min',
-    'epinephrine': 'mcg/kg/min',
-    'dopamine': 'mcg/kg/min',
+## 4. Convert medication doses before SOFA
+
+Use the orchestrator's medication conversion method. `compute_sofa_scores()`
+does not accept preferred units; pass an already prepared wide frame or let it
+create one after conversion.
+
+```python
+preferred_units = {
+    "norepinephrine": "mcg/kg/min",
+    "epinephrine": "mcg/kg/min",
+    "dopamine": "mcg/kg/min",
 }
-
-sofa = co.compute_sofa_scores(
-    preferred_units=preferred_units_for_sofa,
-    # Other args: time_window, fill_strategy, etc. -- see clifpy docs.
+co.convert_dose_units_for_continuous_meds(
+    preferred_units=preferred_units,
+    hospitalization_ids=cohort_ids,
 )
-# sofa is a frame with columns: hospitalization_id, score_dttm, sofa_total, sofa_<system>.
+sofa = co.compute_sofa_scores(id_name="hospitalization_id")
 ```
 
-## 3. Hourly wide dataset
+## 5. Run the DQA API explicitly
 
-Source: clifpy README. Long CLIF tables (`vitals`, `labs`, `medication_admin_continuous`, `respiratory_support`) collapse to one row per hospitalization per hour with columns named after `*_category` values.
+For a table-level report, use `run_full_dqa()`. Its result is a dictionary of
+conformance, completeness, and plausibility checks, not an orchestrator report
+object. Store a shareable report only in `output/final_no_phi/`.
 
 ```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-wide_df = co.create_wide_dataset()
-# Use this for prediction-model feature engineering.
+from clifpy.utils.validator import run_full_dqa
+from clifpy.utils.report_generator import generate_text_report
+
+results = run_full_dqa(co.labs.df, table_name="labs")
+generate_text_report(results, output_path="output/final_no_phi/dqa_report.txt")
 ```
 
-## 4. Vitals outlier handling
+## 6. Use utility functions for MDRO and comorbidity flags
 
-Source: `examples/outlier_handling_vitals.py`. Use the consortium-agreed thresholds in `outlier-handling/`; clifpy applies them when constructing wide frames if `apply_outlier_handling=True`.
-
-```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-vitals_clean = co.vitals.apply_outlier_handling()
-# Out-of-range values are set to NaN (never silently clipped) and recorded in
-# vitals_clean.outlier_report for audit.
-```
-
-## 5. Encounter stitching
-
-Source: `examples/stitching_encounters_demo.ipynb`. Hospital readmissions and inter-facility transfers can be stitched via `hospitalization_joined_id` and a configurable time window.
+MDRO and comorbidity functions are utilities, not `ClifOrchestrator` methods.
+Do not use `hospital_diagnosis` as a predictor at admission or another pre-
+discharge time point; it is finalized after discharge.
 
 ```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-stitched = co.stitch_encounters(
-    max_gap_hours=24,        # default 24h gap counts as the same care episode
-    require_same_facility=False,
+from clifpy.utils.comorbidity import calculate_cci, calculate_elix
+from clifpy.utils.mdro_flags import calculate_mdro_flags
+
+cci = calculate_cci(co.hospital_diagnosis)
+elix = calculate_elix(co.hospital_diagnosis)
+mdro = calculate_mdro_flags(
+    culture=co.microbiology_culture,
+    susceptibility=co.microbiology_susceptibility,
+    organism_name="pseudomonas_aeruginosa",
+    hospitalization_ids=cohort_ids,
 )
-# stitched["hospitalization_joined_id"] is the key for downstream cohort joins.
 ```
 
-## 6. Data Quality Assessment (DQA)
+## 7. Install and source policy
 
-Source: `examples/dqa_demo.ipynb`. clifpy's DQA mirrors the WORKFLOW.md QC pattern. Use it before any cohort or analysis step (and as the canonical implementation of `/ce-data-qa` under CLIF profile).
-
-```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-report = co.run_dqa()
-# report has: schema_violations, missingness_per_column, mcide_violations,
-# range_violations (per outlier-thresholds), datetime_tz_violations,
-# id_type_violations, dup_keys.
-report.to_html('output/dqa_report.html')
-assert report.is_pass, report.blocker_summary()
-```
-
-## 7. Unit conversion for medications
-
-Source: `examples/unit_converter_demo.py`. mCIDE pins `med_dose_unit` to a known set; clifpy handles conversion to a preferred unit (e.g., `mcg/kg/min`) for vasopressors before any exposure calculation.
-
-```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-meds_std = co.medication_admin_continuous.standardize_units(
-    target_units={'norepinephrine': 'mcg/kg/min'},
-)
-# meds_std.df["med_dose"] is in target units; original dose preserved as
-# "med_dose_orig" for reproducibility.
-```
-
-## 8. MDRO / hospital-diagnosis flags
-
-Source: `examples/mdro_flags_demo.py` and `examples/hospital_diagnosis_simple.py`. Convenience flags that wrap repeated cohort logic.
-
-```python
-co = ClifOrchestrator(config_path='config/config.yaml')
-mdro = co.flag_mdro()                           # multi-drug-resistant organism flags
-charlson = co.compute_charlson_comorbidity()    # uses hospital_diagnosis + comorbidity package
-```
-
-> Reminder from the CLIF rules: `hospital_diagnosis` is finalized at discharge — never use it as a predictor in time-to-event or prediction-at-admission models. clifpy's helpers compute Charlson on discharge data only.
-
-## 9. Where to read more
-
-- clifpy docs: https://common-longitudinal-icu-data-format.github.io/clifpy/
-- Examples directory: https://github.com/Common-Longitudinal-ICU-data-Format/clifpy/tree/main/examples
-- PyPI: `python3 -m pip install --upgrade clifpy`
-- uv projects: `uv add clifpy` then `uv sync`
-- Notebooks rendered with `marimo`: many examples are `.py` files using `marimo.App`. Run with `marimo run examples/sofa_demo.py` or `python examples/sofa_demo.py`.
-
-## 10. Package profile from current CLIF repos
-
-Use this package profile when `/ce-setup` runs with `__CE_CLIF__ active=true`.
-It comes from the current upstream `clifpy`, `CLIF-MIMIC`, `CLIF-TableOne`,
-`CLIF-eligibility-for-mobilization`, and `CLIF-epi-of-sedation` manifests.
-
-- Environment manager: prefer `uv` when `pyproject.toml` or `uv.lock` exists.
-- Core CLIF runtime: `clifpy`, `duckdb`, `pyarrow`, `polars`, `pandas`.
-- Validation and pipeline support: `pyyaml`, `pandera`, `sf-hamilton`, `psutil`, `tqdm`.
-- Analysis and reporting: `tableone`, `statsmodels`, `scipy`, `lifelines`, `plotly`, `upsetplot`, `reportlab`.
-- Notebook/app workflow: `marimo`, `ipykernel`, `jupyter` / `jupyterlab` when the repo already uses notebooks.
-- Do not add exact-version clifpy pins in generated setup instructions. If the repo has an existing `uv.lock`, `requirements.txt`, or project-specific branch dependency, preserve that lockfile and report the existing constraint instead of overwriting it.
+- Install with `python3 -m pip install --upgrade clifpy`; in an existing uv
+  project, use `uv add clifpy` and `uv sync`.
+- Preserve a project's existing lockfile; do not add an unreviewed exact pin.
+- `clifpy` currently supports Python >=3.9. Prefer individual table classes for
+  focused reads and `ClifOrchestrator` for multi-table operations, stitching,
+  wide datasets, or SOFA.
+- CLIF 3.0 data require an explicit version-aware schema/migration workflow;
+  do not apply these 2.1 category examples to a declared v3 dataset.
