@@ -63,6 +63,57 @@ describe("CLI", () => {
     expect(await exists(path.join(tempRoot, ".opencode", "plugins", "converted-hooks.ts"))).toBe(true)
   })
 
+  test("OpenCode install preserves the CLIF safety and template contract", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-opencode-clif-"))
+    const repoRoot = path.join(import.meta.dir, "..")
+    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+
+    try {
+      const proc = Bun.spawn([
+        "bun",
+        "run",
+        "src/index.ts",
+        "install",
+        pluginRoot,
+        "--to",
+        "opencode",
+        "--output",
+        tempRoot,
+      ], {
+        cwd: repoRoot,
+        stdout: "pipe",
+        stderr: "pipe",
+      })
+      const exitCode = await proc.exited
+      const stdout = await new Response(proc.stdout).text()
+      const stderr = await new Response(proc.stderr).text()
+
+      if (exitCode !== 0) {
+        throw new Error(`OpenCode CLIF install failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
+      }
+
+      const skillsRoot = path.join(tempRoot, ".opencode", "skills")
+      const [clifSkill, rules, template] = await Promise.all([
+        fs.readFile(path.join(skillsRoot, "ce-clif", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-clif", "references", "clif-rules.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-clif-project-template", "SKILL.md"), "utf8"),
+      ])
+      const combined = [clifSkill, rules, template].join("\n")
+
+      expect(clifSkill).toContain("load the `ce-language-detect` skill")
+      expect(combined).toContain("Never give an agent PHI or RHI")
+      expect(combined).toContain("synthetic or approved demo data")
+      expect(combined).toContain("`01` cohort identification, `02` quality checks, `03` outlier handling, and `04` analysis")
+      expect(combined).toContain("output/intermediate_phi/")
+      expect(combined).toContain("output/final_no_phi/")
+      expect(combined).toContain("clif_demo")
+      expect(combined).toContain("BUDDY_TEST_REPORT.md")
+      expect(combined).not.toContain("QC → cohort → analysis")
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true })
+    }
+  })
+
   test("install defaults output to ~/.config/opencode", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-local-default-"))
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")

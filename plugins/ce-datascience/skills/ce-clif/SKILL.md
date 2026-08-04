@@ -114,10 +114,16 @@ If auto-detection signals are present, activate silently and print the acknowled
 
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
+Before reading data, code output, logs, or tracebacks, apply the PHI hard gate in
+`references/clif-rules.md`: an agent may work only with synthetic or approved
+demo CLIF data. Do not accept real patient data, identifiers, dates, previews,
+free text, images, raw tracebacks, or small-cell counts into chat. Provide code
+for the researcher to run in their secure environment instead.
+
 Then ensure `__CE_LANG__` exists:
 
 - If `__CE_LANG__` is already present in chat context, consume it as-is.
-- Otherwise invoke `/ce-language-detect` and use its emitted envelope.
+- Otherwise load the `ce-language-detect` skill and use its emitted envelope.
 - If detection returns `primary=unknown`, route CLIF code guidance to both recipe files.
 
 ### Step 3: Read the project's local override (optional)
@@ -176,16 +182,16 @@ Consumers (other `ce-*` skills) parse `active=true` to switch to CLIF behavior; 
 When the user is writing CLIF analysis code, surface canonical recipes from the upstream code-of-record packages:
 
 - **Python users** (`__CE_LANG__ primary=python`): load `references/clifpy-recipes.md` — recipes drawn directly from `Common-Longitudinal-ICU-data-Format/clifpy` (`python3 -m pip install --upgrade clifpy`; uv projects use `uv add clifpy`). Covers `ClifOrchestrator` setup, schema validation, helper-based feature construction, vitals outlier handling, unit conversion for medications, and the data-quality assessment (DQA) pattern.
-- **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, the QC → cohort → analysis script split, and `output/` write conventions.
+- **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, cohort → QC → outlier handling → analysis, and the separate intermediate/final output paths.
 - **`__CE_LANG__ primary=both`** or `unknown`: surface both files so the agent can choose.
 
 For a new consortium project or an audit of an existing template-derived repository, route to `ce-clif-project-template`. It owns template initialization and structural audit; this skill remains the CLIF version, vocabulary, and protected-path guardrail.
 
 ## References
 
-@./references/clif-rules.md — Core rules (Parquet-only, UTC datetimes, mCIDE vocab, project layout, PHI rules, three-script architecture)
+@./references/clif-rules.md — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI hard gate, template workflow)
 
-@./references/mcide-vocab.md — Allow-listed values for every `_category` column across the 16 beta tables, plus pointers to mCIDE CSV sources
+@./references/mcide-vocab.md — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3
 
 `references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
 

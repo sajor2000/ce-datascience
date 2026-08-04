@@ -30,5 +30,8 @@ test("CLIF project-template support preserves version and PHI safeguards", async
   expect(template).toContain("ce-clif --version")
   expect(template).toContain("non-empty directory")
   expect(template).toContain("output/final_no_phi/")
+  expect(template).toContain("output/intermediate_phi/")
   expect(template).toContain("no reported cell smaller than 10")
+  expect(template).toContain("clif_demo")
+  expect(template).toContain("BUDDY_TEST_REPORT.md")
 })

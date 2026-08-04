@@ -4,6 +4,7 @@ import path from "path"
 
 const clifRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-clif")
 const setupRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-setup")
+const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
 
 async function readClif(relativePath: string): Promise<string> {
   return readFile(path.join(clifRoot, relativePath), "utf8")
@@ -11,6 +12,10 @@ async function readClif(relativePath: string): Promise<string> {
 
 async function readSetup(relativePath: string): Promise<string> {
   return readFile(path.join(setupRoot, relativePath), "utf8")
+}
+
+async function readSkill(relativePath: string): Promise<string> {
+  return readFile(path.join(skillsRoot, relativePath), "utf8")
 }
 
 function expectContainsAll(text: string, snippets: string[]): void {
@@ -58,15 +63,91 @@ describe("CLIF guidance", () => {
       "python3 -m pip install --upgrade clifpy",
       "uv add clifpy",
       "https://clif-icu.com/",
-      "Always prefer the latest clifpy release",
-      "Package profile from current CLIF repos",
-      "Core CLIF runtime: `clifpy`, `duckdb`, `pyarrow`, `polars`, `pandas`",
-      "Validation and pipeline support: `pyyaml`, `pandera`, `sf-hamilton`, `psutil`, `tqdm`",
-      "Analysis and reporting: `tableone`, `statsmodels`, `scipy`, `lifelines`, `plotly`, `upsetplot`, `reportlab`",
+      "Preserve a project's existing lockfile",
+      "current `clifpy` user guide",
     ])
     expect(recipes).not.toContain("0.4.9")
     expect(recipes).not.toContain("clifpy==")
     expect(recipes).toContain("Python >=3.9")
+  })
+
+  test("enforces the agent-facing PHI hard gate and official output boundary", async () => {
+    const [rules, clifSkill, workSkill, verifyCatalog] = await Promise.all([
+      readClif("references/clif-rules.md"),
+      readClif("SKILL.md"),
+      readSkill("ce-work/SKILL.md"),
+      readSkill("ce-verify/references/check-catalog.md"),
+    ])
+    const combined = [rules, clifSkill, workSkill].join("\n")
+
+    expectContainsAll(combined, [
+      "Never give an agent PHI or RHI",
+      "synthetic or approved demo data",
+      "raw tracebacks",
+      "small-cell counts",
+      "output/intermediate_phi/",
+      "output/final_no_phi/",
+    ])
+    expect(rules).not.toContain("Mask or hash before printing")
+    expect(verifyCatalog).toContain("permit patient-level working data only in gitignored `output/intermediate_phi/`")
+  })
+
+  test("uses the official template workflow and distribution gate", async () => {
+    const [rules, template, plan, lifecycle] = await Promise.all([
+      readClif("references/clif-rules.md"),
+      readSkill("ce-clif-project-template/SKILL.md"),
+      readSkill("ce-plan/references/sap-mode-workflow.md"),
+      readSkill("ce-workflow/references/lifecycle-paths.md"),
+    ])
+    const combined = [rules, template, plan, lifecycle].join("\n")
+
+    expectContainsAll(combined, [
+      "cohort → quality checks → outlier handling → analysis",
+      "output/intermediate_phi/",
+      "output/final_no_phi/",
+      "clif_demo",
+      "BUDDY_TEST_REPORT.md",
+      "block for distribution readiness",
+    ])
+    expect(combined).not.toContain("QC → cohort → analysis")
+    expect(combined).not.toContain("three-script architecture (`code/01_qc_*")
+  })
+
+  test("keeps recipe calls and vocabulary coverage aligned to current clifpy and mCIDE", async () => {
+    const [recipes, vocabulary, versions] = await Promise.all([
+      readClif("references/clifpy-recipes.md"),
+      readClif("references/mcide-vocab.md"),
+      readClif("references/version-families.md"),
+    ])
+
+    expectContainsAll(recipes, [
+      "run_full_dqa",
+      "run_stitch_encounters",
+      "convert_dose_units_for_continuous_meds",
+      "calculate_mdro_flags",
+      "calculate_cci",
+      "calculate_elix",
+      "apply_outlier_handling",
+      "convert_wide_to_hourly",
+    ])
+    for (const staleCall of [
+      "co.run_dqa(",
+      "co.stitch_encounters(",
+      ".standardize_units(",
+      "co.flag_mdro(",
+      "co.compute_charlson_comorbidity(",
+      "compute_sofa_scores(\n    preferred_units=",
+    ]) {
+      expect(recipes).not.toContain(staleCall)
+    }
+    expectContainsAll(vocabulary, [
+      "## invasive_hemodynamics",
+      "cardiac_output_thermodilution",
+      "## key_icu_orders",
+      "PT_evaluation",
+    ])
+    expect(versions).toContain("Several v3 tables remain Alpha")
+    expect(versions).toContain("does not certify v3 category validation")
   })
 
   test("setup workflow exposes CLIF-aware package and uv defaults", async () => {

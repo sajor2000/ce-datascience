@@ -41,7 +41,7 @@ python3 scripts/generate_table1.py --variables analysis/sap-tables/03-variables.
 ```
 
 3. Review the generated validation report before presenting the table as ready.
-4. If CLIF mode is active, confirm the output remains aggregate-only and never writes patient-level rows under `output/`.
+4. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`; never write patient-level rows there.
 
 ## Outputs
 

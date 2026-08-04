@@ -50,10 +50,10 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 **CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative data-dictionary family. If the pair is missing, incomplete, or mixed, route to `ce-clif` before emitting `_category` filters.
 
 - Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
-- The cohort identifier is `hospitalization_id` (VARCHAR). Persist the cohort as `output/cohort_ids.parquet` — never CSV, never with an integer cast.
+- The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` — never CSV, never with an integer cast, and never share or commit them.
 - Inclusion criteria default to `adt.location_category == "icu"` for ICU studies; `hospitalization.age_at_admission >= 18` for adult studies.
 - All datetime filters are timezone-aware UTC.
-- The waterfall is written to `output/cohort_waterfall.csv`; the SQL/CTE step is replaced by a `code/02_cohort_<name>.{py,R}` script that follows the three-script architecture from `WORKFLOW.md`.
+- Write only disclosure-reviewed cohort-flow summaries to `output/final_no_phi/cohort_waterfall.csv`; replace SQL/CTE generation with a `code/01_cohort_<name>.{py,R}` script that starts the template workflow.
 - `_category` filters must use mCIDE allow-listed values from the selected family. Use the bundled cache only for 2.1 + 2.1; for 3.0 + 3.0, require the declared v3 mCIDE source. Refuse to emit a filter with an unknown category string.
 - For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> use `clifpy` and `ClifOrchestrator` rather than rolling your own joins; `__CE_LANG__ primary=r` -> use `arrow::open_dataset()` per the CLIF project-template layout. If `__CE_LANG__` is absent, run `/ce-language-detect` first; if still `unknown`, surface both implementation choices.
 

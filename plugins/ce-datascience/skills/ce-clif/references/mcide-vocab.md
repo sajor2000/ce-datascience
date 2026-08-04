@@ -13,13 +13,15 @@ The minimum Common ICU Data Elements (mCIDE) define the closed vocabularies for 
 7. `respiratory_support` — `device_category`, `mode_category`, `fio2_set` units.
 8. `hospital_diagnosis` — code formats and primary/POA flags.
 9. `crrt_therapy` — `crrt_mode_category`.
-10. `microbiology_culture` and `microbiology_susceptibility` — `method_category`, `susceptibility_category`.
-11. `patient_assessments` — common assessments by group.
-12. `code_status` — full categorical set.
-13. `position` — prone / not_prone.
-14. `patient_procedures` — procedure code formats.
-15. Validation patterns (Python / polars and R / arrow + dplyr).
-16. When the cache is incomplete (refresh policy).
+10. `invasive_hemodynamics` — `measure_category`.
+11. `key_icu_orders` — `order_category`.
+12. `microbiology_culture` and `microbiology_susceptibility` — `method_category`, `susceptibility_category`.
+13. `patient_assessments` — common assessments by group.
+14. `code_status` — full categorical set.
+15. `position` — prone / not_prone.
+16. `patient_procedures` — procedure code formats.
+17. Validation patterns (Python / polars and R / arrow + dplyr).
+18. When the cache is incomplete (refresh policy).
 
 ## adt
 
@@ -89,6 +91,15 @@ Intermittent `med_category` examples: `vancomycin`, `piperacillin_tazobactam`, `
 ## crrt_therapy
 
 `crrt_mode_category`: `scuf`, `cvvh`, `cvvhd`, `cvvhdf`, `avvh`
+
+## invasive_hemodynamics
+
+`measure_category`: `cvp`, `ra`, `rv`, `pa_systolic`, `pa_diastolic`,
+`pa_mean`, `pcwp`, `cardiac_output_thermodilution`, `cardiac_output_fick`
+
+## key_icu_orders
+
+`order_category`: `PT_evaluation`, `PT_treat`, `OT_evaluation`, `OT_treat`
 
 ## microbiology_culture
 

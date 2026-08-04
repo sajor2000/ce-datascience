@@ -22,4 +22,4 @@ The Table 1 shell is a contract between the SAP, analyst, and manuscript package
 
 ## CLIF Constraint
 
-When CLIF mode is active, Table 1 output must be aggregate-only. Do not write patient-level extracts to `output/`, `analysis/publication/`, or review-pack directories.
+When CLIF mode is active, Table 1 output must be aggregate-only in `output/final_no_phi/`. Do not write patient-level extracts to `output/final_no_phi/`, `analysis/publication/`, or review-pack directories.

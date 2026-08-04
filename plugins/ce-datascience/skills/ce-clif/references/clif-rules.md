@@ -7,7 +7,7 @@ These rules apply whenever `__CE_CLIF__ active=true` is present in chat context.
 - **Parquet only.** CLIF tables are persisted as `.parquet`. Never `read_csv` / `pd.read_csv` / `write.csv` for CLIF tables. Never emit Feather, ORC, RDS, or pickle for CLIF tables.
 - **Python**: prefer `polars` (`pl.read_parquet`, `pl.scan_parquet` for lazy). Pandas (`pd.read_parquet`) is acceptable for small tables only.
 - **R**: prefer `arrow` + `dplyr` (`arrow::read_parquet`, `arrow::open_dataset` for partitioned datasets), collected via `dplyr::collect()`.
-- Output artifacts (figures, tables, model files) are written under `output/`. Never write derived patient-level Parquet to `output/`.
+- Keep patient-level working artifacts only in gitignored `output/intermediate_phi/`; never share, commit, upload, or place them in a review pack. Write shareable figures, tables, and model summaries only to `output/final_no_phi/`.
 
 ## 2. Identifiers
 
@@ -32,11 +32,13 @@ These rules apply whenever `__CE_CLIF__ active=true` is present in chat context.
 
 ```
 project/
-├── code/                  # All analysis scripts (QC, cohort, analysis)
+├── code/                  # Cohort, QC, outlier handling, and analysis scripts
 ├── config/
 │   └── config.json        # Site-specific paths, NEVER committed with patient data
 ├── outlier-thresholds/    # Site-specific override thresholds (optional)
-├── output/                # Aggregated, de-identified results only
+├── output/
+│   ├── intermediate_phi/  # Gitignored patient-level working data; never shared
+│   └── final_no_phi/      # Aggregate, shareable results only
 ├── renv/                  # R environment (if R)
 ├── renv.lock              # R lockfile (if R)
 ├── pyproject.toml         # Python dependencies (if Python)
@@ -49,34 +51,35 @@ project/
 Rules:
 - New analysis files go under `code/`. Do not create top-level `analysis.py` / `script.R`.
 - Site-specific paths live in `config/config.json` (not hardcoded).
-- `output/` is the only sanctioned destination for shared results.
+- `output/final_no_phi/` is the only sanctioned destination for shared results. `output/intermediate_phi/` is local-only and must be gitignored.
 
-## 6. Three-script architecture (from `WORKFLOW.md`)
+## 6. Template workflow (from `CLIF-Project-Template`)
 
-Every CLIF project organizes code into three logical components:
+The project template supplies a four-step convention. Treat the filenames and
+templates as adaptable, but preserve the data-sharing boundary:
 
-1. **QC scripts** (`code/01_qc_*.{py,R,qmd}`)
-   - Verify required tables exist, columns are present and typed correctly, mCIDE categories are valid, missingness is acceptable.
-   - Output: a QC report, no patient-level rows.
+1. **Cohort identification** (`code/01_cohort_*`)
+   - Apply inclusion/exclusion criteria and write patient-level working tables only to `output/intermediate_phi/`; write any cohort summary to `output/final_no_phi/`.
 
-2. **Cohort identification scripts** (`code/02_cohort_*.{py,R,qmd}`)
-   - Apply inclusion / exclusion criteria.
-   - Emit a list of `hospitalization_id` (or `patient_id`) values, persisted as `output/cohort_ids.parquet`.
-   - Document the CONSORT-style waterfall (`output/cohort_waterfall.csv`).
+2. **Quality checks** (`code/02_*quality*`)
+   - Check the cohort's required fields, mCIDE categories, and plausible ranges.
 
-3. **Analysis scripts** (`code/03_analysis_*.{py,R,qmd}`)
-   - Read the cohort, perform the planned analyses, produce aggregate results in `output/`.
-   - May be split into multiple modules; keep each script focused on one analytic question.
+3. **Outlier handling** (`code/03_*outlier*`)
+   - Set physiologically implausible values to missing using the CLIF-approved handling path.
 
-When `/ce-plan` (SAP mode) runs under CLIF profile, the implementation plan must reflect this split.
+4. **Analysis** (`code/04_*analysis*`)
+   - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` to `output/final_no_phi/`.
 
-## 7. PHI / data privacy
+When `/ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
 
-- **Never** write patient-level rows to `output/`. Only aggregates that have been reviewed for re-identification risk.
-- **Never** print PHI (names, MRNs, raw zipcodes, dates of birth, free-text columns containing PHI) to stdout, logs, or notebook cells. Mask or hash before printing.
-- **Never** share patient-level CLIF tables across sites. CLIF is federated: code travels, data does not.
-- When the user asks to commit data, refuse and direct them to share the analysis script + aggregated output instead.
-- Treat `clinical_notes_text`, `clinical_notes_facts`, raw `discharge_name`, raw `med_name` as PHI-suspect and require explicit confirmation before reading them in code that writes to disk.
+## 7. PHI / data privacy hard gate
+
+- **Never give an agent PHI or RHI.** Before agent-assisted coding or debugging, require synthetic or approved demo data (for example, the template's `clif_demo` or `synthetic_clif`). The researcher runs real data in their own secure environment.
+- **Refuse to receive or inspect** real `patient_id`/`hospitalization_id` values, dates or timestamps, dataframe previews (`head`, `sample`, `value_counts`), raw tracebacks, free-text notes or organism names, images/DICOM metadata, or small-cell counts. Do not substitute hashing or masking as permission to put these values in chat.
+- **Never** share, commit, upload, or send patient-level CLIF tables across sites. CLIF is federated: code travels, data does not.
+- Keep patient-level work only in gitignored `output/intermediate_phi/`. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files.
+- When the user asks to commit or share data, refuse and provide code or instructions for a secure local run instead.
+- Treat clinical notes, imaging, raw names, and free-text fields as PHI-suspect. CLIF 3.0's notes and imaging require the same prohibition with heightened caution.
 
 ## 8. Protected paths (no edits without POC sign-off)
 
@@ -114,8 +117,8 @@ Load tables in stages to manage memory — never load the full labs or vitals ta
 
 Some consortium projects use Python for data wrangling and R for statistical modeling, connected by intermediate parquet:
 
-- Steps 00-03 in Python: `ClifOrchestrator` loads data, creates wide dataset, saves to `output/intermediate/`.
-- Steps 04-06 in R: `arrow::read_parquet()` loads the intermediate file for causal inference (IPTW, MSM, competing risks).
+- Python may create patient-level working data only in `output/intermediate_phi/`; R may read it locally for causal inference (IPTW, MSM, competing risks).
+- The final R output is aggregate-only and belongs in `output/final_no_phi/`.
 - This pattern leverages DuckDB/Polars speed for large table joins and R's superior causal inference ecosystem.
 
 ## 10. Common pitfalls (codified from `CLIF_CLAUDE.md` and observed in consortium repos)
@@ -146,7 +149,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - **Age cap at 119 years.** Any age > 119 is treated as a data error and set to NA.
 
 ### Output conventions
-- **Two-tier output directory:** `output/intermediate/` for working parquet files between pipeline stages; `output/final/` for site-submitted summary artifacts. Only `final/` contents are shared.
+- **Two-tier output directory:** `output/intermediate_phi/` is local, gitignored patient-level working data; `output/final_no_phi/` holds aggregate site-submitted artifacts. Only `final_no_phi/` contents are shared.
 - **CONSORT flow as a running dictionary.** Track exclusion counts at every filtering step — update the dictionary inline, not as a post-hoc summary. Save as both CSV and embedded in the QC report.
 - **Sensitivity analysis naming.** Use a letter suffix on the parent step number (e.g., `06b_sensitivity_analysis.R`), not a new step number. This keeps the main pipeline numbering stable.
 
