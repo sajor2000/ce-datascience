@@ -36,6 +36,28 @@ export async function readJson<T>(filePath: string): Promise<T> {
   return JSON.parse(raw) as T
 }
 
+/**
+ * Read a user-authored JSON config that is about to be deep-merged and
+ * rewritten, refusing to proceed if it exists but does not parse. Returns
+ * `undefined` when the file is absent (nothing to merge). Callers back the file
+ * up before calling, so the error points the user at the `.bak` copy.
+ *
+ * Every target writer that merges into a user file needs the same guard:
+ * clobbering a malformed config would destroy the user's settings. Centralize
+ * it here so the message and the fail-closed behavior cannot drift between
+ * writers.
+ */
+export async function readExistingJsonForMerge<T>(filePath: string): Promise<T | undefined> {
+  if (!(await pathExists(filePath))) return undefined
+  try {
+    return await readJson<T>(filePath)
+  } catch {
+    throw new Error(
+      `Existing ${filePath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
+    )
+  }
+}
+
 export async function writeText(filePath: string, content: string): Promise<void> {
   await ensureDir(path.dirname(filePath))
   await fs.writeFile(filePath, content, "utf8")

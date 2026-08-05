@@ -1,5 +1,5 @@
 import path from "path"
-import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformSkillContentForOpenCode } from "../converters/claude-to-opencode"
 import type { OpenCodeBundle, OpenCodeConfig } from "../types/opencode"
@@ -23,18 +23,10 @@ async function mergeOpenCodeConfig(
   incoming: OpenCodeConfig,
   pluginOwnedMcpKeys: Set<string> = new Set(),
 ): Promise<OpenCodeConfig> {
-  if (!(await pathExists(configPath))) return incoming
-
-  let existing: OpenCodeConfig
-  try {
-    existing = await readJson<OpenCodeConfig>(configPath)
-  } catch {
-    // A malformed config is a user-authored file. Replacing it wholesale would
-    // destroy their settings, so refuse and let them fix or remove it.
-    throw new Error(
-      `Existing ${configPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
-    )
-  }
+  // A malformed config is user-authored; readExistingJsonForMerge refuses to
+  // clobber it and returns undefined only when the file is absent.
+  const existing = await readExistingJsonForMerge<OpenCodeConfig>(configPath)
+  if (existing === undefined) return incoming
 
   // Per-server merge: user config wins on conflicts, EXCEPT for servers this
   // plugin wrote on a previous install (recorded in the install manifest).
