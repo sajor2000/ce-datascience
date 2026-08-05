@@ -254,6 +254,45 @@ export async function sha256File(filePath: string): Promise<string> {
   return createHash("sha256").update(contents).digest("hex")
 }
 
+/**
+ * Digest for a scored target.
+ *
+ * A skill's behavioral contract is not confined to its SKILL.md — most scored
+ * literals live in its `references/` files. Hashing only SKILL.md let those
+ * files change without invalidating a recorded run, so the fail-closed check
+ * passed while the behavior it scores had drifted. For a SKILL.md target the
+ * digest therefore covers every file in the skill directory (relative path +
+ * per-file sha256, sorted), not the single file.
+ *
+ * Producers of run.json and the scorer must both use this function; computing
+ * the digest independently is how the two sides drift apart.
+ */
+export async function sha256Target(targetPath: string): Promise<string> {
+  if (path.basename(targetPath) !== "SKILL.md") {
+    return sha256File(targetPath)
+  }
+  const skillDir = path.dirname(targetPath)
+  const files: string[] = []
+  const walk = async (dir: string): Promise<void> => {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.name === "__pycache__" || entry.name === ".DS_Store") continue
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) await walk(full)
+      else if (entry.isFile()) files.push(full)
+    }
+  }
+  await walk(skillDir)
+  files.sort()
+
+  const lines: string[] = []
+  for (const file of files) {
+    lines.push(`${path.relative(skillDir, file)}\t${await sha256File(file)}`)
+  }
+  return createHash("sha256").update(lines.join("\n")).digest("hex")
+}
+
+
 function sha256Contents(contents: string | Buffer): string {
   return createHash("sha256").update(contents).digest("hex")
 }
@@ -831,6 +870,7 @@ export async function scoreEvaluationRun(options: {
   const runArtifact = await resolveRunArtifact(runDir, "run.json", "run metadata")
   if (!runArtifact.exists) throw new Error("invalid run.json: file does not exist")
 
+
   const fileCache = new Map<string, Buffer>()
   const readOnce = async (filePath: string): Promise<Buffer> => {
     const cached = fileCache.get(filePath)
@@ -842,7 +882,9 @@ export async function scoreEvaluationRun(options: {
 
   const caseContents = await readOnce(casePath)
   const promptContents = await readOnce(promptPath)
-  const targetContents = await readOnce(targetPath)
+  // Canonical per-file listing for the target; its digest is sha256Target().
+  const targetDigest = await sha256Target(targetPath)
+  const targetContents = Buffer.from(targetDigest, "utf8")
   const runContents = await readOnce(runArtifact.path)
   const metadata = readRunMetadata(runContents, runDir)
   if (metadata.case_id !== definition.id) {
@@ -851,7 +893,7 @@ export async function scoreEvaluationRun(options: {
   const currentDigests = {
     case_sha256: sha256Contents(caseContents),
     prompt_sha256: sha256Contents(promptContents),
-    target_sha256: sha256Contents(targetContents),
+    target_sha256: targetDigest,
   }
   for (const field of ["case_sha256", "prompt_sha256", "target_sha256"] as const) {
     if (metadata[field] !== currentDigests[field]) {
@@ -1009,7 +1051,7 @@ export async function buildEvaluationManifest(options: {
     source_commit: options.report.source_commit,
     case_sha256: sha256Contents(snapshot.caseContents),
     prompt_sha256: sha256Contents(snapshot.promptContents),
-    target_sha256: sha256Contents(snapshot.targetContents),
+    target_sha256: snapshot.targetContents.toString("utf8"),
     run_sha256: sha256Contents(snapshot.runContents),
     output_sha256: sha256Contents(snapshot.outputContents),
     evaluation_sha256: sha256Contents(options.evaluationContents),

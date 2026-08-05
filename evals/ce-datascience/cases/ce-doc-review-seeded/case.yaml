@@ -28,14 +28,14 @@ criteria:
     path: workspace/seeded-plan.md
     value: "5 requirements planned:"
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: removes-stale-unit-reference
     description: The nonexistent Unit 7 cross-reference is removed.
     type: text_not_contains
     path: workspace/seeded-plan.md
     value: "see Unit 7"
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: reports-proposed-fixes
     description: Concrete gated findings are presented for confirmation.
     type: regex
@@ -89,3 +89,4 @@ threshold: 0.85
 limitations:
   - The fixture is synthetic and seeded; it does not measure performance on arbitrary documents.
   - Equivalent finding wording is accepted, but the user-facing bucket names are contractual.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

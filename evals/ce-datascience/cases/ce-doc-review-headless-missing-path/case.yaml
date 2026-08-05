@@ -37,3 +37,4 @@ criteria:
 threshold: 0.85
 limitations:
   - This case proves the visible fail-fast boundary, not internal subagent invocation telemetry.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.
