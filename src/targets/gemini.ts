@@ -42,6 +42,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
       const skillName = sanitizePathName(skill.name)
+      assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await writeText(path.join(targetDir, "SKILL.md"), skill.content + "\n")
@@ -51,6 +52,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   if (bundle.skillDirs.length > 0) {
     for (const skill of bundle.skillDirs) {
       const skillName = sanitizePathName(skill.name)
+      assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await copySkillDir(skill.sourceDir, targetDir, transformContentForGemini)
