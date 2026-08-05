@@ -7,7 +7,10 @@
     {
       "type": "linked-versions",
       "groupName": "ce-datascience",
-      "components": ["cli", "ce-datascience"]
+      "components": [
+        "cli",
+        "ce-datascience"
+      ]
     }
   ],
   "packages": {
@@ -83,6 +86,22 @@
           "type": "json",
           "path": "marketplace.json",
           "jsonpath": "$.metadata.version"
+        }
+      ]
+    },
+    "plugins/coding-tutor": {
+      "release-type": "simple",
+      "package-name": "coding-tutor",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": ".claude-plugin/plugin.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": ".cursor-plugin/plugin.json",
+          "jsonpath": "$.version"
         }
       ]
     }
