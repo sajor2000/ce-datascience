@@ -36,6 +36,21 @@ const metadataErrors = [...result.errors]
 
 // The CLI component's version lives in package.json and is not covered by
 // syncReleaseMetadata, which only walks plugin/marketplace manifests.
+// Fail closed when a package declared in release-please-config has no manifest
+// anchor. A missing or renamed manifest key otherwise passes `undefined` into
+// the version comparisons below (and into syncReleaseMetadata's componentVersions
+// above), where resolveExpectedVersion falls back to the component's own version
+// and the drift check becomes tautological — the exact silent-pass class this
+// validator exists to prevent. The `.` (cli) anchor is included, so the check
+// below no longer needs to short-circuit on a falsy version.
+for (const packagePath of Object.keys(releasePleaseConfig.packages)) {
+  if (!manifest[packagePath]) {
+    metadataErrors.push(
+      `.release-please-manifest.json is missing a version entry for "${packagePath}", which is declared in .github/release-please-config.json; the drift guard cannot anchor it`,
+    )
+  }
+}
+
 const rootPackage = await readJson<VersionedManifest>(path.join(cwd, "package.json"))
 const expectedCliVersion = manifest["."]
 if (expectedCliVersion && rootPackage.version !== expectedCliVersion) {
