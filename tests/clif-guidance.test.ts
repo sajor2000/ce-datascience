@@ -113,6 +113,19 @@ describe("CLIF guidance", () => {
     expect(combined).not.toContain("three-script architecture (`code/01_qc_*")
   })
 
+  test("keeps CLIF language routing portable across converted targets", async () => {
+    const [cohort, dataQa, sapMode, work] = await Promise.all([
+      readSkill("ce-cohort-build/SKILL.md"),
+      readSkill("ce-data-qa/SKILL.md"),
+      readSkill("ce-plan/references/sap-mode-workflow.md"),
+      readSkill("ce-work/SKILL.md"),
+    ])
+    const combined = [cohort, dataQa, sapMode, work].join("\n")
+
+    expect(combined).toContain("load the `ce-language-detect` skill")
+    expect(combined).not.toContain("/ce-language-detect")
+  })
+
   test("keeps recipe calls and vocabulary coverage aligned to current clifpy and mCIDE", async () => {
     const [recipes, vocabulary, versions] = await Promise.all([
       readClif("references/clifpy-recipes.md"),
