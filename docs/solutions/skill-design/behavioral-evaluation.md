@@ -69,6 +69,13 @@ that target source from the current checkout. Save the complete user-facing resp
 requested artifacts, then run `eval:score`. Scoring rejects the run if any pre-dispatch digest
 differs from the current file.
 
+> **Migration note (whole-directory target digest).** `target_sha256` for a `SKILL.md` target is
+> now the whole-directory digest, not the single-file hash it used to be. Any `run.json` recorded
+> before this change carries the old single-file value and will fail scoring with a
+> `run target_sha256 ... does not match current ...` error. This is intentional fail-closed
+> behavior — re-record the affected runs against the current checkout rather than editing the
+> stored digest by hand.
+
 The scorer canonicalizes the repository and run paths before reading them, so a symlink cannot
 escape the repository or `/tmp/ce-datascience/behavioral-evals` roots. It snapshots `run.json`, the
 primary output, the case, prompt, target, fixtures, and every unique scored artifact exactly once.
