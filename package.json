@@ -19,6 +19,7 @@
     "cli:install": "bun run src/index.ts install",
     "package:corporate": "bash scripts/package/corporate-artifacts.sh",
     "test": "bun test",
+    "typecheck": "tsc --noEmit",
     "release:preview": "bun run scripts/release/preview.ts",
     "release:sync-metadata": "bun run scripts/release/sync-metadata.ts --write",
     "release:validate": "bun run scripts/release/validate.ts",
