@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, spyOn, test } from "bun:test"
 import { promises as fs } from "fs"
 import os from "os"
 import path from "path"
@@ -70,6 +70,55 @@ describe("convertClaudeToCodex", () => {
     expect(agent.description).toBe("Security-focused agent")
     expect(agent.instructions).toContain("Focus on vulnerabilities.")
     expect(agent.instructions).toContain("Threat modeling")
+  })
+
+  test("agents-only: warns that native install won't enforce disable-model-invocation", () => {
+    const pluginWithManualSkill: ClaudePlugin = {
+      ...fixturePlugin,
+      skills: [
+        {
+          name: "manual-only-skill",
+          description: "Manual only",
+          argumentHint: "[ITEM]",
+          sourceDir: "/tmp/plugin/skills/manual-only-skill",
+          skillPath: "/tmp/plugin/skills/manual-only-skill/SKILL.md",
+          disableModelInvocation: true,
+        },
+      ],
+    }
+    const warnSpy = spyOn(console, "warn").mockImplementation(() => { })
+
+    convertClaudeToCodex(pluginWithManualSkill, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+      // codexIncludeSkills omitted -> agents-only, skills go to native install
+    })
+
+    // The manual-only constraint is silently unenforced under native install;
+    // the converter surfaces it rather than dropping it without a trace.
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("manual-only-skill"),
+    )
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("disable-model-invocation"),
+    )
+
+    warnSpy.mockRestore()
+  })
+
+  test("agents-only: no manual-invocation warning when no skill disables model invocation", () => {
+    const warnSpy = spyOn(console, "warn").mockImplementation(() => { })
+
+    convertClaudeToCodex(fixturePlugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+
+    expect(warnSpy).not.toHaveBeenCalled()
+
+    warnSpy.mockRestore()
   })
 
   test("full standalone mode carries plugin hooks for managed hooks.json output", () => {

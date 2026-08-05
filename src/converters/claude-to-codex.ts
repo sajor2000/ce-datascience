@@ -97,6 +97,26 @@ export function convertClaudeToCodex(
         .map((alias) => toCanonicalWorkflowSkillName(alias.name))
         .filter((name): name is string => name !== null),
     ]))
+
+    // Codex has no native equivalent of Claude's `disable-model-invocation`
+    // frontmatter; the converter carries that constraint as the textual
+    // MANUAL_INVOCATION_GUARD, but only for skills it writes itself. In
+    // agents-only mode the skills install via Codex's native plugin flow, which
+    // reads the original SKILL.md and silently ignores the Claude-only key, so
+    // the manual-only constraint is not enforced. Surface that rather than let
+    // it drop silently: enforcing it would require writing these skills through
+    // the converter (`--to codex` with skills included).
+    const unguardedManualSkills = copiedSkills
+      .filter((skill) => skill.disableModelInvocation)
+      .map((skill) => skill.name)
+    if (unguardedManualSkills.length > 0) {
+      console.warn(
+        `Codex native plugin install does not enforce "disable-model-invocation" for ` +
+          `${unguardedManualSkills.length} skill(s): ${unguardedManualSkills.join(", ")}. ` +
+          `These skills can be model-invoked on Codex. Install with skills included if the ` +
+          `manual-only constraint must hold.`,
+      )
+    }
     return {
       pluginName: plugin.manifest.name,
       prompts: [],
