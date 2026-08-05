@@ -55,7 +55,7 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 - All datetime filters are timezone-aware UTC.
 - Write only disclosure-reviewed cohort-flow summaries to `output/final_no_phi/cohort_waterfall.csv`; replace SQL/CTE generation with a `code/01_cohort_<name>.{py,R}` script that starts the template workflow.
 - `_category` filters must use mCIDE allow-listed values from the selected family. Use the bundled cache only for 2.1 + 2.1; for 3.0 + 3.0, require the declared v3 mCIDE source. Refuse to emit a filter with an unknown category string.
-- For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> use `clifpy` and `ClifOrchestrator` rather than rolling your own joins; `__CE_LANG__ primary=r` -> use `arrow::open_dataset()` per the CLIF project-template layout. If `__CE_LANG__` is absent, run `/ce-language-detect` first; if still `unknown`, surface both implementation choices.
+- For canonical code patterns, route by language: `__CE_LANG__ primary=python` -> use `clifpy` and `ClifOrchestrator` rather than rolling your own joins; `__CE_LANG__ primary=r` -> use `arrow::open_dataset()` per the CLIF project-template layout. If `__CE_LANG__` is absent, load the `ce-language-detect` skill first; if still `unknown`, surface both implementation choices.
 
 ### Step 1: Elicit the cohort definition
 

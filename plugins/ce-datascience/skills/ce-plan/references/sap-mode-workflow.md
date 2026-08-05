@@ -59,7 +59,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `/ce-effect-size` | SAP-2.5 effect-size anchor |
 | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `/ce-power` | SAP-2.5 sample-size result |
 | `__CE_CLIF__ active=<bool> version=<dd-version> strict=<bool> rules=<path>` | `/ce-clif` | SAP frontmatter `data_source: CLIF`, SAP-2 layout, SAP-9 dissemination |
-| `__CE_LANG__ primary=<python\|r\|both\|unknown> secondary=<...\|null> source=<auto\|cached\|manual>` | `/ce-language-detect` (via `/ce-setup`) | SAP-2 implementation-units split (Python vs R scaffolding choices) |
+| `__CE_LANG__ primary=<python\|r\|both\|unknown> secondary=<...\|null> source=<auto\|cached\|manual>` | `ce-language-detect` (via `ce-setup`) | SAP-2 implementation-units split (Python vs R scaffolding choices) |
 
 ## 3. CLIF profile under SAP mode
 

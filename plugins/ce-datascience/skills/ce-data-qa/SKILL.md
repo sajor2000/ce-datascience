@@ -75,7 +75,7 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 - **mCIDE vocabulary check**: every `*_category` column conforms to the selected CLIF/mCIDE family. Use the bundled allow-list only for 2.1 + 2.1; for 3.0 + 3.0, read the project’s declared v3 mCIDE source and record it in the report. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
 - **Outlier-handling check**: physiologic ranges follow `outlier-handling/` thresholds when present; `warn` on out-of-range, never silently clip.
 - **PHI guard**: free-text columns (`*_name`, `clinical_notes_text`, raw `discharge_name`) are not echoed in the report — replace with a count + sample-of-distinct-after-mask.
-- **Canonical implementation**: prefer upstream CLIF tooling when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator` DQA path. `__CE_LANG__ primary=r` -> use the CLIF project-template QC and outlier-handler pattern. If `__CE_LANG__` is absent, run `/ce-language-detect`; if still `unknown`, surface both implementations. Roll your own only when neither applies.
+- **Canonical implementation**: prefer upstream CLIF tooling when available. `__CE_LANG__ primary=python` -> use `clifpy`'s `ClifOrchestrator` DQA path. `__CE_LANG__ primary=r` -> use the CLIF project-template QC and outlier-handler pattern. If `__CE_LANG__` is absent, load the `ce-language-detect` skill; if still `unknown`, surface both implementations. Roll your own only when neither applies.
 
 ### Causal workflow integrity checks (Python data stacks)
 

@@ -93,12 +93,16 @@ describe("CLI", () => {
       }
 
       const skillsRoot = path.join(tempRoot, ".opencode", "skills")
-      const [clifSkill, rules, template] = await Promise.all([
+      const [clifSkill, rules, template, cohort, dataQa, sapMode, work] = await Promise.all([
         fs.readFile(path.join(skillsRoot, "ce-clif", "SKILL.md"), "utf8"),
         fs.readFile(path.join(skillsRoot, "ce-clif", "references", "clif-rules.md"), "utf8"),
         fs.readFile(path.join(skillsRoot, "ce-clif-project-template", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-cohort-build", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-data-qa", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-plan", "references", "sap-mode-workflow.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "ce-work", "SKILL.md"), "utf8"),
       ])
-      const combined = [clifSkill, rules, template].join("\n")
+      const combined = [clifSkill, rules, template, cohort, dataQa, sapMode, work].join("\n")
 
       expect(clifSkill).toContain("load the `ce-language-detect` skill")
       expect(combined).toContain("Never give an agent PHI or RHI")
@@ -109,6 +113,8 @@ describe("CLI", () => {
       expect(combined).toContain("clif_demo")
       expect(combined).toContain("BUDDY_TEST_REPORT.md")
       expect(combined).not.toContain("QC → cohort → analysis")
+      expect(combined).toContain("load the `ce-language-detect` skill")
+      expect(combined).not.toContain("/ce-language-detect")
     } finally {
       await fs.rm(tempRoot, { recursive: true, force: true })
     }
