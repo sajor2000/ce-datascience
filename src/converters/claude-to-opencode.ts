@@ -261,10 +261,13 @@ function renderHookStatements(
 
   for (const hook of matcher.hooks) {
     if (hook.type === "command") {
+      // Escape backticks and ${ so a hook command can't break out of the
+      // template literal in the generated plugin file and inject TypeScript.
+      const escapedCommand = hook.command.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$\{/g, "\\${")
       if (condition) {
-        statements.push(`if (${condition}) { await $\`${hook.command}\` }`)
+        statements.push(`if (${condition}) { await $\`${escapedCommand}\` }`)
       } else {
-        statements.push(`await $\`${hook.command}\``)
+        statements.push(`await $\`${escapedCommand}\``)
       }
       if (hook.timeout) {
         statements.push(`// timeout: ${hook.timeout}s (not enforced)`)

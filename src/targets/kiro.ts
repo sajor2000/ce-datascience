@@ -1,5 +1,6 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
 import { cleanupStaleSkillDirs, cleanupStaleAgents } from "../utils/legacy-cleanup"
@@ -142,7 +143,11 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       try {
         existingConfig = await readJson<Record<string, unknown>>(mcpPath)
       } catch {
-        console.warn("Warning: existing mcp.json could not be parsed and will be replaced.")
+        // mcp.json is user-authored; replacing it wholesale on a parse error
+        // would destroy user configuration.
+        throw new Error(
+          `Existing ${mcpPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
+        )
       }
     }
 
@@ -151,7 +156,8 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
         ? (existingConfig.mcpServers as Record<string, unknown>)
         : {}
     const merged = { ...existingConfig, mcpServers: { ...existingServers, ...mcpServers } }
-    await writeJson(mcpPath, merged)
+    warnServersWithPotentialSecrets(mcpServers, mcpPath)
+    await writeJsonSecure(mcpPath, merged)
   }
 
   if (pluginName) {

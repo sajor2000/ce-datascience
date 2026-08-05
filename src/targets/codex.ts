@@ -1,11 +1,11 @@
 import fs from "fs/promises"
 import path from "path"
-import { backupFile, copyDir, copySkillDir, ensureDir, injectManualInvocationGuard, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeText, writeTextSecure } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copyDir, copySkillDir, ensureDir, injectManualInvocationGuard, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeText, writeTextSecure } from "../utils/files"
 import type { CodexBundle } from "../types/codex"
 import type { ClaudeMcpServer } from "../types/claude"
 import { transformContentForCodex } from "../utils/codex-content"
 import { getLegacyCodexArtifacts } from "../data/plugin-legacy-artifacts"
-import { classifyCodexLegacyPromptOwnership } from "../utils/legacy-cleanup"
+import { classifyCodexLegacyPromptOwnership, cleanupStaleSkillDirs} from "../utils/legacy-cleanup"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const MANAGED_START_MARKER = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
@@ -52,6 +52,7 @@ export async function writeCodexBundle(
     const promptsDir = path.join(codexRoot, "prompts")
     await cleanupRemovedPrompts(promptsDir, manifest, currentPrompts)
     for (const prompt of bundle.prompts) {
+      assertSafeArtifactName(sanitizePathName(prompt.name), "prompt")
       await writeText(path.join(promptsDir, `${sanitizePathName(prompt.name)}.md`), prompt.content + "\n")
     }
   } else if (pluginName) {
@@ -72,10 +73,13 @@ export async function writeCodexBundle(
     ...bundle.generatedSkills.map((skill) => sanitizePathName(skill.name)),
     ...(bundle.externallyManagedSkillNames ?? []).map((name) => sanitizePathName(name)),
   ]))
+  // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
+  await cleanupStaleSkillDirs(skillsRoot)
   await cleanupRemovedSkills(skillsRoot, manifest, currentSkills)
 
   if (bundle.skillDirs.length > 0) {
     for (const skill of bundle.skillDirs) {
+      assertSafeArtifactName(sanitizePathName(skill.name), "skill")
       const targetDir = path.join(skillsRoot, sanitizePathName(skill.name))
       await cleanupCurrentManagedSkillDir(targetDir, manifest, sanitizePathName(skill.name))
       await copySkillDir(
@@ -93,6 +97,7 @@ export async function writeCodexBundle(
 
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
+      assertSafeArtifactName(sanitizePathName(skill.name), "skill")
       const skillDir = path.join(skillsRoot, sanitizePathName(skill.name))
       await cleanupCurrentManagedSkillDir(skillDir, manifest, sanitizePathName(skill.name))
       await writeText(path.join(skillDir, "SKILL.md"), skill.content + "\n")
@@ -106,6 +111,7 @@ export async function writeCodexBundle(
   if (agents.length > 0) {
     for (const agent of agents) {
       const agentBaseName = sanitizePathName(agent.name)
+      assertSafeArtifactName(agentBaseName, "agent")
       const agentFile = `${agentBaseName}.toml`
       // If the agent declares no sidecars, remove any same-basename sibling
       // directory left behind by a prior install that did. The manifest-driven

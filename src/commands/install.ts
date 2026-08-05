@@ -325,7 +325,7 @@ function resolveGitHubSource(): string {
 async function cloneGitHubRepo(source: string, destination: string, branch?: string): Promise<void> {
   const args = ["git", "clone", "--depth", "1"]
   if (branch) args.push("--branch", branch)
-  args.push(source, destination)
+  args.push("--", source, destination)
   const proc = Bun.spawn(args, {
     stdout: "pipe",
     stderr: "pipe",

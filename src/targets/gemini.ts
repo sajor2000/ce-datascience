@@ -1,5 +1,7 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
+import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import { transformContentForGemini } from "../converters/claude-to-gemini"
 import type { GeminiBundle } from "../types/gemini"
 import { getLegacyGeminiArtifacts } from "../data/plugin-legacy-artifacts"
@@ -31,6 +33,8 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   const currentCommands = bundle.commands.map((command) => `${command.name}.toml`)
 
   await ensureDir(paths.geminiDir)
+  // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
+  await cleanupStaleSkillDirs(paths.skillsDir)
   await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
   await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
   await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
@@ -58,6 +62,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
 
   if (agents.length > 0) {
     for (const agent of agents) {
+      assertSafeArtifactName(sanitizePathName(agent.name), "agent")
       const agentFile = `${sanitizePathName(agent.name)}.md`
       await writeText(path.join(paths.agentsDir, agentFile), agent.content + "\n")
     }
@@ -65,6 +70,9 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
 
   if (bundle.commands.length > 0) {
     for (const command of bundle.commands) {
+      for (const segment of command.name.split("/")) {
+        assertSafeArtifactName(segment, "command")
+      }
       const dest = path.join(paths.commandsDir, ...command.name.split("/")) + ".toml"
       await writeText(dest, command.content + "\n")
     }
@@ -83,7 +91,11 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       try {
         existingSettings = await readJson<Record<string, unknown>>(settingsPath)
       } catch {
-        console.warn("Warning: existing settings.json could not be parsed and will be replaced.")
+        // settings.json is user-authored; replacing it wholesale on a parse
+        // error would destroy user configuration.
+        throw new Error(
+          `Existing ${settingsPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
+        )
       }
     }
 
@@ -91,7 +103,8 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       ? existingSettings.mcpServers as Record<string, unknown>
       : {}
     const merged = { ...existingSettings, mcpServers: { ...existingMcp, ...mcpServers } }
-    await writeJson(settingsPath, merged)
+    warnServersWithPotentialSecrets(mcpServers, settingsPath)
+    await writeJsonSecure(settingsPath, merged)
   }
 
   if (pluginName) {

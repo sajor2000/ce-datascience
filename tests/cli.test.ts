@@ -1056,13 +1056,19 @@ describe("CLI", () => {
     const kiroRoot = path.join(tempRoot, ".kiro")
     const repoRoot = path.join(import.meta.dir, "..")
 
+    // Current-named artifacts must NOT be swept: Kiro has a live writer, so a
+    // file named like a current skill/agent is either a current CE install or
+    // a user-authored file — cleanup seeding from the current bundle would
+    // turn `install` + `cleanup` into a self-uninstall.
     await fs.mkdir(path.join(kiroRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"), "current skill install")
     await fs.mkdir(path.join(kiroRoot, "skills", "compound-plan"), { recursive: true })
     await fs.writeFile(path.join(kiroRoot, "skills", "compound-plan", "SKILL.md"), "legacy generated command skill")
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
+    await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), "{}")
+    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), "legacy agent prompt")
     await fs.writeFile(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"), "{}")
-    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"), "legacy agent prompt")
+    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"), "current agent prompt")
 
     const proc = Bun.spawn([
       "bun",
@@ -1092,10 +1098,14 @@ describe("CLI", () => {
     }
 
     expect(stdout).toContain("Cleaned kiro")
-    expect(await exists(path.join(kiroRoot, "skills", "ce-plan"))).toBe(false)
+    // Historical allow-list names are swept...
     expect(await exists(path.join(kiroRoot, "skills", "compound-plan"))).toBe(false)
-    expect(await exists(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"))).toBe(false)
-    expect(await exists(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "agents", "repo-research-analyst.json"))).toBe(false)
+    expect(await exists(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"))).toBe(false)
+    // ...while current-named files are preserved.
+    expect(await exists(path.join(kiroRoot, "skills", "ce-plan"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"))).toBe(true)
     expect(await exists(path.join(kiroRoot, "ce-datascience", "legacy-backup"))).toBe(true)
   })
 

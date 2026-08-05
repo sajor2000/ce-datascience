@@ -24,6 +24,16 @@ export default defineCommand({
     const pluginName = String(args.plugin)
     const branch = String(args.branch)
 
+    // The plugin name becomes a cache-directory component and, if that
+    // directory exists, receives a `git reset --hard`. An unvalidated name
+    // like `../../Projects/myrepo` would aim that reset at an arbitrary
+    // sibling checkout.
+    if (!/^[a-z0-9][a-z0-9._-]*$/i.test(pluginName)) {
+      throw new Error(
+        `Invalid plugin name "${pluginName}": expected letters, digits, dots, hyphens, or underscores only.`,
+      )
+    }
+
     // Reversible encoding: / -> ~ (safe because ~ is illegal in git branch names per
     // git-check-ref-format), then percent-encode any remaining unsafe characters.
     // This is injective — every distinct branch name maps to a distinct cache key.
@@ -65,7 +75,7 @@ async function dirExists(p: string): Promise<boolean> {
 }
 
 async function cloneBranch(source: string, destination: string, branch: string): Promise<void> {
-  const proc = Bun.spawn(["git", "clone", "--depth", "1", "--branch", branch, source, destination], {
+  const proc = Bun.spawn(["git", "clone", "--depth", "1", "--branch", branch, "--", source, destination], {
     stdout: "pipe",
     stderr: "pipe",
   })
@@ -77,7 +87,7 @@ async function cloneBranch(source: string, destination: string, branch: string):
 }
 
 async function fetchAndCheckout(repoDir: string, branch: string): Promise<void> {
-  const fetch = Bun.spawn(["git", "fetch", "origin", branch], {
+  const fetch = Bun.spawn(["git", "fetch", "origin", "--", branch], {
     cwd: repoDir,
     stdout: "pipe",
     stderr: "pipe",

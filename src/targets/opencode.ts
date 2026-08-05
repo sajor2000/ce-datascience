@@ -1,8 +1,10 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformSkillContentForOpenCode } from "../converters/claude-to-opencode"
 import type { OpenCodeBundle, OpenCodeConfig } from "../types/opencode"
 import { getLegacyOpenCodeArtifacts } from "../data/plugin-legacy-artifacts"
+import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import {
   archiveLegacyInstallManifestIfOwned,
   cleanupCurrentManagedDirectory,
@@ -19,6 +21,7 @@ import { rewriteOpenCodeMcpCommandPaths } from "./mcp-paths"
 async function mergeOpenCodeConfig(
   configPath: string,
   incoming: OpenCodeConfig,
+  pluginOwnedMcpKeys: Set<string> = new Set(),
 ): Promise<OpenCodeConfig> {
   if (!(await pathExists(configPath))) return incoming
 
@@ -26,15 +29,26 @@ async function mergeOpenCodeConfig(
   try {
     existing = await readJson<OpenCodeConfig>(configPath)
   } catch {
-    console.warn(
-      `Warning: existing ${configPath} is not valid JSON. Writing plugin config without merging.`
+    // A malformed config is a user-authored file. Replacing it wholesale would
+    // destroy their settings, so refuse and let them fix or remove it.
+    throw new Error(
+      `Existing ${configPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
     )
-    return incoming
   }
 
-  const mergedMcp = {
+  // Per-server merge: user config wins on conflicts, EXCEPT for servers this
+  // plugin wrote on a previous install (recorded in the install manifest).
+  // Those are plugin-owned, and the incoming entry carries the freshly
+  // rewritten install path — keeping the stale existing entry would pin every
+  // upgrade to the first-installed path forever.
+  const mergedMcp: NonNullable<OpenCodeConfig["mcp"]> = {
     ...(incoming.mcp ?? {}),
     ...(existing.mcp ?? {}),
+  }
+  for (const key of Object.keys(incoming.mcp ?? {})) {
+    if (pluginOwnedMcpKeys.has(key)) {
+      mergedMcp[key] = (incoming.mcp ?? {})[key]
+    }
   }
 
   const mergedPermission = incoming.permission
@@ -51,7 +65,10 @@ async function mergeOpenCodeConfig(
       }
     : existing.tools
 
+  // Spread incoming first so plugin-set keys the user has no value for are
+  // carried instead of silently dropped; existing then wins on any conflict.
   return {
+    ...incoming,
     ...existing,
     $schema: incoming.$schema ?? existing.$schema,
     mcp: Object.keys(mergedMcp).length > 0 ? mergedMcp : undefined,
@@ -76,6 +93,8 @@ export async function writeOpenCodeBundle(
   const currentSkills = bundle.skillDirs.map((skill) => sanitizePathName(skill.name))
 
   await ensureDir(openCodePaths.root)
+  // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
+  await cleanupStaleSkillDirs(openCodePaths.skillsDir)
   await cleanupRemovedManagedFiles(openCodePaths.agentsDir, manifest, "agents", currentAgents)
   await cleanupRemovedManagedFiles(openCodePaths.commandDir, manifest, "commands", currentCommands)
   await cleanupRemovedManagedFiles(openCodePaths.pluginsDir, manifest, "plugins", currentPlugins)
@@ -94,14 +113,21 @@ export async function writeOpenCodeBundle(
       openCodePaths.skillsDir,
     ),
   }
-  const merged = await mergeOpenCodeConfig(openCodePaths.configPath, incomingConfig)
-  await writeJson(openCodePaths.configPath, merged)
+  const pluginOwnedMcpKeys = new Set(manifest?.groups?.mcpServers ?? [])
+  const merged = await mergeOpenCodeConfig(
+    openCodePaths.configPath,
+    incomingConfig,
+    pluginOwnedMcpKeys,
+  )
+  warnServersWithPotentialSecrets(merged.mcp, openCodePaths.configPath)
+  await writeJsonSecure(openCodePaths.configPath, merged)
   if (hadExistingConfig) {
     console.log("Merged plugin config into existing opencode.json (user settings preserved)")
   }
 
   const seenAgents = new Set<string>()
   for (const agent of bundle.agents) {
+    assertSafeArtifactName(sanitizePathName(agent.name), "agent")
     const safeName = sanitizePathName(agent.name)
     if (seenAgents.has(safeName)) {
       console.warn(`Skipping agent "${agent.name}": sanitized name "${safeName}" collides with another agent`)
@@ -112,6 +138,11 @@ export async function writeOpenCodeBundle(
   }
 
   for (const commandFile of bundle.commandFiles) {
+    // Colon segments intentionally nest (ce:plan -> ce/plan.md); each segment
+    // must individually be traversal-safe.
+    for (const segment of commandFile.name.split(":")) {
+      assertSafeArtifactName(segment, "command")
+    }
     const dest = path.join(openCodePaths.commandDir, ...commandFile.name.split(":")) + ".md"
     const cmdBackupPath = await backupFile(dest)
     if (cmdBackupPath) {
@@ -122,6 +153,7 @@ export async function writeOpenCodeBundle(
 
   if (bundle.plugins.length > 0) {
     for (const plugin of bundle.plugins) {
+      assertSafeArtifactName(plugin.name, "plugin file")
       await writeText(path.join(openCodePaths.pluginsDir, plugin.name), plugin.content + "\n")
     }
   }
@@ -129,6 +161,7 @@ export async function writeOpenCodeBundle(
   if (bundle.skillDirs.length > 0) {
     for (const skill of bundle.skillDirs) {
       const skillName = sanitizePathName(skill.name)
+      assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(openCodePaths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await copySkillDir(
@@ -152,6 +185,7 @@ export async function writeOpenCodeBundle(
         commands: currentCommands,
         plugins: currentPlugins,
         skills: currentSkills,
+        mcpServers: Object.keys(incomingConfig.mcp ?? {}),
       },
     })
     await archiveLegacyInstallManifestIfOwned(openCodePaths.managedDir, pluginName)

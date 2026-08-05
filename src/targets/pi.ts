@@ -1,6 +1,7 @@
 import fs from "fs/promises"
 import path from "path"
 import {
+  assertSafeArtifactName,
   backupFile,
   copySkillDir,
   ensureDir,
@@ -10,12 +11,14 @@ import {
   readText,
   sanitizePathName,
   writeJson,
+  writeJsonSecure,
   writeText,
 } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForPi } from "../converters/claude-to-pi"
 import type { PiBundle } from "../types/pi"
 import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
-import { cleanupStaleAgents } from "../utils/legacy-cleanup"
+import { cleanupStaleAgents, cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
@@ -70,7 +73,7 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     ...bundle.generatedSkills.map((skill) => sanitizePathName(skill.name)),
   ]
   const currentAgents = bundle.agents.map((agent) => `${sanitizePathName(agent.name)}.md`)
-  const currentExtensions = bundle.extensions.map((extension) => extension.name)
+  const currentExtensions = bundle.extensions.map((extension) => sanitizePathName(extension.name))
 
   await ensureDir(paths.skillsDir)
   await ensureDir(paths.promptsDir)
@@ -78,17 +81,21 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
   await ensureDir(paths.agentsDir)
 
   await cleanupStaleAgents(paths.skillsDir, null)
+  // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
+  await cleanupStaleSkillDirs(paths.skillsDir)
   await cleanupRemovedPrompts(paths.promptsDir, manifest, currentPrompts)
   await cleanupRemovedSkills(paths.skillsDir, manifest, currentSkills)
   await cleanupRemovedAgents(paths.agentsDir, manifest, currentAgents)
   await cleanupRemovedExtensions(paths.extensionsDir, manifest, currentExtensions)
 
   for (const prompt of bundle.prompts) {
+    assertSafeArtifactName(sanitizePathName(prompt.name), "prompt")
     await writeText(path.join(paths.promptsDir, `${sanitizePathName(prompt.name)}.md`), prompt.content + "\n")
   }
 
   for (const skill of bundle.skillDirs) {
     const skillName = sanitizePathName(skill.name)
+    assertSafeArtifactName(skillName, "skill")
     const targetDir = path.join(paths.skillsDir, skillName)
     await cleanupCurrentManagedSkillDir(targetDir, manifest, skillName)
     await copySkillDir(skill.sourceDir, targetDir, transformContentForPi)
@@ -99,12 +106,14 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
 
   for (const skill of bundle.generatedSkills) {
     const skillName = sanitizePathName(skill.name)
+    assertSafeArtifactName(skillName, "skill")
     const targetDir = path.join(paths.skillsDir, skillName)
     await cleanupCurrentManagedSkillDir(targetDir, manifest, skillName)
     await writeText(path.join(targetDir, "SKILL.md"), skill.content + "\n")
   }
 
   for (const agent of bundle.agents) {
+    assertSafeArtifactName(sanitizePathName(agent.name), "agent")
     const agentFileName = `${sanitizePathName(agent.name)}.md`
     const targetPath = path.join(paths.agentsDir, agentFileName)
     await cleanupCurrentManagedAgentFile(targetPath, manifest, agentFileName)
@@ -112,7 +121,9 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
   }
 
   for (const extension of bundle.extensions) {
-    await writeText(path.join(paths.extensionsDir, extension.name), extension.content + "\n")
+    const extensionName = sanitizePathName(extension.name)
+    assertSafeArtifactName(extensionName, "extension")
+    await writeText(path.join(paths.extensionsDir, extensionName), extension.content + "\n")
   }
 
   const mcporterConfig = bundle.mcporterConfig
@@ -131,7 +142,8 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     if (backupPath) {
       console.log(`Backed up existing MCPorter config to ${backupPath}`)
     }
-    await writeJson(paths.mcporterConfigPath, mcporterConfig)
+    warnServersWithPotentialSecrets(mcporterConfig.mcpServers, paths.mcporterConfigPath)
+    await writeJsonSecure(paths.mcporterConfigPath, mcporterConfig)
   }
 
   await ensurePiAgentsBlock(paths.agentsPath)

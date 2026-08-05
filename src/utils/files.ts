@@ -82,7 +82,34 @@ export async function walkFiles(root: string): Promise<string[]> {
  * instead of failing on Windows where colons are illegal in filenames.
  */
 export function sanitizePathName(name: string): string {
-  return name.replace(/:/g, "-")
+  return name
+    .replace(/:/g, "-")
+    .replace(/[\\/\0]/g, "-")
+    .replace(/\.\./g, "-")
+}
+
+/**
+ * Reject plugin-supplied artifact names (agent, skill, command, plugin file)
+ * that could escape the target directory when joined into a write or delete
+ * path. Plugin frontmatter is untrusted input: `install` accepts arbitrary
+ * local paths and git URLs, so a hostile plugin could declare
+ * `name: ../../.ssh/authorized_keys`. Writers must call this before any
+ * `path.join` on a name that did not pass through a normalizer that strips
+ * separators.
+ */
+export function assertSafeArtifactName(name: string, kind: string): void {
+  const unsafe =
+    !name ||
+    name.includes("/") ||
+    name.includes("\\") ||
+    name.includes("..") ||
+    name.includes("\0") ||
+    name === "."
+  if (unsafe) {
+    throw new Error(
+      `Unsafe ${kind} name "${name}": names must not be empty or contain path separators, "..", or null bytes.`,
+    )
+  }
 }
 
 /**
