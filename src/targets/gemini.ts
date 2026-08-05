@@ -1,5 +1,5 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
 import { transformContentForGemini } from "../converters/claude-to-gemini"
 import type { GeminiBundle } from "../types/gemini"
 import { getLegacyGeminiArtifacts } from "../data/plugin-legacy-artifacts"
@@ -50,6 +50,9 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       const targetDir = path.join(paths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await copySkillDir(skill.sourceDir, targetDir, transformContentForGemini)
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
+      }
     }
   }
 

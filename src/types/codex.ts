@@ -9,6 +9,7 @@ export type CodexPrompt = {
 export type CodexSkillDir = {
   name: string
   sourceDir: string
+  disableModelInvocation?: boolean
 }
 
 export type CodexGeneratedSkill = {

@@ -163,6 +163,28 @@ export async function copyDir(sourceDir: string, targetDir: string): Promise<voi
  * transform reference .md files — needed when the transform rewrites content
  * that appears in reference files (e.g. fully-qualified agent names).
  */
+/**
+ * Guard line injected into converted SKILL.md files whose source skill sets
+ * `disable-model-invocation: true`. Non-Claude targets have no native flag for
+ * this, so the constraint is carried as an explicit instruction instead of
+ * being silently dropped.
+ */
+export const MANUAL_INVOCATION_GUARD =
+  "> **Manual invocation only:** run this skill only when the user explicitly requests it by name. Never auto-invoke it from context or from another skill's instructions."
+
+export async function injectManualInvocationGuard(skillMdPath: string): Promise<void> {
+  if (!(await pathExists(skillMdPath))) return
+  const content = await readText(skillMdPath)
+  if (content.includes(MANUAL_INVOCATION_GUARD)) return
+  const frontmatterMatch = content.match(/^---\n[\s\S]*?\n---\n/)
+  const updated = frontmatterMatch
+    ? content.slice(0, frontmatterMatch[0].length) +
+      "\n" + MANUAL_INVOCATION_GUARD + "\n" +
+      content.slice(frontmatterMatch[0].length)
+    : MANUAL_INVOCATION_GUARD + "\n\n" + content
+  await writeText(skillMdPath, updated)
+}
+
 export async function copySkillDir(
   sourceDir: string,
   targetDir: string,

@@ -6,6 +6,7 @@ export type GeminiSkill = {
 export type GeminiSkillDir = {
   name: string
   sourceDir: string
+  disableModelInvocation?: boolean
 }
 
 export type GeminiCommand = {

@@ -1,4 +1,5 @@
 import { formatFrontmatter } from "../utils/frontmatter"
+import { rewriteClaudePathsPerLine } from "../utils/claude-path-rewrite"
 import { normalizeModelWithProvider } from "../utils/model"
 import {
   type ClaudeAgent,
@@ -6,6 +7,7 @@ import {
   type ClaudeHooks,
   type ClaudePlugin,
   type ClaudeMcpServer,
+  type ClaudeSkill,
   filterSkillsByPlatform,
 } from "../types/claude"
 import type {
@@ -95,7 +97,7 @@ export function convertClaudeToOpenCode(
     mcp: mcp && Object.keys(mcp).length > 0 ? mcp : undefined,
   }
 
-  applyPermissions(config, plugin.commands, options.permissions)
+  applyPermissions(config, plugin.commands, plugin.skills, options.permissions)
 
   return {
     pluginName: plugin.manifest.name,
@@ -103,7 +105,7 @@ export function convertClaudeToOpenCode(
     agents: agentFiles,
     commandFiles: cmdFiles,
     plugins,
-    skillDirs: filterSkillsByPlatform(plugin.skills, "opencode").map((skill) => ({ sourceDir: skill.sourceDir, name: skill.name })),
+    skillDirs: filterSkillsByPlatform(plugin.skills, "opencode").map((skill) => ({ sourceDir: skill.sourceDir, name: skill.name, disableModelInvocation: skill.disableModelInvocation })),
   }
 }
 
@@ -280,9 +282,11 @@ function renderHookStatements(
 }
 
 function rewriteClaudePaths(body: string): string {
-  return body
-    .replace(/~\/\.claude\//g, "~/.config/opencode/")
-    .replace(/\.claude\//g, ".opencode/")
+  return rewriteClaudePathsPerLine(body, (line) =>
+    line
+      .replace(/~\/\.claude\//g, "~/.config/opencode/")
+      .replace(/\.claude\//g, ".opencode/"),
+  )
 }
 
 /**
@@ -309,10 +313,11 @@ export function transformSkillContentForOpenCode(body: string): string {
     "$1",
   )
   // Rewrite 2-segment category-qualified agent refs: category:ce-agent -> ce-agent.
-  // Only matches when the agent segment starts with `ce-` to avoid false positives
-  // on slash commands or other colon-separated patterns.
+  // Only matches when the agent segment starts with `ce-` AND ends in an agent role
+  // suffix, so identity strings like `ai:ce-datascience` (a plugin name, not an
+  // agent) are preserved. Every shipped agent name carries one of these suffixes.
   result = result.replace(
-    /(?<![a-z0-9:/-])[a-z][a-z0-9-]*:(ce-[a-z][a-z0-9-]*)(?![a-z0-9:-])/g,
+    /(?<![a-z0-9:/-])[a-z][a-z0-9-]*:(ce-[a-z][a-z0-9-]*-(?:reviewer|researcher|analyst|analyzer|specialist|oracle|sentinel|historian|detector|resolver|strategist|guardian|writer|agent))(?![a-z0-9:-])/g,
     "$1",
   )
   return result
@@ -338,6 +343,7 @@ function inferTemperature(agent: ClaudeAgent): number | undefined {
 function applyPermissions(
   config: OpenCodeConfig,
   commands: ClaudeCommand[],
+  skills: ClaudeSkill[],
   mode: PermissionMode,
 ) {
   if (mode === "none") return
@@ -364,7 +370,8 @@ function applyPermissions(
   if (mode === "broad") {
     enabled = new Set(sourceTools)
   } else {
-    for (const command of commands) {
+    const toolSpecSources: { allowedTools?: string[] }[] = [...commands, ...skills]
+    for (const command of toolSpecSources) {
       if (!command.allowedTools) continue
       for (const tool of command.allowedTools) {
         const parsed = parseToolSpec(tool)

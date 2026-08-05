@@ -1,5 +1,5 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
 import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
 import { cleanupStaleSkillDirs, cleanupStaleAgents } from "../utils/legacy-cleanup"
@@ -97,6 +97,10 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       }
 
       const knownAgentNames = bundle.agents.map((a) => a.name)
+      const knownSkillNames = [
+        ...bundle.skillDirs.map((s) => s.name),
+        ...bundle.generatedSkills.map((s) => s.name),
+      ]
       await cleanupCurrentManagedDirectory(
         destDir,
         manifest,
@@ -104,8 +108,11 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
         sanitizePathName(skill.name),
       )
       await copySkillDir(skill.sourceDir, destDir, (content) =>
-        transformContentForKiro(content, knownAgentNames),
+        transformContentForKiro(content, knownAgentNames, knownSkillNames),
       )
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(destDir, "SKILL.md"))
+      }
     }
   }
 

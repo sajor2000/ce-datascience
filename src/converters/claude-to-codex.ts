@@ -38,6 +38,7 @@ export function convertClaudeToCodex(
   const skillDirs = copiedSkills.map((skill) => ({
     name: skill.name,
     sourceDir: skill.sourceDir,
+    disableModelInvocation: skill.disableModelInvocation,
   }))
   const promptNames = new Set<string>()
   const usedSkillNames = new Set<string>(skillDirs.map((skill) => normalizeCodexName(skill.name)))

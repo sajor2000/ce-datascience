@@ -1,6 +1,6 @@
 import fs from "fs/promises"
 import path from "path"
-import { backupFile, copyDir, copySkillDir, ensureDir, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeText, writeTextSecure } from "../utils/files"
+import { backupFile, copyDir, copySkillDir, ensureDir, injectManualInvocationGuard, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeText, writeTextSecure } from "../utils/files"
 import type { CodexBundle } from "../types/codex"
 import type { ClaudeMcpServer } from "../types/claude"
 import { transformContentForCodex } from "../utils/codex-content"
@@ -85,6 +85,9 @@ export async function writeCodexBundle(
           unknownSlashBehavior: "preserve",
         }),
       )
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
+      }
     }
   }
 

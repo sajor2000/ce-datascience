@@ -36,6 +36,7 @@ export function convertClaudeToPi(
     skillDirs: platformSkills.map((skill) => ({
       name: skill.name,
       sourceDir: skill.sourceDir,
+      disableModelInvocation: skill.disableModelInvocation,
     })),
     generatedSkills: [],
     agents,
@@ -130,6 +131,13 @@ export function transformContentForPi(body: string): string {
 
   // Claude Code task-tracking primitives: current Task* API (TaskCreate/TaskUpdate/TaskList/TaskGet/TaskStop/TaskOutput)
   // plus the deprecated legacy pair (TodoWrite/TodoRead). All map to the platform's task-tracking primitive.
+  // Enumerations like `TaskCreate`/`TaskUpdate`/`TaskList` collapse to one phrase first, so
+  // per-platform tool lists don't degenerate into the same placeholder repeated three times.
+  const taskToolToken = "`?\\bTask(?:Create|Update|List|Get|Stop|Output)\\b`?"
+  result = result.replace(
+    new RegExp(`${taskToolToken}(?:\\s*/\\s*${taskToolToken})+`, "g"),
+    "the platform's task-tracking primitives",
+  )
   result = result.replace(
     /\bTask(?:Create|Update|List|Get|Stop|Output)\b/g,
     "the platform's task-tracking primitive",
@@ -137,10 +145,14 @@ export function transformContentForPi(body: string): string {
   result = result.replace(/\bTodoWrite\b/g, "the platform's task-tracking primitive")
   result = result.replace(/\bTodoRead\b/g, "the platform's task-tracking primitive")
 
-  // /command-name or /workflows:command-name -> /workflows-command-name
-  const slashCommandPattern = /(?<![:\w])\/([a-z][a-z0-9_:-]*?)(?=[\s,."')\]}`]|$)/gi
+  // /command-name or /workflows:command-name -> /workflows-command-name.
+  // The lookbehind rejects URL interiors (`//`), relative/home paths (`./`, `~/`),
+  // globs (`*/`), and shell substitutions (`)/`); the uppercase guard preserves
+  // file references like /CLAUDE.md and FETCH_HEAD instead of case-folding them.
+  const slashCommandPattern = /(?<![:\w>}\]\)/*.~])\/([a-zA-Z][a-zA-Z0-9_:-]*?)(?=[\s,."')\]}`]|$)/g
   result = result.replace(slashCommandPattern, (match, commandName: string) => {
     if (commandName.includes("/")) return match
+    if (commandName !== commandName.toLowerCase()) return match
     if (["dev", "tmp", "etc", "usr", "var", "bin", "home"].includes(commandName)) {
       return match
     }

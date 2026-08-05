@@ -1,5 +1,5 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
 import { transformSkillContentForOpenCode } from "../converters/claude-to-opencode"
 import type { OpenCodeBundle, OpenCodeConfig } from "../types/opencode"
 import { getLegacyOpenCodeArtifacts } from "../data/plugin-legacy-artifacts"
@@ -137,6 +137,9 @@ export async function writeOpenCodeBundle(
         transformSkillContentForOpenCode,
         true,
       )
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
+      }
     }
   }
 

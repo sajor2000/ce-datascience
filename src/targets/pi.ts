@@ -4,6 +4,7 @@ import {
   backupFile,
   copySkillDir,
   ensureDir,
+  injectManualInvocationGuard,
   isSafeManagedPath,
   pathExists,
   readText,
@@ -91,6 +92,9 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     const targetDir = path.join(paths.skillsDir, skillName)
     await cleanupCurrentManagedSkillDir(targetDir, manifest, skillName)
     await copySkillDir(skill.sourceDir, targetDir, transformContentForPi)
+    if (skill.disableModelInvocation) {
+      await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
+    }
   }
 
   for (const skill of bundle.generatedSkills) {

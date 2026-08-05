@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "fs"
 import path from "path"
 import { formatFrontmatter } from "../utils/frontmatter"
+import { rewriteClaudePathsPerLine } from "../utils/claude-path-rewrite"
 import { type ClaudeAgent, type ClaudeCommand, type ClaudeMcpServer, type ClaudePlugin, filterSkillsByPlatform } from "../types/claude"
 import type {
   KiroAgent,
@@ -39,6 +40,7 @@ export function convertClaudeToKiro(
   const skillDirs = filterSkillsByPlatform(plugin.skills, "kiro").map((skill) => ({
     name: skill.name,
     sourceDir: skill.sourceDir,
+    disableModelInvocation: skill.disableModelInvocation,
   }))
   for (const skill of skillDirs) {
     usedSkillNames.add(normalizeName(skill.name))
@@ -46,18 +48,20 @@ export function convertClaudeToKiro(
 
   // Convert agents to Kiro custom agents
   const agentNames = plugin.agents.map((a) => normalizeName(a.name))
-  const agents = plugin.agents.map((agent) => convertAgentToKiroAgent(agent, agentNames))
+  const commandNames = plugin.commands.map((c) => normalizeName(c.name))
+  const skillNames = [...usedSkillNames, ...commandNames]
+  const agents = plugin.agents.map((agent) => convertAgentToKiroAgent(agent, agentNames, skillNames))
 
   // Convert commands to skills (generated)
   const generatedSkills = plugin.commands.map((command) =>
-    convertCommandToSkill(command, usedSkillNames, agentNames),
+    convertCommandToSkill(command, usedSkillNames, agentNames, skillNames),
   )
 
   // Convert MCP servers (stdio and remote)
   const mcpServers = convertMcpServers(plugin.mcpServers)
 
   // Build steering files from repo instruction files, preferring AGENTS.md.
-  const steeringFiles = buildSteeringFiles(plugin, agentNames)
+  const steeringFiles = buildSteeringFiles(plugin, agentNames, skillNames)
 
   // Warn about hooks
   if (plugin.hooks && Object.keys(plugin.hooks.hooks).length > 0) {
@@ -69,7 +73,11 @@ export function convertClaudeToKiro(
   return { pluginName: plugin.manifest.name, agents, generatedSkills, skillDirs, steeringFiles, mcpServers }
 }
 
-function convertAgentToKiroAgent(agent: ClaudeAgent, knownAgentNames: string[]): KiroAgent {
+function convertAgentToKiroAgent(
+  agent: ClaudeAgent,
+  knownAgentNames: string[],
+  knownSkillNames: string[] = [],
+): KiroAgent {
   const name = normalizeName(agent.name)
   const description = sanitizeDescription(
     agent.description ?? `Use this agent for ${agent.name} tasks`,
@@ -88,7 +96,7 @@ function convertAgentToKiroAgent(agent: ClaudeAgent, knownAgentNames: string[]):
     welcomeMessage: `Switching to the ${name} agent. ${description}`,
   }
 
-  let body = transformContentForKiro(agent.body.trim(), knownAgentNames)
+  let body = transformContentForKiro(agent.body.trim(), knownAgentNames, knownSkillNames)
   if (agent.capabilities && agent.capabilities.length > 0) {
     const capabilities = agent.capabilities.map((c) => `- ${c}`).join("\n")
     body = `## Capabilities\n${capabilities}\n\n${body}`.trim()
@@ -104,6 +112,7 @@ function convertCommandToSkill(
   command: ClaudeCommand,
   usedNames: Set<string>,
   knownAgentNames: string[],
+  knownSkillNames: string[] = [],
 ): KiroSkill {
   const rawName = normalizeName(command.name)
   const name = uniqueName(rawName, usedNames)
@@ -114,7 +123,7 @@ function convertCommandToSkill(
 
   const frontmatter: Record<string, unknown> = { name, description }
 
-  let body = transformContentForKiro(command.body.trim(), knownAgentNames)
+  let body = transformContentForKiro(command.body.trim(), knownAgentNames, knownSkillNames)
   if (body.length === 0) {
     body = `Instructions converted from the ${command.name} command.`
   }
@@ -132,8 +141,30 @@ function convertCommandToSkill(
  * 4. Claude tool names: Bash -> shell, Read -> read, etc.
  * 5. Agent refs: @agent-name -> the agent-name agent (only for known agent names)
  */
-export function transformContentForKiro(body: string, knownAgentNames: string[] = []): string {
+const RESERVED_PATH_ROOTS = new Set([
+  "dev",
+  "tmp",
+  "etc",
+  "usr",
+  "var",
+  "bin",
+  "home",
+  "opt",
+  "srv",
+  "private",
+  "path",
+  "papers",
+  "api",
+  "project",
+])
+
+export function transformContentForKiro(
+  body: string,
+  knownAgentNames: string[] = [],
+  knownSkillNames: string[] = [],
+): string {
   let result = body
+  const skillTargets = new Set(knownSkillNames.map((name) => normalizeName(name)))
 
   // 1. Transform Task agent calls (supports namespaced names like ce-datascience:research:agent-name)
   const taskPattern = /^(\s*-?\s*)Task\s+([a-z][a-z0-9:-]*)\(([^)]*)\)/gm
@@ -146,15 +177,30 @@ export function transformContentForKiro(body: string, knownAgentNames: string[] 
       : `${prefix}Use the use_subagent tool to delegate to the ${agentRef} agent`
   })
 
-  // 2. Rewrite .claude/ paths to .kiro/ (with word-boundary-like lookbehind)
-  result = result.replace(/(?<=^|\s|["'`])~\/\.claude\//gm, "~/.kiro/")
-  result = result.replace(/(?<=^|\s|["'`])\.claude\//gm, ".kiro/")
+  // 2. Rewrite .claude/ paths to .kiro/ (with word-boundary-like lookbehind,
+  //    skipping per-platform enumeration lines)
+  result = rewriteClaudePathsPerLine(result, (line) =>
+    line
+      .replace(/(?<=^|\s|["'`])~\/\.claude\//gm, "~/.kiro/")
+      .replace(/(?<=^|\s|["'`])\.claude\//gm, ".kiro/"),
+  )
 
-  // 3. Slash command refs: /command-name -> skill activation language
-  result = result.replace(/(?<=^|\s)`?\/([a-zA-Z][a-zA-Z0-9_:-]*)`?/gm, (_match, cmdName: string) => {
-    const skillName = normalizeName(cmdName)
-    return `the ${skillName} skill`
-  })
+  // 3. Slash command refs: /command-name -> skill activation language.
+  // Guards prevent mangling filesystem paths and shell commands:
+  // - the trailing lookahead rejects any match followed by a path/name character,
+  //   so `/var/lib`, `/tmp/x`, and `--output /path/to/x` are never rewritten
+  // - reserved filesystem roots are never treated as command names
+  // - when known skill names are provided, only names resolving to a real skill
+  //   are rewritten; unknown slash tokens are preserved verbatim
+  result = result.replace(
+    /(?<=^|\s)`?\/([a-zA-Z][a-zA-Z0-9_:-]*)`?(?![a-zA-Z0-9_:/-])/gm,
+    (match, cmdName: string) => {
+      if (RESERVED_PATH_ROOTS.has(cmdName.toLowerCase())) return match
+      const skillName = normalizeName(cmdName)
+      if (skillTargets.size > 0 && !skillTargets.has(skillName)) return match
+      return `the ${skillName} skill`
+    },
+  )
 
   // 4. Claude tool names -> Kiro tool names
   for (const [claudeTool, kiroTool] of Object.entries(CLAUDE_TO_KIRO_TOOLS)) {
@@ -200,7 +246,11 @@ function convertMcpServers(
   return result
 }
 
-function buildSteeringFiles(plugin: ClaudePlugin, knownAgentNames: string[]): KiroSteeringFile[] {
+function buildSteeringFiles(
+  plugin: ClaudePlugin,
+  knownAgentNames: string[],
+  knownSkillNames: string[] = [],
+): KiroSteeringFile[] {
   const instructionPath = resolveInstructionPath(plugin.root)
   if (!instructionPath) return []
 
@@ -213,7 +263,7 @@ function buildSteeringFiles(plugin: ClaudePlugin, knownAgentNames: string[]): Ki
 
   if (!content || content.trim().length === 0) return []
 
-  const transformed = transformContentForKiro(content, knownAgentNames)
+  const transformed = transformContentForKiro(content, knownAgentNames, knownSkillNames)
   return [{ name: "ce-datascience", content: transformed }]
 }
 
