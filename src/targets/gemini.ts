@@ -1,5 +1,5 @@
 import path from "path"
-import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import { transformContentForGemini } from "../converters/claude-to-gemini"
@@ -35,9 +35,6 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   await ensureDir(paths.geminiDir)
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
   await cleanupStaleSkillDirs(paths.skillsDir)
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
 
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
@@ -80,6 +77,15 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
     }
   }
 
+  // Sweep artifacts dropped since the last install only after the current set
+  // has been written. Removed entries are disjoint from the current set, so
+  // ordering does not change the end state — but deferring the deletes means a
+  // mid-write failure leaves the previously-installed tree intact rather than a
+  // half-updated managed directory with the old artifacts already gone.
+  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
+
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir)
   if (mcpServers && Object.keys(mcpServers).length > 0) {
     const settingsPath = path.join(paths.geminiDir, "settings.json")
@@ -88,18 +94,9 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       console.log(`Backed up existing settings.json to ${backupPath}`)
     }
 
-    let existingSettings: Record<string, unknown> = {}
-    if (await pathExists(settingsPath)) {
-      try {
-        existingSettings = await readJson<Record<string, unknown>>(settingsPath)
-      } catch {
-        // settings.json is user-authored; replacing it wholesale on a parse
-        // error would destroy user configuration.
-        throw new Error(
-          `Existing ${settingsPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
-        )
-      }
-    }
+    // settings.json is user-authored; refuse to clobber it on a parse error.
+    const existingSettings =
+      (await readExistingJsonForMerge<Record<string, unknown>>(settingsPath)) ?? {}
 
     const existingMcp = (existingSettings.mcpServers && typeof existingSettings.mcpServers === "object")
       ? existingSettings.mcpServers as Record<string, unknown>

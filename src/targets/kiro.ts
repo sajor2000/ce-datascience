@@ -1,5 +1,5 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readJson, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
@@ -37,15 +37,6 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   await cleanupStaleSkillDirs(paths.skillsDir)
   await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md")
   await cleanupStaleAgents(paths.agentsDir, ".json")
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(
-    path.join(paths.agentsDir, "prompts"),
-    manifest,
-    "agentPrompts",
-    currentAgentPrompts,
-  )
-  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
 
   // Write agents
   if (bundle.agents.length > 0) {
@@ -128,6 +119,21 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
     }
   }
 
+  // Sweep artifacts dropped since the last install only after the current set
+  // has been written. Removed entries are disjoint from the current set, so
+  // ordering does not change the end state — but deferring the deletes means a
+  // mid-write failure leaves the previously-installed tree intact rather than a
+  // half-updated managed directory with the old artifacts already gone.
+  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedFiles(
+    path.join(paths.agentsDir, "prompts"),
+    manifest,
+    "agentPrompts",
+    currentAgentPrompts,
+  )
+  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
+
   // Write MCP servers to mcp.json
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir) ?? bundle.mcpServers
   if (Object.keys(mcpServers).length > 0) {
@@ -137,19 +143,10 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       console.log(`Backed up existing mcp.json to ${backupPath}`)
     }
 
-    // Merge with existing mcp.json if present
-    let existingConfig: Record<string, unknown> = {}
-    if (await pathExists(mcpPath)) {
-      try {
-        existingConfig = await readJson<Record<string, unknown>>(mcpPath)
-      } catch {
-        // mcp.json is user-authored; replacing it wholesale on a parse error
-        // would destroy user configuration.
-        throw new Error(
-          `Existing ${mcpPath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
-        )
-      }
-    }
+    // Merge with existing mcp.json if present. mcp.json is user-authored;
+    // refuse to clobber it on a parse error.
+    const existingConfig =
+      (await readExistingJsonForMerge<Record<string, unknown>>(mcpPath)) ?? {}
 
     const existingServers =
       existingConfig.mcpServers && typeof existingConfig.mcpServers === "object"
