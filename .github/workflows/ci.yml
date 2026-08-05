@@ -43,6 +43,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Full history: legacy-registry-coverage.test.ts walks `git log
+          # --diff-filter=D` for deleted components. A shallow clone sees no
+          # history, so the coverage guard would pass vacuously in the exact
+          # check that gates merges.
+          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
