@@ -16,7 +16,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 - **Do not do:** Do not implement code, run analysis, or treat execution-time unknowns as settled.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-**Note: The current year is 2026.** Use this when dating plans and searching for recent documentation.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating plans and searching for recent documentation.
 
 `ce-brainstorm` defines **WHAT** to study or build. `ce-plan` defines **HOW** -- either as a Statistical Analysis Plan (SAP) for study designs or as an implementation plan for technical tasks. `ce-work` executes the plan. A prior brainstorm is useful context but never required — `ce-plan` works from any input: a study design doc, a requirements doc, a feature idea, or a rough description.
 

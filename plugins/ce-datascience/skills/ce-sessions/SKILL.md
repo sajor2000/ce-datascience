@@ -38,7 +38,7 @@ If the line above resolved to a path, take its last path component as the repo f
 
 ## Note: 2026
 
-The current year is 2026. Use this when interpreting session timestamps.
+Resolve the current year at runtime (`date +%Y`) rather than assuming one; use it when interpreting session timestamps.
 
 ## Guardrails
 

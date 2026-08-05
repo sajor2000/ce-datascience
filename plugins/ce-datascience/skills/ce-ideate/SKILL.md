@@ -16,7 +16,7 @@ argument-hint: "[feature, focus area, or constraint]"
 - **Do not do:** Do not skip directly to implementation or present ungrounded ideas as validated plans.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-**Note: The current year is 2026.** Use this when dating ideation documents and checking recent ideation artifacts.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating ideation documents and checking recent ideation artifacts.
 
 `ce-ideate` precedes `ce-brainstorm`.
 

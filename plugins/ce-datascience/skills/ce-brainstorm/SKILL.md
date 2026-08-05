@@ -16,7 +16,7 @@ argument-hint: "[research question or study idea to explore] [output:html]"
 - **Do not do:** Do not write the SAP, implement analysis code, or force a long brainstorm when the request is already well scoped.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-**Note: The current year is 2026.** Use this when dating requirements documents.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating requirements documents.
 
 Brainstorming helps answer **WHAT** to study through collaborative dialogue. It precedes `ce-plan`, which answers **HOW** to execute the analysis.
 
