@@ -43,7 +43,7 @@ between releases).
 !`echo "${CLAUDE_SKILL_DIR}"`
 
 **Latest upstream version:**
-!`version=$(gh api repos/EveryInc/ce-datascience-plugin/contents/plugins/ce-datascience/.claude-plugin/plugin.json --jq '.content | @base64d | fromjson | .version' 2>/dev/null) && [ -n "$version" ] && echo "$version" || echo '__CE_UPDATE_VERSION_FAILED__'`
+!`version=$(gh api repos/sajor2000/ce-datascience/contents/plugins/ce-datascience/.claude-plugin/plugin.json --jq '.content | @base64d | fromjson | .version' 2>/dev/null) && [ -n "$version" ] && echo "$version" || echo '__CE_UPDATE_VERSION_FAILED__'`
 
 **Currently loaded version:**
 !`echo "${CLAUDE_SKILL_DIR}" | grep -q "/plugins/cache/.*/ce-datascience/.*/skills/ce-update$" && basename "$(dirname "$(dirname "${CLAUDE_SKILL_DIR}")")" || echo '__CE_UPDATE_NOT_MARKETPLACE__'`

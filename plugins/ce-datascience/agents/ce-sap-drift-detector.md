@@ -1,7 +1,7 @@
 ---
 name: ce-sap-drift-detector
 description: Detects structural and semantic drift between a Statistical Analysis Plan (SAP) and analysis code. Dispatched when a SAP file exists in the project.
-model: mid
+model: inherit
 tools:
   - Read
   - Grep
