@@ -38,7 +38,7 @@ The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's 
 | `ce-causal-inference-reviewer` | causal-inference code (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target trial) -- DAG, confounder set, time-zero alignment, positivity, estimand, sensitivity analyses |
 | `ce-bioinfo-pipeline-reviewer` | Snakemake / Nextflow / CWL / Bioconductor pipelines -- env pinning, reference pinning, sample-sheet validation, output checksums, caching traps, version traceability |
 | `ce-omics-batch-reviewer` | omics count or beta matrices + downstream differential / clustering / ML -- batch screening, batch-condition confound, blind ComBat, method-data-type mismatch, sample-sheet hygiene |
-| `ce-sprint-audit-reviewer` | dispatched only by `/ce-sprint close`; not selected by code-review directly. Audits planned-vs-actual sprint outputs, scope discipline, reproducibility re-run |
+| `ce-sprint-audit-reviewer` | dispatched only by `ce-sprint close`; not selected by code-review directly. Audits planned-vs-actual sprint outputs, scope discipline, reproducibility re-run |
 | `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
 | `ce-performance-reviewer` | DB queries, loop-heavy transforms, caching, async, large-data operations in diff |
 | `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |

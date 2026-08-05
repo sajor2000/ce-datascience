@@ -81,7 +81,7 @@ This MUST be flagged before any downstream analysis. If found, no batch correcti
 - **Statistical significance of differential genes** — that's `ce-methods-reviewer` and `ce-multiplicity-reviewer`
 - **Pipeline-level reproducibility** — that's `ce-bioinfo-pipeline-reviewer`
 - **General R / Python style** — other reviewers
-- **Genome build mismatch** — that's `/ce-genome-build`
+- **Genome build mismatch** — that's `ce-genome-build`
 
 ## Output format
 

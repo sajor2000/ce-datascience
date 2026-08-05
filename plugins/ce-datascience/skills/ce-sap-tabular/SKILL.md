@@ -158,7 +158,7 @@ Files:
 
 Cross-link added to analysis/sap.md (SAP-12, SAP-13).
 
-Next: run /ce-work; the task list will be seeded from 02-outputs.csv with one task per artifact.
+Next: Load the `ce-work` skill; the task list will be seeded from 02-outputs.csv with one task per artifact.
 ```
 
 ## Pipeline mode
@@ -169,10 +169,12 @@ In `mode:headless`, the skill writes the core CSVs + `.xlsx` and emits `__CE_SAP
 
 - **It does not invent the analysis content.** The analyst describes each row; the skill provides structure and validates it.
 - **It does not replace the prose SAP.** The two are companions; one narrates methods, one inventories artifacts.
-- **It does not produce the artifacts themselves.** The catalog declares; `/ce-work` produces.
-- **It does not include real subject data.** File 1 / File 2 samples are synthetic and clearly marked as such.
+- **It does not produce the artifacts themselves.** The catalog declares; `ce-work` produces.
+- **It does not include real subject data.** File 1 / File 2 samples are synthetic and clearly marked as such. Never paste real patient-level rows, identifiers, or dates into the catalog. When a catalog row declares a stratified output, note the project's small-cell suppression floor (default n<11 for EHR/claims data, or the site's declared policy) in the row's interpretation so the producing analysis applies it.
 
 ## References
+
+`references/example-overview.csv`, `references/example-outputs.csv`, `references/example-variables.csv` — synthetic filled examples of the three core sheets; read them when the shape of a completed workbook is unclear.
 
 @./references/output-catalog-template.md
 

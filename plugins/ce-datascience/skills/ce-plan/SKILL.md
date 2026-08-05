@@ -22,7 +22,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
 
-This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run inferential analyses, or learn from execution-time results. For study or analysis projects, it **does** require a data-column/QA preflight before SAP finalization or modeling recommendations: inspect available dataset columns and consume `/ce-data-qa` output before writing variable/model sections. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
+This workflow produces a durable plan artifact (SAP or implementation plan). It does **not** implement code, run inferential analyses, or learn from execution-time results. For study or analysis projects, it **does** require a data-column/QA preflight before SAP finalization or modeling recommendations: inspect available dataset columns and consume `ce-data-qa` output before writing variable/model sections. If the answer depends on changing code and seeing what happens, that belongs in `ce-work`, not here.
 
 When the plan includes new or materially extended Marimo, Jupyter, R Markdown, or Quarto work, load the `ce-notebook-standards` skill and record its topology decision and notebook responsibilities in the plan.
 
@@ -63,7 +63,7 @@ The reference covers:
 - SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
 - CLIF profile behavior under SAP mode (data dictionary version, template workflow, STROBE+RECORD default, protected-path scope rules).
 - SAP Phase 4 — write the SAP file.
-- SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`/ce-sap-tabular`) for every new SAP.
+- SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`ce-sap-tabular`) for every new SAP.
 - SAP Phase 5 — gap check and review.
 - SAP versioning rules.
 
@@ -77,8 +77,8 @@ The reference covers:
 6. **Keep the plan portable** - The plan should work as a living document, review artifact, or issue body without embedding tool-specific executor instructions.
 7. **Carry execution posture lightly when it matters** - If the request, origin document, or repo context clearly implies test-first, characterization-first, or another non-default execution posture, reflect that in the plan as a lightweight signal. Do not turn the plan into step-by-step execution choreography.
 8. **Honor user-named resources** - When the user names a specific resource — a CLI, MCP server, URL, file, doc link, or prior artifact — treat it as authoritative input, not a suggestion. Discover it if unknown (`command -v`, fetch, read) before assuming it's unavailable. Use it in place of generic alternatives. If it fails or doesn't exist, say so explicitly rather than silently substituting.
-9. **Data shape before SAP, coding, or modeling** - For any study, prediction, clinical, omics, dashboard, or analysis project with data available, inspect the actual columns, grain, keys, dates, missingness, duplicates, and basic validity before SAP finalization or implementation planning. Use `/ce-data-qa` for tabular data and `/ce-bioinfo-qc` for omics data. If data is not available, write an explicit data-profile prerequisite and keep SAP variable/model sections provisional.
-10. **Every new SAP gets a tabular workbook contract** - A new SAP is not execution-ready until it has the biostatistics-style tabular SAP companion: `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` when `openpyxl` is available. If data QA is missing, keep the SAP in draft and list `/ce-data-qa` before `/ce-sap-tabular`; do not skip the workbook requirement.
+9. **Data shape before SAP, coding, or modeling** - For any study, prediction, clinical, omics, dashboard, or analysis project with data available, inspect the actual columns, grain, keys, dates, missingness, duplicates, and basic validity before SAP finalization or implementation planning. Use the `ce-data-qa` skill for tabular data and `ce-bioinfo-qc` for omics data. If data is not available, write an explicit data-profile prerequisite and keep SAP variable/model sections provisional.
+10. **Every new SAP gets a tabular workbook contract** - A new SAP is not execution-ready until it has the biostatistics-style tabular SAP companion: `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` when `openpyxl` is available. If data QA is missing, keep the SAP in draft and list `ce-data-qa` before `ce-sap-tabular`; do not skip the workbook requirement.
 11. **Causal/observational analysis guardrail** - For an observational or causal analysis, make the estimand, causal assumptions, unit/grain, key fields, time zero, and success criteria explicit. Document an analyst-approved assumption only when the choice can be responsibly deferred; unresolved methodological choices block finalization rather than being silently inferred.
 
 ## Plan Quality Bar
@@ -450,6 +450,10 @@ When the plan contains 4+ implementation units with non-linear dependencies, 3+ 
 
 ### Phase 5: Final Review, Write File, and Handoff
 
+#### 5.0 Scoping Synthesis Checkpoint
+
+Before writing the plan file, present the scoping synthesis — the scope/decisions checkpoint that plan-write consumes as input. Read `references/synthesis-summary.md` for what belongs at synthesis altitude (scope, posture, test approach) versus what is plan-write output and must not leak into it.
+
 #### 5.1 Review Before Writing
 
 Before finalizing, check:
@@ -552,7 +556,7 @@ When this skill asks a user-facing question, follow the Skill Value interaction 
 **Question:** "Plan ready at `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`. What would you like to do next?"
 
 **Options:**
-1. **Start `/ce-work`** (recommended) - Begin implementing this plan in the current session
+1. **load the `ce-work` skill** (recommended) - Begin implementing this plan in the current session
 2. **Create Issue** - Create a tracked issue from this plan in your configured issue tracker (GitHub or Linear)
 3. **Open in Proof (web app) — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others
 4. **Done for now** - Pause; the plan file is saved and can be resumed later

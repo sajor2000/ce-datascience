@@ -7,7 +7,7 @@ model: sonnet
 <examples>
 <example>
 Context: ce-ideate is running Phase 1 and dispatches research agents in parallel to gather grounding context.
-user: "/ce-ideate authentication improvements"
+user: "`ce-ideate` authentication improvements"
 assistant: "I'll dispatch the ce-slack-researcher agent to search Slack for organizational discussions about authentication that could ground the ideation."
 <commentary>The ce-ideate skill dispatches this agent as a conditional parallel Phase 1 scan alongside codebase context, learnings search, and (conditional) issue intelligence. The agent searches Slack for relevant org context about the focus area.</commentary>
 </example>

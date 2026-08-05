@@ -10,18 +10,18 @@
 | 3 | State specific objectives and hypotheses | Introduction | ☐ | |
 | 4 | Describe the design early in the paper | Methods | ☐ | |
 | 5 | Describe the setting, locations, and dates | Methods | ☐ | |
-| 6 | Eligibility criteria, sources, methods of selection | Methods | ☐ | Use `/ce-cohort-build` output |
+| 6 | Eligibility criteria, sources, methods of selection | Methods | ☐ | use the `ce-cohort-build` skill output |
 | 7 | Define all outcomes, exposures, predictors, confounders | Methods | ☐ | Use SAP-2 |
 | 8 | Sources of data, methods of measurement | Methods | ☐ | |
 | 9 | Describe efforts to address potential sources of bias | Methods | ☐ | |
-| 10 | Explain how the study size was arrived at | Methods | ☐ | Use `/ce-power` output |
+| 10 | Explain how the study size was arrived at | Methods | ☐ | use the `ce-power` skill output |
 | 11 | Explain how quantitative variables were handled | Methods | ☐ | |
 | 12a | Describe all statistical methods | Methods | ☐ | |
 | 12b | Describe methods used to examine subgroups and interactions | Methods | ☐ | |
 | 12c | Explain how missing data were addressed | Methods | ☐ | |
 | 12d | If applicable, explain how loss to follow-up was addressed | Methods | ☐ | |
 | 12e | Describe any sensitivity analyses | Methods | ☐ | |
-| 13 | Numbers of individuals at each stage of study | Results | ☐ | CONSORT-style waterfall from `/ce-cohort-build` |
+| 13 | Numbers of individuals at each stage of study | Results | ☐ | CONSORT-style waterfall from `ce-cohort-build` |
 | 14 | Characteristics of study participants (Table 1) | Results | ☐ | SAP-tables/04-tables-overview.csv |
 | 15 | Number of outcome events or summary measures | Results | ☐ | |
 | 16 | Unadjusted and adjusted estimates with 95% CI | Results | ☐ | |

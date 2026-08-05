@@ -256,14 +256,62 @@ Add to `cline_mcp_settings.json`:
 
 **Output:** Matching entries (read) or write confirmation.
 
+### sap_amend
+
+**Input:**
+```json
+{
+  "section_id": "SAP section identifier",
+  "old_text": "Text being replaced",
+  "new_text": "Replacement text",
+  "reason": "Why the amendment is needed",
+  "amended_by": "Name (optional)",
+  "sap_path": "analysis/sap.md"
+}
+```
+
+**Output:** Updates the SAP in place, appends a provenance entry to `analysis/sap-amendments.md`, and bumps the SAP version line.
+
+### data_wave_register
+
+**Input:**
+```json
+{
+  "extract_id": "wave_001",
+  "location": "data/raw/extract-2026-04.parquet",
+  "source": "Source system (optional)",
+  "query_id": "Extraction query id (optional)",
+  "extracted_by": "Name (optional)",
+  "notes": "Free text (optional)"
+}
+```
+
+**Output:** Registers the extract in `.ce-datascience/data-state.yaml` with a sha256 content hash.
+
+### data_lock
+
+**Input:**
+```json
+{
+  "extract_id": "wave_001",
+  "qa_report_path": "reports/data-qa/wave_001.md",
+  "locked_by": "Name (optional)",
+  "sap_version_at_lock": "1.2 (optional)"
+}
+```
+
+**Output:** Seals the wave as the canonical analysis dataset. Requires a GO (or GO-with-sign-off) QA report; later changes require a new wave plus a SAP amendment.
+
 ## Fallback: Slash Commands
 
-When MCP is not available in your IDE, invoke the corresponding skills directly:
-- `/ce-literature-search` instead of `literature_search`
-- `/ce-datascience:ce-setup` instead of `stack_profile`
-- `/ce-datascience:ce-plan` (SAP mode) instead of `sap_create`
-- `/ce-datascience:ce-code-review` with SAP drift agent instead of `sap_drift_check`
+When MCP is not available, use the corresponding skills or manual procedures:
+- the `ce-literature-search` skill instead of `literature_search`
+- the `ce-setup` command (user-invoked) instead of `stack_profile`
+- the `ce-plan` skill in SAP mode instead of `sap_create`
+- the `ce-code-review` skill with the SAP drift agent instead of `sap_drift_check`
+- instead of `sap_amend`: edit the SAP section directly, append a dated entry (prior text, new text, reason, person) to `analysis/sap-amendments.md`, and bump the SAP version line
+- instead of `data_wave_register`: append an entry (extract id, location, source, received date, row count, file hash if convenient) to `analysis/data-waves.md`
+- instead of `data_lock`: after QA passes, record a dated "locked" entry for the wave in `analysis/data-waves.md` naming the QA report path; treat later data changes as requiring a new wave plus SAP amendment
 
-If optional local aliases were installed into `.claude/commands`, the bare
-forms such as `/ce-setup` also work. Treat those aliases as user/project command
-files, not as native plugin names.
+The MCP server accelerates these workflows but is never a hard prerequisite —
+every gate that names an MCP tool has the manual path above.

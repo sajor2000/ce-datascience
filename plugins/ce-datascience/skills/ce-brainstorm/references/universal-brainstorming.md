@@ -57,7 +57,7 @@ When the conversation has enough material to narrow — reflect back what you've
 
 **Question:** "Brainstorm wrapped. What would you like to do next?"
 
-- **Create a plan** → hand off to `/ce-plan` with the decided goal and constraints
+- **Create a plan** → hand off to `ce-plan` with the decided goal and constraints
 - **Save summary to disk** → write the summary as a markdown file in the current working directory
 - **Open in Proof (web app) — review and comment to iterate with the agent** → use the core Compound Engineering `ce-proof` skill when it is installed to open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. If it is not installed, save the markdown locally and tell the user Proof review requires the core Compound Engineering plugin.
 - **Done** → the conversation was the value, no artifact needed

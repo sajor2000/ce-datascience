@@ -1,6 +1,6 @@
 # Phase 1: Gather Context
 
-Detail for `/ce-plan` Phase 1. Linked from `SKILL.md` § Phase 1. Covers local research dispatch, execution-posture detection, the external-research decision rubric, consolidation, depth reclassification, and flow analysis.
+Detail for `ce-plan` Phase 1. Linked from `SKILL.md` § Phase 1. Covers local research dispatch, execution-posture detection, the external-research decision rubric, consolidation, depth reclassification, and flow analysis.
 
 ## Table of contents
 
@@ -27,7 +27,7 @@ The rule is strict: **actual columns and QA evidence come before SAP finalizatio
    - `analysis/cohort/` extracts, waterfall files, or concept-set outputs
    - `data/`, `input/`, `extracts/`, `analysis/data/`, Parquet/CSV/Feather files, notebooks with data reads, or query files
    - existing `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, or `__CE_CLIF__` handoff signals
-2. If an inspectable tabular dataset, extract, schema, or query result exists, run or load `/ce-data-qa` in pre-SAP column profile mode before structuring the SAP. Minimum evidence to carry forward:
+2. If an inspectable tabular dataset, extract, schema, or query result exists, run or load `ce-data-qa` in pre-SAP column profile mode before structuring the SAP. Minimum evidence to carry forward:
    - row count and column count
    - exact column names and observed types
    - intended or candidate grain
@@ -36,11 +36,11 @@ The rule is strict: **actual columns and QA evidence come before SAP finalizatio
    - null rates, duplicate rates, and distinct counts for likely categorical fields
    - basic numeric ranges and sentinel missing values
    - freshness/provenance when load or event timestamps exist
-3. If this is omics data, run `/ce-bioinfo-qc` first and treat its sample/QC summary as the data profile. Do not write differential-expression, EWAS, variant, or pathway-analysis plans until sample identity, QC, genome build, and batch-risk evidence are recorded.
+3. If this is omics data, load the `ce-bioinfo-qc` skill first and treat its sample/QC summary as the data profile. Do not write differential-expression, EWAS, variant, or pathway-analysis plans until sample identity, QC, genome build, and batch-risk evidence are recorded.
 4. If data exists but QA blockers are present, plan remediation or re-extraction before SAP finalization. Do not recommend modeling or coding beyond QA/remediation work.
 5. If no data is available yet, continue planning only with an explicit prerequisite:
-   - Add `<!-- GAP: missing /ce-data-qa column profile; SAP variable/model sections provisional -->` to the SAP sections that depend on actual columns.
-   - State that `/ce-data-qa` must run before finalizing the SAP, opening `/ce-sprint`, or running `/ce-work` modeling.
+   - Add `<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->` to the SAP sections that depend on actual columns.
+   - State that `ce-data-qa` must run before finalizing the SAP, opening `ce-sprint`, or load the `ce-work` skill modeling.
    - Do not invent column names, keys, time windows, or feature availability. Use conceptual variable names only and label them as provisional.
 
 ## 1. Phase 1.1 Local Research (Always Runs)

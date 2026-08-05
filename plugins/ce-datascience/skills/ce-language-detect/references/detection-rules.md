@@ -36,7 +36,7 @@ These are assessment signals, not primary-language classifications:
 - Stata source files (`**/*.do`, `**/*.ado`) in active code paths: note `legacy=stata`
 - SAS procedure patterns (`PROC LOGISTIC`, `PROC PHREG`, `PROC MIXED`, `LIBNAME`) or Stata model commands (`stcox`, `logit`, `regress`, `mi`) reinforce the legacy note
 
-When SAS/Stata signals dominate and Python/R scores do not meet thresholds, keep `primary=unknown secondary=null source=auto` and recommend `/ce-sas-stata-assess`.
+When SAS/Stata signals dominate and Python/R scores do not meet thresholds, keep `primary=unknown secondary=null source=auto` and recommend `ce-sas-stata-assess`.
 
 ## 2. Scoring
 
@@ -78,4 +78,4 @@ For CLIF repos:
 - `pyproject.toml` + `src/*.py` + no R markers -> `primary=python secondary=null source=auto`
 - `renv.lock` + `pyproject.toml` + active `code/*.R` and `code/*.py` -> `primary=both secondary=r|python source=auto`
 - Only docs, no code markers -> `primary=unknown secondary=null source=auto` (or `source=cached` if cache exists)
-- `analysis/*.sas` + `analysis/*.do` + no R/Python implementation files -> `primary=unknown secondary=null source=auto`, then run `/ce-sas-stata-assess`
+- `analysis/*.sas` + `analysis/*.do` + no R/Python implementation files -> `primary=unknown secondary=null source=auto`, then load the `ce-sas-stata-assess` skill

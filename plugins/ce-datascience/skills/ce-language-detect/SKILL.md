@@ -16,14 +16,14 @@ argument-hint: "[optional: --off]"
 - **Do not do:** Do not treat detection as final user preference when later IDE or explicit user choices narrow the stack.
 - **Interaction:** No user question normally; proceed from the provided inputs and local evidence.
 
-Detects whether the current repository is primarily `python`, `r`, `both`, or `unknown` using file-system and code-pattern signals only. Do not ask the user to choose a language in this skill. SAS/Stata signals do not become `primary` values; when they dominate, emit `primary=unknown` and recommend `/ce-sas-stata-assess`.
+Detects whether the current repository is primarily `python`, `r`, `both`, or `unknown` using file-system and code-pattern signals only. Do not ask the user to choose a language in this skill. SAS/Stata signals do not become `primary` values; when they dominate, emit `primary=unknown` and recommend `ce-sas-stata-assess`.
 
 ## When this skill activates
 
 - CLIF profile is active (`__CE_CLIF__ active=true`) and downstream skills need language-specific recipes
-- `/ce-setup` is running and needs a language default without asking
+- `ce-setup` is running and needs a language default without asking
 - A task requires selecting Python vs R templates and the language is not obvious
-- Manual invocation: `/ce-language-detect`
+- Manual invocation: `ce-language-detect`
 
 ## Rule source
 

@@ -16,26 +16,26 @@ argument-hint: "<start|close|status>, optional name and reviewer, e.g. start spr
 - **Do not do:** Do not open a sprint without entry criteria or close one without checking planned outputs.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Wraps `/ce-work` in bounded sprints with explicit entry/exit criteria and human reviewer sign-off. The frictionless feel of `/ce-work` is preserved; the sprint adds structure around it so analyses can be audited unit-by-unit.
+Wraps `ce-work` in bounded sprints with explicit entry/exit criteria and human reviewer sign-off. The frictionless feel of `ce-work` is preserved; the sprint adds structure around it so analyses can be audited unit-by-unit.
 
 ## When this skill activates
 
 - Before starting analysis work that needs human sign-off (most academic / regulated work)
-- After `/ce-plan` SAP and `/ce-sap-tabular` are done and the SAP is locked
-- Manual: `/ce-sprint start sprint-02 reviewer=jcr scope=SAP-3.3,SAP-3.4`
-- Closing a sprint: `/ce-sprint close`
+- After `ce-plan` SAP and `ce-sap-tabular` are done and the SAP is locked
+- Manual: `ce-sprint start sprint-02 reviewer=jcr scope=SAP-3.3,SAP-3.4`
+- Closing a sprint: `ce-sprint close`
 
 ## Prerequisites
 
 - A locked SAP exists (`analysis/sap.md` with `sap_version` frontmatter)
-- `analysis/sap-tables/02-outputs.csv` exists (from `/ce-sap-tabular`)
+- `analysis/sap-tables/02-outputs.csv` exists (from `ce-sap-tabular`)
 - A locked data wave exists (run `data_lock` MCP if not)
 
 ## Core workflow
 
-### `/ce-sprint start <name>`
+### `ce-sprint start <name>`
 
-1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `/ce-sprint close` first.
+1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `ce-sprint close` first.
 
 2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `Script Section` or legacy `analysis_section` matches. Ignore section banner rows where only the first cell is populated.
 
@@ -68,9 +68,9 @@ sprint:
     prior_sprint: sprint-01 (closed, signed off 2025-04-20)
 ```
 
-6. Print a one-line summary and hand off to `/ce-work` with the planned-outputs list as the task seed. The user works inside the sprint as they would inside `/ce-work` normally; the sprint just bounds what's in scope.
+6. Print a one-line summary and hand off to `ce-work` with the planned-outputs list as the task seed. The user works inside the sprint as they would inside `ce-work` normally; the sprint just bounds what's in scope.
 
-### `/ce-sprint close`
+### `ce-sprint close`
 
 1. Run `python3 scripts/sprint.py close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
 
@@ -151,17 +151,17 @@ audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 
 5. If the project uses publication review packs, append or update an entry in the `ce-review-pack` signoff ledger that points to `analysis/sprints/<name>/summary.md`, the audit verdict, and the named reviewer. Do not mark it approved until the human reviewer has signed.
 
-6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `/ce-review-pack` to build the PI-facing package and validate the signoff ledger.
+6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `ce-review-pack` to build the PI-facing package and validate the signoff ledger.
 
-7. After human sign-off, the user runs `/ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
+7. After human sign-off, the user runs `ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
 
-### `/ce-sprint status`
+### `ce-sprint status`
 
 Print the current sprint state plus the audit-reviewer findings if closed-pending. Useful for "where am I?".
 
 ## What this skill does NOT do
 
-- Does not run analysis itself (that's `/ce-work`)
+- Does not run analysis itself (that's `ce-work`)
 - Does not pick the scope -- the user picks SAP sections
 - Does not bypass `ce-code-review` -- code review still runs as normal during the sprint; the sprint audit is at close time only
 - Does not enforce sprint duration -- a sprint can be 1 hour or 3 weeks; what matters is the bounded scope and the named reviewer

@@ -7,6 +7,8 @@ disable-model-invocation: true
 
 # Data Science Environment Setup
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 ## Skill Value
 
 - **Problem it solves:** A project needs a usable profile without a long, irrelevant R/Python questionnaire.
@@ -138,6 +140,8 @@ Read the following reference only after the user selects **Full survey**.
 
 `references/full-survey.md`
 
+For the full set of writable profile fields and their expected shapes, see `references/stack-profile-template.yaml`.
+
 ## Phase 1.5: Save only confirmed values
 
 Write `.ce-datascience/config.local.yaml` under the repository root. Preserve
@@ -208,6 +212,5 @@ ask approval, run it only after approval, and verify it before reporting
 success.
 
 Finish with the detected-profile summary and a recommendation to load
-`ce-workflow` in the current project. In Claude native-plugin installs, the
-reliable command is `/ce-datascience:ce-workflow`; bare `/ce-workflow` requires
-optional local aliases.
+`ce-workflow` in the current project. Refer to it by skill name — invocation
+syntax varies by harness.

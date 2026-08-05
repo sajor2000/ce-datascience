@@ -16,7 +16,7 @@ argument-hint: "<data dir or sample sheet>, optional: --modality wgs|wes|rnaseq|
 - **Do not do:** Do not run differential expression, association testing, or clinical interpretation.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-The omics counterpart to `/ce-data-qa`. Sequencing and array data fail in domain-specific ways (low base quality, adapter contamination, sample swaps, batch confounds with condition); this skill runs the right QC for the modality.
+The omics counterpart to `ce-data-qa`. Sequencing and array data fail in domain-specific ways (low base quality, adapter contamination, sample swaps, batch confounds with condition); this skill runs the right QC for the modality.
 
 ## When this skill activates
 
@@ -24,7 +24,7 @@ The omics counterpart to `/ce-data-qa`. Sequencing and array data fail in domain
 - Before differential expression / variant calling / methylation analysis
 - After a re-sequence following a sample-quality-fail
 - Before sharing data to a collaborator (sanity check)
-- Manual: `/ce-bioinfo-qc /data/runs/run_2025_04 --modality rnaseq`
+- Manual: `ce-bioinfo-qc /data/runs/run_2025_04 --modality rnaseq`
 
 ## Prerequisites
 

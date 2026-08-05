@@ -18,7 +18,7 @@ describe("data-first planning invariant", () => {
     expect(plan).toContain("Data shape before SAP, coding, or modeling")
     expect(phase1).toContain("Phase 1.0 Data-Column and QA Preflight")
     expect(phase1).toContain("actual columns and QA evidence come before SAP finalization, coding, or modeling")
-    expect(phase1).toContain("<!-- GAP: missing /ce-data-qa column profile; SAP variable/model sections provisional -->")
+    expect(phase1).toContain("<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->")
 
     expect(sapWorkflow).toContain("SAP Phase 2.5: Data Profile Gate Before SAP Structure")
     expect(sapWorkflow).toContain("__CE_DATA_PROFILE__")
@@ -43,14 +43,14 @@ describe("data-first planning invariant", () => {
 
     expect(lifecycle).toContain("Data-First Planning Invariant")
     expect(lifecycle).toContain("actual columns and QA evidence come before SAP finalization, coding, or modeling")
-    expect(lifecycle).toContain("| 1 | `/ce-data-qa` | Trial data column profile + QA gate")
+    expect(lifecycle).toContain("| 1 | `ce-data-qa` | Trial data column profile + QA gate")
     expect(lifecycle).toContain("reads, writes, transforms, models, or dashboards data tables")
 
     expect(stateDetection).toContain("reports/data-qa/*.md")
     expect(stateDetection).toContain("__CE_DATA_PROFILE__")
 
     expect(work).toContain("Data QA gate before coding/modeling")
-    expect(work).toContain("stop execution and route to `/ce-data-qa`")
+    expect(work).toContain("stop execution and route to the `ce-data-qa` skill")
   })
 
   test("new SAPs require the biostatistics tabular workbook contract", async () => {
@@ -68,7 +68,7 @@ describe("data-first planning invariant", () => {
     expect(sapWorkflow).toContain("Analysis`, `Claim`, `Unit of Analysis`, `Data File(s)`, `Analysis Question`, `Primary Method`, `Secondary Methods`, `Site Script")
     expect(sapWorkflow).toContain("Output File (SITE_ID_ prefix added automatically)")
     expect(sapWorkflow).toContain("Format / Values")
-    expect(sapWorkflow).toContain("`/ce-data-qa` followed by `/ce-sap-tabular <slug>`")
+    expect(sapWorkflow).toContain("`ce-data-qa` followed by `ce-sap-tabular <slug>`")
 
     expect(sapTemplate).toContain("Every new SAP must include the biostatistics-style tabular SAP contract")
     expect(gapChecklist).toContain("No tabular SAP workbook contract")

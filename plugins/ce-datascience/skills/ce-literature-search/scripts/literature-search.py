@@ -19,7 +19,9 @@ from pathlib import Path
 def load_config(config_path=None):
     """Load search config, falling back to defaults."""
     defaults = {
-        "sources": {"scholar": True, "crossref": True, "scihub": True, "scidb": True},
+        # scihub is opt-in only: legality varies by jurisdiction, so it must be
+        # explicitly enabled in the user's search config, never by default.
+        "sources": {"scholar": True, "crossref": True, "scihub": False, "scidb": True},
         "defaults": {
             "scholar_pages": 3,
             "min_year": 2018,

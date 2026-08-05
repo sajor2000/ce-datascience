@@ -51,7 +51,7 @@
 # and any study using LLMs for text processing or annotation.
 
 # llm_provenance:
-#   model: null                    # e.g., gpt-4-turbo-2024-04-09
+#   model: null                    # exact model identifier as reported by the provider
 #   provider: null                 # e.g., OpenAI, Azure OpenAI, Anthropic
 #   temperature: null              # e.g., 0.0
 #   prompt_version: null           # version identifier for the prompt template

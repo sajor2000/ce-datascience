@@ -118,7 +118,7 @@ If no candidate docs are found, report:
 
 ```text
 No candidate docs found in docs/solutions/.
-Run `ce-compound` after solving problems to start building your knowledge base.
+Load the `ce-compound` skill after solving problems to start building your knowledge base.
 ```
 
 ## Phase 0: Assess and Route
@@ -283,7 +283,7 @@ By the time you identify a Replace candidate, Phase 1 investigation has already 
 - **Insufficient evidence** — the drift is so fundamental that you cannot confidently document the current approach. The entire subsystem was replaced, or the new architecture is too complex to understand from a file scan alone. → Mark as stale in place:
    - Add `status: stale`, `stale_reason: [what you found]`, `stale_date: YYYY-MM-DD` to the frontmatter
    - Report what evidence you found and what is missing
-   - Recommend the user run `ce-compound` after their next encounter with that area, when they have fresh problem-solving context
+   - Recommend the user load the `ce-compound` skill after their next encounter with that area, when they have fresh problem-solving context
 
 ### Delete
 
@@ -402,7 +402,7 @@ Do not let replacement subagents invent frontmatter fields, enum values, or sect
 1. Mark the learning as stale in place:
    - Add to frontmatter: `status: stale`, `stale_reason: [what you found]`, `stale_date: YYYY-MM-DD`
 2. Report what evidence was found and what is missing
-3. Recommend the user run `ce-compound` after their next encounter with that area
+3. Recommend the user load the `ce-compound` skill after their next encounter with that area
 
 ### Delete Flow
 

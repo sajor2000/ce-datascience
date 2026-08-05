@@ -2,7 +2,7 @@
 # This is the canonical schema for the experiment log file that accumulates
 # across an optimization run.
 #
-# Location: .context/compound-engineering/ce-optimize/<spec-name>/experiment-log.yaml
+# Location: .context/ce-datascience/ce-optimize/<spec-name>/experiment-log.yaml
 #
 # PERSISTENCE MODEL:
 # The experiment log on disk is the SINGLE SOURCE OF TRUTH. The agent's
@@ -245,7 +245,7 @@ experiment_entry:
 # ============================================================================
 #
 # Written after each batch to:
-#   .context/compound-engineering/ce-optimize/<spec-name>/strategy-digest.md
+#   .context/ce-datascience/ce-optimize/<spec-name>/strategy-digest.md
 #
 # Contains a compressed summary of:
 # - What hypothesis categories have been tried

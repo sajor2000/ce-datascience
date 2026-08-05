@@ -16,19 +16,19 @@ argument-hint: "<one-line research question>, optional: --ideation-survivor <pat
 - **Do not do:** Do not write the SAP or run literature extraction.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Turns a fuzzy clinical research question into a structured `analysis/research-question.yaml` that the rest of the biomedical lifecycle reads as input. The output is a small YAML file, not a long requirements doc — for the long requirements form use `/ce-brainstorm`. The two skills are complementary: brainstorm produces narrative requirements; this skill produces structured biomedical data.
+Turns a fuzzy clinical research question into a structured `analysis/research-question.yaml` that the rest of the biomedical lifecycle reads as input. The output is a small YAML file, not a long requirements doc — for the long requirements form use the `ce-brainstorm` skill. The two skills are complementary: brainstorm produces narrative requirements; this skill produces structured biomedical data.
 
 ## When this skill activates
 
-- After `/ce-ideate` biomedical-research mode has produced a survivor candidate the user wants to harden
-- When the user describes a study idea in one sentence and the next step is `/ce-pubmed` but the query is too vague
-- Before `/ce-checklist-match` if the design is unclear and the routing questions can't be answered cleanly
-- Manual: `/ce-research-question "sepsis bundle adherence and 30-day mortality in adult ICU patients"`
-- Triggered also when a user starts the lifecycle but `/ce-pubmed` complains the query is too broad (>1000 hits with no MeSH alignment)
+- After `ce-ideate` biomedical-research mode has produced a survivor candidate the user wants to harden
+- When the user describes a study idea in one sentence and the next step is `ce-pubmed` but the query is too vague
+- Before `ce-checklist-match` if the design is unclear and the routing questions can't be answered cleanly
+- Manual: `ce-research-question "sepsis bundle adherence and 30-day mortality in adult ICU patients"`
+- Triggered also when a user starts the lifecycle but `ce-pubmed` complains the query is too broad (>1000 hits with no MeSH alignment)
 
 ## Prerequisites
 
-- One sentence describing the research question, OR a path to an `/ce-ideate` survivor
+- One sentence describing the research question, OR a path to an `ce-ideate` survivor
 
 ## Core workflow
 
@@ -74,17 +74,17 @@ From PICO + FINER, propose one design:
 
 ### Step 4: Suggest a PubMed query
 
-Build the PubMed query string the user will run via `/ce-pubmed`. Use MeSH terms when the population/exposure/outcome maps to one cleanly; fall back to free-text + MeSH-major filters when not. Include:
+Build the PubMed query string the user will run via `ce-pubmed`. Use MeSH terms when the population/exposure/outcome maps to one cleanly; fall back to free-text + MeSH-major filters when not. Include:
 
 - Population MeSH terms with explosions (e.g., `"Sepsis"[Mesh]`)
 - Exposure / intervention as either MeSH (`"Patient Care Bundles"[Mesh]`) or free-text
 - Outcome as either MeSH (`"Mortality"[Mesh]`) or free-text plus a study-type filter
 
-Keep the query 80% recall, 20% precision — `/ce-pubmed` will narrow further with `--years` and `--study-type`. Do not ship a query so tight it returns 0 hits.
+Keep the query 80% recall, 20% precision — `ce-pubmed` will narrow further with `--years` and `--study-type`. Do not ship a query so tight it returns 0 hits.
 
 ### Step 5: Suggest a primary reporting checklist
 
-This is a hint to `/ce-checklist-match`. Map the design to the most likely primary checklist:
+This is a hint to `ce-checklist-match`. Map the design to the most likely primary checklist:
 
 | Design | Primary checklist |
 |--------|-------------------|
@@ -97,7 +97,7 @@ This is a hint to `/ce-checklist-match`. Map the design to the most likely prima
 | Target trial emulation | TARGET |
 | Systematic review | PRISMA |
 
-The actual routing decision still happens in `/ce-checklist-match` — this is just a defaulted suggestion to write into the YAML.
+The actual routing decision still happens in `ce-checklist-match` — this is just a defaulted suggestion to write into the YAML.
 
 ### Step 6: Write `analysis/research-question.yaml`
 
@@ -128,17 +128,17 @@ research_question:
 __CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=<...> checklist=<...> query=<one-liner-quoted>
 ```
 
-`/ce-pubmed` reads this and uses `query` as the default if no query is passed on the command line. `/ce-checklist-match` reads it and pre-fills the routing answers.
+`ce-pubmed` reads this and uses `query` as the default if no query is passed on the command line. `ce-checklist-match` reads it and pre-fills the routing answers.
 
 ## What this skill does NOT do
 
-- Does not run the literature search (next: `/ce-pubmed`)
-- Does not match to a checklist (next: `/ce-checklist-match`; this skill only suggests)
-- Does not produce a long-form requirements doc (use `/ce-brainstorm` for that)
-- Does not write the SAP (use `/ce-plan` after the lifecycle has more inputs)
+- Does not run the literature search (next: `ce-pubmed`)
+- Does not match to a checklist (next: `ce-checklist-match`; this skill only suggests)
+- Does not produce a long-form requirements doc (use the `ce-brainstorm` skill for that)
+- Does not write the SAP (use the `ce-plan` skill after the lifecycle has more inputs)
 
 ## References
 
 @./references/pico-templates.md — PICO templates by design type, including target-trial-emulation slots
 @./references/finer-rubric.md — Scoring guidance for each FINER dimension with worked examples
-@./references/checklist-routing-hints.md — Design → primary checklist mapping (mirrors /ce-checklist-match)
+@./references/checklist-routing-hints.md — Design → primary checklist mapping (mirrors `ce-checklist-match`)

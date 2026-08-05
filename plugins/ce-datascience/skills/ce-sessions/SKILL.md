@@ -3,7 +3,9 @@ name: ce-sessions
 description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim."
 ---
 
-# /ce-sessions
+# `ce-sessions`
+
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
 
 
 ## Skill Value
@@ -20,8 +22,8 @@ Search session history across Claude Code, Codex, and Cursor and synthesize find
 ## Usage
 
 ```
-/ce-sessions [question or topic]
-/ce-sessions
+`ce-sessions` [question or topic]
+`ce-sessions`
 ```
 
 ## Pre-resolved context
@@ -172,10 +174,10 @@ Synthesize findings from these prior sessions:
 
 Problem topic: <one-line topic>
 
-Sessions to read (paths in $SCRATCH):
-1. /tmp/ce-sessions-XXXX/abc123.skeleton.txt
+Sessions to read (paths in $SCRATCH; on macOS `mktemp -d -t` resolves under `$TMPDIR`, e.g. `/var/folders/.../T/ce-sessions-XXXXXX`):
+1. $SCRATCH/abc123.skeleton.txt
    platform=claude branch=feat/auth-fix ts=2026-05-01
-2. /tmp/ce-sessions-XXXX/def456.skeleton.txt  errors=/tmp/ce-sessions-XXXX/def456.errors.txt
+2. $SCRATCH/def456.skeleton.txt  errors=$SCRATCH/def456.errors.txt
    platform=codex cwd=/Users/.../my-project ts=2026-05-03
 ...
 
@@ -205,7 +207,7 @@ The OS handles cleanup eventually regardless; the explicit cleanup is for reader
 
 ## Output
 
-When the caller (typically a user typing `/ce-sessions`, or another skill invoking ce-sessions via the platform's skill-invocation primitive) does not specify an output format, include a brief header noting what was searched:
+When the caller (typically a user typing `ce-sessions`, or another skill invoking ce-sessions via the platform's skill-invocation primitive) does not specify an output format, include a brief header noting what was searched:
 
 ```
 **Sessions searched**: [count] ([N] Claude Code, [N] Codex, [N] Cursor) | [date range]

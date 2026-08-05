@@ -248,7 +248,7 @@ Before generating ideas, gather grounding. The dispatch set depends on the mode 
 
 Generate a `<run-id>` once at the start of Phase 1 (8 hex chars). Reuse it for the V15 cache file (this phase) and the V17 checkpoints (Phases 2 and 4) so they share one per-run scratch directory.
 
-**Pre-resolve the scratch directory path.** Scratch lives directly under `/tmp` (not under `$TMPDIR` and not under `.context/`). `$TMPDIR` on macOS resolves to an obscure per-user path like `/var/folders/64/.../T/` that is hostile for users who want to inspect checkpoints, copy them elsewhere, or reference them later — `/tmp` is universally accessible on macOS, Linux, and WSL, and the per-user isolation `$TMPDIR` provides is not valuable for ephemeral ideation scratch. Run one bash command to create the directory and capture its absolute path for downstream use.
+**Pre-resolve the scratch directory path.** This skill's scratch is cross-invocation reusable (later runs discover sibling run-ids), so it lives directly under `/tmp` — not under `$TMPDIR` and not under `.context/`. (Per-run throwaway scratch in other skills may legitimately use `mktemp -d -t`, which resolves under `$TMPDIR`; that rule does not apply here.) `$TMPDIR` on macOS resolves to an obscure per-user path like `/var/folders/64/.../T/` that is hostile for users who want to inspect checkpoints, copy them elsewhere, or reference them later — `/tmp` is universally accessible on macOS, Linux, and WSL, and the per-user isolation `$TMPDIR` provides is not valuable for ephemeral ideation scratch. Run one bash command to create the directory and capture its absolute path for downstream use.
 
 ```bash
 SCRATCH_DIR="/tmp/ce-datascience/ce-ideate/<run-id>"

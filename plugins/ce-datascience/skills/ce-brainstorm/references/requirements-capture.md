@@ -204,8 +204,8 @@ topic: <kebab-case-topic>
 
 ## Next Steps
 
-[If `Resolve Before Planning` is empty: `-> /ce-plan` for structured analysis planning]
-[If `Resolve Before Planning` is not empty: `-> Resume /ce-brainstorm` to resolve blocking questions before planning]
+[If `Resolve Before Planning` is empty: `-> `ce-plan`` for structured analysis planning]
+[If `Resolve Before Planning` is not empty: `-> Resume `ce-brainstorm`` to resolve blocking questions before planning]
 ```
 
 ## ID and layout rules

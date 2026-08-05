@@ -1,6 +1,6 @@
 # Sprint Audit Checklist
 
-Used by `ce-sprint-audit-reviewer` at `/ce-sprint close` time. The reviewer walks each item and produces a P0/P1/P2 finding per failure.
+Used by `ce-sprint-audit-reviewer` at `ce-sprint close` time. The reviewer walks each item and produces a P0/P1/P2 finding per failure.
 
 ## P0 (block sign-off)
 

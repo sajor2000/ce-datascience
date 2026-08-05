@@ -23,7 +23,7 @@ EHR phenotypes are algorithmic case definitions (e.g., "T2DM = 2+ ICD codes with
 - A new phenotype is defined and used as inclusion / outcome
 - A previously-validated phenotype is being applied to a new dataset (re-validate, don't trust)
 - Reviewer (`ce-administrative-data-reviewer`) flagged unvalidated phenotype
-- Manual: `/ce-phenotype-validate T2DM analysis/cohort/chart-review-T2DM.csv`
+- Manual: `ce-phenotype-validate T2DM analysis/cohort/chart-review-T2DM.csv`
 
 ## Prerequisites
 
@@ -32,6 +32,15 @@ EHR phenotypes are algorithmic case definitions (e.g., "T2DM = 2+ ICD codes with
 - Optional: subgroup columns (`sex`, `age_band`, `race`)
 
 Typical chart-review N: 100-300 patients, sampled in a stratified way (50% algo-positive, 50% algo-negative).
+
+## PHI and disclosure rules
+
+The chart-review file is patient-level PHI — a manually adjudicated gold standard keyed by `subject_id`. Handle it like any patient-level extract:
+
+- Keep the chart-review and algorithm-output files in a gitignored location (e.g., `output/intermediate_phi/`); never commit, share, or copy them into report directories. If they arrive elsewhere, verify the path is gitignored before proceeding.
+- Never echo `subject_id`s, row-level data, or free-text chart excerpts into the report, the chat, or error messages. Reports carry aggregate counts only.
+- Apply small-cell suppression to every reported cell — confusion-matrix cells and subgroup rows alike. Default disclosure floor for EHR/claims data is n<11 (use the site's declared policy when one exists): suppress or merge subgroups below the floor, and suppress complementary cells recoverable by subtraction from totals. Small N is a re-identification risk, not only a CI-width problem.
+- The saved cell-count CSV (Step 6) contains only suppressed aggregate counts, never `subject_id`-level rows.
 
 ## Core workflow
 
@@ -75,6 +84,7 @@ Repeat all metrics by subgroup (sex, age band, race, site) when subgroup data is
 If chart-review N is too small for stable estimates:
 - N < 50 in any cell → report estimate but mark "wide CI; consider expanding chart review"
 - N < 30 in any subgroup → warn and either pool or omit
+- Below the disclosure floor (default n<11) in any reported cell or subgroup → suppress or merge before the statistical caveats even apply; see "PHI and disclosure rules"
 
 ### Step 6: Write the report
 
@@ -116,7 +126,7 @@ PPV >= 0.90 → bias from misclassified cases is small.
 Sensitivity in 18-44 is lower; if the cohort skews young, expect under-ascertainment.
 ```
 
-Save `reports/phenotype-validation/<phenotype>-<date>.csv` for the cell counts and confusion matrix.
+Save `reports/phenotype-validation/<phenotype>-<date>.csv` for the cell counts and confusion matrix — suppressed aggregates only, per "PHI and disclosure rules" (no `subject_id`s, no cells below the disclosure floor).
 
 ### Step 7: Update the concept set provenance
 
@@ -144,7 +154,7 @@ The bundled script (`scripts/validate_phenotype.py`) prints the canonical envelo
 __CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> yaml=<path-to-validation.yaml> report=<path-to-report.md>
 ```
 
-Surface this line so `/ce-plan` SAP mode and the concept-set provenance YAML pick the validation up.
+Surface this line so `ce-plan` SAP mode and the concept-set provenance YAML pick the validation up.
 
 ## What this skill does NOT do
 

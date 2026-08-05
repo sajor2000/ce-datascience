@@ -12,7 +12,7 @@ pico:
   outcome:       "<primary outcome with timing>; <secondary outcomes if relevant>"
 ```
 
-For target-trial emulation, additionally fill these slots so `/ce-cohort-build` can later instantiate them:
+For target-trial emulation, additionally fill these slots so `ce-cohort-build` can later instantiate them:
 
 ```yaml
 target_trial:
@@ -35,7 +35,7 @@ pico:
   outcome:      "<primary outcome>"
 ```
 
-`comparator: null` is the signal that the design is descriptive. Downstream skills (`/ce-power`, `/ce-checklist-match`) treat `null` differently from `"not applicable"` — null means descriptive, NA means missing.
+`comparator: null` is the signal that the design is descriptive. Downstream skills (`ce-power`, `ce-checklist-match`) treat `null` differently from `"not applicable"` — null means descriptive, NA means missing.
 
 ## Case-control
 

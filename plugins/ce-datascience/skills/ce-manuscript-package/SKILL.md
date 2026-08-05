@@ -6,6 +6,8 @@ argument-hint: "[optional: --out-dir manuscript --format quarto]"
 
 # Manuscript Package Builder
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 

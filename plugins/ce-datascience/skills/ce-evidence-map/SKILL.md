@@ -12,7 +12,7 @@ argument-hint: "[research query, optional: --source pmc|abstracts|trials|fda --m
 - **Use when:** The user needs evidence for a SAP, method justification, effect-size selection, manuscript background, or review pack.
 - **Output:** `analysis/evidence-map/<query-slug>-evidence-map.md` plus a `__CE_EVIDENCE_MAP__` handoff signal.
 - **Ask only if:** No research query or PubMed handoff is available, or the user must choose a non-default Paperclip source or figure-review target.
-- **Do not do:** Do not replace `/ce-pubmed`, install/authenticate Paperclip automatically, pool effect sizes, or finalize SAP methods before data QA.
+- **Do not do:** Do not replace `ce-pubmed`, install/authenticate Paperclip automatically, pool effect sizes, or finalize SAP methods before data QA.
 
 Create a traceable evidence map for SAPs, method justification, effect-size
 selection, manuscript background, or review-pack evidence summaries.
@@ -23,8 +23,8 @@ Paperclip for normal plugin operation.
 
 ## Prerequisites
 
-- PubMed baseline: run `/ce-pubmed` first or provide a query this skill can pass
-  to `/ce-pubmed`.
+- PubMed baseline: Load the `ce-pubmed` skill first or provide a query this skill can pass
+  to `ce-pubmed`.
 - Optional Paperclip deepening: `paperclip` CLI installed and authenticated.
 
 Check Paperclip availability without installing anything:
@@ -56,14 +56,14 @@ Resolution order:
 3. `__CE_PUBMED_RESULTS__` query.
 
 If neither a query nor a PubMed CSV exists, ask the user for a research question
-or tell them to run `/ce-research-question` then `/ce-pubmed`.
+or tell them to load the `ce-research-question` skill then `ce-pubmed`.
 
 ### Step 1: Establish PubMed baseline
 
 If `__CE_PUBMED_RESULTS__` is present, read the CSV and use it as the metadata
 baseline.
 
-If no PubMed CSV exists, run `/ce-pubmed` with the resolved query before
+If no PubMed CSV exists, load the `ce-pubmed` skill with the resolved query before
 continuing. The evidence map must include PMIDs, years, journals, abstracts,
 MeSH/study-type metadata when available, and PMC availability status.
 
@@ -134,8 +134,8 @@ Required sections:
    from abstract or full text.
 5. **Evidence gaps**: missing full text, unclear cohort definitions, missing
    confidence intervals, unclear adjustment sets, or contradictory findings.
-6. **Recommended handoffs**: `/ce-method-extract`, `/ce-effect-size`,
-   `/ce-power`, `/ce-checklist-match`, or `/ce-plan`.
+6. **Recommended handoffs**: `ce-method-extract`, `ce-effect-size`,
+   `ce-power`, `ce-checklist-match`, or `ce-plan`.
 
 Use conservative language:
 
@@ -167,8 +167,8 @@ to distinguish abstract-only evidence from full-text-verified evidence.
 
 ## What this skill does NOT do
 
-- Does not replace `/ce-pubmed`.
+- Does not replace `ce-pubmed`.
 - Does not install or authenticate Paperclip automatically.
-- Does not pool effect sizes; use `/ce-effect-size`.
-- Does not finalize SAP methods without data QA; `/ce-plan` still requires
+- Does not pool effect sizes; use the `ce-effect-size` skill.
+- Does not finalize SAP methods without data QA; `ce-plan` still requires
   data-column and QA preflight before variable/model finalization.

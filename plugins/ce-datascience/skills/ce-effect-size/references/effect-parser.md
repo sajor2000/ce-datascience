@@ -1,6 +1,6 @@
 # Effect-Size String Parsers
 
-The `effect_size_reported` field in `/ce-method-extract` output is free-text. Parse it with the regex patterns below.
+The `effect_size_reported` field in `ce-method-extract` output is free-text. Parse it with the regex patterns below.
 
 ## Hazard / odds / risk ratios
 

@@ -15,7 +15,7 @@
 | 5 | Methods | Interventions for each group with sufficient detail to replicate | ☐ | |
 | 6a | Methods | Completely defined pre-specified primary and secondary outcomes | ☐ | SAP-3 |
 | 6b | Methods | Any changes to trial outcomes after the trial commenced | ☐ | |
-| 7a | Methods | How sample size was determined | ☐ | Use `/ce-power` output |
+| 7a | Methods | How sample size was determined | ☐ | use the `ce-power` skill output |
 | 7b | Methods | When applicable, explanation of any interim analyses and stopping guidelines | ☐ | |
 | 8a | Methods | Method used to generate the random allocation sequence | ☐ | |
 | 8b | Methods | Type of randomisation; details of any restriction | ☐ | |
@@ -38,6 +38,6 @@
 | 20 | Discussion | Trial limitations | ☐ | |
 | 21 | Discussion | Generalisability | ☐ | |
 | 22 | Discussion | Interpretation consistent with results | ☐ | |
-| 23 | Other | Registration number and name of trial registry | ☐ | Use `/ce-prereg` |
+| 23 | Other | Registration number and name of trial registry | ☐ | use the `ce-prereg` skill |
 | 24 | Other | Where the full trial protocol can be accessed | ☐ | |
 | 25 | Other | Sources of funding and other support; role of funders | ☐ | |

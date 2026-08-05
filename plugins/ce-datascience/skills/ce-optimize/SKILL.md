@@ -6,6 +6,8 @@ argument-hint: "[path to optimization spec YAML, or describe the optimization go
 
 # Iterative Optimization Loop
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -481,10 +483,10 @@ For each hypothesis in the batch, dispatch according to `execution.mode`. In `se
    test -n "${CODEX_SANDBOX:-}" || test -n "${CODEX_SESSION_ID:-}" || test ! -w .git
    ```
 2. Fill the experiment prompt template
-3. Write the filled prompt to a temp file
+3. Write the filled prompt to the run's scratch directory (`/tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt`)
 4. Dispatch via Codex:
    ```bash
-   cat /tmp/optimize-exp-XXXXX.txt | codex exec --skip-git-repo-check - 2>&1
+   cat /tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt | codex exec --skip-git-repo-check - 2>&1
    ```
 5. Security posture: use the user's selection (ask once per session if not set in spec)
 
@@ -662,8 +664,8 @@ The experiment log and strategy digest remain in local `.context/...` scratch sp
 
 Present post-completion options via the platform question tool:
 
-1. **Run `/ce-code-review`** on the cumulative diff (baseline to final). Load the `ce-code-review` skill with `mode:autofix` on the optimization branch.
-2. **Run `/ce-compound`** to document the winning strategy as an institutional learning.
+1. **load the `ce-code-review` skill** on the cumulative diff (baseline to final). Load the `ce-code-review` skill with `mode:autofix` on the optimization branch.
+2. **load the `ce-compound` skill** to document the winning strategy as an institutional learning.
 3. **Create PR** from the optimization branch to the default branch.
 4. **Continue** with more experiments: re-enter Phase 3 with the current state. State re-read first.
 5. **Done** -- leave the optimization branch for manual review.

@@ -23,7 +23,7 @@ Use the official [CLIF Project Template](https://github.com/Common-Longitudinal-
 
 ## Initialize
 
-1. Invoke `ce-clif` and require a single selected CLIF/mCIDE family. Do not initialize on an unknown or mixed version.
+1. Load the `ce-clif` skill and require a single selected CLIF/mCIDE family. Do not initialize on an unknown or mixed version.
 2. Confirm the destination is an explicit empty directory. If it is non-empty, stop and require a new location; never merge template files into an existing project.
 3. Use GitHub's template mechanism or a shallow clone of `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`; retain its Apache-2.0 license and bundled `clif_demo` for safe first-run validation. Never replace it with clinical data.
 4. Create the template structure: `code/`, `config/`, `guides/`, `utils/`, `output/final_no_phi/`, and `output/intermediate_phi/`. Keep `config/config.json` site-local and gitignored; it may name a registered source location but must not contain credentials.

@@ -70,7 +70,7 @@ templates as adaptable, but preserve the data-sharing boundary:
 4. **Analysis** (`code/04_*analysis*`)
    - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` to `output/final_no_phi/`.
 
-When `/ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
+When `ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
 
 ## 7. PHI / data privacy hard gate
 
@@ -160,7 +160,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - Target trial emulation → TARGET (with STROBE underneath).
 - RCT using CLIF for outcome ascertainment → CONSORT.
 
-`/ce-checklist-match` should pre-fill the routing answer with these defaults when CLIF profile is active and the user has not specified otherwise.
+`ce-checklist-match` should pre-fill the routing answer with these defaults when CLIF profile is active and the user has not specified otherwise.
 
 ## 12. References (read-only, cite as needed)
 

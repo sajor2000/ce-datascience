@@ -1,6 +1,6 @@
 # Phase 3: Ask for Decisions
 
-Detail for /ce-compound-refresh § "Phase 3: Ask for Decisions". Linked from SKILL.md. Covers the autofix-mode skip rule, interactive-mode question rules, focused-scope, batch-scope, and broad-scope interaction patterns.
+Detail for `ce-compound-refresh` § "Phase 3: Ask for Decisions". Linked from SKILL.md. Covers the autofix-mode skip rule, interactive-mode question rules, focused-scope, batch-scope, and broad-scope interaction patterns.
 
 ## Table of contents
 

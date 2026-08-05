@@ -84,7 +84,7 @@ Use the current branch and existing PR check from context. If the current branch
 If confirmed, apply with `gh pr edit`. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes. The body must be written to a temp file and passed with `--body-file` to avoid shell-escaping and empty-body wrapper failures:
 
 ```bash
-BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
+BODY_FILE=$(mktemp "${TMPDIR:-/tmp}`ce-pr-body`.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
 <the composed body markdown goes here, verbatim>
 __CE_PR_BODY_END__
 gh pr edit --title "<TITLE>" --body-file "$BODY_FILE"
@@ -191,7 +191,7 @@ When evidence is not possible (docs-only, markdown-only, changelog-only, release
 Apply via `gh pr create` (new PR) or `gh pr edit` (existing PR). The body must be written to a temp file and passed with `--body-file <path>`. Never use `--body-file -`, stdin pipes, heredoc-to-stdin, or `--body "$(cat ...)"` -- wrappers and stdin handling can silently produce an empty PR body while `gh` still exits 0 and returns a URL. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes:
 
 ```bash
-BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
+BODY_FILE=$(mktemp "${TMPDIR:-/tmp}`ce-pr-body`.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
 <the composed body markdown goes here, verbatim>
 __CE_PR_BODY_END__
 ```

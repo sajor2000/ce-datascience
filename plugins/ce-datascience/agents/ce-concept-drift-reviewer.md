@@ -90,7 +90,7 @@ You are the conditional reviewer for vocabulary and concept-set drift across tim
 ## What you don't flag
 
 - **OMOP mapping correctness within a single vocabulary version** — that's `ce-omop-mapping-reviewer`
-- **Phenotype validity against chart review** — that's `/ce-phenotype-validate`
+- **Phenotype validity against chart review** — that's `ce-phenotype-validate`
 - **General SQL style** — other reviewers
 - **PHI leak in code lists** — that's `ce-phi-leak-reviewer`
 

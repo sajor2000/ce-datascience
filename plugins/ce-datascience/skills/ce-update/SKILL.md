@@ -30,7 +30,7 @@ below handles those cases.
 
 `${CLAUDE_SKILL_DIR}` is a Claude Code-documented substitution that resolves
 at skill-load time. For a marketplace-cached install it looks like
-`~/.claude/plugins/cache/<marketplace>/ce-datascience/<version>/skills/ce-update`,
+`~/.claude/plugins/cache/<marketplace>`ce-datascience`/<version>/skills/ce-update`,
 so the currently-loaded version is the basename two `dirname` levels up.
 
 The upstream version comes from `plugins/ce-datascience/.claude-plugin/plugin.json`
@@ -46,10 +46,10 @@ between releases).
 !`version=$(gh api repos/sajor2000/ce-datascience/contents/plugins/ce-datascience/.claude-plugin/plugin.json --jq '.content | @base64d | fromjson | .version' 2>/dev/null) && [ -n "$version" ] && echo "$version" || echo '__CE_UPDATE_VERSION_FAILED__'`
 
 **Currently loaded version:**
-!`echo "${CLAUDE_SKILL_DIR}" | grep -q "/plugins/cache/.*/ce-datascience/.*/skills/ce-update$" && basename "$(dirname "$(dirname "${CLAUDE_SKILL_DIR}")")" || echo '__CE_UPDATE_NOT_MARKETPLACE__'`
+!`echo "${CLAUDE_SKILL_DIR}" | grep -q "/plugins/cache/.*`ce-datascience`/.*/skills/ce-update$" && basename "$(dirname "$(dirname "${CLAUDE_SKILL_DIR}")")" || echo '__CE_UPDATE_NOT_MARKETPLACE__'`
 
 **Marketplace name:**
-!`echo "${CLAUDE_SKILL_DIR}" | grep -q "/plugins/cache/.*/ce-datascience/.*/skills/ce-update$" && basename "$(dirname "$(dirname "$(dirname "$(dirname "${CLAUDE_SKILL_DIR}")")")")" || echo '__CE_UPDATE_NOT_MARKETPLACE__'`
+!`echo "${CLAUDE_SKILL_DIR}" | grep -q "/plugins/cache/.*`ce-datascience`/.*/skills/ce-update$" && basename "$(dirname "$(dirname "$(dirname "$(dirname "${CLAUDE_SKILL_DIR}")")")")" || echo '__CE_UPDATE_NOT_MARKETPLACE__'`
 
 ## Decision logic
 
@@ -72,7 +72,7 @@ install). Tell the user (substituting the actual path):
 > "Skill is loaded from `{skill-directory}` — not the standard marketplace
 > cache at `~/.claude/plugins/cache/`. This is normal when using
 > `claude --plugin-dir` for local development. No action for this session.
-> Your marketplace install (if any) is unaffected — run `/ce-update` in a
+> Your marketplace install (if any) is unaffected — load the `ce-update` skill in a
 > regular Claude Code session (no `--plugin-dir`) to check that cache."
 
 Then stop.

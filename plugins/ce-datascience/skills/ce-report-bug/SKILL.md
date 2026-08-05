@@ -108,7 +108,7 @@ Create a well-structured bug report with:
 [Any other relevant information]
 
 ---
-*Reported via `/ce-report-bug` skill*
+*Reported via `ce-report-bug` skill*
 ```
 
 ## Step 4: Create GitHub Issue
