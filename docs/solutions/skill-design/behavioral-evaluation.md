@@ -48,7 +48,7 @@ Keep every live run under:
   "case_id": "ce-data-qa-pre-sap",
   "case_sha256": "SHA-256 captured before dispatch",
   "prompt_sha256": "SHA-256 captured before dispatch",
-  "target_sha256": "SHA-256 captured before dispatch",
+  "target_sha256": "SHA-256 captured before dispatch (whole-directory digest for a SKILL.md target)",
   "runner": "skill-creator",
   "model": "record the actual model",
   "started_at": "ISO-8601 timestamp",
@@ -59,9 +59,15 @@ Keep every live run under:
 
 Prepare the workspace by copying each fixture to the `destination` declared in the case manifest.
 Before dispatch, hash the case YAML, prompt, and target source and record those digests in
-`run.json`. Run the case prompt through `skill-creator`, injecting that target source from the
-current checkout. Save the complete user-facing response and any requested artifacts, then run
-`eval:score`. Scoring rejects the run if any pre-dispatch digest differs from the current file.
+`run.json`. The target digest is not a single-file hash: for a `SKILL.md` target it covers every
+file in the skill directory (sorted relative path plus per-file SHA-256), because most scored
+literals live in the skill's `references/` files and a single-file hash would let them drift
+without invalidating the run. The scorer computes this digest with `sha256Target()`; record it
+before dispatch, not by pasting the value the scorer reports back — a digest captured only after
+seeing the scorer's output attests nothing. Run the case prompt through `skill-creator`, injecting
+that target source from the current checkout. Save the complete user-facing response and any
+requested artifacts, then run `eval:score`. Scoring rejects the run if any pre-dispatch digest
+differs from the current file.
 
 The scorer canonicalizes the repository and run paths before reading them, so a symlink cannot
 escape the repository or `/tmp/ce-datascience/behavioral-evals` roots. It snapshots `run.json`, the

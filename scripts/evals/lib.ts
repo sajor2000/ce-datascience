@@ -278,6 +278,14 @@ export async function sha256Target(targetPath: string): Promise<string> {
     for (const entry of entries) {
       if (entry.name === "__pycache__" || entry.name === ".DS_Store") continue
       const full = path.join(dir, entry.name)
+      // Fail loud on symlinks rather than silently skip them. readdir uses
+      // lstat semantics, so a symlinked reference file is neither a file nor a
+      // directory here and would drop out of the digest — letting its target's
+      // content drift without invalidating a recorded run, the exact silent
+      // pass this whole-directory digest exists to prevent.
+      if (entry.isSymbolicLink()) {
+        throw new Error(`unsupported symlink in scored skill directory: ${full}`)
+      }
       if (entry.isDirectory()) await walk(full)
       else if (entry.isFile()) files.push(full)
     }
