@@ -97,7 +97,7 @@ export const STALE_SKILL_DIRS = [
 ]
 
 /** Old agent names (used as generated skill dirs or flat .md files). */
-const STALE_AGENT_NAMES = [
+export const STALE_AGENT_NAMES = [
   // Legacy agent names that were renamed from <name> to ce-<name>
   "adversarial-document-reviewer",
   "adversarial-reviewer",
