@@ -39,8 +39,34 @@ function runGit(args: string[]): string {
 }
 
 function deletedPaths(pathspec: string): string[] {
-  const out = runGit(["log", "--diff-filter=D", "--name-only", "--pretty=format:", "--", pathspec])
+  // --no-renames is load-bearing: git's default rename detection reclassifies a
+  // deletion paired with a similar-content addition as a rename (R) and drops it
+  // from --diff-filter=D. Persona agents and skills share enough boilerplate that
+  // a same-directory rename reads as >50% similar, so the deletion of the old
+  // name would be invisible here and its flat-install artifact would never be
+  // required in the cleanup registries — the exact orphan this guard prevents.
+  const out = runGit([
+    "log",
+    "--diff-filter=D",
+    "--no-renames",
+    "--name-only",
+    "--pretty=format:",
+    "--",
+    pathspec,
+  ])
   return [...new Set(out.split("\n").map((line) => line.trim()).filter(Boolean))]
+}
+
+/**
+ * A basename still present as a live component was moved/re-added, not removed,
+ * so it produces no stale flat-install artifact and needs no registry entry.
+ * Without this, --no-renames surfaces every historical directory move (a skill
+ * or agent whose file was recreated under the same name) as a phantom orphan.
+ */
+function componentStillExists(name: string): boolean {
+  const skill = Bun.file(path.join(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))
+  const agent = Bun.file(path.join(repoRoot, "plugins/ce-datascience/agents", `${name}.md`))
+  return skill.size + agent.size > 0
 }
 
 function registeredNames(): Set<string> {
@@ -60,7 +86,12 @@ describe("cleanup registry coverage", () => {
     const missing = deletedPaths("plugins/ce-datascience/skills/*/SKILL.md")
       .map((p) => p.split("/").at(-2))
       .filter((name): name is string => Boolean(name))
-      .filter((name) => !registered.has(name) && !NEVER_RELEASED_EXEMPTIONS.has(name))
+      .filter(
+        (name) =>
+          !registered.has(name) &&
+          !NEVER_RELEASED_EXEMPTIONS.has(name) &&
+          !componentStillExists(name),
+      )
 
     expect(missing).toEqual([])
   })
@@ -70,7 +101,12 @@ describe("cleanup registry coverage", () => {
     const missing = deletedPaths("plugins/ce-datascience/agents/*.md")
       .map((p) => path.basename(p).replace(/\.agent\.md$|\.md$/, ""))
       .filter(Boolean)
-      .filter((name) => !registered.has(name) && !NEVER_RELEASED_EXEMPTIONS.has(name))
+      .filter(
+        (name) =>
+          !registered.has(name) &&
+          !NEVER_RELEASED_EXEMPTIONS.has(name) &&
+          !componentStillExists(name),
+      )
 
     expect(missing).toEqual([])
   })
