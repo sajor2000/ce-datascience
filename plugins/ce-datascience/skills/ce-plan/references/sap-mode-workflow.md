@@ -22,7 +22,7 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`.
 2. If a data profile or QA report exists, read it before filling SAP-2 through SAP-8. Use exact observed column names/types, candidate grain, key fields, date columns, null rates, duplicate rates, and blockers/warnings.
 3. If a dataset or registered data wave exists but no profile/QA report exists, stop SAP structuring long enough to load the `ce-data-qa` skill in pre-SAP column profile mode. Then resume SAP Phase 3 using its report.
-4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing `ce-data-qa` column profile; SAP variable/model sections provisional -->`, and list `ce-data-qa` as a required next step before `ce-sap-tabular`, `ce-sprint`, `ce-work`, coding, or modeling.
+4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `ce-data-qa` as a required next step before `ce-sap-tabular`, `ce-sprint`, `ce-work`, coding, or modeling.
 5. If `ce-data-qa` reports blockers, do not write a final SAP. Plan data remediation or re-extraction first.
 
 ### Causal/observational analysis guardrail
