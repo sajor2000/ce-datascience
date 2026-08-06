@@ -1,6 +1,6 @@
 # Checklist Routing Hints
 
-Default mapping from `suggested_design` → primary EQUATOR checklist. This is a *hint* written into `analysis/research-question.yaml`; the authoritative routing decision still happens in `/ce-checklist-match`. Hints exist so users without checklist expertise still get a sensible default and `/ce-checklist-match` can pre-fill its routing answers.
+Default mapping from `suggested_design` → primary EQUATOR checklist. This is a *hint* written into `analysis/research-question.yaml`; the authoritative routing decision still happens in `ce-checklist-match`. Hints exist so users without checklist expertise still get a sensible default and `ce-checklist-match` can pre-fill its routing answers.
 
 | Design | Primary | Common extensions |
 |--------|---------|-------------------|
@@ -45,4 +45,4 @@ Default mapping from `suggested_design` → primary EQUATOR checklist. This is a
 - **Picking PRISMA for a primary research study** — PRISMA is for systematic reviews. A primary cohort study uses STROBE.
 - **Picking CONSORT for an observational study** — CONSORT is for randomized trials. An observational study uses STROBE.
 - **Picking STARD for a prediction model** — STARD is for diagnostic accuracy of a single index test. A multivariable prediction model uses TRIPOD+AI.
-- **No checklist for AI papers** — all AI / ML clinical papers map to *some* extension. If the routing here doesn't fit, ask `/ce-checklist-match` directly.
+- **No checklist for AI papers** — all AI / ML clinical papers map to *some* extension. If the routing here doesn't fit, ask `ce-checklist-match` directly.

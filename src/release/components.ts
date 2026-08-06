@@ -11,6 +11,7 @@ import type {
 const RELEASE_COMPONENTS: ReleaseComponent[] = [
   "cli",
   "ce-datascience",
+  "coding-tutor",
   "marketplace",
   "cursor-marketplace",
 ]
@@ -23,6 +24,10 @@ const FILE_COMPONENT_MAP: Array<{ component: ReleaseComponent; prefixes: string[
   {
     component: "ce-datascience",
     prefixes: ["plugins/ce-datascience/"],
+  },
+  {
+    component: "coding-tutor",
+    prefixes: ["plugins/coding-tutor/"],
   },
   {
     component: "marketplace",
@@ -106,11 +111,6 @@ export function detectComponentsFromFiles(files: string[]): Map<ReleaseComponent
         componentFiles.get(mapping.component)!.push(file)
       }
     }
-  }
-
-  for (const [component, matchedFiles] of componentFiles.entries()) {
-    if (component === "cli" && matchedFiles.length === 0) continue
-    if (component !== "cli" && matchedFiles.length === 0) continue
   }
 
   return componentFiles

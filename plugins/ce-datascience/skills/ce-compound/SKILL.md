@@ -3,7 +3,7 @@ name: ce-compound
 description: "Capture validated analytical approaches, decisions, and reusable patterns into durable docs/solutions knowledge."
 ---
 
-# /ce-compound
+# `ce-compound`
 
 
 ## Skill Value
@@ -26,8 +26,8 @@ Captures problem solutions while context is fresh, creating structured documenta
 ## Usage
 
 ```bash
-/ce-compound                    # Document the most recent fix
-/ce-compound [brief context]    # Provide additional context hint
+`ce-compound`                    # Document the most recent fix
+`ce-compound` [brief context]    # Provide additional context hint
 ```
 
 ## Pre-resolved context
@@ -186,7 +186,7 @@ Launch research subagents. Each returns text data to the orchestrator.
 
 #### 4. **Session Historian** (foreground, after launching the above — only if the user opted in)
    - **Skip entirely** if the user declined session history in the follow-up question
-   - Invoke `ce-sessions`; do not dispatch `ce-session-historian` directly
+   - Load the `ce-sessions` skill; do not dispatch `ce-session-historian` directly
    - Dispatch in **foreground** — this agent reads session files outside the working directory (`~/.claude/projects/`, `~/.codex/sessions/`, `~/.cursor/projects/`) which background agents may not have access to
    - Omit the `mode` parameter so the user's configured permission settings apply
    - Dispatch on the mid-tier model (e.g., `model: "sonnet"` in Claude Code) — the synthesis feeds into compound assembly and doesn't need frontier reasoning
@@ -207,7 +207,7 @@ Launch research subagents. Each returns text data to the orchestrator.
      - Related context
      ```
 
-   Do not append additional context blocks, exclusion lists, or topic-keyword bullets — verbose dispatch prompts give the agent license to keep widening the search and rapidly compound wall time. If the agent needs keyword search, it owns that decision via the `--keyword` mode on `ce-session-inventory`.
+   Do not append additional context blocks, exclusion lists, or topic-keyword bullets — verbose dispatch prompts give the agent license to keep widening the search and rapidly compound wall time. If the agent needs keyword search, it owns that decision via the `--keyword` mode of the `ce-sessions` skill's `extract-metadata.py`.
    - Returns: structured digest of findings from prior sessions, or "no relevant prior sessions" if none found
 
 ### Phase 2: Assembly & Write
@@ -266,7 +266,7 @@ After writing the new learning, decide whether this new solution is evidence tha
 
 `ce-compound-refresh` is **not** a default follow-up. Use it selectively when the new learning suggests an older learning or pattern doc may now be inaccurate.
 
-It makes sense to invoke `ce-compound-refresh` when one or more of these are true:
+It makes sense to load the `ce-compound-refresh` skill when one or more of these are true:
 
 1. A related learning or pattern doc recommends an approach that the new fix now contradicts
 2. The new fix clearly supersedes an older documented solution
@@ -275,7 +275,7 @@ It makes sense to invoke `ce-compound-refresh` when one or more of these are tru
 5. The Related Docs Finder surfaced high-confidence refresh candidates in the same problem space
 6. The Related Docs Finder reported **moderate overlap** with an existing doc — there may be consolidation opportunities that benefit from a focused review
 
-It does **not** make sense to invoke `ce-compound-refresh` when:
+It does **not** make sense to load the `ce-compound-refresh` skill when:
 
 1. No related docs were found
 2. Related docs still appear consistent with the new learning
@@ -284,7 +284,7 @@ It does **not** make sense to invoke `ce-compound-refresh` when:
 
 Use these rules:
 
-- If there is **one obvious stale candidate**, invoke `ce-compound-refresh` with a narrow scope hint after the new learning is written
+- If there is **one obvious stale candidate**, load the `ce-compound-refresh` skill with a narrow scope hint after the new learning is written
 - If there are **multiple candidates in the same area**, ask the user whether to run a targeted refresh for that module, category, or pattern set
 - If context is already tight or you are in lightweight mode, do not expand into a broad refresh automatically; instead recommend `ce-compound-refresh` as the next step with a scope hint
 
@@ -297,14 +297,14 @@ When invoking or recommending `ce-compound-refresh`, be explicit about the argum
 
 Examples:
 
-- `/ce-compound-refresh sofa-score-calculation`
-- `/ce-compound-refresh statistical-patterns`
-- `/ce-compound-refresh data-quality-issues`
-- `/ce-compound-refresh reproducibility-patterns`
+- `ce-compound-refresh sofa-score-calculation`
+- `ce-compound-refresh statistical-patterns`
+- `ce-compound-refresh data-quality-issues`
+- `ce-compound-refresh reproducibility-patterns`
 
 A single scope hint may still expand to multiple related docs when the change is cross-cutting within one domain, category, or pattern area.
 
-Do not invoke `ce-compound-refresh` without an argument unless the user explicitly wants a broad sweep.
+Do not load the `ce-compound-refresh` skill without an argument unless the user explicitly wants a broad sweep.
 
 Always capture the new learning first. Refresh is a targeted maintenance follow-up, not a prerequisite for documentation.
 
@@ -354,10 +354,10 @@ Based on problem type, optionally invoke specialized agents to review the docume
 - **performance_issue** -> `ce-performance-oracle`
 - **security_issue** -> `ce-security-sentinel`
 - **database_issue** -> `ce-data-mapping-reviewer`
-- Any code-heavy issue -> always run `ce-code-simplicity-reviewer`, and additionally run the kieran reviewer that matches the repo's primary stack:
-  - Python -> also run `ce-kieran-python-reviewer`
-  - R -> also run `ce-r-code-reviewer`
-  - TypeScript/JavaScript -> use `ce-code-simplicity-reviewer`; no separate TypeScript specialist ships in ce-datascience
+- Any code-heavy issue -> always load the `ce-code-simplicity-reviewer` skill, and additionally run the kieran reviewer that matches the repo's primary stack:
+  - Python -> also load the `ce-kieran-python-reviewer` skill
+  - R -> also load the `ce-r-code-reviewer` skill
+  - TypeScript/JavaScript -> use the `ce-code-simplicity-reviewer` skill; no separate TypeScript specialist ships in ce-datascience
   - Other stacks -> no kieran reviewer needed
 
 </parallel_tasks>
@@ -395,7 +395,7 @@ a brief mention helps all agents discover these learnings.
 
 Note: This was created in lightweight mode. For richer documentation
 (cross-references, detailed prevention strategies, specialized reviews),
-re-run /ce-compound in a fresh session.
+re-load the `ce-compound` skill in a fresh session.
 ```
 
 **No subagents are launched. No parallel tasks. One file written.**
@@ -406,7 +406,7 @@ In lightweight mode, the overlap check is skipped (no Related Docs Finder subage
 
 ## What It Captures, Preconditions, What It Creates, Common Mistakes, Success Output, Philosophy
 
-Read `references/reference-material.md` for full detail. It documents what `/ce-compound` captures, what it creates, the bug-track and knowledge-track category catalog, common mistakes, the success-output format (including the "updated existing doc" variant), and the compounding philosophy.
+Read `references/reference-material.md` for full detail. It documents what `ce-compound` captures, what it creates, the bug-track and knowledge-track category catalog, common mistakes, the success-output format (including the "updated existing doc" variant), and the compounding philosophy.
 
 **Each unit of analytical work should make subsequent units of work easier—not harder.**
 
@@ -414,7 +414,7 @@ Read `references/reference-material.md` for full detail. It documents what `/ce-
 
 <auto_invoke> <trigger_phrases> - "that worked" - "it's fixed" - "working now" - "problem solved" </trigger_phrases>
 
-<manual_override> Use /ce-compound [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
+<manual_override> use the `ce-compound` skill [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
 
 ## Output
 
@@ -441,9 +441,9 @@ Based on problem type, these agents can enhance documentation:
 
 ### When to Invoke
 - **Auto-triggered** (optional): Agents can run post-documentation for enhancement
-- **Manual trigger**: User can invoke agents after /ce-compound completes for deeper review
+- **Manual trigger**: User can invoke agents after `ce-compound` completes for deeper review
 
 ## Related Commands
 
 - `/research [topic]` - Deep investigation (searches docs/solutions/ for patterns)
-- `/ce-plan` - Planning workflow (references documented solutions)
+- `ce-plan` - Planning workflow (references documented solutions)

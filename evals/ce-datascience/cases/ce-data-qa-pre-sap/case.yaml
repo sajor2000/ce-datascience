@@ -39,7 +39,7 @@ criteria:
     expected: 6
     tolerance: 0
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: correct-column-count
     description: The report gives the exact observed column count.
     type: numeric
@@ -48,7 +48,7 @@ criteria:
     expected: 8
     tolerance: 0
     weight: 2
-    hard_gate: false
+    hard_gate: true
   - id: correct-tests-null-rate
     description: The tests-column missingness is calculated from the six rows.
     type: numeric
@@ -112,3 +112,4 @@ threshold: 0.85
 limitations:
   - The fixture is a small synthetic aggregate extract, not a production EHR or claims dataset.
   - The scorer checks declared profile facts and safety boundaries, not report prose style.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

@@ -55,7 +55,7 @@ Search dates: from {{ sap.section_2_1_search_from | default("inception") }} to {
 
 Language restrictions: {{ sap.section_2_1_language | default("English") }}
 
-Search strategy: see `analysis/pubmed/<query>-<date>.md` (output of `/ce-pubmed`)
+Search strategy: see `analysis/pubmed/<query>-<date>.md` (output of `ce-pubmed`)
 
 ## 13. URL to search strategy (if applicable)
 

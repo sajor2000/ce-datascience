@@ -48,6 +48,7 @@ export type ClaudeSkill = {
   name: string
   description?: string
   argumentHint?: string
+  allowedTools?: string[]
   disableModelInvocation?: boolean
   ce_platforms?: string[]
   sourceDir: string

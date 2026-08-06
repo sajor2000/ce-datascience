@@ -22,7 +22,7 @@ Pins the reference genome and annotation versions used in a bioinformatics study
 
 - Start of a new bioinformatics study (declare the build)
 - After a reference update (re-declare and audit)
-- Manual: `/ce-genome-build --check` to audit; `/ce-genome-build --ref-fasta refs/GRCh38.fa --annotation-gtf refs/gencode.v44.gtf` to declare
+- Manual: `ce-genome-build --check` to audit; `ce-genome-build --ref-fasta refs/GRCh38.fa --annotation-gtf refs/gencode.v44.gtf` to declare
 
 ## Prerequisites
 
@@ -36,6 +36,8 @@ Pins the reference genome and annotation versions used in a bioinformatics study
 ### Step 1: Declare the build (--declare mode)
 
 Hash the reference FASTA, parse its first contig name, look up the build:
+
+The values below are an illustrative example (Ensembl release 111 / GENCODE 44); resolve the current release, URLs, md5s, and counts for the build you actually declare rather than copying these.
 
 ```yaml
 genome_build:
@@ -103,5 +105,7 @@ If `--check` found any P0 → exit non-zero, print a clear report. The user reso
 - Does not validate reference correctness against external truth -- only internal consistency
 
 ## References
+
+`scripts/audit_build.py` — audits a declared genome build against the reference files present in the project; run it when verifying a build declaration.
 
 @./references/build-detection-rules.md

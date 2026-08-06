@@ -8,7 +8,7 @@
 
 This content is loaded when Phase 2.5 fires — after Phase 2 (approaches chosen) and before Phase 3 (write requirements doc). The synthesis is the user's last opportunity to correct the agent's interpretation before the doc lands. It serves two purposes: synthesis confirmation (the user agreed to many individual things in dialogue but never saw the whole) and a transition checkpoint ("about to write a doc").
 
-Fires for **all tiers** including Lightweight. Skip Phase 2.5 entirely on the Phase 0.1b non-software (universal-brainstorming) route. The skill is interactive by design — brainstorming requires dialogue with a synchronous user. There is no non-interactive mode; if an automated workflow needs a requirements doc without dialogue, the right move is to write the doc from context directly, not to invoke `ce-brainstorm`.
+Fires for **all tiers** including Lightweight. Skip Phase 2.5 entirely on the Phase 0.1b non-software (universal-brainstorming) route. The skill is interactive by design — brainstorming requires dialogue with a synchronous user. There is no non-interactive mode; if an automated workflow needs a requirements doc without dialogue, the right move is to write the doc from context directly, not to load the `ce-brainstorm` skill.
 
 ---
 
@@ -242,10 +242,10 @@ Fall back to a numbered list in chat only when no blocking tool exists or the ca
 
 ## Self-redirect
 
-If the user response indicates they're in the wrong skill or want a different workflow (e.g., "this is too small, just /ce-work it" or "this needs more thought, let me brainstorm differently"):
+If the user response indicates they're in the wrong skill or want a different workflow (e.g., "this is too small, just `ce-work` it" or "this needs more thought, let me brainstorm differently"):
 
 - Stop ce-brainstorm
-- Suggest the alternative skill the user appears to want (e.g., `/ce-work`, `/ce-debug`)
+- Suggest the alternative skill the user appears to want (e.g., `ce-work`, `ce-debug`)
 - Offer to load it in-session
 - Do not push back or argue — the user's redirect signal is the deliberate choice
 

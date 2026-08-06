@@ -6,6 +6,8 @@ argument-hint: "[research query, PICO/PECO question, or DOI list]"
 
 # Literature Search for Computational Science
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -18,7 +20,7 @@ argument-hint: "[research query, PICO/PECO question, or DOI list]"
 
 Search, download, and summarize scientific literature to support evidence-based study design and analysis planning. Integrates with the compound engineering workflow so that brainstorm, plan, and review phases can cite relevant prior work.
 
-**Note: The current year is 2026.** Use this when dating search filters.
+**Resolve the current year at runtime** (`date +%Y`) when dating search filters; never assume a hardcoded year.
 
 ## Prerequisites
 
@@ -39,8 +41,8 @@ Do not install automatically — prompt the user and let them confirm.
 ## When This Skill Activates
 
 - User explicitly asks to search for papers or literature
-- `/ce-brainstorm` rigor probe identifies an evidence gap (no prior studies cited for a proposed method)
-- `/ce-plan` SAP mode needs citations for SAP-C (Literature/Precedent) sections
+- `ce-brainstorm` rigor probe identifies an evidence gap (no prior studies cited for a proposed method)
+- `ce-plan` SAP mode needs citations for SAP-C (Literature/Precedent) sections
 - User provides DOIs to look up
 - User says "find papers about X" or "what does the literature say about Y"
 
@@ -99,16 +101,16 @@ Rank by relevance to the original query. For each paper, include a 1-2 sentence 
 
 Offer next-step routing based on the calling context:
 
-**If triggered from `/ce-brainstorm`:**
+**If triggered from `ce-brainstorm`:**
 - Ask: "Cite these papers in the requirements doc?" If yes, insert key citations into the brainstorm artifact's evidence section.
 
-**If triggered from `/ce-plan` SAP mode:**
+**If triggered from `ce-plan` SAP mode:**
 - Auto-suggest: map relevant papers to SAP-C (Literature/Precedent) sections. Provide DOI and citation text for each mapped paper.
 
 **If standalone:**
 - Ask: "Next step?" Options:
-  - "Plan analysis with these citations" -> route to `/ce-plan`
-  - "Review paper methods" -> route to `/ce-code-review` with methods-review focus
+  - "Plan analysis with these citations" -> route to the `ce-plan` skill
+  - "Review paper methods" -> route to the `ce-code-review` skill with methods-review focus
   - "Save and return" -> write summary to user-specified path
 
 ## Search Config
@@ -119,7 +121,7 @@ The search config template at `references/search-config-template.yaml` defines:
 sources:
   scholar: true
   crossref: true
-  scihub: true
+  scihub: false  # opt-in only: legality varies by jurisdiction; never enable without explicit user request
   scidb: true
 defaults:
   scholar_pages: 3
@@ -144,7 +146,7 @@ Override defaults based on user context. For systematic reviews, increase `schol
 | Scholar rate-limited (HTTP 429) | Suggest: set `--chrome-version` flag with Chrome installed, or reduce page count |
 | No papers found | Broaden query terms, remove skip-words, extend year range |
 | PDF download fails for specific paper | Report which papers failed, offer BibTeX-only fallback |
-| SciHub mirror unavailable | Auto-select mirror, or pass `--scihub-mirror=URL` |
+| SciHub mirror unavailable (only when the user explicitly enabled `scihub`) | Report the failure and fall back to the other enabled sources; do not hunt for alternative mirrors |
 
 ## Output Artifacts
 
@@ -159,7 +161,7 @@ All artifacts go in the output directory. The literature summary is the primary 
 
 ### ce-brainstorm
 
-When brainstorm's rigor probes detect that no prior studies support a proposed method, suggest running `/ce-literature-search` with the relevant PICO/PECO terms. The brainstorm requirements doc gains an "Evidence Base" section citing the search results.
+When brainstorm's rigor probes detect that no prior studies support a proposed method, suggest load the `ce-literature-search` skill with the relevant PICO/PECO terms. The brainstorm requirements doc gains an "Evidence Base" section citing the search results.
 
 ### ce-plan (SAP mode)
 
@@ -173,5 +175,5 @@ New `literature_pattern` problem_type for compounding search strategies: effecti
 
 - Do not download papers the user already has (check before re-downloading)
 - Do not store papers in the repo directory — use `/tmp/ce-datascience/` or a user-specified path
-- Respect copyright: note that SciHub-sourced PDFs may not be legally available in all jurisdictions; the skill provides the tool but the user is responsible for compliance
+- Respect copyright: SciHub is disabled by default and must never be enabled without an explicit user request — its legality varies by jurisdiction and the user is responsible for compliance where they enable it
 - Keep search queries under Google Scholar's practical limits (~100 results per session before rate-limiting)

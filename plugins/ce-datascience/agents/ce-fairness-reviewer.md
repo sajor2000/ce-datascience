@@ -76,7 +76,7 @@ If none of the above and a performance gap exists → P0 in TRIPOD+AI compliance
 
 - Model evaluation code: `evaluate.py`, `metrics.py`, `notebooks/eval-*.ipynb`, R `tidymodels::collect_metrics()`, `caret::confusionMatrix`
 - Manuscript / report files: `manuscript/*.qmd`, `reports/model-eval-*.{md,qmd,Rmd}`
-- Model card files: `analysis/model-card.md` (use `/ce-model-card` skill)
+- Model card files: `analysis/model-card.md` (use `ce-model-card` skill)
 - Data files showing subgroup columns (`sex`, `race`, `ethnicity`, `age_band`, `site`, `payer`)
 - Stack profile: `stack_profile.subgroups_required` if declared
 

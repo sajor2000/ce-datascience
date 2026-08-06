@@ -1,8 +1,8 @@
-# `/ce-optimize` Usage Guide
+# `ce-optimize` Usage Guide
 
 ## What This Skill Is For
 
-`/ce-optimize` is for hard engineering problems where:
+`ce-optimize` is for hard engineering problems where:
 
 1. You can try multiple code or config variants.
 2. You can run the same evaluation against each variant.
@@ -12,7 +12,7 @@ It is best for "search the space and score the results" work, not one-shot imple
 
 ## When To Use It
 
-Use `/ce-optimize` when the problem looks like:
+Use the `ce-optimize` skill when the problem looks like:
 
 - "Find the smallest memory limit that stops OOM crashes without wasting RAM."
 - "Tune clustering parameters without collapsing everything into one garbage cluster."
@@ -37,7 +37,7 @@ Choose `type: judge` when a numeric metric can be gamed or when human usefulness
 
 ## When Not To Use It
 
-`/ce-optimize` is usually the wrong tool when:
+`ce-optimize` is usually the wrong tool when:
 
 - The fix is obvious and does not need experimentation
 - There is no repeatable measurement harness
@@ -79,7 +79,7 @@ The goal of the first run is to validate the harness, not to win the optimizatio
 ### 1. Memory Tuning
 
 ```text
-Use /ce-optimize to find the smallest memory setting that keeps this service stable under our load test.
+Use the `ce-optimize` skill to find the smallest memory setting that keeps this service stable under our load test.
 
 The current container limit is 512 MB and the app sometimes OOM-crashes. Do not just jump to 8 GB. Try a small set of realistic memory limits, run the same load test for each one, and score the results using:
 - did the process OOM
@@ -92,7 +92,7 @@ Prefer the smallest memory limit that passes the guard rails.
 ### 2. Clustering Quality
 
 ```text
-Use /ce-optimize to improve issue and PR clustering quality.
+Use the `ce-optimize` skill to improve issue and PR clustering quality.
 
 We have about 18k open issues and PRs. We want to test changes that improve clustering quality, reduce singleton clusters, and improve match quality within each cluster.
 
@@ -104,7 +104,7 @@ Do not optimize only for coverage. Use LLM-as-judge to sample clusters and confi
 ### 3. Prompt Optimization
 
 ```text
-Use /ce-optimize to create a summarization prompt for issues and PRs that minimizes token spend while still producing summaries that are good enough for downstream clustering.
+Use the `ce-optimize` skill to create a summarization prompt for issues and PRs that minimizes token spend while still producing summaries that are good enough for downstream clustering.
 
 I want the loop to compare prompt variants, measure token cost, and judge whether the summaries preserve the distinctions needed to cluster related issues together without merging unrelated ones.
 ```

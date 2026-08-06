@@ -162,3 +162,4 @@ threshold: 0.85
 limitations:
   - All records and PHI-like strings are synthetic and aggregate; this is not a privacy audit.
   - The case measures obvious structural failures, not comprehensive clinical data validation.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

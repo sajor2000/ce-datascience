@@ -268,6 +268,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
       skillsDir: path.join(piRoot, "skills"),
       promptsDir: path.join(piRoot, "prompts"),
       extensionsDir: path.join(piRoot, "extensions"),
+      agentsDir: path.join(piRoot, "agents"),
       mcporterConfigPath: path.join(managedDir, "mcporter.json"),
       agentsPath: path.join(piRoot, "AGENTS.md"),
     }
@@ -277,6 +278,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
       skills: ["safe-skill", "../../../etc/passwd", "/etc/passwd", "foo/../../escape"],
       prompts: ["ok.md", "../../evil.md", "foo/../bar.md"],
       extensions: ["safe.ext", "/tmp/abs.ext", "..\\escape.ext"],
+      agents: [],
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
@@ -296,6 +298,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
       skillsDir: path.join(piRoot, "skills"),
       promptsDir: path.join(piRoot, "prompts"),
       extensionsDir: path.join(piRoot, "extensions"),
+      agentsDir: path.join(piRoot, "agents"),
       mcporterConfigPath: path.join(managedDir, "mcporter.json"),
       agentsPath: path.join(piRoot, "AGENTS.md"),
     }
@@ -305,6 +308,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
       skills: ["a", "b", "c"],
       prompts: ["p.md"],
       extensions: ["ext.js"],
+      agents: [],
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
@@ -340,6 +344,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       skills: ["../outside-skill", "/etc/passwd"],
       prompts: [],
       extensions: [],
+      agents: [],
     }
 
     await cleanupRemovedPiSkills(skillsDir, hostileManifest, [])
@@ -358,6 +363,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       skills: [],
       prompts: ["../outside.txt", "/etc/passwd"],
       extensions: [],
+      agents: [],
     }
 
     await cleanupRemovedPiPrompts(promptsDir, hostileManifest, [])
@@ -376,6 +382,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       skills: [],
       prompts: [],
       extensions: ["../outside-ext", "/etc/passwd", "foo/../../escape"],
+      agents: [],
     }
 
     await cleanupRemovedPiExtensions(extensionsDir, hostileManifest, [])
@@ -404,6 +411,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       skills: ["stale-skill"],
       prompts: ["stale.md"],
       extensions: ["stale.ext"],
+      agents: [],
     }
 
     await cleanupRemovedPiSkills(skillsDir, manifest, [])

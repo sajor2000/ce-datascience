@@ -22,6 +22,7 @@ export type KiroSkill = {
 export type KiroSkillDir = {
   name: string
   sourceDir: string
+  disableModelInvocation?: boolean
 }
 
 export type KiroSteeringFile = {

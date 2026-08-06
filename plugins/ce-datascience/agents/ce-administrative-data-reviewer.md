@@ -111,7 +111,7 @@ Required: explicit continuous-enrollment criterion of N days prior + entire foll
 - **Vocabulary drift across years** — that's `ce-concept-drift-reviewer`
 - **PHI leak** — that's `ce-phi-leak-reviewer`
 - **General statistical method correctness** — that's `ce-methods-reviewer`
-- **Phenotype chart-review validity** — that's `/ce-phenotype-validate`
+- **Phenotype chart-review validity** — that's `ce-phenotype-validate`
 
 ## Output format
 

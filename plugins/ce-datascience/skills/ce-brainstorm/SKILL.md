@@ -16,9 +16,9 @@ argument-hint: "[research question or study idea to explore] [output:html]"
 - **Do not do:** Do not write the SAP, implement analysis code, or force a long brainstorm when the request is already well scoped.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-**Note: The current year is 2026.** Use this when dating requirements documents.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating requirements documents.
 
-Brainstorming helps answer **WHAT** to study through collaborative dialogue. It precedes `/ce-plan`, which answers **HOW** to execute the analysis.
+Brainstorming helps answer **WHAT** to study through collaborative dialogue. It precedes `ce-plan`, which answers **HOW** to execute the analysis.
 
 The durable output of this workflow is a **requirements document**. In other workflows this might be called a study protocol or analysis brief. In compound engineering for data science, keep the workflow name `brainstorm`, but make the written artifact strong enough that planning does not need to invent study design, scope boundaries, or success criteria/endpoints.
 
@@ -275,6 +275,10 @@ If relevant, call out whether the choice is:
 - Replicate an existing study design or prior analysis
 - Extend an existing analysis with new data or methods
 - Design something net new
+
+### Phase 2.9: Synthesis Checkpoint
+
+Before writing the requirements document, present the scope synthesis and confirm it. Read `references/synthesis-summary.md` for the synthesis contract — it is the scope checkpoint doc-write consumes, not a preview or draft of the requirements doc.
 
 ### Phase 3: Capture the Requirements
 

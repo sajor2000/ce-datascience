@@ -6,6 +6,8 @@ argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--cell-type
 
 # Guarded Notebook Editing
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -26,7 +28,7 @@ Existing notebooks are fragile because cell order, metadata, outputs, and JSON s
 
 ## Workflow
 
-1. Prefer text-native formats for new work. If the user is starting fresh, route to `/ce-work` scaffolding instead of creating a new `.ipynb`.
+1. Prefer text-native formats for new work. If the user is starting fresh, route to the `ce-work` skill scaffolding instead of creating a new `.ipynb`.
 2. Inspect the notebook structure and identify a unique anchor tag in `cell.metadata.tags`.
 3. Load the `ce-notebook-standards` skill before adding or materially changing executable cells. Put the explanatory Markdown and new code body in small project files, then run:
 

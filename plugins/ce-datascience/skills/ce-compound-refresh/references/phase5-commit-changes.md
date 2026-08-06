@@ -1,6 +1,6 @@
 # Phase 5: Commit Changes
 
-Detail for /ce-compound-refresh § "Phase 5: Commit Changes". Linked from SKILL.md. Covers git-context detection, autofix-mode defaults, interactive-mode option presentation by branch state, and the commit-message style.
+Detail for `ce-compound-refresh` § "Phase 5: Commit Changes". Linked from SKILL.md. Covers git-context detection, autofix-mode defaults, interactive-mode option presentation by branch state, and the commit-message style.
 
 ## Table of contents
 

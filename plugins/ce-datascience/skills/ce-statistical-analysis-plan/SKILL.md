@@ -91,6 +91,6 @@ Name the likely method and the assumption it rests on, but do not present the ch
 | Execution | Section and script roadmap with input-to-output mappings and validation gates |
 | Review | Unresolved decisions, assumptions, missing inputs, and their blocking status |
 
-For a new CE DataScience SAP, use `ce-plan` for the durable study-plan artifact and `ce-sap-tabular` for the biostatistics-style workbook companion. Keep this skill's claims and decision identifiers aligned with those artifacts rather than creating competing plans.
+For a new CE DataScience SAP, use the `ce-plan` skill for the durable study-plan artifact and `ce-sap-tabular` for the biostatistics-style workbook companion. Keep this skill's claims and decision identifiers aligned with those artifacts rather than creating competing plans.
 
 Before rendering, verify that every claim maps to a dataset and grain, every analysis maps to a claim and output, every output names an interpretation, and every nontrivial decision has evidence. In review mode, clearly separate confirmed integrity blockers from methodological questions requiring analyst resolution.

@@ -293,7 +293,7 @@ describe("convertClaudeToGemini", () => {
 
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
-      hooks: { hooks: { PreToolUse: [{ matcher: "*", body: "hook body" }] } },
+      hooks: { hooks: { PreToolUse: [{ matcher: "*", hooks: [{ type: "command", command: "hook body" }] }] } },
       agents: [],
       commands: [],
       skills: [],

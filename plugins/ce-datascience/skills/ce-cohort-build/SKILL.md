@@ -23,7 +23,7 @@ Walks the user through defining a research cohort with vocabulary-pinned concept
 - Starting a new observational study using EHR / claims / registry data
 - Re-defining a cohort after a vocabulary refresh (e.g., 2023 ICD-10-CM changes)
 - Validating an existing cohort by replaying its definition against a fresh extract
-- Manual: `/ce-cohort-build "T2DM with statin initiation 2018-2023" --vocab omop`
+- Manual: `ce-cohort-build "T2DM with statin initiation 2018-2023" --vocab omop`
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ Print: `[research-question] seeding cohort from analysis/research-question.yaml;
 
 When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 
-**CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative data-dictionary family. If the pair is missing, incomplete, or mixed, route to `ce-clif` before emitting `_category` filters.
+**CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative data-dictionary family. If the pair is missing, incomplete, or mixed, route to the `ce-clif` skill before emitting `_category` filters.
 
 - Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
 - The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` — never CSV, never with an integer cast, and never share or commit them.
@@ -112,6 +112,8 @@ Persons in source                        : N0
 
 Save as `analysis/cohort/<cohort-name>-waterfall.md` and `analysis/cohort/<cohort-name>-waterfall.csv`. This is the CONSORT-style figure for the manuscript.
 
+**Small-cell suppression (always, not only in CLIF mode):** waterfall steps are aggregate counts, but a step that loses very few patients can still disclose. Before saving or sharing the waterfall, suppress or merge any step whose lost-N is below the project's disclosure floor (default n<11 for EHR/claims data, or the site's declared policy), and never annotate a step with patient-identifying examples.
+
 ### Step 5: Write the cohort spec
 
 `analysis/cohort/<cohort-name>.yaml`:
@@ -140,19 +142,19 @@ final_n: <from waterfall>
 
 ### Step 6: Compound learning hook
 
-If the cohort waterfall loses > 50% at any single step, suggest `/ce-compound` to capture the dropout pattern -- this is where cohort definitions go wrong silently.
+If the cohort waterfall loses > 50% at any single step, suggest `ce-compound` to capture the dropout pattern -- this is where cohort definitions go wrong silently.
 
 ## What this skill does NOT do
 
-- Does not run statistical analysis (use `/ce-work`)
-- Does not validate the phenotype against chart review (use `/ce-phenotype-validate`)
-- Does not validate the resulting dataset (run `/ce-data-qa` next; the CONSORT waterfall produced here is the data-quality starting point)
+- Does not run statistical analysis (use the `ce-work` skill)
+- Does not validate the phenotype against chart review (use the `ce-phenotype-validate` skill)
+- Does not validate the resulting dataset (load the `ce-data-qa` skill next; the CONSORT waterfall produced here is the data-quality starting point)
 - Does not replace the SAP — the cohort spec is referenced FROM the SAP, not instead of it
-- Does not de-identify (use `/ce-data-qa` and `ce-phi-leak-reviewer` for that)
+- Does not de-identify (use the `ce-data-qa` skill and `ce-phi-leak-reviewer` for that)
 
 ## Handoff signal
 
-After step 5, print one line so `/ce-plan` SAP mode and `/ce-data-qa` can pick this cohort up from chat context:
+After step 5, print one line so `ce-plan` SAP mode and `ce-data-qa` can pick this cohort up from chat context:
 
 ```
 __CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>
@@ -161,6 +163,8 @@ __CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path-to-cohort.yaml> waterfal
 The `yaml=` key points at the cohort spec (`analysis/cohort/<cohort-name>.yaml` from step 5); `waterfall=` points at the CONSORT waterfall CSV from step 4. Both keys must be present so downstream skills can pick whichever they need.
 
 ## References
+
+`scripts/concept_set_to_capr.R` — converts a concept-set YAML into CAPR concept-set R code; use it when `__CE_LANG__ primary=r` and the cohort is OMOP-based.
 
 @./references/omop-cohort-template.sql
 

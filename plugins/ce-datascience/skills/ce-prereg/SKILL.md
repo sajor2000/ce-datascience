@@ -6,6 +6,8 @@ argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --
 
 # Pre-Registration Generator
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -21,8 +23,8 @@ Pre-registration is once-per-study, painful, and high-value. This skill converts
 ## When this skill activates
 
 - SAP is locked (`sap_version` frontmatter, no uncommitted SAP edits)
-- Manual: `/ce-prereg osf` or `/ce-prereg clinicaltrials`
-- After `/ce-checklist-match` recommended pre-registration
+- Manual: `ce-prereg osf` or `ce-prereg clinicaltrials`
+- After `ce-checklist-match` recommended pre-registration
 
 ## Prerequisites
 
@@ -79,7 +81,7 @@ Use the registry-specific template in `references/templates/`:
 | Primary outcome (with timeframe) | SAP-3.1 |
 | Secondary outcomes | SAP-3.2+ |
 | Eligibility criteria | SAP-2.1 |
-| Sample size | SAP-2.5 (use `/ce-power` output) |
+| Sample size | SAP-2.5 (use the `ce-power` skill output) |
 | Arms and interventions | SAP-1.3 |
 | Statistical analysis plan link | This SAP file's URL |
 
@@ -88,7 +90,7 @@ Use the registry-specific template in `references/templates/`:
 | PROSPERO field | SAP source |
 |----------------|------------|
 | Review question | SAP-1.1 |
-| Searches (databases, dates, search strategy) | SAP-2.1 (use `/ce-pubmed` log) |
+| Searches (databases, dates, search strategy) | SAP-2.1 (use the `ce-pubmed` skill log) |
 | Condition or domain being studied | SAP-3 |
 | Participants / population | SAP-2 |
 | Intervention / exposure | SAP-2 |
@@ -135,7 +137,7 @@ If the validator returns `BLOCKED`, stop and fix the package. Do not ask the use
 ## What this skill does NOT do
 
 - Does not submit to any registry (no API integration; user pastes manually -- this is intentional, keeps secrets out)
-- Does not write the SAP (use `/ce-plan`)
+- Does not write the SAP (use the `ce-plan` skill)
 - Does not validate scientific rigor of the SAP (use the document-review pass)
 - Does not pick the registry for you when ambiguous; prompts
 

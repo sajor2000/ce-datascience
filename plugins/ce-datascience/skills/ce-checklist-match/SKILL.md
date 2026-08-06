@@ -20,15 +20,15 @@ Picks the right reporting checklist(s) at PLAN time so the SAP is written agains
 
 ## When this skill activates
 
-- During `/ce-ideate` after the study premise is solidified
-- During `/ce-plan` BEFORE drafting the SAP
+- During `ce-ideate` after the study premise is solidified
+- During `ce-plan` BEFORE drafting the SAP
 - Whenever the user asks "which checklist do I follow?"
 - When `stack_profile.reporting_checklist` is empty AND a SAP exists
 
 ## Prerequisites
 
-- A one-line study description (or `/ce-ideate` output)
-- Stack profile exists (`ce-setup` has run)
+- A one-line study description (or `ce-ideate` output)
+- Stack profile exists (the user has run the `ce-setup` command; if not, ask them to, or infer the stack from the repository and confirm)
 
 ## Core workflow
 
@@ -108,7 +108,7 @@ If the answers don't fit a row, ask a clarifying question rather than guessing.
 
 ### Step 3: Write the selection to stack profile
 
-Resolve the repository root with `git rev-parse --show-toplevel` and update `<repo-root>/.ce-datascience/config.local.yaml`; never write relative to the current subdirectory. The shape that `/ce-code-review` and `/ce-plan` read is the canonical surface — keep these field names exact:
+Resolve the repository root with `git rev-parse --show-toplevel` and update `<repo-root>/.ce-datascience/config.local.yaml`; never write relative to the current subdirectory. The shape that `ce-code-review` and `ce-plan` read is the canonical surface — keep these field names exact:
 
 ```yaml
 stack_profile:
@@ -122,27 +122,27 @@ stack_profile:
 
 If a legacy `guidelines_selected` block already exists, leave it in place for compatibility unless the user asks to clean the config. Do not create that legacy block for new configs.
 
-The string form (`reporting_checklist: STROBE`) is what `/ce-code-review` Stage 3 conditional dispatches on and what `/ce-plan` SAP frontmatter reads from. Never write the old boolean form because it was ambiguous (which checklist?) and is deprecated.
+The string form (`reporting_checklist: STROBE`) is what `ce-code-review` Stage 3 conditional dispatches on and what `ce-plan` SAP frontmatter reads from. Never write the old boolean form because it was ambiguous (which checklist?) and is deprecated.
 
 ### Step 4: Drop the checklist into the project
 
-For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. The user (or `/ce-work`) fills these as the SAP and analysis develop.
+For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. The user (or `ce-work`) fills these as the SAP and analysis develop.
 
 ### Step 5: Emit signal for downstream skills
 
-Print one line so `/ce-plan` SAP mode and `/ce-code-review` Stage 3 can pick the selection up from chat context:
+Print one line so `ce-plan` SAP mode and `ce-code-review` Stage 3 can pick the selection up from chat context:
 
 ```
 __CE_CHECKLIST__ primary=STROBE extensions=[RECORD]
 ```
 
-The bracket-list form mirrors how `/ce-plan` parses signals in its SAP-Phase 3 step 2 lookup table.
+The bracket-list form mirrors how `ce-plan` parses signals in its SAP-Phase 3 step 2 lookup table.
 
 ## What this skill does NOT do
 
-- Does not validate against the checklist (use `ce-reporting-checklist-reviewer` at review time)
-- Does not write the SAP (use `/ce-plan`)
-- Does not pre-register (use `/ce-prereg`)
+- Does not validate against the checklist (use the `ce-reporting-checklist-reviewer` skill at review time)
+- Does not write the SAP (use the `ce-plan` skill)
+- Does not pre-register (use the `ce-prereg` skill)
 - Does not explain WHY a checklist was missed -- just which one applies; the validating reviewer handles compliance scoring
 
 ## References

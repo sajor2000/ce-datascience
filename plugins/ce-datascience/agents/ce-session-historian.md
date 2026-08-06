@@ -1,7 +1,7 @@
 ---
 name: ce-session-historian
 description: Synthesizes filtered coding-agent session extracts into relevant prior attempts, decisions, failures, and cross-tool context. Use only after ce-sessions has produced bounded scratch files.
-model: mid
+model: inherit
 tools:
   - Read
   - Grep

@@ -4,6 +4,11 @@ import type { FileHandle } from "fs/promises"
 import { isDeepStrictEqual } from "util"
 import path from "path"
 import { load } from "js-yaml"
+import { sha256File, sha256Target } from "./digest"
+
+// Re-export so existing consumers (scorer, contract tests) keep importing the
+// digest helpers from lib. The implementations live in ./digest.
+export { sha256File, sha256Target } from "./digest"
 
 export const EVALUATION_SCHEMA_VERSION = "1.0"
 
@@ -247,11 +252,6 @@ export async function resolveEvaluationRunDir(runDirArg: string): Promise<string
     throw new Error(`Run directory must be under ${requiredRoot}`)
   }
   return runDir
-}
-
-export async function sha256File(filePath: string): Promise<string> {
-  const contents = await fs.readFile(filePath)
-  return createHash("sha256").update(contents).digest("hex")
 }
 
 function sha256Contents(contents: string | Buffer): string {
@@ -831,6 +831,7 @@ export async function scoreEvaluationRun(options: {
   const runArtifact = await resolveRunArtifact(runDir, "run.json", "run metadata")
   if (!runArtifact.exists) throw new Error("invalid run.json: file does not exist")
 
+
   const fileCache = new Map<string, Buffer>()
   const readOnce = async (filePath: string): Promise<Buffer> => {
     const cached = fileCache.get(filePath)
@@ -842,7 +843,9 @@ export async function scoreEvaluationRun(options: {
 
   const caseContents = await readOnce(casePath)
   const promptContents = await readOnce(promptPath)
-  const targetContents = await readOnce(targetPath)
+  // Canonical per-file listing for the target; its digest is sha256Target().
+  const targetDigest = await sha256Target(targetPath)
+  const targetContents = Buffer.from(targetDigest, "utf8")
   const runContents = await readOnce(runArtifact.path)
   const metadata = readRunMetadata(runContents, runDir)
   if (metadata.case_id !== definition.id) {
@@ -851,7 +854,7 @@ export async function scoreEvaluationRun(options: {
   const currentDigests = {
     case_sha256: sha256Contents(caseContents),
     prompt_sha256: sha256Contents(promptContents),
-    target_sha256: sha256Contents(targetContents),
+    target_sha256: targetDigest,
   }
   for (const field of ["case_sha256", "prompt_sha256", "target_sha256"] as const) {
     if (metadata[field] !== currentDigests[field]) {
@@ -1009,7 +1012,7 @@ export async function buildEvaluationManifest(options: {
     source_commit: options.report.source_commit,
     case_sha256: sha256Contents(snapshot.caseContents),
     prompt_sha256: sha256Contents(snapshot.promptContents),
-    target_sha256: sha256Contents(snapshot.targetContents),
+    target_sha256: snapshot.targetContents.toString("utf8"),
     run_sha256: sha256Contents(snapshot.runContents),
     output_sha256: sha256Contents(snapshot.outputContents),
     evaluation_sha256: sha256Contents(options.evaluationContents),

@@ -174,7 +174,7 @@ The full per-artifact inventory lives in `analysis/sap-tables/02-outputs.csv` (a
 
 The tabular catalog should mirror a biostatistics handoff workbook. Use these exact output columns: `Output File (SITE_ID_ prefix added automatically)`, `Subfolder`, `Dataset / Cohort Scope`, `Script Section`, `Contents`, `Role at Coordinating Center`, and `Interpretation`. Group outputs with visible section-banner rows such as `SETUP / DIAGNOSTICS | <script>` and `MODEL OUTPUTS | <script>`.
 
-Generate this catalog with `/ce-sap-tabular <slug>` as part of every new SAP. If `/ce-data-qa` has not yet profiled the actual columns, keep the SAP in draft and list `/ce-data-qa` followed by `/ce-sap-tabular <slug>` as required next steps.
+Generate this catalog with `ce-sap-tabular <slug>` as part of every new SAP. If `ce-data-qa` has not yet profiled the actual columns, keep the SAP in draft and list `ce-data-qa` followed by `ce-sap-tabular <slug>` as required next steps.
 
 ---
 
@@ -182,7 +182,7 @@ Generate this catalog with `/ce-sap-tabular <slug>` as part of every new SAP. If
 
 The variable-by-analysis matrix lives in `analysis/sap-tables/03-variables.csv`. Each row is one variable; each analysis (`SAP-5.N`) has a column flagging whether the variable is used. The catalog also records type (Fixed vs Time-varying), format/values, and the source file (long vs wide). Use workbook-friendly analysis flag columns (`A2`, `A3`, `A4`, etc.) so the matrix matches the `Overview` analysis IDs.
 
-Generated alongside SAP-12 by `/ce-sap-tabular`.
+Generated alongside SAP-12 by `ce-sap-tabular`.
 ```
 
 ## Writing Guidance

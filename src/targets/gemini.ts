@@ -1,5 +1,7 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
+import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import { transformContentForGemini } from "../converters/claude-to-gemini"
 import type { GeminiBundle } from "../types/gemini"
 import { getLegacyGeminiArtifacts } from "../data/plugin-legacy-artifacts"
@@ -31,13 +33,13 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   const currentCommands = bundle.commands.map((command) => `${command.name}.toml`)
 
   await ensureDir(paths.geminiDir)
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
+  // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
+  await cleanupStaleSkillDirs(paths.skillsDir)
 
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
       const skillName = sanitizePathName(skill.name)
+      assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await writeText(path.join(targetDir, "SKILL.md"), skill.content + "\n")
@@ -47,14 +49,19 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   if (bundle.skillDirs.length > 0) {
     for (const skill of bundle.skillDirs) {
       const skillName = sanitizePathName(skill.name)
+      assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
       await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
       await copySkillDir(skill.sourceDir, targetDir, transformContentForGemini)
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
+      }
     }
   }
 
   if (agents.length > 0) {
     for (const agent of agents) {
+      assertSafeArtifactName(sanitizePathName(agent.name), "agent")
       const agentFile = `${sanitizePathName(agent.name)}.md`
       await writeText(path.join(paths.agentsDir, agentFile), agent.content + "\n")
     }
@@ -62,10 +69,22 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
 
   if (bundle.commands.length > 0) {
     for (const command of bundle.commands) {
+      for (const segment of command.name.split("/")) {
+        assertSafeArtifactName(segment, "command")
+      }
       const dest = path.join(paths.commandsDir, ...command.name.split("/")) + ".toml"
       await writeText(dest, command.content + "\n")
     }
   }
+
+  // Sweep artifacts dropped since the last install only after the current set
+  // has been written. Removed entries are disjoint from the current set, so
+  // ordering does not change the end state — but deferring the deletes means a
+  // mid-write failure leaves the previously-installed tree intact rather than a
+  // half-updated managed directory with the old artifacts already gone.
+  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
 
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir)
   if (mcpServers && Object.keys(mcpServers).length > 0) {
@@ -75,20 +94,16 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       console.log(`Backed up existing settings.json to ${backupPath}`)
     }
 
-    let existingSettings: Record<string, unknown> = {}
-    if (await pathExists(settingsPath)) {
-      try {
-        existingSettings = await readJson<Record<string, unknown>>(settingsPath)
-      } catch {
-        console.warn("Warning: existing settings.json could not be parsed and will be replaced.")
-      }
-    }
+    // settings.json is user-authored; refuse to clobber it on a parse error.
+    const existingSettings =
+      (await readExistingJsonForMerge<Record<string, unknown>>(settingsPath)) ?? {}
 
     const existingMcp = (existingSettings.mcpServers && typeof existingSettings.mcpServers === "object")
       ? existingSettings.mcpServers as Record<string, unknown>
       : {}
     const merged = { ...existingSettings, mcpServers: { ...existingMcp, ...mcpServers } }
-    await writeJson(settingsPath, merged)
+    warnServersWithPotentialSecrets(mcpServers, settingsPath)
+    await writeJsonSecure(settingsPath, merged)
   }
 
   if (pluginName) {

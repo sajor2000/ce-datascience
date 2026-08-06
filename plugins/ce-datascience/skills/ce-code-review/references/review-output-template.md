@@ -128,8 +128,7 @@ This fails because: no pipe-delimited tables, no severity-grouped `###` headers,
 - **Pre-existing section** -- separate table, no confidence column (these are informational)
 - **Learnings & Past Solutions section** -- results from ce-learnings-researcher, with links to docs/solutions/ files
 - **Agent-Native Gaps section** -- include only when an external/core Compound Engineering agent-native reviewer was explicitly run. Omit otherwise.
-- **Schema Drift Check section** -- results from ce-schema-drift-detector. Omit if the agent did not run.
-- **Deployment Notes section** -- key checklist items from ce-deployment-verification-agent. Omit if the agent did not run.
+- **SAP Drift Check section** -- results from ce-sap-drift-detector. Omit if the agent did not run.
 - **Coverage section** -- suppressed count, residual risks, testing gaps, failed reviewers
 - **Summary uses blockquotes** for verdict, reasoning, and fix order
 - **Horizontal rule** (`---`) separates findings from verdict

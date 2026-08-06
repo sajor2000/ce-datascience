@@ -109,37 +109,37 @@ Emit the lifecycle card:
 ## Workflow: Observational Study (OMOP)
 Language: Python (Jupyter) | Data layer: OMOP
 
- 1. [done] /ce-research-question    analysis/research-question.yaml
- 2. [done] /ce-pubmed                analysis/literature/
- 3. [    ] /ce-method-extract
- 4. [    ] /ce-checklist-match       STROBE + RECORD
- 5. [    ] /ce-effect-size
- 6. [    ] /ce-power
- 7. [    ] /ce-cohort-build          OMOP SQL + concept sets
- 8. [    ] /ce-data-qa
- 9. [    ] /ce-plan (SAP mode)
-10. [    ] /ce-sap-tabular
-11. [    ] /ce-sprint
-12. [    ] /ce-work                  Jupyter .ipynb
-13. [    ] /ce-code-review
-14. [    ] /ce-compound
+ 1. [done] `ce-research-question`    analysis/research-question.yaml
+ 2. [done] `ce-pubmed`                analysis/literature/
+ 3. [    ] `ce-method-extract`
+ 4. [    ] `ce-checklist-match`       STROBE + RECORD
+ 5. [    ] `ce-effect-size`
+ 6. [    ] `ce-power`
+ 7. [    ] `ce-cohort-build`          OMOP SQL + concept sets
+ 8. [    ] `ce-data-qa`
+ 9. [    ] `ce-plan` (SAP mode)
+10. [    ] `ce-sap-tabular`
+11. [    ] `ce-sprint`
+12. [    ] `ce-work`                  Jupyter .ipynb
+13. [    ] `ce-code-review`
+14. [    ] `ce-compound`
 
-Next step: /ce-method-extract
+Next step: `ce-method-extract`
   Extract statistical methods from your PubMed results for SAP justification.
 ```
 
 Inline language-specific and data-layer notes at the steps where they matter (e.g., step 7 shows "OMOP SQL + concept sets" or "CAPR + SQL" depending on language; step 12 shows "Jupyter .ipynb" or "Marimo .py" or "Quarto .qmd").
 
-If all steps are complete, emit: "All lifecycle steps complete. Run `/ce-compound` to document learnings."
+If all steps are complete, emit: "All lifecycle steps complete. Load the `ce-compound` skill to document learnings."
 
-If no stack profile exists, append: "Run the setup skill first to review the detected profile. In Claude plugin installs, use `/ce-datascience:ce-setup`; bare `/ce-setup` works only when local aliases are installed."
+If no stack profile exists, append: "Run the `ce-setup` command first to review the detected profile."
 
 ## What this skill does NOT do
 
 - Does not run any lifecycle skill — it only recommends the next one
-- Does not replace setup -- run `ce-setup` first for full stack profile
+- Does not replace setup -- the user must run the `ce-setup` command first for a full stack profile (it is manual-invocation-only)
 - Does not create files or modify project state
-- Does not replace `/ce-clif` — CLIF activation happens automatically via `ce-clif`
+- Does not replace `ce-clif` — CLIF activation happens automatically via `ce-clif`
 
 ## References
 

@@ -20,10 +20,10 @@ Most ML papers in biomedicine are unreproducible because runs are not tracked. B
 
 ## When this skill activates
 
-- New ML project (immediately after `/ce-cohort-build` and before model training)
+- New ML project (immediately after `ce-cohort-build` and before model training)
 - Mid-project transition from "exploratory" to "manuscript-bound" runs
 - After `ce-data-leakage-reviewer` flagged irreproducible eval
-- Manual: `/ce-ml-experiment-track --backend mlflow --project sepsis-risk`
+- Manual: `ce-ml-experiment-track --backend mlflow --project sepsis-risk`
 
 ## Prerequisites
 
@@ -139,7 +139,7 @@ study_id: <id>
 
 ## What this skill does NOT do
 
-- Does not train models (use `/ce-work` and write training scripts that call into the tracker)
+- Does not train models (use the `ce-work` skill and write training scripts that call into the tracker)
 - Does not enforce schema at training-time -- the discipline is the analyst's. The reviewer agent (eventually) checks runs/*.yaml against schema
 - Does not version the data itself beyond hashing (use DVC for data versioning)
 - Does not push runs to a public registry

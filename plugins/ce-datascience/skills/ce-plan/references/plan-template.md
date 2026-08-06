@@ -1,6 +1,6 @@
 # Plan Template (Implementation Mode)
 
-Canonical templates the writer fills in during Phase 4 of `/ce-plan` when **implementation mode** is active. SAP-mode templates live in `sap-template.md`. Linked from `SKILL.md` § Phase 4.2.
+Canonical templates the writer fills in during Phase 4 of `ce-plan` when **implementation mode** is active. SAP-mode templates live in `sap-template.md`. Linked from `SKILL.md` § Phase 4.2.
 
 ## Table of contents
 

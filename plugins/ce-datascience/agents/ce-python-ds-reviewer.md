@@ -1,7 +1,7 @@
 ---
 name: ce-python-ds-reviewer
 description: Conditional code-review persona, selected when the diff touches Python data science code. Reviews Python data science code for quality -- pandas anti-patterns, vectorization, memory efficiency, sklearn pipelines, data leakage, and statsmodels vs sklearn choice.
-model: mid
+model: inherit
 tools:
   - Read
   - Grep

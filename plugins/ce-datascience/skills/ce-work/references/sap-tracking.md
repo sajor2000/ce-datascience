@@ -1,6 +1,6 @@
 # SAP Tracking Overlay
 
-This reference defines how `/ce-work` discovers and tracks SAP (Statistical Analysis Plan) implementation coverage per invocation. Load it during Phase 1 when a SAP file is detected in the project.
+This reference defines how `ce-work` discovers and tracks SAP (Statistical Analysis Plan) implementation coverage per invocation. Load it during Phase 1 when a SAP file is detected in the project.
 
 ---
 
@@ -90,7 +90,7 @@ Code files that contain statistical analysis but do not map to any SAP section a
 
 ## Per-Invocation Refresh
 
-SAP tracking is a snapshot assessment -- it runs once at the start of each `/ce-work` invocation, not continuously. The coverage summary reflects the state of the codebase at the moment the skill reads it. If tasks during execution implement SAP sections, the summary is not automatically updated mid-run.
+SAP tracking is a snapshot assessment -- it runs once at the start of each `ce-work` invocation, not continuously. The coverage summary reflects the state of the codebase at the moment the skill reads it. If tasks during execution implement SAP sections, the summary is not automatically updated mid-run.
 
 At the end of execution (before Phase 3), re-scan and display an updated coverage summary showing what changed during this invocation.
 
@@ -158,7 +158,7 @@ Reporting Compliance (from: .ce-datascience/compliance-report.md)
 | STROBE    | 18/22    | 3          | 1      | 2026-04-28   |
 ```
 
-If no compliance report exists and `stack_profile.reporting_checklist` is set to a non-null guideline string in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Run `/ce-code-review` with reporting checklist enabled to generate the initial report."
+If no compliance report exists and `stack_profile.reporting_checklist` is set to a non-null guideline string in `.ce-datascience/config.local.yaml`, add this note below the coverage summary: "No compliance report found. Load the `ce-code-review` skill with reporting checklist enabled to generate the initial report."
 
 See `references/compliance-report.md` for the full report format and update instructions.
 
@@ -173,4 +173,4 @@ After the Compliance Report Integration check, look for publication workflow art
 - `analysis/signoff/signoff-ledger.json`
 - `analysis/signoff/signoff-validation-report.md`
 
-If any exist, show a compact `Publication Readiness` block next to SAP coverage. Flag unresolved reviewer decisions as `WARN` and missing package readiness reports as `INFO`. Do not block `/ce-work` solely because a manuscript package has not been created; the publication block is a handoff summary for `/ce-manuscript-package` and `/ce-review-pack`.
+If any exist, show a compact `Publication Readiness` block next to SAP coverage. Flag unresolved reviewer decisions as `WARN` and missing package readiness reports as `INFO`. Do not block `ce-work` solely because a manuscript package has not been created; the publication block is a handoff summary for `ce-manuscript-package` and `ce-review-pack`.

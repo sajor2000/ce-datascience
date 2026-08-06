@@ -20,13 +20,13 @@ Reads a PubMed result CSV and produces a structured methods-comparison table for
 
 ## When this skill activates
 
-- After `/ce-pubmed` has produced `analysis/pubmed/<query>-<date>.csv`
-- During `/ce-plan` SAP drafting when method choice needs justification
-- Before `/ce-power` when you need a prior effect-size estimate
+- After `ce-pubmed` has produced `analysis/pubmed/<query>-<date>.csv`
+- During `ce-plan` SAP drafting when method choice needs justification
+- Before `ce-power` when you need a prior effect-size estimate
 
 ## Prerequisites
 
-- A PubMed result CSV (from `/ce-pubmed`) exists
+- A PubMed result CSV (from `ce-pubmed`) exists
 - For `--full-text-only`, the rows must have non-empty `pmcid` (PMC OAI access)
 
 ## Core workflow
@@ -37,7 +37,7 @@ If no `<path/to/pubmed-results.csv>` was passed as the first argument, scan the 
 
 Also scan for `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] ...`. If present, read the evidence map before extraction and use it to prioritize papers, identify full-text-verified claims, and avoid re-asking literature questions already answered there. The PubMed CSV remains the required tabular input for this skill; the evidence map is context, not a replacement CSV.
 
-Print: `[pubmed] using results from <path> (n=<N>)`. If neither an explicit path nor the signal is present, ask the user to run `/ce-pubmed` first or pass a CSV path explicitly.
+Print: `[pubmed] using results from <path> (n=<N>)`. If neither an explicit path nor the signal is present, ask the user to load the `ce-pubmed` skill first or pass a CSV path explicitly.
 
 ### Step 1: Load and prioritize
 
@@ -90,8 +90,8 @@ The modal method becomes the default suggestion for the SAP's analytic method, w
 
 - Does not download PDFs (full-text via PMC only when free)
 - Does not score paper quality (use a reporting-checklist tool for that, not a method-extractor)
-- Does not pool effect sizes (use `/ce-effect-size`)
-- Does not match the study to a checklist (use `/ce-checklist-match`)
+- Does not pool effect sizes (use the `ce-effect-size` skill)
+- Does not match the study to a checklist (use the `ce-checklist-match` skill)
 
 ## References
 

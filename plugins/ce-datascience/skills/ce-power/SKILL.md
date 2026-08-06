@@ -20,10 +20,10 @@ Wraps the standard power calculations behind a single command. Produces a script
 
 ## When this skill activates
 
-- During `/ce-plan` SAP drafting after primary outcome is fixed
-- After `/ce-method-extract` produces a prior-effect-size estimate
+- During `ce-plan` SAP drafting after primary outcome is fixed
+- After `ce-method-extract` produces a prior-effect-size estimate
 - When a reviewer (peer-review or `ce-methods-reviewer`) flags missing power
-- Manual: `/ce-power two-sample-t --effect-size 0.4 --alpha 0.05 --power 0.80`
+- Manual: `ce-power two-sample-t --effect-size 0.4 --alpha 0.05 --power 0.80`
 
 ## Prerequisites
 
@@ -38,10 +38,10 @@ Wraps the standard power calculations behind a single command. Produces a script
 
 If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> ... mode=<reml|narrative>`.
 
-- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size` and use `ci=lo,hi` as the sensitivity-sweep bounds. Print `[effect-size] anchor from /ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%)`.
-- If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user run `/ce-effect-size` again with more studies.
+- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size` and use `ci=lo,hi` as the sensitivity-sweep bounds. Print `[effect-size] anchor from ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%)`.
+- If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user load the `ce-effect-size` skill again with more studies.
 
-When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption (or recommend `/ce-method-extract` + `/ce-effect-size` first).
+When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption (or recommend `ce-method-extract` + `ce-effect-size` first).
 
 ### Step 1: Pick the formula
 
@@ -78,7 +78,7 @@ Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`:
 
 ```
 With α = 0.05 (two-sided), power = 0.80, and an assumed effect size of d = 0.40
-(based on N comparable studies extracted via /ce-method-extract; range 0.28-0.52),
+(based on N comparable studies extracted via `ce-method-extract`; range 0.28-0.52),
 a two-sample t-test requires 100 participants per arm (200 total). Allowing for
 15% loss to follow-up, we will enrol 235 participants. A sensitivity analysis
 across d = 0.30 to d = 0.50 yields required total N from 128 to 351; we will
@@ -89,18 +89,18 @@ Reference the prior literature explicitly so the assumption is auditable.
 
 ### Step 5: Emit signal
 
-Print one line so `/ce-plan` SAP mode can drop the value into SAP-2.5 automatically. Required keys: `design`, `total`, `file`. Optional keys for specific designs: `n_per_arm` (two-arm), `with_dropout` (any), `epv` (prediction-model).
+Print one line so `ce-plan` SAP mode can drop the value into SAP-2.5 automatically. Required keys: `design`, `total`, `file`. Optional keys for specific designs: `n_per_arm` (two-arm), `with_dropout` (any), `epv` (prediction-model).
 
 ```
 __CE_POWER__ design=<name> total=<n> file=<path-to-summary.md> n_per_arm=<n> with_dropout=<n>
 ```
 
-The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `/ce-plan` SAP mode.
+The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `ce-plan` SAP mode.
 
 ## What this skill does NOT do
 
 - Does not run a "post-hoc power" calculation -- that's a statistical anti-pattern
-- Does not pick the effect-size assumption for you -- you supply it (or `/ce-method-extract` does)
+- Does not pick the effect-size assumption for you -- you supply it (or `ce-method-extract` does)
 - Does not guarantee enrollability -- recruitability is a separate concern
 - Does not handle complex adaptive designs (group-sequential, Bayesian-decision); for those, hand-roll using `gsDesign` / `rpact` / `BayesianTools` and use this skill only for the write-up
 

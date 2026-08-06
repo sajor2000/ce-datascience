@@ -146,8 +146,10 @@ describe("loadClaudePlugin", () => {
     expect(plugin.agents.map((agent) => agent.name).sort()).toEqual(["custom-agent", "default-agent"])
     expect(plugin.commands.map((command) => command.name).sort()).toEqual(["custom-command", "default-command"])
     expect(plugin.skills.map((skill) => skill.name).sort()).toEqual(["custom-skill", "default-skill"])
-    expect(plugin.hooks?.hooks.PreToolUse?.[0]?.hooks[0]?.command).toBe("echo default")
-    expect(plugin.hooks?.hooks.PostToolUse?.[0]?.hooks[0]?.command).toBe("echo custom")
+    const preHook = plugin.hooks?.hooks.PreToolUse?.[0]?.hooks[0]
+    expect(preHook && "command" in preHook ? preHook.command : undefined).toBe("echo default")
+    const postHook = plugin.hooks?.hooks.PostToolUse?.[0]?.hooks[0]
+    expect(postHook && "command" in postHook ? postHook.command : undefined).toBe("echo custom")
   })
 
   test("rejects custom component paths that escape the plugin root", async () => {

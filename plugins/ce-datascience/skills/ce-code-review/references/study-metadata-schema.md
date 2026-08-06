@@ -104,7 +104,7 @@ Records details of LLM usage for reproducibility and transparency.
 
 ```yaml
 llm_provenance:
-  model: <model name and version, e.g., gpt-4-turbo-2024-04-09>
+  model: <exact model identifier as reported by the provider at time of use>
   provider: <API provider, e.g., OpenAI, Azure OpenAI, Anthropic>
   temperature: <float>
   prompt_version: <version identifier>

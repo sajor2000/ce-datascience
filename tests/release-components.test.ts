@@ -21,14 +21,19 @@ describe("release component detection", () => {
     expect(components.get("marketplace")).toEqual([])
   })
 
-  test("ignores retired coding-tutor changes in release preview", () => {
+  test("detects coding-tutor changes alongside cli changes", () => {
+    // coding-tutor is release-managed: it has release-please config and manifest
+    // entries, so a change under plugins/coding-tutor/ must map to its own
+    // component rather than silently receiving no version bump.
     const components = detectComponentsFromFiles([
       "src/commands/install.ts",
       "plugins/coding-tutor/.claude-plugin/plugin.json",
     ])
 
     expect(components.get("cli")).toEqual(["src/commands/install.ts"])
-    expect(components.has("coding-tutor")).toBe(false)
+    expect(components.get("coding-tutor")).toEqual([
+      "plugins/coding-tutor/.claude-plugin/plugin.json",
+    ])
   })
 
   test("maps claude marketplace metadata without bumping plugin components", () => {

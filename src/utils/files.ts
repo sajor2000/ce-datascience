@@ -36,6 +36,28 @@ export async function readJson<T>(filePath: string): Promise<T> {
   return JSON.parse(raw) as T
 }
 
+/**
+ * Read a user-authored JSON config that is about to be deep-merged and
+ * rewritten, refusing to proceed if it exists but does not parse. Returns
+ * `undefined` when the file is absent (nothing to merge). Callers back the file
+ * up before calling, so the error points the user at the `.bak` copy.
+ *
+ * Every target writer that merges into a user file needs the same guard:
+ * clobbering a malformed config would destroy the user's settings. Centralize
+ * it here so the message and the fail-closed behavior cannot drift between
+ * writers.
+ */
+export async function readExistingJsonForMerge<T>(filePath: string): Promise<T | undefined> {
+  if (!(await pathExists(filePath))) return undefined
+  try {
+    return await readJson<T>(filePath)
+  } catch {
+    throw new Error(
+      `Existing ${filePath} is not valid JSON. Refusing to overwrite it — fix or remove the file (a timestamped .bak copy was just written next to it) and re-run.`,
+    )
+  }
+}
+
 export async function writeText(filePath: string, content: string): Promise<void> {
   await ensureDir(path.dirname(filePath))
   await fs.writeFile(filePath, content, "utf8")
@@ -82,7 +104,34 @@ export async function walkFiles(root: string): Promise<string[]> {
  * instead of failing on Windows where colons are illegal in filenames.
  */
 export function sanitizePathName(name: string): string {
-  return name.replace(/:/g, "-")
+  return name
+    .replace(/:/g, "-")
+    .replace(/[\\/\0]/g, "-")
+    .replace(/\.\./g, "-")
+}
+
+/**
+ * Reject plugin-supplied artifact names (agent, skill, command, plugin file)
+ * that could escape the target directory when joined into a write or delete
+ * path. Plugin frontmatter is untrusted input: `install` accepts arbitrary
+ * local paths and git URLs, so a hostile plugin could declare
+ * `name: ../../.ssh/authorized_keys`. Writers must call this before any
+ * `path.join` on a name that did not pass through a normalizer that strips
+ * separators.
+ */
+export function assertSafeArtifactName(name: string, kind: string): void {
+  const unsafe =
+    !name ||
+    name.includes("/") ||
+    name.includes("\\") ||
+    name.includes("..") ||
+    name.includes("\0") ||
+    name === "."
+  if (unsafe) {
+    throw new Error(
+      `Unsafe ${kind} name "${name}": names must not be empty or contain path separators, "..", or null bytes.`,
+    )
+  }
 }
 
 /**
@@ -163,6 +212,28 @@ export async function copyDir(sourceDir: string, targetDir: string): Promise<voi
  * transform reference .md files — needed when the transform rewrites content
  * that appears in reference files (e.g. fully-qualified agent names).
  */
+/**
+ * Guard line injected into converted SKILL.md files whose source skill sets
+ * `disable-model-invocation: true`. Non-Claude targets have no native flag for
+ * this, so the constraint is carried as an explicit instruction instead of
+ * being silently dropped.
+ */
+export const MANUAL_INVOCATION_GUARD =
+  "> **Manual invocation only:** run this skill only when the user explicitly requests it by name. Never auto-invoke it from context or from another skill's instructions."
+
+export async function injectManualInvocationGuard(skillMdPath: string): Promise<void> {
+  if (!(await pathExists(skillMdPath))) return
+  const content = await readText(skillMdPath)
+  if (content.includes(MANUAL_INVOCATION_GUARD)) return
+  const frontmatterMatch = content.match(/^---\n[\s\S]*?\n---\n/)
+  const updated = frontmatterMatch
+    ? content.slice(0, frontmatterMatch[0].length) +
+      "\n" + MANUAL_INVOCATION_GUARD + "\n" +
+      content.slice(frontmatterMatch[0].length)
+    : MANUAL_INVOCATION_GUARD + "\n\n" + content
+  await writeText(skillMdPath, updated)
+}
+
 export async function copySkillDir(
   sourceDir: string,
   targetDir: string,

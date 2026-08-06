@@ -6,6 +6,8 @@ argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-
 
 # PubMed Method Search
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -16,7 +18,7 @@ argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-
 - **Do not do:** Do not claim full-text coverage or replace Paperclip/full-text methods extraction.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstream skills (`/ce-method-extract`, `/ce-effect-size`) consume. The skill exists because `/ce-literature-search` (PyPaperBot) is great for PDFs but bad for structured biomedical metadata; this is biomedical-native.
+Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstream skills (`ce-method-extract`, `ce-effect-size`) consume. The skill exists because `ce-literature-search` (PyPaperBot) is great for PDFs but bad for structured biomedical metadata; this is biomedical-native.
 
 ## Prerequisites
 
@@ -39,7 +41,7 @@ Before asking the user for a query, scan the most recent ~50 chat turns for `__C
    [research-question] using query from analysis/research-question.yaml: "<query>"
    ```
 
-If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, ask the user for a query (or recommend running `/ce-research-question` first to harden the question).
+If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, ask the user for a query (or recommend load the `ce-research-question` skill first to harden the question).
 
 ### 1. Run the bundled script
 
@@ -63,18 +65,18 @@ After the CSV exists, write a sibling Markdown summary at `analysis/pubmed/<quer
 1. **Top-10 by recency × journal heuristic** — newest hit from the highest-tier journal in the result set wins. The heuristic doesn't have to be perfect; it gives the user a hand-pickable list.
 2. **MeSH-term histogram** — top 15 MeSH terms across results. Reveals what the literature actually indexes this topic as, not what the user typed.
 3. **Study-type histogram** — RCTs vs cohorts vs reviews. Tells the user whether the prior literature is observational or interventional.
-4. **% with PMC full-text** — proportion of rows with non-empty `pmcid`. This is the upper bound on what `/ce-method-extract` can do with full text.
+4. **% with PMC full-text** — proportion of rows with non-empty `pmcid`. This is the upper bound on what `ce-method-extract` can do with full text.
 
 ### 3. Emit the handoff signal
 
-The script already prints `__CE_PUBMED_RESULTS__ csv=<path> n=<count> query=<...> pmc_pct=<...>`. Surface this line in the chat so `/ce-method-extract` can pick the CSV up by parsing the chat context.
+The script already prints `__CE_PUBMED_RESULTS__ csv=<path> n=<count> query=<...> pmc_pct=<...>`. Surface this line in the chat so `ce-method-extract` can pick the CSV up by parsing the chat context.
 
 ## Out of scope
 
-- Does not download PDFs (use `/ce-literature-search` for that)
-- Does not extract methods from full text (next: `/ce-method-extract`)
-- Does not pool effect sizes (next-next: `/ce-effect-size`)
-- Does not match to a reporting checklist (different skill: `/ce-checklist-match`)
+- Does not download PDFs (use the `ce-literature-search` skill for that)
+- Does not extract methods from full text (next: `ce-method-extract`)
+- Does not pool effect sizes (next-next: `ce-effect-size`)
+- Does not match to a reporting checklist (different skill: `ce-checklist-match`)
 
 ## References
 

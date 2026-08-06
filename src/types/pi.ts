@@ -6,6 +6,7 @@ export type PiPrompt = {
 export type PiSkillDir = {
   name: string
   sourceDir: string
+  disableModelInvocation?: boolean
 }
 
 export type PiGeneratedSkill = {

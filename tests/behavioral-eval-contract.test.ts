@@ -20,6 +20,7 @@ import {
   resolveEvaluationRunDir,
   scoreEvaluationRun,
   sha256File,
+  sha256Target,
   validateAllCases,
   writeEvaluationArtifacts,
   type EvaluationCase,
@@ -150,7 +151,7 @@ async function writeRun(root: string, response = "complete\nscore: 3.145\n"): Pr
       prompt_sha256: await sha256File(
         path.join(root, "evals", "ce-datascience", "cases", "sample", "prompt.md"),
       ),
-      target_sha256: await sha256File(
+      target_sha256: await sha256Target(
         path.join(root, "plugins", "ce-datascience", "skills", "sample", "SKILL.md"),
       ),
       runner: "skill-creator",
@@ -241,7 +242,7 @@ describe("behavioral evaluation contract", () => {
           case_id: definition.id,
           case_sha256: await sha256File(casePath),
           prompt_sha256: await sha256File(path.join(repoRoot, definition.prompt_path)),
-          target_sha256: await sha256File(path.join(repoRoot, definition.target.source)),
+          target_sha256: await sha256Target(path.join(repoRoot, definition.target.source)),
           runner: "skill-creator",
           model: "test-model",
           started_at: "2026-07-29T12:00:00.000Z",
@@ -470,7 +471,7 @@ describe("behavioral evaluation contract", () => {
         case_id: definition.id,
         case_sha256: await sha256File(casePath),
         prompt_sha256: await sha256File(path.join(repoRoot, definition.prompt_path)),
-        target_sha256: await sha256File(path.join(repoRoot, definition.target.source)),
+        target_sha256: await sha256Target(path.join(repoRoot, definition.target.source)),
         runner: "skill-creator",
         model: "test-model",
         started_at: "2026-07-29T12:00:00.000Z",
@@ -905,7 +906,7 @@ describe("behavioral evaluation contract", () => {
     const expected = {
       case: await sha256File(casePath),
       prompt: await sha256File(path.join(root, definition.prompt_path)),
-      target: await sha256File(path.join(root, definition.target.source)),
+      target: await sha256Target(path.join(root, definition.target.source)),
       run: await sha256File(path.join(runDir, "run.json")),
       output: await sha256File(path.join(runDir, "response.md")),
       evidence: await sha256File(path.join(runDir, "evidence.json")),

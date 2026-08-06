@@ -30,4 +30,4 @@ When extracting `software`, prefer the package over the language:
 - "Stata, stcox" → `stata::stcox`
 - "SAS, PROC PHREG" → `sas::phreg`
 
-This taxonomy lets `/ce-power` and `/ce-plan` decide which environment to spin up for the chosen method.
+This taxonomy lets `ce-power` and `ce-plan` decide which environment to spin up for the chosen method.

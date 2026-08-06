@@ -169,7 +169,7 @@ Options to offer:
 
 1. **Fix it now** — proceed to Phase 3
 2. **Diagnosis only — I'll take it from here** — skip the fix, proceed to Phase 4's summary, and end the skill
-3. **Rethink the design** (`/ce-brainstorm`) — only when the root cause reveals a design problem (see below)
+3. **Rethink the design** (`ce-brainstorm`) — only when the root cause reveals a design problem (see below)
 
 Do not assume the user wants action right now. The test recommendations are part of the diagnosis regardless of which path is chosen.
 
@@ -187,7 +187,7 @@ If 2-3 hypotheses are exhausted without confirmation, diagnose why:
 
 | Pattern | Diagnosis | Next move |
 |---------|-----------|-----------|
-| Hypotheses point to different subsystems | Architecture/design problem, not a localized bug | Present findings, suggest `/ce-brainstorm` |
+| Hypotheses point to different subsystems | Architecture/design problem, not a localized bug | Present findings, suggest `ce-brainstorm` |
 | Evidence contradicts itself | Wrong mental model of the code | Step back, re-read the code path without assumptions |
 | Works locally, fails in CI/prod | Environment problem | Focus on env differences, config, dependencies, timing |
 | Fix works but prediction was wrong | Symptom fix, not root cause | The real cause is still active — keep investigating |
@@ -202,12 +202,12 @@ Present the diagnosis to the user before proceeding.
 
 *Reminder: one change at a time. If you are changing multiple things, stop.*
 
-If the user chose "Diagnosis only" at the end of Phase 2, skip this phase and go straight to Phase 4 for the summary — the skill's job was the diagnosis. If they chose "Rethink the design", control has transferred to `/ce-brainstorm` and this skill ends.
+If the user chose "Diagnosis only" at the end of Phase 2, skip this phase and go straight to Phase 4 for the summary — the skill's job was the diagnosis. If they chose "Rethink the design", control has transferred to `ce-brainstorm` and this skill ends.
 
 **Workspace and branch check:** Before editing files:
 
 - Check for uncommitted changes (`git status`). If the user has unstaged work in files that need modification, confirm before editing — do not overwrite in-progress changes.
-- If the current branch is the default branch, ask whether to create a feature branch first using the platform's blocking question tool (see Phase 2 for the per-platform names). To detect the default branch, compare against `main`, `master`, or the value of `git rev-parse --abbrev-ref origin/HEAD` with its `origin/` prefix stripped (the raw output is `origin/<name>`, so an unstripped comparison will never match the local branch name). Default to creating one; derive a name from the bug and run `git checkout -b <name>`. On any other branch, proceed.
+- If the current branch is the default branch, create a feature branch without asking — derive a name from the bug and run `git checkout -b <name>`. Committing directly to the default branch is never the default behavior; do it only when the user has explicitly instructed it in this session (this matches the branch policy in `ce-commit` and `ce-commit-push-pr`). To detect the default branch, compare against `main`, `master`, or the value of `git rev-parse --abbrev-ref origin/HEAD` with its `origin/` prefix stripped (the raw output is `origin/<name>`, so an unstripped comparison will never match the local branch name). On any other branch, proceed.
 
 **Test-first:**
 1. Write a failing test that captures the bug (or use the existing failing test)
@@ -234,7 +234,7 @@ Analyze how this was introduced and what allowed it to survive. Note any systemi
 
 #### Post-fix review tail
 
-Before handoff, re-run the minimized reproduction and the affected regression test, inspect the changed diff for a simpler correction, and run `ce-code-review` when the fix changes behavior across a boundary. Do not broaden a bug fix into unrelated polish; record any worthwhile cleanup as follow-up work.
+Before handoff, re-run the minimized reproduction and the affected regression test, inspect the changed diff for a simpler correction, and load the `ce-code-review` skill when the fix changes behavior across a boundary. Do not broaden a bug fix into unrelated polish; record any worthwhile cleanup as follow-up work.
 **Problem**: [What was broken]
 **Reproduction Loop**: [Command run, exact symptom asserted, and any determinism limitation]
 **Root Cause**: [Full causal chain, with file:line references]
@@ -252,7 +252,7 @@ Before handoff, re-run the minimized reproduction and the affected regression te
 
 1. **Check for contextual overrides first.** Look at the user's original prompt, loaded memories, and the user/repo `AGENTS.md` or `CLAUDE.md` for preferences that conflict with auto commit-and-PR — for example, "always review before pushing", "open PRs as drafts", or "don't open PRs from skills". A signal must be an explicit instruction or a clearly applicable rule, not a vague tonal cue. If any apply, honor them — switch to the pre-existing-branch menu below, or skip the PR step entirely, whichever matches the user's stated preference.
 2. **Briefly preview what will happen** — what will be committed, on what branch, and that a PR will be opened — then proceed without waiting for confirmation. The preview exists so the user can interrupt; it is not a blocking question. Format and length are your call; keep it scannable.
-3. **Run `/ce-commit-push-pr`.** When the entry came from an issue tracker, include the appropriate auto-close syntax for that tracker in the location it requires — most trackers parse PR descriptions (e.g., `Fixes #N` for GitHub, `Closes ABC-123` for Linear), but some only parse commit messages (e.g., Jira Smart Commits) — so the diagnosis and fix flow back to the issue and it closes on merge. Surface the resulting PR URL.
+3. **load the `ce-commit-push-pr` skill.** When the entry came from an issue tracker, include the appropriate auto-close syntax for that tracker in the location it requires — most trackers parse PR descriptions (e.g., `Fixes #N` for GitHub, `Closes ABC-123` for Linear), but some only parse commit messages (e.g., Jira Smart Commits) — so the diagnosis and fix flow back to the issue and it closes on merge. Surface the resulting PR URL.
 
 #### Pre-existing branch (skill did not create it): ask the user
 
@@ -260,8 +260,8 @@ When this skill asks a user-facing question, follow the Skill Value interaction 
 
 Options:
 
-1. **Commit and open a PR (`/ce-commit-push-pr`)** — default for most cases
-2. **Commit the fix (`/ce-commit`)** — local commit only
+1. **Commit and open a PR (`ce-commit-push-pr`)** — default for most cases
+2. **Commit the fix (`ce-commit`)** — local commit only
 3. **Stop here** — user takes it from there
 
 #### After a PR is open (either path): consider offering learning capture
@@ -272,4 +272,4 @@ Most bugs are localized mechanical fixes (typo, missed null check, missing impor
 - **Offer neutrally** when the lesson can be stated in one sentence — e.g., "X.foo() returns T | undefined when Y, not just T", or "the diagnostic path was non-obvious and worth recording." If you cannot articulate the lesson, skip rather than offer.
 - **Lean into the offer** when the pattern appears in 3+ locations OR the root cause reveals a wrong assumption about a shared dependency, framework, or convention that other code is likely to repeat.
 
-When offering, use the blocking question tool described above. If the user accepts, run `/ce-compound`, then commit the resulting learning doc to the same branch and push so the open PR picks up the new commit.
+When offering, use the blocking question tool described above. If the user accepts, load the `ce-compound` skill, then commit the resulting learning doc to the same branch and push so the open PR picks up the new commit.

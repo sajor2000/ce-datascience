@@ -22,8 +22,8 @@ Generates a model card following the Mitchell et al. 2019 framework, adapted for
 
 - After model evaluation is done (overall + subgroup performance computed)
 - Before manuscript submission for prediction-model studies
-- After `/ce-code-review` flagged absent model card during TRIPOD+AI compliance check
-- Manual: `/ce-model-card models/risk-model.pkl --eval-output reports/eval-2025-04.json`
+- After `ce-code-review` flagged absent model card during TRIPOD+AI compliance check
+- Manual: `ce-model-card models/risk-model.pkl --eval-output reports/eval-2025-04.json`
 
 ## Prerequisites
 

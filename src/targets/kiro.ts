@@ -1,5 +1,6 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, pathExists, readJson, sanitizePathName, writeJson, writeText } from "../utils/files"
+import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
 import { cleanupStaleSkillDirs, cleanupStaleAgents } from "../utils/legacy-cleanup"
@@ -36,15 +37,6 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   await cleanupStaleSkillDirs(paths.skillsDir)
   await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md")
   await cleanupStaleAgents(paths.agentsDir, ".json")
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(
-    path.join(paths.agentsDir, "prompts"),
-    manifest,
-    "agentPrompts",
-    currentAgentPrompts,
-  )
-  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
 
   // Write agents
   if (bundle.agents.length > 0) {
@@ -97,6 +89,10 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       }
 
       const knownAgentNames = bundle.agents.map((a) => a.name)
+      const knownSkillNames = [
+        ...bundle.skillDirs.map((s) => s.name),
+        ...bundle.generatedSkills.map((s) => s.name),
+      ]
       await cleanupCurrentManagedDirectory(
         destDir,
         manifest,
@@ -104,8 +100,11 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
         sanitizePathName(skill.name),
       )
       await copySkillDir(skill.sourceDir, destDir, (content) =>
-        transformContentForKiro(content, knownAgentNames),
+        transformContentForKiro(content, knownAgentNames, knownSkillNames),
       )
+      if (skill.disableModelInvocation) {
+        await injectManualInvocationGuard(path.join(destDir, "SKILL.md"))
+      }
     }
   }
 
@@ -120,6 +119,21 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
     }
   }
 
+  // Sweep artifacts dropped since the last install only after the current set
+  // has been written. Removed entries are disjoint from the current set, so
+  // ordering does not change the end state — but deferring the deletes means a
+  // mid-write failure leaves the previously-installed tree intact rather than a
+  // half-updated managed directory with the old artifacts already gone.
+  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedFiles(
+    path.join(paths.agentsDir, "prompts"),
+    manifest,
+    "agentPrompts",
+    currentAgentPrompts,
+  )
+  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
+
   // Write MCP servers to mcp.json
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir) ?? bundle.mcpServers
   if (Object.keys(mcpServers).length > 0) {
@@ -129,22 +143,18 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       console.log(`Backed up existing mcp.json to ${backupPath}`)
     }
 
-    // Merge with existing mcp.json if present
-    let existingConfig: Record<string, unknown> = {}
-    if (await pathExists(mcpPath)) {
-      try {
-        existingConfig = await readJson<Record<string, unknown>>(mcpPath)
-      } catch {
-        console.warn("Warning: existing mcp.json could not be parsed and will be replaced.")
-      }
-    }
+    // Merge with existing mcp.json if present. mcp.json is user-authored;
+    // refuse to clobber it on a parse error.
+    const existingConfig =
+      (await readExistingJsonForMerge<Record<string, unknown>>(mcpPath)) ?? {}
 
     const existingServers =
       existingConfig.mcpServers && typeof existingConfig.mcpServers === "object"
         ? (existingConfig.mcpServers as Record<string, unknown>)
         : {}
     const merged = { ...existingConfig, mcpServers: { ...existingServers, ...mcpServers } }
-    await writeJson(mcpPath, merged)
+    warnServersWithPotentialSecrets(mcpServers, mcpPath)
+    await writeJsonSecure(mcpPath, merged)
   }
 
   if (pluginName) {

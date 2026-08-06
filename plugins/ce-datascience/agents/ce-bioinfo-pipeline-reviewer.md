@@ -93,7 +93,7 @@ You are the conditional reviewer for sequencing and omics pipelines (Snakemake /
 
 - **Statistical analysis correctness** -- that's `ce-methods-reviewer`
 - **Batch effects** -- that's `ce-omics-batch-reviewer`
-- **Genome build inconsistency at the cohort level** -- that's `/ce-genome-build` (skill)
+- **Genome build inconsistency at the cohort level** -- that's `ce-genome-build` (skill)
 - **General Python/R style** -- other reviewers handle that
 
 ## Output format

@@ -91,7 +91,7 @@ OMOP enforces domain alignment in `concept.domain_id`; the SQL must match.
 ## What you don't flag
 
 - **General SQL style** -- that's a code-quality reviewer's job
-- **Phenotype validity against chart review** -- that's `/ce-phenotype-validate` (skill, not reviewer)
+- **Phenotype validity against chart review** -- that's `ce-phenotype-validate` (skill, not reviewer)
 - **PHI leak** -- that's `ce-phi-leak-reviewer`
 - **Statistical analysis correctness** -- that's `ce-methods-reviewer`
 

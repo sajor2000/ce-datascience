@@ -165,7 +165,7 @@ Routing rules:
 | `ce-kieran-python-reviewer` | `.py` files in diff |
 | `ce-methods-reviewer` | inferential analysis or model-fitting code in diff (regression, hypothesis tests, survival) |
 | `ce-multiplicity-reviewer` | multiple comparisons, subgroup, or repeated-testing code in diff |
-| `ce-reproducibility-reviewer` | analysis scripts, notebooks, or env lock files in diff |
+| `ce-reproducibility-reviewer` | analysis scripts, notebooks, or env lock files in diff. Pass the resolved skill-local path for `references/study-metadata-schema.md` so the reviewer can check `.ce-datascience/study-metadata.yaml` completeness. |
 | `ce-sap-drift-detector` | `analysis/sap.md` (or any markdown with `sap_version` frontmatter) exists in project |
 | `ce-data-mapping-reviewer` | codebook, SAP variable list, or `analysis/sap-tables/03-variables.csv` in diff |
 | `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, or figure files in diff, OR `stack_profile.data_root` is inside the repo |
@@ -176,13 +176,13 @@ Routing rules:
 | `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
 | `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
 | `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or `analysis/cohort/concept-sets/` in diff |
-| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, clif-icu/clif-consortium git remote — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules. Require matching `version=` + `mcide_version=` before judging category values; flag an absent, mixed, or v2.1-cache-on-v3 family as a blocking review finding and route to `ce-clif`. Do not dispatch a nonexistent `ce-clif-reviewer`. |
+| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, clif-icu/clif-consortium git remote — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules. Require matching `version=` + `mcide_version=` before judging category values; flag an absent, mixed, or v2.1-cache-on-v3 family as a blocking review finding and route to the `ce-clif` skill. Do not dispatch a nonexistent `ce-clif-reviewer`. |
 | `ce-administrative-data-reviewer` | claims / billing / payer / administrative healthcare data in diff (Medicare, Medicaid, MarketScan, Optum, OMOP claims-flavor) |
 | `ce-concept-drift-reviewer` | concept sets, ICD/CPT/LOINC/SNOMED code lists in diff AND data spans multiple refresh waves or multiple years |
 | `ce-causal-inference-reviewer` | observational analysis with causal aim in diff (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target-trial emulation) |
 | `ce-bioinfo-pipeline-reviewer` | Snakefile / `*.smk` / `*.nf` / `nextflow.config` / `*.cwl` / Bioconductor pipelines / sample-sheet driven scripts in diff |
 | `ce-omics-batch-reviewer` | omics count / beta matrices in diff AND downstream differential or clustering or ML code |
-| `ce-sprint-audit-reviewer` | dispatched by `/ce-sprint close` (not by code review directly) |
+| `ce-sprint-audit-reviewer` | dispatched by `ce-sprint close` (not by code review directly) |
 | `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
 | `ce-performance-reviewer` | DB queries, loop-heavy data transforms, caching, async, large-data operations in diff |
 | `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |
@@ -239,7 +239,7 @@ gh pr view <number-or-url> --json state,title,body,files
 Apply skip rules in order:
 
 - `state` is `CLOSED` or `MERGED` -> stop with message `PR is closed/merged; not reviewing.`
-- **Trivial-PR judgment**: spawn a lightweight sub-agent (use `model: haiku` in Claude Code; gpt-5.4-nano or equivalent in Codex) with the PR title, body, and changed file paths. The agent's task: "Is this an automated or trivial PR that does not warrant a code review? Consider: dependency lock-file or manifest-only bumps, automated release commits, chore version increments with no substantive code changes. When in doubt, answer no — false negatives (skipped reviews that should have run) are more costly than false positives (unnecessary reviews)." If the judgment returns yes: stop with message `PR appears to be a trivial automated PR; not reviewing. Run without a PR argument to review the current branch, or pass base:<ref> if review is intended.`
+- **Trivial-PR judgment**: spawn a lightweight sub-agent (use `model: haiku` in Claude Code; in Codex use the smallest available model — if the available model names are unknown, omit the model parameter and let the harness default) with the PR title, body, and changed file paths. The agent's task: "Is this an automated or trivial PR that does not warrant a code review? Consider: dependency lock-file or manifest-only bumps, automated release commits, chore version increments with no substantive code changes. When in doubt, answer no — false negatives (skipped reviews that should have run) are more costly than false positives (unnecessary reviews)." If the judgment returns yes: stop with message `PR appears to be a trivial automated PR; not reviewing. Run without a PR argument to review the current branch, or pass base:<ref> if review is intended.`
 
 When any skip rule fires, emit the message and stop without dispatching reviewers, switching the checkout, or running scope detection. **Standalone branch mode and `base:` mode are unaffected** -- they always run the full review. **Draft PRs are reviewed normally** -- draft status is not a skip condition; early feedback on in-progress work is valuable.
 
@@ -265,7 +265,7 @@ Then fetch PR metadata. Capture the base branch name and the PR base repository 
 gh pr view <number-or-url> --json title,body,baseRefName,headRefName,url
 ```
 
-Use the repository portion of the returned PR URL as `<base-repo>` (for example, `EveryInc/ce-datascience-plugin` from `https://github.com/EveryInc/ce-datascience-plugin/pull/348`).
+Use the repository portion of the returned PR URL as `<base-repo>` (for example, `sajor2000/ce-datascience` from `https://github.com/sajor2000/ce-datascience/pull/348`).
 
 Then compute a local diff against the PR's base branch so re-reviews also include local fix commits and uncommitted edits. Substitute the PR base branch from metadata (shown here as `<base>`) and the PR base repository identity derived from the PR URL (shown here as `<base-repo>`). Resolve the base ref from the PR's actual base repository, not by assuming `origin` points at that repo:
 

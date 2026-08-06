@@ -461,22 +461,21 @@ async function cleanupKiro(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>,
     inferTemperature: true,
     permissions: "none",
   })
+  // IMPORTANT: legacy detection for Kiro roots must be driven exclusively by
+  // the historical allow-list returned from `getLegacyKiroArtifacts`. Mirrors
+  // the Codex/Copilot/Droid/Qwen/Windsurf cleanup fixes: seeding candidates
+  // from the current plugin bundle would sweep up user-authored files at
+  // `.kiro/skills/<name>` or `.kiro/agents/<name>.json` that happen to share
+  // a name with a current CE artifact but were never installed by this plugin
+  // — and it would relocate a current CE install, turning `install` followed
+  // by `cleanup` into a self-uninstall.
   const artifacts = getLegacyKiroArtifacts(bundle)
-  const skillNames = new Set([
-    ...artifacts.skills,
-    ...bundle.skillDirs.map((skill) => sanitizePathName(skill.name)),
-    ...bundle.generatedSkills.map((skill) => sanitizePathName(skill.name)),
-  ])
-  const agentNames = new Set([
-    ...artifacts.agents,
-    ...bundle.agents.map((agent) => sanitizePathName(agent.name)),
-  ])
   const managedDir = path.join(kiroRoot, "ce-datascience")
   let moved = 0
-  for (const skillName of skillNames) {
+  for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(kiroRoot, "skills"), skillName, "Kiro")
   }
-  for (const agentName of agentNames) {
+  for (const agentName of artifacts.agents) {
     moved += await moveIfExists(managedDir, "agents", path.join(kiroRoot, "agents"), `${agentName}.json`, "Kiro")
     moved += await moveIfExists(managedDir, "agents", path.join(kiroRoot, "agents", "prompts"), `${agentName}.md`, "Kiro")
   }

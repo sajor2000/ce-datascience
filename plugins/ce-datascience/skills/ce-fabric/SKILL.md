@@ -39,7 +39,7 @@ If the route is unclear, follow the Skill Value interaction rule. Because there 
 
 ## Shared research workflow
 
-1. Load the `ce-setup` skill or inspect the existing stack profile. Record `data_layer: fabric` only when repository or user evidence supports it.
+1. Inspect the existing stack profile (`.ce-datascience/config.local.yaml`). If none exists, ask the user to run the `ce-setup` command — it is manual-invocation-only and cannot be loaded by the model. Record `data_layer: fabric` only when repository or user evidence supports it.
 2. State the analytical grain, source item, read/write boundary, and intended artifact before generating transformations.
 3. Load the `ce-data-qa` skill at data boundaries. Reconcile source and target row counts, keys, joins, types, and missing-data handling.
 4. Load the `ce-plan` skill for a study or the `ce-statistical-analysis-plan` skill for claims work before scope-expanding analysis code.

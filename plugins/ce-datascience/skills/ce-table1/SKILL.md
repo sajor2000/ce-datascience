@@ -6,6 +6,8 @@ argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --ou
 
 # Table 1 Generator
 
+> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+
 
 ## Skill Value
 
@@ -27,7 +29,7 @@ Prefer these project-local files:
 - `analysis/sap.md`
 - `analysis/sap-tables/03-variables.csv`
 - `analysis/sap-tables/02-outputs.csv`
-- `plugins/ce-datascience/shared/journal-style-profiles.yaml` when working from source; after install, use the bundled shared profile data available in the plugin package.
+- `references/journal-style-profiles.yaml` (bundled with this skill) for journal style profiles.
 
 If the variables catalog is missing, ask the user for the baseline variable list. Do not invent variables from a vague manuscript request.
 
@@ -41,7 +43,8 @@ python3 scripts/generate_table1.py --variables analysis/sap-tables/03-variables.
 ```
 
 3. Review the generated validation report before presenting the table as ready.
-4. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`; never write patient-level rows there.
+4. **Small-cell suppression (always, not only in CLIF mode):** before presenting or writing any stratified table, suppress or aggregate cells with n below the project's disclosure floor (default n<11 for EHR/claims data; use the site's policy when one is declared). Suppress complementary cells too when a suppressed value could be recovered by subtraction from totals. A Table 1 stratified by exposure routinely produces small cells — check every stratum, not just the obvious ones.
+5. Table 1 output is aggregate-only: never write patient-level rows to publication, review-pack, or shared directories. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`.
 
 ## Outputs
 

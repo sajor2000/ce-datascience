@@ -1,4 +1,4 @@
-# Reference material for /ce-compound
+# Reference material for `ce-compound`
 
 Capture spec, output formats, and the compounding philosophy. Linked from SKILL.md. The execution workflow lives in SKILL.md; this file documents the *what* and *why*.
 

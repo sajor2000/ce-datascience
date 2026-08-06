@@ -3,7 +3,7 @@
 sources:
   scholar: true
   crossref: true
-  scihub: true
+  scihub: false  # opt-in only: enable explicitly if legal in your jurisdiction
   scidb: true
 
 defaults:

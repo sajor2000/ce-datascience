@@ -1,4 +1,5 @@
 import { formatFrontmatter } from "../utils/frontmatter"
+import { rewriteClaudePathsPerLine } from "../utils/claude-path-rewrite"
 import { type ClaudeAgent, type ClaudeCommand, type ClaudeMcpServer, type ClaudePlugin, filterSkillsByPlatform } from "../types/claude"
 import type { GeminiAgent, GeminiBundle, GeminiCommand, GeminiMcpServer } from "../types/gemini"
 import type { ClaudeToOpenCodeOptions } from "./claude-to-opencode"
@@ -17,6 +18,7 @@ export function convertClaudeToGemini(
   const skillDirs = platformSkills.map((skill) => ({
     name: skill.name,
     sourceDir: skill.sourceDir,
+    disableModelInvocation: skill.disableModelInvocation,
   }))
 
   const usedAgentNames = new Set<string>()
@@ -93,10 +95,10 @@ export function transformContentForGemini(body: string): string {
       : `${prefix}Use the @${geminiAgentName} subagent`
   })
 
-  // 2. Rewrite .claude/ paths to .gemini/
-  result = result
-    .replace(/~\/\.claude\//g, "~/.gemini/")
-    .replace(/\.claude\//g, ".gemini/")
+  // 2. Rewrite .claude/ paths to .gemini/ (skipping per-platform enumeration lines)
+  result = rewriteClaudePathsPerLine(result, (line) =>
+    line.replace(/~\/\.claude\//g, "~/.gemini/").replace(/\.claude\//g, ".gemini/"),
+  )
 
   // 3. Transform @agent-name references
   const agentRefPattern = /@([a-z][a-z0-9-]*-(?:agent|reviewer|researcher|analyst|specialist|oracle|sentinel|guardian|strategist))(?!\s+subagent\b)/gi

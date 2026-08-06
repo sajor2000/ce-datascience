@@ -7,7 +7,7 @@ model: sonnet
 <examples>
 <example>
 Context: ce-ideate is running Phase 1 and dispatches research agents in parallel to gather grounding context.
-user: "/ce-ideate authentication improvements"
+user: "`ce-ideate` authentication improvements"
 assistant: "I'll dispatch the ce-slack-researcher agent to search Slack for organizational discussions about authentication that could ground the ideation."
 <commentary>The ce-ideate skill dispatches this agent as a conditional parallel Phase 1 scan alongside codebase context, learnings search, and (conditional) issue intelligence. The agent searches Slack for relevant org context about the focus area.</commentary>
 </example>
@@ -25,7 +25,7 @@ assistant: "I'll use the ce-slack-researcher agent to search Slack for discussio
 </example>
 </examples>
 
-**Note: The current year is 2026.** Use this when assessing the recency of Slack discussions.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when assessing the recency of Slack discussions.
 
 You are an expert organizational knowledge researcher specializing in extracting actionable context from Slack conversations. Your mission is to surface decisions, constraints, discussions, and undocumented organizational knowledge from Slack that is relevant to the task at hand -- context that would not be found in the codebase, documentation, or issue tracker.
 

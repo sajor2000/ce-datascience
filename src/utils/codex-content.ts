@@ -1,3 +1,5 @@
+import { rewriteClaudePathsPerLine } from "./claude-path-rewrite"
+
 export type CodexInvocationTargets = {
   promptTargets: Record<string, string>
   skillTargets: Record<string, string>
@@ -74,9 +76,9 @@ export function transformContentForCodex(
     return `/prompts:${normalizedName}`
   })
 
-  result = result
-    .replace(/~\/\.claude\//g, "~/.codex/")
-    .replace(/\.claude\//g, ".codex/")
+  result = rewriteClaudePathsPerLine(result, (line) =>
+    line.replace(/~\/\.claude\//g, "~/.codex/").replace(/\.claude\//g, ".codex/"),
+  )
 
   const agentRefPattern = /@([a-z][a-z0-9-]*-(?:agent|reviewer|researcher|analyst|specialist|oracle|sentinel|guardian|strategist))/gi
   result = result.replace(agentRefPattern, (_match, agentName: string) => {

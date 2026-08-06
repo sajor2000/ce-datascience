@@ -16,7 +16,7 @@ argument-hint: "[feature, focus area, or constraint]"
 - **Do not do:** Do not skip directly to implementation or present ungrounded ideas as validated plans.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-**Note: The current year is 2026.** Use this when dating ideation documents and checking recent ideation artifacts.
+**Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating ideation documents and checking recent ideation artifacts.
 
 `ce-ideate` precedes `ce-brainstorm`.
 
@@ -248,7 +248,7 @@ Before generating ideas, gather grounding. The dispatch set depends on the mode 
 
 Generate a `<run-id>` once at the start of Phase 1 (8 hex chars). Reuse it for the V15 cache file (this phase) and the V17 checkpoints (Phases 2 and 4) so they share one per-run scratch directory.
 
-**Pre-resolve the scratch directory path.** Scratch lives directly under `/tmp` (not under `$TMPDIR` and not under `.context/`). `$TMPDIR` on macOS resolves to an obscure per-user path like `/var/folders/64/.../T/` that is hostile for users who want to inspect checkpoints, copy them elsewhere, or reference them later — `/tmp` is universally accessible on macOS, Linux, and WSL, and the per-user isolation `$TMPDIR` provides is not valuable for ephemeral ideation scratch. Run one bash command to create the directory and capture its absolute path for downstream use.
+**Pre-resolve the scratch directory path.** This skill's scratch is cross-invocation reusable (later runs discover sibling run-ids), so it lives directly under `/tmp` — not under `$TMPDIR` and not under `.context/`. (Per-run throwaway scratch in other skills may legitimately use `mktemp -d -t`, which resolves under `$TMPDIR`; that rule does not apply here.) `$TMPDIR` on macOS resolves to an obscure per-user path like `/var/folders/64/.../T/` that is hostile for users who want to inspect checkpoints, copy them elsewhere, or reference them later — `/tmp` is universally accessible on macOS, Linux, and WSL, and the per-user isolation `$TMPDIR` provides is not valuable for ephemeral ideation scratch. Run one bash command to create the directory and capture its absolute path for downstream use.
 
 ```bash
 SCRATCH_DIR="/tmp/ce-datascience/ce-ideate/<run-id>"
@@ -314,7 +314,7 @@ Consolidate all dispatched results into a short grounding summary using these se
 
 **Failure handling.** Grounding agent failures follow "warn and proceed" — never block on grounding failure. If `ce-web-researcher` fails (network, tool unavailable), log a warning ("External research unavailable: {reason}. Proceeding with internal grounding only.") and continue. If elsewhere-mode intake produced no usable context, note in the grounding summary that context is thin so Phase 2 sub-agents can compensate with broader generation.
 
-**Slack context** (opt-in, both modes) — never auto-dispatch. When the user asks for Slack context and Slack tools are available (look for any `slack-researcher` agent or `slack` MCP tools in the current environment), dispatch `ce-slack-researcher` with the focus hint in parallel with other Phase 1 agents. When tools are present but the user did not ask, mention availability in the grounding summary so they can opt in. When the user asked but no Slack tools are reachable, surface the install hint instead.
+**Slack context** (opt-in, both modes) — never auto-dispatch. When the user asks for Slack context and Slack tools are available (look for the `ce-slack-researcher` agent or `slack` MCP tools in the current environment), dispatch `ce-slack-researcher` with the focus hint in parallel with other Phase 1 agents. When tools are present but the user did not ask, mention availability in the grounding summary so they can opt in. When the user asked but no Slack tools are reachable, surface the install hint instead.
 
 ### Phase 2: Divergent Ideation
 

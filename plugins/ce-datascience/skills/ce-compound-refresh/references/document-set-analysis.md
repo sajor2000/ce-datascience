@@ -1,6 +1,6 @@
 # Phase 1.75: Document-Set Analysis
 
-Detail for /ce-compound-refresh § "Phase 1.75: Document-Set Analysis". Linked from SKILL.md. Covers overlap detection, supersession signals, canonical-doc identification, the retrieval-value test, and the cross-doc conflict check applied after individual-doc investigation.
+Detail for `ce-compound-refresh` § "Phase 1.75: Document-Set Analysis". Linked from SKILL.md. Covers overlap detection, supersession signals, canonical-doc identification, the retrieval-value test, and the cross-doc conflict check applied after individual-doc investigation.
 
 ## Table of contents
 

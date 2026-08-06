@@ -265,7 +265,7 @@ Assemble the body in this order:
 ```markdown
 ---
 
-[![CE DataScience](https://img.shields.io/badge/Built_with-Compound_Engineering-6366f1)](https://github.com/EveryInc/ce-datascience-plugin)
+[![CE DataScience](https://img.shields.io/badge/Built_with-Compound_Engineering-6366f1)](https://github.com/sajor2000/ce-datascience)
 ![HARNESS](https://img.shields.io/badge/MODEL_SLUG-COLOR?logo=LOGO&logoColor=white)
 ```
 

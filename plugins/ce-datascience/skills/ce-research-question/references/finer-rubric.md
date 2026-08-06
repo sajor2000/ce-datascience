@@ -4,7 +4,7 @@ Five dimensions, scored 1-5 each, with a written rationale. Low scores are diagn
 
 ## F — Feasible (1-5)
 
-- **5** — Data already in hand; cohort size confirmed adequate by `/ce-power`; team has methods experience; timeline < 12 months
+- **5** — Data already in hand; cohort size confirmed adequate by `ce-power`; team has methods experience; timeline < 12 months
 - **4** — Data accessible with effort (DUA in hand or pending); team has 80% of methods experience needed
 - **3** — Data accessible in principle (would require IRB amendment, vendor renewal, or new DUA); methods are stretch
 - **2** — Data exists somewhere but access is not yet established; or team has no experience with the required methods
@@ -52,7 +52,7 @@ Rationale must explicitly address equipoise (for interventional) or consent / re
 
 Rationale should name the practice change a positive (or null) result would trigger.
 
-## How `/ce-research-question` uses scores
+## How `ce-research-question` uses scores
 
 - All scores ≥ 3: proceed without comment
 - Any score = 2: surface the issue and ask the user whether it is acknowledged or whether the question should be reframed

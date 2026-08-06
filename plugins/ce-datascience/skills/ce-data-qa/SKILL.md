@@ -16,7 +16,7 @@ argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 - **Do not do:** Do not certify SAP correctness or run modeling.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-This skill formalizes the data-QA gate that exists between data extraction and SAP/modeling work. **No SAP finalization, coding, or modeling runs until the available data columns and QA status are documented.** A "fail" outcome blocks the pipeline; a "warn" outcome requires PI sign-off; a "pass" outcome unlocks the data lock + modeling phase. When the SAP does not exist yet, run in pre-SAP column profile mode and emit a data profile that `/ce-plan` uses to draft the SAP without inventing variables.
+This skill formalizes the data-QA gate that exists between data extraction and SAP/modeling work. **No SAP finalization, coding, or modeling runs until the available data columns and QA status are documented.** A "fail" outcome blocks the pipeline; a "warn" outcome requires PI sign-off; a "pass" outcome unlocks the data lock + modeling phase. When the SAP does not exist yet, run in pre-SAP column profile mode and emit a data profile that `ce-plan` uses to draft the SAP without inventing variables.
 
 ## When This Skill Activates
 
@@ -24,14 +24,14 @@ This skill formalizes the data-QA gate that exists between data extraction and S
 - The SAP shape may have drifted from the data shape (analyst noticed column rename, type change, or value-set expansion)
 - Before unblinding for confirmatory analysis (final QA pass against the locked SAP)
 - After a re-extract following an EHR query fix
-- Manual invocation via `/ce-data-qa` to spot-check a dataset
+- Manual invocation via `ce-data-qa` to spot-check a dataset
 
 ## Prerequisites
 
 1. A SAP exists at `analysis/sap.md` (or specified via `--sap`) for full SAP-aligned QA. If no SAP exists yet, run pre-SAP column profile mode instead of stopping.
-2. A stack profile has been written via the `ce-setup` skill so `data_root` is known.
-3. The data extract is registered as a data wave (run `data_wave_register` MCP tool first if not).
-4. If the dataset is a research cohort built from EHR or claims data, run `/ce-cohort-build` first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
+2. A stack profile exists so `data_root` is known. If none exists, ask the user to run the `ce-setup` command (it is manual-invocation-only and cannot be loaded by the model), or ask them directly for `data_root` and proceed with that answer.
+3. The data extract is registered as a data wave. Register it with the `data_wave_register` MCP tool when the ce-datascience MCP server is available; when it is not, record the wave manually by appending an entry (extract id, source, received date, row count) to `analysis/data-waves.md` and proceed — the MCP server is an accelerator, not a prerequisite.
+4. If the dataset is a research cohort built from EHR or claims data, load the `ce-cohort-build` skill first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
 
 ## Core Workflow
 
@@ -41,11 +41,12 @@ If a SAP is available, run **SAP-aligned QA mode** and compare the data to SAP-d
 
 If no SAP is available, run **pre-SAP column profile mode**:
 
-- Inspect the dataset or table schema before `/ce-plan` writes SAP variable/model sections.
+- Inspect the dataset or table schema before `ce-plan` writes SAP variable/model sections.
 - Produce row count, column count, column names and types, candidate grain, primary or candidate keys, important date columns, timezone assumptions, null rates, duplicate rates, distinct counts for categorical columns, and basic numeric summaries.
+- **PHI guard (always, not only in CLIF mode):** never echo row-level data, free-text columns, identifiers, or dates of birth into the QA report — report counts and masked samples instead. When listing distinct categorical values with counts in a report that may be shared, suppress categories below the disclosure floor (default n<11 for EHR/claims data) or bucket them as "other".
 - Flag obvious validity issues such as impossible dates, negative counts where not plausible, sentinel missing values, mixed-grain rows, and PHI-suspect columns.
 - Do not invent study variables or analysis models. Mark SAP-dependent checks as "deferred until SAP exists."
-- Emit `__CE_DATA_PROFILE__` so `/ce-plan` can use the actual columns and state which variables remain provisional.
+- Emit `__CE_DATA_PROFILE__` so `ce-plan` can use the actual columns and state which variables remain provisional.
 
 ### Step 1: Resolve the data wave
 
@@ -67,7 +68,7 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 
 ### Step 3: Run the QA checks
 
-**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative family. If either version is missing, incomplete, or mixed, stop the category check and route to `ce-clif`; do not use a v2.1 cache by default.
+**CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative family. If either version is missing, incomplete, or mixed, stop the category check and route to the `ce-clif` skill; do not use a v2.1 cache by default.
 
 - **Storage check**: refuse to QA non-Parquet inputs for CLIF tables; emit a `block` finding if asked to QA CSV/Feather data declared as CLIF.
 - **ID type check**: `patient_id` and `hospitalization_id` are VARCHAR — `block` if cast to int.
@@ -104,11 +105,11 @@ Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extr
 6. **Findings table**: bucket × check × variable × details
 7. **Sign-off block**: empty, for PI to fill if `warn` bucket non-empty
 
-If any `warn` finding requires PI approval, add the report path and finding summary to the project signoff ledger used by `/ce-review-pack`. Data-QA approval must remain separate from the data lock; the ledger records human acceptance of warnings, not permission to mutate locked data.
+If any `warn` finding requires PI approval, add the report path and finding summary to the project signoff ledger used by `ce-review-pack`. Data-QA approval must remain separate from the data lock; the ledger records human acceptance of warnings, not permission to mutate locked data.
 
 ### Step 5: Emit GO/NO-GO and update data state
 
-Always emit a unified handoff signal that `/ce-plan` SAP mode reads (and a legacy GO/NO-GO line for backward compatibility):
+Always emit a unified handoff signal that `ce-plan` SAP mode reads (and a legacy GO/NO-GO line for backward compatibility):
 
 ```
 __CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<n> columns=<n> grain=<candidate-grain-or-unknown> report=<path>
@@ -119,7 +120,7 @@ In pre-SAP column profile mode, `pass=true` means no structural blockers were fo
 
 ### Step 6: Compound learning hook
 
-If any `block` or `warn` finding fires AND the same finding pattern appeared on a prior extract (lookup via `ce-learnings-researcher` for `problem_type: data_quality_issue`), suggest `/ce-compound` to capture the pattern. Use the heuristic: same variable + same check + ≥ 2 occurrences across studies = compound-worthy.
+If any `block` or `warn` finding fires AND the same finding pattern appeared on a prior extract (lookup via `ce-learnings-researcher` for `problem_type: data_quality_issue`), suggest `ce-compound` to capture the pattern. Use the heuristic: same variable + same check + ≥ 2 occurrences across studies = compound-worthy.
 
 ## Pipeline mode
 
@@ -128,7 +129,7 @@ When invoked from an automated workflow (LFG-style, headless `ce-work`, or any `
 ## What This Skill Does NOT Do
 
 - **It does not modify the data.** This is a read-only assessment. Cleaning is a separate `ce-work` task.
-- **It does not lock the data.** Locking requires explicit user confirmation via the `data_lock` MCP tool.
+- **It does not lock the data.** Locking requires explicit user confirmation via the `data_lock` MCP tool — or, when the MCP server is unavailable, a dated "locked" entry for the wave in `analysis/data-waves.md` naming the QA report path.
 - **It does not check SAP correctness.** That's `ce-sap-drift-detector` (which now also covers amendments). We check data-vs-SAP shape consistency only.
 - **It does not run statistical models.** No fits, no tests, no inferential output. Descriptive only.
 

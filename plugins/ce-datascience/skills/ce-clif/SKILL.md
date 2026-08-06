@@ -28,7 +28,7 @@ Auto-activate when **two or more** of the following signals are present (single 
 - A file named `CLIF_CLAUDE.md` exists at the repo root or `~/CLIF_CLAUDE.md`
 - Git remote URL contains `clif-consortium`, `Common-Longitudinal-ICU-data-Format`, or `clif-icu`
 - The user explicitly says "CLIF", "mCIDE", "clif-icu", or "common longitudinal icu data format"
-- Manual: `/ce-clif` (forces activation)
+- Manual: `ce-clif` (forces activation)
 
 **Weak signals (require 2+ to activate — individually these appear in non-CLIF projects):**
 - A `mCIDE/` directory exists
@@ -49,7 +49,7 @@ When signals are ambiguous (only weak signals, or the user mentions a CLIF table
 
 > "Detected possible CLIF signals but this may not be a CLIF project. Is this a CLIF consortium or CLIF-derived project?"
 
-`/ce-clif --off` forces deactivation for the session.
+`ce-clif --off` forces deactivation for the session.
 
 ### Select the CLIF and mCIDE family
 
@@ -59,8 +59,8 @@ order, an explicit `--version`, `clif.data_dictionary_version` and
 and a documented source manifest. Treat `--version` as a full direct call:
 
 ```text
-/ce-clif --version 2.1.0  -> CLIF 2.1.0 + mCIDE 2.1.0
-/ce-clif --version 3.0.0  -> CLIF 3.0.0 + mCIDE 3.0.0
+`ce-clif --version 2.1.0`  -> CLIF 2.1.0 + mCIDE 2.1.0
+`ce-clif --version 3.0.0`  -> CLIF 3.0.0 + mCIDE 3.0.0
 ```
 
 An accepted direct call emits `selection=explicit` and needs no extra version
@@ -166,8 +166,8 @@ When the session is about to edit any `protected_paths` entry, the skill's guard
 
 - Does not edit files in the upstream CLIF repo on the user's behalf
 - Does not contact POCs (it only cites the right person)
-- Does not replace `/ce-data-qa`, `/ce-cohort-build`, etc. — it just changes how those skills behave when CLIF mode is active
-- Does not de-identify data or run PHI scans (use `ce-phi-leak-reviewer`)
+- Does not replace `ce-data-qa`, `ce-cohort-build`, etc. — it just changes how those skills behave when CLIF mode is active
+- Does not de-identify data or run PHI scans (use the `ce-phi-leak-reviewer` skill)
 
 ## Handoff signal (canonical envelope)
 
@@ -185,7 +185,7 @@ When the user is writing CLIF analysis code, surface canonical recipes from the 
 - **R users** (`__CE_LANG__ primary=r`): load `references/r-template-recipes.md` — recipes drawn from `Common-Longitudinal-ICU-data-Format/CLIF-Project-Template` (R) and the canonical `code/templates/R/` layout. Covers `renv` bootstrap, `arrow::open_dataset()` reads, cohort → QC → outlier handling → analysis, and the separate intermediate/final output paths.
 - **`__CE_LANG__ primary=both`** or `unknown`: surface both files so the agent can choose.
 
-For a new consortium project or an audit of an existing template-derived repository, route to `ce-clif-project-template`. It owns template initialization and structural audit; this skill remains the CLIF version, vocabulary, and protected-path guardrail.
+For a new consortium project or an audit of an existing template-derived repository, route to the `ce-clif-project-template` skill. It owns template initialization and structural audit; this skill remains the CLIF version, vocabulary, and protected-path guardrail.
 
 ## References
 
@@ -193,10 +193,10 @@ For a new consortium project or an audit of an existing template-derived reposit
 
 @./references/mcide-vocab.md — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3
 
-`references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
+@./references/version-families.md — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
 
 @./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
 
-`references/clifpy-recipes.md` — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
+@./references/clifpy-recipes.md — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
 
 `references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.
