@@ -25,6 +25,7 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.skills).toContain("ce-review")
     expect(artifacts.skills).toContain("ce:review-beta")
     expect(artifacts.skills).toContain("ce-document-review")
+    expect(artifacts.skills).toContain("ce-mcp-server")
     expect(artifacts.skills).toContain("demo-reel")
     expect(artifacts.skills).toContain("ce:polish-beta")
     expect(artifacts.skills).toContain("ce:release-notes")

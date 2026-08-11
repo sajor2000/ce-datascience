@@ -141,6 +141,17 @@ remove_managed_codex_mcp_config() {
     echo "[dry-run] remove managed CE DataScience MCP block from $config_path"
     return
   fi
+  if ! grep -Fqx "$MANAGED_START" "$config_path" && ! grep -Fqx "$MANAGED_END" "$config_path"; then
+    return
+  fi
+  if ! awk -v start="$MANAGED_START" -v end="$MANAGED_END" '
+    $0 == start { if (inside) exit 1; inside = 1; next }
+    $0 == end { if (!inside) exit 1; inside = 0; next }
+    END { if (inside) exit 1 }
+  ' "$config_path" >/dev/null; then
+    echo "Cannot remove malformed CE DataScience MCP block from $config_path; leaving config unchanged." >&2
+    return 1
+  fi
   local temp_config
   temp_config="$(mktemp -t ce-codex-config-clean-XXXXXX)"
   awk -v start="$MANAGED_START" -v end="$MANAGED_END" '

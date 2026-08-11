@@ -279,6 +279,33 @@ describe("corporate install artifacts", () => {
     const cleanedConfig = await fs.readFile(configPath, "utf8")
     expect(cleanedConfig).toContain("user_owned = true")
     expect(cleanedConfig).not.toContain("BEGIN CE DataScience plugin MCP")
+
+    const malformedConfig = [
+      "[features]",
+      "user_owned = true",
+      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+      "[mcp_servers.ce-datascience]",
+      'command = "python3"',
+      "[mcp_servers.user-owned]",
+      'command = "keep-me"',
+      "",
+    ].join("\n")
+    await fs.writeFile(configPath, malformedConfig)
+    const malformedRun = Bun.spawn([
+      "bash",
+      path.join(codexPackage, "install-codex-offline.sh"),
+      "--source",
+      codexPackage,
+      "--codex-home",
+      codexHome,
+      "--agents-home",
+      agentsHome,
+    ], { cwd: repoRoot, stdout: "pipe", stderr: "pipe" })
+    const malformedExit = await malformedRun.exited
+    const malformedStderr = await new Response(malformedRun.stderr).text()
+    expect(malformedExit).not.toBe(0)
+    expect(malformedStderr).toContain("leaving config unchanged")
+    expect(await fs.readFile(configPath, "utf8")).toBe(malformedConfig)
   })
 
   test("setup intake supports corporate no-install mode and keeps Quarto optional", async () => {
