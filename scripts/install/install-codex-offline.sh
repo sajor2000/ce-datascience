@@ -4,8 +4,6 @@
 set -euo pipefail
 
 PLUGIN_NAME="ce-datascience"
-MANAGED_START="# BEGIN CE DataScience plugin MCP -- do not edit this block"
-MANAGED_END="# END CE DataScience plugin MCP"
 
 source_root=""
 codex_home="${CODEX_HOME:-$HOME/.codex}"
@@ -23,9 +21,8 @@ Options:
   --dry-run            Print actions without writing files
   --help               Show this help
 
-This installer copies the local plugin marketplace package, installs the
-generated Codex agent bridge when present, and writes a bounded MCP config block
-whose paths point at the installed local plugin copy.
+This installer copies the local plugin marketplace package and installs the
+generated Codex agent bridge when present.
 USAGE
 }
 
@@ -208,52 +205,6 @@ JSON
   fi
 }
 
-merge_managed_codex_config() {
-  local config_path="$codex_home/config.toml"
-  local run_py="$plugin_dest/skills/ce-mcp-server/mcp_server/run.py"
-
-  if [ ! -f "$run_py" ]; then
-    echo "Skipping Codex MCP config; server entrypoint is missing at $run_py" >&2
-    return
-  fi
-
-  run_or_echo mkdir -p "$codex_home"
-
-  if [ "$dry_run" = "yes" ]; then
-    echo "[dry-run] write managed MCP block to $config_path"
-    return
-  fi
-
-  local temp_config new_config
-  temp_config="$(mktemp -t ce-codex-config-XXXXXX)"
-  new_config="$(mktemp -t ce-codex-config-new-XXXXXX)"
-
-  if [ -f "$config_path" ]; then
-    awk -v start="$MANAGED_START" -v end="$MANAGED_END" '
-      $0 == start { skip = 1; next }
-      $0 == end { skip = 0; next }
-      skip != 1 { print }
-    ' "$config_path" > "$temp_config"
-  else
-    : > "$temp_config"
-  fi
-
-  sed -e '${/^$/d;}' "$temp_config" > "$new_config"
-  if [ -s "$new_config" ]; then
-    printf '\n\n' >> "$new_config"
-  fi
-  {
-    printf '%s\n' "$MANAGED_START"
-    printf '[mcp_servers.%s]\n' "$PLUGIN_NAME"
-    printf 'command = "python3"\n'
-    printf 'args = ["%s"]\n' "$run_py"
-    printf '%s\n' "$MANAGED_END"
-  } >> "$new_config"
-
-  mv "$new_config" "$config_path"
-  rm -f "$temp_config"
-}
-
 copy_dir_replace "$plugin_src" "$plugin_dest"
 write_marketplace_json
 
@@ -262,8 +213,6 @@ if [ -n "$bridge_source" ]; then
 else
   echo "No Codex agent bridge found under $source_root; installed native plugin marketplace only."
 fi
-
-merge_managed_codex_config
 
 echo ""
 echo "Codex offline install complete."

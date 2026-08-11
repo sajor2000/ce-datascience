@@ -38,8 +38,8 @@ installed files are self-contained.
   `pi`, `gemini`, and `kiro`.
 - For Codex, test both the recommended native-plugin-plus-agent-bridge mode and
   standalone `--include-skills` mode. Use `--codex-home` for temp Codex roots.
-- Confirm local MCP server entries point at absolute installed files, not the
-  source checkout or a temp clone that may disappear after install.
+- If an external MCP server is supplied by a target plugin, confirm its local
+  entry points at an absolute installed file, not the source checkout.
 - Confirm generated outputs do not include `__pycache__`, `.pyc`, `.pyo`, or
   `.DS_Store` artifacts.
 - Confirm reruns clean artifacts that the same plugin previously managed
@@ -51,7 +51,7 @@ installed files are self-contained.
 ## 2026-06-07 RC Certification
 
 The release-candidate smoke path passed with the current plugin inventory:
-55 agents, 49 skills, and 1 MCP server.
+55 agents, 76 skills, and no bundled MCP server.
 
 Automated checks:
 
@@ -71,8 +71,8 @@ Manual temp-root checks:
 - Installed 49 Claude alias command files into a temp command root and verified
   `ce-setup.md` delegates to `/ce-datascience:ce-setup $ARGUMENTS`.
 - Installed the Codex offline package into a fresh temp profile and verified
-  marketplace metadata, generated bridge agents, and MCP config paths point to
-  the installed plugin copy.
+  marketplace metadata and generated bridge agents point to the installed
+  plugin copy.
 - Ran generated installs for `codex --include-skills`, `opencode`, `pi`,
   `gemini`, and `kiro` into fresh temp roots and verified no cache artifacts
   were copied.

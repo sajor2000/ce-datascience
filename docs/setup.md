@@ -121,7 +121,7 @@ is recommended for the compact setup confirmation.
 |---|---|---|
 | Claude Code | Registers this checkout as a local marketplace, installs `ce-datascience`, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
 | Codex | Registers the local marketplace and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
-| Pi | Writes generated CE skills, agents, prompts, and MCP configuration under the selected Pi home | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
+| Pi | Writes generated CE skills, agents, and prompts under the selected Pi home | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
 
 The installer does not configure every research project globally. The
 `ce-setup` skill creates project-local configuration after the plugin is loaded.
@@ -244,8 +244,8 @@ Optional sanity check:
 bun run release:validate
 ```
 
-Expected result: release metadata is in sync, with the current agent, skill, and
-MCP server counts.
+Expected result: release metadata is in sync, with the current agent and skill
+counts.
 
 ## 6. Pick Your Agent
 
@@ -307,8 +307,9 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills
 ```
 
-Standalone mode writes generated skills, agents, MCP config, and managed Codex
-hooks. Managed hooks preserve manual hooks and hooks from other plugins.
+Standalone mode writes generated skills, agents, and managed Codex hooks. Managed
+hooks preserve manual hooks and hooks from other plugins. Optional MCP
+integrations remain user-configured.
 
 ### OpenCode
 
