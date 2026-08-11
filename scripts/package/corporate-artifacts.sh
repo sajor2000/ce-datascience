@@ -163,14 +163,6 @@ else
   echo "bun not found; Codex bridge agents were not generated for this package." >&2
 fi
 
-cat > "$codex_stage/codex-agent-bridge/config.toml.template" <<'TOML'
-# BEGIN CE DataScience plugin MCP -- do not edit this block
-[mcp_servers.ce-datascience]
-command = "python3"
-args = ["__CE_DATASCIENCE_MCP_RUN_PY__"]
-# END CE DataScience plugin MCP
-TOML
-
 zip_dir "$output_dir/ce-datascience-plugin.zip" "$plugin_stage" "ce-datascience"
 zip_dir "$output_dir/ce-datascience-claude-aliases.zip" "$staging_dir" "ce-datascience-claude-aliases"
 zip_dir "$output_dir/ce-datascience-codex-local.zip" "$staging_dir" "ce-datascience-codex-local"

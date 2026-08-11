@@ -117,8 +117,7 @@ describe("corporate install artifacts", () => {
     expect(powershellInstaller).toContain("Install-CodexOffline")
     expect(powershellInstaller).toContain("ConvertTo-Json")
     expect(powershellInstaller).toContain("CE_DATASCIENCE_ALIAS_MANAGED")
-    expect(powershellInstaller).toContain('Test-CommandAvailable "python3"')
-    expect(powershellInstaller).toContain('Test-CommandAvailable "py"')
+    expect(powershellInstaller).not.toContain("ce-mcp-server")
     expect(powershellInstaller).toContain('"doctor" { Show-Doctor }')
 
     const readme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
@@ -202,7 +201,7 @@ describe("corporate install artifacts", () => {
     expect(await exists(path.join(codexPackage, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"))).toBe(true)
     expect(await exists(path.join(codexPackage, "install-codex-offline.sh"))).toBe(true)
     expect(await exists(path.join(codexPackage, "install.ps1"))).toBe(true)
-    expect(await exists(path.join(codexPackage, "codex-agent-bridge", "config.toml.template"))).toBe(true)
+    expect(await exists(path.join(codexPackage, "codex-agent-bridge", "config.toml.template"))).toBe(false)
     expect(await exists(path.join(codexPackage, "codex-agent-bridge", "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
   })
 
@@ -251,6 +250,35 @@ describe("corporate install artifacts", () => {
     expect(await exists(path.join(marketplaceResolvedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
 
     expect(await exists(path.join(installedPlugin, ".mcp.json"))).toBe(false)
+
+    const configPath = path.join(codexHome, "config.toml")
+    await fs.mkdir(codexHome, { recursive: true })
+    await fs.writeFile(
+      configPath,
+      [
+        "[features]",
+        "user_owned = true",
+        "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+        "[mcp_servers.ce-datascience]",
+        'command = "python3"',
+        'args = ["/old/ce-mcp-server/run.py"]',
+        "# END CE DataScience plugin MCP",
+        "",
+      ].join("\n"),
+    )
+    await run([
+      "bash",
+      path.join(codexPackage, "install-codex-offline.sh"),
+      "--source",
+      codexPackage,
+      "--codex-home",
+      codexHome,
+      "--agents-home",
+      agentsHome,
+    ])
+    const cleanedConfig = await fs.readFile(configPath, "utf8")
+    expect(cleanedConfig).toContain("user_owned = true")
+    expect(cleanedConfig).not.toContain("BEGIN CE DataScience plugin MCP")
   })
 
   test("setup intake supports corporate no-install mode and keeps Quarto optional", async () => {

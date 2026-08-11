@@ -260,57 +260,19 @@ function Merge-CodexMarketplace([string]$MarketplacePath) {
   $data | ConvertTo-Json -Depth 10 | Set-Content -Path $MarketplacePath -Encoding UTF8
 }
 
-function Get-PythonCommandAndArgs([string]$RunPy) {
-  $runPyForToml = $RunPy.Replace("\", "/")
-  if (Test-CommandAvailable "python3") {
-    return @{ Command = "python3"; Args = @($runPyForToml) }
-  }
-  if (Test-CommandAvailable "python") {
-    return @{ Command = "python"; Args = @($runPyForToml) }
-  }
-  if (Test-CommandAvailable "py") {
-    return @{ Command = "py"; Args = @("-3", $runPyForToml) }
-  }
-  return @{ Command = "python3"; Args = @($runPyForToml) }
-}
-
-function Convert-ToTomlString([string]$Value) {
-  return '"' + ($Value.Replace("\", "/").Replace('"', '\"')) + '"'
-}
-
-function Merge-CodexMcpConfig([string]$PluginDest) {
+function Remove-CodexMcpConfig {
   $configPath = Join-Path $CodexHome "config.toml"
-  $runPy = Join-Path $PluginDest "skills\ce-mcp-server\mcp_server\run.py"
-  if (-not (Test-Path $runPy)) {
-    Write-Warning "Skipping Codex MCP config; server entrypoint is missing at $runPy"
+  if (-not (Test-Path $configPath)) {
     return
   }
-  $python = Get-PythonCommandAndArgs $runPy
-  $argsToml = (($python.Args | ForEach-Object { Convert-ToTomlString $_ }) -join ", ")
-  $block = @"
-$ManagedStart
-[mcp_servers.$PluginName]
-command = "$($python.Command)"
-args = [$argsToml]
-$ManagedEnd
-"@
-
   if ($DryRun) {
-    Write-Output "[dry-run] write managed MCP block to $configPath"
+    Write-Output "[dry-run] remove managed CE DataScience MCP block from $configPath"
     return
   }
-
-  New-Item -ItemType Directory -Force -Path $CodexHome | Out-Null
-  $content = if (Test-Path $configPath) { Get-Content $configPath -Raw } else { "" }
+  $content = Get-Content $configPath -Raw
   $pattern = "(?ms)^$([regex]::Escape($ManagedStart))\r?\n.*?^$([regex]::Escape($ManagedEnd))\r?\n?"
   $content = [regex]::Replace($content, $pattern, "")
-  $content = $content.TrimEnd()
-  if ($content.Length -gt 0) {
-    $content = "$content`r`n`r`n$block`r`n"
-  } else {
-    $content = "$block`r`n"
-  }
-  Set-Content -Path $configPath -Value $content -Encoding UTF8
+  Set-Content -Path $configPath -Value $content.TrimEnd() -Encoding UTF8
 }
 
 function Install-Claude {
@@ -377,7 +339,7 @@ function Install-CodexOffline {
     Write-Output "No Codex agent bridge found under $Source; installed native plugin marketplace only."
   }
 
-  Merge-CodexMcpConfig $pluginDest
+  Remove-CodexMcpConfig
   Write-Output ""
   Write-Output "Codex offline install complete."
   Write-Output "Marketplace: $marketplacePath"

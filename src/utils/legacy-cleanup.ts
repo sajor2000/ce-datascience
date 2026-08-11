@@ -94,6 +94,7 @@ export const STALE_SKILL_DIRS = [
   "ce-every-style-editor",
   "ce-onboarding",
   "ce-pr-description",
+  "ce-mcp-server",
 ]
 
 /** Old agent names (used as generated skill dirs or flat .md files). */
@@ -273,6 +274,8 @@ const LEGACY_ONLY_SKILL_DESCRIPTIONS: Record<string, string> = {
     "Create engaging changelogs for recent merges to main branch",
   "ce-deploy-docs":
     "Validate and prepare documentation for GitHub Pages deployment",
+  "ce-mcp-server":
+    "Register and explain the ce-datascience MCP server for stack profiles, SAPs, data locks, compliance checks, and learning artifacts.",
   "ce-dspy-ruby":
     "Build type-safe LLM applications with DSPy.rb — Ruby's programmatic prompt framework with signatures, modules, agents, and optimization. Use when implementing predictable AI features, creating LLM signatures and modules, configuring language model providers, building agent systems with tools, optimizing prompts, or testing LLM-powered functionality in Ruby applications.",
   "ce-every-style-editor":

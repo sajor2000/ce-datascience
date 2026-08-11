@@ -39,7 +39,7 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 
 A draft does not go to an author with any of the following still present, regardless of how the request was phrased ("just get me a draft," "quick version," "don't worry about polish"):
 
-- Any hedge, caveat, or interpretive clause inside Methods or Results, except concise rationale required to document a prespecified methodological choice under the applicable reporting standard, protocol, regulation, or reproducibility requirement.
+- Any unsupported hedge, caveat, or interpretive clause inside Methods or Results, except factual statistical statements that report what the analysis showed and concise rationale required to document a prespecified methodological choice under the applicable reporting standard, protocol, regulation, or reproducibility requirement.
 - Any uncited "studies show" / "research suggests" / "experts believe."
 - Any statistical intensifier ("significant," "substantial," "robust") without its statistic attached.
 
