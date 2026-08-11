@@ -19,7 +19,7 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 
 | Section | Skill applied | Bar to clear |
 |---|---|---|
-| Methods | `ce-manuscript-section-discipline` | Zero red-flag phrases; every sentence is procedure, not justification |
+| Methods | `ce-manuscript-section-discipline` | No unsupported red-flag rationale; preserve concise rationale required by the applicable guideline, protocol, regulation, or reproducibility standard |
 | Results | `ce-manuscript-section-discipline` | Zero red-flag phrases; every claim carries its statistic; zero editorializing adverbs |
 | Abstract — Methods and Results subsections of a structured abstract | `ce-manuscript-section-discipline` | Same bar as body Methods/Results; an interpretive clause in an abstract Results subsection fails the gate |
 | Introduction, Discussion, Abstract background/conclusions, cover letter, grant text | `ce-clinical-research-voice` + `ce-scientific-anti-slop` | Voice self-check passes; zero P0, zero P1 AI-tells |
@@ -29,7 +29,7 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 ## Procedure
 
 1. Identify section boundaries in the draft (Methods / Results / Discussion / Introduction / Abstract subsections / figure legends and table footnotes / other).
-2. Run the Methods and Results text through the `ce-manuscript-section-discipline` red-flag list. Any hit is a required fix before delivery — move the content to Discussion or delete it. Do not soften this to a suggestion.
+2. Run the Methods and Results text through the `ce-manuscript-section-discipline` red-flag list. Any unsupported hit is a required fix before delivery — move the content to Discussion or delete it. Preserve rationale that records a required or prespecified basis for a methodological choice; do not delete it merely because it answers "why."
 3. Run Discussion, Introduction, and other narrative text through the `ce-clinical-research-voice` self-check and the `ce-scientific-anti-slop` banned-construction list.
 4. Compile findings into an audit report: section, quoted flagged phrase (short), issue category (interpretation-in-Methods / interpretation-in-Results / uncited-attribution / throat-clearing / vague-declarative / ungrounded-intensifier / em-dash-overuse / thesaurus-swap / other), and the fix applied or recommended.
 5. Apply P0 and Methods/Results fixes directly — do not leave known credibility or section-discipline failures for the author to catch. P1 items get fixed directly when the rewrite is unambiguous; flag for author judgment when a rewrite could change meaning. P2 items are noted, not blocking.
@@ -39,7 +39,7 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 
 A draft does not go to an author with any of the following still present, regardless of how the request was phrased ("just get me a draft," "quick version," "don't worry about polish"):
 
-- Any hedge, caveat, or interpretive clause inside Methods or Results.
+- Any hedge, caveat, or interpretive clause inside Methods or Results, except concise rationale required to document a prespecified methodological choice under the applicable reporting standard, protocol, regulation, or reproducibility requirement.
 - Any uncited "studies show" / "research suggests" / "experts believe."
 - Any statistical intensifier ("significant," "substantial," "robust") without its statistic attached.
 
