@@ -42,9 +42,10 @@ async function collectFiles(root: string): Promise<string[]> {
 
 async function publicSkillNames(): Promise<string[]> {
   const entries = await fs.readdir(path.join(pluginRoot, "skills"), { withFileTypes: true })
-  return entries
+  return (await Promise.all(entries
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("ce-"))
-    .map((entry) => entry.name)
+    .map(async (entry) => (await exists(path.join(pluginRoot, "skills", entry.name, "SKILL.md"))) ? entry.name : null)))
+    .filter((name): name is string => name !== null)
     .sort()
 }
 
@@ -205,7 +206,7 @@ describe("corporate install artifacts", () => {
     expect(await exists(path.join(codexPackage, "codex-agent-bridge", "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
   })
 
-  test("Codex offline installer writes local marketplace, bridge agents, and installed MCP paths", async () => {
+  test("Codex offline installer writes local marketplace and bridge agents", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-offline-"))
     const stagingDir = path.join(tempRoot, "stage")
     const outputDir = path.join(tempRoot, "out")
@@ -249,33 +250,7 @@ describe("corporate install artifacts", () => {
     expect(marketplaceResolvedPlugin).toBe(installedPlugin)
     expect(await exists(path.join(marketplaceResolvedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
 
-    const config = await fs.readFile(path.join(codexHome, "config.toml"), "utf8")
-    const installedRunPy = path.join(installedPlugin, "skills", "ce-mcp-server", "mcp_server", "run.py")
-    expect(config).toContain(installedRunPy)
-    expect(config).not.toContain(path.join(repoRoot, "plugins", "ce-datascience"))
-
-    await fs.appendFile(path.join(codexHome, "config.toml"), "\n[features]\nuser_owned = true\n")
-    await run([
-      "bash",
-      path.join(codexPackage, "install-codex-offline.sh"),
-      "--source",
-      codexPackage,
-      "--codex-home",
-      codexHome,
-      "--agents-home",
-      agentsHome,
-    ])
-    const rerunConfig = await fs.readFile(path.join(codexHome, "config.toml"), "utf8")
-    expect(rerunConfig).toContain("user_owned = true")
-    expect(rerunConfig.match(/BEGIN CE DataScience plugin MCP/g)).toHaveLength(1)
-  })
-
-  test("Claude MCP manifest uses plugin-root paths that converters can rewrite", async () => {
-    const manifest = JSON.parse(await fs.readFile(path.join(pluginRoot, ".mcp.json"), "utf8")) as {
-      mcpServers: { "ce-datascience": { args: string[] } }
-    }
-    expect(manifest.mcpServers["ce-datascience"].args[0]).toBe("${CLAUDE_PLUGIN_ROOT}/skills/ce-mcp-server/mcp_server/run.py")
-    expect(manifest.mcpServers["ce-datascience"].args[0]).not.toContain("plugins/ce-datascience/skills")
+    expect(await exists(path.join(installedPlugin, ".mcp.json"))).toBe(false)
   })
 
   test("setup intake supports corporate no-install mode and keeps Quarto optional", async () => {

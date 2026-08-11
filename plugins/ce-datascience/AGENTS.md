@@ -232,7 +232,7 @@ grep -E '^description:' skills/*/SKILL.md
 Codex has two intentionally different install paths:
 
 - Default `install --to codex` is an agent bridge for Codex native plugin installs. It writes generated agents into the selected Codex root and respects `CODEX_HOME`.
-- `install --to codex --include-skills` is the full standalone path. It carries generated skills, MCP server config, and managed `.codex/hooks.json` entries.
+- `install --to codex --include-skills` is the full standalone path. It carries generated skills and managed `.codex/hooks.json` entries. Optional external MCP integrations remain user-configured.
 
 When changing Codex conversion or writing behavior, run `bunx tsc --noEmit` and the focused Codex tests:
 

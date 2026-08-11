@@ -42,13 +42,11 @@ describe("reporting guideline registry", () => {
     const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
     const pluginReadme = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "README.md"), "utf8")
     const reviewer = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "agents", "ce-reporting-checklist-reviewer.md"), "utf8")
-    const mcpSkill = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-mcp-server", "SKILL.md"), "utf8")
     const routingMap = await fs.readFile(path.join(checklistRoot, "guideline-routing.md"), "utf8")
 
     expect(rootReadme).toContain("35 reporting checklists")
     expect(pluginReadme).toContain("35 standards")
     expect(reviewer).toContain("35 guidelines")
-    expect(mcpSkill).toContain("35 supported reporting guidelines")
     expect(routingMap).toContain("guideline-registry.yaml")
   })
 })

@@ -48,7 +48,7 @@ Full standalone installs are available when native plugin installation is not an
 bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills
 ```
 
-Standalone mode carries generated skills, MCP server config, and managed `.codex/hooks.json` entries.
+Standalone mode carries generated skills and managed `.codex/hooks.json` entries. Optional MCP integrations remain user-configured.
 
 ## Hook Merge Rules
 
