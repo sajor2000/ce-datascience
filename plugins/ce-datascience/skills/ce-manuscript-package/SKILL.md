@@ -26,13 +26,16 @@ Build a traceable manuscript package manifest. The skill wires known study artif
 2. Confirm Table 1 and figure manifests exist, or surface them as blockers.
 3. Include selected reporting checklist files from the guideline registry.
 4. Include preregistration and model-card artifacts when applicable.
-5. Run:
+5. If the deliverable is a Word manuscript, run `ce-manuscript-citations` before
+   final packaging and include the field-bearing DOCX master plus its citation
+   ledger; a flattened DOCX or static bibliography is not the editable master.
+6. Run:
 
 ```bash
 python3 scripts/build_package_manifest.py --project-root . --out-dir manuscript --format quarto
 ```
 
-6. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
+7. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
 
 ## Quarto Path
 

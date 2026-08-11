@@ -28,4 +28,4 @@ If a research tool is unavailable, disclose that the method-source check could n
 
 ## Handoff
 
-Load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the design, then load the `ce-code-review` skill to audit timing, immortal-time risk, and estimator assumptions before reporting effects.
+Load `ce-plan` to lock the design; add `ce-statistical-analysis-plan` only when a complex clinical study needs the deeper claim-to-dataset schema. Then load `ce-code-review` to audit timing, immortal-time risk, and estimator assumptions before reporting effects.

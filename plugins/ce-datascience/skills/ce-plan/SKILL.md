@@ -1,6 +1,6 @@
 ---
 name: ce-plan
-description: "Create implementation plans or statistical analysis plans. Produces versioned SAPs for study designs and implementation plans for technical work."
+description: "Create the canonical durable implementation plan or statistical analysis plan. Use the claims-based SAP specialist only when a clinical study needs deeper claim-to-dataset and decision-evidence modeling."
 argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan] [output:html]"
 ---
 
@@ -19,6 +19,12 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 **Resolve the current year at runtime** (`date +%Y`) rather than assuming one; use it when dating plans and searching for recent documentation.
 
 `ce-brainstorm` defines **WHAT** to study or build. `ce-plan` defines **HOW** -- either as a Statistical Analysis Plan (SAP) for study designs or as an implementation plan for technical tasks. `ce-work` executes the plan. A prior brainstorm is useful context but never required — `ce-plan` works from any input: a study design doc, a requirements doc, a feature idea, or a rough description.
+
+`ce-plan` owns the canonical versioned SAP. For complex clinical, validation,
+benchmarking, or observational studies, load `ce-statistical-analysis-plan` to
+develop the claim-to-dataset schema and decision evidence inside that SAP; do
+not create a second competing plan. `ce-sap-tabular` owns the workbook
+companion, and manuscript skills own final prose and citation delivery.
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
 

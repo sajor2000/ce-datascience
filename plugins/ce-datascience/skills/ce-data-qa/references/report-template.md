@@ -83,6 +83,6 @@ Signed: ____________________ Date: ____________
 
 ## Next steps
 
-If GO: run `data_lock(extract_id="<id>")` to seal the wave, then proceed to modeling.
+If GO: an authorized human records a dated `locked` entry with the QA report path and content hash in `analysis/data-waves.md`, then proceeds to modeling. Update `.ce-datascience/data-state.yaml` too when the project uses it.
 
 If NO-GO: file each blocker as a data extract issue, re-extract, and re-register a new wave.

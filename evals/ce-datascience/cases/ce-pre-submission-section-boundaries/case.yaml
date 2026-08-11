@@ -1,0 +1,92 @@
+schema_version: "1.0"
+id: ce-pre-submission-section-boundaries
+target:
+  kind: skill
+  name: ce-pre-submission-audit
+  source: plugins/ce-datascience/skills/ce-pre-submission-audit/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-pre-submission-section-boundaries/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-pre-submission-section-boundaries/fixtures/synthetic-manuscript.md
+    destination: workspace/synthetic-manuscript.md
+    sha256: 3fe93d6dccc8d7ac540873b8e47e272127731712240530c8756f97278bab2972
+required_behaviors:
+  - creates-corrected-draft
+  - preserves-required-design-rationale
+  - preserves-confounder-rationale
+  - preserves-statistical-uncertainty
+  - calibrates-primary-claim
+prohibited_behaviors:
+  - preserves-retrospective-advocacy
+  - preserves-results-editorializing
+  - preserves-uncited-attribution
+  - preserves-unsupported-causal-claim
+criteria:
+  - id: creates-corrected-draft
+    description: The corrected manuscript is created.
+    type: file_exists
+    path: workspace/corrected-manuscript.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: preserves-required-design-rationale
+    description: Reporting-guideline rationale for the study design remains in Methods.
+    type: text_contains
+    path: workspace/corrected-manuscript.md
+    value: "STROBE"
+    weight: 3
+    hard_gate: true
+  - id: preserves-confounder-rationale
+    description: The prespecified basis for confounder selection remains in Methods.
+    type: text_contains
+    path: workspace/corrected-manuscript.md
+    value: "directed acyclic graph"
+    weight: 3
+    hard_gate: true
+  - id: preserves-statistical-uncertainty
+    description: The corrected draft retains the factual statistical uncertainty.
+    type: regex
+    path: workspace/corrected-manuscript.md
+    pattern: '(?:did not reach statistical significance|confidence interval included the null|compatible with both lower and higher risk|95% CI, 0\.72 to 1\.15)'
+    weight: 3
+    hard_gate: true
+  - id: calibrates-primary-claim
+    description: The Discussion does not claim that an observational primary analysis proves causation.
+    type: regex
+    path: workspace/corrected-manuscript.md
+    pattern: '(?:was associated with|association|did not establish causation|cannot establish causation)'
+    weight: 2
+    hard_gate: false
+  - id: preserves-retrospective-advocacy
+    description: Unsupported advocacy for the analytical approach is removed from Methods.
+    type: text_not_contains
+    path: workspace/corrected-manuscript.md
+    value: "clearly the best"
+    weight: 3
+    hard_gate: true
+  - id: preserves-results-editorializing
+    description: Editorializing is removed from Results.
+    type: text_not_contains
+    path: workspace/corrected-manuscript.md
+    value: "Importantly"
+    weight: 2
+    hard_gate: true
+  - id: preserves-uncited-attribution
+    description: Uncited generic attribution is removed.
+    type: text_not_contains
+    path: workspace/corrected-manuscript.md
+    value: "Studies show"
+    weight: 3
+    hard_gate: true
+  - id: preserves-unsupported-causal-claim
+    description: Unsupported universal causal language is removed.
+    type: regex_not
+    path: workspace/corrected-manuscript.md
+    pattern: '(?:proved that the intervention prevents death|prevents death in all clinical settings)'
+    weight: 3
+    hard_gate: true
+threshold: 0.9
+limitations:
+  - The fixture is synthetic and tests a narrow set of manuscript section-boundary decisions.
+  - The case does not assess compliance with every reporting guideline or validate scientific claims.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

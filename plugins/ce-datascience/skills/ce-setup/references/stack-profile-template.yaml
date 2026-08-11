@@ -102,10 +102,9 @@ stack_profile:
   reporting: quarto | rmarkdown | marimo | jupyter
 
   # Where local analysis datasets, materialized extracts, or cache files live.
-  # For database-first projects, this may stay null; register concrete tables,
-  # extracts, or query outputs with data_wave_register(location=...).
-  # Used by data_wave_register, data_lock, ce-data-qa, and
-  # ce-phi-leak-reviewer. PHI must NEVER be inside the repo tree -- if
+  # For database-first projects, this may stay null; record concrete tables,
+  # extracts, or query outputs in analysis/data-waves.md.
+  # Used by ce-data-qa and ce-phi-leak-reviewer. PHI must NEVER be inside the repo tree -- if
   # data_root is repo-relative, the QA gate refuses any column matching PHI
   # patterns.
   # Examples:

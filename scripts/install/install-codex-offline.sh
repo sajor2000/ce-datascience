@@ -4,6 +4,8 @@
 set -euo pipefail
 
 PLUGIN_NAME="ce-datascience"
+MANAGED_START="# BEGIN CE DataScience plugin MCP -- do not edit this block"
+MANAGED_END="# END CE DataScience plugin MCP"
 
 source_root=""
 codex_home="${CODEX_HOME:-$HOME/.codex}"
@@ -130,6 +132,36 @@ copy_dir_replace() {
   fi
 }
 
+remove_managed_codex_mcp_config() {
+  local config_path="$codex_home/config.toml"
+  if [ ! -f "$config_path" ]; then
+    return
+  fi
+  if [ "$dry_run" = "yes" ]; then
+    echo "[dry-run] remove managed CE DataScience MCP block from $config_path"
+    return
+  fi
+  if ! grep -Fqx "$MANAGED_START" "$config_path" && ! grep -Fqx "$MANAGED_END" "$config_path"; then
+    return
+  fi
+  if ! awk -v start="$MANAGED_START" -v end="$MANAGED_END" '
+    $0 == start { if (inside) exit 1; inside = 1; next }
+    $0 == end { if (!inside) exit 1; inside = 0; next }
+    END { if (inside) exit 1 }
+  ' "$config_path" >/dev/null; then
+    echo "Cannot remove malformed CE DataScience MCP block from $config_path; leaving config unchanged." >&2
+    return 1
+  fi
+  local temp_config
+  temp_config="$(mktemp -t ce-codex-config-clean-XXXXXX)"
+  awk -v start="$MANAGED_START" -v end="$MANAGED_END" '
+    $0 == start { skip = 1; next }
+    $0 == end { skip = 0; next }
+    skip != 1 { print }
+  ' "$config_path" > "$temp_config"
+  mv "$temp_config" "$config_path"
+}
+
 write_marketplace_json() {
   run_or_echo mkdir -p "$marketplace_dir"
 
@@ -206,6 +238,7 @@ JSON
 }
 
 copy_dir_replace "$plugin_src" "$plugin_dest"
+remove_managed_codex_mcp_config
 write_marketplace_json
 
 if [ -n "$bridge_source" ]; then

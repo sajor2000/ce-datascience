@@ -476,8 +476,9 @@ unresolved methodological choices remain analyst questions.
 For dynamic survival models, `ce-code-review` routes to the calibration reviewer
 for decision-aligned, censoring-aware time-dependent AUC rather than treating a
 generic AUC or C-index as sufficient. For claims-based studies, use
-`/ce-statistical-analysis-plan` to produce the linked SAP, variables,
-diagnostics, outputs, and decision-evidence contract.
+`/ce-plan` for the canonical SAP, then add `/ce-statistical-analysis-plan` when
+the design needs linked claims, datasets, variables, diagnostics, outputs, and
+decision evidence. `/ce-sap-tabular` owns the workbook companion.
 
 Each public skill starts with a `Skill Value` block that names the problem it
 solves, when to use it, expected output, when it should ask questions, and what
@@ -492,6 +493,14 @@ For publication artifacts:
 /ce-manuscript-package
 /ce-review-pack
 ```
+
+For a manuscript handoff, assemble artifacts with `/ce-manuscript-package`,
+resolve editable Zotero fields with `/ce-manuscript-citations`, run
+`/ce-pre-submission-audit` as the combined final editing gate, and finish with
+`/ce-review-pack`. The focused voice, section-discipline, and anti-slop skills
+remain available for targeted passes; section discipline preserves rationale
+required by reporting guidelines, protocols, regulations, or reproducibility
+standards.
 
 For locked-down laptops, run setup in no-install mode:
 
@@ -519,6 +528,12 @@ and research-question refinement. Add Paperclip when the project needs deeper
 full-text synthesis or sources beyond PubMed. They can be used together:
 PubMed remains the canonical metadata baseline, while Paperclip deepens selected
 claims and methods against full text.
+
+For Word manuscript citations, use the `ce-manuscript-citations` skill after
+installing or connecting PubMed MCP and, when permitted, Paperclip. It keeps
+PubMed identifiers and Paperclip claim evidence in a citation ledger, then uses
+Zotero-owned Word fields for the editable DOCX master. Static superscripts and
+typed bibliography entries are not treated as editable citations.
 
 CE's artifact-producing workflows currently auto-detect only the Paperclip CLI.
 PubMed MCP and Paperclip's external skill or MCP server are direct agent

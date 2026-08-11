@@ -1,6 +1,6 @@
 ---
 name: ce-statistical-analysis-plan
-description: "Create a claims-based Statistical Analysis Plan (SAP), clinical methods section, master-variables dictionary, coordinating-center analysis plan, or claims-based analysis workbook for clinical, EHR/registry, validation, prediction-model, and hospital-benchmarking studies. Use whenever planning analyses or choosing statistical methods for a clinical or observational study."
+description: "Deepen a clinical or observational SAP with a claims-to-datasets schema, estimands, diagnostics, and decision evidence. Use for complex EHR/registry, validation, prediction, causal, multisite, or benchmarking designs after ce-plan establishes the canonical plan."
 ---
 
 # Claims-Based Statistical Analysis Plan
@@ -9,13 +9,13 @@ description: "Create a claims-based Statistical Analysis Plan (SAP), clinical me
 
 **Problem it solves:** Turn a clinical or observational study idea into a traceable analysis contract instead of disconnected methods prose.
 
-**Use when:** Drafting an SAP, methods section, analysis workbook, master-variable catalog, coordinating-center plan, or methodological review.
+**Use when:** A clinical or observational SAP needs claim-level linkage among datasets, variables, estimands, diagnostics, outputs, and evidence-backed decisions.
 
-**Output:** A linked claims, datasets, variables, analyses, diagnostics, outputs, and decision-evidence schema rendered as a workbook, methods section, execution roadmap, or unresolved-decisions review.
+**Output:** A linked claims, datasets, variables, analyses, diagnostics, outputs, and decision-evidence schema for the canonical SAP, or an unresolved-decisions review.
 
 **Ask only if:** Study aim, supporting dataset grain, unit of analysis, estimand, or a high-stakes method decision is not established by the supplied materials.
 
-**Do not do:** Present a final method recommendation when the study's analysis unit or data grain is unknown, or silently choose missing-data, causal-timing, or threshold defaults.
+**Do not do:** Create a competing SAP, own workbook rendering, draft final manuscript prose, present a final method recommendation when data grain is unknown, or silently choose missing-data, causal-timing, or threshold defaults.
 
 ## Core Principles
 
@@ -82,15 +82,16 @@ When an immediate answer is required but grain or unit of analysis is unknown, m
 
 Name the likely method and the assumption it rests on, but do not present the choice as final until the schema is complete.
 
-## Render the Requested Output
+## Hand Off the Schema
 
-| Mode | Produce |
+| Need | Owner |
 |---|---|
-| Workbook | `Overview`, `Outputs`, `Master_Variables`, and `Decision_Evidence` tables with cross-table identifiers |
-| Methods | Manuscript-ready prose rendered from the schema with inline citations |
-| Execution | Section and script roadmap with input-to-output mappings and validation gates |
-| Review | Unresolved decisions, assumptions, missing inputs, and their blocking status |
+| Canonical versioned SAP or implementation roadmap | `ce-plan` |
+| `Overview`, `Outputs`, `Master_Variables`, and decision-evidence workbook | `ce-sap-tabular` |
+| Final Methods prose and section boundaries | `ce-manuscript-section-discipline` |
+| Citation verification and editable Word fields | `ce-manuscript-citations` |
+| Unresolved methodological decisions | This skill |
 
-For a new CE DataScience SAP, use the `ce-plan` skill for the durable study-plan artifact and `ce-sap-tabular` for the biostatistics-style workbook companion. Keep this skill's claims and decision identifiers aligned with those artifacts rather than creating competing plans.
+For a new CE DataScience SAP, use `ce-plan` for the durable study-plan artifact. Add this schema to that artifact, then use `ce-sap-tabular` for the workbook companion. Keep claim and decision identifiers aligned rather than creating competing plans.
 
-Before rendering, verify that every claim maps to a dataset and grain, every analysis maps to a claim and output, every output names an interpretation, and every nontrivial decision has evidence. In review mode, clearly separate confirmed integrity blockers from methodological questions requiring analyst resolution.
+Before handoff, verify that every claim maps to a dataset and grain, every analysis maps to a claim and output, every output names an interpretation, and every nontrivial decision has evidence. In review mode, clearly separate confirmed integrity blockers from methodological questions requiring analyst resolution.

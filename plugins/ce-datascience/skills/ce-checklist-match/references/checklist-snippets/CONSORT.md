@@ -9,7 +9,7 @@
 | 2a | Introduction | Scientific background and explanation of rationale | ☐ | |
 | 2b | Introduction | Specific objectives or hypotheses | ☐ | |
 | 3a | Methods | Description of trial design (parallel, factorial, etc.) | ☐ | |
-| 3b | Methods | Important changes to methods after trial commencement | ☐ | Use the `ce-statistical-analysis-plan` amendment log |
+| 3b | Methods | Important changes to methods after trial commencement | ☐ | Use the canonical `ce-plan` SAP amendment log |
 | 4a | Methods | Eligibility criteria for participants | ☐ | |
 | 4b | Methods | Settings and locations where the data were collected | ☐ | |
 | 5 | Methods | Interventions for each group with sufficient detail to replicate | ☐ | |

@@ -169,7 +169,8 @@ If a verified connection was accepted, save it under
 `stack_profile.data_connection`. For database-first projects, set
 `stack_profile.data_root: null` unless the user explicitly needs an extract or
 cache folder; register concrete tables, extracts, or query outputs with
-`data_wave_register(location=...)`.
+an entry in `analysis/data-waves.md` that records the location, source, received
+date, row count when known, and a content hash when available.
 
 If `data_root` is needed, ask for it then. Recommend an off-repo path for real
 subject data; allow `data/` only for synthetic or fully de-identified public
