@@ -337,7 +337,7 @@ describe("corporate install artifacts", () => {
     expect(normalizedSetupSkill).toContain("report it as high-confidence database evidence")
     expect(normalizedSetupSkill).toContain("Do not write the connection into `data_root`")
     expect(normalizedSetupSkill).toContain("stack_profile.data_root: null")
-    expect(setupSkill).toContain("data_wave_register(location=...)")
+    expect(setupSkill).toContain("analysis/data-waves.md")
 
     expect(configTemplate).toContain("data_connection:")
     expect(configTemplate).toContain("name: healthmap-connection")

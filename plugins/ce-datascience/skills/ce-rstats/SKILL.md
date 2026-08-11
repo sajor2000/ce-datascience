@@ -18,7 +18,7 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 
 | Task | Skill |
 |---|---|
-| R analysis design, base R, modeling, sensitivity analysis | Load the `ce-rstats` skill |
+| R analysis design, base R, modeling, sensitivity analysis | Use the shared R workflow below |
 | Read-only R code review | Load the `ce-r-review` skill |
 | dplyr, tidyr, ggplot2, purrr, joins | Load the `ce-r-tidyverse` skill |
 | Event-study or staggered adoption design | Load the `ce-r-event-studies` skill |
@@ -32,7 +32,7 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 
 1. Inspect `renv.lock`, `DESCRIPTION`, `_targets.R`, Quarto/R Markdown files, and existing project conventions before proposing packages or file layout.
 2. Load the `ce-notebook-standards` skill before creating or materially extending an `.Rmd` or `.qmd` analysis.
-3. For research analysis, load the `ce-plan` skill or `ce-statistical-analysis-plan` skill to lock the estimand, grain, time zero, keys, missing-data handling, and success criteria.
+3. For research analysis, load `ce-plan` to establish the canonical SAP; add `ce-statistical-analysis-plan` only when a complex clinical design needs claim-to-dataset and decision-evidence modeling.
 4. Load the `ce-data-qa` skill before model code and keep R transformations fail-loud at schema, join, and type boundaries.
 5. Preserve lockfiles and record `sessionInfo()` or the project-equivalent environment evidence with any reproducible result.
 6. Load the `ce-code-review` skill for causal, survival, or reporting claims; language-specific R syntax does not validate methodology by itself.

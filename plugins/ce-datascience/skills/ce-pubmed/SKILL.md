@@ -18,7 +18,7 @@ argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-
 - **Do not do:** Do not claim full-text coverage or replace Paperclip/full-text methods extraction.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstream skills (`ce-method-extract`, `ce-effect-size`) consume. The skill exists because `ce-literature-search` (PyPaperBot) is great for PDFs but bad for structured biomedical metadata; this is biomedical-native.
+Search PubMed/MEDLINE via NCBI E-utilities and return a structured CSV that downstream skills (`ce-method-extract`, `ce-effect-size`) consume. This skill owns the plugin's canonical biomedical metadata and PMID workflow; `ce-literature-search` routes broader requests here when PubMed is the right source.
 
 ## Prerequisites
 
@@ -82,9 +82,10 @@ The script already prints `__CE_PUBMED_RESULTS__ csv=<path> n=<count> query=<...
 
 ## Out of scope
 
-- Does not download PDFs (use the `ce-literature-search` skill for that)
+- Does not acquire arbitrary PDFs; use `ce-evidence-map` for claim-focused lawful full-text verification
 - Does not extract methods from full text (next: `ce-method-extract`)
 - Does not pool effect sizes (next-next: `ce-effect-size`)
+- Does not create editable Word citation fields (use `ce-manuscript-citations`)
 - Does not match to a reporting checklist (different skill: `ce-checklist-match`)
 
 ## References

@@ -46,7 +46,7 @@ Everything else below applies to manuscript prose largely as in the source catal
 
 ## Severity tiers for the audit pass
 
-- **P0 (credibility killers)** — uncited "studies show"/"experts believe"; any interpretation, hedge, or caveat found inside Methods or Results (hand off to `ce-manuscript-section-discipline`); a calibrated intensifier with no statistic attached; a technical term thesaurus-swapped mid-manuscript.
+- **P0 (credibility killers)** — uncited "studies show"/"experts believe"; unsupported interpretation, retrospective justification, or nonstatistical caveats inside Methods or Results (hand off to `ce-manuscript-section-discipline`, preserving required or prespecified methodological rationale and factual statistical statements); a calibrated intensifier with no statistic attached; a technical term thesaurus-swapped mid-manuscript.
 - **P1 (obvious AI tell)** — throat-clearing openers, meta-commentary, formulaic binary contrasts, vague declaratives, any non-definitional em-dash.
 - **P2 (stylistic polish)** — filler transitions, business-jargon substitutes, minor rhythm monotony (three consecutive sentences of near-identical length and structure).
 

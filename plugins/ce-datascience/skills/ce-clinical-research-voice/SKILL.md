@@ -51,7 +51,7 @@ Draw analogies from clinical practice and cognitive psychology where they clarif
 
 Maintain clinical detachment throughout. State alarming findings plainly, without amplification: "raising important patient safety concerns for clinical integration." Acknowledge limitations in a dedicated Discussion subsection using neutral concessive constructions: "Several limitations of this study warrant consideration." Do not editorialize.
 
-When findings challenge assumptions, say so directly and follow immediately with mechanistic explanation: "challenging the assumption that experience protects against AI-induced error." Default to assertion over hedging for primary outcomes; reserve hedging precisely for subgroup and secondary analyses.
+When findings challenge assumptions, say so directly and follow immediately with mechanistic explanation: "challenging the assumption that experience protects against AI-induced error." Calibrate every claim to the study design, estimand, uncertainty, and strength of evidence. Primary versus secondary status determines emphasis, not whether uncertainty is acknowledged; describe subgroup and secondary analyses as exploratory or hypothesis-generating when appropriate.
 
 ## Quick self-check before delivering prose in this register
 

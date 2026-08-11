@@ -1,6 +1,6 @@
 ---
 name: ce-manuscript-section-discipline
-description: Enforce the facts-only boundary for Methods, Results, figure legends, and table footnotes in clinical and scientific manuscripts. Use when drafting or auditing these sections; interpretation, rationale, caveats, and hedging belong in Discussion.
+description: Enforce the factual boundary for Methods, Results, figure legends, and table footnotes in clinical and scientific manuscripts. Use when drafting or auditing these sections; preserve required or prespecified methodological rationale, while moving retrospective interpretation, caveats, and generalizability claims to Discussion.
 ---
 
 # Manuscript Section Discipline
@@ -11,7 +11,7 @@ description: Enforce the facts-only boundary for Methods, Results, figure legend
 - **Use when:** Drafting, editing, or auditing Methods, Results, figure legends, or table footnotes.
 - **Output:** A factual, past-tense section or a red-flag audit with required move-to-Discussion fixes.
 - **Ask only if:** Section boundaries or the difference between a reported fact and an interpretation is unclear.
-- **Do not do:** Do not justify methods, explain why results occurred, or soften a required section-discipline fix.
+- **Do not do:** Do not retain retrospective or unsupported methodological justification, explain why results occurred, or soften a required section-discipline fix; preserve required or prespecified methodological rationale.
 
 Methods and Results report what was done and what was found. Discussion is where interpretation, mechanism, retrospective justification, caveats, and hedging about generalizability belong. Methods may retain concise rationale that a reporting guideline, protocol, regulatory requirement, or reproducibility standard requires to explain a prespecified choice. This skill enforces that boundary and audits drafts against it before they leave your hands.
 

@@ -42,7 +42,7 @@ If the route is unclear, follow the Skill Value interaction rule. Because there 
 1. Inspect the existing stack profile (`.ce-datascience/config.local.yaml`). If none exists, ask the user to run the `ce-setup` command — it is manual-invocation-only and cannot be loaded by the model. Record `data_layer: fabric` only when repository or user evidence supports it.
 2. State the analytical grain, source item, read/write boundary, and intended artifact before generating transformations.
 3. Load the `ce-data-qa` skill at data boundaries. Reconcile source and target row counts, keys, joins, types, and missing-data handling.
-4. Load the `ce-plan` skill for a study or the `ce-statistical-analysis-plan` skill for claims work before scope-expanding analysis code.
+4. Load `ce-plan` for the canonical study plan; add `ce-statistical-analysis-plan` only when complex claims work needs the deeper claim-to-dataset schema before scope-expanding analysis code.
 5. Load the `ce-work` skill to execute the selected route and preserve the fail-loud rule: no fabricated inputs, silent coercions, or hidden fallback datasets.
 6. Load the `ce-code-review` skill before relying on outputs for a scientific or operational decision.
 

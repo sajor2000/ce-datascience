@@ -244,8 +244,8 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, grouped requirements, visual communication, and Markdown/HTML output modes before planning |
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
-| `/ce-plan` | Create structured plans -- Statistical Analysis Plans (SAPs) for studies, or implementation plans for technical tasks, with Markdown/HTML output modes and format-preserving resume |
-| `/ce-statistical-analysis-plan` | Create claims-based SAPs, methods prose, variable dictionaries, and analysis workbooks with explicit grain, diagnostics, decision evidence, and literature grounding |
+| `/ce-plan` | Create the canonical versioned SAP or technical implementation plan, with Markdown/HTML output modes and format-preserving resume |
+| `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claims-to-datasets schema, estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-adversarial-review` | Independent adversarial code or plan review with quick/auto/deep, a read-only Claude Code/Codex peer pass, bounded evidence-based rebuttal, and explicit local-only or unresolved coverage when a peer cannot validate |
 | `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
@@ -261,6 +261,11 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-data-qa` | Data QA gate for row counts, joins, keys, types, missingness, and stack-specific integrity risks; emits GO/WARN/NO-GO, a missingness catalog, and PI sign-off block. Runs between data extraction and modeling |
 | `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
+
+The planning scopes are deliberate: start with `/ce-plan`; add
+`/ce-statistical-analysis-plan` only for complex claim-level clinical methods;
+render the workbook with `/ce-sap-tabular`; and use the manuscript skills for
+final prose and citations.
 
 ### Biomedical Lifecycle
 
@@ -280,7 +285,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-manuscript-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
 | `/ce-manuscript-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
 | `/ce-clinical-research-voice` | Apply a precise, clinically detached house style to narrative clinical AI research prose |
-| `/ce-manuscript-section-discipline` | Enforce the facts-only boundary for Methods, Results, figure legends, and table footnotes |
+| `/ce-manuscript-section-discipline` | Keep Methods and Results factual while preserving rationale required by reporting guidelines, protocols, regulations, or reproducibility standards |
 | `/ce-scientific-anti-slop` | Detect and remove generic AI-writing tells from scientific and clinical manuscript prose |
 | `/ce-pre-submission-audit` | Run the combined voice, section-discipline, and anti-slop gate before manuscript handoff |
 | `/ce-review-pack` | Create PI-facing review packs and validate named signoff ledgers for manuscript, registry, sprint, and data-lock approvals |
@@ -368,7 +373,7 @@ guardrails.
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-literature-search` | Search and download scientific papers via Google Scholar, Crossref, and SciHub using PyPaperBot. Supports PICO/PECO queries, DOI lookup, and structured literature summaries. |
+| `/ce-literature-search` | Route evidence requests to PubMed metadata, claim-focused lawful full-text mapping, methods extraction, effect-size synthesis, citation delivery, or authoritative web sources |
 
 ### IDE & Deployment
 
@@ -380,6 +385,7 @@ guardrails.
 
 | Skill | Description |
 |-------|-------------|
+| `/ce-language-detect` | Detect Python, R, both, or unknown from repository evidence and emit the canonical language handoff used by setup and workflow routing |
 | `/ce-sessions` | Ask questions about session history across Claude Code, Codex, and Cursor, with repo-root session discovery and structured metadata/error extraction |
 | `/ce-release-notes` | Summarize recent ce-datascience releases or answer version-specific release questions |
 | `/ce-report-bug` | Gather structured environment details and open a GitHub issue for ce-datascience plugin bugs |

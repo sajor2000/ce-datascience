@@ -20,7 +20,7 @@ This skill formalizes the data-QA gate that exists between data extraction and S
 
 ## When This Skill Activates
 
-- A new data wave was just registered via `data_wave_register` (MCP) and downstream code expects to model it
+- A new data wave or extract was recorded and downstream code expects to model it
 - The SAP shape may have drifted from the data shape (analyst noticed column rename, type change, or value-set expansion)
 - Before unblinding for confirmatory analysis (final QA pass against the locked SAP)
 - After a re-extract following an EHR query fix
@@ -30,7 +30,7 @@ This skill formalizes the data-QA gate that exists between data extraction and S
 
 1. A SAP exists at `analysis/sap.md` (or specified via `--sap`) for full SAP-aligned QA. If no SAP exists yet, run pre-SAP column profile mode instead of stopping.
 2. A stack profile exists so `data_root` is known. If none exists, ask the user to run the `ce-setup` command (it is manual-invocation-only and cannot be loaded by the model), or ask them directly for `data_root` and proceed with that answer.
-3. The data extract is registered as a data wave. Register it with the `data_wave_register` MCP tool when the ce-datascience MCP server is available; when it is not, record the wave manually by appending an entry (extract id, source, received date, row count) to `analysis/data-waves.md` and proceed — the MCP server is an accelerator, not a prerequisite.
+3. The data extract is recorded in `analysis/data-waves.md` with extract id, location, source, received date, row count when known, and a content hash when available.
 4. If the dataset is a research cohort built from EHR or claims data, load the `ce-cohort-build` skill first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
 
 ## Core Workflow
@@ -50,7 +50,7 @@ If no SAP is available, run **pre-SAP column profile mode**:
 
 ### Step 1: Resolve the data wave
 
-Read `.ce-datascience/data-state.yaml`. If a specific `extract_id` was passed, use it; otherwise use the most recently registered, unlocked wave. Refuse to QA a `locked` wave unless `--force` is passed (locked waves are immutable; QA already passed).
+Read `analysis/data-waves.md`; if the project also maintains `.ce-datascience/data-state.yaml`, reconcile it with the same wave id and status. If a specific `extract_id` was passed, use it; otherwise use the most recently recorded, unlocked wave. Refuse to QA a `locked` wave unless `--force` is passed (locked waves are immutable; QA already passed).
 
 ### Step 2: Parse the SAP for shape expectations
 
@@ -116,7 +116,7 @@ __CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<n> columns=<n> grain=<candidate
 __CE_DATA_QA__ wave=<id> pass=<true|false> blockers=<n> warns=<n> report=<path>
 ```
 
-In pre-SAP column profile mode, `pass=true` means no structural blockers were found in the profile; it does not mean SAP-specific checks have passed. If GO (`pass=true`): also emit `__CE_DATA_QA_PASS__ extract_id=<id>` and prompt the user to run `data_lock` (MCP) only after SAP-aligned QA is complete. If NO-GO (`pass=false`): also emit `__CE_DATA_QA_FAIL__ extract_id=<id> blockers=<count>` and stop. Print the path to the report.
+In pre-SAP column profile mode, `pass=true` means no structural blockers were found in the profile; it does not mean SAP-specific checks have passed. If GO (`pass=true`): also emit `__CE_DATA_QA_PASS__ extract_id=<id>` and state that an authorized human may record a dated `locked` entry only after SAP-aligned QA is complete. If NO-GO (`pass=false`): also emit `__CE_DATA_QA_FAIL__ extract_id=<id> blockers=<count>` and stop. Print the path to the report.
 
 ### Step 6: Compound learning hook
 
@@ -129,7 +129,7 @@ When invoked from an automated workflow (LFG-style, headless `ce-work`, or any `
 ## What This Skill Does NOT Do
 
 - **It does not modify the data.** This is a read-only assessment. Cleaning is a separate `ce-work` task.
-- **It does not lock the data.** Locking requires explicit user confirmation via the `data_lock` MCP tool — or, when the MCP server is unavailable, a dated "locked" entry for the wave in `analysis/data-waves.md` naming the QA report path.
+- **It does not lock the data.** After SAP-aligned QA, an authorized human records a dated `locked` entry for the wave in `analysis/data-waves.md`, naming the QA report path and content hash; update `.ce-datascience/data-state.yaml` too when the project uses it.
 - **It does not check SAP correctness.** That's `ce-sap-drift-detector` (which now also covers amendments). We check data-vs-SAP shape consistency only.
 - **It does not run statistical models.** No fits, no tests, no inferential output. Descriptive only.
 

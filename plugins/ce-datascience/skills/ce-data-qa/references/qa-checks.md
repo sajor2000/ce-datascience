@@ -125,7 +125,7 @@ Each check has: id, applies_when, bucket, language-agnostic intent, R/Python rec
 
 - **Bucket**: `block` if no hash recorded for this extract
 - **Why**: cannot prove which data the analysis ran on
-- **Finding format**: "No hash registered for extract_id. Re-run data_wave_register."
+- **Finding format**: "No hash recorded for extract_id in analysis/data-waves.md. Record the extract hash before proceeding."
 
 ### QA-16: PHI columns flagged
 

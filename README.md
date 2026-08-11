@@ -1,12 +1,55 @@
 # Compound Health Data Science
 
-**Your AI research assistant — from research question to publication.**
+**A practical AI research partner for health and biomedical data.**
 
-68 skills. 55 review agents. 35 reporting checklists. R and Python. Works with Claude Code, Codex, Pi, Gemini CLI, OpenCode, Kiro, and Qwen Code.
+CE DataScience helps you move from an idea to a careful, documented analysis. You
+can ask your coding assistant to help plan a study, find relevant evidence,
+check a dataset, write analysis code, review the results, and prepare a report.
 
-One plugin gives your coding agent the entire biomedical research lifecycle: frame your PICO, search PubMed, build cohorts, write your SAP, execute with tracking, review against STROBE/CONSORT/TRIPOD+AI, and document what you learned so the next study is easier.
+You stay in control of the scientific decisions. The plugin does not replace a
+researcher, statistician, clinician, data steward, or ethics review.
 
-![Workflow — From PICO to Publication](docs/workflow-diagram.png)
+## In plain English
+
+If you work with health data, this plugin gives your AI assistant a set of
+specialized workflows for the work around the code — the questions, decisions,
+checks, documentation, and reviews that make an analysis more trustworthy.
+
+It can help you:
+
+- turn a broad research idea into a clear question and study plan;
+- search and organize published evidence;
+- build a study group from R or Python data;
+- check whether data, joins, missing values, and variables make sense;
+- keep important statistical choices visible before analysis;
+- review a manuscript or report against common research checklists; and
+- leave behind reusable notes and artifacts so the next analysis is easier.
+
+## Who is it for?
+
+Researchers, analysts, students, clinicians, and data teams who use R or
+Python for health, biomedical, clinical, claims, EHR, omics, or related data.
+You do not need to memorize the right command: describe what you are trying to
+do, and the workflow helps identify the next step.
+
+## Try it in three steps
+
+1. Install it for the AI coding tool you already use.
+2. Open the project or study folder where you want to work.
+3. Ask the assistant to set up CE DataScience, then describe your research goal.
+
+For example:
+
+```text
+Use CE DataScience to set up this project, then help me plan a study of
+30-day mortality among ICU patients with sepsis. Show me the decisions I need
+to make before we analyze any data.
+```
+
+The quickest install paths are below. If you are not sure which one applies,
+start with Claude Code or Codex and follow the matching section.
+
+![Workflow — From research question to a documented, reviewable analysis](docs/workflow-diagram.png)
 
 ## How the package works
 
@@ -285,20 +328,35 @@ before code is written or trusted:
 - `/ce-data-qa` reconciles row counts and joins, checks keys and type stability,
   records missing-data handling, and returns GO, WARN, or NO-GO rather than
   silently substituting fallback data.
-- `/ce-plan` and `/ce-statistical-analysis-plan` require the estimand, intended
-  grain, keys, time zero, and success criteria for observational or causal
-  work; unresolved choices remain questions for the analyst.
+- `/ce-plan` owns the canonical versioned SAP. Add
+  `/ce-statistical-analysis-plan` only when a complex clinical or observational
+  design needs a claim-to-dataset schema, explicit estimands, and decision evidence; use
+  `/ce-sap-tabular` for the workbook rather than creating a competing plan.
 - `/ce-work` fails loudly at missing or corrupt inputs. `/ce-code-review`
   checks integrity and causal timing, and requires censoring-aware,
   decision-aligned time-dependent AUC for dynamic survival models.
 
 For an administrative claims study, use the claims-oriented SAP workflow when
-you need a linked methods section, variables dictionary, analyses, diagnostics,
-outputs, and decision evidence:
+the canonical SAP needs linked claims, datasets, variables, analyses,
+diagnostics, outputs, and decision evidence:
 
 ```text
 /ce-statistical-analysis-plan
 ```
+
+### Prepare a manuscript for handoff
+
+```text
+/ce-manuscript-package
+/ce-manuscript-citations
+/ce-pre-submission-audit
+/ce-review-pack
+```
+
+Use `/ce-clinical-research-voice`, `/ce-manuscript-section-discipline`, or
+`/ce-scientific-anti-slop` directly only for a focused prose pass. The combined
+pre-submission audit is the final editing gate; required Methods rationale is
+preserved, while retrospective interpretation remains in Discussion.
 
 ### Build a prediction model
 
@@ -397,7 +455,7 @@ remain external. When the core Compound Engineering plugin is also installed,
 ce-datascience handoffs can use those skills with a visible fallback; they are
 not packaged as ce-datascience slash skills.
 
-## Reviews against 35 checklists
+## Reviews against 35 reporting checklists
 
 The checklist registry records publication evidence, current versus legacy versions, and methodological roles. Reporting guidelines, appraisal tools, planning templates, and unresolved candidates are not treated as interchangeable routes; unresolved entries remain explicitly labeled rather than being presented as authoritative.
 
@@ -455,7 +513,7 @@ Inside Codex, run `/plugins`, select this local marketplace, install `ce-datasci
 Codex installs have two supported modes:
 
 - **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex --codex-home "$CODEX_HOME"` to add generated agents to the same profile.
-- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills, MCP config, and managed `.codex/hooks.json` entries.
+- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills and managed `.codex/hooks.json` entries. MCP configuration is written only for plugins that actually declare servers; CE DataScience declares none.
 
 Managed Codex hooks are tagged with plugin metadata so upgrades can replace this plugin's hook entries without deleting manual hooks or hooks owned by another plugin. If an existing `hooks.json` is malformed, the installer backs it up before writing a managed replacement.
 
@@ -502,7 +560,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 68 |
+| Skills | 76 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 
