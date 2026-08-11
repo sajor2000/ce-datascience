@@ -13,23 +13,23 @@ description: Enforce the facts-only boundary for Methods, Results, figure legend
 - **Ask only if:** Section boundaries or the difference between a reported fact and an interpretation is unclear.
 - **Do not do:** Do not justify methods, explain why results occurred, or soften a required section-discipline fix.
 
-Methods and Results report what was done and what was found. Discussion is the only section where interpretation, mechanism, justification, caveats, and hedging about generalizability belong. This skill enforces that boundary and audits drafts against it before they leave your hands.
+Methods and Results report what was done and what was found. Discussion is where interpretation, mechanism, retrospective justification, caveats, and hedging about generalizability belong. Methods may retain concise rationale that a reporting guideline, protocol, regulatory requirement, or reproducibility standard requires to explain a prespecified choice. This skill enforces that boundary and audits drafts against it before they leave your hands.
 
 ## The rule, stated once
 
-**Methods and Results: facts only, never interpreted, never justified, never caveated.**
+**Methods and Results: facts plus required, prespecified methodological rationale; never advocacy, retrospective interpretation, or caveats.**
 **Discussion: this is where you interpret the findings, explain mechanism, justify methodological choices in retrospect, and state limitations.**
 
-If a sentence in Methods or Results answers "why," "so what," or "does this hold up," it belongs in Discussion — move it or cut it. Do not soften this by writing conditionally ("this approach was intended to..."); intent and justification are still interpretation.
+If a sentence in Methods or Results answers "so what" or "does this hold up," it belongs in Discussion — move it or cut it. A sentence answering "why" stays when it records rationale required by the applicable reporting guideline, protocol, regulation, or reproducibility standard; otherwise move it or cut it. Do not soften retrospective interpretation by writing conditionally ("this approach was intended to..."); intent and advocacy are still not Methods facts.
 
 ## Methods section rules
 
 - State design, setting, population, variables, and procedures in the order performed or defined.
 - Passive constructions are expected and correct here for procedural steps where the actor is the study apparatus: "Patients were randomly assigned," "Scoring rubrics were created," "Vignettes were reviewed by two board-certified physicians." This is the one section where `ce-clinical-research-voice`'s general preference for "we" gives way to passive procedure-description; use "we" only for author-level decisions that must be attributed ("we defined the primary outcome as...", "we prespecified...").
-- Do not justify a methodological choice. State what was measured and how, not why that measurement is superior, appropriate, or robust. "Because," "in order to," "to account for," "to ensure," and similar rationale-markers are a signal the sentence has drifted from Methods into an argument that belongs in Discussion — the sole exception is a bare definitional or regulatory fact with no evaluative content (e.g., "the study was approved by the institutional review board").
-- No caveats about the method itself in Methods. If a design choice has a limitation, that limitation is stated in Discussion, not flagged in Methods.
+- Preserve concise rationale when the applicable reporting guideline, protocol, regulation, or reproducibility requirement requires it — for example, the prespecified basis for confounder selection, reference-standard choice, cutoff selection, or study design. State the source or prespecified basis without claiming that the choice is superior, appropriate, robust, or validated beyond the evidence. "Because," "in order to," "to account for," and "to ensure" are signals to inspect, not automatic deletion rules: retain a required rationale, and move retrospective advocacy or unsupported explanation to Discussion.
+- No caveats about the method itself in Methods. If a design choice has a limitation, that limitation is stated in Discussion, not flagged in Methods; do not confuse a required rationale for the choice with a caveat about its limitations.
 - Report in past tense throughout ("patients were assigned," "the model was trained"); present tense in Methods or Results is a drafting tell and usually marks a sentence that drifted in from Discussion.
-- Worked example for the most common near-miss, covariate adjustment: "Models were adjusted for age, sex, and SOFA score to account for confounding" → "Models were adjusted for age, sex, and SOFA score." The adjustment set is the fact; the confounding rationale is justification and moves to Discussion if it needs stating at all.
+- Worked example for the most common near-miss, covariate adjustment: "Models were adjusted for age, sex, and SOFA score to account for confounding" → "Models were adjusted for age, sex, and SOFA score; the covariates were prespecified from the causal model and prior clinical evidence." Keep the prespecified or reporting-required basis when it is required to reproduce or assess the study; remove only unsupported claims that the adjustment set is superior or robust.
 
 ## Results section rules
 
@@ -41,7 +41,7 @@ If a sentence in Methods or Results answers "why," "so what," or "does this hold
 
 ## Red-flag phrase list (Methods and Results)
 
-Treat any of these as a required move-to-Discussion-or-delete, not a rewrite-in-place:
+Treat these as required review flags, not automatic deletion rules. Preserve a phrase when it states rationale required by the applicable reporting guideline, protocol, regulation, or reproducibility standard; otherwise move it to Discussion or delete it:
 
 - "in order to ensure," "to account for," "this approach was chosen because," "to minimize the risk of"
 - "may reflect," "likely due to," "possibly because," "suggesting that," "which indicates," "consistent with what would be expected"
@@ -57,7 +57,7 @@ Legends and footnotes follow Results rules, not Discussion rules — they are th
 ## Audit workflow
 
 1. Draft the Methods or Results section using the rules above.
-2. Re-read sentence by sentence. For each sentence, ask only: is this a description of what was done or what was found? If the answer requires "because," "so that," "which suggests," or any editorializing adverb, flag it.
+2. Re-read sentence by sentence. For each sentence, ask: is this a description of what was done or what was found, and does any rationale state a required or prespecified basis? Flag "so that," "which suggests," editorializing adverbs, and rationale that is neither required nor prespecified.
 3. For every flagged sentence: either move the interpretive clause to the Discussion draft (it usually belongs there and often improves Discussion), or delete it if it adds no factual content.
 4. Re-read the section once more with the red-flag list open. Zero matches is the bar, not "fewer" matches.
 5. Only after this pass is a Methods or Results draft ready to hand to an author. This step is mandatory, not optional, and applies even to sections the user has not explicitly asked you to audit — audit by default whenever you produce or edit Methods/Results text.
