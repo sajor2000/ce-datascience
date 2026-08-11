@@ -520,6 +520,12 @@ full-text synthesis or sources beyond PubMed. They can be used together:
 PubMed remains the canonical metadata baseline, while Paperclip deepens selected
 claims and methods against full text.
 
+For Word manuscript citations, use the `ce-manuscript-citations` skill after
+installing or connecting PubMed MCP and, when permitted, Paperclip. It keeps
+PubMed identifiers and Paperclip claim evidence in a citation ledger, then uses
+Zotero-owned Word fields for the editable DOCX master. Static superscripts and
+typed bibliography entries are not treated as editable citations.
+
 CE's artifact-producing workflows currently auto-detect only the Paperclip CLI.
 PubMed MCP and Paperclip's external skill or MCP server are direct agent
 capabilities; CE does not automatically translate their results into the

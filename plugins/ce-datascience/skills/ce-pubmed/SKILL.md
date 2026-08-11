@@ -26,6 +26,15 @@ Search PubMed/MEDLINE via NCBI E-utilities, return a structured CSV that downstr
 - Optional but recommended: `export NCBI_API_KEY=<key>` (lifts rate limit from 3 → 10 req/sec)
 - Optional: `export NCBI_EMAIL=<your-email>` (NCBI courtesy)
 
+## Connected PubMed MCP path
+
+When a connected PubMed MCP server exposes the `pubmed_*` tools, prefer that
+path for citation work: use `pubmed_search_articles` or
+`pubmed_lookup_citation`, then `pubmed_fetch_articles`,
+`pubmed_fetch_fulltext`, and `pubmed_format_citations` as needed. Preserve the
+returned PMID/PMCID/DOI and query provenance in the downstream ledger. The
+bundled script remains the fallback for environments without the MCP server.
+
 ## Workflow
 
 ### 0. Context inputs (scan chat first)

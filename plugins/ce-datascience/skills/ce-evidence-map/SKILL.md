@@ -27,6 +27,11 @@ Paperclip for normal plugin operation.
   to `ce-pubmed`.
 - Optional Paperclip deepening: `paperclip` CLI installed and authenticated.
 
+When Paperclip MCP is connected, use its `paperclip` command surface for the
+same explicit-source search, full-text read, and line-pinned evidence workflow
+described below. Prefer the MCP path when available; fall back to the
+authenticated CLI without changing the evidence labels.
+
 Check Paperclip availability without installing anything:
 
 ```bash

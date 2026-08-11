@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 75 |
+| Skills | 76 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -278,6 +278,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog |
 | `/ce-figure` | Validate publication figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
 | `/ce-manuscript-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
+| `/ce-manuscript-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
 | `/ce-clinical-research-voice` | Apply a precise, clinically detached house style to narrative clinical AI research prose |
 | `/ce-manuscript-section-discipline` | Enforce the facts-only boundary for Methods, Results, figure legends, and table footnotes |
 | `/ce-scientific-anti-slop` | Detect and remove generic AI-writing tells from scientific and clinical manuscript prose |
