@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Strategy"
+  short_description: "Choose and justify evidence-grounded statistical models."
+  default_prompt: "Use $ce-model-strategy to choose, justify, and scaffold the appropriate statistical model for this study."

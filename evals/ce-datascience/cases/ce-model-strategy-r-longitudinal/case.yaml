@@ -1,0 +1,111 @@
+schema_version: "1.0"
+id: ce-model-strategy-r-longitudinal
+target:
+  kind: skill
+  name: ce-model-strategy
+  source: plugins/ce-datascience/skills/ce-model-strategy/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-model-strategy-r-longitudinal/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-model-strategy-r-longitudinal/fixtures/aggregate-profile.md
+    destination: workspace/aggregate-profile.md
+    sha256: 99411cce434f032f2d8f486730101306f11ca084423728afefd82744ed8087b5
+required_behaviors:
+  - writes-strategy-memo
+  - writes-r-scaffold
+  - selects-lmm
+  - justifies-random-intercept-and-slope
+  - predeclares-singularity-fallback
+  - preserves-human-signoff
+  - emits-handoff
+prohibited_behaviors:
+  - claims-approval
+criteria:
+  - id: writes-strategy-memo
+    description: A model-strategy memo is created at the requested location.
+    type: file_exists
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: writes-r-scaffold
+    description: A stack-matched R scaffold is created.
+    type: file_exists
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model.R
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: scaffold-fits-random-intercept-slope-lmm
+    description: The scaffold fits an LMM with subject random intercept and time slope.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model.R
+    pattern: '(?:lme4::lmer[\s\S]*\(\s*1\s*\+\s*[^|]*(?:time|month)[^|]*\|\|?\s*subject|\(\s*1\s*\+\s*[^|]*(?:time|month)[^|]*\|\|?\s*subject[\s\S]*lme4::lmer)'
+    weight: 3
+    hard_gate: true
+  - id: scaffold-fails-on-missing-columns
+    description: The scaffold validates required columns and stops when they are missing.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model.R
+    pattern: 'required(?:_(?:columns|cols))?[\s\S]*setdiff[\s\S]*stop\('
+    weight: 2
+    hard_gate: true
+  - id: scaffold-checks-singularity
+    description: The scaffold checks singularity before fallback.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model.R
+    pattern: 'isSingular|singular'
+    weight: 2
+    hard_gate: true
+  - id: selects-lmm
+    description: The memo selects a linear mixed model.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    pattern: 'linear mixed|\bLMM\b'
+    weight: 2
+    hard_gate: true
+  - id: justifies-random-intercept-and-slope
+    description: The memo links random intercept and slope choices to repeated subjects and within-subject time.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    pattern: 'random intercept[\s\S]*subject[\s\S]*random slope[\s\S]*(?:time|month)|random slope[\s\S]*(?:time|month)[\s\S]*random intercept[\s\S]*subject'
+    weight: 3
+    hard_gate: true
+  - id: predeclares-singularity-fallback
+    description: The memo predeclares a singular-fit simplification path.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    pattern: 'singular[\s\S]*(?:correlation|slope|simplif|fallback)'
+    weight: 2
+    hard_gate: true
+  - id: preserves-human-signoff
+    description: The strategy remains ready for human review rather than approved.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    pattern: 'ready_for_review[\s\S]*(?:human|reviewer|pending)'
+    weight: 3
+    hard_gate: true
+  - id: records-evidence-provenance
+    description: The memo preserves identifiers, query provenance, and verification labels from the frozen evidence map.
+    type: regex
+    path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
+    pattern: 'PMID\s*35521689[\s\S]*abstract[\s\S]*(?:PubMed query|Query provenance)[\s\S]*PMC2657178[\s\S]*full_text'
+    weight: 3
+    hard_gate: true
+  - id: emits-handoff
+    description: The response emits the canonical ready-for-review R handoff.
+    type: regex
+    path: response.md
+    pattern: '__CE_MODEL_STRATEGY__ .*language=r .*status=ready_for_review .*primary=[^\s]*(?:lmm|linear-mixed-model)[^\s]*'
+    weight: 3
+    hard_gate: true
+  - id: claims-approval
+    description: The output does not claim human approval occurred.
+    type: regex_not
+    path: response.md
+    pattern: '(?:human|biostatistician)\s+(?:has\s+)?approved|status=approved'
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture contains frozen synthetic aggregate design facts, not patient-level data or fitted results.
+  - The scorer checks decision structure and artifacts, not whether a model fit succeeds on real data.

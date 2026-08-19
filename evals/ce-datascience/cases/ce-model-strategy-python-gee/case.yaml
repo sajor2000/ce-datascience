@@ -1,0 +1,101 @@
+schema_version: "1.0"
+id: ce-model-strategy-python-gee
+target:
+  kind: skill
+  name: ce-model-strategy
+  source: plugins/ce-datascience/skills/ce-model-strategy/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-model-strategy-python-gee/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-model-strategy-python-gee/fixtures/aggregate-profile.md
+    destination: workspace/aggregate-profile.md
+    sha256: 4bd109d42ec22cd77c36d5e4f86acb89244c144faceeb90bdf4f7147d909f304
+required_behaviors:
+  - writes-strategy-memo
+  - writes-python-scaffold
+  - selects-gee
+  - preserves-marginal-estimand
+  - emits-handoff
+prohibited_behaviors:
+  - selects-mixedlm-primary
+criteria:
+  - id: writes-strategy-memo
+    description: A model-strategy memo is created.
+    type: file_exists
+    path: workspace/analysis/model-strategy/clinic-followup-model-strategy.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: writes-python-scaffold
+    description: A Python scaffold is created.
+    type: file_exists
+    path: workspace/analysis/model-strategy/clinic-followup-model.py
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: scaffold-fits-clinic-binomial-gee
+    description: The scaffold fits a binary-outcome GEE grouped by clinic with an explicit working covariance.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model.py
+    pattern: '(?:(?:smf\.)?gee\(|(?:sm\.)?GEE\.from_formula\()[\s\S]*groups\s*=\s*[^,\n]*(?:cluster|clinic)[^,\n]*,[\s\S]*(?:Binomial|Poisson)[\s\S]*cov_struct'
+    weight: 3
+    hard_gate: true
+  - id: scaffold-fails-on-missing-columns
+    description: The scaffold validates required columns and raises when they are missing.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model.py
+    pattern: 'required[\s\S]*difference\([^\n]*columns|missing[\s\S]*raise (?:ValueError|KeyError)'
+    weight: 2
+    hard_gate: true
+  - id: scaffold-produces-marginal-contrasts
+    description: The scaffold computes standardized risk-difference and risk-ratio contrasts.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model.py
+    pattern: 'standardized[\s\S]*risk_difference[\s\S]*risk_ratio|risk_difference[\s\S]*risk_ratio[\s\S]*standardized'
+    weight: 2
+    hard_gate: true
+  - id: scaffold-uses-approved-adjustment-set
+    description: The scaffold uses the prespecified baseline adjustment columns.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model.py
+    pattern: 'baseline_followup_risk[\s\S]*age_centered[\s\S]*sex|sex[\s\S]*age_centered[\s\S]*baseline_followup_risk'
+    weight: 2
+    hard_gate: true
+  - id: selects-gee
+    description: The memo selects GEE for the population-average target.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model-strategy.md
+    pattern: 'population.?average[\s\S]*\bGEE\b|\bGEE\b[\s\S]*population.?average'
+    weight: 3
+    hard_gate: true
+  - id: preserves-marginal-estimand
+    description: The memo addresses marginal risk contrasts rather than conditional odds alone.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model-strategy.md
+    pattern: 'marginal.*(?:risk difference|risk ratio)|(?:risk difference|risk ratio).*marginal'
+    weight: 2
+    hard_gate: true
+  - id: records-evidence-provenance
+    description: The memo preserves PubMed identifiers, query provenance, and abstract verification labels.
+    type: regex
+    path: workspace/analysis/model-strategy/clinic-followup-model-strategy.md
+    pattern: 'PMID\s*36919082[\s\S]*abstract[\s\S]*(?:PubMed(?: query)?|Query provenance)'
+    weight: 3
+    hard_gate: true
+  - id: emits-handoff
+    description: The response emits the canonical ready-for-review Python handoff.
+    type: regex
+    path: response.md
+    pattern: '__CE_MODEL_STRATEGY__ .*language=python .*status=ready_for_review .*primary=[^\s]*gee[^\s]*'
+    weight: 3
+    hard_gate: true
+  - id: selects-mixedlm-primary
+    description: MixedLM is not substituted as the primary model.
+    type: regex_not
+    path: response.md
+    pattern: 'primary=(?:mixedlm|lmm|linear-mixed-model)'
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is synthetic and aggregate; the case evaluates routing and scaffold structure only.

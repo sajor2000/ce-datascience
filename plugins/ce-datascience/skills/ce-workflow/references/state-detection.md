@@ -14,6 +14,7 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 | `ce-power` | `analysis/power/` directory or `analysis/power-analysis.*` file exists | — |
 | `ce-cohort-build` | `analysis/cohort/` contains `.sql` or `.json` concept-set files | Directory exists but no SQL/JSON |
 | `ce-data-qa` | `reports/data-qa/*.md` or `analysis/data-qa-report.md` exists and contains `GO`, `__CE_DATA_PROFILE__`, or `__CE_DATA_QA__` verdict | Report exists but contains `NO-GO`, blockers, or no verdict |
+| `ce-model-strategy` | Every `analysis/model-strategy/*-model-strategy.md` has an exact `Status: ready_for_review` line | Any strategy memo has `Status: blocked`, `Status: provisional`, a conflicting status, or no exact status line |
 | `ce-phenotype-validate` | `analysis/phenotype-validation.*` exists with PPV/sensitivity results | — |
 | `ce-plan` (SAP) | `docs/plans/` contains a file with `sap_version` in YAML frontmatter | Plan file exists without `sap_version` (implementation plan, not SAP) |
 | `ce-plan` (implementation) | `docs/plans/` contains a file with `status: active` or `status: completed` | — |
@@ -34,7 +35,7 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 - **In progress**: artifact exists but matches the "In-progress signal" column, or the artifact is ambiguous (e.g., data-qa report exists but has no GO/NO-GO verdict)
 - **Not started**: no artifact found
 
-When multiple signals are ambiguous, prefer "not started" over "in progress" to avoid false progress.
+When multiple signals are ambiguous, prefer "not started" over "in progress" to avoid false progress. For model strategy, `blocked` or `provisional` takes precedence over `ready_for_review`; do not mark the step done until every discovered memo is ready for review.
 
 ## Stack Profile Detection
 
