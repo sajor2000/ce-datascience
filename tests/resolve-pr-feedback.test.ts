@@ -77,6 +77,20 @@ printf '%s\\n' '{"review_threads":[],"pr_comments":[],"review_bodies":[],"cross_
   return binDir
 }
 
+async function createFeedbackGhBin(): Promise<string> {
+  const binDir = await fs.mkdtemp(path.join(os.tmpdir(), "resolve-pr-feedback-bin-"))
+  await writeExecutable(
+    path.join(binDir, "gh"),
+    `#!/usr/bin/env bash
+set -euo pipefail
+cat <<'JSON'
+[{"data":{"viewer":{"login":"resolver"},"repository":{"pullRequest":{"author":{"login":"author"},"reviewThreads":{"nodes":[]},"comments":{"nodes":[{"id":"author-request","author":{"login":"author"},"body":"Please rename check_id to validate_id."},{"id":"blank","author":{"login":"bot"},"body":"   "}]},"reviews":{"nodes":[]}}}}}]
+JSON
+`,
+  )
+  return binDir
+}
+
 describe("ce-resolve-pr-feedback repository resolution", () => {
   test("get-pr-comments fails loudly when owner/repo auto-detection fails", async () => {
     const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "resolve-pr-feedback-cwd-"))
@@ -156,5 +170,36 @@ describe("ce-resolve-pr-feedback thread safety guidance", () => {
     expect(body).toContain("cross_invocation - cross-invocation awareness envelope")
     expect(body).toContain("cross_invocation: {")
     expect(body).toContain("resolved_threads: $resolved")
+  })
+
+  test("get-pr-comments retains actionable feedback from the PR author", async () => {
+    const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "resolve-pr-feedback-cwd-"))
+    const binDir = await createFeedbackGhBin()
+
+    try {
+      const result = await runScript(getPrCommentsScript, ["123", "EveryInc/cora"], {
+        cwd,
+        env: {
+          ...process.env,
+          PATH: `${binDir}:${process.env.PATH ?? ""}`,
+        },
+      })
+
+      expect(result.exitCode).toBe(0)
+      expect(result.stderr).toBe("")
+      const output = JSON.parse(result.stdout)
+      expect(output.pr_comments).toEqual([
+        {
+          id: "author-request",
+          author: { login: "author" },
+          body: "Please rename check_id to validate_id.",
+        },
+      ])
+      expect(output.pr_author).toBe("author")
+      expect(output.viewer).toBe("resolver")
+    } finally {
+      await fs.rm(cwd, { recursive: true, force: true })
+      await fs.rm(binDir, { recursive: true, force: true })
+    }
   })
 })

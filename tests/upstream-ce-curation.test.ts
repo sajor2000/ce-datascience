@@ -118,4 +118,28 @@ describe("upstream Compound Engineering curation", () => {
     expect(worktree).toContain("Never nest another worktree")
     expect(worktree).not.toContain("worktree-manager.sh")
   })
+
+  test("commit workflows isolate named paths and honor exclusions", async () => {
+    const commitSkills = [
+      await readSkillFile("ce-commit/SKILL.md"),
+      await readSkillFile("ce-commit-push-pr/SKILL.md"),
+    ]
+
+    for (const skill of commitSkills) {
+      expect(skill).toContain("Honor `exclude:<paths>`")
+      expect(skill).toContain(')" -- file1 file2 file3')
+      expect(skill).toContain("a bare `git commit` takes the whole index")
+    }
+  })
+
+  test("PR descriptions preserve repository template contracts", async () => {
+    const writing = await readSkillFile(
+      "ce-commit-push-pr/references/pr-description-writing.md",
+    )
+
+    expect(writing).toContain("## Project PR-body contract")
+    expect(writing).toContain(".github/PULL_REQUEST_TEMPLATE/")
+    expect(writing).toContain("Treat a template as a minimum")
+    expect(writing).toContain("the project contract wins")
+  })
 })

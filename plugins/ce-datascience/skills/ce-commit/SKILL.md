@@ -98,7 +98,7 @@ Write the commit message:
 - **Subject line**: Concise, imperative mood, focused on *why* not *what*. Follow the convention determined in Step 2.
 - **Body** (when needed): Add a body separated by a blank line for non-trivial changes. Explain motivation, trade-offs, or anything a future reader would need. Omit the body for obvious single-purpose changes.
 
-For each commit group, stage and commit in a single call. Prefer staging specific files by name over `git add -A` or `git add .` to avoid accidentally including sensitive files (.env, credentials) or unrelated changes. Use a heredoc to preserve formatting:
+For each commit group, stage and commit in a single call. Prefer staging specific files by name over `git add -A` or `git add .` to avoid accidentally including sensitive files (.env, credentials) or unrelated changes. Honor `exclude:<paths>` when the invocation carries it: never stage or commit those paths, and report that they were left out. Use a heredoc to preserve formatting:
 
 ```bash
 git add file1 file2 file3 && git commit -m "$(cat <<'EOF'
@@ -107,8 +107,10 @@ type(scope): subject line here
 Optional body explaining why this change was made,
 not just what changed.
 EOF
-)"
+)" -- file1 file2 file3
 ```
+
+The trailing path list is required: a bare `git commit` takes the whole index and can sweep pre-staged, excluded, or unrelated work into the commit.
 
 ### Step 5: Confirm
 

@@ -15,6 +15,10 @@ The diff is already visible on GitHub. The description exists to explain what th
 
 For user-facing or analyst-facing bugs, run an extra before/after pass before writing the mechanism: name what the user would have seen before and what they now see instead. Only then mention the technical cause or fix, and only if it helps the reviewer understand risk. A lead like "R table rendering now ignores stale async responses" is still too mechanical if the visible bug was "old tables or warnings could appear after switching cohorts."
 
+## Project PR-body contract
+
+Before composing, resolve PR-body requirements from the project's active instructions and conventions already in context. Then check the standard repository PR-template locations: the repository root, `docs/`, `.github/`, and `.github/PULL_REQUEST_TEMPLATE/`, plus any contribution guidance they reference. Required headings, fields, order, checklists, and boilerplate define the structural contract. Treat a template as a minimum unless the project explicitly requires an exact/template-only body or forbids additions. Within every permitted section, apply this reference's value-first, evidence, and editing rules. When those defaults conflict with the project's PR-body contract, the project contract wins.
+
 ---
 
 ## Step Pre-A: Resolve the PR commit range and diff
@@ -154,6 +158,8 @@ Assess size (files, diff volume) and complexity (design decisions, trade-offs, c
 | Large or architecturally significant | Narrative frame + up to 3-5 design-decision callouts + 1-2 sentence test summary + key docs links. Target ~100 lines, cap ~150. For PRs with many mechanisms, use a Summary-level table to list them; do NOT create an H3 subsection per mechanism. Reviewers scrutinize decisions, not inventories — the diff and spec files carry the detail. If you find yourself writing 10+ subsections, consolidate to a table. |
 | Performance improvement | Include before/after measurements if available. Markdown table works well. |
 
+A project PR-body contract sets the structural floor; this table sizes the content within it, never against it.
+
 When in doubt, shorter is better. Match description weight to change weight. Large PRs need MORE selectivity, not MORE content.
 
 ---
@@ -252,7 +258,7 @@ Breaking changes use `!` (e.g., `feat!: ...`) or document in the body with a `BR
 
 ## Step G: Compose the body
 
-Assemble the body in this order:
+When a project PR-body contract supplies headings or order, preserve that structure and place the applicable elements below within the sections it permits. Otherwise, assemble the body in this order:
 
 1. **Opening** -- the narrative frame from Step C, at the depth chosen in Step D. Under a heading (e.g., `## Summary`) if the description uses any `##` headings elsewhere; a bare paragraph otherwise.
 2. **Body sections** -- only the sections that earn their keep for this change: what changed and why, design decisions, tables for data, visual aids when complexity warrants. Skip empty sections entirely.
@@ -291,6 +297,8 @@ Before applying, re-read the composed body and apply these cuts:
 - If a "Review" or process-oriented section lists how to review, remove it. Move any truly non-obvious review hints inline with the relevant change.
 - If the body has 5+ H3 subsections that each describe one mechanism, consolidate them into a single table row per mechanism under one header. Reserve prose H3 callouts for 2-3 genuine design decisions.
 - If the body exceeds the sizing-table target by more than 30%, compress the longest non-Summary section by half.
+
+Do not remove headings, fields, checklists, or boilerplate required by the project's PR-body contract during compression.
 
 **Value-lead check.** Re-read the first sentence of the Summary. If it describes what was moved around, renamed, or added ("This PR introduces three-tier autofix..."), rewrite to lead with what's now possible or what was broken and is now fixed ("Document reviews previously produced 14+ findings requiring user judgment; this PR cuts that to 4-6.").
 

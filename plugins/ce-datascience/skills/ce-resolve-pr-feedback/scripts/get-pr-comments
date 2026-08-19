@@ -26,14 +26,14 @@ if [ -z "$OWNER" ] || [ -z "$REPO" ]; then
     exit 1
 fi
 
-# Output is a JSON object with four keys:
+# Output is a JSON object with these keys:
 #   review_threads   - unresolved inline review threads, edge-wrapped as
 #                      [{ node: { id, isResolved, isOutdated, path, line, ...,
 #                                 comments: { nodes: [...] } } }]
-#   pr_comments      - top-level PR conversation comments (excludes PR author
-#                      and known CI/status bots)
-#   review_bodies    - review submissions with non-empty body text (same
-#                      filtering as pr_comments)
+#   pr_comments      - non-empty top-level PR conversation comments
+#   review_bodies    - non-empty review submission bodies
+#   pr_author        - the PR author's login, or null
+#   viewer           - the acting account's login, or null
 #   cross_invocation - cross-invocation awareness envelope:
 #     signal: true when both resolved and unresolved threads exist (multi-round review)
 #     resolved_threads: last 10 resolved threads by recency, for cluster analysis input
@@ -48,23 +48,16 @@ fi
 # follow-up pagination; threads that exceed 100 comments are rare and out of
 # scope for this fix.
 #
-# Bot filtering: only CI/status bots (codecov, etc.) are filtered at the source.
-# Their output is structurally never actionable -- coverage numbers, build
-# summaries, deploy status -- and that holds regardless of format changes.
-# AI review bots (coderabbitai, codex, gemini, copilot) are NOT filtered here.
-# Historically their top-level comments were assumed to always be wrappers, but
-# that turned out to be wrong: Codex sometimes posts actionable findings as
-# top-level PR comments with no inline thread counterpart. Any source-level
-# heuristic to separate wrapper from actionable for these bots is brittle (one
-# bot format change away from silently dropping feedback). SKILL.md step 2
-# has a content-aware actionability check and Silent Drop rule that handles
-# wrappers correctly, so we trust that layer instead. Add new logins to the CI
-# list only if their output is structurally non-actionable like codecov's.
+# Content, identity, and surface are evidence for the resolver, not deterministic
+# exclusions. An author posting on their own PR is the ordinary way a human asks
+# for a change on an agent-opened PR. Keep every non-empty item so the skill's
+# content-aware actionability check can judge it.
 
 threads_pages=$(gh api graphql --paginate --slurp \
   -f owner="$OWNER" -f repo="$REPO" -F pr="$PR_NUMBER" \
   -f query='
 query Threads($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
+  viewer { login }
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $pr) {
       author { login }
@@ -141,10 +134,10 @@ jq -n \
   --argjson comments "$comments_pages" \
   --argjson reviews "$reviews_pages" '
   ($threads[0].data.repository.pullRequest.author) as $author |
+  ($threads[0].data.viewer) as $viewer |
   [$threads[].data.repository.pullRequest.reviewThreads.nodes[]] as $all_threads |
   [$comments[].data.repository.pullRequest.comments.nodes[]] as $all_comments |
   [$reviews[].data.repository.pullRequest.reviews.nodes[]] as $all_reviews |
-  ["codecov"] as $ci_bot_logins |
   [$all_threads[] | select(.isResolved == false)] as $unresolved |
   ([$all_threads[]
     | select(.isResolved == true)
@@ -155,13 +148,11 @@ jq -n \
   {
     review_threads: [$unresolved[] | { node: . }],
     pr_comments: [$all_comments[]
-      | select(.author.login != $author.login)
-      | select(.author.login as $l | $ci_bot_logins | index($l) | not)
-      | select(.body | test("^\\s*$") | not)],
+      | select((.body // "") | test("^\\s*$") | not)],
     review_bodies: [$all_reviews[]
-      | select(.body != null and .body != "")
-      | select(.author.login != $author.login)
-      | select(.author.login as $l | $ci_bot_logins | index($l) | not)],
+      | select((.body // "") | test("^\\s*$") | not)],
+    pr_author: ($author.login // null),
+    viewer: ($viewer.login // null),
     cross_invocation: {
       signal: (($resolved | length) > 0 and ($unresolved | length) > 0),
       resolved_threads: $resolved

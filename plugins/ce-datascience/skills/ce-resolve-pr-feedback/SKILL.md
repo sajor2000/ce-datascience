@@ -36,28 +36,29 @@ In `ce-datascience`, methodology and reporting feedback is first-class. Treat co
 
 | Argument | Mode |
 |----------|------|
-| No argument | **Full** -- all unresolved threads on the current branch's PR |
-| PR number (e.g., `123`) | **Full** -- all unresolved threads on that PR |
-| Comment/thread URL | **Targeted** -- only that specific thread |
+| No argument | **Full** -- all unresolved feedback on the current branch's PR |
+| PR number (e.g., `123`) | **Full** -- all unresolved feedback on that PR |
+| PR URL or top-level `#issuecomment-...` URL | **Full** -- all unresolved feedback on that PR |
+| Review-thread `#discussion_r...` URL | **Targeted** -- only that specific thread |
 
-**Targeted mode**: When a URL is provided, ONLY address that feedback. Do not fetch or process other threads.
+Only a `#discussion_r` URL is targeted. A top-level issue comment has no review thread to resolve and must use Full Mode. In Targeted Mode, address only that thread.
 
 After determining mode, read the matching reference and follow it. Each reference is self-contained for that mode's flow:
 
-- **Full Mode** → `references/full-mode.md` (10 steps: fetch, triage, optional cluster analysis, plan, parallel implement, validate, commit/push, reply/resolve, verify, summary)
+- **Full Mode** → `references/full-mode.md` (10 steps covering inline review threads, review bodies, and top-level PR comments)
 - **Targeted Mode** → `references/targeted-mode.md` (2 steps: extract thread context from URL, fix/reply/resolve via the same validate/commit/push/reply pipeline)
 
 ## Scripts
 
-- `scripts/get-pr-comments` -- GraphQL query for unresolved review threads
+- `scripts/get-pr-comments` -- GraphQL query for unresolved feedback across all three surfaces
 - `scripts/get-thread-for-comment` -- Map a comment node ID to its parent thread (for targeted mode)
 - `scripts/reply-to-pr-thread` -- GraphQL mutation to reply within a review thread
 - `scripts/resolve-pr-thread` -- GraphQL mutation to resolve a thread by ID
 
 ## Success Criteria
 
-- All unresolved review threads evaluated
+- All unresolved feedback evaluated across inline threads, review bodies, and top-level comments
 - Valid fixes committed and pushed
-- Each thread replied to with quoted context
-- Threads resolved via GraphQL (except `needs-human`)
+- Each actionable item addressed with quoted context
+- Inline threads resolved via GraphQL (except `needs-human`)
 - Empty result from get-pr-comments on verify (minus intentionally-open threads)
