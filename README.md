@@ -9,6 +9,8 @@ check a dataset, write analysis code, review the results, and prepare a report.
 You stay in control of the scientific decisions. The plugin does not replace a
 researcher, statistician, clinician, data steward, or ethics review.
 
+[Read the public documentation](https://sajor2000.github.io/ce-datascience/)
+
 ## In plain English
 
 If you work with health data, this plugin gives your AI assistant a set of
@@ -60,7 +62,8 @@ start with Claude Code or Codex and follow the matching section.
 ## Get started like Compound Engineering
 
 The normal path is intentionally short: install the plugin, start your agent,
-then run setup. For complete platform details, see [docs/setup.md](docs/setup.md).
+then run setup. For complete platform details, see the
+[public setup guide](https://sajor2000.github.io/ce-datascience/docs/setup).
 
 ### Choose your install route
 
