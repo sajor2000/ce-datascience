@@ -420,6 +420,8 @@ which source is intended before it validates categories or generates filters.
 
 These workflow utilities are adapted from the original compound-engineering plugin so the public plugin can support release questions, bug reports, cross-session debugging, and statistical-methodology PR feedback without pulling in unrelated Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, or agent-native workflows.
 
+Repository maintenance is reported weekly through [Weekly Branch Maintenance](.github/workflows/branch-maintenance.yml). It identifies remote candidates only; inspect local worktrees and confirm any deletion with `/ce-clean-gone-branches`.
+
 ---
 
 ## Works with your stack
