@@ -18,7 +18,13 @@ describe("weekly branch maintenance report", () => {
       { name: "post-merge", protected: false, commit: { sha: "new-sha" } },
       { name: "protected", protected: true, commit: { sha: "protected-sha" } },
     ], new Map([
-      ["merged-feature", { open: [], closed: [mergedPullRequest] }],
+      ["merged-feature", {
+        open: [],
+        closed: [
+          mergedPullRequest,
+          { ...mergedPullRequest, number: 13, merged_at: null, updated_at: "2026-08-20T17:23:00Z" },
+        ],
+      }],
       ["open-feature", { open: [mergedPullRequest], closed: [mergedPullRequest] }],
       ["post-merge", { open: [], closed: [mergedPullRequest] }],
     ]))

@@ -80,15 +80,15 @@ export function classifyBranches(defaultBranch: string, branches: Branch[], pull
       continue
     }
 
-    const latest = [...pullRequests.closed].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0]
-    if (!latest) {
+    const matchingMerged = pullRequests.closed.find((pullRequest) => pullRequest.merged_at && pullRequest.head.sha === branch.commit.sha)
+    if (matchingMerged) {
+      candidates.push({ branch: branch.name, pullRequest: matchingMerged, sha: branch.commit.sha })
+    } else if (pullRequests.closed.length === 0) {
       exclusions.push({ branch: branch.name, reason: "no closed pull request" })
-    } else if (!latest.merged_at) {
-      exclusions.push({ branch: branch.name, reason: "latest pull request was not merged" })
-    } else if (latest.head.sha !== branch.commit.sha) {
+    } else if (pullRequests.closed.some((pullRequest) => pullRequest.merged_at)) {
       exclusions.push({ branch: branch.name, reason: "post-merge commits" })
     } else {
-      candidates.push({ branch: branch.name, pullRequest: latest, sha: branch.commit.sha })
+      exclusions.push({ branch: branch.name, reason: "no matching merged pull request" })
     }
   }
 

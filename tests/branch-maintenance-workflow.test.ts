@@ -7,5 +7,6 @@ test("weekly branch maintenance is scheduled, manually runnable, and read-only",
   expect(workflow).toContain("workflow_dispatch:")
   expect(workflow).toContain("contents: read")
   expect(workflow).toContain("pull-requests: read")
+  expect(workflow).toMatch(/actions\/checkout@[0-9a-f]{40}/)
   expect(workflow).not.toMatch(/git branch -[dD]|git push|DELETE|contents: write|pull-requests: write/)
 })
