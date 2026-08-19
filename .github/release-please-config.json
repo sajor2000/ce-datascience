@@ -26,6 +26,7 @@
         "PRIVACY.md",
         "favicon.png",
         "docs/",
+        "website/",
         "scripts/",
         ".github/",
         ".claude/",

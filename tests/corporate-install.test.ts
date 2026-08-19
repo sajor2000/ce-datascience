@@ -374,11 +374,12 @@ describe("corporate install artifacts", () => {
     expect(setupDocs).toContain("__CE_CONNECTION__ name=healthmap-connection type=postgres database=healthmap_dev auth=entra status=verified")
   })
 
-  test("every public documentation entry point explains installation and first use", async () => {
+  test("public documentation exposes installation and first use", async () => {
     const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
     const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
-    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
+    const docsHome = await fs.readFile(path.join(repoRoot, "website", "src", "pages", "index.js"), "utf8")
+    const docsConfig = await fs.readFile(path.join(repoRoot, "website", "docusaurus.config.js"), "utf8")
     const markdownContracts = [
       {
         install: rootReadme.match(/## Get started like Compound Engineering[\s\S]*?(?=\n### Use the plugin after installation)/)?.[0],
@@ -413,33 +414,17 @@ describe("corporate install artifacts", () => {
       expect(firstUseSetup).toBeLessThan(firstUseWorkflow)
     }
 
-    const docsIndexSection = docsIndex.match(/<h2>Install and use CE DataScience<\/h2>[\s\S]*?(?=\n    <p>\n      <a href=)/)?.[0]
-    expect(docsIndexSection).toBeDefined()
-    const indexSection = docsIndexSection ?? ""
-    const claudeInstall = indexSection.indexOf("bash install.sh claude --aliases")
-    const claudeRestart = indexSection.indexOf("After Claude Code restarts")
-    const claudeSetup = indexSection.indexOf("/ce-datascience:ce-setup")
-    const claudeWorkflow = indexSection.indexOf("/ce-datascience:ce-workflow")
-    const codexInstall = indexSection.indexOf("bash install.sh codex")
-    const codexPlugins = indexSection.indexOf("/plugins", codexInstall)
-    const codexSetup = indexSection.indexOf("<code>ce-setup</code>", codexPlugins)
-    const codexWorkflow = indexSection.indexOf("<code>ce-workflow</code>", codexSetup)
-
-    expect(claudeInstall).toBeLessThan(claudeRestart)
-    expect(claudeRestart).toBeLessThan(claudeSetup)
-    expect(claudeSetup).toBeLessThan(claudeWorkflow)
-    expect(codexInstall).toBeLessThan(codexPlugins)
-    expect(codexPlugins).toBeLessThan(codexSetup)
-    expect(codexSetup).toBeLessThan(codexWorkflow)
-    expect(indexSection).toContain("project or study directory")
-    expect(indexSection).toContain("pi install npm:pi-subagents")
+    expect(docsHome).toContain('to="/docs/setup"')
+    expect(docsConfig).toContain("include: ['setup.md']")
+    expect(docsConfig).toContain("routeBasePath: 'docs'")
+    expect(rootReadme).toContain("https://sajor2000.github.io/ce-datascience/")
   })
 
   test("public documentation ships and references both workflow images", async () => {
     const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
     const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
-    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
+    const docsHome = await fs.readFile(path.join(repoRoot, "website", "src", "pages", "index.js"), "utf8")
     const imageNames = [
       "ce-datascience-package-workflow.png",
       "ce-datascience-skill-commands.png",
@@ -452,8 +437,9 @@ describe("corporate install artifacts", () => {
       expect(rootReadme).toContain(`docs/${imageName}`)
       expect(setupDocs).toContain(`](${imageName})`)
       expect(pluginReadme).toContain(`../../docs/${imageName}`)
-      expect(docsIndex).toContain(`src="${imageName}"`)
     }
+
+    expect(docsHome).toContain("../../../docs/ce-datascience-package-workflow.png")
   })
 
   test("user-facing docs recommend optional scientific research add-ons safely", async () => {
@@ -493,9 +479,8 @@ describe("corporate install artifacts", () => {
     const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
     const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
-    const docsIndex = await fs.readFile(path.join(repoRoot, "docs", "index.html"), "utf8")
 
-    for (const doc of [rootReadme, setupDocs, pluginReadme, docsIndex]) {
+    for (const doc of [rootReadme, setupDocs, pluginReadme]) {
       expect(doc).toContain("--version 2.1.0")
       expect(doc).toContain("--version 3.0.0")
       expect(doc).toMatch(/time-dependent AUC/i)

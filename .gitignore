@@ -1,6 +1,8 @@
 .DS_Store
 *.log
 node_modules/
+website/.docusaurus/
+website/build/
 .codex/
 todos/
 .worktrees
