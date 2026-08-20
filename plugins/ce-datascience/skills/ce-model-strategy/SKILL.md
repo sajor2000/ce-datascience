@@ -13,7 +13,7 @@ argument-hint: "<research question, SAP path, or data-profile path> [language:au
 - **Output:** `analysis/model-strategy/<slug>-model-strategy.md`, an optional stack-matched `.R` or `.py` scaffold, and a `__CE_MODEL_STRATEGY__` handoff.
 - **Ask only if:** A load-bearing input cannot be established from the request, SAP, data profile, repository, or prior handoff.
 - **Do not do:** Do not choose a final model before data grain and estimand are known, run models without authorization, install packages, fabricate language parity, or claim to replace human biostatistical approval.
-- **Interaction:** Check repository, configuration, handoffs, and supplied artifacts first. If one decision-changing question remains, use the current harness's blocking question UI when available; otherwise present concise numbered choices and wait.
+- **Interaction:** Check repository, configuration, handoffs, and supplied artifacts first. Ask one decision-changing question at a time with `AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, or `ask_user` in Pi via `pi-ask-user`. In Claude Code, first call `ToolSearch` with `select:AskUserQuestion` when the schema is not loaded. Only when no blocking tool exists or the call errors, present concise numbered choices in chat and wait.
 
 Treat PhD-level biostatistical practice as the quality bar, not an identity claim. A complete recommendation is `ready_for_review`; only a named human reviewer can approve it.
 
@@ -61,7 +61,7 @@ Do not call a recommendation final or approved. A failed data-QA or bioinformati
 
 ## Route the Model
 
-Read [references/model-routing.md](references/model-routing.md) for every run. Read [references/mixed-effects.md](references/mixed-effects.md) whenever observations are paired, repeated, clustered, nested, crossed, or longitudinal. Read [references/advanced-models.md](references/advanced-models.md) for survival, causal, predictive, Bayesian, joint-model, or meta-analysis branches.
+Read `references/model-routing.md` for every run. Read `references/mixed-effects.md` whenever observations are paired, repeated, clustered, nested, crossed, or longitudinal. Read `references/advanced-models.md` for survival, causal, predictive, Bayesian, joint-model, or meta-analysis branches.
 
 Choose in this order:
 
@@ -93,8 +93,8 @@ Literature never overrides observed grain, estimand, design constraints, or a fa
 
 Resolve language in this order: explicit `language:r|python`, current user request, stack profile, `__CE_LANG__`, then dominant analysis files and lockfiles. Ask only when both stacks are active and no owning analysis file is apparent.
 
-- For R, read [references/r-implementation.md](references/r-implementation.md).
-- For Python, read [references/python-implementation.md](references/python-implementation.md).
+- For R, read `references/r-implementation.md`.
+- For Python, read `references/python-implementation.md`.
 
 Use installed, locked packages when they can implement the selected method. If the selected model lacks a credible implementation in the active stack, use `provisional` with `code=none` while a vetted alternate stack awaits human approval, or `blocked` when no credible implementation path exists. Never emit `ready_for_review` without the required scaffold, write fake code, or install or update packages without explicit authorization.
 

@@ -32,6 +32,15 @@ describe("ce-model-strategy contract", () => {
     expect(skill).toContain("__CE_MODEL_STRATEGY__ memo=<path> code=<path|none> language=<r|python|none> status=<blocked|provisional|ready_for_review> primary=<model-id|none> evidence=<path|none>")
   })
 
+  test("keeps local references and blocking questions portable", async () => {
+    const skill = await read("SKILL.md")
+
+    expect(skill).not.toMatch(/\[[^\]]+\]\((?:\.\/)?(?:references|assets)\//)
+    for (const required of ["AskUserQuestion", "request_user_input", "ask_user", "pi-ask-user", "ToolSearch", "select:AskUserQuestion"]) {
+      expect(skill).toContain(required)
+    }
+  })
+
   test("requires decision-linked PubMed provenance and guarded full text", async () => {
     const skill = await read("SKILL.md")
 
