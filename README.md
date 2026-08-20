@@ -314,6 +314,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 /ce-power
 /ce-cohort-build
 /ce-data-qa
+/ce-model-strategy
 /ce-plan
 /ce-sap-tabular
 /ce-sprint
@@ -331,6 +332,8 @@ before code is written or trusted:
 - `/ce-data-qa` reconciles row counts and joins, checks keys and type stability,
   records missing-data handling, and returns GO, WARN, or NO-GO rather than
   silently substituting fallback data.
+- `/ce-model-strategy` resolves nontrivial model, estimand, dependence, and
+  diagnostic choices after QA and before SAP finalization.
 - `/ce-plan` owns the canonical versioned SAP. Add
   `/ce-statistical-analysis-plan` only when a complex clinical or observational
   design needs a claim-to-dataset schema, explicit estimands, and decision evidence; use
@@ -563,7 +566,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 76 |
+| Skills | 77 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

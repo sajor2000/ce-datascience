@@ -98,9 +98,10 @@ describe("ce-datascience skill value contract", () => {
 
   test("interactive skills do not duplicate platform-specific question-tool boilerplate", async () => {
     const offenders: string[] = []
-    // This five-route router must carry the cross-platform interaction contract at runtime.
+    // These skills must carry the cross-platform interaction contract at runtime.
     const explicitInteractionSkills = new Set([
       "ce-fabric/SKILL.md",
+      "ce-model-strategy/SKILL.md",
       "ce-notebook-standards/SKILL.md",
     ])
     const forbidden = [

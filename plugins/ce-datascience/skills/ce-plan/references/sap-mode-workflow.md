@@ -19,11 +19,12 @@ Detailed workflow for `ce-plan` when **SAP mode** is active. Linked from `SKILL.
 
 Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP must not finalize variable, missingness, cohort-size, feature, or model sections from assumptions when inspectable data exists.
 
-1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`.
+1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`.
 2. If a data profile or QA report exists, read it before filling SAP-2 through SAP-8. Use exact observed column names/types, candidate grain, key fields, date columns, null rates, duplicate rates, and blockers/warnings.
 3. If a dataset or registered data wave exists but no profile/QA report exists, stop SAP structuring long enough to load the `ce-data-qa` skill in pre-SAP column profile mode. Then resume SAP Phase 3 using its report.
-4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `ce-data-qa` as a required next step before `ce-sap-tabular`, `ce-sprint`, `ce-work`, coding, or modeling.
-5. If `ce-data-qa` reports blockers, do not write a final SAP. Plan data remediation or re-extraction first.
+4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `ce-data-qa` followed by `ce-model-strategy` as required next steps before `ce-sap-tabular`, `ce-sprint`, `ce-work`, coding, or modeling.
+5. When a primary or complex secondary analysis needs a nontrivial model choice, require a `ready_for_review` `__CE_MODEL_STRATEGY__` handoff before treating that model specification as execution-ready. A `blocked` or `provisional` strategy keeps the SAP model section in draft.
+6. If `ce-data-qa` reports blockers, do not write a final SAP. Plan data remediation or re-extraction first.
 
 ### Causal/observational analysis guardrail
 
@@ -55,6 +56,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
 | `__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<int> columns=<int> grain=<string> report=<path>` | `ce-data-qa` pre-SAP mode | SAP-2 variables, SAP-4 data sources, SAP-8 missingness and data-quality prerequisites |
 | `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `ce-data-qa` | SAP-2.4 data quality assertions |
+| `__CE_MODEL_STRATEGY__ memo=<path> code=<path\|none> language=<r\|python\|none> status=<blocked\|provisional\|ready_for_review> primary=<model-id\|none> evidence=<path\|none>` | `ce-model-strategy` | SAP-4 model family, estimand alignment, dependence structure, diagnostics, sensitivities, and decision evidence |
 | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `ce-phenotype-validate` | SAP-2 case-definition validation |
 | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-2.5 effect-size anchor |
 | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `ce-power` | SAP-2.5 sample-size result |
@@ -94,7 +96,7 @@ Every new SAP must be paired with the biostatistics-style tabular SAP workbook c
    - `analysis/sap-tables/03-variables.csv` with exact columns `Category`, `Variable`, `Description`, `Type`, `Format / Values`, `File`, one flag column per analysis (`A2`, `A3`, etc.), and optional `Notes`
    - `analysis/sap-tables/<slug>-tabular-sap.xlsx` when `openpyxl` is available
 3. Use visible section-banner rows in `02-outputs.csv` such as `SETUP / DIAGNOSTICS | <script>`, `TABLE OUTPUTS | <script>`, `MODEL OUTPUTS | <script>`, and `FIGURE DATA OUTPUTS | <script>`. The remaining cells in a banner row stay blank so the workbook renderer can merge the row.
-4. If data QA is missing, blocked, or the SAP has provisional variable/model sections, do not invent workbook rows. Keep `status: draft`, retain the data-profile gap comment, and list `ce-data-qa` followed by `ce-sap-tabular <slug>` as required next steps before `ce-sprint`, `ce-work`, coding, or modeling.
+4. If data QA is missing or blocked, or a required model strategy remains `blocked`/`provisional`, do not invent workbook rows. Keep `status: draft` and retain the relevant gap comment. For QA-only gaps, list `ce-data-qa` followed by `ce-sap-tabular <slug>`; when a model strategy is also required, insert `ce-model-strategy` between them. Complete these handoffs before `ce-sprint`, `ce-work`, coding, or modeling.
 5. The SAP gap report must state whether the tabular companion is present, generated, or blocked by missing data QA. A new SAP with no tabular companion and no explicit blocker is incomplete.
 
 ## 5. SAP Phase 5: Gap Check and Review

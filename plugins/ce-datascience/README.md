@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 76 |
+| Skills | 77 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -246,6 +246,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
 | `/ce-plan` | Create the canonical versioned SAP or technical implementation plan, with Markdown/HTML output modes and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claims-to-datasets schema, estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
+| `/ce-model-strategy` | Choose, evidence-ground, and scaffold the primary statistical model—including mixed/random effects, causal, prediction, Bayesian, survival, and meta-analysis branches—in the detected R or Python stack |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-adversarial-review` | Independent adversarial code or plan review with quick/auto/deep, a read-only Claude Code/Codex peer pass, bounded evidence-based rebuttal, and explicit local-only or unresolved coverage when a peer cannot validate |
 | `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
@@ -264,8 +265,9 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 
 The planning scopes are deliberate: start with `/ce-plan`; add
 `/ce-statistical-analysis-plan` only for complex claim-level clinical methods;
-render the workbook with `/ce-sap-tabular`; and use the manuscript skills for
-final prose and citations.
+use `/ce-model-strategy` after data QA for nontrivial model decisions; render
+the workbook with `/ce-sap-tabular`; and use the manuscript skills for final
+prose and citations.
 
 ### Biomedical Lifecycle
 

@@ -1,0 +1,77 @@
+schema_version: "1.0"
+id: ce-methods-reviewer-mixed-model
+target:
+  kind: agent
+  name: ce-methods-reviewer
+  source: plugins/ce-datascience/agents/ce-methods-reviewer.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-methods-reviewer-mixed-model/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-methods-reviewer-mixed-model/fixtures/strategy.md
+    destination: workspace/strategy.md
+    sha256: 7be2b473e1c4df0932939fcaa8f56b18ba4fdfc2ae1bf33e1a6571fd77084fda
+  - path: evals/ce-datascience/cases/ce-methods-reviewer-mixed-model/fixtures/model.py
+    destination: workspace/model.py
+    sha256: 8ded34935f53544af670d35024a4772df52e4aeb80f89bd9eefeea673b135ab5
+required_behaviors:
+  - detects-estimand-mismatch
+  - detects-cluster-mismatch
+  - detects-unsupported-api
+  - detects-missing-diagnostics
+  - cites-lines
+prohibited_behaviors:
+  - mutates-strategy
+  - mutates-code
+criteria:
+  - id: detects-estimand-mismatch
+    description: The review identifies the conditional mixed model versus population-average GEE mismatch.
+    type: regex
+    path: response.md
+    pattern: '(?:population.?average|marginal)[\s\S]*(?:conditional|MixedLM|mixed model|GEE)|(?:conditional|MixedLM|mixed model|GEE)[\s\S]*(?:population.?average|marginal)'
+    weight: 3
+    hard_gate: true
+  - id: detects-cluster-mismatch
+    description: The review identifies patient grouping versus clinic clustering.
+    type: regex
+    path: response.md
+    pattern: 'patient_id[\s\S]*clinic|clinic[\s\S]*patient_id'
+    weight: 3
+    hard_gate: true
+  - id: detects-unsupported-api
+    description: The review notes that statsmodels MixedLM is Gaussian rather than binomial GLMM.
+    type: regex
+    path: response.md
+    pattern: 'MixedLM[\s\S]*(?:Gaussian|continuous|binomial|binary|GLMM)|(?:Gaussian|continuous|binomial|binary|GLMM)[\s\S]*MixedLM'
+    weight: 3
+    hard_gate: true
+  - id: detects-missing-diagnostics
+    description: The review identifies absent convergence or covariance diagnostics.
+    type: regex
+    path: response.md
+    pattern: 'diagnostic|convergence|singular|working correlation|small.cluster'
+    weight: 2
+    hard_gate: true
+  - id: cites-lines
+    description: Findings cite the implementation location.
+    type: regex
+    path: response.md
+    pattern: 'model\.py:[0-9]+'
+    weight: 2
+    hard_gate: true
+  - id: mutates-strategy
+    description: The strategy fixture remains unchanged.
+    type: file_unchanged
+    path: workspace/strategy.md
+    fixture_path: evals/ce-datascience/cases/ce-methods-reviewer-mixed-model/fixtures/strategy.md
+    weight: 3
+    hard_gate: true
+  - id: mutates-code
+    description: The code fixture remains unchanged.
+    type: file_unchanged
+    path: workspace/model.py
+    fixture_path: evals/ce-datascience/cases/ce-methods-reviewer-mixed-model/fixtures/model.py
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is intentionally incorrect synthetic code; the case measures review detection, not model execution.

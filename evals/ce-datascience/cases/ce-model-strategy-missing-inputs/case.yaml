@@ -1,0 +1,79 @@
+schema_version: "1.0"
+id: ce-model-strategy-missing-inputs
+target:
+  kind: skill
+  name: ce-model-strategy
+  source: plugins/ce-datascience/skills/ce-model-strategy/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-model-strategy-missing-inputs/prompt.md
+fixtures: []
+required_behaviors:
+  - blocks-underspecified-decision
+  - identifies-missing-estimand
+  - identifies-missing-grain
+  - emits-no-code-handoff
+prohibited_behaviors:
+  - writes-r-code
+  - writes-python-code
+  - claims-ready
+criteria:
+  - id: blocks-underspecified-decision
+    description: The response is blocked because essential inputs are unavailable.
+    type: regex
+    path: response.md
+    pattern: 'status=blocked'
+    weight: 4
+    hard_gate: true
+  - id: identifies-missing-estimand
+    description: The response identifies the missing estimand.
+    type: text_contains
+    path: response.md
+    value: "estimand"
+    case_sensitive: false
+    weight: 2
+    hard_gate: true
+  - id: identifies-missing-grain
+    description: The response identifies missing unit or grain information.
+    type: regex
+    path: response.md
+    pattern: 'grain|unit of analysis'
+    weight: 2
+    hard_gate: true
+  - id: emits-no-code-handoff
+    description: The terminal handoff records no code and no approved primary model.
+    type: regex
+    path: response.md
+    pattern: '__CE_MODEL_STRATEGY__ .*code=none .*status=blocked .*primary=none'
+    weight: 4
+    hard_gate: true
+  - id: writes-r-code
+    description: No R scaffold is written.
+    type: file_exists
+    path: workspace/analysis/model-strategy/underspecified-mixed-model-model.R
+    expected: false
+    weight: 2
+    hard_gate: true
+  - id: writes-python-code
+    description: No Python scaffold is written.
+    type: file_exists
+    path: workspace/analysis/model-strategy/underspecified-mixed-model-model.py
+    expected: false
+    weight: 2
+    hard_gate: true
+  - id: claims-ready
+    description: The decision is not represented as ready for review.
+    type: text_not_contains
+    path: response.md
+    value: "status=ready_for_review"
+    weight: 3
+    hard_gate: true
+  - id: writes-blocked-memo
+    description: The stable strategy memo records the blocked status.
+    type: regex
+    path: workspace/analysis/model-strategy/underspecified-mixed-model-model-strategy.md
+    pattern: '(?:^|\n)Status:\s*blocked(?:\s|$)'
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - This case checks refusal to fabricate model inputs, not interactive intake quality.

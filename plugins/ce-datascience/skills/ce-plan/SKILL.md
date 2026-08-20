@@ -23,7 +23,9 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 `ce-plan` owns the canonical versioned SAP. For complex clinical, validation,
 benchmarking, or observational studies, load `ce-statistical-analysis-plan` to
 develop the claim-to-dataset schema and decision evidence inside that SAP; do
-not create a second competing plan. `ce-sap-tabular` owns the workbook
+not create a second competing plan. Use `ce-model-strategy` after data QA when
+the primary model, random-effects structure, or implementation path requires a
+traceable decision. `ce-sap-tabular` owns the workbook
 companion, and manuscript skills own final prose and citation delivery.
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
@@ -66,7 +68,7 @@ When SAP mode is active, replace Phases 3-5 with the SAP-specific workflow descr
 
 The reference covers:
 
-- SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
+- SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
 - CLIF profile behavior under SAP mode (data dictionary version, template workflow, STROBE+RECORD default, protected-path scope rules).
 - SAP Phase 4 — write the SAP file.
 - SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`ce-sap-tabular`) for every new SAP.

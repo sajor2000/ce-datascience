@@ -117,18 +117,19 @@ Language: Python (Jupyter) | Data layer: OMOP
  6. [    ] `ce-power`
  7. [    ] `ce-cohort-build`          OMOP SQL + concept sets
  8. [    ] `ce-data-qa`
- 9. [    ] `ce-plan` (SAP mode)
-10. [    ] `ce-sap-tabular`
-11. [    ] `ce-sprint`
-12. [    ] `ce-work`                  Jupyter .ipynb
-13. [    ] `ce-code-review`
-14. [    ] `ce-compound`
+ 9. [    ] `ce-phenotype-validate`
+10. [    ] `ce-model-strategy`
+11. [    ] `ce-plan` (SAP mode)
+12. [    ] `ce-sap-tabular`
+13. [    ] `ce-sprint`
+14. [    ] `ce-work`                  Jupyter .ipynb
+15. [    ] `ce-code-review`
 
 Next step: `ce-method-extract`
   Extract statistical methods from your PubMed results for SAP justification.
 ```
 
-Inline language-specific and data-layer notes at the steps where they matter (e.g., step 7 shows "OMOP SQL + concept sets" or "CAPR + SQL" depending on language; step 12 shows "Jupyter .ipynb" or "Marimo .py" or "Quarto .qmd").
+Inline language-specific and data-layer notes at the steps where they matter (e.g., step 7 shows "OMOP SQL + concept sets" or "CAPR + SQL" depending on language; step 14 shows "Jupyter .ipynb" or "Marimo .py" or "Quarto .qmd").
 
 If all steps are complete, emit: "All lifecycle steps complete. Load the `ce-compound` skill to document learnings."
 

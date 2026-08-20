@@ -38,6 +38,8 @@ Classify the study's aim (validation, association, prediction, benchmarking, or 
 
 When data are available, run the `ce-data-qa` skill before finalizing variables or models. Keep the SAP draft when provenance, grain, keys, types, row counts, or missing-data handling are unresolved. For observational or causal claims, also make the estimand, assumptions, treatment strategy, time zero, and success criteria explicit; unresolved choices block finalization.
 
+Consume an existing `__CE_MODEL_STRATEGY__` handoff when present. For a nontrivial primary model decision without one, load `ce-model-strategy` after the data gate. Only `ready_for_review` strategy details may populate an execution-ready model specification; carry `blocked` or `provisional` decisions into the unresolved-decisions review.
+
 Use the platform's blocking question tool for load-bearing gaps. If no such tool is available, present concise numbered questions in chat and wait. Do not silently select a default method or analysis unit.
 
 ## Build the Schema
@@ -50,7 +52,7 @@ Create these linked objects before rendering any output:
 | `Dataset` | Source, grain, denominator, keys, refresh/provenance, analysis-ready status |
 | `Claim` | Label, plain-language scientific claim, analysis question, estimand |
 | `Variable` | Role, category, temporal type, source, grain, coding, and analyses that use it |
-| `Analysis` | Claim, question, estimand, unit of analysis, supporting dataset, primary/secondary method, script, output artifact, and decision ID |
+| `Analysis` | Claim, question, estimand, unit of analysis, supporting dataset, primary/secondary method, model-strategy memo, script, output artifact, and decision ID |
 | `Diagnostic` | Assumption or failure mode, diagnostic/sensitivity method, trigger, and interpretation |
 | `Output` | Filename, subfolder, cohort scope, column-level contents, and interpretation |
 | `Decision_Evidence` | Decision, rationale, threshold or rule, uncertainty, and 1–3 method citations |
@@ -59,7 +61,7 @@ Map variables to analyses with a visible `used_by` matrix. Give every analysis a
 
 ## Method and Evidence Routing
 
-Choose methods only after the claim, estimand, unit of analysis, and data structure are known. Account for clustering, repeated measurements, time at risk, competing risks, missingness, validation reference standards, and any benchmarking hierarchy.
+Choose methods only after the claim, estimand, unit of analysis, and data structure are known. Use `ce-model-strategy` to resolve the primary family, link, dependence structure, diagnostics, fallback triggers, and stack-matched scaffold. Account for clustering, repeated measurements, time at risk, competing risks, missingness, validation reference standards, and any benchmarking hierarchy.
 
 For nontrivial choices, record 1–3 citations in `Decision_Evidence`: primary model family, missing-data strategy, competing-risk handling, multilevel structure, agreement metric, composite outcome, causal adjustment, or benchmarking model. Start with an appropriate methods anchor, expand with OpenAlex when needed, and verify a precise claim from full text only when the decision needs it.
 
@@ -87,10 +89,11 @@ Name the likely method and the assumption it rests on, but do not present the ch
 | Need | Owner |
 |---|---|
 | Canonical versioned SAP or implementation roadmap | `ce-plan` |
+| Primary model choice and R/Python scaffold | `ce-model-strategy` |
 | `Overview`, `Outputs`, `Master_Variables`, and decision-evidence workbook | `ce-sap-tabular` |
 | Final Methods prose and section boundaries | `ce-manuscript-section-discipline` |
 | Citation verification and editable Word fields | `ce-manuscript-citations` |
-| Unresolved methodological decisions | This skill |
+| Unresolved claim/dataset/schema decisions | This skill |
 
 For a new CE DataScience SAP, use `ce-plan` for the durable study-plan artifact. Add this schema to that artifact, then use `ce-sap-tabular` for the workbook companion. Keep claim and decision identifiers aligned rather than creating competing plans.
 

@@ -437,6 +437,7 @@ Good first workflows:
 ```text
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
 /ce-data-qa
+/ce-model-strategy
 /ce-plan
 /ce-work
 /ce-code-review
@@ -469,7 +470,8 @@ as Python projects.
 Before planning or modeling, keep the integrity gate in place: `ce-data-qa`
 reconciles rows and joins, validates keys and types, and records missing-data
 handling. It returns NO-GO for confirmed corruption or undeclared
-synthetic/fallback data. For observational or causal work, planning requires an
+synthetic/fallback data. Use `ce-model-strategy` after QA and before SAP
+finalization when the model choice is nontrivial. For observational or causal work, planning requires an
 estimand, analysis grain, keys, time zero, assumptions, and success criteria;
 unresolved methodological choices remain analyst questions.
 
