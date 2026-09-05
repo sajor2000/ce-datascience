@@ -98,13 +98,17 @@ describe("CLIF guidance", () => {
       "proceed without repeating",
       "agent, autofix,",
       "report-only, or headless mode",
+      "do not ask or wait",
       "PHI authorization: not confirmed",
     ])
     expectContainsAll(workSkill, [
+      "Common-Longitudinal-ICU-data-Format",
       "agent, autofix, report-only, or headless mode",
+      "do not ask or wait",
       "PHI authorization: not confirmed",
     ])
     expectContainsAll(codeReviewSkill, [
+      "Common-Longitudinal-ICU-data-Format",
       "PHI authorization: confirmed",
       "PHI authorization: not confirmed",
       "PHI-safe scope preflight",
@@ -116,6 +120,7 @@ describe("CLIF guidance", () => {
     expectContainsAll(phiReviewer, [
       "complete the metadata-only review without waiting",
       "interactively as a standalone reviewer",
+      "never downgrade it to `PHI authorization: not confirmed`",
     ])
     expect(combined).not.toContain("Never give an agent PHI or RHI")
     expect(combined).not.toContain("when in doubt, flag at 100")

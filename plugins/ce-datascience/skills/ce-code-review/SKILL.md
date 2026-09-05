@@ -176,7 +176,7 @@ Routing rules:
 | `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
 | `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
 | `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or `analysis/cohort/concept-sets/` in diff |
-| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, clif-icu/clif-consortium git remote — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules. Require matching `version=` + `mcide_version=` before judging category values; flag an absent, mixed, or v2.1-cache-on-v3 family as a blocking review finding and route to the `ce-clif` skill. Do not dispatch a nonexistent `ce-clif-reviewer`. |
+| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, or a git remote containing clif-icu, clif-consortium, or Common-Longitudinal-ICU-data-Format — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules. Require matching `version=` + `mcide_version=` before judging category values; flag an absent, mixed, or v2.1-cache-on-v3 family as a blocking review finding and route to the `ce-clif` skill. Do not dispatch a nonexistent `ce-clif-reviewer`. |
 | `ce-administrative-data-reviewer` | claims / billing / payer / administrative healthcare data in diff (Medicare, Medicaid, MarketScan, Optum, OMOP claims-flavor) |
 | `ce-concept-drift-reviewer` | concept sets, ICD/CPT/LOINC/SNOMED code lists in diff AND data spans multiple refresh waves or multiple years |
 | `ce-causal-inference-reviewer` | observational analysis with causal aim in diff (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target-trial emulation) |
@@ -218,7 +218,8 @@ preflight permits them:
 umask 077
 REVIEW_SCOPE_DIR=$(mktemp -d -t ce-review-scope-XXXXXX) || exit 1
 cleanup_review_scope() { rm -rf -- "$REVIEW_SCOPE_DIR"; }
-trap cleanup_review_scope EXIT HUP INT TERM
+trap cleanup_review_scope EXIT
+trap 'cleanup_review_scope; exit 130' HUP INT TERM
 ```
 
 Store every temporary path list and PR metadata file under
