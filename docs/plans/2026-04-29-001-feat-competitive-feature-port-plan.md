@@ -26,7 +26,7 @@ The May 2026 upstream `v3.9.3` sync preserved the data science scope while addin
 
 ## Status Update - September 2026
 
-The May inventory is historical. The plugin now contains 55 agents, 78 skills, 35 reporting checklists, and 0 bundled MCP servers, with compatible Compound Engineering 3.24 and post-3.24 safety changes selectively adapted to the health data science workflow.
+The May inventory is historical. The plugin now contains 55 agents, 77 skills, 35 reporting checklists, and 0 bundled MCP servers, with compatible Compound Engineering 3.24 and post-3.24 safety changes selectively adapted to the health data science workflow.
 
 ---
 

@@ -482,9 +482,10 @@ For each hypothesis in the batch, dispatch according to `execution.mode`. In `se
    - **External terminal only:** use `codex exec` when it is explicitly available.
 2. Fill the experiment prompt template
 3. Write the filled prompt to the run's scratch directory (`/tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt`)
-4. From the external-terminal path only, dispatch via Codex:
+4. From the external-terminal path only, provision a separate experiment worktree from the current verified base for every parallel worker, then pass it explicitly to Codex. Serial execution may use the current experiment directory:
    ```bash
-   cat /tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt | codex exec --skip-git-repo-check - 2>&1
+   experiment_path=$(bash scripts/experiment-worktree.sh create "<spec_name>" <exp_index> "optimize/<spec_name>" <shared_files...>)
+   cat /tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt | codex exec --cd "$experiment_path" --skip-git-repo-check - 2>&1
    ```
 5. Security posture: use the user's selection (ask once per session if not set in spec)
 

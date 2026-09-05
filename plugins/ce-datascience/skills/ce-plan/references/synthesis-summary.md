@@ -246,6 +246,8 @@ Each guard is an explicit conditional in SKILL.md, not implicit. R2 solo does NO
 ```
 Based on your request and our brief discussion, here's the scope I'm proposing to plan against:
 
+[Objective — the implementation-independent outcome]
+
 [scope claim — what the plan will target, what it will not; affirm-or-redirect level; NOT an enumeration of Implementation Units]
 
 **Call outs:** (omit this header when zero forks survived the keep test)
@@ -296,6 +298,8 @@ Most of these will not survive the keep test as separate call-outs. Surface only
 **Confirmation template (fires for Standard/Deep regardless of call-out count, or for any tier with one or more call-outs surviving):**
 
 ```
+[Objective — the implementation-independent outcome]
+
 The brainstorm scopes [1-2 sentence restatement of the brainstorm's scope as orientation; in the brainstorm's own vocabulary; NOT an enumeration of Implementation Units, constraints, or acceptance examples].
 
 This plan [plan-specific scoping: what's covered vs. deferred vs. expanded relative to the brainstorm; test scope; any adjacent refactors pulled in or held out. Prose or bullets per substance].

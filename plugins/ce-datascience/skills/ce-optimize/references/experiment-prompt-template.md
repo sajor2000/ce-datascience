@@ -84,7 +84,7 @@ Focus on implementing the hypothesis well. The orchestrator will measure and eva
 
 - This template works for both subagent and Codex dispatch. No platform-specific assumptions.
 - In an active Codex task, dispatch the filled template through the native subagent mechanism; do not launch nested Codex.
-- From an external terminal only, pipe the filled template to `codex exec --skip-git-repo-check -`.
+- From an external terminal only, provision each parallel experiment with `scripts/experiment-worktree.sh create`, then pipe the filled template to `codex exec --cd "$experiment_path" --skip-git-repo-check -`.
 - For subagent dispatch: pass the filled template as the subagent prompt.
 - Keep `{recent_experiment_summaries}` concise -- 2-3 lines per experiment, last 10 only. Do not include the full experiment log.
 - The worker should NOT read the full experiment log or strategy digest. It receives only what the orchestrator provides.

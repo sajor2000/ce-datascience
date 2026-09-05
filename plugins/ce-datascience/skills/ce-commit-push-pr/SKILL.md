@@ -148,11 +148,16 @@ If the PR check returned `state: OPEN`, note the URL -- this is the existing-PR 
 
 1. If on the default branch, branch creation needs to handle three conditional cases: stale local `<base>`, unpushed commits on local `<base>` (intent unclear without asking), and uncommitted changes that collide with the fresh remote base. Read `references/branch-creation.md` and follow its decision flow, then continue to step 2 below.
 2. Scan changed files for naturally distinct concerns. If files clearly group into separate logical changes, create separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, one commit is fine.
-3. Stage and commit each group with explicit paths. Avoid `git add -A`, `git add .`, shell interpolation, and a bare `git commit`; the path list prevents unrelated staged work from riding along:
+3. Commit each named group through a temporary index. Stage each named file once only when it has no staged entry. If a named file already has staged and unstaged changes, preserve its staged snapshot and do not restage it. Avoid `git add -A`, `git add .`, shell interpolation, pathspec commits, and using the real index for the commit:
    ```bash
-   git add file1 file2 file3
-   git commit -F <message-file> -- file1 file2 file3
+   group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX)
+   group_index="$group_index_dir/index"
+   GIT_INDEX_FILE="$group_index" git read-tree HEAD
+   git diff --cached --binary -- file1 file2 file3 | GIT_INDEX_FILE="$group_index" git apply --cached --binary -
+   GIT_INDEX_FILE="$group_index" git commit -F <message-file>
+   git restore --staged --source=HEAD -- file1 file2 file3
    ```
+   Run these commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. This copies and commits one staged snapshot of the named files, excludes unrelated entries in the user's real index, preserves later working-tree edits, and leaves unrelated staged work intact.
 
 ### Step 5: Push
 
