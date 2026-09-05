@@ -51,5 +51,6 @@ describe("weekly branch maintenance report", () => {
     expect(items).toEqual([{ name: "first" }, { name: "second" }])
 
     await expect(fetchAll(async () => new Response(JSON.stringify({ error: "bad" })), "https://api.github.test/bad", "token")).rejects.toThrow("non-list response")
+    await expect(fetchAll(async () => new Response("[]", { headers: { link: 'broken; rel="next"' } }), "https://api.github.test/bad-link", "token")).rejects.toThrow("malformed next-page link")
   })
 })

@@ -33,7 +33,11 @@ type FetchLike = (url: string, init?: RequestInit) => Promise<Response>
 const apiBase = process.env.GITHUB_API_URL ?? "https://api.github.com"
 
 function nextPage(link: string | null): string | undefined {
-  return link?.split(",").map((part) => part.trim()).find((part) => part.includes('rel="next"'))?.match(/<([^>]+)>/)?.[1]
+  const next = link?.split(",").map((part) => part.trim()).find((part) => part.includes('rel="next"'))
+  if (!next) return undefined
+  const url = next.match(/<([^>]+)>/)?.[1]
+  if (!url) throw new Error(`GitHub API returned a malformed next-page link: ${next}`)
+  return url
 }
 
 export async function fetchAll<T>(fetcher: FetchLike, url: string, token: string): Promise<T[]> {
