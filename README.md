@@ -355,6 +355,7 @@ diagnostics, outputs, and decision evidence:
 ```text
 /ce-manuscript-package
 /ce-manuscript-citations
+/ce-scientific-writing
 /ce-pre-submission-audit
 /ce-review-pack
 ```
@@ -449,8 +450,11 @@ This fork tracks useful infrastructure and workflow improvements from the origin
 
 | Area | What changed for data scientists |
 |---|---|
-| Planning and brainstorming | `/ce-plan` keeps SAP/implementation dual mode and now supports upstream output modes, HTML/Markdown rendering references, format-preserving resume, holdable outcome-first summaries, stronger synthesis, external-research routing, and conceptual-diagram affordances. `/ce-brainstorm` keeps study-design framing while adding grouped requirements, output-mode handling, and visual communication behavior. |
-| PR and review workflow | `/ce-resolve-pr-feedback` carries upstream GraphQL pagination and split-reference handling, then restores statistical methodology and SAP-aware response language. `/ce-code-review` adds scoped `CODING_STANDARDS.md` criteria without replacing binding repo instructions; commit/PR skills add shell-safe commits and project publishing gates. |
+| Planning and brainstorming | `/ce-plan` keeps SAP/implementation dual mode and now starts summaries with an implementation-independent objective, supports upstream output modes, preserves format on resume, and strengthens synthesis and research routing. `/ce-brainstorm` keeps study-design framing while adding grouped requirements, output-mode handling, and visual communication behavior. |
+| Safe execution and optimization | `/ce-work` verifies that parallel workers can start from a complete tracked snapshot and keeps uncommitted dependencies inline. `/ce-optimize` gives parallel Codex experiments separate directories and requires measurable baselines and outcomes. |
+| Debugging | `/ce-debug` covers correctness and performance investigations, records a baseline before tuning, redacts secrets from captured evidence, and repeats the original measurement after a fix. |
+| PR and review workflow | `/ce-resolve-pr-feedback` carries upstream GraphQL pagination and split-reference handling, then restores statistical methodology and SAP-aware response language. `/ce-code-review` applies path-scoped `CODING_STANDARDS.md` criteria without replacing binding repo instructions. `/ce-commit` and `/ce-commit-push-pr` use a temporary Git index so named-file commits do not absorb unrelated staged or later working-tree changes. |
+| Setup health | `/ce-setup` detects obsolete Codex tool-map blocks and offers bounded cleanup guidance instead of silently rewriting user configuration. |
 | Session history | `/ce-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
 | Distribution and installation | The converter supports current `ce-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included as curated support skills for a professional public plugin surface. |
@@ -566,7 +570,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 77 |
+| Skills | 78 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 
