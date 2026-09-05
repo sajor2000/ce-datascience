@@ -210,6 +210,27 @@ If a reviewer flags any file in these directories for cleanup or removal, discar
 
 Compute the diff range, file list, and diff. Scope collection is two-phase so a review cannot ingest patient-level content before authorization.
 
+Run all scope capture in one shell session with a private, non-synced scratch
+directory and an exit trap. Do not print its contents before the PHI-safe
+preflight permits them:
+
+```bash
+umask 077
+REVIEW_SCOPE_DIR=$(mktemp -d -t ce-review-scope-XXXXXX) || exit 1
+cleanup_review_scope() { rm -rf -- "$REVIEW_SCOPE_DIR"; }
+trap cleanup_review_scope EXIT HUP INT TERM
+```
+
+Store every temporary path list and PR metadata file under
+`$REVIEW_SCOPE_DIR`. Keep the trap active through scope collection so success,
+failure, and interruption remove the captured data.
+
+After preflight, set `SAFE_BRANCH` and other display metadata to their raw
+values only when each value is established as PHI-free. Otherwise use an opaque
+label such as `[redacted-phi-risk-branch]`. All prompts, reports, and persistent
+run artifacts use the safe values; raw metadata never leaves
+`$REVIEW_SCOPE_DIR`.
+
 **PHI-safe scope preflight:** Before any command prints a path name, diff body, file content, notebook output, PR title, or PR body, classify the request and repository from already-available context such as the stack profile and CLIF signals. Clinical, health-data, case-report, CLIF, or otherwise uncertain contexts are PHI-risk before path discovery. For a context that is clearly non-clinical, write changed and untracked path names to local temporary files without echoing them, then use a deterministic local check that returns only a risk boolean, counts, and extensions. Treat data files, codebooks, notebooks, manuscripts, figures, clinical notes, imaging, patient/MRN/case-like names, and any unclassified text file in a PHI-risk repository as PHI-risk. Never print a raw basename before this decision because a filename can itself contain an identifier.
 
 When PHI risk is present, reuse any user confirmation already present in the current conversation that both the data environment and active model endpoint are PHI/PII-compliant. In interactive mode, if confirmation is absent or ambiguous, ask that compliance question once using the Skill Value interaction rule and wait. In agent, autofix, report-only, or headless mode, do not ask; unresolved confirmation remains not confirmed. Record exactly `PHI authorization: confirmed` or `PHI authorization: not confirmed`.
@@ -231,8 +252,9 @@ BASE=$(git merge-base HEAD "$BASE_ARG" 2>/dev/null) || BASE="$BASE_ARG"
 
 Then capture path names locally for the preflight without printing them:
 
-```
-SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+```bash
+SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths"
+mkdir -p "$SCOPE_PATHS_DIR"
 git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
 git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
 echo "BASE:$BASE"
@@ -246,8 +268,8 @@ If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** ru
 
 **Skip-condition pre-check.** Before checkout or scope detection, capture PR state and path metadata locally. Print only the state until the PHI-safe preflight permits reading the other metadata:
 
-```
-PR_PREFLIGHT_FILE=$(mktemp -t ce-review-pr.XXXXXX)
+```bash
+PR_PREFLIGHT_FILE="$REVIEW_SCOPE_DIR/pr-preflight.json"
 gh pr view <number-or-url> --json state,title,files > "$PR_PREFLIGHT_FILE"
 jq -r '.state' "$PR_PREFLIGHT_FILE"
 ```
@@ -276,10 +298,10 @@ Then check out the PR branch so persona agents can read the actual code (not the
 gh pr checkout <number-or-url>
 ```
 
-Then fetch PR metadata without reading the PR body yet. Capture the base branch name and the PR base repository identity, not just the branch name:
+Then fetch PR metadata without reading the PR body yet. Capture the base branch name and the PR base repository identity, not just the branch name. Keep the raw values in the private scope directory; read them only after the preflight permits access, and sanitize title and branch values before printing or placing them in reviewer context:
 
-```
-gh pr view <number-or-url> --json title,baseRefName,headRefName,url
+```bash
+gh pr view <number-or-url> --json title,baseRefName,headRefName,url > "$REVIEW_SCOPE_DIR/pr-details.json"
 ```
 
 Use the repository portion of the returned PR URL as `<base-repo>` (for example, `sajor2000/ce-datascience` from `https://github.com/sajor2000/ce-datascience/pull/348`).
@@ -304,8 +326,8 @@ fi
 if [ -n "$PR_BASE_REF" ]; then BASE=$(git merge-base HEAD "$PR_BASE_REF" 2>/dev/null) || BASE=""; else BASE=""; fi
 ```
 
-```
-if [ -n "$BASE" ]; then SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX) && git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed" && git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked" && echo "BASE:$BASE"; else echo "ERROR: Unable to resolve PR base branch <base> locally. Fetch the base branch and rerun so the review scope stays aligned with the PR."; fi
+```bash
+if [ -n "$BASE" ]; then SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths" && mkdir -p "$SCOPE_PATHS_DIR" && git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed" && git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked" && echo "BASE:$BASE"; else echo "ERROR: Unable to resolve PR base branch <base> locally. Fetch the base branch and rerun so the review scope stays aligned with the PR."; fi
 ```
 
 Extract PR title/body, base branch, and PR URL from `gh pr view`, then extract the base marker, file list, diff content, and `UNTRACKED:` list from the local command. Do not use `gh pr diff` as the review scope after checkout -- it only reflects the remote PR state and will miss local fix commits until they are pushed. If the base ref still cannot be resolved from the PR's actual base repository after the fetch attempt, stop instead of falling back to `git diff HEAD`; a PR review without the PR base branch is incomplete.
@@ -340,8 +362,9 @@ If the script outputs an error, stop instead of falling back to `git diff HEAD`;
 
 On success, capture path names locally for the preflight without printing them:
 
-```
-SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+```bash
+SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths"
+mkdir -p "$SCOPE_PATHS_DIR"
 git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
 git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
 echo "BASE:$BASE"
@@ -363,8 +386,9 @@ If the script outputs an error, stop instead of falling back to `git diff HEAD`;
 
 On success, capture path names locally for the preflight without printing them:
 
-```
-SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+```bash
+SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths"
+mkdir -p "$SCOPE_PATHS_DIR"
 git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
 git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
 echo "BASE:$BASE"
@@ -384,10 +408,13 @@ Understand what the change is trying to accomplish. The source of intent depends
 
 **Branch mode:** Run `git log --oneline ${BASE}..<branch>` using the resolved merge-base from Stage 1.
 
-**Standalone (current branch):** Run:
+**Standalone (current branch):** Capture branch and commit metadata inside the
+private scope directory. After the preflight permits it, print only sanitized
+values:
 
-```
-echo "BRANCH:" && git rev-parse --abbrev-ref HEAD && echo "COMMITS:" && git log --oneline ${BASE}..HEAD
+```bash
+git rev-parse --abbrev-ref HEAD > "$REVIEW_SCOPE_DIR/branch"
+git log --oneline ${BASE}..HEAD > "$REVIEW_SCOPE_DIR/commits"
 ```
 
 Combined with conversation context (plan section summary, PR description), write a 2-3 line intent summary:
@@ -504,7 +531,17 @@ Spawn each selected persona reviewer as a parallel sub-agent using the subagent 
 
 Persona sub-agents are **read-only** with respect to the project: they review and return structured JSON. They do not edit project files or propose refactors. The one permitted write is saving their full analysis to the run-artifact path specified in the output contract (under `/tmp/ce-datascience/ce-code-review/<run-id>/`).
 
-Read-only here means **non-mutating**, not "no shell access." Reviewer sub-agents may use non-mutating inspection commands when needed to gather evidence or verify scope, including read-oriented `git` / `gh` usage such as `git diff`, `git show`, `git blame`, `git log`, and `gh pr view`. They must not edit project files, change branches, commit, push, create PRs, or otherwise mutate the checkout or repository state.
+Read-only here means **non-mutating**, not unrestricted checkout access. General
+reviewer sub-agents may inspect only the preflight-approved paths and PHI-free
+context supplied by the orchestrator. Their prompts must prohibit broad
+checkout-reading commands such as `git diff`, `git show`, `git blame`,
+`git log`, and `gh pr view` in PHI-risk reviews. Only
+`ce-phi-leak-reviewer`, after `PHI authorization: confirmed`, may receive the
+minimum necessary patient-level context or read patient-level paths directly.
+With authorization not confirmed, it also remains limited to paths, code,
+schemas, metadata, and reviewed aggregates. No reviewer may edit project files,
+change branches, commit, push, create PRs, or otherwise mutate the checkout or
+repository state.
 
 Each persona sub-agent writes full JSON (all schema fields) to `/tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json` and returns compact JSON with merge-tier fields only:
 
@@ -623,13 +660,17 @@ When Stage 5b does not run, the merged finding set from Stage 5 flows through to
 3. **Spawn validators in parallel.** One sub-agent per finding, dispatched concurrently using the validator template. Each validator receives:
    - The finding's title, severity, file, line, suggested_fix, original reviewer name, and confidence anchor
    - `why_it_matters` when available — loaded from the per-agent artifact file at `/tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json`; omit when the file is absent or the artifact write failed. The validator proceeds without it, using the diff and cited code directly.
-   - The full diff
-   - Read-tool access to inspect the cited code, callers, guards, framework defaults, and git blame
+   - The preflight-approved diff and relevant surrounding code
+   - Read-tool access only within preflight-approved paths. In PHI-risk reviews,
+     validator prompts must prohibit broad checkout-reading commands including
+     `git diff`, `git show`, `git blame`, `git log`, and `gh`; validators inspect
+     only the supplied PHI-free context. Patient-level inspection remains
+     exclusive to `ce-phi-leak-reviewer` after confirmed authorization.
 4. **Collect verdicts.** Each validator returns `{ "validated": true | false, "reason": "<one sentence>" }`.
    - `validated: true` -> finding survives unchanged into the next phase (Stage 6 for headless/autofix, dispatch for interactive)
    - `validated: false` -> finding is dropped; record the validator's reason in Coverage
    - Validator failure (timeout, dispatch error, malformed JSON) -> drop the finding with reason "validator failed"; conservative bias is correct
-5. **Use mid-tier model for validators.** Same model class (sonnet) the persona reviewers use. Validators are read-only — same constraints as persona reviewers. They may use non-mutating inspection commands (Read, Grep, Glob, git blame, gh).
+5. **Use mid-tier model for validators.** Same model class (sonnet) the persona reviewers use. Validators are read-only and inherit the same preflight-approved path and checkout-access constraints as general persona reviewers.
 6. **Record metrics for Coverage.** Total dispatched, validated true count, validated false count (with reasons), failures, and over-budget drops.
 
 **Why per-finding parallel dispatch (not batched):** Independence is the point. A single batched validator looking at all findings together pattern-matches across them and recreates the persona-bias problem. Per-finding parallel dispatch preserves fresh context per call. Per-file batching is a plausible future optimization for reviews with many findings clustered in few files; not implemented today.
@@ -667,7 +708,7 @@ Minimum shape:
   "verdict": "Ready to merge | Ready with fixes | Not ready",
   "scope": {
     "base": "<merge-base sha, pr:NNN marker, or base ref>",
-    "branch": "<current branch>",
+    "branch": "<SAFE_BRANCH>",
     "head_sha": "<git rev-parse HEAD>",
     "pr_url": null,
     "files_changed": 0
@@ -900,13 +941,13 @@ The fixer accepts two queue shapes depending on which caller invoked it:
   ```json
   {
     "run_id": "<run-id>",
-    "branch": "<git branch --show-current at dispatch time>",
+    "branch": "<SAFE_BRANCH at dispatch time>",
     "head_sha": "<git rev-parse HEAD at dispatch time>",
     "verdict": "<Ready to merge | Ready with fixes | Not ready>",
     "completed_at": "<ISO 8601 UTC timestamp>"
   }
   ```
-  Capture `branch` and `head_sha` at dispatch time (before any autofixes land), and write the file after the verdict is finalized. This file is additive -- pre-existing artifacts that predate this field are still valid, and downstream skills fall back to file mtime when it is missing.
+  Capture `SAFE_BRANCH` and `head_sha` at dispatch time (before any autofixes land), and write the file after the verdict is finalized. Never persist a raw branch value that the PHI-safe preflight did not establish as safe. This file is additive -- pre-existing artifacts that predate this field are still valid, and downstream skills fall back to file mtime when it is missing.
 - In autofix mode, the run artifact is the handoff. Orchestrators read the artifact's residual actionable work and route it as appropriate. The skill itself does not file tickets or prompt the user in autofix.
 - Interactive mode may offer to externalize residual actionable work via `references/tracker-defer.md` (named tracker -> GitHub Issues via `gh`), but it is not required to finish the review.
 

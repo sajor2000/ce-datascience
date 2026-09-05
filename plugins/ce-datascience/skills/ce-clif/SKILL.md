@@ -119,8 +119,11 @@ one-time PHI authorization check in `references/clif-rules.md`. If the user has
 already confirmed in the current conversation that both the data environment
 and active model endpoint are approved for PHI/PII, proceed without repeating
 the question or warning that PHI cannot be read. If confirmation is absent or
-ambiguous, ask once and wait. Keep response, repository, logging, and export
-protections in force regardless of authorization.
+ambiguous, ask once and wait in interactive mode. In agent, autofix,
+report-only, or headless mode, do not ask or wait; retain
+`PHI authorization: not confirmed` and continue only with paths, code, schemas,
+metadata, and reviewed aggregates. Keep response, repository, logging, and
+export protections in force regardless of authorization.
 
 Then ensure `__CE_LANG__` exists:
 

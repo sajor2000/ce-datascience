@@ -83,22 +83,39 @@ describe("CLIF guidance", () => {
     ])
     const combined = [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer].join("\n")
 
-    expectContainsAll(combined, [
+    expectContainsAll(rules, [
       "both the data environment and active model endpoint",
       "ask once",
-      "proceed without asking again",
       "Are both this data environment and the active model endpoint compliant for PHI/PII?",
       "request_user_input",
       "Do not reproduce PHI in responses",
+      "declared approved restricted data root",
+      "approved, local, non-synced",
+      "output/intermediate_phi/",
+      "output/final_no_phi/",
+    ])
+    expectContainsAll(clifSkill, [
+      "proceed without repeating",
+      "agent, autofix,",
+      "report-only, or headless mode",
+      "PHI authorization: not confirmed",
+    ])
+    expectContainsAll(workSkill, [
+      "agent, autofix, report-only, or headless mode",
+      "PHI authorization: not confirmed",
+    ])
+    expectContainsAll(codeReviewSkill, [
       "PHI authorization: confirmed",
       "PHI authorization: not confirmed",
       "PHI-safe scope preflight",
       "Never pass patient-level content to any other reviewer",
       "inherit the active session model with no model override",
-      "declared approved restricted data root",
-      "approved, local, non-synced",
-      "output/intermediate_phi/",
-      "output/final_no_phi/",
+      "preflight-approved paths and PHI-free",
+      "`ce-phi-leak-reviewer`, after `PHI authorization: confirmed`",
+    ])
+    expectContainsAll(phiReviewer, [
+      "complete the metadata-only review without waiting",
+      "interactively as a standalone reviewer",
     ])
     expect(combined).not.toContain("Never give an agent PHI or RHI")
     expect(combined).not.toContain("when in doubt, flag at 100")

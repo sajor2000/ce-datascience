@@ -409,6 +409,14 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("PHI-free PR metadata")
     expect(content).toContain("PHI-free diff for every general reviewer")
     expect(content).toContain("separate minimum-necessary patient-level context")
+    expect(content).toContain("umask 077")
+    expect(content).toContain("trap cleanup_review_scope EXIT HUP INT TERM")
+    expect(content).toContain('PR_PREFLIGHT_FILE="$REVIEW_SCOPE_DIR/pr-preflight.json"')
+    expect(content).toContain("[redacted-phi-risk-branch]")
+    expect(content).toContain('"branch": "<SAFE_BRANCH>"')
+    expect(content).toMatch(/General\s+reviewer sub-agents may inspect only the preflight-approved paths/)
+    expect(content).toMatch(/must prohibit broad\s+checkout-reading commands/)
+    expect(content).toMatch(/validator prompts must prohibit broad checkout-reading commands/)
     expect(content).not.toMatch(/gh pr view.*--json state,title,body,files/)
 
     // Hard skip rules
