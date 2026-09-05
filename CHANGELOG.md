@@ -6,6 +6,48 @@ requests. For the current release status and notes, use the repository's
 open release PRs; do not hand-add release entries from feature or documentation
 work.
 
+## [3.7.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.6.0...cli-v3.7.0) (2026-09-05)
+
+
+### Features
+
+* **citations:** align evidence and manuscript workflows ([aae5a14](https://github.com/sajor2000/ce-datascience/commit/aae5a1411d834a70f716256081e8e0d4eed9fa6f))
+* **citations:** connect literature evidence to editable Word fields ([0e6494a](https://github.com/sajor2000/ce-datascience/commit/0e6494a1d293acaf1d56587801ae447a5495885e))
+* **clif:** add project template workflow ([58172e8](https://github.com/sajor2000/ce-datascience/commit/58172e8cee67259f734b72d0f1069b278d5f5881))
+* **docs:** publish Docusaurus documentation site ([5267afd](https://github.com/sajor2000/ce-datascience/commit/5267afddda6a7a2138930c9655c7dd7ffc165db0))
+* **docs:** publish maintainable Docusaurus site ([598cfd0](https://github.com/sajor2000/ce-datascience/commit/598cfd0062acb7960950c6ec8b0dfa233f2f72b6))
+* **maintenance:** report stale remote branches weekly ([#55](https://github.com/sajor2000/ce-datascience/issues/55)) ([65aa558](https://github.com/sajor2000/ce-datascience/commit/65aa5586bcb07e106fc80e3479aadf0ed92126f0))
+* **manuscript-editing:** add scientific editing skills ([f22e6ea](https://github.com/sajor2000/ce-datascience/commit/f22e6ea0dad0cabaacfd53b08ae302fbffc0b8aa))
+* **model-strategy:** add evidence-grounded model decisions ([2cca50f](https://github.com/sajor2000/ce-datascience/commit/2cca50f229bc479536e367f5fb757f5da3a9dbfd))
+* **model-strategy:** add evidence-grounded model decisions ([d00f2da](https://github.com/sajor2000/ce-datascience/commit/d00f2da68c7cc46d084ad26eca51b7300d1f5fa4))
+* **skills:** add scientific writing and safe PHI access ([#58](https://github.com/sajor2000/ce-datascience/issues/58)) ([5706c43](https://github.com/sajor2000/ce-datascience/commit/5706c43333d7db4c43ff7388e7d0c029ca20dc79))
+
+
+### Bug Fixes
+
+* audit remediation across portability, safety, evals, release, and CI ([34f2c14](https://github.com/sajor2000/ce-datascience/commit/34f2c14b7d643090113a27c53014503a9fc2e08d))
+* **cleanup-coverage:** defeat git rename detection in the deletion guard ([189cf98](https://github.com/sajor2000/ce-datascience/commit/189cf983d4392bae80d6078c6905db7737ca455a))
+* **cleanup:** enforce deleted-component cleanup registry coverage ([2ae7914](https://github.com/sajor2000/ce-datascience/commit/2ae7914d991c0adf7328fd50497b457d610e3b35))
+* **clif:** align safety and OpenCode guidance ([2dccd83](https://github.com/sajor2000/ce-datascience/commit/2dccd8328774d2748a3e86d01830f3119d083032))
+* **clif:** align safety and OpenCode guidance ([dd09602](https://github.com/sajor2000/ce-datascience/commit/dd09602e6c8fe4355476c405dd6d68971679dc6c))
+* **converters:** defer removed-artifact cleanup until the new tree is written ([57b47d6](https://github.com/sajor2000/ce-datascience/commit/57b47d6915e916a1d20a17930b806f5a8d89a383))
+* **converters:** enforce assertSafeArtifactName on Gemini skill writes ([e336333](https://github.com/sajor2000/ce-datascience/commit/e33633358dffe24aff9ea8a0e57cab108b12b02d))
+* **converters:** stop content transforms corrupting paths, URLs, and casing ([ac27007](https://github.com/sajor2000/ce-datascience/commit/ac270075276e30d71e8ffa6041a4a4139c749cef))
+* **converters:** warn when Codex native install can't enforce disable-model-invocation ([08ecc33](https://github.com/sajor2000/ce-datascience/commit/08ecc33ec3757854e001fb3b7d650b9b00cb9204))
+* **evals:** digest whole skill directory and tighten scored gates ([a3a3d2a](https://github.com/sajor2000/ce-datascience/commit/a3a3d2a018dbf4174ee9698d280c0dd7487fc111))
+* **installer:** address PR review feedback ([#52](https://github.com/sajor2000/ce-datascience/issues/52)) ([c560afa](https://github.com/sajor2000/ce-datascience/commit/c560afa930cdad0b2111be474231119219fa0cdc))
+* **mcp:** remove bundled server from plugin ([57101b6](https://github.com/sajor2000/ce-datascience/commit/57101b665b831ccfce4621aa42ee1d9d4e846865))
+* **model-strategy:** make skill references portable ([d31a11b](https://github.com/sajor2000/ce-datascience/commit/d31a11bc8b69d7f3cd3c4d479881c0ec3bb825a6))
+* **portability:** preserve skill handoffs after conversion ([441af54](https://github.com/sajor2000/ce-datascience/commit/441af547ccebc0c1b760f67ebdc1d67fe4255f80))
+* **portability:** remove sibling skill slash handoffs ([52db5fc](https://github.com/sajor2000/ce-datascience/commit/52db5fc903258f041b090d111b980fec13590406))
+* **release:** register coding-tutor and close metadata-drift gaps ([089df13](https://github.com/sajor2000/ce-datascience/commit/089df13688f1eade3d6d8d6ea2ed632538391025))
+* **review:** complete MCP removal cleanup ([1ed6892](https://github.com/sajor2000/ce-datascience/commit/1ed68924b925af8e57c0284bce84206ee4f93a17))
+* **review:** harden PHI-safe automated review ([#59](https://github.com/sajor2000/ce-datascience/issues/59)) ([2f4c82b](https://github.com/sajor2000/ce-datascience/commit/2f4c82b1b9491fc917728e6bfb48ccfc16512970))
+* **skills:** clarify workflow ownership and safety ([5da0b01](https://github.com/sajor2000/ce-datascience/commit/5da0b01f8d49720f14d60017fa2bc02e7d44ccfb))
+* **skills:** close PHI gaps, finish portability sweep, and repair broken guidance ([04b84bd](https://github.com/sajor2000/ce-datascience/commit/04b84bd3cb1c2ee510b644ca7635d3e4670e0b98))
+* **skills:** selectively refresh Compound Engineering workflows ([#57](https://github.com/sajor2000/ce-datascience/issues/57)) ([0c5a6ae](https://github.com/sajor2000/ce-datascience/commit/0c5a6aedff942f432b596a5f5bc9c624fd157afe))
+* **targets:** harden writers against traversal, config loss, and stale MCP pins ([4059007](https://github.com/sajor2000/ce-datascience/commit/40590076403dc2de09125471adba6d0354ca0e5c))
+
 ## [3.6.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.5.0...cli-v3.6.0) (2026-07-23)
 
 
