@@ -29,9 +29,9 @@ date: 2026-05-30
 | Public support skills | `/ce-release-notes` and `/ce-report-bug` are included because public users need version-specific answers and structured bug reporting. |
 | Target compatibility | Agent source files use `ce-*.md`, legacy `*.agent.md` parsing remains supported, Codex installs respect `CODEX_HOME`, and managed hooks preserve manual and other-plugin entries. |
 
-### 2026-09-04 refresh
+### 2026-09-05 refresh
 
-The fork adopted the compatible 3.24 and post-3.24 safeguards: shell-safe commits, project publishing gates, scoped coding criteria, worktree snapshot verification, semantic parallel-work checks, outcome-first plan summaries, secret-safe performance debugging, and native Codex experiment dispatch. Binding repository instructions, PHI controls, SAP ownership, real-data provenance, and cross-platform fallbacks remain authoritative.
+Merged in [PR #57](https://github.com/sajor2000/ce-datascience/pull/57), the fork adopted the compatible 3.24 and post-3.24 safeguards: temporary-index commit isolation, project publishing gates, path-scoped coding criteria, worktree snapshot verification, semantic parallel-work checks, implementation-independent plan objectives, secret-safe performance debugging, and isolated native Codex experiment dispatch. Binding repository instructions, PHI controls, SAP ownership, real-data provenance, and cross-platform fallbacks remain authoritative.
 
 The upstream LFG, full babysit state machine, catalog layout, developer runner, and `ce-explain` changes remain deferred because their owning components are absent or intentionally lean in this plugin.
 

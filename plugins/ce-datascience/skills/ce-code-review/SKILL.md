@@ -208,7 +208,17 @@ If a reviewer flags any file in these directories for cleanup or removal, discar
 
 ### Stage 1: Determine scope
 
-Compute the diff range, file list, and diff. Minimize permission prompts by combining into as few commands as possible.
+Compute the diff range, file list, and diff. Scope collection is two-phase so a review cannot ingest patient-level content before authorization.
+
+**PHI-safe scope preflight:** Before any command prints a path name, diff body, file content, notebook output, PR title, or PR body, classify the request and repository from already-available context such as the stack profile and CLIF signals. Clinical, health-data, case-report, CLIF, or otherwise uncertain contexts are PHI-risk before path discovery. For a context that is clearly non-clinical, write changed and untracked path names to local temporary files without echoing them, then use a deterministic local check that returns only a risk boolean, counts, and extensions. Treat data files, codebooks, notebooks, manuscripts, figures, clinical notes, imaging, patient/MRN/case-like names, and any unclassified text file in a PHI-risk repository as PHI-risk. Never print a raw basename before this decision because a filename can itself contain an identifier.
+
+When PHI risk is present, reuse any user confirmation already present in the current conversation that both the data environment and active model endpoint are PHI/PII-compliant. In interactive mode, if confirmation is absent or ambiguous, ask that compliance question once using the Skill Value interaction rule and wait. In agent, autofix, report-only, or headless mode, do not ask; unresolved confirmation remains not confirmed. Record exactly `PHI authorization: confirmed` or `PHI authorization: not confirmed`.
+
+- With confirmed authorization, the orchestrator may inspect the PHI-risk content through the active endpoint. Do not place patient-level content in general reviewer prompts or artifacts. Route only the minimum necessary PHI-risk content to `ce-phi-leak-reviewer`, which must inherit the active session model with no model override; give other reviewers code, schemas, metadata, reviewed aggregates, and PHI-free context.
+- Without confirmed authorization, do not run a broad content diff or open PHI-risk files. Limit scope to path names, metadata, and files explicitly established as code, schemas, or reviewed aggregates. Report excluded content as a coverage gap rather than treating it as clean.
+- Regardless of authorization, never reproduce identifiers in prompts, findings, artifacts, logs, screenshots, or responses.
+
+When no PHI risk is present, continue normally without asking. After this preflight, read the permitted path names and collect the permitted diff content for the selected scope. If local classification cannot establish a clearly non-PHI scope, treat it as PHI-risk.
 
 **If `base:` argument is provided (fast path):**
 
@@ -219,10 +229,13 @@ BASE_ARG="{base_arg}"
 BASE=$(git merge-base HEAD "$BASE_ARG" 2>/dev/null) || BASE="$BASE_ARG"
 ```
 
-Then produce the same output as the other paths:
+Then capture path names locally for the preflight without printing them:
 
 ```
-echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:" && git diff -U10 $BASE && echo "UNTRACKED:" && git ls-files --others --exclude-standard
+SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
+git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
+echo "BASE:$BASE"
 ```
 
 This path works with any ref — a SHA, `origin/main`, a branch name. Automated callers (`ce-work`, or external core Compound Engineering callers such as `lfg`/`slfg` when installed) should prefer this to avoid the detection overhead. **Do not combine `base:` with a PR number or branch target.** If both are present, stop with an error: "Cannot use `base:` with a PR number or branch target — `base:` implies the current checkout is already the correct branch. Pass `base:` alone, or pass the target alone and let scope detection resolve the base." This avoids scope/intent mismatches where the diff base comes from one source but the code and metadata come from another.
@@ -231,16 +244,19 @@ This path works with any ref — a SHA, `origin/main`, a branch name. Automated 
 
 If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** run `gh pr checkout <number-or-url>` on the shared checkout. In `mode:agent`, return JSON with `status: failed` and a reason directing the caller to review the already checked-out PR via `base:<ref>` or an isolated checkout. For `mode:report-only`, tell the caller: "mode:report-only cannot switch the shared checkout to review a PR target. Run it from an isolated worktree/checkout for that PR, or run report-only with no target argument on the already checked out branch." For `mode:headless`, emit `Review failed (headless mode). Reason: cannot switch shared checkout. Re-invoke with base:<ref> to review the current checkout, or run from an isolated worktree.` Stop here unless the review is already running in an isolated checkout.
 
-**Skip-condition pre-check.** Before checkout or scope detection, run a PR-state probe to decide whether the review should proceed:
+**Skip-condition pre-check.** Before checkout or scope detection, capture PR state and path metadata locally. Print only the state until the PHI-safe preflight permits reading the other metadata:
 
 ```
-gh pr view <number-or-url> --json state,title,body,files
+PR_PREFLIGHT_FILE=$(mktemp -t ce-review-pr.XXXXXX)
+gh pr view <number-or-url> --json state,title,files > "$PR_PREFLIGHT_FILE"
+jq -r '.state' "$PR_PREFLIGHT_FILE"
 ```
 
 Apply skip rules in order:
 
 - `state` is `CLOSED` or `MERGED` -> stop with message `PR is closed/merged; not reviewing.`
-- **Trivial-PR judgment**: spawn a lightweight sub-agent (use `model: haiku` in Claude Code; in Codex use the smallest available model — if the available model names are unknown, omit the model parameter and let the harness default) with the PR title, body, and changed file paths. The agent's task: "Is this an automated or trivial PR that does not warrant a code review? Consider: dependency lock-file or manifest-only bumps, automated release commits, chore version increments with no substantive code changes. When in doubt, answer no — false negatives (skipped reviews that should have run) are more costly than false positives (unnecessary reviews)." If the judgment returns yes: stop with message `PR appears to be a trivial automated PR; not reviewing. Run without a PR argument to review the current branch, or pass base:<ref> if review is intended.`
+- Apply the PHI-safe scope preflight to the locally captured title and paths before reading or delegating them.
+- **Trivial-PR judgment**: after the preflight permits the metadata, spawn a lightweight sub-agent (use `model: haiku` in Claude Code; in Codex use the smallest available model — if the available model names are unknown, omit the model parameter and let the harness default) with the PR title and PHI-free changed-path metadata only. The agent's task: "Is this an automated or trivial PR that does not warrant a code review? Consider: dependency lock-file or manifest-only bumps, automated release commits, chore version increments with no substantive code changes. When in doubt, answer no — false negatives (skipped reviews that should have run) are more costly than false positives (unnecessary reviews)." If the judgment returns yes: stop with message `PR appears to be a trivial automated PR; not reviewing. Run without a PR argument to review the current branch, or pass base:<ref> if review is intended.`
 
 When any skip rule fires, emit the message and stop without dispatching reviewers, switching the checkout, or running scope detection. **Standalone branch mode and `base:` mode are unaffected** -- they always run the full review. **Draft PRs are reviewed normally** -- draft status is not a skip condition; early feedback on in-progress work is valuable.
 
@@ -260,10 +276,10 @@ Then check out the PR branch so persona agents can read the actual code (not the
 gh pr checkout <number-or-url>
 ```
 
-Then fetch PR metadata. Capture the base branch name and the PR base repository identity, not just the branch name:
+Then fetch PR metadata without reading the PR body yet. Capture the base branch name and the PR base repository identity, not just the branch name:
 
 ```
-gh pr view <number-or-url> --json title,body,baseRefName,headRefName,url
+gh pr view <number-or-url> --json title,baseRefName,headRefName,url
 ```
 
 Use the repository portion of the returned PR URL as `<base-repo>` (for example, `sajor2000/ce-datascience` from `https://github.com/sajor2000/ce-datascience/pull/348`).
@@ -289,7 +305,7 @@ if [ -n "$PR_BASE_REF" ]; then BASE=$(git merge-base HEAD "$PR_BASE_REF" 2>/dev/
 ```
 
 ```
-if [ -n "$BASE" ]; then echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:" && git diff -U10 $BASE && echo "UNTRACKED:" && git ls-files --others --exclude-standard; else echo "ERROR: Unable to resolve PR base branch <base> locally. Fetch the base branch and rerun so the review scope stays aligned with the PR."; fi
+if [ -n "$BASE" ]; then SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX) && git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed" && git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked" && echo "BASE:$BASE"; else echo "ERROR: Unable to resolve PR base branch <base> locally. Fetch the base branch and rerun so the review scope stays aligned with the PR."; fi
 ```
 
 Extract PR title/body, base branch, and PR URL from `gh pr view`, then extract the base marker, file list, diff content, and `UNTRACKED:` list from the local command. Do not use `gh pr diff` as the review scope after checkout -- it only reflects the remote PR state and will miss local fix commits until they are pushed. If the base ref still cannot be resolved from the PR's actual base repository after the fetch attempt, stop instead of falling back to `git diff HEAD`; a PR review without the PR base branch is incomplete.
@@ -322,10 +338,13 @@ BASE=$(echo "$RESOLVE_OUT" | sed 's/^BASE://')
 
 If the script outputs an error, stop instead of falling back to `git diff HEAD`; a branch review without the base branch would only show uncommitted changes and silently miss all committed work.
 
-On success, produce the diff:
+On success, capture path names locally for the preflight without printing them:
 
 ```
-echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:" && git diff -U10 $BASE && echo "UNTRACKED:" && git ls-files --others --exclude-standard
+SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
+git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
+echo "BASE:$BASE"
 ```
 
 You may still fetch additional PR metadata with `gh pr view` for title, body, and linked issues, but do not fail if no PR exists.
@@ -342,15 +361,20 @@ BASE=$(echo "$RESOLVE_OUT" | sed 's/^BASE://')
 
 If the script outputs an error, stop instead of falling back to `git diff HEAD`; a standalone review without the base branch would only show uncommitted changes and silently miss all committed work on the branch.
 
-On success, produce the diff:
+On success, capture path names locally for the preflight without printing them:
 
 ```
-echo "BASE:$BASE" && echo "FILES:" && git diff --name-only $BASE && echo "DIFF:" && git diff -U10 $BASE && echo "UNTRACKED:" && git ls-files --others --exclude-standard
+SCOPE_PATHS_DIR=$(mktemp -d -t ce-review-paths-XXXXXX)
+git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
+git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked"
+echo "BASE:$BASE"
 ```
 
 Using `git diff $BASE` (without `..HEAD`) diffs the merge-base against the working tree, which includes committed, staged, and unstaged changes together.
 
-**Untracked file handling:** Always inspect the `UNTRACKED:` list, even when `FILES:`/`DIFF:` are non-empty. Untracked files are outside review scope until staged. If the list is non-empty, tell the user which files are excluded. If any of them should be reviewed, stop and tell the user to `git add` them first and rerun. Only continue when the user is intentionally reviewing tracked changes only. In `mode:agent`, `mode:headless`, or `mode:autofix`, do not stop to ask — proceed with tracked changes only and note the excluded untracked files in Coverage.
+After applying the PHI-safe scope preflight, run `git diff -U10 $BASE` only for the permitted paths. For an authorized PHI-risk review, keep patient-level path content out of every general reviewer context and retrieve the PR body only when it is permitted by the same authorization boundary. For an unconfirmed PHI-risk review, do not retrieve the PR body or a broad diff.
+
+**Untracked file handling:** After the PHI-safe preflight permits path-name access, inspect the captured untracked list even when the tracked diff is non-empty. Untracked files are outside review scope until staged. If the list is non-empty, tell the user which PHI-free files are excluded. Describe any PHI-risk path only by opaque identifier and category. If any should be reviewed, stop and tell the user to stage the intended files and rerun. In `mode:agent`, `mode:headless`, or `mode:autofix`, do not stop to ask; proceed with tracked changes only and note the safely described exclusions in Coverage.
 
 ### Stage 2: Intent discovery
 
@@ -442,7 +466,7 @@ The lite roster is `ce-correctness-reviewer` plus `ce-project-standards-reviewer
 
 #### Model tiering
 
-Three reviewers inherit the session model with no override: `ce-correctness-reviewer`, `ce-security-reviewer`, and `ce-adversarial-reviewer`. These perform the highest-stakes analysis — logic bugs, security vulnerabilities, adversarial failure scenarios — and should run at whatever capability level the user has configured. If the user is on Opus, these get Opus.
+Four reviewers inherit the session model with no override: `ce-correctness-reviewer`, `ce-security-reviewer`, `ce-adversarial-reviewer`, and `ce-phi-leak-reviewer`. These perform the highest-stakes analysis or must remain on the authorized active endpoint. If the user is on Opus, these get Opus.
 
 All other persona sub-agents and CE agents use the platform's mid-tier model to reduce cost and latency. In Claude Code, pass `model: "sonnet"` in the Agent tool call. On other platforms, use the equivalent mid-tier (e.g., `gpt-5.4-mini` in Codex as of April 2026). If the platform has no model override mechanism or the available model names are unknown, omit the model parameter and let agents inherit the default -- a working review on the parent model is better than a broken dispatch from an unrecognized model name.
 
@@ -465,15 +489,18 @@ Pass `{run_id}` to every persona sub-agent so they can write their full analysis
 
 Omit the `mode` parameter when dispatching sub-agents so the user's configured permission settings apply. Do not pass `mode: "auto"`.
 
+When `ce-phi-leak-reviewer` is selected, pass the PHI authorization marker resolved during Stage 1. A not-confirmed reviewer may inspect paths, code, schemas, metadata, and reviewed aggregates, but not patient-level content. Never pass patient-level content to any other reviewer.
+
 Spawn each selected persona reviewer as a parallel sub-agent using the subagent template included below. Each persona sub-agent receives:
 
 1. Their persona file content (identity, failure modes, calibration, suppress conditions)
 2. Shared diff-scope rules from the diff-scope reference included below
 3. The JSON output contract from the findings schema included below
-4. PR metadata: title, body, and URL when reviewing a PR (empty string otherwise). Passed in a `<pr-context>` block so reviewers can verify code against stated intent
-5. Review context: intent summary, file list, diff
+4. PHI-free PR metadata: sanitized title and body plus URL when reviewing a PR (empty string otherwise). General reviewers never receive patient-level PR metadata. Pass the sanitized values in a `<pr-context>` block so reviewers can verify code against stated intent.
+5. Reviewer-specific context: intent summary, safely described file list, and PHI-free diff for every general reviewer. Only `ce-phi-leak-reviewer`, with confirmed authorization and no model override, may receive a separate minimum-necessary patient-level context; with unconfirmed authorization it receives metadata only.
 6. Run ID and reviewer name for the artifact file path
 7. **For `project-standards` only:** the criteria mapping from Stage 3b, pairing each standards file with the changed files it governs, wrapped in a `<standards-paths>` block appended to the review context
+8. **For `phi-leak` only:** the PHI authorization marker resolved above and its separately scoped minimum-necessary or metadata-only context
 
 Persona sub-agents are **read-only** with respect to the project: they review and return structured JSON. They do not edit project files or propose refactors. The one permitted write is saving their full analysis to the run-artifact path specified in the output contract (under `/tmp/ce-datascience/ce-code-review/<run-id>/`).
 

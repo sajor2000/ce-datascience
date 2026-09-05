@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 77 |
+| Skills | 78 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -224,10 +224,13 @@ The current plugin selectively ports useful features from the original compound-
 
 | Upstream area | ce-datascience behavior |
 |---------------|-------------------------|
-| Planning and brainstorming | `/ce-plan` keeps SAP mode and implementation-plan mode while adding output-mode handling, HTML/Markdown rendering references, format-preserving resume, outcome-first summaries, external-research routing, stronger synthesis, and conceptual-diagram affordances. `/ce-brainstorm` keeps PICO/PECO and study-design framing while adding grouped requirements, visual communication behavior, and output-mode handling. |
+| Planning and brainstorming | `/ce-plan` keeps SAP mode and implementation-plan mode while starting summaries with an implementation-independent objective, preserving format on resume, and strengthening output handling, research routing, and synthesis. `/ce-brainstorm` keeps PICO/PECO and study-design framing while adding grouped requirements, visual communication behavior, and output-mode handling. |
+| Work and optimization | `/ce-work` verifies tracked snapshots before parallel worktree execution and keeps tasks with uncommitted dependencies inline. `/ce-optimize` isolates parallel Codex experiments by directory and requires a recorded baseline and measurable outcome. |
+| Debugging | `/ce-debug` supports correctness and performance investigations, redacts secrets from evidence, and repeats the original measurement after a fix. |
 | PR feedback resolution | `ce-resolve-pr-feedback` carries GraphQL pagination and split-reference handling, then frames replies around statistical methodology, SAP drift, reproducibility, reporting checklists, and clinical/health data review threads. |
 | Sessions | `/ce-sessions` searches Claude Code, Codex, and Cursor histories with repo-root pre-resolution, session discovery, skeleton extraction, metadata extraction, and error extraction helpers. |
-| Git and review workflow | `ce-code-review` applies scoped `CODING_STANDARDS.md` alongside binding repo instructions; `ce-commit` and `ce-commit-push-pr` use shell-safe commits and honor project publishing gates. Review, PR, and compounding fixes remain data-science aware. |
+| Git and review workflow | `ce-code-review` applies path-scoped `CODING_STANDARDS.md` alongside binding repo instructions. `ce-commit` and `ce-commit-push-pr` use an isolated temporary Git index for named-file commits, preserving unrelated staged and working-tree changes while honoring publishing gates. |
+| Setup health | `/ce-setup` detects obsolete Codex tool-map blocks and offers approved cleanup guidance without silently rewriting user configuration. |
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included so users can answer version-specific questions and file structured bug reports from the public plugin surface. |
 | Target compatibility | Agent sources use current `ce-*.md` filenames; legacy `*.agent.md` parsing remains supported. Codex installs respect `CODEX_HOME`, support native-plugin agent bridge and standalone modes, and preserve manual/other-plugin hooks during managed hook writes. |
 
@@ -244,15 +247,15 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, grouped requirements, visual communication, and Markdown/HTML output modes before planning |
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
-| `/ce-plan` | Create the canonical versioned SAP or technical implementation plan, with Markdown/HTML output modes and format-preserving resume |
+| `/ce-plan` | Create the canonical versioned SAP or technical implementation plan with an implementation-independent objective, Markdown/HTML output modes, and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claims-to-datasets schema, estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
 | `/ce-model-strategy` | Choose, evidence-ground, and scaffold the primary statistical model—including mixed/random effects, causal, prediction, Bayesian, survival, and meta-analysis branches—in the detected R or Python stack |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-adversarial-review` | Independent adversarial code or plan review with quick/auto/deep, a read-only Claude Code/Codex peer pass, bounded evidence-based rebuttal, and explicit local-only or unresolved coverage when a peer cannot validate |
-| `/ce-work` | Execute analysis tasks with SAP tracking while failing loudly at missing or corrupt inputs; surfaces unimplemented SAP sections, flags exploratory analyses, and seeds tasks from the tabular SAP output catalog when present |
+| `/ce-work` | Execute analysis tasks with SAP tracking and verified parallel snapshots while failing loudly at missing, corrupt, or uncommitted dependencies |
 | `/ce-notebook-standards` | Set the master-notebook or multi-file decision and the documented, small-cell contract for Marimo, Jupyter, R Markdown, and Quarto work |
 | `/ce-notebook-edit` | Safely insert reviewed cells into existing Jupyter notebooks using unique metadata tags, backups, and structural validation |
-| `/ce-debug` | Systematically find root causes in analysis pipelines and data issues |
+| `/ce-debug` | Find correctness or performance root causes with secret-safe evidence, a recorded baseline, and repeated post-fix measurement |
 | `/ce-babysit-pr` | Bounded GitHub PR monitoring that surfaces CI/review residuals and never merges or broadens authority |
 | `/ce-handoff` | Create or resume a portable continuity record with verified state, constraints, and next safe action |
 | `/ce-retune` | Maintainer-only benchmark workflow for measured CE skill-corpus improvements |
@@ -286,6 +289,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-figure` | Validate publication figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
 | `/ce-manuscript-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
 | `/ce-manuscript-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
+| `/ce-scientific-writing` | Draft, revise, or audit evidence-bound scientific manuscripts without imposing one journal's style |
 | `/ce-clinical-research-voice` | Apply a precise, clinically detached house style to narrative clinical AI research prose |
 | `/ce-manuscript-section-discipline` | Keep Methods and Results factual while preserving rationale required by reporting guidelines, protocols, regulations, or reproducibility standards |
 | `/ce-scientific-anti-slop` | Detect and remove generic AI-writing tells from scientific and clinical manuscript prose |
@@ -297,7 +301,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; otherwise confirms a declared family before enforcing Parquet-only, version-correct mCIDE vocab, three-script architecture, and POC sign-off on protected paths |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; asks once whether the data environment and model endpoint are PHI/PII-compliant, keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off |
 | `/ce-clif-project-template` | Initialize or audit a CLIF project against the official Project Template, with explicit version selection, site-local configuration, and aggregate-only final-output safeguards |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
@@ -314,7 +318,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | Skill | Description |
 |-------|-------------|
 | `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema |
-| `/ce-optimize` | Run metric-driven iterative optimization loops for model hyperparameters, prediction thresholds, feature sets, or any measurable analytical outcome with cross-validation awareness and leakage guards |
+| `/ce-optimize` | Run metric-driven optimization with isolated experiment directories, recorded baselines, cross-validation awareness, and leakage guards |
 
 ### Microsoft Fabric & Marimo
 
@@ -359,8 +363,8 @@ guardrails.
 | Skill | Description |
 |-------|-------------|
 | `ce-clean-gone-branches` | Clean up local branches whose remote tracking branch is gone |
-| `ce-commit` | Create a git commit with a value-communicating message |
-| `ce-commit-push-pr` | Commit, push, and open a PR with an adaptive value-first description, optional evidence routing, and existing-PR update support |
+| `ce-commit` | Create a value-communicating commit while isolating named files from unrelated staged and working-tree changes |
+| `ce-commit-push-pr` | Commit through an isolated temporary index, push, and open or update a PR with an adaptive value-first description and optional evidence routing |
 | `ce-resolve-pr-feedback` | Resolve PR review feedback in parallel -- evaluates validity, fixes issues, handles paginated/split GitHub threads, and replies to statistical methodology feedback |
 | `ce-worktree` | Manage Git worktrees for parallel development |
 
@@ -391,7 +395,7 @@ guardrails.
 | `/ce-sessions` | Ask questions about session history across Claude Code, Codex, and Cursor, with repo-root session discovery and structured metadata/error extraction |
 | `/ce-release-notes` | Summarize recent ce-datascience releases or answer version-specific release questions |
 | `/ce-report-bug` | Gather structured environment details and open a GitHub issue for ce-datascience plugin bugs |
-| `/ce-setup` | Configure stack profile, diagnose environment, and bootstrap project config |
+| `/ce-setup` | Configure the stack profile, diagnose the environment including obsolete Codex tool maps, and bootstrap project config |
 | `/ce-update` | Check plugin version and fix stale cache (Claude Code only) |
 | `/ce-workflow` | Lifecycle navigator -- shows ordered skill sequence for your project type, data layer, and language; detects progress and recommends next step |
 
@@ -417,7 +421,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 35 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
-| `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output |
+| `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output after a one-time PHI/PII environment and endpoint confirmation |
 | `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file deps, format hints, branching drift, seed leaks |
 | `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness — committed output, cache traps, params drift, bibliography paths, accessibility |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |

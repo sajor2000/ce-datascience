@@ -406,6 +406,26 @@ lockfiles, notebooks, IDE files, SAP artifacts, and recent verified connection
 handoffs before asking. Follow-up questions should be limited to decisions that
 change generated config, routing, or scientific scope.
 
+### Current workflow safeguards
+
+The September 2026 upstream refresh tightened shared engineering behavior
+without replacing CE DataScience's SAP, PHI, real-data, or reporting rules:
+
+- `ce-plan` begins its summary with an implementation-independent objective so
+  the intended outcome remains stable when the implementation changes.
+- `ce-work` sends parallel work only from a verified tracked snapshot. Tasks
+  that depend on uncommitted files remain inline or serial so workers do not
+  act on stale code.
+- `ce-optimize` runs parallel Codex experiments in separate directories and
+  compares them against a recorded baseline and named metric.
+- `ce-debug` redacts secrets from captured evidence and repeats the original
+  correctness or performance measurement after a fix.
+- `ce-commit` and `ce-commit-push-pr` use a temporary Git index for named-file
+  commits, preserving unrelated staged entries and later working-tree edits.
+- `ce-code-review` applies `CODING_STANDARDS.md` only where its path scope
+  matches, while repository instructions remain authoritative.
+- `ce-setup` reports obsolete Codex tool-map blocks and asks before cleanup.
+
 ### Versioned CLIF projects
 
 For a CLIF repository, setup and workflow reuse a matching declared CLIF data
@@ -421,6 +441,13 @@ An explicit call does not prompt again. If it conflicts with an explicitly
 declared local or project pair, CE shows the mismatch and asks which source is
 intended. It never infers CLIF 3.0 from a folder name or missing language
 signals.
+
+Before patient-level access, CE asks once whether both the data environment and
+active model endpoint are approved for PHI/PII. Patient-level intermediates
+remain under the declared approved restricted data root. The template
+`output/intermediate_phi/` path is used only when that exact location is
+approved, local, non-synced, and gitignored; shareable reviewed aggregates stay
+in `output/final_no_phi/`.
 
 If another skill verifies a database connection first, it can emit a generic
 handoff such as:
@@ -497,7 +524,8 @@ For publication artifacts:
 ```
 
 For a manuscript handoff, assemble artifacts with `/ce-manuscript-package`,
-resolve editable Zotero fields with `/ce-manuscript-citations`, run
+resolve editable Zotero fields with `/ce-manuscript-citations`, draft or revise
+the prose with `/ce-scientific-writing`, run
 `/ce-pre-submission-audit` as the combined final editing gate, and finish with
 `/ce-review-pack`. The focused voice, section-discipline, and anti-slop skills
 remain available for targeted passes; section discipline preserves rationale
