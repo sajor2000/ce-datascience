@@ -99,6 +99,8 @@ describe("CLIF guidance", () => {
       "agent, autofix,",
       "report-only, or headless mode",
       "do not ask or wait",
+      "Preserve an exact",
+      "marker supplied by the orchestrator",
       "PHI authorization: not confirmed",
     ])
     expectContainsAll(workSkill, [
