@@ -98,18 +98,28 @@ Write the commit message:
 - **Subject line**: Concise, imperative mood, focused on *why* not *what*. Follow the convention determined in Step 2.
 - **Body** (when needed): Add a body separated by a blank line for non-trivial changes. Explain motivation, trade-offs, or anything a future reader would need. Omit the body for obvious single-purpose changes.
 
-For each commit group, isolate the named files in a temporary index so unrelated staged work remains untouched. Never use `git add -A` or `git add .`. Stage each named file once only when it has no staged entry. If a named file already has staged and unstaged changes, preserve its staged snapshot and do not restage it. Write the complete message to a file outside the repository, then commit the temporary index without pathspecs:
+For each commit group, isolate the named files in a temporary index so the user's real index remains untouched until the commit succeeds. Never use `git add -A` or `git add .`. For each named file, copy its existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Write the complete message to a file outside the repository, then commit the temporary index without pathspecs:
 
 ```bash
-group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX)
+group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
 group_index="$group_index_dir/index"
-GIT_INDEX_FILE="$group_index" git read-tree HEAD
-git diff --cached --binary -- file1 file2 file3 | GIT_INDEX_FILE="$group_index" git apply --cached --binary -
-GIT_INDEX_FILE="$group_index" git commit -F <message-file>
-git restore --staged --source=HEAD -- file1 file2 file3
+GIT_INDEX_FILE="$group_index" git read-tree HEAD || exit $?
+for group_path in "file1" "file2" "file3"; do
+  if git diff --cached --quiet -- "$group_path"; then
+    GIT_INDEX_FILE="$group_index" git add -- "$group_path" || exit $?
+  else
+    diff_status=$?
+    test "$diff_status" -eq 1 || exit "$diff_status"
+    group_patch="$group_index_dir/staged.patch"
+    git diff --cached --binary -- "$group_path" > "$group_patch" || exit $?
+    GIT_INDEX_FILE="$group_index" git apply --cached --binary "$group_patch" || exit $?
+  fi
+done
+GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
+git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
 ```
 
-Run these commands in order and stop immediately if any command fails. Run the final restore only after the temporary-index commit succeeds. Using `-F` passes `$`, quotes, backticks, and multi-line bodies literally across shells. The filtered cached diff copies the named group's staged snapshot into the temporary index without pulling in later working-tree edits or unrelated entries from the user's real index. The final restore aligns only the committed paths in the real index with the new `HEAD`.
+Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order and stop immediately if any command fails. Run the final restore only after the temporary-index commit succeeds. Using `-F` passes `$`, quotes, backticks, and multi-line bodies literally across shells. The final restore aligns only the committed paths in the real index with the new `HEAD`.
 
 ### Step 5: Confirm
 
