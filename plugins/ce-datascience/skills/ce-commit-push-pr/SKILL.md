@@ -148,15 +148,15 @@ If the PR check returned `state: OPEN`, note the URL -- this is the existing-PR 
 
 1. If on the default branch, branch creation needs to handle three conditional cases: stale local `<base>`, unpushed commits on local `<base>` (intent unclear without asking), and uncommitted changes that collide with the fresh remote base. Read `references/branch-creation.md` and follow its decision flow, then continue to step 2 below.
 2. Scan changed files for naturally distinct concerns. If files clearly group into separate logical changes, create separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, one commit is fine.
-3. Stage and commit each group in a single call. Avoid `git add -A` or `git add .`. Follow conventions from Step 2:
+3. Stage and commit each group with explicit paths. Avoid `git add -A`, `git add .`, shell interpolation, and a bare `git commit`; the path list prevents unrelated staged work from riding along:
    ```bash
-   git add file1 file2 file3 && git commit -m "$(cat <<'EOF'
-   commit message here
-   EOF
-   )"
+   git add file1 file2 file3
+   git commit -F <message-file> -- file1 file2 file3
    ```
 
 ### Step 5: Push
+
+Before pushing, discover any additional path-scoped instructions governing the committed files, then satisfy every applicable pre-push or review-ready requirement from those and the project's active instructions for the exact final commit state. If required evidence is missing or failing, keep the local commit, stop before the external write, and report it. This is the **Project publishing gate**. Then push the live `HEAD`.
 
 ```bash
 git push -u origin HEAD

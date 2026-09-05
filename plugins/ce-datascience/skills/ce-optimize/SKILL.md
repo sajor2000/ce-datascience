@@ -477,10 +477,12 @@ For each hypothesis in the batch, dispatch according to `execution.mode`. In `se
 4. Dispatch a subagent with the filled prompt, working in the experiment worktree
 
 **Codex backend:**
-1. Do not launch nested `codex exec` from an active Codex task. Use the current harness's native subagent mechanism instead. Only use `codex exec` from an external terminal where it is explicitly available.
+1. Choose one dispatch path:
+   - **Active coding task:** use the platform subagent primitive (`Agent`/`Task` in Claude Code, `spawn_agent` in Codex, or `subagent` in Pi via `pi-subagents`). Do not launch nested `codex exec`. If parallel dispatch is unavailable, run experiments sequentially.
+   - **External terminal only:** use `codex exec` when it is explicitly available.
 2. Fill the experiment prompt template
 3. Write the filled prompt to the run's scratch directory (`/tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt`)
-4. Dispatch via Codex:
+4. From the external-terminal path only, dispatch via Codex:
    ```bash
    cat /tmp/ce-datascience/ce-optimize/<run-id>/exp-<NNN>-prompt.txt | codex exec --skip-git-repo-check - 2>&1
    ```

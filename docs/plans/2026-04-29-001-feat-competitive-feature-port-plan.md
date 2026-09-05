@@ -24,6 +24,10 @@ The May 2026 upstream `v3.9.3` sync preserved the data science scope while addin
 - The converter/install surface includes current agent-source naming, `CODEX_HOME`, Codex root writes, and managed hook handling.
 - Public support skills `ce-release-notes` and `ce-report-bug` are intentionally included; software/product-specific upstream skills remain deferred.
 
+## Status Update - September 2026
+
+The May inventory is historical. The plugin now contains 55 agents, 78 skills, 35 reporting checklists, and 0 bundled MCP servers, with compatible Compound Engineering 3.24 and post-3.24 safety changes selectively adapted to the health data science workflow.
+
 ---
 
 ## Problem Frame

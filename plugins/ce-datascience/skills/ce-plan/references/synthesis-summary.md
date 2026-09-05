@@ -237,7 +237,7 @@ Each guard is an explicit conditional in SKILL.md, not implicit. R2 solo does NO
 
 ### Stage 2 template (solo)
 
-**Summary discipline (required):** describe **what scope the plan will target**, forward-looking (what *will* be planned), not retrospective. The summary's job is to help the user pattern-match against intent before reading call-outs — solo invocation has minimal pre-write dialogue, so the summary is especially load-bearing here. Form (prose, bullets, mix) and length follow the tier budget in "Stage 2: chat-time scoping synthesis" above; detail test applies per bullet.
+**Summary discipline (required):** lead with the implementation-independent Objective, then name the proposed scope without repeating the Problem Frame. The summary's job is to help the user pattern-match against intent before reading call-outs — solo invocation has minimal pre-write dialogue, so the summary is especially load-bearing here. Form (prose, bullets, mix) and length follow the tier budget in "Stage 2: chat-time scoping synthesis" above; detail test applies per bullet.
 
 **Anti-fluff guidance:** lead with the actual thing being planned in plain words. No qualifiers ("comprehensive," "thoughtful," "substantive"). No re-stating the user's prompt. If the scope cannot be said within the tier budget without filler, the synthesis isn't ready yet.
 
@@ -289,9 +289,9 @@ Most of these will not survive the keep test as separate call-outs. Surface only
 
 ### Stage 2 template (brainstorm-sourced)
 
-**Summary discipline (required):** describe **how the implementation approaches the work** at a high level — files/modules touched, patterns extended vs. introduced, scope boundaries the plan honors. Forward-looking (what *will* be in the plan), not retrospective. Brainstorm-validated WHAT is assumed; the summary covers HOW. Form (prose, bullets, mix) and length follow the tier budget in "Stage 2: chat-time scoping synthesis" above; detail test applies per bullet.
+**Summary discipline (required):** state the implementation-independent Objective. Keep implementation shape, files, patterns, and other means in their owning sections. Form (prose, bullets, mix) and length follow the tier budget in "Stage 2: chat-time scoping synthesis" above; detail test applies per bullet.
 
-**Anti-fluff guidance:** lead with the actual implementation shape in plain words. No qualifiers, no re-stating the brainstorm's WHAT. If the summary just restates the brainstorm's Problem Frame, rewrite it to focus on plan-time decisions.
+**Anti-fluff guidance:** state the Objective in plain words, with no qualifiers, implementation shape, or repetition of the brainstorm's Problem Frame.
 
 **Confirmation template (fires for Standard/Deep regardless of call-out count, or for any tier with one or more call-outs surviving):**
 
@@ -375,7 +375,7 @@ After user confirmation (or after the soft-cut decision proceeds), Phase 5.2 wri
 
 | Internal-draft element | Where it goes in the plan |
 |---|---|
-| Summary (stage 2) | `## Summary` (1-3 lines prose, forward-looking) — rewrite to plan convention if the chat-time summary used bullets. Solo variant: scope being targeted. Brainstorm-sourced: implementation approach |
+| Summary (stage 2) | `## Summary` (1-3 lines prose, forward-looking) — the implementation-independent Objective only |
 | Stated bullets | `## Requirements` (R-IDs) and where relevant `## Problem Frame` for narrative context |
 | Inferred bullets | `## Key Technical Decisions` (with rationale) and Implementation Units when the bet drives a structural choice. In non-interactive mode, route to `## Assumptions` instead — see Headless mode above. |
 | Out-of-scope bullets | `## Scope Boundaries` — including the `### Deferred to Follow-Up Work` subsection when relevant |

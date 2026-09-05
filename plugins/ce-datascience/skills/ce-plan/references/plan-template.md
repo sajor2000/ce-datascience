@@ -4,7 +4,7 @@ Canonical templates the writer fills in during Phase 4 of `ce-plan` when **imple
 
 ## Table of contents
 
-1. Core Plan Template — frontmatter, Overview, Problem Frame, Requirements Trace, Scope, Context, Decisions, Open Questions, Output Structure (optional), High-Level Technical Design (optional), Implementation Units, System-Wide Impact, Risks, Documentation Notes, Sources & References.
+1. Core Plan Template — frontmatter, Summary, Problem Frame, Requirements Trace, Scope, Context, Decisions, Open Questions, Output Structure (optional), High-Level Technical Design (optional), Implementation Units, System-Wide Impact, Risks, Documentation Notes, Sources & References.
 2. Optional Deep-Plan Extensions — Alternative Approaches, Success Metrics, Dependencies, Risk Analysis, Phased Delivery, Documentation Plan, Operational / Rollout Notes.
 
 When to include each block:
@@ -29,9 +29,9 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 # [Plan Title]
 
-## Overview
+## Summary
 
-[What is changing and why]
+[State the implementation-independent outcome in 1-3 lines.]
 
 ---
 

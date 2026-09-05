@@ -488,6 +488,38 @@ describe("ce-code-review contract", () => {
     }
   })
 
+  test("project standards prefer scoped CODING_STANDARDS criteria", async () => {
+    const [skill, persona, catalog] = await Promise.all([
+      readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md"),
+      readRepoFile("plugins/ce-datascience/agents/ce-project-standards-reviewer.md"),
+      readRepoFile("plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md"),
+    ])
+
+    for (const content of [skill, persona]) {
+      expect(content).toContain("CODING_STANDARDS.md")
+      expect(content).toMatch(/changed files.*governs|governs.*changed files/is)
+      expect(content).toMatch(/instruction.*binding|binding.*instruction/is)
+      expect(content).toMatch(/deduplicate equivalent rules/i)
+    }
+    expect(skill).toMatch(/remote scope.*reviewed head/i)
+    expect(skill).toMatch(/remote scope.*include the criteria content/is)
+    expect(skill).toMatch(/failed or uncertain search.*never as an empty result/i)
+    expect(persona).toMatch(/content is the contract, not the format/i)
+    expect(catalog).toMatch(/designated criteria/i)
+    expect(
+      await readRepoFile("plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md"),
+    ).toMatch(/mapped project criteria/i)
+  })
+
+  test("compact reviewer returns reject schema-like key drift", async () => {
+    const template = await readRepoFile(
+      "plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md",
+    )
+    expect(template).toMatch(/Use exactly those keys/)
+    expect(template).toMatch(/`pre_existing` as a boolean/)
+    expect(template).toMatch(/`notes` is not a field/)
+  })
+
   test("documents stack-specific conditional reviewers for the JSON pipeline", async () => {
     const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
     const catalog = await readRepoFile(

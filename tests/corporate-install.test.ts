@@ -324,6 +324,10 @@ describe("corporate install artifacts", () => {
   })
 
   test("setup health check detects only a complete legacy Codex tool map", async () => {
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    expect(setupSkill).toContain("references/legacy-codex-tool-map.md")
+    expect(setupSkill).toMatch(/optional global\s+instruction cleanup/i)
+    expect(setupSkill).toMatch(/requires approval/i)
     const codexHome = await fs.mkdtemp(path.join(os.tmpdir(), "ce-setup-codex-home-"))
     const agentsPath = path.join(codexHome, "AGENTS.md")
     const healthScript = path.join(pluginRoot, "skills", "ce-setup", "scripts", "check-health")
