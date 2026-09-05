@@ -105,8 +105,9 @@ describe("CLI", () => {
       const combined = [clifSkill, rules, template, cohort, dataQa, sapMode, work].join("\n")
 
       expect(clifSkill).toContain("load the `ce-language-detect` skill")
-      expect(combined).toContain("Never give an agent PHI or RHI")
-      expect(combined).toContain("synthetic or approved demo data")
+      expect(combined).toContain("both the data environment and active model endpoint")
+      expect(combined).toContain("proceed without asking again")
+      expect(combined).not.toContain("Never give an agent PHI or RHI")
       expect(combined).toContain("`01` cohort identification, `02` quality checks, `03` outlier handling, and `04` analysis")
       expect(combined).toContain("output/intermediate_phi/")
       expect(combined).toContain("output/final_no_phi/")

@@ -5,6 +5,7 @@ import path from "path"
 const clifRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-clif")
 const setupRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-setup")
 const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const agentsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "agents")
 
 async function readClif(relativePath: string): Promise<string> {
   return readFile(path.join(clifRoot, relativePath), "utf8")
@@ -71,23 +72,37 @@ describe("CLIF guidance", () => {
     expect(recipes).toContain("Python >=3.9")
   })
 
-  test("enforces the agent-facing PHI hard gate and official output boundary", async () => {
-    const [rules, clifSkill, workSkill, verifyCatalog] = await Promise.all([
+  test("asks once for PHI authorization and preserves the official output boundary", async () => {
+    const [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer, verifyCatalog] = await Promise.all([
       readClif("references/clif-rules.md"),
       readClif("SKILL.md"),
       readSkill("ce-work/SKILL.md"),
+      readSkill("ce-code-review/SKILL.md"),
+      readFile(path.join(agentsRoot, "ce-phi-leak-reviewer.md"), "utf8"),
       readSkill("ce-verify/references/check-catalog.md"),
     ])
-    const combined = [rules, clifSkill, workSkill].join("\n")
+    const combined = [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer].join("\n")
 
     expectContainsAll(combined, [
-      "Never give an agent PHI or RHI",
-      "synthetic or approved demo data",
-      "raw tracebacks",
-      "small-cell counts",
+      "both the data environment and active model endpoint",
+      "ask once",
+      "proceed without asking again",
+      "Are both this data environment and the active model endpoint compliant for PHI/PII?",
+      "request_user_input",
+      "Do not reproduce PHI in responses",
+      "PHI authorization: confirmed",
+      "PHI authorization: not confirmed",
+      "PHI-safe scope preflight",
+      "Never pass patient-level content to any other reviewer",
+      "inherit the active session model with no model override",
+      "declared approved restricted data root",
+      "approved, local, non-synced",
       "output/intermediate_phi/",
       "output/final_no_phi/",
     ])
+    expect(combined).not.toContain("Never give an agent PHI or RHI")
+    expect(combined).not.toContain("when in doubt, flag at 100")
+    expect(codeReviewSkill.indexOf("PHI-safe scope preflight")).toBeLessThan(codeReviewSkill.indexOf("git diff -U10"))
     expect(rules).not.toContain("Mask or hash before printing")
     expect(verifyCatalog).toContain("permit patient-level working data only in gitignored `output/intermediate_phi/`")
   })

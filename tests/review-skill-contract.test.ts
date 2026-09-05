@@ -402,8 +402,14 @@ describe("ce-code-review contract", () => {
     // Skip-check section exists
     expect(content).toContain("**Skip-condition pre-check.**")
 
-    // gh pr view fetches state and file list for trivial judgment
-    expect(content).toMatch(/gh pr view.*--json state,title,body,files/)
+    // PR metadata is captured locally and only state is printed before PHI preflight.
+    expect(content).toMatch(/gh pr view.*--json state,title,files > "\$PR_PREFLIGHT_FILE"/)
+    expect(content).toContain("Never print a raw basename before this decision")
+    expect(content).toContain("PHI-free changed-path metadata only")
+    expect(content).toContain("PHI-free PR metadata")
+    expect(content).toContain("PHI-free diff for every general reviewer")
+    expect(content).toContain("separate minimum-necessary patient-level context")
+    expect(content).not.toMatch(/gh pr view.*--json state,title,body,files/)
 
     // Hard skip rules
     expect(content).toMatch(/state.*CLOSED.*MERGED/)

@@ -1,8 +1,8 @@
 # CLIFpy Recipes
 
-Use these current `clifpy` patterns only with synthetic or approved demo data
-while an agent is in the loop. The researcher runs the same code against real
-CLIF data in their secure environment. Source: `https://clif-icu.com/`, the
+Use these current `clifpy` patterns with synthetic/demo data, or with real CLIF
+data after the user confirms once that both the data environment and active
+model endpoint are approved for PHI/PII. Source: `https://clif-icu.com/`, the
 current `clifpy` user guide, and `Common-Longitudinal-ICU-data-Format/clifpy`.
 Recheck its API before upgrading an existing locked project.
 

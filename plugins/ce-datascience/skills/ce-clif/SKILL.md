@@ -114,11 +114,13 @@ If auto-detection signals are present, activate silently and print the acknowled
 
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
-Before reading data, code output, logs, or tracebacks, apply the PHI hard gate in
-`references/clif-rules.md`: an agent may work only with synthetic or approved
-demo CLIF data. Do not accept real patient data, identifiers, dates, previews,
-free text, images, raw tracebacks, or small-cell counts into chat. Provide code
-for the researcher to run in their secure environment instead.
+Before reading patient-level data, code output, logs, or tracebacks, apply the
+one-time PHI authorization check in `references/clif-rules.md`. If the user has
+already confirmed in the current conversation that both the data environment
+and active model endpoint are approved for PHI/PII, proceed without repeating
+the question or warning that PHI cannot be read. If confirmation is absent or
+ambiguous, ask once and wait. Keep response, repository, logging, and export
+protections in force regardless of authorization.
 
 Then ensure `__CE_LANG__` exists:
 
@@ -189,7 +191,7 @@ For a new consortium project or an audit of an existing template-derived reposit
 
 ## References
 
-@./references/clif-rules.md — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI hard gate, template workflow)
+@./references/clif-rules.md — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow)
 
 @./references/mcide-vocab.md — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3
 

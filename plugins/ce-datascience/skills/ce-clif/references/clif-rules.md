@@ -7,7 +7,7 @@ These rules apply whenever `__CE_CLIF__ active=true` is present in chat context.
 - **Parquet only.** CLIF tables are persisted as `.parquet`. Never `read_csv` / `pd.read_csv` / `write.csv` for CLIF tables. Never emit Feather, ORC, RDS, or pickle for CLIF tables.
 - **Python**: prefer `polars` (`pl.read_parquet`, `pl.scan_parquet` for lazy). Pandas (`pd.read_parquet`) is acceptable for small tables only.
 - **R**: prefer `arrow` + `dplyr` (`arrow::read_parquet`, `arrow::open_dataset` for partitioned datasets), collected via `dplyr::collect()`.
-- Keep patient-level working artifacts only in gitignored `output/intermediate_phi/`; never share, commit, upload, or place them in a review pack. Write shareable figures, tables, and model summaries only to `output/final_no_phi/`.
+- Keep patient-level working artifacts under the declared approved restricted data root. The template path `output/intermediate_phi/` may be used only after verifying that it is approved, local, non-synced storage and gitignored. Never share, commit, upload, or place patient-level artifacts in a review pack. Write shareable figures, tables, and model summaries only to `output/final_no_phi/`.
 
 ## 2. Identifiers
 
@@ -37,7 +37,7 @@ project/
 │   └── config.json        # Site-specific paths, NEVER committed with patient data
 ├── outlier-thresholds/    # Site-specific override thresholds (optional)
 ├── output/
-│   ├── intermediate_phi/  # Gitignored patient-level working data; never shared
+│   ├── intermediate_phi/  # Optional only when approved, local, non-synced, and gitignored
 │   └── final_no_phi/      # Aggregate, shareable results only
 ├── renv/                  # R environment (if R)
 ├── renv.lock              # R lockfile (if R)
@@ -51,7 +51,7 @@ project/
 Rules:
 - New analysis files go under `code/`. Do not create top-level `analysis.py` / `script.R`.
 - Site-specific paths live in `config/config.json` (not hardcoded).
-- `output/final_no_phi/` is the only sanctioned destination for shared results. `output/intermediate_phi/` is local-only and must be gitignored.
+- `output/final_no_phi/` is the only sanctioned destination for shared results. Patient-level intermediates belong under the approved restricted data root; use `output/intermediate_phi/` only when that exact path is approved, local, non-synced, and gitignored.
 
 ## 6. Template workflow (from `CLIF-Project-Template`)
 
@@ -59,7 +59,7 @@ The project template supplies a four-step convention. Treat the filenames and
 templates as adaptable, but preserve the data-sharing boundary:
 
 1. **Cohort identification** (`code/01_cohort_*`)
-   - Apply inclusion/exclusion criteria and write patient-level working tables only to `output/intermediate_phi/`; write any cohort summary to `output/final_no_phi/`.
+   - Apply inclusion/exclusion criteria and write patient-level working tables under the approved restricted data root. Use `output/intermediate_phi/` only when that path passes the storage checks above; write any cohort summary to `output/final_no_phi/`.
 
 2. **Quality checks** (`code/02_*quality*`)
    - Check the cohort's required fields, mCIDE categories, and plausible ranges.
@@ -72,12 +72,13 @@ templates as adaptable, but preserve the data-sharing boundary:
 
 When `ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
 
-## 7. PHI / data privacy hard gate
+## 7. PHI / data privacy authorization
 
-- **Never give an agent PHI or RHI.** Before agent-assisted coding or debugging, require synthetic or approved demo data (for example, the template's `clif_demo` or `synthetic_clif`). The researcher runs real data in their own secure environment.
-- **Refuse to receive or inspect** real `patient_id`/`hospitalization_id` values, dates or timestamps, dataframe previews (`head`, `sample`, `value_counts`), raw tracebacks, free-text notes or organism names, images/DICOM metadata, or small-cell counts. Do not substitute hashing or masking as permission to put these values in chat.
+- Before opening patient-level data or outputs, check the current conversation for the user's prior confirmation that both the data environment and active model endpoint are approved by their organization for PHI/PII. If both were confirmed, proceed with the authorized work and do not ask again or repeat that PHI cannot be read during the current conversation.
+- If that confirmation is absent or ambiguous, ask once: "Are both this data environment and the active model endpoint compliant for PHI/PII?" Use the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, or `ask_user` in Gemini and Pi). In Claude Code, load the deferred tool first with `ToolSearch` and `select:AskUserQuestion` when needed. Offer "Yes, both are compliant" and "No or unsure." If no blocking tool exists or it errors, present those as numbered options in chat and wait. If the answer is no, do not open patient-level content; work from schemas, code, and reviewed aggregates instead.
+- Authorization permits necessary inspection and analysis in the approved environment. Do not reproduce PHI in responses or persist it in Git, logs, screenshots, issues, or unrestricted exports. Report only the minimum necessary non-identifying result.
 - **Never** share, commit, upload, or send patient-level CLIF tables across sites. CLIF is federated: code travels, data does not.
-- Keep patient-level work only in gitignored `output/intermediate_phi/`. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files.
+- Keep patient-level work under the approved restricted data root. Use `output/intermediate_phi/` only when explicitly verified as approved, local, non-synced, and gitignored. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files.
 - When the user asks to commit or share data, refuse and provide code or instructions for a secure local run instead.
 - Treat clinical notes, imaging, raw names, and free-text fields as PHI-suspect. CLIF 3.0's notes and imaging require the same prohibition with heightened caution.
 
