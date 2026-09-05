@@ -81,8 +81,9 @@ message or `docs/solutions/` if they're worth carrying forward.
 When a plan doc is warranted, these sections are present. They carry the
 contracts downstream consumers depend on.
 
-- **Summary** — what the plan proposes, in 1-3 lines. Forward-looking; orients
-  the reader before they invest in detail.
+- **Summary** — the Objective in 1-3 lines: an outcome a reader can hold as the
+  goal and that remains true if implementation changes. Put implementation
+  means in Key Technical Decisions and durable constraints in Requirements.
 - **Problem Frame** — why the work is being done. Backward-looking /
   situational. May merge with Summary for compact plans where the motivation
   is a single sentence.

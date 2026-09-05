@@ -10,6 +10,16 @@ async function skill(name: string): Promise<string> {
 }
 
 describe("current Compound Engineering workflow compatibility", () => {
+  test("September refresh docs report the tracked plugin inventory", async () => {
+    const docs = await Promise.all([
+      readFile(path.join(process.cwd(), "docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md"), "utf8"),
+      readFile(path.join(process.cwd(), "docs/plans/2026-04-27-001-feat-ce-datascience-fork-plan.md"), "utf8"),
+      readFile(path.join(process.cwd(), "docs/plans/2026-04-29-001-feat-competitive-feature-port-plan.md"), "utf8"),
+    ])
+
+    for (const doc of docs) expect(doc).toMatch(/September 2026[\s\S]{0,300}55[- ]agents?.*77[- ]skills?/i)
+  })
+
   test("ce-work supports caller-owned shipping tails", async () => {
     const content = await skill("ce-work")
     expect(content).toContain("mode:return-to-caller")
@@ -91,6 +101,108 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(debug).toContain("#### 1.4 Check tracker and pull-request history for prior work")
     expect(debug).toMatch(/open pull request already contains the fix/i)
     expect(debug).toMatch(/do not offer a duplicate "Fix it now" path/i)
+  })
+
+  test("selected 3.24 safeguards survive the data-science adaptations", async () => {
+    const [work, refresh, commit, optimize, optimizePrompt] = await Promise.all([
+      skill("ce-work"),
+      skill("ce-compound-refresh"),
+      skill("ce-commit"),
+      skill("ce-optimize"),
+      readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-optimize/references/experiment-prompt-template.md"), "utf8"),
+    ])
+
+    expect(work).toMatch(/out-of-repo state.*no git-derived completion signal/i)
+    expect(refresh).toMatch(/independently supported guidance.*potential product regression/i)
+    expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git read-tree HEAD/)
+    expect(commit).toMatch(/real index remains untouched until the commit succeeds/i)
+    expect(commit).toMatch(/copy its existing staged snapshot when present.*otherwise add its working-tree content only to the temporary index/i)
+    expect(commit).toMatch(/for group_path in "file1" "file2" "file3"/)
+    expect(commit).toMatch(/git diff --cached --quiet -- "\$group_path".*GIT_INDEX_FILE="\$group_index" git add -- "\$group_path"/s)
+    expect(commit).toMatch(/test "\$diff_status" -eq 1 \|\| exit "\$diff_status"/)
+    expect(commit).toMatch(/git diff --cached --binary -- "\$group_path" > "\$group_patch".*GIT_INDEX_FILE="\$group_index" git apply --cached --binary "\$group_patch"/s)
+    expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F <message-file>/)
+    expect(commit).toMatch(/stop immediately if any command fails.*final restore only after.*commit succeeds/is)
+    expect(commit).not.toMatch(/git commit -F <message-file> --/)
+    expect(commit).not.toMatch(/git commit -m "\$\(cat/)
+    expect(optimize).toMatch(/Active coding task.*platform subagent primitive/s)
+    expect(optimize).toMatch(/Active coding task:.*Do not launch nested `codex exec`/s)
+    expect(optimize).toMatch(/External terminal only.*codex exec/s)
+    expect(optimize).toMatch(/separate experiment worktree.*parallel worker/i)
+    expect(optimize).toMatch(/experiment-worktree\.sh create/)
+    expect(optimize).toMatch(/codex exec --cd "\$experiment_path" --skip-git-repo-check -/)
+    expect(optimizePrompt).toMatch(/active Codex task.*native subagent/i)
+    expect(optimizePrompt).toMatch(/active Codex task.*do not launch nested Codex/i)
+    expect(optimizePrompt).toMatch(/external terminal.*codex exec/i)
+    expect(optimizePrompt).toMatch(/each parallel experiment.*experiment-worktree\.sh create/i)
+    expect(optimizePrompt).toMatch(/codex exec --cd "\$experiment_path" --skip-git-repo-check -/)
+  })
+
+  test("post-3.24 workflow safeguards remain portable and project-governed", async () => {
+    const [work, plan, planTemplate, synthesis, debug, commitPushPr] = await Promise.all([
+      skill("ce-work"),
+      readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/plan-sections.md"), "utf8"),
+      readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/plan-template.md"), "utf8"),
+      readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/synthesis-summary.md"), "utf8"),
+      skill("ce-debug"),
+      skill("ce-commit-push-pr"),
+    ])
+
+    expect(work).toMatch(/semantic dependencies.*serialize/i)
+    const sapGate = work.indexOf("SAP-section ownership check")
+    const parallelize = work.indexOf("Parallelize the remaining independent units")
+    expect(sapGate).toBeGreaterThanOrEqual(0)
+    expect(parallelize).toBeGreaterThanOrEqual(0)
+    expect(sapGate).toBeLessThan(parallelize)
+    expect(work).toMatch(/intended base commit SHA/i)
+    expect(work).toMatch(/worker verifies.*`HEAD`.*SHA/i)
+    expect(work).toMatch(/depends on uncommitted state.*inline or serially.*commit its prerequisite/is)
+    expect(work).toMatch(/never send it to an isolated stale snapshot/i)
+    expect(plan).toMatch(/Objective.*reader can hold as the.*goal/is)
+    expect(plan).toMatch(/constraints.*requirements/i)
+    expect(planTemplate).toContain("## Summary")
+    expect(planTemplate).toMatch(/implementation-independent outcome/i)
+    expect(planTemplate).not.toContain("## Overview")
+    expect(synthesis).toMatch(/lead with the implementation-independent Objective/i)
+    expect(synthesis).toMatch(/implementation-independent Objective only/i)
+    expect(synthesis).not.toMatch(/lead with the actual implementation shape/i)
+    expect(synthesis).not.toMatch(/approach sentence only when useful/i)
+    expect(synthesis.match(/\[Objective — the implementation-independent outcome\]/g)?.length).toBe(2)
+    expect(synthesis).toMatch(/\[Objective — the implementation-independent outcome\]\s+\[scope claim/s)
+    expect(synthesis).toMatch(/\[Objective — the implementation-independent outcome\]\s+The brainstorm scopes/s)
+    expect(debug).toMatch(/Secrets in evidence/)
+    expect(debug).toMatch(/credentials out of command arguments and user-visible output/i)
+    expect(debug).toContain("<REDACTED>")
+    expect(debug).toMatch(/ask the user to inspect it locally/i)
+    expect(debug).toMatch(/numeric baseline/i)
+    expect(debug).toMatch(/Attribute the bottleneck before optimizing/i)
+    expect(debug).toMatch(/verify the fix by repeating the same measurement/i)
+    expect(commitPushPr).toMatch(/Project publishing gate/)
+    expect(commitPushPr).toMatch(/discover any additional path-scoped instructions governing the committed files/i)
+    expect(commitPushPr).toMatch(/exact final commit state/i)
+    expect(commitPushPr).toMatch(/missing or failing.*keep the local commit.*stop before the external write/is)
+    expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git read-tree HEAD/)
+    expect(commitPushPr).toMatch(/real index remains untouched until success/i)
+    expect(commitPushPr).toMatch(/existing staged snapshot when present.*otherwise add its working-tree content only to the temporary index/i)
+    expect(commitPushPr).toMatch(/for group_path in "file1" "file2" "file3"/)
+    expect(commitPushPr).toMatch(/git diff --cached --quiet -- "\$group_path".*GIT_INDEX_FILE="\$group_index" git add -- "\$group_path"/s)
+    expect(commitPushPr).toMatch(/test "\$diff_status" -eq 1 \|\| exit "\$diff_status"/)
+    expect(commitPushPr).toMatch(/git diff --cached --binary -- "\$group_path" > "\$group_patch".*GIT_INDEX_FILE="\$group_index" git apply --cached --binary "\$group_patch"/s)
+    expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F <message-file>/)
+    expect(commitPushPr).toMatch(/stop immediately if any command fails.*final restore only after.*commit succeeds/is)
+    expect(commitPushPr).not.toMatch(/git commit -F <message-file> --/)
+    expect(commitPushPr).not.toMatch(/git commit -m "\$\(cat/)
+  })
+
+  test("plan visuals keep behavioral comparison tables out of Summary", async () => {
+    const [plan, visual] = await Promise.all([
+      skill("ce-plan"),
+      readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/visual-communication.md"), "utf8"),
+    ])
+
+    expect(plan).not.toMatch(/behavioral modes\/variants in Summary or Problem Frame/i)
+    expect(visual).toMatch(/Problem Frame involving 3\+ behavioral modes/i)
+    expect(visual).toMatch(/never within the objective-only Summary/i)
   })
 
   test("ce-debug requires a red-capable loop while retaining diagnosis-only", async () => {

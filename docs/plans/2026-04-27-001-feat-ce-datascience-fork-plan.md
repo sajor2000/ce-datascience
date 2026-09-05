@@ -33,6 +33,10 @@ Upstream CE feature ports now reflected in the product:
 - Shared workflow fixes: selected improvements to `ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, and `ce-compound`.
 - Public support surface: `ce-release-notes` and `ce-report-bug`.
 
+## Status Update - September 2026
+
+This historical plan now leads to a 55-agent, 77-skill, 35-checklist plugin with 0 bundled MCP servers. The latest selective refresh adopts compatible Compound Engineering 3.24 and post-3.24 workflow safeguards without replacing the fork's PHI, SAP, real-data, or portability contracts.
+
 Older implementation bullets below that mention deleting those support skills, using `*.agent.md` as the source convention, or targeting 37/40 skills should be read as superseded by this status update.
 
 ---

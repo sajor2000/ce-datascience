@@ -31,6 +31,10 @@ Accepted upstream feature adaptations:
 - `/ce-sessions` now uses upstream cross-platform session discovery for Claude Code, Codex, and Cursor with repo-root pre-resolution and extraction helpers.
 - Shared git/review/documentation workflows (`ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, `ce-compound`) now include selected upstream workflow fixes where they improve professional plugin behavior.
 
+## Status Update - September 2026
+
+The May snapshot above is historical. The current inventory is 55 agents, 77 skills, 35 reporting checklists, and 0 bundled MCP servers. The selective refresh now includes compatible Compound Engineering 3.24 and post-3.24 safeguards while retaining PHI, SAP, real-data provenance, and cross-platform controls; upstream-only product workflows remain deferred.
+
 ---
 
 ## Actors

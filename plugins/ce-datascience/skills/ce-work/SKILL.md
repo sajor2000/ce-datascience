@@ -165,14 +165,14 @@ Determine how to proceed based on what was provided in `<input_document>` after 
 
    1. Build a file-to-unit mapping from every candidate unit's `Files:` section (Create, Modify, and Test paths)
    2. Check for intersection — any file path appearing in 2+ units means overlap
-   3. **If overlap is found AND worktree isolation is unavailable**: downgrade to serial subagents. Log the reason (e.g., "Units 2 and 4 share `config/routes.rb` — using serial dispatch"). Serial subagents still provide context-window isolation without shared-directory write races.
-   4. **If overlap is found AND worktree isolation is available**: parallel dispatch is still safe — subagents work in isolation, and the overlap surfaces as a predictable merge conflict the orchestrator handles via the post-batch flow below. Log the predicted overlap so the post-batch flow knows which merges to expect conflicts on.
-   5. **SAP-section ownership check** (only when a SAP file was discovered in step 1): build a SAP-section-to-unit mapping by reading each unit's `Approach:` and `Files:` for SAP-N.M references. Each SAP section MUST be owned by exactly one unit per batch. If two parallel units both touch the same SAP section (e.g., Unit 2 and Unit 4 both implement SAP-5.1), downgrade to serial subagents and log the reason. Concurrent edits to the same SAP section produce duplicate analyses or contradictory implementations that `ce-sap-drift-detector` will flag. The downgrade keeps the SAP-to-code mapping deterministic.
+   3. Check semantic dependencies beyond paths, including shared contracts, generated artifacts, lockfiles, and runtime resources. Serialize contending units; isolation prevents write races, not contract conflicts.
+   4. **SAP-section ownership check** (only when a SAP file was discovered in step 1): build a SAP-section-to-unit mapping by reading each unit's `Approach:` and `Files:` for SAP-N.M references. Each SAP section MUST be owned by exactly one unit per batch. If two parallel units both touch the same SAP section (e.g., Unit 2 and Unit 4 both implement SAP-5.1), downgrade to serial subagents and log the reason. Concurrent edits to the same SAP section produce duplicate analyses or contradictory implementations that `ce-sap-drift-detector` will flag. The downgrade keeps the SAP-to-code mapping deterministic.
+   5. Parallelize the remaining independent units and log any safe file overlap.
 
    Even with no file overlap, parallel subagents sharing the orchestrator's working directory face git index contention (concurrent staging/committing corrupts the index) and test interference (concurrent test runs pick up each other's in-progress changes). Worktree isolation eliminates both; the shared-directory fallback constraints below mitigate them.
 
    **Subagent isolation** — give each parallel subagent its own working tree:
-   - **Claude Code (`Agent` tool):** pass `isolation: "worktree"` and `run_in_background: true`. The harness creates a per-subagent worktree under `.claude/worktrees/agent-<id>` on its own branch. Verify `.claude/worktrees/` is gitignored before relying on this.
+   - **Claude Code (`Agent` tool):** pass `isolation: "worktree"` and `run_in_background: true`. The harness creates a per-subagent worktree under `.claude/worktrees/agent-<id>` on its own branch. Verify `.claude/worktrees/` is gitignored before relying on this. Dispatch with the intended base commit SHA; before editing, the worker verifies its `HEAD` equals that SHA and stops on mismatch. Run a unit that depends on uncommitted state inline or serially in the shared checkout, or commit its prerequisite first and dispatch from that verified commit; never send it to an isolated stale snapshot.
    - **Other platforms** without built-in worktree isolation (e.g., Codex `spawn_agent`, Pi `subagent`): subagents share the orchestrator's directory.
 
    **Subagent dispatch** uses your available subagent or task spawning mechanism. For each unit, give the subagent:
@@ -225,7 +225,8 @@ Determine how to proceed based on what was provided in `<input_document>` after 
    while (tasks remain):
      - Mark task as in-progress
      - Read any referenced files from the plan or discovered during Phase 0
-     - **If the unit's work is already present and matches the plan's intent** (files exist with the expected capability, or the unit's `Verification` criteria are already satisfied by the current code), the work has likely shipped on a prior branch or session. Verify it matches, mark the task complete, and move on. Do not silently reimplement.
+     - **If any part of the unit depends on out-of-repo state** (a console setting, DNS record, CMS object, or live-system row), it has no git-derived completion signal. Decide completion from the observed deliverable state, not from a clean tree or tracker update.
+     - **If the unit is entirely repository-derived and its work is already present and matches the plan's intent** (files exist with the expected capability, or the unit's `Verification` criteria are already satisfied by the current code), the work has likely shipped on a prior branch or session. Verify it matches, mark the task complete, and move on. Do not silently reimplement.
      - Look for similar patterns in codebase
      - Find existing test files for implementation files being changed (Test Discovery — see below)
      - Implement following existing conventions

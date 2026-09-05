@@ -224,10 +224,10 @@ The current plugin selectively ports useful features from the original compound-
 
 | Upstream area | ce-datascience behavior |
 |---------------|-------------------------|
-| Planning and brainstorming | `/ce-plan` keeps SAP mode and implementation-plan mode while adding output-mode handling, HTML/Markdown rendering references, format-preserving resume, external-research routing, stronger synthesis, and conceptual-diagram affordances. `/ce-brainstorm` keeps PICO/PECO and study-design framing while adding grouped requirements, visual communication behavior, and output-mode handling. |
+| Planning and brainstorming | `/ce-plan` keeps SAP mode and implementation-plan mode while adding output-mode handling, HTML/Markdown rendering references, format-preserving resume, outcome-first summaries, external-research routing, stronger synthesis, and conceptual-diagram affordances. `/ce-brainstorm` keeps PICO/PECO and study-design framing while adding grouped requirements, visual communication behavior, and output-mode handling. |
 | PR feedback resolution | `ce-resolve-pr-feedback` carries GraphQL pagination and split-reference handling, then frames replies around statistical methodology, SAP drift, reproducibility, reporting checklists, and clinical/health data review threads. |
 | Sessions | `/ce-sessions` searches Claude Code, Codex, and Cursor histories with repo-root pre-resolution, session discovery, skeleton extraction, metadata extraction, and error extraction helpers. |
-| Git and review workflow | `ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, and `ce-compound` include shared workflow fixes where they improve review quality, PR descriptions, and documented learnings without weakening data science scope. |
+| Git and review workflow | `ce-code-review` applies scoped `CODING_STANDARDS.md` alongside binding repo instructions; `ce-commit` and `ce-commit-push-pr` use shell-safe commits and honor project publishing gates. Review, PR, and compounding fixes remain data-science aware. |
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included so users can answer version-specific questions and file structured bug reports from the public plugin surface. |
 | Target compatibility | Agent sources use current `ce-*.md` filenames; legacy `*.agent.md` parsing remains supported. Codex installs respect `CODEX_HOME`, support native-plugin agent bridge and standalone modes, and preserve manual/other-plugin hooks during managed hook writes. |
 

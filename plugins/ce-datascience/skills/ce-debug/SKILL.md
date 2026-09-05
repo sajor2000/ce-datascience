@@ -1,6 +1,6 @@
 ---
 name: ce-debug
-description: "Systematically reproduce, trace, and fix bugs by establishing the causal chain before changing code."
+description: "Systematically reproduce, trace, and fix broken or slow behavior by establishing the causal chain before changing code."
 argument-hint: "[issue reference, error message, test path, or description of broken behavior]"
 ---
 
@@ -28,6 +28,12 @@ These principles govern every phase. They are repeated at decision points becaus
 2. **Predictions for uncertain links.** When the causal chain has uncertain or non-obvious links, form a prediction — something in a different code path or scenario that must also be true. If the prediction is wrong but a fix "works," you found a symptom, not the cause. When the chain is obvious (missing import, clear null reference), the chain explanation itself is sufficient.
 3. **One change at a time.** Test one hypothesis, change one thing. If you're changing multiple things to "see if it helps," stop — that is shotgun debugging.
 4. **When stuck, diagnose why — don't just try harder.**
+
+## Secrets in evidence
+
+Keep credentials out of command arguments and user-visible output. Sanitize diagnostic excerpts, replacing secrets with `<REDACTED>`; if redaction hides necessary evidence, ask the user to inspect it locally.
+
+For a performance symptom, the reproduction check is a numeric baseline from a timing harness, profiler, or query plan. Attribute the bottleneck before optimizing and verify the fix by repeating the same measurement.
 
 ## Execution Flow
 

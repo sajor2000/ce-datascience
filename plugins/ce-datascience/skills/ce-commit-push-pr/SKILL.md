@@ -148,15 +148,30 @@ If the PR check returned `state: OPEN`, note the URL -- this is the existing-PR 
 
 1. If on the default branch, branch creation needs to handle three conditional cases: stale local `<base>`, unpushed commits on local `<base>` (intent unclear without asking), and uncommitted changes that collide with the fresh remote base. Read `references/branch-creation.md` and follow its decision flow, then continue to step 2 below.
 2. Scan changed files for naturally distinct concerns. If files clearly group into separate logical changes, create separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, one commit is fine.
-3. Stage and commit each group in a single call. Avoid `git add -A` or `git add .`. Follow conventions from Step 2:
+3. Commit each named group through a temporary index so the user's real index remains untouched until success. Copy a named file's existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Avoid `git add -A`, `git add .`, shell interpolation, and pathspec commits:
    ```bash
-   git add file1 file2 file3 && git commit -m "$(cat <<'EOF'
-   commit message here
-   EOF
-   )"
+   group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
+   group_index="$group_index_dir/index"
+   GIT_INDEX_FILE="$group_index" git read-tree HEAD || exit $?
+   for group_path in "file1" "file2" "file3"; do
+     if git diff --cached --quiet -- "$group_path"; then
+       GIT_INDEX_FILE="$group_index" git add -- "$group_path" || exit $?
+     else
+       diff_status=$?
+       test "$diff_status" -eq 1 || exit "$diff_status"
+       group_patch="$group_index_dir/staged.patch"
+       git diff --cached --binary -- "$group_path" > "$group_patch" || exit $?
+       GIT_INDEX_FILE="$group_index" git apply --cached --binary "$group_patch" || exit $?
+     fi
+   done
+   GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
+   git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
    ```
+   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. This excludes unrelated entries in the user's real index and preserves later working-tree edits.
 
 ### Step 5: Push
+
+Before pushing, discover any additional path-scoped instructions governing the committed files, then satisfy every applicable pre-push or review-ready requirement from those and the project's active instructions for the exact final commit state. If required evidence is missing or failing, keep the local commit, stop before the external write, and report it. This is the **Project publishing gate**. Then push the live `HEAD`.
 
 ```bash
 git push -u origin HEAD

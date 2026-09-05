@@ -9,7 +9,7 @@ The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's 
 | `ce-correctness-reviewer` | Logic errors, edge cases, state bugs, error propagation, intent compliance |
 | `ce-testing-reviewer` | Coverage gaps, weak assertions, brittle tests, missing edge case tests |
 | `ce-maintainability-reviewer` | Coupling, complexity, naming, dead code, premature abstraction |
-| `ce-project-standards-reviewer` | AGENTS.md compliance — frontmatter, references, naming, portability |
+| `ce-project-standards-reviewer` | Compliance with the project's designated criteria, cited rule by rule |
 | `ce-learnings-researcher` | Search docs/solutions/ for past issues related to this PR (unstructured output) |
 
 ## Conditional — spawn when the diff hits the trigger

@@ -323,6 +323,36 @@ describe("corporate install artifacts", () => {
     expect(normalizedSetupSkill).toContain("optional tools are reported as yellow but do not require Phase 3")
   })
 
+  test("setup health check detects only a complete legacy Codex tool map", async () => {
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    expect(setupSkill).toContain("references/legacy-codex-tool-map.md")
+    expect(setupSkill).toMatch(/optional global\s+instruction cleanup/i)
+    expect(setupSkill).toMatch(/requires approval/i)
+    const codexHome = await fs.mkdtemp(path.join(os.tmpdir(), "ce-setup-codex-home-"))
+    const agentsPath = path.join(codexHome, "AGENTS.md")
+    const healthScript = path.join(pluginRoot, "skills", "ce-setup", "scripts", "check-health")
+
+    await fs.writeFile(agentsPath, "<!-- BEGIN COMPOUND CODEX TOOL MAP -->\nlegacy\n<!-- END COMPOUND CODEX TOOL MAP -->\n")
+    const detected = Bun.spawn(["bash", healthScript], {
+      cwd: repoRoot,
+      env: { ...process.env, CODEX_HOME: codexHome },
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+    expect(await detected.exited).toBe(0)
+    expect(await new Response(detected.stdout).text()).toContain("Legacy Compound Codex tool map")
+
+    await fs.writeFile(agentsPath, "<!-- BEGIN COMPOUND CODEX TOOL MAP -->\nlegacy\n")
+    const incomplete = Bun.spawn(["bash", healthScript], {
+      cwd: repoRoot,
+      env: { ...process.env, CODEX_HOME: codexHome },
+      stdout: "pipe",
+      stderr: "pipe",
+    })
+    expect(await incomplete.exited).toBe(0)
+    expect(await new Response(incomplete.stdout).text()).not.toContain("Legacy Compound Codex tool map")
+  })
+
   test("setup uses a concise evidence-first profile before optional detail", async () => {
     const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
     const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")

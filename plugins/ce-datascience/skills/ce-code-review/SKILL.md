@@ -426,12 +426,11 @@ This is progress reporting, not a blocking confirmation.
 
 ### Stage 3b: Discover project standards paths
 
-Before spawning sub-agents, find the file paths (not contents) of all relevant standards files for the `project-standards` persona. Use the native file-search/glob tool to locate:
+Before spawning sub-agents, map each relevant criteria file to the changed files it governs. Search the tree under review for `CODING_STANDARDS.md`, `AGENTS.md`, and `CLAUDE.md`, then keep files whose directory is an ancestor of a changed path.
 
-1. Use the native file-search tool (e.g., Glob in Claude Code) to find all `**/CLAUDE.md` and `**/AGENTS.md` in the repo.
-2. Filter to those whose directory is an ancestor of at least one changed file. A standards file governs all files below it (e.g., `plugins/ce-datascience/AGENTS.md` applies to everything under `plugins/ce-datascience/`).
+Apply path-scoped `AGENTS.md` and `CLAUDE.md` instructions wherever they govern; they remain binding repository guidance. Add any governing `CODING_STANDARDS.md` as designated code criteria and deduplicate equivalent rules during synthesis. In remote scope, enumerate and read criteria from the reviewed head rather than the current checkout. Treat a failed or uncertain search as uncertainty, never as an empty result.
 
-Pass the resulting path list to the `project-standards` persona inside a `<standards-paths>` block in its review context (see Stage 4). The persona reads the files itself, targeting only the sections relevant to the changed file types. This keeps the orchestrator's work cheap (path discovery only) and avoids bloating the subagent prompt with content the reviewer may not fully need.
+Pass the resulting criteria-to-changed-files mapping to the `project-standards` persona inside a `<standards-paths>` block (see Stage 4). In local scope, the persona reads the mapped paths. In remote scope, include the criteria content read from the reviewed head because local paths may name a different revision.
 
 ### Stage 3c: Apply the fail-closed lite-roster gate
 
@@ -474,7 +473,7 @@ Spawn each selected persona reviewer as a parallel sub-agent using the subagent 
 4. PR metadata: title, body, and URL when reviewing a PR (empty string otherwise). Passed in a `<pr-context>` block so reviewers can verify code against stated intent
 5. Review context: intent summary, file list, diff
 6. Run ID and reviewer name for the artifact file path
-7. **For `project-standards` only:** the standards file path list from Stage 3b, wrapped in a `<standards-paths>` block appended to the review context
+7. **For `project-standards` only:** the criteria mapping from Stage 3b, pairing each standards file with the changed files it governs, wrapped in a `<standards-paths>` block appended to the review context
 
 Persona sub-agents are **read-only** with respect to the project: they review and return structured JSON. They do not edit project files or propose refactors. The one permitted write is saving their full analysis to the run-artifact path specified in the output contract (under `/tmp/ce-datascience/ce-code-review/<run-id>/`).
 

@@ -435,7 +435,7 @@ Read `references/plan-sections.md` for the format-independent section contract a
 
 The templates contain:
 
-- The Core Plan Template (frontmatter, Overview, Problem Frame, Requirements Trace, Scope, Context & Research, Decisions, Open Questions, optional Output Structure, optional High-Level Technical Design, Implementation Units, System-Wide Impact, Risks & Dependencies, Documentation Notes, Sources & References).
+- The Core Plan Template (frontmatter, Summary, Problem Frame, Requirements Trace, Scope, Context & Research, Decisions, Open Questions, optional Output Structure, optional High-Level Technical Design, Implementation Units, System-Wide Impact, Risks & Dependencies, Documentation Notes, Sources & References).
 - Optional Deep-Plan Extensions (Alternative Approaches Considered, Success Metrics, Dependencies / Prerequisites, Risk Analysis & Mitigation, Phased Delivery, Documentation Plan, Operational / Rollout Notes).
 
 Omit clearly inapplicable optional sections, especially for Lightweight plans.
@@ -454,7 +454,7 @@ Omit clearly inapplicable optional sections, especially for Lightweight plans.
 
 #### 4.4 Visual Communication in Plan Documents
 
-When the plan contains 4+ implementation units with non-linear dependencies, 3+ interacting surfaces in System-Wide Impact, 3+ behavioral modes/variants in Overview or Problem Frame, or 3+ interacting decisions in Key Technical Decisions or alternatives in Alternative Approaches, read `references/visual-communication.md` for diagram and table guidance. This covers plan-structure visuals (dependency graphs, interaction diagrams, comparison tables) — not solution-design diagrams, which are covered in Section 3.4.
+When the plan contains 4+ implementation units with non-linear dependencies, 3+ interacting surfaces in System-Wide Impact, 3+ behavioral modes/variants in Problem Frame, or 3+ interacting decisions in Key Technical Decisions or alternatives in Alternative Approaches, read `references/visual-communication.md` for diagram and table guidance. This covers plan-structure visuals (dependency graphs, interaction diagrams, comparison tables) — not solution-design diagrams, which are covered in Section 3.4.
 
 ### Phase 5: Final Review, Write File, and Handoff
 

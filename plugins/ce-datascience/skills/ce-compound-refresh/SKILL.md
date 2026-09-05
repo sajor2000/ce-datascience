@@ -81,7 +81,7 @@ For each candidate artifact, classify it into one of five outcomes:
 
 1. **Evidence informs judgment.** The signals below are inputs, not a mechanical scorecard. Use engineering judgment to decide whether the artifact is still trustworthy.
 2. **Prefer no-write Keep.** Do not update a doc just to leave a review breadcrumb.
-3. **Match docs to reality, not the reverse.** When current code differs from a learning, update the learning to reflect the current code. The skill's job is doc accuracy, not code review — do not ask the user whether code changes were "intentional" or "a regression." If the code changed, the doc should match. If the user thinks the code is wrong, that is a separate concern outside this workflow.
+3. **Separate descriptive drift from implementation conflict.** Claims about current mechanics follow current code. Independently supported guidance does not become false when implementation stops satisfying it: keep the guidance intact and report the conflict as a potential product regression. Without independent support, use the normal Update, Replace, or stale rules below. This skill reports product-code conflicts but does not fix them.
 4. **Be decisive, minimize questions.** When evidence is clear (file renamed, class moved, reference broken), apply the update. In interactive mode, only ask the user when the right action is genuinely ambiguous. In autofix mode, mark ambiguous cases as stale instead of asking. The goal is automated maintenance with human oversight on judgment calls, not a question for every finding.
 5. **Avoid low-value churn.** Do not edit a doc just to fix a typo, polish wording, or make cosmetic changes that do not materially improve accuracy or usability.
 6. **Use Update only for meaningful, evidence-backed drift.** Paths, module names, related links, category metadata, code snippets, and clearly stale wording are fair game when fixing them materially improves accuracy.
@@ -182,7 +182,7 @@ Match investigation depth to the learning's specificity — a learning referenci
 The critical distinction is whether the drift is **cosmetic** (references moved but the solution is the same) or **substantive** (the solution itself changed):
 
 - **Update territory** — file paths moved, classes renamed, links broke, metadata drifted, but the core recommended approach is still how the code works. `ce-compound-refresh` fixes these directly.
-- **Replace territory** — the recommended solution conflicts with current code, the architectural approach changed, or the pattern is no longer the preferred way. This means a new learning needs to be written. A replacement subagent writes the successor following `ce-compound`'s document format (frontmatter, problem, root cause, solution, prevention), using the investigation evidence already gathered. The orchestrator does not rewrite learnings inline — it delegates to a subagent for context isolation.
+- **Replace territory** — evidence shows the recommendation no longer governs, the architectural approach changed, or the pattern is no longer preferred. Current-code contradiction alone is not enough when independent evidence still supports the guidance. A replacement subagent writes the successor following `ce-compound`'s document format (frontmatter, problem, root cause, solution, prevention), using the investigation evidence already gathered. The orchestrator does not rewrite learnings inline — it delegates to a subagent for context isolation.
 
 **The boundary:** if you find yourself rewriting the solution section or changing what the learning recommends, stop — that is Replace, not Update.
 
@@ -197,7 +197,7 @@ In autofix mode, memory-only drift (no codebase corroboration) should result in 
 
 Three guidelines that are easy to get wrong:
 
-1. **Contradiction = strong Replace signal.** If the learning's recommendation conflicts with current code patterns or a recently verified fix, that is not a minor drift — the learning is actively misleading. Classify as Replace.
+1. **Classify contradictions by evidence.** A conflict with current mechanics changes descriptive claims. A conflict with independently supported guidance is a potential product regression, not an automatic Replace. Replace only when evidence shows the recommendation itself no longer governs.
 2. **Age alone is not a stale signal.** A 2-year-old learning that still matches current code is fine. Only use age as a prompt to inspect more carefully.
 3. **Check for successors before deleting.** Before recommending Replace or Delete, look for newer learnings, pattern docs, PRs, or issues covering the same problem space. If successor evidence exists, prefer Replace over Delete so readers are directed to the newer guidance.
 4. **Check inbound citations before deleting.** Search by filename slug, read the context of each match, and classify it as decorative or substantive. Clean decorative citations in the same change; reclassify substantive dependencies as Replace or narrowed Keep. Re-run this check immediately before removal so a late-discovered citation cannot be orphaned.
