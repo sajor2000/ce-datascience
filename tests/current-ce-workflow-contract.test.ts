@@ -93,6 +93,19 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(debug).toMatch(/do not offer a duplicate "Fix it now" path/i)
   })
 
+  test("selected 3.24 safeguards survive the data-science adaptations", async () => {
+    const [work, refresh, commit] = await Promise.all([
+      skill("ce-work"),
+      skill("ce-compound-refresh"),
+      skill("ce-commit"),
+    ])
+
+    expect(work).toMatch(/out-of-repo state.*no git-derived completion signal/i)
+    expect(refresh).toMatch(/independently supported guidance.*potential product regression/i)
+    expect(commit).toMatch(/git commit -F <message-file> -- file1 file2 file3/)
+    expect(commit).not.toMatch(/git commit -m "\$\(cat/)
+  })
+
   test("ce-debug requires a red-capable loop while retaining diagnosis-only", async () => {
     const debug = await skill("ce-debug")
     expect(debug).toContain("#### 1.0 Build a tight reproduction loop")

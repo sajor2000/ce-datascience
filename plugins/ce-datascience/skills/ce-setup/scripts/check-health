@@ -48,6 +48,21 @@ section() { echo ""; echo " $1"; }
 has_brew=$(command -v brew >/dev/null 2>&1 && echo "yes" || echo "no")
 in_repo=$(git rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo "yes" || echo "no")
 
+has_legacy_codex_tool_map() {
+  awk '
+    { sub(/\r$/, "") }
+    $0 == "<!-- BEGIN COMPOUND CODEX TOOL MAP -->" { seen = 1 }
+    seen && $0 == "<!-- END COMPOUND CODEX TOOL MAP -->" { found = 1; exit }
+    END { exit found ? 0 : 1 }
+  ' "$1"
+}
+
+codex_agents_file="${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
+legacy_codex_tool_map="no"
+if [ -f "$codex_agents_file" ] && has_legacy_codex_tool_map "$codex_agents_file"; then
+  legacy_codex_tool_map="yes"
+fi
+
 # =====================================================
 #  Check tools
 # =====================================================
@@ -128,6 +143,15 @@ for result in "${results[@]}"; do
     fi
   fi
 done
+
+# --- Codex instructions ---
+
+if [ "$legacy_codex_tool_map" = "yes" ]; then
+  section "Codex instructions"
+  warn "Legacy Compound Codex tool map in ${codex_agents_file}"
+  detail "Retired pre-native-install block; remove it only after reviewing references/legacy-codex-tool-map.md."
+  issues=$((issues + 1))
+fi
 
 # --- Project ---
 

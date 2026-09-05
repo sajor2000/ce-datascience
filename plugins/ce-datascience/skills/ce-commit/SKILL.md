@@ -98,17 +98,14 @@ Write the commit message:
 - **Subject line**: Concise, imperative mood, focused on *why* not *what*. Follow the convention determined in Step 2.
 - **Body** (when needed): Add a body separated by a blank line for non-trivial changes. Explain motivation, trade-offs, or anything a future reader would need. Omit the body for obvious single-purpose changes.
 
-For each commit group, stage and commit in a single call. Prefer staging specific files by name over `git add -A` or `git add .` to avoid accidentally including sensitive files (.env, credentials) or unrelated changes. Use a heredoc to preserve formatting:
+For each commit group, stage named files only. Never use `git add -A` or `git add .`. Write the complete message to a file outside the repository, then stage and commit in separate calls:
 
 ```bash
-git add file1 file2 file3 && git commit -m "$(cat <<'EOF'
-type(scope): subject line here
-
-Optional body explaining why this change was made,
-not just what changed.
-EOF
-)"
+git add file1 file2 file3
+git commit -F <message-file> -- file1 file2 file3
 ```
+
+Using `-F` passes `$`, quotes, backticks, and multi-line bodies literally across shells. The trailing path list is required: it commits only the named group and leaves unrelated staged files untouched.
 
 ### Step 5: Confirm
 

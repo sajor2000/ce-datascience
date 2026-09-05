@@ -225,7 +225,8 @@ Determine how to proceed based on what was provided in `<input_document>` after 
    while (tasks remain):
      - Mark task as in-progress
      - Read any referenced files from the plan or discovered during Phase 0
-     - **If the unit's work is already present and matches the plan's intent** (files exist with the expected capability, or the unit's `Verification` criteria are already satisfied by the current code), the work has likely shipped on a prior branch or session. Verify it matches, mark the task complete, and move on. Do not silently reimplement.
+     - **If any part of the unit depends on out-of-repo state** (a console setting, DNS record, CMS object, or live-system row), it has no git-derived completion signal. Decide completion from the observed deliverable state, not from a clean tree or tracker update.
+     - **If the unit is entirely repository-derived and its work is already present and matches the plan's intent** (files exist with the expected capability, or the unit's `Verification` criteria are already satisfied by the current code), the work has likely shipped on a prior branch or session. Verify it matches, mark the task complete, and move on. Do not silently reimplement.
      - Look for similar patterns in codebase
      - Find existing test files for implementation files being changed (Test Discovery — see below)
      - Implement following existing conventions

@@ -204,6 +204,10 @@ Treat optional tools as yellow: optional tools are reported as yellow but do
 not require Phase 3 unless the chosen workflow needs them. Quarto is optional
 unless the confirmed reporting output requires it.
 
+If the report names a legacy Compound Codex tool map, offer its removal. Read
+`references/legacy-codex-tool-map.md` first; this is an optional global
+instruction cleanup, not a project-profile change, and requires approval.
+
 ## Phase 3: Missing dependencies
 
 In locked-down/no-install mode, report missing tools and approved workarounds,
