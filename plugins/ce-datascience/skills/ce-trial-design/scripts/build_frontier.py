@@ -531,8 +531,8 @@ def write_handoff(
             else:
                 lines.append(
                     f"| {row['scenario_id']} | {row['candidate_id']} | {int(row['analyses'])} | "
-                    f"{row['achieved_power']:.6g} | {row['power_lower_bound']:.6g} | "
-                    f"{row['type1_error']:.6g} | {row['type1_error_upper_bound']:.6g} | "
+                    f"{row['achieved_power']:.6g} | {row['power_lower_bound']} | "
+                    f"{row['type1_error']:.6g} | {row['type1_error_upper_bound']} | "
                     f"{row['max_information']:.6g} | {row['expected_information_null']:.6g} | "
                     f"{row['expected_information_alt']:.6g} |"
                 )

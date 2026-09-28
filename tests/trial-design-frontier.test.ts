@@ -394,7 +394,7 @@ describe("trial-design frontier builder", () => {
     }
     simulated.review = { statistician: "Named statistician", status: "pending" }
     simulated.unresolved = ["Confirm recruitment feasibility"]
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.9,0.0251`
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.90000006,0.02500004`
     const { proc, outputDir } = await runFrontier(root, simulated, results, {
       warnings: [{ code: "APPROXIMATION", message: "Normal approximation used" }],
     })
@@ -408,7 +408,9 @@ describe("trial-design frontier builder", () => {
     expect(handoff).toContain(
       "| Scenario | Candidate | Analyses | Power | Power lower bound | Type I error | Type I error upper bound | Max information | Expected information H0 | Expected information H1 |",
     )
-    expect(handoff).toContain("| base | base-a | 3 | 0.91 | 0.9 | 0.0249 | 0.0251 | 500 | 420 | 350 |")
+    expect(handoff).toContain(
+      "| base | base-a | 3 | 0.91 | 0.90000006 | 0.0249 | 0.02500004 | 500 | 420 | 350 |",
+    )
   })
 
   test("uses conservative uncertainty bounds for simulated feasibility", async () => {
