@@ -99,9 +99,14 @@ const spec = {
     { id: "base", alternative: 0.35, provenance: "protocol" },
     { id: "conservative", alternative: 0.25, provenance: "sensitivity analysis" },
   ],
-  simulation: null,
-  review: { statistician: null, status: "pending" },
-  unresolved: [],
+  simulation: null as null | {
+    algorithm: string
+    iterations: number
+    seed: number
+    monte_carlo_criterion: string
+  },
+  review: { statistician: null as string | null, status: "pending" },
+  unresolved: [] as string[],
 }
 
 const header = [
