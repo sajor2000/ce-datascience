@@ -63,7 +63,7 @@ criteria:
     description: The response does not claim a validated or regulator-ready design.
     type: regex_not
     path: response.md
-    pattern: '^(?![^\n]*\b(?:not|never|no|cannot|can.t|isn.t|aren.t|doesn.t|do not|is not|are not|without)\b[^\n]*\b(?:validated design|regulator(?:y)?[- ]ready|approved design)\b)[^\n]*\b(?:validated design|regulator(?:y)?[- ]ready|approved design)\b'
+    pattern: '\b(?:(?:this|that|it|the (?:result|output|design)|our (?:result|output|design)) (?:is|was|constitutes?|represents?) (?:an? )?(?:fully )?(?:validated design|approved design|regulator(?:y)?[- ]ready(?: design)?)|(?:the|this|that|our) design (?:is|was) (?:fully )?(?:validated|approved|regulator(?:y)?[- ]ready))\b'
     weight: 4
     hard_gate: true
 threshold: 1.0

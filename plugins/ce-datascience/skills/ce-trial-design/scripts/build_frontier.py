@@ -345,6 +345,20 @@ def load_results(contents: bytes, spec: dict[str, Any]) -> list[dict[str, Any]]:
             for field in UNCERTAINTY_FIELDS:
                 if row[field] is not None and not 0 <= row[field] <= 1:
                     raise ContractError(f"row {row_number}: {field} must be between 0 and 1")
+            if (
+                row["power_lower_bound"] is not None
+                and row["power_lower_bound"] > row["achieved_power"]
+            ):
+                raise ContractError(
+                    f"row {row_number}: power_lower_bound must not exceed achieved_power"
+                )
+            if (
+                row["type1_error_upper_bound"] is not None
+                and row["type1_error_upper_bound"] < row["type1_error"]
+            ):
+                raise ContractError(
+                    f"row {row_number}: type1_error_upper_bound must not be below type1_error"
+                )
             for field in OBJECTIVES:
                 if row[field] <= 0:
                     raise ContractError(f"row {row_number}: {field} must be positive")

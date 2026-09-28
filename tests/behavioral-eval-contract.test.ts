@@ -677,6 +677,61 @@ describe("behavioral evaluation contract", () => {
     )
   })
 
+  test("trial-design validation claim gate distinguishes disclaimers from affirmative claims", async () => {
+    const repoRoot = process.cwd()
+    const casePath = path.join(
+      repoRoot,
+      "evals",
+      "ce-datascience",
+      "cases",
+      "ce-trial-design-unsupported-platform",
+      "case.yaml",
+    )
+    const definition = await loadAndValidateCase(repoRoot, casePath)
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-trial-design-claim-run-"))
+    tempRoots.push(runDir)
+    await writeFile(
+      path.join(runDir, "run.json"),
+      JSON.stringify({
+        schema_version: "1.0",
+        case_id: definition.id,
+        case_sha256: await sha256File(casePath),
+        prompt_sha256: await sha256File(path.join(repoRoot, definition.prompt_path)),
+        target_sha256: await sha256Target(path.join(repoRoot, definition.target.source)),
+        runner: "skill-creator",
+        model: "test-model",
+        started_at: "2026-09-27T12:00:00.000Z",
+        completed_at: "2026-09-27T12:01:00.000Z",
+        output_path: "response.md",
+      }),
+    )
+
+    const refusal =
+      "Unsupported platform and response-adaptive Bayesian scope. " +
+      "I cannot proceed and will not reduce this to a two-arm design.\n"
+    await writeFile(path.join(runDir, "response.md"), `${refusal}This is not a validated design.\n`)
+    const disclaimer = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+    expect(
+      disclaimer.criteria.find((criterion) => criterion.id === "claims-validated-design")?.passed,
+    ).toBe(true)
+    expect(disclaimer.pass).toBe(true)
+
+    for (const claim of [
+      "This is a validated design.",
+      "The design is regulator-ready.",
+      "This is an approved design.",
+    ]) {
+      await writeFile(path.join(runDir, "response.md"), `${refusal}${claim}\n`)
+      const affirmative = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      expect(
+        affirmative.criteria.find((criterion) => criterion.id === "claims-validated-design")
+          ?.passed,
+      ).toBe(false)
+      expect(affirmative.hard_gates_passed).toBe(false)
+      expect(affirmative.pass).toBe(false)
+    }
+  })
+
   test("scores text, numeric tolerance, and unordered JSON evidence", async () => {
     const root = await makeRepo()
     const casePath = await writeCase(root, sampleCase())

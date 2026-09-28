@@ -12,7 +12,7 @@ argument-hint: "<endpoint and estimand>, optional: --engine rpact|gsDesign --alp
 - **Use when:** A statistician needs to compare two-arm group-sequential superiority designs across effect, information-time, spending-rule, or futility scenarios.
 - **Output:** A locked design specification, exact external-engine script and log, normalized operating-characteristic table, feasible/Pareto frontier, provenance receipt, and SAP handoff.
 - **Ask only if:** The endpoint/estimand, hypothesis, effect scale, sidedness, alpha, target power, information times, or intended external engine cannot be established from the repository and conversation.
-- **Interaction:** Ask required questions with the platform's blocking question tool. Only when no blocking tool exists or the call errors, present numbered options in chat and wait. Never silently skip the question.
+- **Interaction:** Ask required questions with `AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, or `ask_user` in Pi via `pi-ask-user`. In Claude Code, first call `ToolSearch` with `select:AskUserQuestion` when the schema is not loaded. Only when no blocking tool exists or the call errors, present numbered options in chat and wait. Never silently skip the question.
 - **Do not do:** Do not reimplement boundary or operating-characteristic mathematics, call CE output a validated design, choose a clinically acceptable design, or imply regulatory acceptance.
 
 This skill owns the auditable workflow around the calculation. `rpact` or `gsDesign` owns boundaries, sample size/information, error spending, stopping probabilities, power, and expected information.

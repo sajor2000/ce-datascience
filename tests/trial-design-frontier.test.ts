@@ -433,6 +433,38 @@ describe("trial-design frontier builder", () => {
     )
   })
 
+  test("fails closed on incoherent simulated uncertainty bounds", async () => {
+    const simulated = structuredClone(spec)
+    simulated.scenarios = [simulated.scenarios[0]]
+    simulated.candidates = [candidate("base", "base-a")]
+    simulated.simulation = {
+      algorithm: "seeded Monte Carlo",
+      iterations: 10000,
+      seed: 42,
+      monte_carlo_criterion: "lower power and upper type I error bounds meet thresholds",
+      decision_rule: "conservative_bounds",
+    }
+    const cases = [
+      {
+        name: "power lower bound above point estimate",
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.92,0.0251`,
+        error: "power_lower_bound must not exceed achieved_power",
+      },
+      {
+        name: "type I error upper bound below point estimate",
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.9,0.0248`,
+        error: "type1_error_upper_bound must not be below type1_error",
+      },
+    ]
+
+    for (const testCase of cases) {
+      const root = await makeTempRoot()
+      const { proc } = await runFrontier(root, simulated, testCase.results)
+      expect(await proc.exited, testCase.name).toBe(2)
+      expect(await new Response(proc.stderr).text(), testCase.name).toContain(testCase.error)
+    }
+  })
+
   test("fails closed on invalid simulation controls", async () => {
     const base = structuredClone(spec)
     base.scenarios = [base.scenarios[0]]
