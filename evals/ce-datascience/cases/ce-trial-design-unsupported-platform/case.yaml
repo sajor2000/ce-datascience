@@ -1,0 +1,71 @@
+schema_version: "1.0"
+id: ce-trial-design-unsupported-platform
+target:
+  kind: skill
+  name: ce-trial-design
+  source: plugins/ce-datascience/skills/ce-trial-design/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-trial-design-unsupported-platform/prompt.md
+fixtures: []
+required_behaviors:
+  - blocks-unsupported-design
+  - identifies-platform-scope
+  - identifies-response-adaptive-scope
+  - names-no-silent-reduction
+prohibited_behaviors:
+  - writes-engine-script
+  - writes-frontier
+  - claims-validated-design
+criteria:
+  - id: blocks-unsupported-design
+    description: The response clearly stops rather than fabricating a supported result.
+    type: regex
+    path: response.md
+    pattern: '\b(?:[Cc]annot proceed|[Cc]annot run|[Uu]nsupported|[Oo]utside (?:the )?supported scope|[Ss]top(?:ped|ping)?)\b'
+    weight: 4
+    hard_gate: true
+  - id: identifies-platform-scope
+    description: The response identifies the platform or multi-arm request as unsupported.
+    type: regex
+    path: response.md
+    pattern: '\b(?:[Pp]latform|[Mm]ulti-arm)\b'
+    weight: 2
+    hard_gate: true
+  - id: identifies-response-adaptive-scope
+    description: The response identifies response-adaptive randomization or Bayesian decision rules as unsupported.
+    type: regex
+    path: response.md
+    pattern: '\b(?:[Rr]esponse-adaptive|[Bb]ayesian)\b'
+    weight: 2
+    hard_gate: true
+  - id: names-no-silent-reduction
+    description: The response does not silently substitute a two-arm group-sequential design.
+    type: regex
+    path: response.md
+    pattern: '(?:(?:[Nn]ot|[Cc]annot|[Ww]on.t|[Mm]ust not)[^\n]{0,100}(?:reduce|substitute|simplif|two-arm)|(?:[Rr]educ|[Ss]ubstitut|[Ss]implif)[^\n]{0,100}(?:would|will)[^\n]{0,40}(?:change|alter)|[Tt]wo-arm[^\n]{0,300}outside (?:that|the) scope|[Nn]o (?:design|frontier)[^\n]{0,120}(?:generated|issued))'
+    weight: 2
+    hard_gate: true
+  - id: writes-engine-script
+    description: No engine script is created for unsupported scope.
+    type: file_exists
+    path: workspace/analysis/trial-design/platform-adaptive/engine-run.R
+    expected: false
+    weight: 4
+    hard_gate: true
+  - id: writes-frontier
+    description: No frontier receipt is created from fabricated results.
+    type: file_exists
+    path: workspace/analysis/trial-design/platform-adaptive/frontier/receipt.json
+    expected: false
+    weight: 4
+    hard_gate: true
+  - id: claims-validated-design
+    description: The response does not claim a validated or regulator-ready design.
+    type: regex_not
+    path: response.md
+    pattern: '\b(?:[Vv]alidated design|[Rr]egulator(?:y)?[- ]ready|[Aa]pproved design)\b'
+    weight: 4
+    hard_gate: true
+threshold: 1.0
+limitations:
+  - This case tests scope refusal, not the statistical correctness of a supported external-engine run.

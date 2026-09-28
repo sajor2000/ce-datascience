@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "design_id": "example-two-arm-gsd",
+  "engine": {
+    "name": "rpact",
+    "version": "4.3.0"
+  },
+  "endpoint": {
+    "type": "continuous",
+    "name": "prespecified primary endpoint",
+    "estimand": "treatment-policy mean difference at the primary time point",
+    "effect_scale": "standardized mean difference",
+    "null": 0
+  },
+  "hypothesis": {
+    "type": "superiority",
+    "sided": 1,
+    "direction": "upper"
+  },
+  "target": {
+    "alpha": 0.025,
+    "power": 0.9,
+    "type1_error_tolerance": 0
+  },
+  "design": {
+    "information_unit": "participants",
+    "allocation_ratio": 1
+  },
+  "candidates": [
+    {
+      "scenario_id": "base",
+      "id": "of-3-look",
+      "parameters": {
+        "information_rates": [0.5, 0.75, 1.0],
+        "efficacy_rule": "O'Brien-Fleming",
+        "futility_rule": "beta spending",
+        "futility_binding": false,
+        "engine_arguments": {"typeOfDesign": "OF"}
+      }
+    },
+    {
+      "scenario_id": "base",
+      "id": "pocock-3-look",
+      "parameters": {
+        "information_rates": [0.5, 0.75, 1.0],
+        "efficacy_rule": "Pocock",
+        "futility_rule": "beta spending",
+        "futility_binding": false,
+        "engine_arguments": {"typeOfDesign": "P"}
+      }
+    },
+    {
+      "scenario_id": "conservative",
+      "id": "of-3-look",
+      "parameters": {
+        "information_rates": [0.5, 0.75, 1.0],
+        "efficacy_rule": "O'Brien-Fleming",
+        "futility_rule": "beta spending",
+        "futility_binding": false,
+        "engine_arguments": {"typeOfDesign": "OF"}
+      }
+    },
+    {
+      "scenario_id": "conservative",
+      "id": "pocock-3-look",
+      "parameters": {
+        "information_rates": [0.5, 0.75, 1.0],
+        "efficacy_rule": "Pocock",
+        "futility_rule": "beta spending",
+        "futility_binding": false,
+        "engine_arguments": {"typeOfDesign": "P"}
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "base",
+      "alternative": 0.35,
+      "standard_deviation": 1,
+      "provenance": "replace with protocol or evidence-map citation"
+    },
+    {
+      "id": "conservative",
+      "alternative": 0.25,
+      "standard_deviation": 1,
+      "provenance": "replace with lower-bound evidence citation"
+    }
+  ],
+  "simulation": null,
+  "review": {
+    "statistician": null,
+    "status": "pending"
+  },
+  "unresolved": []
+}
