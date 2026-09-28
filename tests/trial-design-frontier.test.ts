@@ -34,7 +34,8 @@ async function runFrontier(
   const sessionInfoPath = path.join(root, "session-info.txt")
   const runtimeProvenancePath = path.join(root, "runtime-provenance.json")
   const outputDir = path.join(root, "frontier")
-  await writeFile(specPath, JSON.stringify(spec), "utf8")
+  const specContents = JSON.stringify(spec)
+  await writeFile(specPath, specContents, "utf8")
   await writeFile(resultsPath, results, "utf8")
   await writeFile(engineScriptPath, "# synthetic test engine script\n", "utf8")
   await writeFile(engineLogPath, "synthetic test engine log\n", "utf8")
@@ -45,7 +46,9 @@ async function runFrontier(
     engine_version: (spec as { engine: { version: string } }).engine.version,
     r_version: "R version test",
     completed: true,
+    spec_md5: createHash("md5").update(specContents).digest("hex"),
     results_md5: createHash("md5").update(results).digest("hex"),
+    warnings: [],
     ...runtimeOverrides,
   }), "utf8")
 
@@ -71,7 +74,28 @@ async function runFrontier(
   return { proc, outputDir }
 }
 
-const spec = {
+type TrialSpec = {
+  schema_version: number
+  design_id: string
+  engine: { name: string; version: string }
+  endpoint: { type: string; name: string; estimand: string; effect_scale: string; null: number }
+  hypothesis: { type: string; sided: number; direction: string }
+  target: { alpha: number; power: number; type1_error_tolerance: number }
+  design: { arm_count: number; framework: string; information_unit: string; allocation_ratio: number }
+  candidates: ReturnType<typeof candidate>[]
+  scenarios: Array<Record<string, unknown> & { id: string; alternative: number; provenance: string }>
+  simulation: null | {
+    algorithm: string
+    iterations: number
+    seed: number
+    monte_carlo_criterion: string
+    decision_rule: string
+  }
+  review: { statistician: string | null; status: string; evidence?: string[] }
+  unresolved: string[]
+}
+
+const spec: TrialSpec = {
   schema_version: 1,
   design_id: "demo-gsd",
   engine: { name: "rpact", version: "4.3.0" },
@@ -85,6 +109,8 @@ const spec = {
   hypothesis: { type: "superiority", sided: 1, direction: "upper" },
   target: { alpha: 0.025, power: 0.9, type1_error_tolerance: 0.0001 },
   design: {
+    arm_count: 2,
+    framework: "frequentist-group-sequential",
     information_unit: "participants",
     allocation_ratio: 1,
   },
@@ -99,20 +125,16 @@ const spec = {
     { id: "base", alternative: 0.35, provenance: "protocol" },
     { id: "conservative", alternative: 0.25, provenance: "sensitivity analysis" },
   ],
-  simulation: null as null | {
-    algorithm: string
-    iterations: number
-    seed: number
-    monte_carlo_criterion: string
-  },
-  review: { statistician: null as string | null, status: "pending" },
-  unresolved: [] as string[],
+  simulation: null,
+  review: { statistician: null, status: "pending" },
+  unresolved: [],
 }
 
 const header = [
   "scenario_id", "candidate_id", "engine", "engine_version", "analyses",
   "achieved_power", "type1_error", "max_information",
   "expected_information_null", "expected_information_alt",
+  "power_lower_bound", "type1_error_upper_bound",
 ].join(",")
 
 function candidate(scenario_id: string, id: string, efficacy_rule = "O'Brien-Fleming") {
@@ -134,11 +156,11 @@ describe("trial-design frontier builder", () => {
     const root = await makeTempRoot()
     const results = [
       header,
-      "base,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350",
-      "base,base-b,rpact,4.3.0,3,0.93,0.0250,520,390,330",
-      "base,base-dominated,rpact,4.3.0,3,0.91,0.0250,540,430,360",
-      "conservative,cons-a,rpact,4.3.0,3,0.895,0.0249,700,610,580",
-      "conservative,cons-b,rpact,4.3.0,3,0.91,0.0252,720,620,590",
+      "base,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,",
+      "base,base-b,rpact,4.3.0,3,0.93,0.0250,520,390,330,,",
+      "base,base-dominated,rpact,4.3.0,3,0.91,0.0250,540,430,360,,",
+      "conservative,cons-a,rpact,4.3.0,3,0.895,0.0249,700,610,580,,",
+      "conservative,cons-b,rpact,4.3.0,3,0.91,0.0252,720,620,590,,",
     ].join("\n")
     const { proc, outputDir } = await runFrontier(root, spec, results)
 
@@ -165,6 +187,18 @@ describe("trial-design frontier builder", () => {
     expect(receipt.inputs.session_info_sha256).toMatch(/^[a-f0-9]{64}$/)
     expect(receipt.inputs.runtime_provenance_sha256).toMatch(/^[a-f0-9]{64}$/)
     expect(receipt.runtime).toMatchObject({ engine: "rpact", engine_version: "4.3.0", completed: true })
+    for (const filename of [
+      "design-spec.json",
+      "engine-results.csv",
+      "engine-run.R",
+      "engine-run.log",
+      "session-info.txt",
+      "runtime-provenance.json",
+    ]) {
+      expect(await readFile(path.join(outputDir, filename))).toBeTruthy()
+    }
+    expect(await readFile(path.join(outputDir, "design-spec.json"), "utf8")).toBe(JSON.stringify(spec))
+    expect(await readFile(path.join(outputDir, "engine-results.csv"), "utf8")).toBe(results)
 
     const handoff = await readFile(path.join(outputDir, "sap-handoff.md"), "utf8")
     expect(handoff).toContain("does not validate the statistical mathematics")
@@ -179,8 +213,8 @@ describe("trial-design frontier builder", () => {
     const root = await makeTempRoot()
     const results = [
       header,
-      "base,base-a,rpact,4.2.0,3,0.91,0.0249,500,420,350",
-      "conservative,cons-a,rpact,4.2.0,3,0.91,0.0249,700,610,580",
+      "base,base-a,rpact,4.2.0,3,0.91,0.0249,500,420,350,,",
+      "conservative,cons-a,rpact,4.2.0,3,0.91,0.0249,700,610,580,,",
     ].join("\n")
     const { proc } = await runFrontier(root, spec, results)
 
@@ -192,7 +226,7 @@ describe("trial-design frontier builder", () => {
     const root = await makeTempRoot()
     const results = [
       header,
-      "base,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350",
+      "base,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,",
     ].join("\n")
     const { proc } = await runFrontier(root, spec, results)
 
@@ -209,8 +243,8 @@ describe("trial-design frontier builder", () => {
     ]
     const results = [
       header,
-      "base,base-a,rpact,4.3.0,3,0.89,0.0249,500,420,350",
-      "conservative,cons-a,rpact,4.3.0,3,0.91,0.026,700,610,580",
+      "base,base-a,rpact,4.3.0,3,0.89,0.0249,500,420,350,,",
+      "conservative,cons-a,rpact,4.3.0,3,0.91,0.026,700,610,580,,",
     ].join("\n")
     const { proc, outputDir } = await runFrontier(root, noFeasibleSpec, results)
 
@@ -240,13 +274,16 @@ describe("trial-design frontier builder", () => {
 
     expect(await proc.exited).toBe(0)
     expect(await readFile(path.join(outputDir, "frontier.csv"), "utf8")).toContain("of-3-look")
+    expect(await readFile(path.join(outputDir, "sap-handoff.md"), "utf8")).toContain(
+      'additional assumptions = {"standard_deviation": 1}',
+    )
   })
 
   test("requires an explicit type I error tolerance", async () => {
     const root = await makeTempRoot()
     const missingTolerance = structuredClone(spec)
     delete (missingTolerance.target as Partial<typeof missingTolerance.target>).type1_error_tolerance
-    const { proc } = await runFrontier(root, missingTolerance, `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`)
+    const { proc } = await runFrontier(root, missingTolerance, `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`)
 
     expect(await proc.exited).toBe(2)
     expect(await new Response(proc.stderr).text()).toContain("type1_error_tolerance is required")
@@ -261,7 +298,7 @@ describe("trial-design frontier builder", () => {
     const first = await runFrontier(
       missingCandidateRoot,
       missingCandidate,
-      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`,
+      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
     )
     expect(await first.proc.exited).toBe(2)
     expect(await new Response(first.proc.stderr).text()).toContain("scenarios without candidates")
@@ -272,7 +309,7 @@ describe("trial-design frontier builder", () => {
     const second = await runFrontier(
       booleanRoot,
       booleanSided,
-      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`,
+      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
     )
     expect(await second.proc.exited).toBe(2)
     expect(await new Response(second.proc.stderr).text()).toContain("hypothesis.sided must be 1 or 2")
@@ -283,7 +320,7 @@ describe("trial-design frontier builder", () => {
     const third = await runFrontier(
       rateRoot,
       booleanRate,
-      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`,
+      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
     )
     expect(await third.proc.exited).toBe(2)
     expect(await new Response(third.proc.stderr).text()).toContain("information_rates[0] must be numeric")
@@ -294,13 +331,13 @@ describe("trial-design frontier builder", () => {
     const narrowSpec = structuredClone(spec)
     narrowSpec.candidates = [candidate("base", "base-a")]
     narrowSpec.scenarios = [narrowSpec.scenarios[0]]
-    const undeclared = `${header}\nbase,other,rpact,4.3.0,3,0.91,0.0249,500,420,350`
+    const undeclared = `${header}\nbase,other,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`
     const first = await runFrontier(root, narrowSpec, undeclared)
     expect(await first.proc.exited).toBe(2)
     expect(await new Response(first.proc.stderr).text()).toContain("undeclared scenario/candidate pair")
 
     const secondRoot = await makeTempRoot()
-    const impossible = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,520,350`
+    const impossible = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,520,350,,`
     const second = await runFrontier(secondRoot, narrowSpec, impossible)
     expect(await second.proc.exited).toBe(2)
     expect(await new Response(second.proc.stderr).text()).toContain("must not exceed max_information")
@@ -312,7 +349,7 @@ describe("trial-design frontier builder", () => {
     gsSpec.engine = { name: "gsDesign", version: "3.7.0" }
     gsSpec.scenarios = [gsSpec.scenarios[0]]
     gsSpec.candidates = [candidate("base", "base-a")]
-    const results = `${header}\nbase,base-a,gsDesign,3.7.0,3,0.9,0.0251,500,420,350`
+    const results = `${header}\nbase,base-a,gsDesign,3.7.0,3,0.9,0.0251,500,420,350,,`
     const { proc } = await runFrontier(root, gsSpec, results)
 
     expect(await proc.exited).toBe(0)
@@ -322,11 +359,13 @@ describe("trial-design frontier builder", () => {
     const narrowSpec = structuredClone(spec)
     narrowSpec.scenarios = [narrowSpec.scenarios[0]]
     narrowSpec.candidates = [candidate("base", "base-a")]
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`
     const cases = [
       { overrides: { engine_version: "4.2.0" }, error: "runtime provenance engine version" },
+      { overrides: { spec_md5: "0".repeat(32) }, error: "spec_md5 does not match" },
       { overrides: { results_md5: "0".repeat(32) }, error: "results_md5 does not match" },
       { overrides: { completed: false }, error: "completed must be true" },
+      { overrides: { warnings: ["not structured"] }, error: "warnings[0] must be an object" },
     ]
     for (const testCase of cases) {
       const root = await makeTempRoot()
@@ -346,40 +385,77 @@ describe("trial-design frontier builder", () => {
       iterations: 10000,
       seed: 42,
       monte_carlo_criterion: "upper 95% bound below alpha limit",
+      decision_rule: "conservative_bounds",
     }
     simulated.review = { statistician: "Named statistician", status: "pending" }
     simulated.unresolved = ["Confirm recruitment feasibility"]
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`
-    const { proc, outputDir } = await runFrontier(root, simulated, results)
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.9,0.0251`
+    const { proc, outputDir } = await runFrontier(root, simulated, results, {
+      warnings: [{ code: "APPROXIMATION", message: "Normal approximation used" }],
+    })
 
     expect(await proc.exited).toBe(0)
     const handoff = await readFile(path.join(outputDir, "sap-handoff.md"), "utf8")
     expect(handoff).toContain("algorithm = seeded Monte Carlo")
     expect(handoff).toContain("Named statistician")
     expect(handoff).toContain("Confirm recruitment feasibility")
+    expect(handoff).toContain("`APPROXIMATION`: Normal approximation used")
+  })
+
+  test("uses conservative uncertainty bounds for simulated feasibility", async () => {
+    const root = await makeTempRoot()
+    const simulated = structuredClone(spec)
+    simulated.scenarios = [simulated.scenarios[0]]
+    simulated.candidates = [candidate("base", "base-a")]
+    simulated.simulation = {
+      algorithm: "seeded Monte Carlo",
+      iterations: 10000,
+      seed: 42,
+      monte_carlo_criterion: "lower power and upper type I error bounds meet thresholds",
+      decision_rule: "conservative_bounds",
+    }
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.899,0.0252`
+    const { proc, outputDir } = await runFrontier(root, simulated, results)
+
+    expect(await proc.exited).toBe(0)
+    const receipt = JSON.parse(await readFile(path.join(outputDir, "receipt.json"), "utf8"))
+    expect(receipt.counts.feasible_rows).toBe(0)
+
+    const missingBoundsRoot = await makeTempRoot()
+    const missingBounds = await runFrontier(
+      missingBoundsRoot,
+      simulated,
+      `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
+    )
+    expect(await missingBounds.proc.exited).toBe(2)
+    expect(await new Response(missingBounds.proc.stderr).text()).toContain(
+      "power_lower_bound is required",
+    )
   })
 
   test("fails closed on invalid simulation controls", async () => {
     const base = structuredClone(spec)
     base.scenarios = [base.scenarios[0]]
     base.candidates = [candidate("base", "base-a")]
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.9,0.0251`
     const cases = [
       { field: "algorithm", value: "", error: "simulation.algorithm" },
       { field: "iterations", value: 0, error: "simulation.iterations" },
       { field: "seed", value: true, error: "simulation.seed" },
       { field: "monte_carlo_criterion", value: "", error: "simulation.monte_carlo_criterion" },
+      { field: "decision_rule", value: "point_estimates", error: "simulation.decision_rule" },
     ]
     for (const testCase of cases) {
       const root = await makeTempRoot()
-      const invalid = structuredClone(base) as typeof base & { simulation: Record<string, unknown> }
-      invalid.simulation = {
+      const invalidSimulation: Record<string, unknown> = {
         algorithm: "seeded Monte Carlo",
         iterations: 10000,
         seed: 42,
         monte_carlo_criterion: "upper 95% bound below alpha limit",
+        decision_rule: "conservative_bounds",
         [testCase.field]: testCase.value,
       }
+      const invalid = { ...structuredClone(base), simulation: invalidSimulation }
       const { proc } = await runFrontier(root, invalid, results)
       expect(await proc.exited).toBe(2)
       expect(await new Response(proc.stderr).text()).toContain(testCase.error)
@@ -387,7 +463,7 @@ describe("trial-design frontier builder", () => {
   })
 
   test("fails closed on malformed design-spec structures", async () => {
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`
     const cases = [
       {
         mutate: (value: any) => { delete value.endpoint.estimand },
@@ -408,6 +484,36 @@ describe("trial-design frontier builder", () => {
       {
         mutate: (value: any) => { value.review.status = "" },
         error: "review.status",
+      },
+      {
+        mutate: (value: any) => { delete value.simulation },
+        error: "simulation is required",
+      },
+      {
+        mutate: (value: any) => { delete value.review.statistician },
+        error: "review.statistician is required",
+      },
+      {
+        mutate: (value: any) => { value.review.status = "approved" },
+        error: "review.status must be one of",
+      },
+      {
+        mutate: (value: any) => { value.review.status = "completed" },
+        error: "completed review requires a named",
+      },
+      {
+        mutate: (value: any) => {
+          value.review = { statistician: "Named statistician", status: "completed", evidence: [] }
+        },
+        error: "completed review requires non-empty review.evidence",
+      },
+      {
+        mutate: (value: any) => { value.design.arm_count = 3 },
+        error: "design.arm_count must equal 2",
+      },
+      {
+        mutate: (value: any) => { value.design.framework = "bayesian" },
+        error: "design.framework must equal frequentist-group-sequential",
       },
       {
         mutate: (value: any) => { value.unresolved = "none" },
@@ -431,7 +537,7 @@ describe("trial-design frontier builder", () => {
     const narrowSpec = structuredClone(spec)
     narrowSpec.scenarios = [narrowSpec.scenarios[0]]
     narrowSpec.candidates = [candidate("base", "base-a")]
-    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`
     const first = await runFrontier(root, narrowSpec, results)
     expect(await first.proc.exited).toBe(0)
     const originalReceipt = await readFile(path.join(first.outputDir, "receipt.json"), "utf8")
@@ -452,8 +558,8 @@ describe("trial-design frontier builder", () => {
     ]
     const results = [
       header,
-      "base,tie-a,rpact,4.3.0,3,0.9,0.0251,500,420,350",
-      "base,tie-b,rpact,4.3.0,3,0.9,0.0251,500,420,350",
+      "base,tie-a,rpact,4.3.0,3,0.9,0.0251,500,420,350,,",
+      "base,tie-b,rpact,4.3.0,3,0.9,0.0251,500,420,350,,",
     ].join("\n")
     const { proc, outputDir } = await runFrontier(root, boundarySpec, results)
 
@@ -485,38 +591,48 @@ describe("trial-design frontier builder", () => {
       },
       {
         name: "duplicate candidate",
-        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
         error: "duplicate candidate",
       },
       {
         name: "nonnumeric value",
-        results: `${header}\nbase,base-a,rpact,4.3.0,3,not-a-number,0.0249,500,420,350`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,not-a-number,0.0249,500,420,350,,`,
         error: "achieved_power must be numeric",
       },
       {
         name: "nonfinite value",
-        results: `${header}\nbase,base-a,rpact,4.3.0,3,nan,0.0249,500,420,350`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,nan,0.0249,500,420,350,,`,
         error: "achieved_power must be finite",
       },
       {
         name: "fractional analyses",
-        results: `${header}\nbase,base-a,rpact,4.3.0,2.5,0.91,0.0249,500,420,350`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,2.5,0.91,0.0249,500,420,350,,`,
         error: "analyses must be a positive integer",
       },
       {
         name: "out-of-range probability",
-        results: `${header}\nbase,base-a,rpact,4.3.0,3,1.1,0.0249,500,420,350`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,1.1,0.0249,500,420,350,,`,
         error: "achieved_power must be between 0 and 1",
       },
       {
         name: "non-positive objective",
-        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,0,0,0`,
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,0,0,0,,`,
         error: "max_information must be positive",
       },
       {
         name: "short row",
         results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420`,
         error: "expected_information_alt must not be missing",
+      },
+      {
+        name: "surplus cells",
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,,surplus`,
+        error: "surplus cells are not allowed",
+      },
+      {
+        name: "uncertainty bound in exact run",
+        results: `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,0.9,`,
+        error: "power_lower_bound must be empty for exact calculations",
       },
     ]
 

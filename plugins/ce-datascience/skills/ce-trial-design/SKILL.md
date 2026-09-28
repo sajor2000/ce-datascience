@@ -12,6 +12,7 @@ argument-hint: "<endpoint and estimand>, optional: --engine rpact|gsDesign --alp
 - **Use when:** A statistician needs to compare two-arm group-sequential superiority designs across effect, information-time, spending-rule, or futility scenarios.
 - **Output:** A locked design specification, exact external-engine script and log, normalized operating-characteristic table, feasible/Pareto frontier, provenance receipt, and SAP handoff.
 - **Ask only if:** The endpoint/estimand, hypothesis, effect scale, sidedness, alpha, target power, information times, or intended external engine cannot be established from the repository and conversation.
+- **Interaction:** Ask required questions with the platform's blocking question tool. Only when no blocking tool exists or the call errors, present numbered options in chat and wait. Never silently skip the question.
 - **Do not do:** Do not reimplement boundary or operating-characteristic mathematics, call CE output a validated design, choose a clinically acceptable design, or imply regulatory acceptance.
 
 This skill owns the auditable workflow around the calculation. `rpact` or `gsDesign` owns boundaries, sample size/information, error spending, stopping probabilities, power, and expected information.
@@ -50,10 +51,10 @@ Completion evidence: the script exits successfully, the pinned version is visibl
 
 ### 4. Build the CE-owned frontier and receipt
 
-Keep the project root as the working directory. Resolve `scripts/build_frontier.py` from this skill directory and invoke that resolved script path so the project-relative inputs and outputs remain in the user's workspace:
+Keep the project root as the working directory. Invoke the co-located `scripts/build_frontier.py` by that skill-relative path so the project-relative inputs and outputs remain in the user's workspace:
 
 ```bash
-python3 <resolved-skill-directory>/scripts/build_frontier.py \
+python3 scripts/build_frontier.py \
   --spec analysis/trial-design/<design-id>/design-spec.json \
   --results analysis/trial-design/<design-id>/engine-results.csv \
   --engine-script analysis/trial-design/<design-id>/engine-run.R \

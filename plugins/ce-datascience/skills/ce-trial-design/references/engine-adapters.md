@@ -66,12 +66,13 @@ Stop rather than normalize when:
 - the declared scenario was not run
 - a simulation has failures that are omitted from the denominator
 - Monte Carlo uncertainty prevents a clear threshold decision
+- the design is not explicitly declared as a two-arm frequentist group-sequential design
 
-Engine warnings belong in `engine-run.log` and the SAP handoff. Do not suppress them merely to produce a frontier.
+Engine warnings belong in `engine-run.log`, the structured `warnings` array in runtime provenance, and the SAP handoff. Each warning has a non-empty `code` and `message`. Do not suppress warnings merely to produce a frontier.
 
 ## Runtime provenance contract
 
-The same R process that writes `engine-results.csv` must write `runtime-provenance.json` after the CSV is closed. Use schema version 1 with `engine`, `engine_version`, `r_version`, `completed: true`, and `results_md5`. Compute `results_md5` with base R `tools::md5sum()` against the exact normalized CSV. The frontier builder checks this digest against the captured result bytes and rejects a self-declared CSV version that disagrees with runtime provenance.
+The same R process that reads `design-spec.json` and writes `engine-results.csv` must write `runtime-provenance.json` after the CSV is closed. Use schema version 1 with `engine`, `engine_version`, `r_version`, `completed: true`, `spec_md5`, `results_md5`, and structured `warnings`. Compute both digests with base R `tools::md5sum()` against the exact specification bytes used for the run and the exact normalized CSV after it is closed. The frontier builder checks both digests against captured input bytes before evaluating results.
 
 ```json
 {
@@ -80,7 +81,9 @@ The same R process that writes `engine-results.csv` must write `runtime-provenan
   "engine_version": "4.3.0",
   "r_version": "R version 4.x.y",
   "completed": true,
-  "results_md5": "32 lowercase hexadecimal characters"
+  "spec_md5": "32 lowercase hexadecimal characters",
+  "results_md5": "32 lowercase hexadecimal characters",
+  "warnings": []
 }
 ```
 

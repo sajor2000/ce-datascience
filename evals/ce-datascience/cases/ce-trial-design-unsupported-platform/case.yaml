@@ -42,7 +42,7 @@ criteria:
     description: The response does not silently substitute a two-arm group-sequential design.
     type: regex
     path: response.md
-    pattern: '(?:(?:[Nn]ot|[Cc]annot|[Ww]on.t|[Mm]ust not)[^\n]{0,100}(?:reduce|substitute|simplif|two-arm)|(?:[Rr]educ|[Ss]ubstitut|[Ss]implif)[^\n]{0,100}(?:would|will)[^\n]{0,40}(?:change|alter)|[Tt]wo-arm[^\n]{0,300}outside (?:that|the) scope|[Nn]o (?:design|frontier)[^\n]{0,120}(?:generated|issued))'
+    pattern: '(?:(?:[Nn]ot|[Cc]annot|[Ww]on.t|[Mm]ust not)[^\n]{0,100}(?:reduce|substitute|simplif|two-arm)|[Rr]ather than[^\n]{0,40}(?:reduc|substitut|simplif)|(?:[Rr]educ|[Ss]ubstitut|[Ss]implif)[^\n]{0,100}(?:would|will)[^\n]{0,40}(?:change|alter)|[Tt]wo-arm[^\n]{0,300}outside (?:that|the) scope|[Nn]o (?:design|frontier)[^\n]{0,160}(?:generated|issued|produced|created)|[Cc]annot (?:build|create)[^\n]{0,80}(?:frontier|design))'
     weight: 2
     hard_gate: true
   - id: writes-engine-script
@@ -63,7 +63,7 @@ criteria:
     description: The response does not claim a validated or regulator-ready design.
     type: regex_not
     path: response.md
-    pattern: '\b(?:[Vv]alidated design|[Rr]egulator(?:y)?[- ]ready|[Aa]pproved design)\b'
+    pattern: '^(?![^\n]*\b(?:not|never|no|cannot|can.t|isn.t|aren.t|doesn.t|do not|is not|are not|without)\b[^\n]*\b(?:validated design|regulator(?:y)?[- ]ready|approved design)\b)[^\n]*\b(?:validated design|regulator(?:y)?[- ]ready|approved design)\b'
     weight: 4
     hard_gate: true
 threshold: 1.0

@@ -39,7 +39,13 @@ NUMERIC_FIELDS = (
     "type1_error",
     *OBJECTIVES,
 )
-RESULT_FIELDS = (*IDENTIFIER_FIELDS, *NUMERIC_FIELDS)
+UNCERTAINTY_FIELDS = (
+    "power_lower_bound",
+    "type1_error_upper_bound",
+)
+RESULT_FIELDS = (*IDENTIFIER_FIELDS, *NUMERIC_FIELDS, *UNCERTAINTY_FIELDS)
+SUPPORTED_REVIEW_STATUSES = {"pending", "in_review", "completed"}
+SUPPORTED_SIMULATION_DECISION_RULE = "conservative_bounds"
 
 
 class ContractError(ValueError):
@@ -109,9 +115,15 @@ def load_spec(contents: bytes) -> dict[str, Any]:
     require_nonempty_string(hypothesis.get("direction"), "hypothesis.direction")
 
     design = require_mapping(spec.get("design"), "design")
+    if design.get("arm_count") != 2:
+        raise ContractError("design.arm_count must equal 2")
+    if design.get("framework") != "frequentist-group-sequential":
+        raise ContractError("design.framework must equal frequentist-group-sequential")
     for field in ("information_unit",):
         require_nonempty_string(design.get(field), f"design.{field}")
     require_number(design.get("allocation_ratio"), "design.allocation_ratio", positive=True)
+    if endpoint["type"] not in {"continuous", "binary", "time-to-event"}:
+        raise ContractError("endpoint.type must be continuous, binary, or time-to-event")
 
     target = require_mapping(spec.get("target"), "target")
     require_probability(target.get("alpha"), "target.alpha")
@@ -181,16 +193,36 @@ def load_spec(contents: bytes) -> dict[str, Any]:
         raise ContractError(
             f"scenarios without candidates: {', '.join(missing_candidate_scenarios)}"
         )
-    if spec.get("simulation") is not None:
+    if "simulation" not in spec:
+        raise ContractError("simulation is required (use null for exact calculations)")
+    if spec["simulation"] is not None:
         simulation = require_mapping(spec["simulation"], "simulation")
         require_nonempty_string(simulation.get("algorithm"), "simulation.algorithm")
         require_number(simulation.get("iterations"), "simulation.iterations", positive=True)
         require_number(simulation.get("seed"), "simulation.seed")
         require_nonempty_string(simulation.get("monte_carlo_criterion"), "simulation.monte_carlo_criterion")
+        if simulation.get("decision_rule") != SUPPORTED_SIMULATION_DECISION_RULE:
+            raise ContractError(
+                f"simulation.decision_rule must equal {SUPPORTED_SIMULATION_DECISION_RULE}"
+            )
     review = require_mapping(spec.get("review"), "review")
+    if "statistician" not in review:
+        raise ContractError("review.statistician is required (use null until named)")
     if review.get("statistician") is not None:
         require_nonempty_string(review["statistician"], "review.statistician")
-    require_nonempty_string(review.get("status"), "review.status")
+    status = require_nonempty_string(review.get("status"), "review.status")
+    if status not in SUPPORTED_REVIEW_STATUSES:
+        raise ContractError(
+            f"review.status must be one of: {', '.join(sorted(SUPPORTED_REVIEW_STATUSES))}"
+        )
+    if status == "completed":
+        if review["statistician"] is None:
+            raise ContractError("completed review requires a named review.statistician")
+        evidence = review.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            raise ContractError("completed review requires non-empty review.evidence")
+        for index, item in enumerate(evidence):
+            require_nonempty_string(item, f"review.evidence[{index}]")
     if not isinstance(spec.get("unresolved"), list):
         raise ContractError("unresolved must be an array")
     return spec
@@ -216,6 +248,7 @@ def require_cell(raw: dict[str, str | None], field: str, row_number: int) -> str
 def validate_runtime_provenance(
     contents: bytes,
     spec: dict[str, Any],
+    spec_md5: str,
     results_md5: str,
 ) -> dict[str, Any]:
     try:
@@ -232,8 +265,17 @@ def validate_runtime_provenance(
     require_nonempty_string(provenance.get("r_version"), "runtime provenance r_version")
     if provenance.get("completed") is not True:
         raise ContractError("runtime provenance completed must be true")
+    if provenance.get("spec_md5") != spec_md5:
+        raise ContractError("runtime provenance spec_md5 does not match design spec")
     if provenance.get("results_md5") != results_md5:
         raise ContractError("runtime provenance results_md5 does not match engine results")
+    warnings = provenance.get("warnings")
+    if not isinstance(warnings, list):
+        raise ContractError("runtime provenance warnings must be an array")
+    for index, warning in enumerate(warnings):
+        warning = require_mapping(warning, f"runtime provenance warnings[{index}]")
+        require_nonempty_string(warning.get("code"), f"runtime provenance warnings[{index}].code")
+        require_nonempty_string(warning.get("message"), f"runtime provenance warnings[{index}].message")
     return provenance
 
 
@@ -258,6 +300,8 @@ def load_results(contents: bytes, spec: dict[str, Any]) -> list[dict[str, Any]]:
             (candidate["scenario_id"], candidate["id"]): candidate for candidate in spec["candidates"]
         }
         for row_number, raw in enumerate(reader, start=2):
+            if None in raw:
+                raise ContractError(f"row {row_number}: surplus cells are not allowed")
             scenario_id = require_cell(raw, "scenario_id", row_number)
             candidate_id = require_cell(raw, "candidate_id", row_number)
             if scenario_id not in scenario_ids:
@@ -283,10 +327,23 @@ def load_results(contents: bytes, spec: dict[str, Any]) -> list[dict[str, Any]]:
             }
             for field in NUMERIC_FIELDS:
                 row[field] = parse_number(require_cell(raw, field, row_number), field, row_number)
+            for field in UNCERTAINTY_FIELDS:
+                value = require_cell(raw, field, row_number)
+                if spec["simulation"] is None:
+                    if value:
+                        raise ContractError(f"row {row_number}: {field} must be empty for exact calculations")
+                    row[field] = None
+                else:
+                    if not value:
+                        raise ContractError(f"row {row_number}: {field} is required for simulated calculations")
+                    row[field] = parse_number(value, field, row_number)
             if not row["analyses"].is_integer() or row["analyses"] < 1:
                 raise ContractError(f"row {row_number}: analyses must be a positive integer")
             for field in ("achieved_power", "type1_error"):
                 if not 0 <= row[field] <= 1:
+                    raise ContractError(f"row {row_number}: {field} must be between 0 and 1")
+            for field in UNCERTAINTY_FIELDS:
+                if row[field] is not None and not 0 <= row[field] <= 1:
                     raise ContractError(f"row {row_number}: {field} must be between 0 and 1")
             for field in OBJECTIVES:
                 if row[field] <= 0:
@@ -321,7 +378,13 @@ def evaluate(rows: list[dict[str, Any]], spec: dict[str, Any]) -> list[dict[str,
     power_target = float(target["power"])
     feasible_by_scenario: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
-        row["feasible"] = row["achieved_power"] >= power_target and row["type1_error"] <= alpha_limit
+        if spec["simulation"] is None:
+            power_value = row["achieved_power"]
+            type1_value = row["type1_error"]
+        else:
+            power_value = row["power_lower_bound"]
+            type1_value = row["type1_error_upper_bound"]
+        row["feasible"] = power_value >= power_target and type1_value <= alpha_limit
         row["pareto"] = False
         if row["feasible"]:
             feasible_by_scenario.setdefault(row["scenario_id"], []).append(row)
@@ -341,7 +404,12 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
             writer.writerow({field: row[field] for field in fields})
 
 
-def write_handoff(path: Path, spec: dict[str, Any], frontier: list[dict[str, Any]]) -> None:
+def write_handoff(
+    path: Path,
+    spec: dict[str, Any],
+    frontier: list[dict[str, Any]],
+    engine_warnings: list[dict[str, str]],
+) -> None:
     engine = spec["engine"]
     endpoint = spec["endpoint"]
     hypothesis = spec["hypothesis"]
@@ -366,9 +434,11 @@ def write_handoff(path: Path, spec: dict[str, Any], frontier: list[dict[str, Any
         f"- Hypothesis: {hypothesis['type']}, {hypothesis['sided']}-sided, direction = {hypothesis['direction']}",
         f"- Overall alpha: {target['alpha']} (tolerance {target['type1_error_tolerance']})",
         f"- Target power: {target['power']}",
+        f"- Design scope: {design['arm_count']}-arm {design['framework']}",
         f"- Information unit: {design['information_unit']}",
         f"- Allocation ratio: {design['allocation_ratio']}",
         f"- Statistical reviewer: {review['statistician'] or 'not yet named'}; status = {review['status']}",
+        f"- Review evidence: {json.dumps(review.get('evidence', []))}",
         "",
         "## Declared candidates",
         "",
@@ -388,15 +458,34 @@ def write_handoff(path: Path, spec: dict[str, Any], frontier: list[dict[str, Any
         "",
     ])
     for scenario in spec["scenarios"]:
+        assumptions = {
+            key: value
+            for key, value in scenario.items()
+            if key not in {"id", "alternative", "provenance"}
+        }
+        assumptions_text = (
+            f"; additional assumptions = {json.dumps(assumptions, sort_keys=True)}"
+            if assumptions
+            else ""
+        )
         lines.append(
-            f"- {scenario['id']}: alternative = {scenario['alternative']}; provenance = {scenario['provenance']}"
+            f"- {scenario['id']}: alternative = {scenario['alternative']}; "
+            f"provenance = {scenario['provenance']}{assumptions_text}"
         )
     if spec["simulation"] is not None:
         simulation = spec["simulation"]
         lines.append(
             f"- Simulation: algorithm = {simulation['algorithm']}; iterations = {simulation['iterations']}; "
-            f"seed = {simulation['seed']}; criterion = {simulation['monte_carlo_criterion']}"
+            f"seed = {simulation['seed']}; criterion = {simulation['monte_carlo_criterion']}; "
+            f"decision rule = {simulation['decision_rule']}"
         )
+    lines.extend(["", "## Engine warnings", ""])
+    if engine_warnings:
+        lines.extend(
+            f"- `{warning['code']}`: {warning['message']}" for warning in engine_warnings
+        )
+    else:
+        lines.append("No engine warnings were recorded in runtime provenance.")
     if spec["unresolved"]:
         lines.extend(["", "## Unresolved constraints", ""])
         lines.extend(f"- {item}" for item in spec["unresolved"])
@@ -457,6 +546,7 @@ def build(
     runtime_provenance = validate_runtime_provenance(
         captured_inputs["runtime_provenance_sha256"],
         spec,
+        hashlib.md5(captured_inputs["spec_sha256"]).hexdigest(),  # nosec B303 - provenance only
         hashlib.md5(captured_inputs["results_sha256"]).hexdigest(),  # nosec B303 - provenance only
     )
     rows = evaluate(load_results(captured_inputs["results_sha256"], spec), spec)
@@ -484,11 +574,21 @@ def build(
         staging_dir = Path(temporary)
         write_csv(staging_dir / "evaluated-results.csv", rows)
         write_csv(staging_dir / "frontier.csv", frontier)
-        write_handoff(staging_dir / "sap-handoff.md", spec, frontier)
+        write_handoff(staging_dir / "sap-handoff.md", spec, frontier, runtime_provenance["warnings"])
         (staging_dir / "receipt.json").write_text(
             json.dumps(receipt, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
+        retained_inputs = {
+            "design-spec.json": captured_inputs["spec_sha256"],
+            "engine-results.csv": captured_inputs["results_sha256"],
+            "engine-run.R": captured_inputs["engine_script_sha256"],
+            "engine-run.log": captured_inputs["engine_log_sha256"],
+            "session-info.txt": captured_inputs["session_info_sha256"],
+            "runtime-provenance.json": captured_inputs["runtime_provenance_sha256"],
+        }
+        for filename, contents in retained_inputs.items():
+            (staging_dir / filename).write_bytes(contents)
         os.replace(staging_dir, output_dir)
 
 
