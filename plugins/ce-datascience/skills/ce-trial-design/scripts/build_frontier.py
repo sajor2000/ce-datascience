@@ -510,17 +510,32 @@ def write_handoff(
     if not frontier:
         lines.append("No candidate met the declared power and type I error thresholds. Do not select a design from this run.")
     else:
-        lines.extend([
-            "| Scenario | Candidate | Analyses | Power | Type I error | Max information | Expected information H0 | Expected information H1 |",
-            "|---|---|---:|---:|---:|---:|---:|---:|",
-        ])
+        if spec["simulation"] is None:
+            lines.extend([
+                "| Scenario | Candidate | Analyses | Power | Type I error | Max information | Expected information H0 | Expected information H1 |",
+                "|---|---|---:|---:|---:|---:|---:|---:|",
+            ])
+        else:
+            lines.extend([
+                "| Scenario | Candidate | Analyses | Power | Power lower bound | Type I error | Type I error upper bound | Max information | Expected information H0 | Expected information H1 |",
+                "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+            ])
         for row in sorted(frontier, key=lambda item: (item["scenario_id"], item["candidate_id"])):
-            lines.append(
-                f"| {row['scenario_id']} | {row['candidate_id']} | {int(row['analyses'])} | "
-                f"{row['achieved_power']:.6g} | {row['type1_error']:.6g} | "
-                f"{row['max_information']:.6g} | {row['expected_information_null']:.6g} | "
-                f"{row['expected_information_alt']:.6g} |"
-            )
+            if spec["simulation"] is None:
+                lines.append(
+                    f"| {row['scenario_id']} | {row['candidate_id']} | {int(row['analyses'])} | "
+                    f"{row['achieved_power']:.6g} | {row['type1_error']:.6g} | "
+                    f"{row['max_information']:.6g} | {row['expected_information_null']:.6g} | "
+                    f"{row['expected_information_alt']:.6g} |"
+                )
+            else:
+                lines.append(
+                    f"| {row['scenario_id']} | {row['candidate_id']} | {int(row['analyses'])} | "
+                    f"{row['achieved_power']:.6g} | {row['power_lower_bound']:.6g} | "
+                    f"{row['type1_error']:.6g} | {row['type1_error_upper_bound']:.6g} | "
+                    f"{row['max_information']:.6g} | {row['expected_information_null']:.6g} | "
+                    f"{row['expected_information_alt']:.6g} |"
+                )
     lines.extend([
         "",
         "## SAP handoff requirements",

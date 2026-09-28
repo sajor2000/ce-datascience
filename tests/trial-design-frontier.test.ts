@@ -207,6 +207,11 @@ describe("trial-design frontier builder", () => {
     expect(handoff).toContain("base/base-b: information rates")
     expect(handoff).toContain("efficacy = Pocock")
     expect(handoff).toContain("base-a")
+    expect(handoff).toContain(
+      "| Scenario | Candidate | Analyses | Power | Type I error | Max information | Expected information H0 | Expected information H1 |",
+    )
+    expect(handoff).not.toContain("Power lower bound")
+    expect(handoff).not.toContain("Type I error upper bound")
   })
 
   test("fails closed when results do not match the pinned engine version", async () => {
@@ -400,6 +405,10 @@ describe("trial-design frontier builder", () => {
     expect(handoff).toContain("Named statistician")
     expect(handoff).toContain("Confirm recruitment feasibility")
     expect(handoff).toContain("`APPROXIMATION`: Normal approximation used")
+    expect(handoff).toContain(
+      "| Scenario | Candidate | Analyses | Power | Power lower bound | Type I error | Type I error upper bound | Max information | Expected information H0 | Expected information H1 |",
+    )
+    expect(handoff).toContain("| base | base-a | 3 | 0.91 | 0.9 | 0.0249 | 0.0251 | 500 | 420 | 350 |")
   })
 
   test("uses conservative uncertainty bounds for simulated feasibility", async () => {
