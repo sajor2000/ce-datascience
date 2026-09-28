@@ -689,10 +689,21 @@ function findAffirmativeClaim(
   const subjectPattern = boundedTermPattern(criterion.subjects!)
   const claimPattern = boundedTermPattern(criterion.claims!)
   const negationFlags = criterion.case_sensitive ? "" : "i"
-  const contrastBoundary = /\s*(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)/i
+  const clauseBoundary =
+    /\s*(?:(?:[;:]|[\u2013\u2014])\s*|(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+))/i
+  const negationPattern = new RegExp(criterion.negation_pattern!, negationFlags)
+  const negatedReportingFrame = new RegExp(
+    `${criterion.negation_pattern!}\\s+(?:(?:[A-Za-z]+['\u2019]?[A-Za-z]*)\\s+){0,2}` +
+      "(?:claim(?:s|ed|ing)?|stat(?:e|es|ed|ing)|assert(?:s|ed|ing)?|" +
+      "say|says|said|saying|conclud(?:e|es|ed|ing)|represent(?:s|ed|ing)?|" +
+      "describ(?:e|es|ed|ing)|consider(?:s|ed|ing)?|call(?:s|ed|ing)?|" +
+      "believ(?:e|es|ed|ing)|find|finds|found|finding|deem(?:s|ed|ing)?|" +
+      "treat(?:s|ed|ing)?)\\b(?:\\s+that)?\\s*$",
+    negationFlags,
+  )
 
   for (const sentenceValue of normalizeProseLineWraps(value).split(/(?<=[.!?])\s+/)) {
-    for (const scopeValue of sentenceValue.split(contrastBoundary)) {
+    for (const scopeValue of sentenceValue.split(clauseBoundary)) {
       const scope = scopeValue.trim()
       if (!scope) continue
       const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
@@ -701,8 +712,15 @@ function findAffirmativeClaim(
         const claimIndex = claim.index ?? 0
         const subject = subjects.filter((candidate) => (candidate.index ?? 0) < claimIndex).at(-1)
         if (!subject) continue
-        const prefixThroughClaim = scope.slice(0, claimIndex + claim[0].length)
-        if (new RegExp(criterion.negation_pattern!, negationFlags).test(prefixThroughClaim)) continue
+        const subjectIndex = subject.index ?? 0
+        const subjectThroughClaim = scope.slice(subjectIndex, claimIndex + claim[0].length)
+        const prefixBeforeSubject = scope.slice(0, subjectIndex)
+        if (
+          negationPattern.test(subjectThroughClaim) ||
+          negatedReportingFrame.test(prefixBeforeSubject)
+        ) {
+          continue
+        }
         return { scope, subject: subject[0].trim(), claim: claim[0].trim() }
       }
     }

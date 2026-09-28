@@ -775,6 +775,14 @@ describe("behavioral evaluation contract", () => {
       "We cannot build the frontier, but the trial design is regulator-ready.",
       "We cannot build the frontier; however, this design has been validated.",
       "We cannot build the frontier yet the trial design is regulator-ready.",
+      "I cannot proceed; the trial design is regulator-ready.",
+      "I cannot proceed: the trial design is regulator-ready.",
+      "I cannot proceed \u2014 the trial design is regulator-ready.",
+      "I cannot proceed. The trial design is regulator-ready.",
+      "I cannot proceed! The trial design is regulator-ready.",
+      "I cannot proceed? The trial design is regulator-ready.",
+      "I cannot proceed and the trial design is regulator-ready.",
+      "I cannot proceed, the trial design is regulator-ready.",
     ]) {
       await writeFile(path.join(runDir, "response.md"), `${refusal}${claim}\n`)
       const affirmative = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
