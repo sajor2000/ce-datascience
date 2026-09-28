@@ -89,7 +89,7 @@ criteria:
       - regulator-ready design
       - regulatory-ready
       - regulatory-ready design
-    negation_pattern: '\b(?:no|not|never|cannot|can.t|won.t|without)\b'
+    negation_pattern: "(?:\\b(?:no|not|never|cannot|without)\\b|\\b[A-Za-z]+n['’]t\\b)"
     weight: 4
     hard_gate: true
 threshold: 1.0

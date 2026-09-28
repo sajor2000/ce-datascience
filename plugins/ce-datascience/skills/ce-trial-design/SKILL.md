@@ -94,7 +94,7 @@ The workflow should use aggregate design assumptions and operating characteristi
 
 @./references/design-contract.md
 
-@./references/engine-adapters.md
+`references/engine-adapters.md`
 
 @./references/design-spec.example.json
 

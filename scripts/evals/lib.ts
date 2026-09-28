@@ -689,9 +689,11 @@ function findAffirmativeClaim(
   const subjectPattern = boundedTermPattern(criterion.subjects!)
   const claimPattern = boundedTermPattern(criterion.claims!)
   const negationFlags = criterion.case_sensitive ? "" : "i"
-  const clauseBoundary =
-    /\s*(?:(?:[;:]|[\u2013\u2014])\s*|(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+))/i
+  const predicateBoundary =
+    /\s*(?:(?:[;:]|[\u2013\u2014])\s*|(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)|\band\s+(?=(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b))/i
   const negationPattern = new RegExp(criterion.negation_pattern!, negationFlags)
+  const qualifiedClaimFrame =
+    /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:must|should)\s+be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
   const negatedReportingFrame = new RegExp(
     `${criterion.negation_pattern!}\\s+(?:(?:[A-Za-z]+['\u2019]?[A-Za-z]*)\\s+){0,2}` +
       "(?:claim(?:s|ed|ing)?|stat(?:e|es|ed|ing)|assert(?:s|ed|ing)?|" +
@@ -703,26 +705,32 @@ function findAffirmativeClaim(
   )
 
   for (const sentenceValue of normalizeProseLineWraps(value).split(/(?<=[.!?])\s+/)) {
-    for (const scopeValue of sentenceValue.split(clauseBoundary)) {
-      const scope = scopeValue.trim()
-      if (!scope) continue
-      const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
-      const claims = [...scope.matchAll(new RegExp(claimPattern, flags))]
-      for (const claim of claims) {
-        const claimIndex = claim.index ?? 0
-        const subject = subjects.filter((candidate) => (candidate.index ?? 0) < claimIndex).at(-1)
-        if (!subject) continue
-        const subjectIndex = subject.index ?? 0
-        const subjectThroughClaim = scope.slice(subjectIndex, claimIndex + claim[0].length)
-        const prefixBeforeSubject = scope.slice(0, subjectIndex)
-        if (
-          negationPattern.test(subjectThroughClaim) ||
-          negatedReportingFrame.test(prefixBeforeSubject)
-        ) {
-          continue
-        }
-        return { scope, subject: subject[0].trim(), claim: claim[0].trim() }
+    const scope = sentenceValue.trim()
+    if (!scope) continue
+    const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
+    const claims = [...scope.matchAll(new RegExp(claimPattern, flags))]
+    for (const claim of claims) {
+      const claimIndex = claim.index ?? 0
+      const subject = subjects.filter((candidate) => (candidate.index ?? 0) < claimIndex).at(-1)
+      if (!subject) continue
+      const subjectIndex = subject.index ?? 0
+      const predicateThroughClaim = scope
+        .slice(subjectIndex + subject[0].length, claimIndex + claim[0].length)
+        .split(predicateBoundary)
+        .at(-1)!
+      const predicateBeforeClaim = predicateThroughClaim.slice(
+        0,
+        predicateThroughClaim.length - claim[0].trim().length,
+      )
+      const prefixBeforeSubject = scope.slice(0, subjectIndex)
+      if (
+        negationPattern.test(predicateThroughClaim) ||
+        qualifiedClaimFrame.test(predicateBeforeClaim) ||
+        negatedReportingFrame.test(prefixBeforeSubject)
+      ) {
+        continue
       }
+      return { scope, subject: subject[0].trim(), claim: claim[0].trim() }
     }
   }
   return undefined
