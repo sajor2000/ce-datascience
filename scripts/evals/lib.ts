@@ -17,6 +17,7 @@ export type CriterionType =
   | "text_not_contains"
   | "regex"
   | "regex_not"
+  | "claim_absent"
   | "numeric"
   | "json_equals"
   | "json_set_equals"
@@ -43,6 +44,9 @@ export interface EvaluationCriterion {
   json_path?: string
   fixture_path?: string
   case_sensitive?: boolean
+  subjects?: string[]
+  claims?: string[]
+  negation_pattern?: string
 }
 
 export interface EvaluationCase {
@@ -199,6 +203,7 @@ const ALLOWED_CRITERION_TYPES = new Set<CriterionType>([
   "text_not_contains",
   "regex",
   "regex_not",
+  "claim_absent",
   "numeric",
   "json_equals",
   "json_set_equals",
@@ -382,6 +387,25 @@ function validateCriterionShape(criterion: EvaluationCriterion, index: number): 
       (!Number.isFinite(criterion.tolerance) || criterion.tolerance < 0)
     ) {
       errors.push(`${label}.tolerance must be zero or greater`)
+    }
+  }
+  if (criterion.type === "claim_absent") {
+    for (const field of ["subjects", "claims"] as const) {
+      const terms = criterion[field]
+      if (!Array.isArray(terms) || terms.length === 0) {
+        errors.push(`${label}.${field} must be a non-empty array for claim_absent`)
+      } else if (terms.some((term) => typeof term !== "string" || !term.trim())) {
+        errors.push(`${label}.${field} entries must be non-empty strings`)
+      }
+    }
+    if (typeof criterion.negation_pattern !== "string" || !criterion.negation_pattern.trim()) {
+      errors.push(`${label}.negation_pattern is required for claim_absent`)
+    } else {
+      try {
+        new RegExp(criterion.negation_pattern)
+      } catch (error) {
+        errors.push(`${label}.negation_pattern is invalid: ${(error as Error).message}`)
+      }
     }
   }
   if (["json_equals", "json_set_equals"].includes(criterion.type) && !criterion.json_path) {
@@ -646,6 +670,46 @@ function normalizeProseLineWraps(value: string): string {
   return normalized
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function boundedTermPattern(terms: string[]): string {
+  const alternatives = [...terms]
+    .sort((left, right) => right.length - left.length)
+    .map((term) => escapeRegex(term.trim()).replace(/\s+/g, "\\s+"))
+  return `(?:^|[^A-Za-z0-9_])(?:${alternatives.join("|")})(?=$|[^A-Za-z0-9_])`
+}
+
+function findAffirmativeClaim(
+  value: string,
+  criterion: EvaluationCriterion,
+): { scope: string; subject: string; claim: string } | undefined {
+  const flags = criterion.case_sensitive ? "g" : "gi"
+  const subjectPattern = boundedTermPattern(criterion.subjects!)
+  const claimPattern = boundedTermPattern(criterion.claims!)
+  const negationFlags = criterion.case_sensitive ? "" : "i"
+  const contrastBoundary = /\s*(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)/i
+
+  for (const sentenceValue of normalizeProseLineWraps(value).split(/(?<=[.!?])\s+/)) {
+    for (const scopeValue of sentenceValue.split(contrastBoundary)) {
+      const scope = scopeValue.trim()
+      if (!scope) continue
+      const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
+      const claims = [...scope.matchAll(new RegExp(claimPattern, flags))]
+      for (const claim of claims) {
+        const claimIndex = claim.index ?? 0
+        const subject = subjects.filter((candidate) => (candidate.index ?? 0) < claimIndex).at(-1)
+        if (!subject) continue
+        const prefixThroughClaim = scope.slice(0, claimIndex + claim[0].length)
+        if (new RegExp(criterion.negation_pattern!, negationFlags).test(prefixThroughClaim)) continue
+        return { scope, subject: subject[0].trim(), claim: claim[0].trim() }
+      }
+    }
+  }
+  return undefined
+}
+
 async function evaluateCriterion(
   criterion: EvaluationCriterion,
   artifact: Buffer | undefined,
@@ -693,6 +757,12 @@ async function evaluateCriterion(
         `${criterion.type} /${criterion.pattern}/${flags}` +
         `${criterion.type === "regex_not" ? " normalized-whitespace" : ""}` +
         ` matched=${matched} => ${passed}`
+    } else if (criterion.type === "claim_absent") {
+      const match = findAffirmativeClaim(raw, criterion)
+      passed = match === undefined
+      evidence = match
+        ? `affirmative claim found: subject=${JSON.stringify(match.subject)}; claim=${JSON.stringify(match.claim)}; scope=${JSON.stringify(match.scope)}`
+        : "no affirmative subject/claim sentence found"
     } else if (criterion.type === "numeric") {
       const flags = criterion.case_sensitive ? "m" : "im"
       const match = raw.match(new RegExp(criterion.pattern!, flags))

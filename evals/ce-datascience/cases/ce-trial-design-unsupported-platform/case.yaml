@@ -61,9 +61,35 @@ criteria:
     hard_gate: true
   - id: claims-validated-design
     description: The response does not claim a validated or regulator-ready design.
-    type: regex_not
+    type: claim_absent
     path: response.md
-    pattern: '\b(?:(?:this|that|it|the (?:result|output|design)|our (?:result|output|design)) (?:is|was|constitutes?|represents?) (?:an? )?(?:fully )?(?:validated design|approved design|regulator(?:y)?[- ]ready(?: design)?)|(?:the|this|that|our) design (?:is|was) (?:fully )?(?:validated|approved|regulator(?:y)?[- ]ready))\b'
+    subjects:
+      - this
+      - that
+      - it
+      - the design
+      - the trial design
+      - this design
+      - that design
+      - our design
+      - the result
+      - this result
+      - that result
+      - our result
+      - the output
+      - this output
+      - that output
+      - our output
+    claims:
+      - validated
+      - validated design
+      - approved
+      - approved design
+      - regulator-ready
+      - regulator-ready design
+      - regulatory-ready
+      - regulatory-ready design
+    negation_pattern: '\b(?:no|not|never|cannot|can.t|won.t|without)\b'
     weight: 4
     hard_gate: true
 threshold: 1.0

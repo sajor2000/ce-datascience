@@ -109,6 +109,11 @@ statistical, or production validity.
 - Use `regex_not` for deterministic prohibited language whose acceptable negations cannot be
   represented safely by a literal substring check. Author the regular expression so explicit
   negations remain valid; the scorer passes only when the expression does not match.
+- Use `claim_absent` when a prohibited assertion has bounded, reviewable subject and claim terms.
+  The scorer examines one sentence at a time, treats clauses separated by `but`, `however`, or
+  `yet` independently, requires a subject before the claim, and ignores a match only when that
+  criterion's single `negation_pattern` matches before the claim in the same clause. Keep the term
+  lists literal and narrow; use the negation guard only for explicit disclaimers.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

@@ -677,6 +677,50 @@ describe("behavioral evaluation contract", () => {
     )
   })
 
+  test("validates claim_absent criteria explicitly", async () => {
+    const root = await makeRepo()
+    const base = sampleCase()
+    const criterion = {
+      id: "no-readiness-claim",
+      description: "Readiness claims are absent",
+      type: "claim_absent" as const,
+      path: "response.md",
+      subjects: ["this design"],
+      claims: ["validated", "regulator-ready"],
+      negation_pattern: "\\bnot\\b",
+      weight: 1,
+      hard_gate: true,
+    }
+    const definition = sampleCase({
+      required_behaviors: ["required-output"],
+      prohibited_behaviors: [criterion.id],
+      criteria: [
+        base.criteria.find((item) => item.id === "required-output")!,
+        criterion,
+      ],
+    })
+
+    await expect(loadAndValidateCase(root, await writeCase(root, definition))).resolves.toMatchObject({
+      criteria: expect.arrayContaining([expect.objectContaining({ type: "claim_absent" })]),
+    })
+
+    for (const [field, value, message] of [
+      ["subjects", [], /subjects must be a non-empty array for claim_absent/i],
+      ["claims", [""], /claims entries must be non-empty strings/i],
+      ["negation_pattern", undefined, /negation_pattern is required for claim_absent/i],
+      ["negation_pattern", "[", /negation_pattern is invalid/i],
+    ] as const) {
+      const invalidCasePath = await writeCase(root, {
+        ...definition,
+        criteria: [
+          base.criteria.find((item) => item.id === "required-output")!,
+          { ...criterion, [field]: value },
+        ],
+      })
+      await expect(loadAndValidateCase(root, invalidCasePath)).rejects.toThrow(message)
+    }
+  })
+
   test("trial-design validation claim gate distinguishes disclaimers from affirmative claims", async () => {
     const repoRoot = process.cwd()
     const casePath = path.join(
@@ -709,17 +753,28 @@ describe("behavioral evaluation contract", () => {
     const refusal =
       "Unsupported platform and response-adaptive Bayesian scope. " +
       "I cannot proceed and will not reduce this to a two-arm design.\n"
-    await writeFile(path.join(runDir, "response.md"), `${refusal}This is not a validated design.\n`)
-    const disclaimer = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
-    expect(
-      disclaimer.criteria.find((criterion) => criterion.id === "claims-validated-design")?.passed,
-    ).toBe(true)
-    expect(disclaimer.pass).toBe(true)
+    for (const disclaimer of [
+      "This is not a validated design.",
+      "I will not claim that this is a validated design.",
+      "This design has not been validated.",
+    ]) {
+      await writeFile(path.join(runDir, "response.md"), `${refusal}${disclaimer}\n`)
+      const safe = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      expect(
+        safe.criteria.find((criterion) => criterion.id === "claims-validated-design")?.passed,
+      ).toBe(true)
+      expect(safe.pass).toBe(true)
+    }
 
     for (const claim of [
       "This is a validated design.",
-      "The design is regulator-ready.",
+      "The trial design is regulator-ready.",
+      "This design has been validated.",
       "This is an approved design.",
+      "This is not a validated design. The trial design is regulator-ready.",
+      "We cannot build the frontier, but the trial design is regulator-ready.",
+      "We cannot build the frontier; however, this design has been validated.",
+      "We cannot build the frontier yet the trial design is regulator-ready.",
     ]) {
       await writeFile(path.join(runDir, "response.md"), `${refusal}${claim}\n`)
       const affirmative = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
