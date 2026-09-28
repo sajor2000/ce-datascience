@@ -88,7 +88,7 @@ Use `review-pending` whenever a candidate is presented but the required statisti
 
 ## Data boundary
 
-The workflow should use aggregate design assumptions and operating characteristics. Do not place patient-level or row-level clinical data in the design package. Follow the project's approved restricted-data location if a specialized engine genuinely requires patient-level inputs; the frontier artifacts remain aggregate.
+Use aggregate design assumptions and operating characteristics. Do not place patient-level or row-level clinical data in the design package. Follow the project's approved restricted-data location if a specialized engine genuinely requires patient-level inputs; the frontier artifacts remain aggregate.
 
 ## References
 
