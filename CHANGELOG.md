@@ -6,6 +6,30 @@ requests. For the current release status and notes, use the repository's
 open release PRs; do not hand-add release entries from feature or documentation
 work.
 
+## [3.8.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.7.0...cli-v3.8.0) (2026-10-03)
+
+
+### Features
+
+* **trial-design:** add external-engine design frontiers ([b4cd593](https://github.com/sajor2000/ce-datascience/commit/b4cd593974f8604f012297021488fe82cdb6b840))
+* **trial-design:** add external-engine design frontiers ([902c1f8](https://github.com/sajor2000/ce-datascience/commit/902c1f831180de3e2aa5bf8ac6b1bc63f0ef9601))
+
+
+### Bug Fixes
+
+* **ci:** widen trial design test fixture types ([80fe702](https://github.com/sajor2000/ce-datascience/commit/80fe7028e25633bb925e21a444f5a1d2f4ae5d9d))
+* **evals:** bound validation claim negation ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([d3529fc](https://github.com/sajor2000/ce-datascience/commit/d3529fcf6d15cbb2ca29472051db8b3fde02b2f6))
+* **evals:** make claim gates negation-aware ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([3ee3204](https://github.com/sajor2000/ce-datascience/commit/3ee3204784e960b77fee908ded16199407060f9a))
+* **evals:** make claim ownership clause-local ([2a8e5b2](https://github.com/sajor2000/ce-datascience/commit/2a8e5b295626afdecf8dacb85c9e113f0ae8751c))
+* **evals:** tighten claim grammar predicates ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([1f6acfa](https://github.com/sajor2000/ce-datascience/commit/1f6acfa8bf5247602991e4ed92b148da1386dd92))
+* **review:** apply review findings ([5667155](https://github.com/sajor2000/ce-datascience/commit/56671553a66dfaa8ef9c933611b72595a3721889))
+* **trial-design:** address review feedback ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([01c1aa3](https://github.com/sajor2000/ce-datascience/commit/01c1aa3265a0d699938ec0b1163f85b409087c10))
+* **trial-design:** close remaining review findings ([35d4df8](https://github.com/sajor2000/ce-datascience/commit/35d4df838311aa48706d65a45905db09b3dc8416))
+* **trial-design:** complete claim grammar class ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([d4e8a9e](https://github.com/sajor2000/ce-datascience/commit/d4e8a9eba25c0f4ccc936d91303f7bdcaa661f01))
+* **trial-design:** expose simulation bounds in handoff ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([ee2af81](https://github.com/sajor2000/ce-datascience/commit/ee2af81c45a484f7a7b1648e3c8dec1f75735b10))
+* **trial-design:** preserve handoff bound precision ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([d9c9aa1](https://github.com/sajor2000/ce-datascience/commit/d9c9aa1990fccdfc40bb7510c2b94aaa2143087c))
+* **trial-design:** tighten review contracts ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([cdb101d](https://github.com/sajor2000/ce-datascience/commit/cdb101dd23c5963260f69fb5fa447e9cd1cb7230))
+
 ## [3.7.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.6.0...cli-v3.7.0) (2026-09-05)
 
 
