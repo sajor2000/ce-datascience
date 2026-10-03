@@ -110,10 +110,16 @@ statistical, or production validity.
   represented safely by a literal substring check. Author the regular expression so explicit
   negations remain valid; the scorer passes only when the expression does not match.
 - Use `claim_absent` when a prohibited assertion has bounded, reviewable subject and claim terms.
-  The scorer examines one sentence at a time, treats clauses separated by `but`, `however`, or
-  `yet` independently, requires a subject before the claim, and ignores a match only when that
-  criterion's single `negation_pattern` matches before the claim in the same clause. Keep the term
-  lists literal and narrow; use the negation guard only for explicit disclaimers.
+  The scorer uses a deterministic clause grammar rather than general language parsing. Periods,
+  question marks, exclamation marks, semicolons, commas, and en/em dashes end subject ownership. A
+  colon carries ownership only when its left side consists solely of a configured subject, as in
+  `The trial design: regulator-ready`. `but`, `however`, `yet`, and `and` carry the prior subject
+  only when the following text starts with a supported predicate verb (`is`, `are`, `was`, `were`,
+  `has`, `have`, `had`, a modal, `require`, or `need`); a preceding semicolon always prevents that
+  carry. Within each resulting clause, the scorer requires a configured subject before the claim
+  or an explicitly carried subject, then evaluates negation, qualification, and negated reporting
+  frames in that same clause. Keep subject and claim lists literal and narrow, and use the single
+  `negation_pattern` only for explicit disclaimers.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

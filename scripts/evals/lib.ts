@@ -681,6 +681,58 @@ function boundedTermPattern(terms: string[]): string {
   return `(?:^|[^A-Za-z0-9_])(?:${alternatives.join("|")})(?=$|[^A-Za-z0-9_])`
 }
 
+interface ClaimClause {
+  scope: string
+  inheritedSubject?: string
+}
+
+function parseClaimClauses(
+  value: string,
+  subjectPattern: string,
+  caseSensitive: boolean | undefined,
+): ClaimClause[] {
+  const clauses: ClaimClause[] = []
+  const subjectFlags = caseSensitive ? "g" : "gi"
+  const predicateStart =
+    /^(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b/i
+  const boundaryPattern =
+    /(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)|\band\s+(?=(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b)|[.!?](?:\s+|$)|[;,\u2013\u2014]\s*|:\s*/gi
+  const normalized = normalizeProseLineWraps(value)
+  let cursor = 0
+  let inheritedSubject: string | undefined
+
+  for (const boundary of [...normalized.matchAll(boundaryPattern), undefined]) {
+    const boundaryIndex = boundary?.index ?? normalized.length
+    const scope = normalized.slice(cursor, boundaryIndex).trim()
+    const subjects = scope
+      ? [...scope.matchAll(new RegExp(subjectPattern, subjectFlags))]
+      : []
+    const explicitSubject = subjects.at(-1)?.[0].trim()
+    const ownedSubject = explicitSubject ?? inheritedSubject
+    if (scope) clauses.push({ scope, inheritedSubject })
+
+    if (!boundary) break
+
+    const delimiter = boundary[0]
+    const remainder = normalized.slice(boundaryIndex + delimiter.length).trimStart()
+    const colonAfterSubjectLabel =
+      delimiter.trim() === ":" &&
+      explicitSubject !== undefined &&
+      scope.slice(0, subjects.at(-1)!.index).trim() === "" &&
+      scope.slice((subjects.at(-1)!.index ?? 0) + subjects.at(-1)![0].length).trim() === ""
+    const coordinatedPredicate =
+      !delimiter.includes(";") &&
+      /\b(?:but|however|yet|and)\b/i.test(delimiter) &&
+      predicateStart.test(remainder)
+
+    inheritedSubject =
+      ownedSubject && (colonAfterSubjectLabel || coordinatedPredicate) ? ownedSubject : undefined
+    cursor = boundaryIndex + delimiter.length
+  }
+
+  return clauses
+}
+
 function findAffirmativeClaim(
   value: string,
   criterion: EvaluationCriterion,
@@ -689,8 +741,6 @@ function findAffirmativeClaim(
   const subjectPattern = boundedTermPattern(criterion.subjects!)
   const claimPattern = boundedTermPattern(criterion.claims!)
   const negationFlags = criterion.case_sensitive ? "" : "i"
-  const predicateBoundary =
-    /\s*(?:(?:[;:]|[\u2013\u2014])\s*|(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)|\band\s+(?=(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b))/i
   const negationPattern = new RegExp(criterion.negation_pattern!, negationFlags)
   const qualifiedClaimFrame =
     /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:must|should)\s+be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
@@ -704,25 +754,28 @@ function findAffirmativeClaim(
     negationFlags,
   )
 
-  for (const sentenceValue of normalizeProseLineWraps(value).split(/(?<=[.!?])\s+/)) {
-    const scope = sentenceValue.trim()
-    if (!scope) continue
+  for (const { scope, inheritedSubject } of parseClaimClauses(
+    value,
+    subjectPattern,
+    criterion.case_sensitive,
+  )) {
     const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
     const claims = [...scope.matchAll(new RegExp(claimPattern, flags))]
     for (const claim of claims) {
       const claimIndex = claim.index ?? 0
-      const subject = subjects.filter((candidate) => (candidate.index ?? 0) < claimIndex).at(-1)
+      const explicitSubject = subjects
+        .filter((candidate) => (candidate.index ?? 0) < claimIndex)
+        .at(-1)
+      const subject = explicitSubject?.[0].trim() ?? inheritedSubject
       if (!subject) continue
-      const subjectIndex = subject.index ?? 0
-      const predicateThroughClaim = scope
-        .slice(subjectIndex + subject[0].length, claimIndex + claim[0].length)
-        .split(predicateBoundary)
-        .at(-1)!
+      const subjectIndex = explicitSubject?.index ?? 0
+      const predicateStart = explicitSubject ? subjectIndex + explicitSubject[0].length : 0
+      const predicateThroughClaim = scope.slice(predicateStart, claimIndex + claim[0].length)
       const predicateBeforeClaim = predicateThroughClaim.slice(
         0,
         predicateThroughClaim.length - claim[0].trim().length,
       )
-      const prefixBeforeSubject = scope.slice(0, subjectIndex)
+      const prefixBeforeSubject = explicitSubject ? scope.slice(0, subjectIndex) : ""
       if (
         negationPattern.test(predicateThroughClaim) ||
         qualifiedClaimFrame.test(predicateBeforeClaim) ||
@@ -730,7 +783,7 @@ function findAffirmativeClaim(
       ) {
         continue
       }
-      return { scope, subject: subject[0].trim(), claim: claim[0].trim() }
+      return { scope, subject, claim: claim[0].trim() }
     }
   }
   return undefined
