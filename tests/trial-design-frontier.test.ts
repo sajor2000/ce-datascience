@@ -332,6 +332,40 @@ describe("trial-design frontier builder", () => {
     expect(await new Response(third.proc.stderr).text()).toContain("information_rates[0] must be numeric")
   })
 
+  test("rejects spreadsheet-active identifiers before CSV publication", async () => {
+    const cases = [
+      {
+        mutate: (value: TrialSpec) => { value.scenarios[0].id = "=base" },
+        error: "scenarios[0].id must start with an ASCII letter or digit",
+      },
+      {
+        mutate: (value: TrialSpec) => { value.candidates[0].id = "+base-a" },
+        error: "candidates[0].id must start with an ASCII letter or digit",
+      },
+      {
+        mutate: (value: TrialSpec) => { value.candidates[0].scenario_id = "@base" },
+        error: "candidates[0].scenario_id must start with an ASCII letter or digit",
+      },
+      {
+        mutate: (value: TrialSpec) => { value.engine.version = "-4.3.0" },
+        error: "engine version must start with an ASCII letter or digit",
+      },
+    ]
+
+    for (const testCase of cases) {
+      const root = await makeTempRoot()
+      const invalid = structuredClone(spec)
+      testCase.mutate(invalid)
+      const { proc } = await runFrontier(
+        root,
+        invalid,
+        `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`,
+      )
+      expect(await proc.exited).toBe(2)
+      expect(await new Response(proc.stderr).text()).toContain(testCase.error)
+    }
+  })
+
   test("rejects undeclared candidates and impossible expected information", async () => {
     const root = await makeTempRoot()
     const narrowSpec = structuredClone(spec)

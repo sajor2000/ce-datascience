@@ -776,7 +776,8 @@ function findAffirmativeClaim(
   const negationFlags = criterion.case_sensitive ? "" : "i"
   const predicateHead = new RegExp(`\\b${CLAIM_PREDICATE_HEAD_SOURCE}\\b`, "i")
   const qualifiedClaimFrame =
-    /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:must|should)\s+be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
+    /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:has|have|had)\s+to\s+be|\b(?:must|should)\s+(?:(?:first|still|also|independently|formally|externally|clinically|statistically|regulatorily)\s+){0,2}be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
+  const temporalOrConditionalFrame = /^(?:before|until|unless|if)\b/i
   const negatedReportingFrame = new RegExp(
     `${criterion.negation_pattern!}\\s+(?:(?:[A-Za-z]+['\u2019]?[A-Za-z]*)\\s+){0,2}` +
       "(?:claim(?:s|ed|ing)?|stat(?:e|es|ed|ing)|assert(?:s|ed|ing)?|" +
@@ -798,7 +799,13 @@ function findAffirmativeClaim(
     for (const claim of claims) {
       const claimIndex = claim.index ?? 0
       const explicitSubject = subjects
-        .filter((candidate) => (candidate.index ?? 0) < claimIndex)
+        .filter((candidate) => {
+          const candidateIndex = candidate.index ?? 0
+          if (candidateIndex >= claimIndex) return false
+          if (candidate[0].trim().toLowerCase() !== "that") return true
+          const afterSubject = scope.slice(candidateIndex + candidate[0].length, claimIndex)
+          return predicateHead.test(afterSubject)
+        })
         .at(-1)
       const subject = explicitSubject?.[0].trim() ?? inheritedSubject
       if (!subject) continue
@@ -820,6 +827,7 @@ function findAffirmativeClaim(
           criterion.case_sensitive,
         ) ||
         qualifiedClaimFrame.test(predicateBeforeClaim) ||
+        temporalOrConditionalFrame.test(prefixBeforeSubject.trimStart()) ||
         negatedReportingFrame.test(prefixBeforeSubject)
       ) {
         continue

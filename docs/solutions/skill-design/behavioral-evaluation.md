@@ -120,9 +120,13 @@ statistical, or production validity.
   `also`, to cover elliptical predicates such as `not validated but regulator-ready`; a preceding
   semicolon always prevents that carry. Within each resulting clause, the scorer requires a
   configured subject before the claim or an explicitly carried subject, then evaluates negation,
-  qualification, and negated reporting frames in that same clause. `not only`, `not merely`, and
-  `not just` are contrastive frames, not ordinary negations. Keep subject and claim lists literal
-  and narrow, and use the single `negation_pattern` only for explicit disclaimers.
+  qualification, temporal or conditional prerequisites, and negated reporting frames in that same
+  clause. Bare `that` owns a claim only when a supported predicate follows it, so a complementizer
+  such as `confirmation that an approved protocol exists` does not become the claim subject.
+  Qualified predicates include `has to be`, `needs to be`, and `must` or `should` with up to two
+  supported adverbs before `be`. `not only`, `not merely`, and `not just` are contrastive frames,
+  not ordinary negations. Keep subject and claim lists literal and narrow, and use the single
+  `negation_pattern` only for explicit disclaimers.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

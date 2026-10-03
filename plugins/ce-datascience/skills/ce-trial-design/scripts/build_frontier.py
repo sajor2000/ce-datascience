@@ -14,6 +14,7 @@ import io
 import json
 import math
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -74,6 +75,16 @@ def require_nonempty_string(value: Any, name: str) -> str:
     return value.strip()
 
 
+def require_csv_identifier(value: Any, name: str) -> str:
+    identifier = require_nonempty_string(value, name)
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._+-]*", identifier):
+        raise ContractError(
+            f"{name} must start with an ASCII letter or digit and contain only "
+            "ASCII letters, digits, dot, underscore, plus, or hyphen"
+        )
+    return identifier
+
+
 def require_number(value: Any, name: str, *, positive: bool = False) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ContractError(f"{name} must be numeric")
@@ -119,7 +130,7 @@ def load_spec(contents: bytes) -> dict[str, Any]:
     engine_version = engine.get("version")
     if engine_name not in SUPPORTED_ENGINES:
         raise ContractError("engine name must be rpact or gsDesign")
-    require_nonempty_string(engine_version, "engine version")
+    require_csv_identifier(engine_version, "engine version")
 
     endpoint = require_mapping(spec.get("endpoint"), "endpoint")
     for field in ("type", "name", "estimand", "effect_scale"):
@@ -164,9 +175,7 @@ def load_spec(contents: bytes) -> dict[str, Any]:
     scenario_ids: list[str] = []
     for index, scenario in enumerate(scenarios):
         scenario = require_mapping(scenario, f"scenarios[{index}]")
-        scenario_id = scenario.get("id")
-        if not isinstance(scenario_id, str) or not scenario_id.strip():
-            raise ContractError(f"scenarios[{index}].id must be a non-empty string")
+        scenario_id = require_csv_identifier(scenario.get("id"), f"scenarios[{index}].id")
         if "alternative" not in scenario:
             raise ContractError(f"scenarios[{index}].alternative is required")
         require_number(scenario["alternative"], f"scenarios[{index}].alternative")
@@ -181,8 +190,8 @@ def load_spec(contents: bytes) -> dict[str, Any]:
     candidate_pairs: list[tuple[str, str]] = []
     for index, candidate in enumerate(candidates):
         candidate = require_mapping(candidate, f"candidates[{index}]")
-        scenario_id = require_nonempty_string(candidate.get("scenario_id"), f"candidates[{index}].scenario_id")
-        candidate_id = require_nonempty_string(candidate.get("id"), f"candidates[{index}].id")
+        scenario_id = require_csv_identifier(candidate.get("scenario_id"), f"candidates[{index}].scenario_id")
+        candidate_id = require_csv_identifier(candidate.get("id"), f"candidates[{index}].id")
         if scenario_id not in scenario_ids:
             raise ContractError(f"candidates[{index}].scenario_id is not declared")
         parameters = require_mapping(candidate.get("parameters"), f"candidates[{index}].parameters")

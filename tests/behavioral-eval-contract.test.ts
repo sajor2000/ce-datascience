@@ -770,6 +770,31 @@ describe("behavioral evaluation contract", () => {
       { class: "qualified predicate", text: "It would need to be validated.", passed: true },
       { class: "protocol requirement", text: "This requires an approved protocol.", passed: true },
       {
+        class: "complementizer is not a claim subject",
+        text: "I would need confirmation that an approved protocol exists.",
+        passed: true,
+      },
+      {
+        class: "qualified predicate with bounded adverb",
+        text: "It must first be validated by a qualified statistician.",
+        passed: true,
+      },
+      {
+        class: "qualified has-to predicate",
+        text: "It has to be validated by a qualified statistician.",
+        passed: true,
+      },
+      {
+        class: "temporal prerequisite",
+        text: "Until this design is validated, do not use it.",
+        passed: true,
+      },
+      {
+        class: "temporal modal prerequisite",
+        text: "Before it can be approved, a qualified statistician must review it.",
+        passed: true,
+      },
+      {
         class: "semicolon resets subject ownership",
         text: "This design is not validated; an approved protocol is required.",
         passed: true,

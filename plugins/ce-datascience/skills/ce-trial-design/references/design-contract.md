@@ -6,7 +6,7 @@
 
 - `design_id`: stable non-empty identifier
 - `engine.name`: exactly `rpact` or `gsDesign`
-- `engine.version`: exact expected package version
+- `engine.version`: exact expected package version using the CSV-safe identifier grammar below
 - `target.alpha`: overall type I error target on the scale emitted by the engine
 - `target.power`: minimum acceptable achieved power
 - `target.type1_error_tolerance`: explicit non-negative numerical tolerance, normally zero for exact calculations
@@ -15,11 +15,16 @@
 - `design`: shared information unit and allocation ratio
 - `design.arm_count`: exactly `2`
 - `design.framework`: exactly `frequentist-group-sequential`
-- `candidates`: non-empty candidate grid with unique `scenario_id`/`id` pairs; each candidate declares its information rates, efficacy rule, futility rule and binding status, and exact engine arguments
-- `scenarios`: non-empty array with unique `id` values
+- `candidates`: non-empty candidate grid with unique `scenario_id`/`id` pairs; each identifier uses the CSV-safe grammar below, and each candidate declares its information rates, efficacy rule, futility rule and binding status, and exact engine arguments
+- `scenarios`: non-empty array with unique CSV-safe `id` values
 - `review`: explicit `statistician` value (`null` until named) and status of `pending`, `in_review`, or `completed`; completed review requires a named statistician and a non-empty evidence array
 - `simulation`: required and `null` for exact calculations, or a complete algorithm/iterations/seed/Monte Carlo criterion object with `decision_rule: conservative_bounds`
 - `unresolved`: array of unresolved constraints, which may be empty
+
+CSV-bound scenario IDs, candidate IDs, and engine versions must match
+`[A-Za-z0-9][A-Za-z0-9._+-]*`. Requiring an ASCII letter or digit first prevents spreadsheet
+formula prefixes (`=`, `+`, `-`, or `@`) while retaining ordinary package-version and identifier
+syntax.
 
 The reviewable design package must also declare:
 
