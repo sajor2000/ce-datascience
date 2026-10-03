@@ -674,12 +674,19 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
-function boundedTermPattern(terms: string[]): string {
-  const alternatives = [...terms]
+function termAlternation(terms: string[]): string {
+  return [...terms]
     .sort((left, right) => right.length - left.length)
     .map((term) => escapeRegex(term.trim()).replace(/\s+/g, "\\s+"))
-  return `(?:^|[^A-Za-z0-9_])(?:${alternatives.join("|")})(?=$|[^A-Za-z0-9_])`
+    .join("|")
 }
+
+function boundedTermPattern(terms: string[]): string {
+  return `(?:^|[^A-Za-z0-9_])(?:${termAlternation(terms)})(?=$|[^A-Za-z0-9_])`
+}
+
+const CLAIM_PREDICATE_HEAD_SOURCE =
+  "(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)(?:n['\\u2019]t)?"
 
 interface ClaimClause {
   scope: string
@@ -694,19 +701,14 @@ function parseClaimClauses(
 ): ClaimClause[] {
   const clauses: ClaimClause[] = []
   const subjectFlags = caseSensitive ? "g" : "gi"
-  const predicateStartSource =
-    "(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)"
-  const predicateStart = new RegExp(`^${predicateStartSource}\\b`, "i")
+  const predicateStart = new RegExp(`^${CLAIM_PREDICATE_HEAD_SOURCE}\\b`, "i")
   const ellipticalClaimStart = new RegExp(
-    `^(?:also\\s+)?(?:${[...claims]
-      .sort((left, right) => right.length - left.length)
-      .map((term) => escapeRegex(term.trim()).replace(/\\s+/g, "\\s+"))
-      .join("|")})(?=$|[^A-Za-z0-9_])`,
+    `^(?:also\\s+)?(?:${termAlternation(claims)})(?=$|[^A-Za-z0-9_])`,
     caseSensitive ? "" : "i",
   )
   const boundaryPattern = new RegExp(
     `(?:[,;:]\\s*)?\\b(?:but|however|yet)\\b(?:\\s*[,;:]\\s*|\\s+)|` +
-      `\\band\\s+(?=${predicateStartSource}\\b)|[.!?](?:\\s+|$)|[;,\\u2013\\u2014]\\s*|:\\s*`,
+      `\\band\\s+(?=${CLAIM_PREDICATE_HEAD_SOURCE}\\b)|[.!?](?:\\s+|$)|[;,\\u2013\\u2014]\\s*|:\\s*`,
     "gi",
   )
   const normalized = normalizeProseLineWraps(value)
@@ -772,6 +774,7 @@ function findAffirmativeClaim(
   const subjectPattern = boundedTermPattern(criterion.subjects!)
   const claimPattern = boundedTermPattern(criterion.claims!)
   const negationFlags = criterion.case_sensitive ? "" : "i"
+  const predicateHead = new RegExp(`\\b${CLAIM_PREDICATE_HEAD_SOURCE}\\b`, "i")
   const qualifiedClaimFrame =
     /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:must|should)\s+be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
   const negatedReportingFrame = new RegExp(
@@ -801,7 +804,10 @@ function findAffirmativeClaim(
       if (!subject) continue
       const subjectIndex = explicitSubject?.index ?? 0
       const predicateStart = explicitSubject ? subjectIndex + explicitSubject[0].length : 0
-      const predicateThroughClaim = scope.slice(predicateStart, claimIndex + claim[0].length)
+      const spanThroughClaim = scope.slice(predicateStart, claimIndex + claim[0].length)
+      const predicateHeadIndex = spanThroughClaim.search(predicateHead)
+      const predicateThroughClaim =
+        predicateHeadIndex >= 0 ? spanThroughClaim.slice(predicateHeadIndex) : spanThroughClaim
       const predicateBeforeClaim = predicateThroughClaim.slice(
         0,
         predicateThroughClaim.length - claim[0].trim().length,

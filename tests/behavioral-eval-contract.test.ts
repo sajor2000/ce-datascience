@@ -834,6 +834,21 @@ describe("behavioral evaluation contract", () => {
         passed: false,
       },
       {
+        class: "multi-word elliptical claim accepts flexible whitespace",
+        text: "The trial design is not validated but regulator-ready   design.",
+        passed: false,
+      },
+      {
+        class: "negated subject modifier does not negate affirmative predicate",
+        text: "This design without simulation evidence is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "no subject modifier does not negate affirmative predicate",
+        text: "This design with no external-engine output is validated.",
+        passed: false,
+      },
+      {
         class: "contrastive not-only phrase is not ordinary negation",
         text: "The trial design is not only feasible but also regulator-ready.",
         passed: false,
