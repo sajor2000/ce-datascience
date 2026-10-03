@@ -26,6 +26,7 @@ async function runFrontier(
   spec: unknown,
   results: string,
   runtimeOverrides: Record<string, unknown> = {},
+  specContentsOverride?: string,
 ) {
   const specPath = path.join(root, "design-spec.json")
   const resultsPath = path.join(root, "engine-results.csv")
@@ -34,7 +35,7 @@ async function runFrontier(
   const sessionInfoPath = path.join(root, "session-info.txt")
   const runtimeProvenancePath = path.join(root, "runtime-provenance.json")
   const outputDir = path.join(root, "frontier")
-  const specContents = JSON.stringify(spec)
+  const specContents = specContentsOverride ?? JSON.stringify(spec)
   await writeFile(specPath, specContents, "utf8")
   await writeFile(resultsPath, results, "utf8")
   await writeFile(engineScriptPath, "# synthetic test engine script\n", "utf8")
@@ -484,7 +485,11 @@ describe("trial-design frontier builder", () => {
     const cases = [
       { field: "algorithm", value: "", error: "simulation.algorithm" },
       { field: "iterations", value: 0, error: "simulation.iterations" },
+      { field: "iterations", value: 10.5, error: "simulation.iterations" },
       { field: "seed", value: true, error: "simulation.seed" },
+      { field: "seed", value: 42.5, error: "simulation.seed" },
+      { field: "seed", value: -1, error: "simulation.seed must be between 0 and 2147483647" },
+      { field: "seed", value: 2147483648, error: "simulation.seed must be between 0 and 2147483647" },
       { field: "monte_carlo_criterion", value: "", error: "simulation.monte_carlo_criterion" },
       { field: "decision_rule", value: "point_estimates", error: "simulation.decision_rule" },
     ]
@@ -572,6 +577,51 @@ describe("trial-design frontier builder", () => {
       const { proc } = await runFrontier(root, invalid, results)
       expect(await proc.exited).toBe(2)
       expect(await new Response(proc.stderr).text()).toContain(testCase.error)
+    }
+  })
+
+  test("fails closed on non-numeric or non-finite endpoint and scenario effects", async () => {
+    const results = `${header}\nbase,base-a,rpact,4.3.0,3,0.91,0.0249,500,420,350,,`
+    const cases = [
+      { field: "endpoint.null", value: null, error: "endpoint.null" },
+      { field: "endpoint.null", value: true, error: "endpoint.null" },
+      { field: "endpoint.null", value: "0", error: "endpoint.null" },
+      { field: "endpoint.null", value: "__NaN__", rawLiteral: "NaN", error: "endpoint.null" },
+      { field: "endpoint.null", value: "__Infinity__", rawLiteral: "Infinity", error: "endpoint.null" },
+      { field: "scenarios[0].alternative", value: null, error: "scenarios[0].alternative" },
+      { field: "scenarios[0].alternative", value: true, error: "scenarios[0].alternative" },
+      { field: "scenarios[0].alternative", value: "0.35", error: "scenarios[0].alternative" },
+      {
+        field: "scenarios[0].alternative",
+        value: "__NaN__",
+        rawLiteral: "NaN",
+        error: "scenarios[0].alternative",
+      },
+      {
+        field: "scenarios[0].alternative",
+        value: "__Infinity__",
+        rawLiteral: "Infinity",
+        error: "scenarios[0].alternative",
+      },
+    ]
+
+    for (const testCase of cases) {
+      const root = await makeTempRoot()
+      const invalid = structuredClone(spec) as any
+      invalid.scenarios = [invalid.scenarios[0]]
+      invalid.candidates = [candidate("base", "base-a")]
+      if (testCase.field === "endpoint.null") {
+        invalid.endpoint.null = testCase.value
+      } else {
+        invalid.scenarios[0].alternative = testCase.value
+      }
+      const serialized = JSON.stringify(invalid)
+      const specContents = testCase.rawLiteral
+        ? serialized.replace(JSON.stringify(testCase.value), testCase.rawLiteral)
+        : serialized
+      const { proc } = await runFrontier(root, invalid, results, {}, specContents)
+      expect(await proc.exited, testCase.field).toBe(2)
+      expect(await new Response(proc.stderr).text(), testCase.field).toContain(testCase.error)
     }
   })
 

@@ -689,14 +689,26 @@ interface ClaimClause {
 function parseClaimClauses(
   value: string,
   subjectPattern: string,
+  claims: string[],
   caseSensitive: boolean | undefined,
 ): ClaimClause[] {
   const clauses: ClaimClause[] = []
   const subjectFlags = caseSensitive ? "g" : "gi"
-  const predicateStart =
-    /^(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b/i
-  const boundaryPattern =
-    /(?:[,;:]\s*)?\b(?:but|however|yet)\b(?:\s*[,;:]\s*|\s+)|\band\s+(?=(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)\b)|[.!?](?:\s+|$)|[;,\u2013\u2014]\s*|:\s*/gi
+  const predicateStartSource =
+    "(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)"
+  const predicateStart = new RegExp(`^${predicateStartSource}\\b`, "i")
+  const ellipticalClaimStart = new RegExp(
+    `^(?:also\\s+)?(?:${[...claims]
+      .sort((left, right) => right.length - left.length)
+      .map((term) => escapeRegex(term.trim()).replace(/\\s+/g, "\\s+"))
+      .join("|")})(?=$|[^A-Za-z0-9_])`,
+    caseSensitive ? "" : "i",
+  )
+  const boundaryPattern = new RegExp(
+    `(?:[,;:]\\s*)?\\b(?:but|however|yet)\\b(?:\\s*[,;:]\\s*|\\s+)|` +
+      `\\band\\s+(?=${predicateStartSource}\\b)|[.!?](?:\\s+|$)|[;,\\u2013\\u2014]\\s*|:\\s*`,
+    "gi",
+  )
   const normalized = normalizeProseLineWraps(value)
   let cursor = 0
   let inheritedSubject: string | undefined
@@ -707,7 +719,8 @@ function parseClaimClauses(
     const subjects = scope
       ? [...scope.matchAll(new RegExp(subjectPattern, subjectFlags))]
       : []
-    const explicitSubject = subjects.at(-1)?.[0].trim()
+    const lastSubject = subjects.at(-1)
+    const explicitSubject = lastSubject?.[0].trim()
     const ownedSubject = explicitSubject ?? inheritedSubject
     if (scope) clauses.push({ scope, inheritedSubject })
 
@@ -718,12 +731,13 @@ function parseClaimClauses(
     const colonAfterSubjectLabel =
       delimiter.trim() === ":" &&
       explicitSubject !== undefined &&
-      scope.slice(0, subjects.at(-1)!.index).trim() === "" &&
-      scope.slice((subjects.at(-1)!.index ?? 0) + subjects.at(-1)![0].length).trim() === ""
+      scope.slice(0, lastSubject?.index).trim() === "" &&
+      scope.slice((lastSubject?.index ?? 0) + (lastSubject?.[0].length ?? 0)).trim() === ""
     const coordinatedPredicate =
       !delimiter.includes(";") &&
       /\b(?:but|however|yet|and)\b/i.test(delimiter) &&
-      predicateStart.test(remainder)
+      (predicateStart.test(remainder) ||
+        (/\b(?:but|however|yet)\b/i.test(delimiter) && ellipticalClaimStart.test(remainder)))
 
     inheritedSubject =
       ownedSubject && (colonAfterSubjectLabel || coordinatedPredicate) ? ownedSubject : undefined
@@ -731,6 +745,23 @@ function parseClaimClauses(
   }
 
   return clauses
+}
+
+function hasOrdinaryNegation(
+  value: string,
+  pattern: string,
+  caseSensitive: boolean | undefined,
+): boolean {
+  const flags = caseSensitive ? "g" : "gi"
+  for (const match of value.matchAll(new RegExp(pattern, flags))) {
+    const matchEnd = (match.index ?? 0) + match[0].length
+    const contrastiveSuffix = value.slice(matchEnd)
+    if (match[0].toLowerCase() === "not" && /^\s+(?:only|merely|just)\b/i.test(contrastiveSuffix)) {
+      continue
+    }
+    return true
+  }
+  return false
 }
 
 function findAffirmativeClaim(
@@ -741,7 +772,6 @@ function findAffirmativeClaim(
   const subjectPattern = boundedTermPattern(criterion.subjects!)
   const claimPattern = boundedTermPattern(criterion.claims!)
   const negationFlags = criterion.case_sensitive ? "" : "i"
-  const negationPattern = new RegExp(criterion.negation_pattern!, negationFlags)
   const qualifiedClaimFrame =
     /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:must|should)\s+be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
   const negatedReportingFrame = new RegExp(
@@ -757,6 +787,7 @@ function findAffirmativeClaim(
   for (const { scope, inheritedSubject } of parseClaimClauses(
     value,
     subjectPattern,
+    criterion.claims!,
     criterion.case_sensitive,
   )) {
     const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
@@ -777,7 +808,11 @@ function findAffirmativeClaim(
       )
       const prefixBeforeSubject = explicitSubject ? scope.slice(0, subjectIndex) : ""
       if (
-        negationPattern.test(predicateThroughClaim) ||
+        hasOrdinaryNegation(
+          predicateThroughClaim,
+          criterion.negation_pattern!,
+          criterion.case_sensitive,
+        ) ||
         qualifiedClaimFrame.test(predicateBeforeClaim) ||
         negatedReportingFrame.test(prefixBeforeSubject)
       ) {

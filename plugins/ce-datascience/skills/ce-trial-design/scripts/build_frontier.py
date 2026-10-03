@@ -46,6 +46,7 @@ UNCERTAINTY_FIELDS = (
 RESULT_FIELDS = (*IDENTIFIER_FIELDS, *NUMERIC_FIELDS, *UNCERTAINTY_FIELDS)
 SUPPORTED_REVIEW_STATUSES = {"pending", "in_review", "completed"}
 SUPPORTED_SIMULATION_DECISION_RULE = "conservative_bounds"
+MAX_SIMULATION_SEED = 2_147_483_647
 
 
 class ContractError(ValueError):
@@ -83,6 +84,26 @@ def require_number(value: Any, name: str, *, positive: bool = False) -> float:
     return number
 
 
+def require_integer(
+    value: Any,
+    name: str,
+    *,
+    minimum: int | None = None,
+    maximum: int | None = None,
+) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ContractError(f"{name} must be an integer")
+    if minimum is not None and value < minimum:
+        if maximum is None and minimum == 1:
+            raise ContractError(f"{name} must be a positive integer")
+        qualifier = f"at least {minimum}" if maximum is None else f"between {minimum} and {maximum}"
+        raise ContractError(f"{name} must be {qualifier}")
+    if maximum is not None and value > maximum:
+        qualifier = f"at most {maximum}" if minimum is None else f"between {minimum} and {maximum}"
+        raise ContractError(f"{name} must be {qualifier}")
+    return value
+
+
 def load_spec(contents: bytes) -> dict[str, Any]:
     try:
         spec = json.loads(contents.decode("utf-8"))
@@ -105,6 +126,7 @@ def load_spec(contents: bytes) -> dict[str, Any]:
         require_nonempty_string(endpoint.get(field), f"endpoint.{field}")
     if "null" not in endpoint:
         raise ContractError("endpoint.null is required")
+    require_number(endpoint["null"], "endpoint.null")
 
     hypothesis = require_mapping(spec.get("hypothesis"), "hypothesis")
     if hypothesis.get("type") != "superiority":
@@ -147,6 +169,7 @@ def load_spec(contents: bytes) -> dict[str, Any]:
             raise ContractError(f"scenarios[{index}].id must be a non-empty string")
         if "alternative" not in scenario:
             raise ContractError(f"scenarios[{index}].alternative is required")
+        require_number(scenario["alternative"], f"scenarios[{index}].alternative")
         require_nonempty_string(scenario.get("provenance"), f"scenarios[{index}].provenance")
         scenario_ids.append(scenario_id)
     if len(scenario_ids) != len(set(scenario_ids)):
@@ -198,8 +221,13 @@ def load_spec(contents: bytes) -> dict[str, Any]:
     if spec["simulation"] is not None:
         simulation = require_mapping(spec["simulation"], "simulation")
         require_nonempty_string(simulation.get("algorithm"), "simulation.algorithm")
-        require_number(simulation.get("iterations"), "simulation.iterations", positive=True)
-        require_number(simulation.get("seed"), "simulation.seed")
+        require_integer(simulation.get("iterations"), "simulation.iterations", minimum=1)
+        require_integer(
+            simulation.get("seed"),
+            "simulation.seed",
+            minimum=0,
+            maximum=MAX_SIMULATION_SEED,
+        )
         require_nonempty_string(simulation.get("monte_carlo_criterion"), "simulation.monte_carlo_criterion")
         if simulation.get("decision_rule") != SUPPORTED_SIMULATION_DECISION_RULE:
             raise ContractError(

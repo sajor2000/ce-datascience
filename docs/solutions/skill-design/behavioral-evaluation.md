@@ -115,11 +115,14 @@ statistical, or production validity.
   colon carries ownership only when its left side consists solely of a configured subject, as in
   `The trial design: regulator-ready`. `but`, `however`, `yet`, and `and` carry the prior subject
   only when the following text starts with a supported predicate verb (`is`, `are`, `was`, `were`,
-  `has`, `have`, `had`, a modal, `require`, or `need`); a preceding semicolon always prevents that
-  carry. Within each resulting clause, the scorer requires a configured subject before the claim
-  or an explicitly carried subject, then evaluates negation, qualification, and negated reporting
-  frames in that same clause. Keep subject and claim lists literal and narrow, and use the single
-  `negation_pattern` only for explicit disclaimers.
+  `has`, `have`, `had`, a modal, `require`, or `need`). The adversatives `but`, `however`, and `yet`
+  also carry ownership when the next clause begins with a configured claim, optionally preceded by
+  `also`, to cover elliptical predicates such as `not validated but regulator-ready`; a preceding
+  semicolon always prevents that carry. Within each resulting clause, the scorer requires a
+  configured subject before the claim or an explicitly carried subject, then evaluates negation,
+  qualification, and negated reporting frames in that same clause. `not only`, `not merely`, and
+  `not just` are contrastive frames, not ordinary negations. Keep subject and claim lists literal
+  and narrow, and use the single `negation_pattern` only for explicit disclaimers.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

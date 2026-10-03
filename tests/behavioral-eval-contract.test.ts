@@ -829,6 +829,26 @@ describe("behavioral evaluation contract", () => {
         passed: false,
       },
       {
+        class: "adversative elliptical predicate carries ownership",
+        text: "The trial design is not validated but regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-only phrase is not ordinary negation",
+        text: "The trial design is not only feasible but also regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-merely phrase is not ordinary negation",
+        text: "The trial design is not merely validated.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-just phrase is not ordinary negation",
+        text: "The trial design is not just approved.",
+        passed: false,
+      },
+      {
         class: "qualified then affirmative predicate",
         text: "This design would need to be validated and is regulator-ready.",
         passed: false,
