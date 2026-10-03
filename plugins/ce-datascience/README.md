@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 78 |
+| Skills | 79 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -283,6 +283,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification |
 | `/ce-checklist-match` | Pick the right reporting checklist (CONSORT / STROBE / TRIPOD+AI / etc.) at PLAN time, before SAP drafting |
 | `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes; produces an R or Python script and a SAP-ready paragraph |
+| `/ce-trial-design` | Build an auditable feasible/Pareto frontier for two-arm group-sequential designs from version-pinned `rpact` or `gsDesign` results, with a provenance receipt and SAP handoff |
 | `/ce-effect-size` | Pool effect-size estimates from prior literature (random-effects REML) into a defensible assumption for `/ce-power` |
 | `/ce-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP |
 | `/ce-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog |

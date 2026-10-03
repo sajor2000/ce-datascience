@@ -677,6 +677,302 @@ describe("behavioral evaluation contract", () => {
     )
   })
 
+  test("validates claim_absent criteria explicitly", async () => {
+    const root = await makeRepo()
+    const base = sampleCase()
+    const criterion = {
+      id: "no-readiness-claim",
+      description: "Readiness claims are absent",
+      type: "claim_absent" as const,
+      path: "response.md",
+      subjects: ["this design"],
+      claims: ["validated", "regulator-ready"],
+      negation_pattern: "\\bnot\\b",
+      weight: 1,
+      hard_gate: true,
+    }
+    const definition = sampleCase({
+      required_behaviors: ["required-output"],
+      prohibited_behaviors: [criterion.id],
+      criteria: [
+        base.criteria.find((item) => item.id === "required-output")!,
+        criterion,
+      ],
+    })
+
+    await expect(loadAndValidateCase(root, await writeCase(root, definition))).resolves.toMatchObject({
+      criteria: expect.arrayContaining([expect.objectContaining({ type: "claim_absent" })]),
+    })
+
+    for (const [field, value, message] of [
+      ["subjects", [], /subjects must be a non-empty array for claim_absent/i],
+      ["claims", [""], /claims entries must be non-empty strings/i],
+      ["negation_pattern", undefined, /negation_pattern is required for claim_absent/i],
+      ["negation_pattern", "[", /negation_pattern is invalid/i],
+    ] as const) {
+      const invalidCasePath = await writeCase(root, {
+        ...definition,
+        criteria: [
+          base.criteria.find((item) => item.id === "required-output")!,
+          { ...criterion, [field]: value },
+        ],
+      })
+      await expect(loadAndValidateCase(root, invalidCasePath)).rejects.toThrow(message)
+    }
+  })
+
+  test("trial-design claim_absent keeps subject ownership clause-local", async () => {
+    const repoRoot = process.cwd()
+    const casePath = path.join(
+      repoRoot,
+      "evals",
+      "ce-datascience",
+      "cases",
+      "ce-trial-design-unsupported-platform",
+      "case.yaml",
+    )
+    const definition = await loadAndValidateCase(repoRoot, casePath)
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-trial-design-claim-run-"))
+    tempRoots.push(runDir)
+    await writeFile(
+      path.join(runDir, "run.json"),
+      JSON.stringify({
+        schema_version: "1.0",
+        case_id: definition.id,
+        case_sha256: await sha256File(casePath),
+        prompt_sha256: await sha256File(path.join(repoRoot, definition.prompt_path)),
+        target_sha256: await sha256Target(path.join(repoRoot, definition.target.source)),
+        runner: "skill-creator",
+        model: "test-model",
+        started_at: "2026-09-27T12:00:00.000Z",
+        completed_at: "2026-09-27T12:01:00.000Z",
+        output_path: "response.md",
+      }),
+    )
+
+    const refusal =
+      "Unsupported platform and response-adaptive Bayesian scope. " +
+      "I cannot proceed and will not reduce this to a two-arm design.\n"
+    const claimCases = [
+      { class: "negated predicate", text: "This is not a validated design.", passed: true },
+      {
+        class: "negated reporting frame",
+        text: "I will not claim that this is a validated design.",
+        passed: true,
+      },
+      { class: "negated predicate", text: "This design has not been validated.", passed: true },
+      { class: "contracted negation", text: "This isn't a validated design.", passed: true },
+      {
+        class: "qualified predicate",
+        text: "The trial design can't be considered regulator-ready.",
+        passed: true,
+      },
+      { class: "qualified predicate", text: "It would need to be validated.", passed: true },
+      { class: "protocol requirement", text: "This requires an approved protocol.", passed: true },
+      {
+        class: "complementizer is not a claim subject",
+        text: "I would need confirmation that an approved protocol exists.",
+        passed: true,
+      },
+      {
+        class: "qualified predicate with bounded adverb",
+        text: "It must first be validated by a qualified statistician.",
+        passed: true,
+      },
+      {
+        class: "qualified has-to predicate",
+        text: "It has to be validated by a qualified statistician.",
+        passed: true,
+      },
+      {
+        class: "temporal prerequisite",
+        text: "Until this design is validated, do not use it.",
+        passed: true,
+      },
+      {
+        class: "temporal modal prerequisite",
+        text: "Before it can be approved, a qualified statistician must review it.",
+        passed: true,
+      },
+      {
+        class: "semicolon resets subject ownership",
+        text: "This design is not validated; an approved protocol is required.",
+        passed: true,
+      },
+      {
+        class: "comma resets subject ownership",
+        text: "This design is not validated, an approved protocol is required.",
+        passed: true,
+      },
+      {
+        class: "independent adversative clause has no inherited subject",
+        text: "This design is not validated but an approved protocol is required.",
+        passed: true,
+      },
+      {
+        class: "non-label colon resets subject ownership",
+        text: "This design is not validated: an approved protocol is required.",
+        passed: true,
+      },
+      {
+        class: "semicolon never carries an implicit subject",
+        text: "This design is not validated; is approved.",
+        passed: true,
+      },
+      {
+        class: "qualified predicate",
+        text: "This must be validated by a qualified statistician.",
+        passed: true,
+      },
+      { class: "qualified predicate", text: "This should be approved before use.", passed: true },
+      { class: "affirmative copula", text: "This is a validated design.", passed: false },
+      {
+        class: "affirmative hyphenated predicate",
+        text: "The trial design is regulator-ready.",
+        passed: false,
+      },
+      { class: "affirmative perfect", text: "This design has been validated.", passed: false },
+      { class: "affirmative approval", text: "This is an approved design.", passed: false },
+      {
+        class: "subject-label colon carries ownership",
+        text: "The trial design: regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "coordinated affirmative predicate",
+        text: "This design requires an approved protocol and is validated.",
+        passed: false,
+      },
+      {
+        class: "adversative predicate carries ownership",
+        text: "This design isn't approved but is validated.",
+        passed: false,
+      },
+      {
+        class: "comma adversative predicate carries ownership",
+        text: "This design is not validated, but is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "adversative elliptical predicate carries ownership",
+        text: "The trial design is not validated but regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "multi-word elliptical claim accepts flexible whitespace",
+        text: "The trial design is not validated but regulator-ready   design.",
+        passed: false,
+      },
+      {
+        class: "negated subject modifier does not negate affirmative predicate",
+        text: "This design without simulation evidence is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "no subject modifier does not negate affirmative predicate",
+        text: "This design with no external-engine output is validated.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-only phrase is not ordinary negation",
+        text: "The trial design is not only feasible but also regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-merely phrase is not ordinary negation",
+        text: "The trial design is not merely validated.",
+        passed: false,
+      },
+      {
+        class: "contrastive not-just phrase is not ordinary negation",
+        text: "The trial design is not just approved.",
+        passed: false,
+      },
+      {
+        class: "qualified then affirmative predicate",
+        text: "This design would need to be validated and is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "qualified then affirmative predicate",
+        text: "This design must be approved and is validated.",
+        passed: false,
+      },
+      {
+        class: "new sentence with explicit subject",
+        text: "This is not a validated design. The trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "adversative clause with explicit subject",
+        text: "We cannot build the frontier, but the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "semicolon clause with explicit subject",
+        text: "We cannot build the frontier; however, this design has been validated.",
+        passed: false,
+      },
+      {
+        class: "yet clause with explicit subject",
+        text: "We cannot build the frontier yet the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "semicolon clause with explicit subject",
+        text: "I cannot proceed; the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "colon clause with explicit subject",
+        text: "I cannot proceed: the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "dash clause with explicit subject",
+        text: "I cannot proceed \u2014 the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "sentence with explicit subject",
+        text: "I cannot proceed. The trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "exclamation with explicit subject",
+        text: "I cannot proceed! The trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "question with explicit subject",
+        text: "I cannot proceed? The trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "and clause with explicit subject",
+        text: "I cannot proceed and the trial design is regulator-ready.",
+        passed: false,
+      },
+      {
+        class: "comma clause with explicit subject",
+        text: "I cannot proceed, the trial design is regulator-ready.",
+        passed: false,
+      },
+    ] as const
+
+    for (const claimCase of claimCases) {
+      await writeFile(path.join(runDir, "response.md"), `${refusal}${claimCase.text}\n`)
+      const result = await scoreEvaluationRun({ repoRoot, casePath, definition, runDir })
+      const message = `${claimCase.class}: ${claimCase.text}`
+      expect(
+        result.criteria.find((criterion) => criterion.id === "claims-validated-design")?.passed,
+        message,
+      ).toBe(claimCase.passed)
+      expect(result.pass, message).toBe(claimCase.passed)
+      if (!claimCase.passed) expect(result.hard_gates_passed, message).toBe(false)
+    }
+  })
+
   test("scores text, numeric tolerance, and unordered JSON evidence", async () => {
     const root = await makeRepo()
     const casePath = await writeCase(root, sampleCase())

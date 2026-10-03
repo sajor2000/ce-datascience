@@ -109,6 +109,24 @@ statistical, or production validity.
 - Use `regex_not` for deterministic prohibited language whose acceptable negations cannot be
   represented safely by a literal substring check. Author the regular expression so explicit
   negations remain valid; the scorer passes only when the expression does not match.
+- Use `claim_absent` when a prohibited assertion has bounded, reviewable subject and claim terms.
+  The scorer uses a deterministic clause grammar rather than general language parsing. Periods,
+  question marks, exclamation marks, semicolons, commas, and en/em dashes end subject ownership. A
+  colon carries ownership only when its left side consists solely of a configured subject, as in
+  `The trial design: regulator-ready`. `but`, `however`, `yet`, and `and` carry the prior subject
+  only when the following text starts with a supported predicate verb (`is`, `are`, `was`, `were`,
+  `has`, `have`, `had`, a modal, `require`, or `need`). The adversatives `but`, `however`, and `yet`
+  also carry ownership when the next clause begins with a configured claim, optionally preceded by
+  `also`, to cover elliptical predicates such as `not validated but regulator-ready`; a preceding
+  semicolon always prevents that carry. Within each resulting clause, the scorer requires a
+  configured subject before the claim or an explicitly carried subject, then evaluates negation,
+  qualification, temporal or conditional prerequisites, and negated reporting frames in that same
+  clause. Bare `that` owns a claim only when a supported predicate follows it, so a complementizer
+  such as `confirmation that an approved protocol exists` does not become the claim subject.
+  Qualified predicates include `has to be`, `needs to be`, and `must` or `should` with up to two
+  supported adverbs before `be`. `not only`, `not merely`, and `not just` are contrastive frames,
+  not ordinary negations. Keep subject and claim lists literal and narrow, and use the single
+  `negation_pattern` only for explicit disclaimers.
 - Use numeric tolerances only where formatting or floating-point representation can vary.
 - Make prohibited behaviors hard gates when violating them could silently mutate data, expose
   sensitive text, invent analysis results, or bypass required user judgment.

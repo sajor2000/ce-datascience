@@ -102,7 +102,8 @@ The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) em
 - Does not run a "post-hoc power" calculation -- that's a statistical anti-pattern
 - Does not pick the effect-size assumption for you -- you supply it (or `ce-method-extract` does)
 - Does not guarantee enrollability -- recruitability is a separate concern
-- Does not handle complex adaptive designs (group-sequential, Bayesian-decision); for those, hand-roll using `gsDesign` / `rpact` / `BayesianTools` and use this skill only for the write-up
+- Does not handle Bayesian-decision, platform, enrichment, or response-adaptive designs
+- For two-arm group-sequential superiority designs, route to `ce-trial-design`, which wraps version-pinned `rpact` or `gsDesign` output in an auditable scenario/frontier workflow without reimplementing the engine mathematics
 
 ## References
 

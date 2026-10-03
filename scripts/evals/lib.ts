@@ -17,6 +17,7 @@ export type CriterionType =
   | "text_not_contains"
   | "regex"
   | "regex_not"
+  | "claim_absent"
   | "numeric"
   | "json_equals"
   | "json_set_equals"
@@ -43,6 +44,9 @@ export interface EvaluationCriterion {
   json_path?: string
   fixture_path?: string
   case_sensitive?: boolean
+  subjects?: string[]
+  claims?: string[]
+  negation_pattern?: string
 }
 
 export interface EvaluationCase {
@@ -199,6 +203,7 @@ const ALLOWED_CRITERION_TYPES = new Set<CriterionType>([
   "text_not_contains",
   "regex",
   "regex_not",
+  "claim_absent",
   "numeric",
   "json_equals",
   "json_set_equals",
@@ -382,6 +387,25 @@ function validateCriterionShape(criterion: EvaluationCriterion, index: number): 
       (!Number.isFinite(criterion.tolerance) || criterion.tolerance < 0)
     ) {
       errors.push(`${label}.tolerance must be zero or greater`)
+    }
+  }
+  if (criterion.type === "claim_absent") {
+    for (const field of ["subjects", "claims"] as const) {
+      const terms = criterion[field]
+      if (!Array.isArray(terms) || terms.length === 0) {
+        errors.push(`${label}.${field} must be a non-empty array for claim_absent`)
+      } else if (terms.some((term) => typeof term !== "string" || !term.trim())) {
+        errors.push(`${label}.${field} entries must be non-empty strings`)
+      }
+    }
+    if (typeof criterion.negation_pattern !== "string" || !criterion.negation_pattern.trim()) {
+      errors.push(`${label}.negation_pattern is required for claim_absent`)
+    } else {
+      try {
+        new RegExp(criterion.negation_pattern)
+      } catch (error) {
+        errors.push(`${label}.negation_pattern is invalid: ${(error as Error).message}`)
+      }
     }
   }
   if (["json_equals", "json_set_equals"].includes(criterion.type) && !criterion.json_path) {
@@ -646,6 +670,174 @@ function normalizeProseLineWraps(value: string): string {
   return normalized
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function termAlternation(terms: string[]): string {
+  return [...terms]
+    .sort((left, right) => right.length - left.length)
+    .map((term) => escapeRegex(term.trim()).replace(/\s+/g, "\\s+"))
+    .join("|")
+}
+
+function boundedTermPattern(terms: string[]): string {
+  return `(?:^|[^A-Za-z0-9_])(?:${termAlternation(terms)})(?=$|[^A-Za-z0-9_])`
+}
+
+const CLAIM_PREDICATE_HEAD_SOURCE =
+  "(?:is|are|was|were|has|have|had|can|could|will|would|shall|should|may|might|must|requires?|needs?)(?:n['\\u2019]t)?"
+
+interface ClaimClause {
+  scope: string
+  inheritedSubject?: string
+}
+
+function parseClaimClauses(
+  value: string,
+  subjectPattern: string,
+  claims: string[],
+  caseSensitive: boolean | undefined,
+): ClaimClause[] {
+  const clauses: ClaimClause[] = []
+  const subjectFlags = caseSensitive ? "g" : "gi"
+  const predicateStart = new RegExp(`^${CLAIM_PREDICATE_HEAD_SOURCE}\\b`, "i")
+  const ellipticalClaimStart = new RegExp(
+    `^(?:also\\s+)?(?:${termAlternation(claims)})(?=$|[^A-Za-z0-9_])`,
+    caseSensitive ? "" : "i",
+  )
+  const boundaryPattern = new RegExp(
+    `(?:[,;:]\\s*)?\\b(?:but|however|yet)\\b(?:\\s*[,;:]\\s*|\\s+)|` +
+      `\\band\\s+(?=${CLAIM_PREDICATE_HEAD_SOURCE}\\b)|[.!?](?:\\s+|$)|[;,\\u2013\\u2014]\\s*|:\\s*`,
+    "gi",
+  )
+  const normalized = normalizeProseLineWraps(value)
+  let cursor = 0
+  let inheritedSubject: string | undefined
+
+  for (const boundary of [...normalized.matchAll(boundaryPattern), undefined]) {
+    const boundaryIndex = boundary?.index ?? normalized.length
+    const scope = normalized.slice(cursor, boundaryIndex).trim()
+    const subjects = scope
+      ? [...scope.matchAll(new RegExp(subjectPattern, subjectFlags))]
+      : []
+    const lastSubject = subjects.at(-1)
+    const explicitSubject = lastSubject?.[0].trim()
+    const ownedSubject = explicitSubject ?? inheritedSubject
+    if (scope) clauses.push({ scope, inheritedSubject })
+
+    if (!boundary) break
+
+    const delimiter = boundary[0]
+    const remainder = normalized.slice(boundaryIndex + delimiter.length).trimStart()
+    const colonAfterSubjectLabel =
+      delimiter.trim() === ":" &&
+      explicitSubject !== undefined &&
+      scope.slice(0, lastSubject?.index).trim() === "" &&
+      scope.slice((lastSubject?.index ?? 0) + (lastSubject?.[0].length ?? 0)).trim() === ""
+    const coordinatedPredicate =
+      !delimiter.includes(";") &&
+      /\b(?:but|however|yet|and)\b/i.test(delimiter) &&
+      (predicateStart.test(remainder) ||
+        (/\b(?:but|however|yet)\b/i.test(delimiter) && ellipticalClaimStart.test(remainder)))
+
+    inheritedSubject =
+      ownedSubject && (colonAfterSubjectLabel || coordinatedPredicate) ? ownedSubject : undefined
+    cursor = boundaryIndex + delimiter.length
+  }
+
+  return clauses
+}
+
+function hasOrdinaryNegation(
+  value: string,
+  pattern: string,
+  caseSensitive: boolean | undefined,
+): boolean {
+  const flags = caseSensitive ? "g" : "gi"
+  for (const match of value.matchAll(new RegExp(pattern, flags))) {
+    const matchEnd = (match.index ?? 0) + match[0].length
+    const contrastiveSuffix = value.slice(matchEnd)
+    if (match[0].toLowerCase() === "not" && /^\s+(?:only|merely|just)\b/i.test(contrastiveSuffix)) {
+      continue
+    }
+    return true
+  }
+  return false
+}
+
+function findAffirmativeClaim(
+  value: string,
+  criterion: EvaluationCriterion,
+): { scope: string; subject: string; claim: string } | undefined {
+  const flags = criterion.case_sensitive ? "g" : "gi"
+  const subjectPattern = boundedTermPattern(criterion.subjects!)
+  const claimPattern = boundedTermPattern(criterion.claims!)
+  const negationFlags = criterion.case_sensitive ? "" : "i"
+  const predicateHead = new RegExp(`\\b${CLAIM_PREDICATE_HEAD_SOURCE}\\b`, "i")
+  const qualifiedClaimFrame =
+    /(?:\b(?:would|will)\s+need\s+to\s+be|\bneeds?\s+to\s+be|\b(?:has|have|had)\s+to\s+be|\b(?:must|should)\s+(?:(?:first|still|also|independently|formally|externally|clinically|statistically|regulatorily)\s+){0,2}be|\brequir(?:e|es|ed|ing)\s+(?:an?\s+)?)\s*$/i
+  const temporalOrConditionalFrame = /^(?:before|until|unless|if)\b/i
+  const negatedReportingFrame = new RegExp(
+    `${criterion.negation_pattern!}\\s+(?:(?:[A-Za-z]+['\u2019]?[A-Za-z]*)\\s+){0,2}` +
+      "(?:claim(?:s|ed|ing)?|stat(?:e|es|ed|ing)|assert(?:s|ed|ing)?|" +
+      "say|says|said|saying|conclud(?:e|es|ed|ing)|represent(?:s|ed|ing)?|" +
+      "describ(?:e|es|ed|ing)|consider(?:s|ed|ing)?|call(?:s|ed|ing)?|" +
+      "believ(?:e|es|ed|ing)|find|finds|found|finding|deem(?:s|ed|ing)?|" +
+      "treat(?:s|ed|ing)?)\\b(?:\\s+that)?\\s*$",
+    negationFlags,
+  )
+
+  for (const { scope, inheritedSubject } of parseClaimClauses(
+    value,
+    subjectPattern,
+    criterion.claims!,
+    criterion.case_sensitive,
+  )) {
+    const subjects = [...scope.matchAll(new RegExp(subjectPattern, flags))]
+    const claims = [...scope.matchAll(new RegExp(claimPattern, flags))]
+    for (const claim of claims) {
+      const claimIndex = claim.index ?? 0
+      const explicitSubject = subjects
+        .filter((candidate) => {
+          const candidateIndex = candidate.index ?? 0
+          if (candidateIndex >= claimIndex) return false
+          if (candidate[0].trim().toLowerCase() !== "that") return true
+          const afterSubject = scope.slice(candidateIndex + candidate[0].length, claimIndex)
+          return predicateHead.test(afterSubject)
+        })
+        .at(-1)
+      const subject = explicitSubject?.[0].trim() ?? inheritedSubject
+      if (!subject) continue
+      const subjectIndex = explicitSubject?.index ?? 0
+      const predicateStart = explicitSubject ? subjectIndex + explicitSubject[0].length : 0
+      const spanThroughClaim = scope.slice(predicateStart, claimIndex + claim[0].length)
+      const predicateHeadIndex = spanThroughClaim.search(predicateHead)
+      const predicateThroughClaim =
+        predicateHeadIndex >= 0 ? spanThroughClaim.slice(predicateHeadIndex) : spanThroughClaim
+      const predicateBeforeClaim = predicateThroughClaim.slice(
+        0,
+        predicateThroughClaim.length - claim[0].trim().length,
+      )
+      const prefixBeforeSubject = explicitSubject ? scope.slice(0, subjectIndex) : ""
+      if (
+        hasOrdinaryNegation(
+          predicateThroughClaim,
+          criterion.negation_pattern!,
+          criterion.case_sensitive,
+        ) ||
+        qualifiedClaimFrame.test(predicateBeforeClaim) ||
+        temporalOrConditionalFrame.test(prefixBeforeSubject.trimStart()) ||
+        negatedReportingFrame.test(prefixBeforeSubject)
+      ) {
+        continue
+      }
+      return { scope, subject, claim: claim[0].trim() }
+    }
+  }
+  return undefined
+}
+
 async function evaluateCriterion(
   criterion: EvaluationCriterion,
   artifact: Buffer | undefined,
@@ -693,6 +885,12 @@ async function evaluateCriterion(
         `${criterion.type} /${criterion.pattern}/${flags}` +
         `${criterion.type === "regex_not" ? " normalized-whitespace" : ""}` +
         ` matched=${matched} => ${passed}`
+    } else if (criterion.type === "claim_absent") {
+      const match = findAffirmativeClaim(raw, criterion)
+      passed = match === undefined
+      evidence = match
+        ? `affirmative claim found: subject=${JSON.stringify(match.subject)}; claim=${JSON.stringify(match.claim)}; scope=${JSON.stringify(match.scope)}`
+        : "no affirmative subject/claim sentence found"
     } else if (criterion.type === "numeric") {
       const flags = criterion.case_sensitive ? "m" : "im"
       const match = raw.match(new RegExp(criterion.pattern!, flags))

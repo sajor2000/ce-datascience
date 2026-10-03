@@ -103,6 +103,7 @@ describe("ce-datascience skill value contract", () => {
       "ce-fabric/SKILL.md",
       "ce-model-strategy/SKILL.md",
       "ce-notebook-standards/SKILL.md",
+      "ce-trial-design/SKILL.md",
     ])
     const forbidden = [
       "AskUserQuestion",
@@ -122,6 +123,22 @@ describe("ce-datascience skill value contract", () => {
     }
 
     expect(offenders).toEqual([])
+  })
+
+  test("trial design keeps blocking questions portable", async () => {
+    const skill = await fs.readFile(path.join(skillsRoot, "ce-trial-design", "SKILL.md"), "utf8")
+
+    for (const required of [
+      "AskUserQuestion",
+      "request_user_input",
+      "ask_user",
+      "pi-ask-user",
+      "ToolSearch",
+      "select:AskUserQuestion",
+    ]) {
+      expect(skill).toContain(required)
+    }
+    expect(skill).toContain("present numbered options in chat and wait")
   })
 
   test("skills do not runtime-link to maintainer-only interaction docs", async () => {

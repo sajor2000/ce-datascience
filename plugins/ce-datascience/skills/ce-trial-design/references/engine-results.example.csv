@@ -1,0 +1,5 @@
+scenario_id,candidate_id,engine,engine_version,analyses,achieved_power,type1_error,max_information,expected_information_null,expected_information_alt,power_lower_bound,type1_error_upper_bound
+base,of-3-look,rpact,4.3.0,3,0.901,0.025,500,405,350,,
+base,pocock-3-look,rpact,4.3.0,3,0.902,0.025,520,380,345,,
+conservative,of-3-look,rpact,4.3.0,3,0.904,0.025,720,600,565,,
+conservative,pocock-3-look,rpact,4.3.0,3,0.903,0.025,750,570,555,,
