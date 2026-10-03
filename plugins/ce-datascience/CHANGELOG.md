@@ -5,6 +5,26 @@ release pull requests. Canonical current release notes are the repository's
 [GitHub Releases](https://github.com/sajor2000/ce-datascience/releases) and
 open release PRs. Do not hand-add entries from feature or documentation work.
 
+## [3.8.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.7.0...ce-datascience-v3.8.0) (2026-10-03)
+
+
+### Features
+
+* **trial-design:** add external-engine design frontiers ([b4cd593](https://github.com/sajor2000/ce-datascience/commit/b4cd593974f8604f012297021488fe82cdb6b840))
+* **trial-design:** add external-engine design frontiers ([902c1f8](https://github.com/sajor2000/ce-datascience/commit/902c1f831180de3e2aa5bf8ac6b1bc63f0ef9601))
+
+
+### Bug Fixes
+
+* **review:** apply review findings ([5667155](https://github.com/sajor2000/ce-datascience/commit/56671553a66dfaa8ef9c933611b72595a3721889))
+* **trial-design:** address review feedback ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([01c1aa3](https://github.com/sajor2000/ce-datascience/commit/01c1aa3265a0d699938ec0b1163f85b409087c10))
+* **trial-design:** close remaining review findings ([35d4df8](https://github.com/sajor2000/ce-datascience/commit/35d4df838311aa48706d65a45905db09b3dc8416))
+* **trial-design:** complete claim grammar class ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([d4e8a9e](https://github.com/sajor2000/ce-datascience/commit/d4e8a9eba25c0f4ccc936d91303f7bdcaa661f01))
+* **trial-design:** expose simulation bounds in handoff ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([ee2af81](https://github.com/sajor2000/ce-datascience/commit/ee2af81c45a484f7a7b1648e3c8dec1f75735b10))
+* **trial-design:** make data boundary imperative ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([c9f7972](https://github.com/sajor2000/ce-datascience/commit/c9f7972d76dd7f0f5feb9823370f689a238c98aa))
+* **trial-design:** preserve handoff bound precision ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([d9c9aa1](https://github.com/sajor2000/ce-datascience/commit/d9c9aa1990fccdfc40bb7510c2b94aaa2143087c))
+* **trial-design:** tighten review contracts ([#60](https://github.com/sajor2000/ce-datascience/issues/60)) ([cdb101d](https://github.com/sajor2000/ce-datascience/commit/cdb101dd23c5963260f69fb5fa447e9cd1cb7230))
+
 ## [3.7.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.6.0...ce-datascience-v3.7.0) (2026-09-05)
 
 
