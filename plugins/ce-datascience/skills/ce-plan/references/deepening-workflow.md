@@ -1,5 +1,14 @@
 # Deepening Workflow
 
+## Contents
+
+- 5.3.3 Score Confidence Gaps
+- 5.3.4 Report and Dispatch Targeted Research
+- 5.3.5 Choose Research Execution Mode
+- 5.3.6 Run Targeted Research
+- 5.3.6b Interactive Finding Review (Interactive Mode Only)
+- 5.3.7 Synthesize and Update the Plan
+
 This file contains the confidence-check execution path (5.3.3-5.3.7). Load it only when the deepening gate at 5.3.2 determines that deepening is warranted.
 
 ## 5.3.3 Score Confidence Gaps

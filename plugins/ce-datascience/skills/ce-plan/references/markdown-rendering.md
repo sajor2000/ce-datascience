@@ -1,5 +1,16 @@
 # Markdown Rendering
 
+## Contents
+
+- Hard invariants
+- Format principles
+- Section anatomy
+- Diagrams
+- Inline code and code blocks
+- No process exhaust
+- Frontmatter shape
+- Post-write audit
+
 This is a format-rendering reference — it describes how to render any
 artifact in markdown, independent of which skill is producing it.
 

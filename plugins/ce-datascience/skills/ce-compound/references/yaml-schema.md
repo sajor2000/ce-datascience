@@ -1,5 +1,17 @@
 # YAML Frontmatter Schema
 
+## Contents
+
+- Tracks
+- Required Fields (both tracks)
+- Bug Track Fields
+- Knowledge Track Fields
+- Optional Fields (both tracks)
+- Backward Compatibility
+- Category Mapping
+- Validation Rules
+- YAML Safety Rules
+
 `schema.yaml` in this directory is the canonical contract for `docs/solutions/` frontmatter written by `ce-compound`.
 
 Use this file as the quick reference for:

@@ -1,5 +1,17 @@
 # Requirements Capture
 
+## Contents
+
+- Section matrix
+- Triggered sections — when to include
+- Template
+- ID and layout rules
+- Size heuristics
+- Visual communication
+- When a document is warranted
+- Finalization checklist
+- Outstanding questions guidance
+
 This content is loaded when Phase 3 begins — after the collaborative dialogue (Phases 0-2) has produced durable decisions worth preserving.
 
 ---

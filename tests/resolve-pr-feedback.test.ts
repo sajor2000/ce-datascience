@@ -145,7 +145,7 @@ describe("ce-resolve-pr-feedback thread safety guidance", () => {
     const body = await fs.readFile(fullModeReference, "utf8")
 
     expect(body).toContain("Verify the thread ID")
-    expect(body).toContain("bash scripts/get-thread-for-comment PR_NUMBER COMMENT_NODE_ID OWNER/REPO")
+    expect(body).toContain('bash "$SKILL_DIR/scripts/get-thread-for-comment" PR_NUMBER COMMENT_NODE_ID OWNER/REPO')
     expect(body).toContain("The returned `id` is the authoritative thread ID")
     expect(body).toContain("returned comment URL contains the correct `OWNER/REPO` and PR number")
   })

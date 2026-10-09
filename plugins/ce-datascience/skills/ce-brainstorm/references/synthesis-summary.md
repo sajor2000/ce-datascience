@@ -1,5 +1,16 @@
 # Synthesis Summary
 
+## Contents
+
+- Stage 1: internal three-bucket draft
+- Stage 2: the chat-time scoping synthesis
+- Prompt templates
+- Pre-flight re-review
+- Re-present after revision; write only on confirm
+- Soft-cut on circularity (not iteration count)
+- Self-redirect
+- Doc shape after confirmation
+
 **Synthesis ≠ requirements doc.** The synthesis is NOT a preview, draft, or substitute for the requirements doc — it's the scope checkpoint that doc-write consumes as input. The requirements doc itself is written in Phase 3 from the confirmed synthesis. Both the synthesis and the requirements doc stay scope-only — implementation detail (file paths, code shapes, exact error wording) is downstream (ce-plan's job), not the requirements doc.
 
 **Two-stage shape: internal draft, then chat-time scoping synthesis.** The synthesis is composed in two stages. Stage 1 is an internal three-bucket draft (Stated / Inferred / Out of scope) the agent uses to think comprehensively about scope. Stage 2 is the scoping synthesis presented to the user — shaped like what two product collaborators would confirm before writing a PRD, not like a comprehensive audit and not like a one-line preview. The user only sees stage 2. The internal draft still informs the doc body via the doc-shape routing below; it just doesn't reach the user verbatim. This split exists because the comprehensive audit shape produced too much detail for the user to actually weigh in on, even when the granularity rules were followed.

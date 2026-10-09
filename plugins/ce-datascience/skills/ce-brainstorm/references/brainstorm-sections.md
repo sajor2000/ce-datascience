@@ -1,5 +1,18 @@
 # Brainstorm Sections
 
+## Contents
+
+- The outcome
+- Decide whether a doc is warranted at all
+- Match depth to content
+- Hard floor
+- Include when material
+- Agent agency
+- Brainstorm metadata fields
+- ID and content rules
+- Discipline: Summary vs Problem Frame
+- Rendering
+
 This reference describes what makes a great brainstorm requirements document.
 It does NOT prescribe how the doc looks on the page — rendering is handled by
 the format-specific references (`markdown-rendering.md`, `html-rendering.md`).

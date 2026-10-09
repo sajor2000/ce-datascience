@@ -1,5 +1,20 @@
 # Scoping Synthesis
 
+## Contents
+
+- Stage 1: internal three-bucket draft (shared)
+- Stage 2: chat-time scoping synthesis
+- When to skip the blocking confirmation
+- Synthesis structural discipline (shared)
+- Granularity: name the decision; don't expand it (shared)
+- Solo variant (Phase 0.7)
+- Brainstorm-sourced variant (Phase 5.1.5)
+- Soft-cut on circularity (shared)
+- Headless mode (shared)
+- Self-redirect (shared)
+- Doc shape after confirmation
+- What does NOT belong in the synthesis
+
 **Scoping synthesis ≠ plan doc.** The scoping synthesis is the scope/decisions checkpoint that plan-write (Phase 5.2) consumes as input. It surfaces decisions the agent CAN make at synthesis time: scope-level (does this plan cover the full brainstorm or narrow to a subset?), posture (extend existing pattern vs. introduce new abstraction), test approach. It does NOT surface decisions plan-write produces: PR count, commit/branch sequencing, effort or time estimates, Implementation Unit lists, exact file paths, test command recipes. If the synthesis claims any of those, it has leaked plan-write thinking and must be re-cut to scope-decisions only. Even when the agent has formed plan-write opinions earlier in the session, the synthesis stays at scope altitude — the user is being asked to affirm scope, not to rubber-stamp implementation.
 
 **Two-stage shape: internal draft, then chat-time synthesis.** The synthesis is composed in two stages. Stage 1 is an internal three-bucket draft (Stated / Inferred / Out of scope) the agent uses to think comprehensively about scope. Stage 2 is the compressed chat-time output: a tier-shaped summary plus "Call outs" (zero or more, capped by plan depth — see the cap table under "How many call-outs are right?") — the specific forks where the user might redirect. The user only sees stage 2. The internal draft still informs the plan body via the doc-shape routing below; it just doesn't reach the user verbatim. This split exists because the comprehensive audit shape produced too much detail for the user to weigh in on, even when the granularity rules were followed.

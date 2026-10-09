@@ -1,5 +1,13 @@
 # Universal Planning Workflow
 
+## Contents
+
+- Before starting: verify classification
+- Step 1: Assess Ambiguity and Research Need
+- Step 1b: Focused Q&A
+- Step 2: Structure the Plan
+- Step 3: Save or Share
+
 This file is loaded when ce-plan detects a non-software task (Phase 0.1b). It replaces the software-specific phases (0.2 through 5.1) with a domain-agnostic planning workflow.
 
 ## Before starting: verify classification
@@ -109,6 +117,8 @@ After structuring the plan, ask the user how they want to receive it using the c
 
 2. **Open in Proof (web app) — review and comment to iterate with the agent** — Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Use the core Compound Engineering `ce-proof` skill when it is installed. If it is not available in the current harness, fall back to saving the markdown file and tell the user Proof review requires the core Compound Engineering plugin.
 
-3. **Save to disk AND open in Proof** — Do both: write the markdown file to disk and open the doc in Proof for review.
+3. **Save to disk AND open in Proof** — Do both: write the markdown file to disk and open the doc in Proof for review. If `ce-proof` is unavailable, save to disk only and say Proof review was skipped.
+
+Show options 2 and 3 only when the core Compound Engineering `ce-proof` skill is available in the current harness; otherwise skip this menu and go straight to the Save to disk location question.
 
 Do not offer `ce-work` (software-only) or issue creation (not applicable to non-software plans).

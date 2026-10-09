@@ -19,14 +19,14 @@ Detail for `ce-compound-refresh` § "Phase 3: Ask for Decisions". Linked from SK
 
 - Unambiguous Keep, Update, Consolidate, auto-Delete, and Replace (with sufficient evidence) → execute directly
 - Ambiguous cases → mark as stale
-- Then generate the report (see Output Format)
+- Then print the refresh summary (SKILL.md § Output Format)
 
 ### Interactive mode
 
 Most Updates and Consolidations should be applied directly without asking. Only ask the user when:
 
 - The right action is genuinely ambiguous (Update vs Replace vs Consolidate vs Delete)
-- You are about to Delete a document **and** the evidence is not unambiguous (see auto-delete criteria in Phase 2). When auto-delete criteria are met, proceed without asking.
+- You are about to Delete a document **and** the evidence is not unambiguous (auto-delete requires the implementation and the problem domain both gone, no matching successor, and inbound citations absent or unambiguously decorative). When those criteria are met, proceed without asking.
 - You are about to Consolidate and the choice of canonical doc is not clear-cut
 - You are about to create a successor via Replace
 

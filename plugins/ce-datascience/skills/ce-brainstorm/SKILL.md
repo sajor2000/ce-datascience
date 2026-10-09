@@ -1,6 +1,6 @@
 ---
 name: ce-brainstorm
-description: "Explore a research idea or study design before planning. Produces a right-sized requirements document that captures scope, rationale, outcomes, and unresolved assumptions."
+description: "Explore a research idea or study design before planning. Produces a right-sized requirements document that captures scope, rationale, outcomes, and unresolved assumptions. Use when the user wants to brainstorm, refine a research question, compare study designs, or decide what evidence would be worth generating."
 argument-hint: "[research question or study idea to explore] [output:html]"
 ---
 
@@ -48,7 +48,7 @@ These rules apply to every brainstorm, including the universal (non-software) fl
 ## Output Guidance
 
 - **Keep outputs concise** - Prefer short sections, brief bullets, and only enough detail to support the next decision.
-- **Use repo-relative paths** - When referencing files, use paths relative to the repo root (e.g., `src/models/user.rb`), never absolute paths. Absolute paths make documents non-portable across machines and teammates.
+- **Use repo-relative paths** - Per the rule above; never absolute paths.
 
 ## Research Question Description
 
@@ -282,7 +282,7 @@ Before writing the requirements document, present the scope synthesis and confir
 
 ### Phase 3: Capture the Requirements
 
-Write or update a requirements document only when the conversation produced durable decisions worth preserving. Read `references/brainstorm-sections.md` for the format-independent section contract, then use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation. Keep using `references/requirements-capture.md` for the health data science template, visual aid guidance, and completeness checks.
+Write or update a requirements document only when the conversation produced durable decisions worth preserving. Read `references/brainstorm-sections.md` for the format-independent section contract, then use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation. Keep using `references/requirements-capture.md` for the health data science template and completeness checks. When the requirements would be much easier to grasp with a diagram or comparison table (multi-step study flow, 3+ interacting populations or exposures, competing designs), read `references/visual-communication.md`.
 
 For **Lightweight** brainstorms, keep the document compact. Skip document creation when the user only needs brief alignment and no durable decisions need to be preserved.
 

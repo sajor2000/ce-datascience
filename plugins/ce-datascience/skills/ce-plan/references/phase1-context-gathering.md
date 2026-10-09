@@ -2,7 +2,7 @@
 
 Detail for `ce-plan` Phase 1. Linked from `SKILL.md` § Phase 1. Covers local research dispatch, execution-posture detection, the external-research decision rubric, consolidation, depth reclassification, and flow analysis.
 
-## Table of contents
+## Contents
 
 1. Phase 1.0 — Data-column and QA preflight for analysis projects.
 2. Phase 1.1 — Local research (always runs).

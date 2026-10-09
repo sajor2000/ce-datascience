@@ -26,14 +26,23 @@ if [ -z "$OWNER" ] || [ -z "$REPO" ]; then
     exit 1
 fi
 
-# Output is a JSON object with four keys:
-#   review_threads   - unresolved inline review threads, edge-wrapped as
-#                      [{ node: { id, isResolved, isOutdated, path, line, ...,
-#                                 comments: { nodes: [...] } } }]
-#   pr_comments      - top-level PR conversation comments (excludes PR author
-#                      and known CI/status bots)
-#   review_bodies    - review submissions with non-empty body text (same
-#                      filtering as pr_comments)
+# Output is a JSON object with these keys:
+#   pending_review   - node ID of the viewer's own unsubmitted (PENDING) review
+#                      on this PR, or null. Replies posted while one exists can
+#                      be absorbed into that draft and stay invisible until it
+#                      is submitted, so the modes stop before the reply loop
+#                      when this is non-null. Costs no extra request: the
+#                      reviews query already selects `state`, and a PENDING
+#                      review is only visible to its own author.
+#   review_threads   - unresolved inline review threads, edge-wrapped with the
+#                      numeric REST ID of the thread's root comment (used for
+#                      direct REST replies; null if it cannot be parsed):
+#                      [{ root_comment_id, node: { id, isResolved, isOutdated,
+#                         path, line, ..., comments: { nodes: [...] } } }]
+#   pr_comments      - top-level PR conversation comments with non-blank bodies
+#   review_bodies    - review submissions with non-blank bodies
+#   pr_author        - the PR author's login, or null
+#   viewer           - the acting account's login, or null
 #   cross_invocation - cross-invocation awareness envelope:
 #     signal: true when both resolved and unresolved threads exist (multi-round review)
 #     resolved_threads: last 10 resolved threads by recency, for cluster analysis input
@@ -48,20 +57,25 @@ fi
 # follow-up pagination; threads that exceed 100 comments are rare and out of
 # scope for this fix.
 #
-# Bot filtering: only CI/status bots (codecov, etc.) are filtered at the source.
-# Their output is structurally never actionable -- coverage numbers, build
-# summaries, deploy status -- and that holds regardless of format changes.
-# AI review bots (coderabbitai, codex, gemini, copilot) are NOT filtered here.
-# Historically their top-level comments were assumed to always be wrappers, but
-# that turned out to be wrong: Codex sometimes posts actionable findings as
-# top-level PR comments with no inline thread counterpart. Any source-level
-# heuristic to separate wrapper from actionable for these bots is brittle (one
-# bot format change away from silently dropping feedback). SKILL.md step 2
-# has a content-aware actionability check and Silent Drop rule that handles
-# wrappers correctly, so we trust that layer instead. Add new logins to the CI
-# list only if their output is structurally non-actionable like codecov's.
+# ARG_MAX (#1244): every page set is streamed to a temp file and read with
+# `jq --slurpfile`. Holding the pages in shell variables and passing them to jq
+# as JSON command-line arguments overflowed the OS argument limit on large PRs.
+#
+# Identity is evidence, not an exclusion (#1435, #1467): the only filter here is
+# a blank body. A top-level comment from the PR author is the ordinary way a
+# human asks for a change on an agent-opened PR; CI/status bots can carry
+# actionable setup failures; review bots sometimes post actionable findings as
+# top-level comments with no inline thread. `pr_author` and `viewer` are
+# reported so the resolver can weigh identity -- including recognizing its own
+# prior replies as already handled -- with the content-aware actionability
+# check and Silent Drop rule in references/full-mode.md.
 
-threads_pages=$(gh api graphql --paginate --slurp \
+tmp_threads=$(mktemp "${TMPDIR:-/tmp}/ce-pr-threads.XXXXXX")
+tmp_comments=$(mktemp "${TMPDIR:-/tmp}/ce-pr-comments.XXXXXX")
+tmp_reviews=$(mktemp "${TMPDIR:-/tmp}/ce-pr-reviews.XXXXXX")
+trap 'rm -f "$tmp_threads" "$tmp_comments" "$tmp_reviews"' EXIT
+
+gh api graphql --paginate --slurp \
   -f owner="$OWNER" -f repo="$REPO" -F pr="$PR_NUMBER" \
   -f query='
 query Threads($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
@@ -92,9 +106,9 @@ query Threads($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
       }
     }
   }
-}')
+}' > "$tmp_threads"
 
-comments_pages=$(gh api graphql --paginate --slurp \
+gh api graphql --paginate --slurp \
   -f owner="$OWNER" -f repo="$REPO" -F pr="$PR_NUMBER" \
   -f query='
 query Comments($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
@@ -110,12 +124,13 @@ query Comments($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
       }
     }
   }
-}')
+}' > "$tmp_comments"
 
-reviews_pages=$(gh api graphql --paginate --slurp \
+gh api graphql --paginate --slurp \
   -f owner="$OWNER" -f repo="$REPO" -F pr="$PR_NUMBER" \
   -f query='
 query Reviews($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
+  viewer { login }
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $pr) {
       reviews(first: 100, after: $endCursor) {
@@ -129,7 +144,7 @@ query Reviews($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
       }
     }
   }
-}')
+}' > "$tmp_reviews"
 
 # Resolution semantics: `isOutdated` means the diff hunk around the comment
 # has shifted since the thread was opened -- not that the reviewer concern
@@ -137,14 +152,17 @@ query Reviews($owner: String!, $repo: String!, $pr: Int!, $endCursor: String) {
 # threads are still surfaced (with their isOutdated flag intact) so the
 # resolver can factor in that the referenced line may have moved.
 jq -n \
-  --argjson threads "$threads_pages" \
-  --argjson comments "$comments_pages" \
-  --argjson reviews "$reviews_pages" '
-  ($threads[0].data.repository.pullRequest.author) as $author |
-  [$threads[].data.repository.pullRequest.reviewThreads.nodes[]] as $all_threads |
-  [$comments[].data.repository.pullRequest.comments.nodes[]] as $all_comments |
-  [$reviews[].data.repository.pullRequest.reviews.nodes[]] as $all_reviews |
-  ["codecov"] as $ci_bot_logins |
+  --slurpfile threads "$tmp_threads" \
+  --slurpfile comments "$tmp_comments" \
+  --slurpfile reviews "$tmp_reviews" '
+  def root_comment_id:
+    ((.comments.nodes[0].url // "")
+      | (capture("discussion_r(?<id>[0-9]+)") | .id | tonumber)?) // null;
+  ($threads[0][0].data.repository.pullRequest.author) as $author |
+  ($reviews[0][0].data.viewer.login) as $viewer |
+  [$threads[0][].data.repository.pullRequest.reviewThreads.nodes[]] as $all_threads |
+  [$comments[0][].data.repository.pullRequest.comments.nodes[]] as $all_comments |
+  [$reviews[0][].data.repository.pullRequest.reviews.nodes[]] as $all_reviews |
   [$all_threads[] | select(.isResolved == false)] as $unresolved |
   ([$all_threads[]
     | select(.isResolved == true)
@@ -153,15 +171,17 @@ jq -n \
         last_comment_at: ([.comments.nodes[].createdAt] | sort | last) }]
     | sort_by(.last_comment_at) | .[-10:] | reverse) as $resolved |
   {
-    review_threads: [$unresolved[] | { node: . }],
+    pending_review: (first($all_reviews[]
+      | select(.state == "PENDING")
+      | select(($viewer == null) or (.author.login == $viewer))
+      | .id) // null),
+    review_threads: [$unresolved[] | { node: ., root_comment_id: root_comment_id }],
     pr_comments: [$all_comments[]
-      | select(.author.login != $author.login)
-      | select(.author.login as $l | $ci_bot_logins | index($l) | not)
-      | select(.body | test("^\\s*$") | not)],
+      | select((.body // "") | test("^\\s*$") | not)],
     review_bodies: [$all_reviews[]
-      | select(.body != null and .body != "")
-      | select(.author.login != $author.login)
-      | select(.author.login as $l | $ci_bot_logins | index($l) | not)],
+      | select((.body // "") | test("^\\s*$") | not)],
+    pr_author: ($author.login // null),
+    viewer: ($viewer // null),
     cross_invocation: {
       signal: (($resolved | length) > 0 and ($unresolved | length) > 0),
       resolved_threads: $resolved

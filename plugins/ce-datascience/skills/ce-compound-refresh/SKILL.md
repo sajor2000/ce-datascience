@@ -1,6 +1,6 @@
 ---
 name: ce-compound-refresh
-description: "Audit existing docs/solutions guidance for drift, then keep, update, consolidate, replace, or mark stale."
+description: "Audit existing docs/solutions guidance for drift, then keep, update, consolidate, replace, or mark stale. Use when the user asks to refresh, audit, sweep, consolidate, or clean stale docs/solutions learnings."
 ---
 
 # Compound Refresh
@@ -195,7 +195,7 @@ In autofix mode, memory-only drift (no codebase corroboration) should result in 
 
 ### Judgment Guidelines
 
-Three guidelines that are easy to get wrong:
+Guidelines that are easy to get wrong:
 
 1. **Classify contradictions by evidence.** A conflict with current mechanics changes descriptive claims. A conflict with independently supported guidance is a potential product regression, not an automatic Replace. Replace only when evidence shows the recommendation itself no longer governs.
 2. **Age alone is not a stale signal.** A 2-year-old learning that still matches current code is fine. Only use age as a prompt to inspect more carefully.
@@ -239,98 +239,17 @@ The orchestrator merges investigation results, detects contradictions, coordinat
 
 ## Phase 2: Classify the Right Maintenance Action
 
-After gathering evidence, assign one recommended action.
+After gathering evidence, assign one recommended action per artifact (learnings first, then pattern docs). Read `references/classify-actions.md` before classifying — it holds the criteria for each outcome, the Consolidate-vs-Delete boundary, the problem-domain check before Delete, and how the outcomes apply to pattern docs as derived guidance.
 
-### Keep
+Guardrails that hold regardless of the reference detail:
 
-The learning is still accurate and useful. Do not edit the file — report that it was reviewed and remains trustworthy. Only add `last_refreshed` if you are already making a meaningful update for another reason.
-
-### Update
-
-The core solution is still valid but references have drifted (paths, class names, links, code snippets, metadata). Apply the fixes directly.
-
-### Consolidate
-
-Choose **Consolidate** when Phase 1.75 identified docs that overlap heavily but are both materially correct. This is different from Update (which fixes drift in a single doc) and Replace (which rewrites misleading guidance). Consolidate handles the "both right, one subsumes the other" case.
-
-**When to consolidate:**
-
-- Two docs describe the same problem and recommend the same (or compatible) solution
-- One doc is a narrow precursor and a newer doc covers the same ground more broadly
-- The unique content from the subsumed doc can fit as a section or addendum in the canonical doc
-- Keeping both creates drift risk without meaningful retrieval benefit
-
-**When NOT to consolidate** (apply the Retrieval-Value Test from Phase 1.75):
-
-- The docs cover genuinely different sub-problems that someone would search for independently
-- Merging would create an unwieldy doc that harms navigation more than drift risk harms accuracy
-
-**Consolidate vs Delete:** If the subsumed doc has unique content worth preserving (edge cases, alternative approaches, extra prevention rules), use Consolidate to merge that content first. If the subsumed doc adds nothing the canonical doc doesn't already say, skip straight to Delete.
-
-The Consolidate action is: merge unique content from the subsumed doc into the canonical doc, then delete the subsumed doc. Not archive — delete. Git history preserves it.
-
-### Replace
-
-Choose **Replace** when the learning's core guidance is now misleading — the recommended fix changed materially, the root cause or architecture shifted, or the preferred pattern is different.
-
-The user may have invoked the refresh months after the original learning was written. Do not ask them for replacement context they are unlikely to have — use agent intelligence to investigate the codebase and synthesize the replacement.
-
-**Evidence assessment:**
-
-By the time you identify a Replace candidate, Phase 1 investigation has already gathered significant evidence: the old learning's claims, what the current code actually does, and where the drift occurred. Assess whether this evidence is sufficient to write a trustworthy replacement:
-
-- **Sufficient evidence** — you understand both what the old learning recommended AND what the current approach is. The investigation found the current code patterns, the new file locations, the changed architecture. → Proceed to write the replacement (see Phase 4 Replace Flow).
-- **Insufficient evidence** — the drift is so fundamental that you cannot confidently document the current approach. The entire subsystem was replaced, or the new architecture is too complex to understand from a file scan alone. → Mark as stale in place:
-   - Add `status: stale`, `stale_reason: [what you found]`, `stale_date: YYYY-MM-DD` to the frontmatter
-   - Report what evidence you found and what is missing
-   - Recommend the user load the `ce-compound` skill after their next encounter with that area, when they have fresh problem-solving context
-
-### Delete
-
-Choose **Delete** when:
-
-- The code or workflow no longer exists and the problem domain is gone
-- The learning is obsolete and has no modern replacement worth documenting
-- The learning is fully redundant with another doc (use Consolidate if there is unique content to merge first)
-- There is no meaningful successor evidence suggesting it should be replaced instead
-
-Action: delete the file. No archival directory, no metadata — just delete it. Git history preserves every deleted file if recovery is ever needed.
-
-### Before deleting: check if the problem domain is still active
-
-When a learning's referenced files are gone, that is strong evidence — but only that the **implementation** is gone. Before deleting, reason about whether the **problem the learning solves** is still a concern in the codebase:
-
-- A learning about session token storage where `auth_token.rb` is gone — does the application still handle session tokens? If so, the concept persists under a new implementation. That is Replace, not Delete.
-- A learning about a deprecated API endpoint where the entire feature was removed — the problem domain is gone. That is Delete.
-
-Do not search mechanically for keywords from the old learning. Instead, understand what problem the learning addresses, then investigate whether that problem domain still exists in the codebase. The agent understands concepts — use that understanding to look for where the problem lives now, not where the old code used to be.
-
-**Auto-delete only when both the implementation AND the problem domain are gone:**
-
-- the referenced code is gone AND the application no longer deals with that problem domain
-- the learning is fully superseded by a clearly better successor AND the old doc adds no distinct value
-- the document is plainly redundant and adds nothing the canonical doc doesn't already say
-
-If the implementation is gone but the problem domain persists (the app still does auth, still processes payments, still handles migrations), classify as **Replace** — the problem still matters and the current approach should be documented.
-
-Do not keep a learning just because its general advice is "still sound" — if the specific code it references is gone, the learning misleads readers. But do not delete a learning whose problem domain is still active — that knowledge gap should be filled with a replacement.
-
-## Pattern Guidance
-
-Apply the same five outcomes (Keep, Update, Consolidate, Replace, Delete) to pattern docs, but evaluate them as **derived guidance** rather than incident-level learnings. Key differences:
-
-- **Keep**: the underlying learnings still support the generalized rule and examples remain representative
-- **Update**: the rule holds but examples, links, scope, or supporting references drifted
-- **Consolidate**: two pattern docs generalize the same set of learnings or cover the same design concern — merge into one canonical pattern
-- **Replace**: the generalized rule is now misleading, or the underlying learnings support a different synthesis. Base the replacement on the refreshed learning set — do not invent new rules from guesswork
-- **Delete**: the pattern is no longer valid, no longer recurring, or fully subsumed by a stronger pattern doc with no unique content remaining
+- **Replace needs sufficient evidence.** Understand both what the old learning recommended and what the current approach is, then use the Replace Flow in Phase 4. Otherwise mark it stale in place (`status: stale`, `stale_reason`, `stale_date`) and recommend the `ce-compound` skill for the user's next encounter with that area.
+- **Delete needs both the implementation and the problem domain gone.** If the referenced code is gone but the project still deals with that problem (still derives index dates, still applies small-cell suppression, still fits that model family), classify as Replace. Core Rule 8's inbound-citation check still applies.
+- **Age alone is never the reason** for Replace or Delete.
 
 ## Phase 3: Ask for Decisions
 
-### Autofix mode and Interactive mode
-
-Read `references/phase3-ask-decisions.md` for full detail. It covers the autofix-mode skip rule, the interactive-mode "when to ask" rules, question style (platform blocking tools, one-at-a-time, recommended-first), focused-scope interaction, batch-scope interaction (Keep / Update / Consolidate / Replace / Delete groupings), and broad-scope incremental sweep.
-
+In autofix mode, skip this phase entirely: execute unambiguous actions and stale-mark ambiguous ones. In interactive mode, read `references/phase3-ask-decisions.md` for when to ask, question style, and the focused / batch / broad interaction patterns.
 
 ## Phase 4: Execute the Chosen Action
 
@@ -344,8 +263,8 @@ Apply in-place edits only when the solution is still substantively correct.
 
 Examples of valid in-place updates:
 
-- Rename `app/models/auth_token.rb` reference to `app/models/session_token.rb`
-- Update `module: AuthToken` to `module: SessionToken`
+- Rename an `R/derive_index_date.R` reference to `R/cohort/index_date.R`
+- Update `module: cohort_builder` to `module: cohort`
 - Fix outdated links to related docs
 - Refresh implementation notes after a directory move
 
@@ -394,7 +313,25 @@ Do not let replacement subagents invent frontmatter fields, enum values, or sect
    - The target path and category (same category as the old learning unless the category itself changed)
    - The relevant contents of the three support files listed above
 2. The subagent writes the new learning using the support files as the source of truth: `references/schema.yaml` for frontmatter fields and enum values, `references/yaml-schema.md` for category mapping and YAML-safety rules for array items, and `assets/resolution-template.md` for section order. It should use dedicated file search and read tools if it needs additional context beyond what was passed.
-3. **Run `python3 scripts/validate-frontmatter.py <new-learning-path>`** to catch silent-corruption parser-safety issues that the prose rules miss: malformed `---` delimiter lines, unquoted ` #` in scalar values (silent comment truncation), and unquoted `: ` in scalar values (silent mapping confusion). Exit 0 means the doc is parser-safe; exit 1 means the script's stderr names the offending field(s) and what to fix — quote the value(s), re-write the doc, and re-run until exit 0. Do not declare success while validation fails. The script does not enforce schema rules and does not flag YAML reserved-indicator characters (those produce loud parser errors downstream rather than silent corruption — out of scope). Uses Python 3 stdlib only (no PyYAML or other deps).
+3. **Validate parser-safety of the new learning's frontmatter** with the bundled `scripts/validate-frontmatter.py` (Python 3 stdlib only). It catches silent-corruption issues the YAML-safety prose rules miss: malformed `---` delimiter lines, unquoted ` #` in scalar values (silent comment truncation), and unquoted `: ` in scalar values (silent mapping confusion). The script lives inside this skill, not the project, so a cwd-relative path does not find it. Set `SKILL_DIR` to the absolute path of the directory containing this SKILL.md and run:
+
+   ```bash
+   SKILL_DIR="<absolute path of the directory containing this SKILL.md>"
+   PY=""
+   for c in python3 python py; do
+     if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info[0] == 3 else 1)' >/dev/null 2>&1; then PY="$c"; break; fi
+   done
+   if [ -f "$SKILL_DIR/scripts/validate-frontmatter.py" ] && [ -n "$PY" ]; then
+     "$PY" "$SKILL_DIR/scripts/validate-frontmatter.py" "<new-learning-path>"
+   else
+     echo "MANUAL_CHECK: bundled validator or Python 3 unavailable"
+   fi
+   ```
+
+   - **Script ran:** exit 0 means parser-safe. Exit 1 means stderr names the offending field(s): quote the value(s), re-write the doc, and re-run until exit 0. Do not declare success while validation fails.
+   - **`MANUAL_CHECK` printed:** apply the validator's checks by hand, no broader: (1) the opening and closing delimiters are each a line containing only `---` (trailing whitespace allowed); (2) every top-level `key: value` whose value does not start with `"`, `'`, `[`, `{`, `|`, or `>` contains no ` #` and no `: ` — quote the whole value if either appears. Then state in the summary that the bundled validator was unavailable and the checks were applied manually.
+
+   The validator does not enforce schema rules or flag YAML reserved-indicator characters (those fail loudly downstream); the `references/yaml-schema.md` YAML-safety rules in step 2 cover those.
 4. After the subagent completes, the orchestrator deletes the old learning file. The new learning's frontmatter may include `supersedes: [old learning filename]` for traceability, but this is optional — the git history and commit message provide the same information.
 
 **When evidence is insufficient:**
@@ -410,56 +347,10 @@ Delete only when a learning is clearly obsolete, redundant (with no unique conte
 
 ## Output Format
 
-**The full report MUST be printed as markdown output.** Do not summarize findings internally and then output a one-liner. The report is the deliverable — print every section in full, formatted as readable markdown with headers, tables, and bullet points.
-
-After processing the selected scope, output the following report:
-
-```text
-Compound Refresh Summary
-========================
-Scanned: N learnings
-
-Kept: X
-Updated: Y
-Consolidated: C
-Replaced: Z
-Deleted: W
-Skipped: V
-Marked stale: S
-```
-
-Then for EVERY file processed, list:
-- The file path
-- The classification (Keep/Update/Consolidate/Replace/Delete/Stale)
-- What evidence was found -- tag any memory-sourced findings with "(auto memory [claude])" to distinguish them from codebase-sourced evidence
-- What action was taken (or recommended)
-- For Consolidate: which doc was canonical, what unique content was merged, what was deleted
-
-For **Keep** outcomes, list them under a reviewed-without-edits section so the result is visible without creating git churn.
-
-### Autofix mode report
-
-In autofix mode, the report is the sole deliverable — there is no user present to ask follow-up questions, so the report must be self-contained and complete. **Print the full report. Do not abbreviate, summarize, or skip sections.**
-
-Split actions into two sections:
-
-**Applied** (writes that succeeded):
-- For each **Updated** file: the file path, what references were fixed, and why
-- For each **Consolidated** cluster: the canonical doc, what unique content was merged from each subsumed doc, and the subsumed docs that were deleted
-- For each **Replaced** file: what the old learning recommended vs what the current code does, and the path to the new successor
-- For each **Deleted** file: the file path and why it was removed (problem domain gone, fully redundant, etc.)
-- For each **Marked stale** file: the file path, what evidence was found, and why it was ambiguous
-
-**Recommended** (actions that could not be written — e.g., permission denied):
-- Same detail as above, but framed as recommendations for a human to apply
-- Include enough context that the user can apply the change manually or re-run the skill interactively
-
-If all writes succeed, the Recommended section is empty. If no writes succeed (e.g., read-only invocation), all actions appear under Recommended — the report becomes a maintenance plan.
-
-**Legacy cleanup** (if `docs/solutions/_archived/` exists):
-- List archived files found and recommend disposition: restore (if still relevant), delete (if truly obsolete), or consolidate (if overlapping with active docs)
+After processing the selected scope, print the full refresh summary as markdown — never a one-line summary. Read `references/output-format.md` for the summary block, the required per-file listing, the autofix Applied / Recommended split, and legacy `_archived/` cleanup.
 
 ## Phase 5: Commit Changes
+
 Read `references/phase5-commit-changes.md` for full detail on git-context detection, autofix-mode defaults (main vs feature branch), interactive-mode option presentation by branch state, and the commit-message style.
 
 ## Relationship to ce-compound
@@ -473,37 +364,4 @@ Use **Consolidate** proactively when the document set has grown organically and 
 
 ## Discoverability Check
 
-After the refresh report is generated, check whether the project's instruction files would lead an agent to discover and search `docs/solutions/` before starting work in a documented area. This runs every time — the knowledge store only compounds value when agents can find it. If this check produces edits, they are committed as part of (or immediately after) the Phase 5 commit flow — see step 5 below.
-
-1. Identify which root-level instruction files exist (AGENTS.md, CLAUDE.md, or both). Read the file(s) and determine which holds the substantive content — one file may just be a shim that `@`-includes the other (e.g., `CLAUDE.md` containing only `@AGENTS.md`, or vice versa). The substantive file is the assessment and edit target; ignore shims. If neither file exists, skip this check entirely.
-2. Assess whether an agent reading the instruction files would learn three things:
-   - That a searchable knowledge store of documented solutions exists
-   - Enough about its structure to search effectively (category organization, YAML frontmatter fields like `module`, `tags`, `problem_type`)
-   - When to search it (before implementing features, debugging issues, or making decisions in documented areas — learnings may cover bugs, best practices, workflow patterns, or other institutional knowledge)
-
-   This is a semantic assessment, not a string match. The information could be a line in an architecture section, a bullet in a gotchas section, spread across multiple places, or expressed without ever using the exact path `docs/solutions/`. Use judgment — if an agent would reasonably discover and use the knowledge store after reading the file, the check passes.
-
-3. If the spirit is already met, no action needed.
-4. If not:
-   a. Based on the file's existing structure, tone, and density, identify where a mention fits naturally. Before creating a new section, check whether the information could be a single line in the closest related section — an architecture tree, a directory listing, a documentation section, or a conventions block. A line added to an existing section is almost always better than a new headed section. Only add a new section as a last resort when the file has clear sectioned structure and nothing is even remotely related.
-   b. Draft the smallest addition that communicates the three things. Match the file's existing style and density. The addition should describe the knowledge store itself, not the plugin.
-
-      Keep the tone informational, not imperative. Express timing as description, not instruction — "relevant when implementing or debugging in documented areas" rather than "check before implementing or debugging." Imperative directives like "always search before implementing" cause redundant reads when a workflow already includes a dedicated search step. The goal is awareness: agents learn the folder exists and what's in it, then use their own judgment about when to consult it.
-
-      Examples of calibration (not templates — adapt to the file):
-
-      When there's an existing directory listing or architecture section — add a line:
-      ```
-      docs/solutions/  # documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (module, tags, problem_type)
-      ```
-
-      When nothing in the file is a natural fit — a small headed section is appropriate:
-      ```
-      ## Documented Solutions
-
-      `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
-      ```
-
-      If the instruction-file placement is ambiguous, ask one concise placement question using the Skill Value interaction rule above before editing.
-
-5. **Amend or create a follow-up commit when the check produces edits.** If step 4 resulted in an edit to an instruction file and Phase 5 already committed the refresh changes, stage the newly edited file and either amend the existing commit (if still on the same branch and no push has occurred) or create a small follow-up commit (e.g., `docs: add docs/solutions/ discoverability to AGENTS.md`). If Phase 5 already pushed the branch to a remote (e.g., the branch+PR path), push the follow-up commit as well so the open PR includes the discoverability change. This keeps the working tree clean and the remote in sync at the end of the run. If the user chose "Don't commit" in Phase 5, leave the instruction-file edit unstaged alongside the other uncommitted refresh changes — no separate commit logic needed.
+Run every time, after the summary and the Phase 5 commit decision: read `references/discoverability-check.md` and follow its steps to check whether the project's AGENTS.md / CLAUDE.md would lead an agent to `docs/solutions/`, add the smallest informational mention if not, and fold any resulting edit into the Phase 5 commit (amend or follow-up commit, pushed if Phase 5 pushed).

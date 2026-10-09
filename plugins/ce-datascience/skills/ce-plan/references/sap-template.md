@@ -1,5 +1,11 @@
 # SAP Template
 
+## Contents
+
+- YAML Frontmatter
+- Section Template
+- Writing Guidance
+
 Use this template when producing a Statistical Analysis Plan in SAP mode. The YAML frontmatter and `SAP-N.M` section identifiers are load-bearing -- downstream skills (`ce-work` SAP tracking, SAP-drift detector) parse them by ID. Do not renumber or restructure section IDs without updating consumers.
 
 Every new SAP must include the biostatistics-style tabular SAP contract. The prose SAP is the narrative plan; `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` workbook are the programmer/coordinating-center handoff.

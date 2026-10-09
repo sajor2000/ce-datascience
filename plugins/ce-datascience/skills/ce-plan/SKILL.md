@@ -1,6 +1,6 @@
 ---
 name: ce-plan
-description: "Create the canonical durable implementation plan or statistical analysis plan. Use the claims-based SAP specialist only when a clinical study needs deeper claim-to-dataset and decision-evidence modeling."
+description: "Create the canonical durable implementation plan or statistical analysis plan. Use when the user asks to plan work, write or finalize a SAP, or turn requirements into implementation units; hand off to the claims-based SAP specialist only when a clinical study needs deeper claim-to-dataset and decision-evidence modeling."
 argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan] [output:html]"
 ---
 
@@ -20,13 +20,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 `ce-brainstorm` defines **WHAT** to study or build. `ce-plan` defines **HOW** -- either as a Statistical Analysis Plan (SAP) for study designs or as an implementation plan for technical tasks. `ce-work` executes the plan. A prior brainstorm is useful context but never required — `ce-plan` works from any input: a study design doc, a requirements doc, a feature idea, or a rough description.
 
-`ce-plan` owns the canonical versioned SAP. For complex clinical, validation,
-benchmarking, or observational studies, load `ce-statistical-analysis-plan` to
-develop the claim-to-dataset schema and decision evidence inside that SAP; do
-not create a second competing plan. Use `ce-model-strategy` after data QA when
-the primary model, random-effects structure, or implementation path requires a
-traceable decision. `ce-sap-tabular` owns the workbook
-companion, and manuscript skills own final prose and citation delivery.
+`ce-plan` owns the canonical versioned SAP. For complex clinical, validation, benchmarking, or observational studies, load `ce-statistical-analysis-plan` to develop the claim-to-dataset schema and decision evidence inside that SAP; do not create a second competing plan. Use `ce-model-strategy` after data QA when the primary model, random-effects structure, or implementation path requires a traceable decision. `ce-sap-tabular` owns the workbook companion, and manuscript skills own final prose and citation delivery.
 
 **When directly invoked, always plan.** Never classify a direct invocation as "not a planning task" and abandon the workflow. If the input is unclear, ask clarifying questions or use the planning bootstrap (Phase 0.4) to establish enough context — but always stay in the planning workflow.
 
@@ -36,9 +30,7 @@ When the plan includes new or materially extended Marimo, Jupyter, R Markdown, o
 
 ## Interaction Method
 
-When this skill asks a user-facing question, follow the Skill Value interaction rule above.
-
-Ask one question at a time. Prefer a concise single-select choice when natural options exist.
+Follow the Skill Value interaction rule above for every user-facing question: one question at a time, a concise single-select choice when natural options exist, and numbered choices in chat when no blocking question UI is available. Never silently skip a required question.
 
 ## Feature Description
 
@@ -64,16 +56,15 @@ This skill operates in one of two modes, detected after reading the input:
 
 ### SAP Mode Workflow
 
-When SAP mode is active, replace Phases 3-5 with the SAP-specific workflow described in `references/sap-mode-workflow.md`. Phases 0-2 (resume, source, scope, research, questions) still run as normal -- study design brainstorms benefit from the same upstream requirements and research gathering.
+When SAP mode is active, Phases 0-2 (resume, source, scope, research, questions) run as normal; then read `references/sap-mode-workflow.md` and follow it in place of Phases 3-5. Read `references/sap-template.md` when that workflow reaches SAP Phase 3 (structure) and `references/sap-gap-checklist.md` at SAP Phase 5 (gap check). For the SAP Phase 5 post-generation menu, load `references/plan-handoff.md` and run 5.3.8 (document review) and 5.4 with the SAP path in place of the plan path.
 
-The reference covers:
+SAP-mode gates that hold regardless of what the reference says:
+- **Data profile before SAP structure (SAP Phase 2.5).** Read the `ce-data-qa` profile/QA report before filling variable, missingness, cohort-size, or model sections. Inspectable data with no profile -> load `ce-data-qa` in pre-SAP column profile mode first. No inspectable data -> keep `status: draft` with a GAP comment. QA blockers -> do not write a final SAP.
+- **No finalization over open methodological choices.** Unresolved estimand, comparator, outcome, follow-up, adjustment, or missing-data choices keep the SAP in `status: draft`.
+- **Tabular companion required (SAP Phase 4.5).** A new SAP without the `ce-sap-tabular` companion and no explicit blocker is incomplete.
+- **Human checkpoint on finalization.** Report critical/important/advisory gaps and set `status: final` only when the user accepts it and no critical gap remains.
 
-- SAP Phase 3 — structure the SAP, scan chat for upstream biomedical handoff signals (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), and fill rules.
-- CLIF profile behavior under SAP mode (data dictionary version, template workflow, STROBE+RECORD default, protected-path scope rules).
-- SAP Phase 4 — write the SAP file.
-- SAP Phase 4.5 — create or require the biostatistics-style tabular SAP companion (`ce-sap-tabular`) for every new SAP.
-- SAP Phase 5 — gap check and review.
-- SAP versioning rules.
+The reference also defines the upstream handoff signals SAP Phase 3 consumes (`__CE_RESEARCH_QUESTION__`, `__CE_PUBMED_RESULTS__`, `__CE_METHOD_EXTRACT__`, `__CE_CHECKLIST__`, `__CE_COHORT__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_PHENOTYPE_VALIDATE__`, `__CE_EFFECT_SIZE__`, `__CE_POWER__`, `__CE_CLIF__`, `__CE_LANG__`), CLIF-profile behavior (data dictionary version, STROBE+RECORD default, protected paths), and SAP versioning (increment `sap_version`, never renumber SAP-N.M IDs).
 
 ## Core Principles
 
@@ -94,7 +85,7 @@ The reference covers:
 Every plan should contain:
 - A clear problem frame and scope boundary
 - Concrete requirements traceability back to the request or origin document
-- Repo-relative file paths for the work being proposed (never absolute paths — see Planning Rules)
+- Repo-relative file paths for the work being proposed (never absolute paths)
 - Explicit test file paths for feature-bearing implementation units
 - Decisions with rationale, not just tasks
 - Existing patterns or code references to follow
@@ -160,11 +151,11 @@ If the plan already has a `deepened: YYYY-MM-DD` frontmatter field and there is 
 
 #### 0.1b Classify Task Domain and Detect Mode
 
-First, detect SAP vs implementation mode per the Dual-Mode section above. Scan the input for study design keywords (study population, exposure, intervention, outcome, hypothesis, research question, PICO, primary endpoint, cohort, case-control, randomized, observational study, clinical trial, inclusion criteria, exclusion criteria). If 2+ keywords are present, announce "Entering SAP mode" and continue to Phase 0.2 (research is valuable for SAPs too). The SAP-specific workflow replaces Phases 3-4 as described in the Dual-Mode section.
+First, detect SAP vs implementation mode using the keyword rule in the Dual-Mode section above. In SAP mode, announce "Entering SAP mode" and continue to Phase 0.2 (research is valuable for SAPs too); the SAP workflow replaces Phases 3-5 as described in the Dual-Mode section.
 
 If SAP mode is not triggered, apply the standard domain classification:
 
-If the task involves building, modifying, or architecting software (references code, repos, APIs, databases, or asks to build/modify/deploy), continue to Phase 0.2 in implementation mode.
+If the task involves building, modifying, or architecting software or analysis code (references code, repos, APIs, databases, data pipelines, notebooks, or asks to build/modify/deploy), continue to Phase 0.2 in implementation mode.
 
 If the domain is genuinely ambiguous (e.g., "plan a migration" with no other context), ask the user before routing.
 
@@ -223,7 +214,7 @@ If the bootstrap uncovers major unresolved product questions:
 
 If the bootstrap reveals that a different workflow would serve the user better:
 
-- **Symptom without a root cause** (user describes broken behavior but hasn't identified why) — announce that investigation is needed before planning and load the `ce-debug` skill. A plan requires a known problem to solve; debugging identifies what that problem is. Announce the routing clearly: "This needs investigation before planning — switching to ce-debug to find the root cause."
+- **Symptom without a root cause** (user describes broken behavior but hasn't identified why) — announce "This needs investigation before planning — switching to ce-debug to find the root cause." and load the `ce-debug` skill.
 - **Clear task ready to execute** (known root cause, obvious fix, no architectural decisions) — suggest `ce-work` as a faster alternative alongside continuing with planning. The user decides.
 
 #### 0.5 Classify Outstanding Questions Before Planning
@@ -252,7 +243,9 @@ If depth is unclear, ask one targeted question and then continue.
 
 ### Phase 1: Gather Context
 
-Read `references/phase1-context-gathering.md` for full sub-phase detail (1.0 data-column/QA preflight, 1.1 local research dispatch, 1.1b execution-posture detection, 1.2 external-research decision rubric, 1.3 conditional external research, 1.4 consolidation, 1.4b depth reclassification, 1.5 flow analysis).
+Read `references/phase1-context-gathering.md` now and run its sub-phases in order (1.0 data-column/QA preflight, 1.1 local research dispatch, 1.1b execution-posture detection, 1.2 external-research decision rubric, 1.3 conditional external research, 1.4 consolidation, 1.4b depth reclassification, 1.5 flow analysis).
+
+Phase 1.0 is a gate for any study or analysis work with data: inspect the actual columns and consume `ce-data-qa` (tabular) or `ce-bioinfo-qc` (omics) evidence before writing variable, cohort, or model content. When no data is inspectable yet, record the data-profile prerequisite as a GAP and keep those sections provisional.
 
 ### Phase 2: Resolve Planning Questions
 
@@ -282,179 +275,30 @@ Ask the user only when the answer materially affects architecture, scope, sequen
   - Examples: `2026-01-15-001-feat-user-authentication-flow-plan.md`, `2026-02-03-002-fix-checkout-race-condition-plan.html`
   - Avoid: missing sequence numbers, vague names like "new-feature", invalid characters (colons, spaces)
 
-#### 3.2 Stakeholder and Impact Awareness
+#### 3.2-3.7 Units, Design Sketches, and Unknowns
 
-For **Standard** or **Deep** plans, briefly consider who is affected by this change — end users, developers, operations, other teams — and how that should shape the plan. For cross-cutting work, note affected parties in the System-Wide Impact section.
+Read `references/plan-structure.md` now and apply 3.2 through 3.7: stakeholder impact, implementation-unit granularity, optional High-Level Technical Design and Output Structure, the per-unit field list (Goal, Requirements, Dependencies, Files, Approach, Execution note, Technical design, Patterns to follow, Test scenarios, Verification), deferred implementation unknowns, and keeping tangential cleanup under `Deferred to Follow-Up Work`.
 
-#### 3.3 Break Work into Implementation Units
-
-Break the work into logical implementation units. Each unit should represent one meaningful change that an implementer could typically land as an atomic commit.
-
-Good units are:
-- Focused on one component, behavior, or integration seam
-- Usually touching a small cluster of related files
-- Ordered by dependency
-- Concrete enough for execution without pre-writing code
-
-Avoid:
-- 2-5 minute micro-steps
-- Units that span multiple unrelated concerns
-- Units that are so vague an implementer still has to invent the plan
-
-Each unit carries a stable plan-local **U-ID** assigned in Phase 3.5 (`U1`, `U2`, …). U-IDs survive reordering, splitting, and deletion: new units take the next unused number, gaps are fine, and existing IDs are never renumbered. This lets `ce-work` reference units unambiguously across plan edits.
-
-#### 3.4 High-Level Technical Design (Optional)
-
-Before detailing implementation units, decide whether an overview would help a reviewer validate the intended approach. This section communicates the *shape* of the solution — how pieces fit together — without dictating implementation.
-
-**When to include it:**
-
-| Work involves... | Best overview form |
-|---|---|
-| DSL or API surface design | Pseudo-code grammar or contract sketch |
-| Multi-component integration | Mermaid sequence or component diagram |
-| Data pipeline or transformation | Data flow sketch |
-| State-heavy lifecycle | State diagram |
-| Complex branching logic | Flowchart |
-| Mode/flag combinations or multi-input behavior | Decision matrix (inputs -> outcomes) |
-| Single-component with non-obvious shape | Pseudo-code sketch |
-
-**When to skip it:**
-- Well-patterned work where prose and file paths tell the whole story
-- Straightforward CRUD or convention-following changes
-- Lightweight plans where the approach is obvious
-
-Choose the medium that fits the work. Do not default to pseudo-code when a diagram communicates better, and vice versa.
-
-Frame every sketch with: *"This illustrates the intended approach and is directional guidance for review, not implementation specification. The implementing agent should treat it as context, not code to reproduce."*
-
-Keep sketches concise — enough to validate direction, not enough to copy-paste into production.
-
-#### 3.4b Output Structure (Optional)
-
-For greenfield plans that create a new directory structure (new plugin, service, package, or module), include an `## Output Structure` section with a file tree showing the expected layout. This gives reviewers the overall shape before diving into per-unit details.
-
-**When to include it:**
-- The plan creates 3+ new files in a new directory hierarchy
-- The directory layout itself is a meaningful design decision
-
-**When to skip it:**
-- The plan only modifies existing files
-- The plan creates 1-2 files in an existing directory — the per-unit file lists are sufficient
-
-The tree is a scope declaration showing the expected output shape. It is not a constraint — the implementer may adjust the structure if implementation reveals a better layout. The per-unit `**Files:**` sections remain authoritative for what each unit creates or modifies.
-
-#### 3.5 Define Each Implementation Unit
-
-Each unit's heading carries a stable U-ID prefix matching the format used for R/A/F/AE in requirements docs: `- U1. **[Name]**`. The prefix is plain text, not bolded — the bold is reserved for the unit name. Number sequentially within the plan starting at U1. Do not prefix units with `- [ ]` / `- [x]` checkbox markers; the plan is a decision artifact, and execution progress is derived from git by `ce-work` rather than stored in the plan body.
-
-**Stability rule.** Once assigned, a U-ID is never renumbered. Reordering units leaves their IDs in place (e.g., U1, U3, U5 in their new order is correct; renumbering to U1, U2, U3 is not). Splitting a unit keeps the original U-ID on the original concept and assigns the next unused number to the new unit. Deletion leaves a gap; gaps are fine. This rule matters most during deepening (Phase 5.3), which is the most likely accidental-renumber vector.
-
-For each unit, include:
-- **Goal** - what this unit accomplishes
-- **Requirements** - which requirements or success criteria it advances (cite R-IDs, and A/F/AE IDs when origin supplies them)
-- **Dependencies** - what must exist first (cite by U-ID, e.g., "U1, U3")
-- **Files** - repo-relative file paths to create, modify, or test (never absolute paths)
-- **Approach** - key decisions, data flow, component boundaries, or integration notes
-- **Execution note** - optional, only when the unit benefits from a non-default execution posture such as test-first or characterization-first
-- **Technical design** - optional pseudo-code or diagram when the unit's approach is non-obvious and prose alone would leave it ambiguous. Frame explicitly as directional guidance, not implementation specification
-- **Patterns to follow** - existing code or conventions to mirror
-- **Test scenarios** - enumerate the specific test cases the implementer should write, right-sized to the unit's complexity and risk. Consider each category below and include scenarios from every category that applies to this unit. A simple config change may need one scenario; a payment flow may need a dozen. The quality signal is specificity — each scenario should name the input, action, and expected outcome so the implementer doesn't have to invent coverage. For units with no behavioral change (pure config, scaffolding, styling), use `Test expectation: none -- [reason]` instead of leaving the field blank. **AE-link convention:** when a test scenario directly enforces an origin Acceptance Example, prefix it with `Covers AE<N>.` (or `Covers F<N> / AE<N>.`). This is sparse-by-design — most test scenarios are finer-grained than AEs and do not link. Do not force AE links onto tests that only cover lower-level implementation details.
-  - **Happy path behaviors** - core functionality with expected inputs and outputs
-  - **Edge cases** (when the unit has meaningful boundaries) - boundary values, empty inputs, nil/null states, concurrent access
-  - **Error and failure paths** (when the unit has failure modes) - invalid input, downstream service failures, timeout behavior, permission denials
-  - **Integration scenarios** (when the unit crosses layers) - behaviors that mocks alone will not prove, e.g., "creating X triggers callback Y which persists Z". Include these for any unit touching callbacks, middleware, or multi-layer interactions
-- **Verification** - how an implementer should know the unit is complete, expressed as outcomes rather than shell command scripts
-
-Every feature-bearing unit should include the test file path in `**Files:**`.
-
-Use `Execution note` sparingly. Good uses include:
-- `Execution note: Start with a failing integration test for the request/response contract.`
-- `Execution note: Add characterization coverage before modifying this legacy parser.`
-- `Execution note: Implement new domain behavior test-first.`
-
-Do not expand units into literal `RED/GREEN/REFACTOR` substeps.
-
-#### 3.6 Keep Planning-Time and Implementation-Time Unknowns Separate
-
-If something is important but not knowable yet, record it explicitly under deferred implementation notes rather than pretending to resolve it in the plan.
-
-Examples:
-- Exact method or helper names
-- Final SQL or query details after touching real code
-- Runtime behavior that depends on seeing actual test failures
-- Refactors that may become unnecessary once implementation starts
-
-#### 3.7 Keep tangential cleanup out of the implementation contract
-
-Record opportunistic cleanup, adjacent refactors, and unrelated test repairs under `Deferred to Follow-Up Work` unless they are required for the requested behavior, a defined safety boundary, or a failing verification gate. A plan must not convert a small implementation into an unbounded cleanup project.
+Non-negotiables while structuring:
+- Each unit heading carries a stable U-ID (`- U1. **[Name]**`). Never renumber: reordering keeps IDs, splitting assigns the next unused number, deletion leaves a gap. No `- [ ]` checkboxes; progress is derived from git by `ce-work`.
+- Every feature-bearing unit lists its test file path in `**Files:**` and enumerates concrete test scenarios (happy path, edge, error, integration as applicable). Only non-feature-bearing units may use `Test expectation: none -- [reason]`.
+- Execution-time unknowns are recorded as deferred, never presented as settled.
 
 ### Phase 4: Write the Plan
 
-**NEVER CODE during this skill.** Research, decide, and write the plan — do not start implementation.
+**NEVER CODE during this skill.** Research, decide, and write the plan — do not start implementation. Use one planning philosophy across all depths; change the amount of detail, not the boundary between planning and execution.
 
-Use one planning philosophy across all depths. Change the amount of detail, not the boundary between planning and execution.
+#### 4.1 Depth, Extensions, and Planning Rules
 
-#### 4.1 Plan Depth Guidance
-
-**Lightweight**
-- Keep the plan compact
-- Usually 2-4 implementation units
-- Omit optional sections that add little value
-
-**Standard**
-- Use the full core template, omitting optional sections (including High-Level Technical Design) that add no value for this particular work
-- Usually 3-6 implementation units
-- Include risks, deferred questions, and system-wide impact when relevant
-
-**Deep**
-- Use the full core template plus optional analysis sections where warranted
-- Usually 4-8 implementation units
-- Group units into phases when that improves clarity
-- Include alternatives considered, documentation impacts, and deeper risk treatment when warranted
-
-#### 4.1b Optional Deep Plan Extensions
-
-For sufficiently large, risky, or cross-cutting work, add the sections that genuinely help:
-- **Alternative Approaches Considered**
-- **Success Metrics**
-- **Dependencies / Prerequisites**
-- **Risk Analysis & Mitigation**
-- **Phased Delivery**
-- **Documentation Plan**
-- **Operational / Rollout Notes**
-- **Future Considerations** only when they materially affect current design
-
-Do not add these as boilerplate. Include them only when they improve execution quality or stakeholder alignment.
-
-**Alternatives Considered — what to vary.** When this section is included, alternatives must differ on *how* the work is built: architecture, sequencing, boundaries, integration pattern, rollout strategy. Tiny implementation variants (which hash function, which serialization format) belong in Key Technical Decisions, not Alternatives. Product-shape alternatives (different actors, different core outcome, different positioning) belong in `ce-brainstorm`, not here — surface them back upstream rather than re-litigating product questions during planning.
+Apply the depth guidance (Lightweight 2-4 units, Standard 3-6, Deep 4-8), optional Deep-plan extensions, and the 4.3 Planning Rules from `references/plan-structure.md` (already loaded in Phase 3). The rules forbid implementation code, git commands, exact test command recipes, and `RED/GREEN/REFACTOR` micro-steps; pseudo-code and Mermaid are allowed only as directional guidance.
 
 #### 4.2 Core Plan Template
 
-Read `references/plan-sections.md` for the format-independent section contract and `references/plan-template.md` for the existing markdown template shape. Use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation.
-
-The templates contain:
-
-- The Core Plan Template (frontmatter, Summary, Problem Frame, Requirements Trace, Scope, Context & Research, Decisions, Open Questions, optional Output Structure, optional High-Level Technical Design, Implementation Units, System-Wide Impact, Risks & Dependencies, Documentation Notes, Sources & References).
-- Optional Deep-Plan Extensions (Alternative Approaches Considered, Success Metrics, Dependencies / Prerequisites, Risk Analysis & Mitigation, Phased Delivery, Documentation Plan, Operational / Rollout Notes).
-
-Omit clearly inapplicable optional sections, especially for Lightweight plans.
-
-#### 4.3 Planning Rules
-
-- **Horizontal rules (`---`) between top-level sections** in Standard and Deep plans, mirroring the `ce-brainstorm` requirements doc convention. Improves scannability of dense plans where many H2 sections sit close together. Omit for Lightweight plans where the whole doc fits on a single screen.
-- **All file paths must be repo-relative** — never use absolute paths like `/Users/name/Code/project/src/file.ts`. Use `src/file.ts` instead. Absolute paths make plans non-portable across machines, worktrees, and teammates. When a plan targets a different repo than the document's home, state the target repo once at the top of the plan (e.g., `**Target repo:** my-other-project`) and use repo-relative paths throughout
-- Prefer path plus class/component/pattern references over brittle line numbers
-- Do not include implementation code — no imports, exact method signatures, or framework-specific syntax
-- Pseudo-code sketches and DSL grammars are allowed in the High-Level Technical Design section and per-unit technical design fields when they communicate design direction. Frame them explicitly as directional guidance, not implementation specification
-- Mermaid diagrams are encouraged when they clarify relationships or flows that prose alone would make hard to follow — ERDs for data model changes, sequence diagrams for multi-service interactions, state diagrams for lifecycle transitions, flowcharts for complex branching logic
-- Do not include git commands, commit messages, or exact test command recipes
-- Do not expand implementation units into micro-step `RED/GREEN/REFACTOR` instructions
-- Do not pretend an execution-time question is settled just to make the plan look complete
+Read `references/plan-sections.md` for the format-independent section contract and `references/plan-template.md` for the markdown template shape (core template plus optional Deep-plan extensions). Use the rendering reference loaded in Phase 0.0 (`markdown-rendering.md` or `html-rendering.md`) to decide presentation. Omit clearly inapplicable optional sections, especially for Lightweight plans.
 
 #### 4.4 Visual Communication in Plan Documents
 
-When the plan contains 4+ implementation units with non-linear dependencies, 3+ interacting surfaces in System-Wide Impact, 3+ behavioral modes/variants in Problem Frame, or 3+ interacting decisions in Key Technical Decisions or alternatives in Alternative Approaches, read `references/visual-communication.md` for diagram and table guidance. This covers plan-structure visuals (dependency graphs, interaction diagrams, comparison tables) — not solution-design diagrams, which are covered in Section 3.4.
+When the plan contains 4+ implementation units with non-linear dependencies, 3+ interacting surfaces in System-Wide Impact, 3+ behavioral modes/variants in Problem Frame, or 3+ interacting decisions in Key Technical Decisions or alternatives in Alternative Approaches, read `references/visual-communication.md` for diagram and table guidance. This covers plan-structure visuals (dependency graphs, interaction diagrams, comparison tables) — not solution-design diagrams, which 3.4 in `references/plan-structure.md` covers.
 
 ### Phase 5: Final Review, Write File, and Handoff
 
@@ -518,27 +362,21 @@ After writing the plan file, automatically evaluate whether the plan needs stren
 - **Auto mode** (default during plan generation): Runs without asking the user for approval. The user sees what is being strengthened but does not need to make a decision. Sub-agent findings are synthesized directly into the plan.
 - **Interactive mode** (activated by the re-deepen fast path in Phase 0.1): The user explicitly asked to deepen an existing plan. Sub-agent findings are presented individually for review before integration. The user can accept, reject, or discuss each agent's findings. Only accepted findings are synthesized into the plan.
 
-Interactive mode exists because on-demand deepening is a different user posture — the user already has a plan they are invested in and wants to be surgical about what changes. This applies whether the plan was generated by this skill, written by hand, or produced by another tool.
-
-`ce-doc-review` and this confidence check are different:
-- Use the `ce-doc-review` skill when the document needs clarity, simplification, completeness, or scope control
-- This confidence check strengthens rationale, sequencing, risk treatment, and system-wide thinking when the plan is structurally sound but still needs stronger grounding
+Interactive mode applies whether the plan was generated by this skill, written by hand, or produced by another tool. The confidence check strengthens rationale, sequencing, risk treatment, and grounding; it does not replace `ce-doc-review` (5.3.8), which checks clarity, completeness, and scope.
 
 **Pipeline mode:** This phase always runs in auto mode in pipeline/disable-model-invocation contexts. No user interaction needed.
 
 ##### 5.3.1 Classify Plan Depth and Topic Risk
 
-Determine the plan depth from the document:
-- **Lightweight** - small, bounded, low ambiguity, usually 2-4 implementation units
-- **Standard** - moderate complexity, some technical decisions, usually 3-6 units
-- **Deep** - cross-cutting, high-risk, or strategically important work, usually 4-8 units or phased delivery
+Determine the plan depth from the document using the Phase 0.6 tiers (Lightweight 2-4 units, Standard 3-6, Deep 4-8 or phased delivery).
 
 Build a risk profile. Treat these as high-risk signals:
 - Authentication, authorization, or security-sensitive behavior
 - Payments, billing, or financial flows
 - Data migrations, backfills, or persistent data changes
 - External APIs or third-party integrations
-- Privacy, compliance, or user data handling
+- Privacy, compliance, or user data handling, including PHI, patient-level data, small-cell disclosure, or IRB/DUA constraints
+- Reported statistical inference: primary endpoints, causal claims, multiplicity, or deviations from a SAP
 - Cross-interface parity or multi-surface behavior
 - Significant rollout, monitoring, or operational concerns
 
@@ -547,7 +385,7 @@ Build a risk profile. Treat these as high-risk signals:
 - **Lightweight** plans usually do not need deepening unless they are high-risk
 - **Standard** plans often benefit when one or more important sections still look thin
 - **Deep** or high-risk plans often benefit from a targeted second pass
-- **Thin local grounding override:** If Phase 1.2 triggered external research because local patterns were thin (fewer than 3 direct examples or adjacent-domain match), always proceed to scoring regardless of how grounded the plan appears. When the plan was built on unfamiliar territory, claims about system behavior are more likely to be assumptions than verified facts. The scoring pass is cheap — if the plan is genuinely solid, scoring finds nothing and exits quickly
+- **Thin local grounding override:** If Phase 1.2 triggered external research because local patterns were thin (fewer than 3 direct examples or adjacent-domain match), always proceed to scoring regardless of how grounded the plan appears. Plans built on unfamiliar territory carry more unverified assumptions
 
 If the plan already appears sufficiently grounded and the thin-grounding override does not apply, report "Confidence check passed — no sections need strengthening", then **load `references/plan-handoff.md` now and execute 5.3.8 → 5.3.9 → 5.4 in sequence**. Document review is mandatory — do not skip it because the confidence check passed. The two tools catch different classes of issues.
 
@@ -559,14 +397,14 @@ When deepening is warranted, read `references/deepening-workflow.md` for confide
 
 **Load `references/plan-handoff.md` now.** It contains the full instructions for 5.3.8 (document review), 5.3.9 (final checks and cleanup), and 5.4 (post-generation handoff, including the Proof HITL flow, post-HITL re-review, and Issue Creation branching). Document review is mandatory — do not skip it even if the confidence check already ran.
 
-When this skill asks a user-facing question, follow the Skill Value interaction rule above.
+Ask through the Skill Value interaction rule and wait for the selection (a human checkpoint; never auto-select outside pipeline mode).
 
-**Question:** "Plan ready at `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`. What would you like to do next?"
+**Question:** "Plan ready at `<plan path>`. What would you like to do next?" (use the actual written path, `.md` or `.html`; in SAP mode, the SAP path)
 
 **Options:**
 1. **load the `ce-work` skill** (recommended) - Begin implementing this plan in the current session
 2. **Create Issue** - Create a tracked issue from this plan in your configured issue tracker (GitHub or Linear)
-3. **Open in Proof (web app) — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others
+3. **Open in Proof (web app) — review and comment to iterate with the agent** - Optional: show only when the core Compound Engineering `ce-proof` skill is available in the current harness (ce-datascience does not ship it). Otherwise omit this option; the saved local plan file is the fallback review surface.
 4. **Done for now** - Pause; the plan file is saved and can be resumed later
 
 Routing each selection, contextual surfacing of residual document-review findings, and the post-HITL resync logic all live in `references/plan-handoff.md` — follow it for every branch.

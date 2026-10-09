@@ -2,7 +2,7 @@
 
 Detailed workflow for `ce-plan` when **SAP mode** is active. Linked from `SKILL.md` § "Dual-Mode: SAP vs Implementation". Phases 0-2 still run as normal; this file replaces Phases 3-5 with SAP-specific behavior.
 
-## Table of contents
+## Contents
 
 1. SAP Phase 2.5 — Data profile gate before SAP structure.
 2. SAP Phase 3 — Structure the SAP (template, signal scan, fill rules).

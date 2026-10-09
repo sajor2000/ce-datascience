@@ -1,6 +1,6 @@
 ---
 name: ce-compound
-description: "Capture validated analytical approaches, decisions, and reusable patterns into durable docs/solutions knowledge."
+description: "Capture validated analytical approaches, decisions, and reusable patterns into durable docs/solutions knowledge. Use when the user wants to document learnings, preserve a validated approach, or compound a data science pattern."
 ---
 
 # `ce-compound`
@@ -30,13 +30,14 @@ Captures problem solutions while context is fresh, creating structured documenta
 `ce-compound` [brief context]    # Provide additional context hint
 ```
 
-## Pre-resolved context
+## Session context
 
-**Repo name (pre-resolved):** !`common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) && [ -n "$common" ] && basename "$(dirname "$common")"`
+Only when the user opts into session history (Full mode), resolve two values at runtime with the shell tool before the Phase 1 session-history dispatch. Run each as its own command and read its exit status — a non-zero exit is a normal state here (no git repo, unborn repo), not an error to route around:
 
-**Git branch (pre-resolved):** !`git rev-parse --abbrev-ref HEAD 2>/dev/null`
+- **Repo name** — run `git rev-parse --path-format=absolute --git-common-dir`. On exit 0, the repo name is the basename of the printed path's parent directory (worktree-stable: linked worktrees share the main checkout's common dir). On a non-zero exit, omit the repo name.
+- **Git branch** — run `git branch --show-current`. Use the printed name (this also works in a repo with no commits yet). If it prints nothing (detached HEAD) or exits non-zero, omit the branch.
 
-If the lines above resolved to plain values (a folder name like `my-repo` and a branch name like `feat/my-branch`), pass them into the Session Historian dispatch in Phase 1 so the agent does not waste a turn deriving them. If they still contain backtick command strings or are empty, omit them from the dispatch and let the agent derive them at runtime.
+Pass only cleanly resolved values into the session-history dispatch; omit anything unresolved and let the session-history flow derive it.
 
 ## Support Files
 
@@ -193,7 +194,7 @@ Launch research subagents. Each returns text data to the orchestrator.
 
    **Dispatch prompt — keep tight.** A long, keyword-rich prompt licenses the agent to keep widening. Use this shape:
 
-   - **Pre-resolved context** (only if values resolved cleanly above; otherwise omit and let the agent derive): repo name, current git branch.
+   - **Session context** (only values that resolved cleanly under "Session context" above; otherwise omit and let the agent derive): repo name, current git branch.
    - **Time window**: explicit `7 days` unless the documented problem clearly spans a longer arc.
    - **Problem topic**: one sentence naming the concrete issue — error message, module name, what broke and how it was fixed. Not a paragraph; not a bullet list of related topics.
    - **Filter rule (one line)**: "Only surface findings directly relevant to this specific problem. Ignore unrelated work from the same sessions or branches."
@@ -254,7 +255,25 @@ The orchestrating agent (main conversation) performs these steps:
 5. Validate YAML frontmatter against `references/schema.yaml`, including the YAML-safety quoting rule for array items (see `references/yaml-schema.md` > YAML Safety Rules)
 6. Create directory if needed: `mkdir -p docs/solutions/[category]/`
 7. Write the file: either the updated existing doc or the new `docs/solutions/[category]/[filename].md`
-8. **Run `python3 scripts/validate-frontmatter.py <output-path>`** to catch silent-corruption parser-safety issues that the prose rules miss: malformed `---` delimiter lines, unquoted ` #` in scalar values (silent comment truncation), and unquoted `: ` in scalar values (silent mapping confusion). Exit 0 means the doc is parser-safe; exit 1 means the script's stderr names the offending field(s) and what to fix — quote the value(s), re-write the doc, and re-run until exit 0. Do not declare success while validation fails. The script does not enforce schema rules and does not flag YAML reserved-indicator characters (those produce loud parser errors downstream rather than silent corruption — out of scope). Uses Python 3 stdlib only (no PyYAML or other deps).
+8. **Validate parser-safety of the written frontmatter** with the bundled `scripts/validate-frontmatter.py` (Python 3 stdlib only). It catches silent-corruption issues the prose rules miss: malformed `---` delimiter lines, unquoted ` #` in scalar values (silent comment truncation), and unquoted `: ` in scalar values (silent mapping confusion). The script lives inside this skill, not the project, so a cwd-relative path does not find it. Set `SKILL_DIR` to the absolute path of the directory containing this SKILL.md and run:
+
+   ```bash
+   SKILL_DIR="<absolute path of the directory containing this SKILL.md>"
+   PY=""
+   for c in python3 python py; do
+     if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(0 if sys.version_info[0] == 3 else 1)' >/dev/null 2>&1; then PY="$c"; break; fi
+   done
+   if [ -f "$SKILL_DIR/scripts/validate-frontmatter.py" ] && [ -n "$PY" ]; then
+     "$PY" "$SKILL_DIR/scripts/validate-frontmatter.py" "<output-path>"
+   else
+     echo "MANUAL_CHECK: bundled validator or Python 3 unavailable"
+   fi
+   ```
+
+   - **Script ran:** exit 0 means parser-safe. Exit 1 means stderr names the offending field(s): quote the value(s), re-write the doc, and re-run until exit 0. Do not declare success while validation fails.
+   - **`MANUAL_CHECK` printed:** apply the validator's checks by hand, no broader: (1) the opening and closing delimiters are each a line containing only `---` (trailing whitespace allowed); (2) every top-level `key: value` whose value does not start with `"`, `'`, `[`, `{`, `|`, or `>` contains no ` #` and no `: ` — quote the whole value if either appears. Then state in the completion output that the bundled validator was unavailable and the checks were applied manually.
+
+   The validator does not enforce schema rules or flag YAML reserved-indicator characters (those fail loudly downstream); step 5 covers those.
 
 When creating a new doc, preserve the section order from `assets/resolution-template.md` unless the user explicitly asks for a different structure.
 

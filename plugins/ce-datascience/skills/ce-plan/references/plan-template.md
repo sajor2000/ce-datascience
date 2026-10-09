@@ -2,7 +2,7 @@
 
 Canonical templates the writer fills in during Phase 4 of `ce-plan` when **implementation mode** is active. SAP-mode templates live in `sap-template.md`. Linked from `SKILL.md` § Phase 4.2.
 
-## Table of contents
+## Contents
 
 1. Core Plan Template — frontmatter, Summary, Problem Frame, Requirements Trace, Scope, Context, Decisions, Open Questions, Output Structure (optional), High-Level Technical Design (optional), Implementation Units, System-Wide Impact, Risks, Documentation Notes, Sources & References.
 2. Optional Deep-Plan Extensions — Alternative Approaches, Success Metrics, Dependencies, Risk Analysis, Phased Delivery, Documentation Plan, Operational / Rollout Notes.

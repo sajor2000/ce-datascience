@@ -1,5 +1,16 @@
 # Plan Sections
 
+## Contents
+
+- The outcome
+- Decide whether a plan doc is warranted at all
+- Hard floor
+- Include when material
+- Agent agency
+- Plan metadata fields
+- ID and content rules
+- Rendering
+
 This reference describes what makes a great implementation plan. It does NOT
 prescribe how the plan looks on the page — rendering is handled by the
 format-specific references (`markdown-rendering.md`, `html-rendering.md`).

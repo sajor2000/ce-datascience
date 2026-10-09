@@ -1,6 +1,19 @@
 # Full Mode
 
-Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode** — no argument given, or a PR number was provided. Full mode processes all unresolved threads on the PR.
+Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode** — no argument given, or a PR number was provided. Full mode processes all unresolved feedback on the PR: inline review threads, review submission bodies, and top-level PR comments.
+
+## Contents
+
+- 1. Fetch Unresolved Threads (includes the pending-review stop)
+- 2. Triage: Separate New from Pending
+- 3. Cross-Invocation Cluster Analysis (Gated)
+- 4. Plan
+- 5. Implement (PARALLEL)
+- 6. Validate Combined State
+- 7. Commit and Push
+- 8. Reply and Resolve (REST reply from a body file, read-back, pending recheck, resolve)
+- 9. Verify
+- 10. Summary
 
 ## 1. Fetch Unresolved Threads
 
@@ -12,16 +25,24 @@ gh pr view --json number -q .number
 Then fetch all feedback using `scripts/get-pr-comments`:
 
 ```bash
-bash scripts/get-pr-comments PR_NUMBER
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER
 ```
 
-Returns a JSON object with three keys:
+Returns a JSON object with these keys:
 
 | Key | Contents | Has file/line? | Resolvable? |
 |-----|----------|---------------|-------------|
-| `review_threads` | Unresolved inline code review threads (includes outdated; each carries its `isOutdated` flag so the resolver can account for line drift) | Yes | Yes (GraphQL) |
-| `pr_comments` | Top-level PR conversation comments (excludes PR author) | No | No |
-| `review_bodies` | Review submission bodies with non-empty text (excludes PR author) | No | No |
+| `pending_review` | Node ID of your own unsubmitted (PENDING) review on this PR, or `null` | n/a | n/a |
+| `review_threads` | Unresolved inline code review threads (includes outdated; each node carries its `isOutdated` flag so the resolver can account for line drift). Each wrapper carries `root_comment_id`, the numeric REST ID of the thread's first comment, used for the reply; the node `id` is the GraphQL thread ID used for resolution | Yes | Yes (GraphQL) |
+| `pr_comments` | Top-level PR conversation comments with non-blank bodies | No | No |
+| `review_bodies` | Review submission bodies with non-blank text | No | No |
+| `pr_author` / `viewer` | The PR author's login and the acting account's login, for judging identity in step 2 | n/a | n/a |
+| `cross_invocation` | `signal` plus the last 10 `resolved_threads`, input to step 3 | n/a | n/a |
+
+**All three feedback surfaces are in scope.** `review_threads`, `pr_comments`, and `review_bodies` are judged the same way; only the reply and resolve mechanics differ (step 8). The fetch excludes nothing by identity. A top-level comment from the PR author is the ordinary way a human asks for a change on an agent-opened PR, so it is feedback like any other.
+
+**Stop here if `pending_review` is non-null.** A thread reply posted while you hold an unsubmitted review can be absorbed into that draft: the call returns a comment ID and URL as if it succeeded, but the reviewer sees nothing until the draft is submitted. Do not proceed into steps 2-9. Tell the user they have an unsubmitted review on the PR and that it must be submitted or discarded before this skill can reply, then stop. Do not submit or discard it yourself; a draft review is unsent human writing.
 
 If the script fails, fall back to:
 ```bash
@@ -33,18 +54,22 @@ gh api repos/{owner}/{repo}/pulls/PR_NUMBER/comments
 
 Before processing, classify each piece of feedback as **new** or **already handled**.
 
-**Review threads**: Read the thread's comments. If there's a substantive reply that acknowledges the concern but defers action (e.g., "need to align on this", "going to think through this", or a reply that presents options without resolving), it's a **pending decision** -- don't re-process. If there's only the original reviewer comment(s) with no substantive response, it's **new**.
+**Review threads**: A handled thread is complete only when it has both a visible, submitted substantive reply and authoritative thread resolution. Check the two conditions independently:
+
+- A reply that explicitly defers a human choice (e.g., "need to align on this", "going to think through this", or options without a decision) is a **pending decision**. Keep the thread open and do not re-process it.
+- A reply that records a completed fix or answer while the thread is still open (for example, an earlier run stopped on a pending review after posting) is **resolution-pending**. Do not repost the reply or reapply the fix; carry the existing reply to step 8 and complete only the missing resolution.
+- A thread with neither kind of substantive response is **new**.
 
 **PR comments and review bodies**: These have no resolve mechanism, so they reappear on every run. Apply two filters in order:
 
-1. **Actionability**: Skip items that contain no actionable feedback or questions to answer. Examples: review wrapper text ("Here are some automated review suggestions..."), approvals ("this looks great!"), status badges ("Validated"), CI summaries with no follow-up asks. If there's nothing to fix, answer, or decide, it's not actionable -- drop it from the count entirely.
+1. **Actionability**: An item is actionable when it is someone's open request to this PR -- something to fix, answer, or decide. Who posted it never decides this, including the PR author (`pr_author`). A reply posted by this skill in an earlier run (typically authored by `viewer`) is a record of handling, not a request, so drop it here; re-reading its own write-up as fresh feedback would keep the loop from settling. Skip items that contain no actionable feedback or questions to answer. Examples: review wrapper text ("Here are some automated review suggestions..."), approvals ("this looks great!"), status badges ("Validated"), CI summaries with no follow-up asks. If there's nothing to fix, answer, or decide, it's not actionable -- drop it from the count entirely.
 2. **Already replied**: For actionable items, check the PR conversation for an existing reply that quotes and addresses the feedback. If a reply already exists, skip. If not, it's new.
 
 The distinction is about content, not who posted what. A deferral from a teammate, a previous skill run, or a manual reply all count. Similarly, actionability is about content -- bot feedback that requests a specific code change is actionable; a bot's boilerplate header wrapping those requests is not.
 
-**Silent drop.** Non-actionable items are dropped without narration. Do not announce, list, or count dropped items in conversation, the task list, or the step 10 summary. Review-bot wrappers from CodeRabbit, Codex, Gemini Code Assist, and Copilot (bodies like "Here are some automated review suggestions...") commonly appear here -- recognize them by their boilerplate content, drop silently. Only CI/status bot summaries (Codecov) are pre-filtered at the script level; everything else relies on this content-aware check so bot format changes cannot silently hide actionable findings.
+**Silent drop.** Non-actionable items are dropped without narration. Do not announce, list, or count dropped items in conversation, the task list, or the step 10 summary. Review-bot wrappers from CodeRabbit, Codex, Gemini Code Assist, and Copilot (bodies like "Here are some automated review suggestions...") commonly appear here -- recognize them by their boilerplate content, drop silently. The script pre-filters only blank bodies. Every identity and surface -- the PR author, CI/status bots such as Codecov, review bots -- relies on this content-aware check, so identity reuse or bot format changes cannot silently hide actionable findings.
 
-If there are no new items across all feedback types, skip steps 3-9 and go straight to step 10.
+If there are no new or resolution-pending items across all feedback types, skip steps 3-9 and go straight to step 10. If only resolution-pending threads remain, skip steps 3-7 and go straight to step 8.
 
 ## 3. Cross-Invocation Cluster Analysis (Gated)
 
@@ -200,7 +225,7 @@ git push
 
 ## 8. Reply and Resolve
 
-After the push succeeds, post replies and resolve where applicable. The mechanism depends on the feedback type.
+After the push succeeds (or directly, when step 6 skipped the commit), post replies and resolve where applicable. The done condition for a review thread is one visible, submitted substantive reply plus authoritative resolution; satisfy each independently and never repeat a satisfied half. The mechanism depends on the feedback type.
 
 ### Reply format
 
@@ -231,32 +256,74 @@ For `needs-human` verdicts, post the reply but do NOT resolve the thread. Leave 
 
 ### Review threads
 
+Select the first unsatisfied condition before acting. A thread with no visible submitted reply runs steps 0-4. A `resolution-pending` thread skips step 1, uses its existing reply's ID in step 2, and runs steps 2-4; do not judge, fix, or post again. A `needs-human` thread stops after step 2 and stays unresolved. Order: steps 0-2 for each thread, step 3 once for the whole pass, then step 4 for each thread to resolve.
+
 0. **Verify the thread ID** before replying. GitHub Enterprise can return inconsistent node IDs for the same thread depending on the query path. Always confirm the ID from `get-pr-comments` resolves to the correct thread using `scripts/get-thread-for-comment` with the comment's numeric URL ID:
 ```bash
 # Extract numeric comment ID from the comment URL (for example, discussion_r2589700 -> 2589700)
 GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/COMMENT_ID --jq .node_id
-bash scripts/get-thread-for-comment PR_NUMBER COMMENT_NODE_ID OWNER/REPO
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-thread-for-comment" PR_NUMBER COMMENT_NODE_ID OWNER/REPO
 ```
-The returned `id` is the authoritative thread ID to use for reply and resolve. If it differs from what `get-pr-comments` returned, use the one from this script.
+The returned `id` is the authoritative thread ID to use for resolve. If it differs from what `get-pr-comments` returned, use the one from this script. The returned `root_comment_id` is the numeric REST ID of the thread's first comment, used for the reply. If it is `null`, take the numeric ID from the first comment's URL fragment.
 
-1. **Reply** using `scripts/reply-to-pr-thread`:
+1. **Reply to the root comment over REST.** Write the body to a private temp file with a quoted heredoc, then run `scripts/reply-to-pr-thread` with that file on stdin. A reply is multiline Markdown (a quote line, a blank line, then the response); never compose it with `echo "..."` or `printf`, which turn line breaks into a run-on line with literal `\n`. The quoted delimiter (`<<'EOF'`) also stops the shell from expanding backticks, `$`, and `!` inside quoted code or statistical notation:
 ```bash
-echo "REPLY_TEXT" | bash scripts/reply-to-pr-thread THREAD_ID
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+REPLY_BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-reply.XXXXXX")
+cat > "$REPLY_BODY_FILE" <<'EOF'
+> the specific sentence being addressed from the reviewer's comment
+
+Addressed: the sensitivity analysis now uses multiple imputation, matching SAP section 9.3.
+EOF
+bash "$SKILL_DIR/scripts/reply-to-pr-thread" PR_NUMBER ROOT_COMMENT_ID OWNER/REPO < "$REPLY_BODY_FILE"
 ```
-Check that the returned comment URL contains the correct `OWNER/REPO` and PR number before proceeding.
+The script posts to `repos/OWNER/REPO/pulls/PR_NUMBER/comments/ROOT_COMMENT_ID/replies`. If the script is unavailable, use that same endpoint with `gh api --method POST ... -F body=@"$REPLY_BODY_FILE"`. Never substitute the GraphQL `addPullRequestReviewThreadReply` mutation, `gh pr review`, or a `/reviews` POST: those go through review-submission state, so the reply can sit in an unsubmitted draft while the call reports success.
 
-2. **Resolve** using `scripts/resolve-pr-thread`:
+Exit code 2 means the reply was posted but a pending review is visible afterwards: stop without resolving any thread, report the pending review to the user, and do not submit or discard it. On success, check that the returned comment URL contains the correct `OWNER/REPO` and PR number before proceeding.
+
+2. **Read back the stored reply** before resolving. Take the reply's numeric ID from the returned URL fragment (`#discussion_r2589700` -> `2589700`):
 ```bash
-bash scripts/resolve-pr-thread THREAD_ID
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID --jq .body
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID --jq '.pull_request_review_id // empty'
+```
+The body must show real line breaks. If it shows `\n` or `\n\n` as literal characters inside one line, **do not resolve the thread**. Rewrite the body file with a quoted heredoc, PATCH it, and read back again:
+```bash
+GH_REPO=OWNER/REPO gh api --method PATCH repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID -F body=@"$REPLY_BODY_FILE"
+```
+If the second command prints a review ID, require that review's state to be something other than `PENDING`; a pending state means the reply is not submitted, whatever the POST returned:
+```bash
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/PR_NUMBER/reviews/REVIEW_ID --jq .state
+```
+
+3. **Re-check pending-review state** once after the reply pass and before resolving. This catches a draft created after step 1's initial fetch:
+```bash
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER OWNER/REPO | jq -r '.pending_review // empty'
+```
+If this prints an ID, stop without resolving any thread from this pass. Report the pending review; do not submit or discard it.
+
+4. **Resolve** using `scripts/resolve-pr-thread`:
+```bash
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/resolve-pr-thread" THREAD_ID
 ```
 
 ### PR comments and review bodies
 
-These cannot be resolved via GitHub's API. Reply with a top-level PR comment referencing the original:
+These cannot be resolved via GitHub's API. Reply with a top-level PR comment referencing the original. Use a body file with a quoted heredoc, as for thread replies; `--body-file` keeps the Markdown line breaks that `--body "..."` and command substitution can mangle:
 
 ```bash
-gh pr comment PR_NUMBER --body "REPLY_TEXT"
+REPLY_BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-reply.XXXXXX")
+cat > "$REPLY_BODY_FILE" <<'EOF'
+> the specific sentence being addressed from the reviewer's comment
+
+Addressed: Table 2 now reports the STROBE-required unadjusted and adjusted estimates.
+EOF
+gh pr comment PR_NUMBER -R OWNER/REPO --body-file "$REPLY_BODY_FILE"
 ```
+
+Confirm the posted comment renders with real line breaks, not one line containing literal `\n`.
 
 Include enough quoted context in the reply so the reader can follow which comment is being addressed without scrolling.
 
@@ -265,7 +332,8 @@ Include enough quoted context in the reply so the reader can follow which commen
 Re-fetch feedback to confirm resolution:
 
 ```bash
-bash scripts/get-pr-comments PR_NUMBER
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER
 ```
 
 The `review_threads` array should be empty (except `needs-human` items).

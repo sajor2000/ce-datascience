@@ -1,5 +1,17 @@
 # HTML Rendering
 
+## Contents
+
+- Hard invariants
+- Precedence stack for style preferences
+- Format principles
+- Section anatomy
+- Diagrams
+- Wireframe mockups (requirements docs only)
+- Affordance idioms
+- Agent-consumability rules
+- Post-compose audit
+
 This is a format-rendering reference — it describes how to render any
 artifact in HTML, independent of which skill is producing it.
 
