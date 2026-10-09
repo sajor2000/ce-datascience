@@ -77,6 +77,77 @@ describe("convertClaudeToDroid", () => {
     expect(parsed.body).toContain("Focus on vulnerabilities.")
   })
 
+  test("does not infer tools from incidental substrings in agent prose", () => {
+    const plugin: ClaudePlugin = {
+      ...fixturePlugin,
+      agents: [
+        {
+          name: "strategist",
+          description: "plans work",
+          body: "Review the request using already gathered context then do tasks as a checklist with details. Never open an editor and think globally about tradeoffs.",
+          sourcePath: "/tmp/plugin/agents/strategist.md",
+        },
+      ],
+      commands: [],
+      skills: [],
+    }
+
+    const bundle = convertClaudeToDroid(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+
+    const parsed = parseFrontmatter(bundle.droids[0].content)
+    expect(parsed.data.tools).toBeUndefined()
+  })
+
+  test("still infers tools from whole-word references", () => {
+    const plugin: ClaudePlugin = {
+      ...fixturePlugin,
+      agents: [
+        {
+          name: "worker",
+          description: "does work",
+          body: "Use Read to inspect files and Bash to run commands.",
+          sourcePath: "/tmp/plugin/agents/worker.md",
+        },
+      ],
+      commands: [],
+      skills: [],
+    }
+
+    const bundle = convertClaudeToDroid(plugin, {
+      agentMode: "subagent",
+      inferTemperature: false,
+      permissions: "none",
+    })
+
+    const parsed = parseFrontmatter(bundle.droids[0].content)
+    expect(parsed.data.tools).toEqual(["Execute", "Read"])
+  })
+
+  test("maps AskUserQuestion by its real tool name, not the bare word", () => {
+    // \bquestion\b never matches inside the CamelCase AskUserQuestion, so key on the full name.
+    const usesTool: ClaudePlugin = {
+      ...fixturePlugin,
+      agents: [{ name: "asker", description: "asks things", body: "Use AskUserQuestion after Read to gather files.", sourcePath: "/tmp/plugin/agents/asker.md" }],
+      commands: [],
+      skills: [],
+    }
+    const withTool = convertClaudeToDroid(usesTool, { agentMode: "subagent", inferTemperature: false, permissions: "none" })
+    expect(parseFrontmatter(withTool.droids[0].content).data.tools).toEqual(["AskUser", "Read"])
+
+    const prose: ClaudePlugin = {
+      ...fixturePlugin,
+      agents: [{ name: "asker", description: "asks things", body: "Answer the user's question after Read.", sourcePath: "/tmp/plugin/agents/asker.md" }],
+      commands: [],
+      skills: [],
+    }
+    const bareWord = convertClaudeToDroid(prose, { agentMode: "subagent", inferTemperature: false, permissions: "none" })
+    expect(parseFrontmatter(bareWord.droids[0].content).data.tools).toEqual(["Read"])
+  })
+
   test("passes through skill directories", () => {
     const bundle = convertClaudeToDroid(fixturePlugin, {
       agentMode: "subagent",

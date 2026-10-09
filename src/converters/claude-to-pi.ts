@@ -7,6 +7,7 @@ import type {
   PiMcporterServer,
 } from "../types/pi"
 import type { ClaudeToOpenCodeOptions } from "./claude-to-opencode"
+import { isReservedPathRoot } from "../utils/slash-command"
 
 export type ClaudeToPiOptions = ClaudeToOpenCodeOptions
 
@@ -153,7 +154,7 @@ export function transformContentForPi(body: string): string {
   result = result.replace(slashCommandPattern, (match, commandName: string) => {
     if (commandName.includes("/")) return match
     if (commandName !== commandName.toLowerCase()) return match
-    if (["dev", "tmp", "etc", "usr", "var", "bin", "home"].includes(commandName)) {
+    if (isReservedPathRoot(commandName)) {
       return match
     }
 
