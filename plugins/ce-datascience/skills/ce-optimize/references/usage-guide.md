@@ -1,5 +1,15 @@
 # `ce-optimize` Usage Guide
 
+## Contents
+
+- What This Skill Is For
+- When To Use It
+- When Not To Use It
+- How To Think About It
+- First-Run Advice
+- Example Prompts
+- Choosing Between Hard Metrics And Judge Mode
+
 ## What This Skill Is For
 
 `ce-optimize` is for hard engineering problems where:

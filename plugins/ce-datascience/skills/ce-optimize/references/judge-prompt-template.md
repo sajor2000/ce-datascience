@@ -1,5 +1,12 @@
 # Judge Evaluation Prompt Template
 
+## Contents
+
+- Item Evaluation Template
+- Singleton Evaluation Template
+- Variable Reference
+- Notes
+
 This template is used by the orchestrator to dispatch batched LLM-as-judge evaluation calls. Each judge sub-agent evaluates a batch of sampled output items and returns structured JSON scores.
 
 The orchestrator:

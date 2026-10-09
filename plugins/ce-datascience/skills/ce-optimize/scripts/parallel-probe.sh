@@ -34,8 +34,20 @@ cd "$PROJECT_DIR" || {
   exit 0
 }
 
-if ! command -v python3 >/dev/null 2>&1; then
-  echo '{"mode":"serial","blockers":[{"type":"missing_dependency","description":"python3 is required for structured probe output","suggestion":"Install python3 or skip the probe and review parallel-readiness manually"}],"blocker_count":1}'
+# Probe for a working Python 3 interpreter instead of assuming python3
+# (Windows/Git Bash and some distros expose only python or py).
+PYTHON_BIN=""
+for candidate in python3 python py; do
+  if command -v "$candidate" >/dev/null 2>&1 \
+    && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' >/dev/null 2>&1; then
+    PYTHON_BIN="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$PYTHON_BIN" ]]; then
+  echo "Error: no working Python 3 interpreter found (tried python3, python, py)" >&2
+  echo '{"mode":"serial","blockers":[{"type":"missing_dependency","description":"A working Python 3 interpreter is required for structured probe output (tried python3, python, py)","suggestion":"Install Python 3 so python3, python, or py is on PATH, or skip the probe and review parallel-readiness manually"}],"blocker_count":1}'
   exit 0
 fi
 
@@ -46,7 +58,7 @@ add_blocker() {
   local type="$1"
   local desc="$2"
   local suggestion="$3"
-  BLOCKERS=$(echo "$BLOCKERS" | python3 -c "
+  BLOCKERS=$(echo "$BLOCKERS" | "$PYTHON_BIN" -c "
 import json, sys
 b = json.load(sys.stdin)
 b.append({'type': '$type', 'description': '''$desc''', 'suggestion': '''$suggestion'''})
@@ -80,8 +92,9 @@ fi
 
 # Check 1: Hardcoded ports in measurement command
 if [[ -n "$MEASUREMENT_CMD" ]]; then
-  # Look for common port patterns in the command itself
-  if echo "$MEASUREMENT_CMD" | grep -qE '(--port(?:\s+|=)[0-9]+|:\s*[0-9]{4,5}|PORT=[0-9]+|localhost:[0-9]+)'; then
+  # Look for common port patterns in the command itself. POSIX ERE only:
+  # grep -E has no non-capturing groups, and \s is not portable.
+  if echo "$MEASUREMENT_CMD" | grep -qE '(--port([[:space:]]+|=)[0-9]+|:[[:space:]]*[0-9]{4,5}|PORT=[0-9]+|localhost:[0-9]+)'; then
     add_blocker "port" "Measurement command contains hardcoded port reference" "Parameterize port via environment variable (e.g., PORT=\$EVAL_PORT)"
   fi
 fi
@@ -106,18 +119,18 @@ if [[ -n "$MEASUREMENT_CMD" ]] && echo "$MEASUREMENT_CMD" | grep -qiE '(cuda|gpu
 fi
 
 # Determine mode
-BLOCKER_COUNT=$(echo "$BLOCKERS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+BLOCKER_COUNT=$(echo "$BLOCKERS" | "$PYTHON_BIN" -c "import json,sys; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
 
 if [[ "$BLOCKER_COUNT" == "0" ]]; then
   MODE="parallel"
-elif echo "$BLOCKERS" | python3 -c "import json,sys; b=json.load(sys.stdin); exit(0 if any(x['type']=='exclusive_resource' for x in b) else 1)" 2>/dev/null; then
+elif echo "$BLOCKERS" | "$PYTHON_BIN" -c "import json,sys; b=json.load(sys.stdin); exit(0 if any(x['type']=='exclusive_resource' for x in b) else 1)" 2>/dev/null; then
   MODE="serial"
 else
   MODE="user-decision"
 fi
 
 # Output JSON result
-python3 -c "
+"$PYTHON_BIN" -c "
 import json
 print(json.dumps({
     'mode': '$MODE',

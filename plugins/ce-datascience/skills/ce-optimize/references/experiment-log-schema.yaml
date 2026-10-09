@@ -20,6 +20,13 @@
 # rolling window (last 10 experiments) + a strategy digest file for
 # hypothesis generation. But the full log exists on disk for resume,
 # crash recovery, and post-run analysis.
+#
+# Contents:
+#   TOP-LEVEL STRUCTURE        spec, run_id, started_at, baseline, experiments,
+#                              best (incl. spend totals), hypothesis_backlog
+#   EXPERIMENT ENTRY           required and optional children of each entry
+#   OUTCOME STATE TRANSITIONS  how an experiment reaches each outcome
+#   STRATEGY DIGEST            the separate per-batch digest file
 
 # ============================================================================
 # TOP-LEVEL STRUCTURE
@@ -92,6 +99,14 @@ structure:
       total_judge_cost_usd:
         type: number
         description: "Running total of all judge costs across all experiments"
+      total_run_cost_usd:
+        type: number
+        description: "Running estimate of whole-run model spend (experiment workers, judges, research subagents), compared against stopping.max_total_cost_usd before each dispatch"
+      spend_estimated_parts:
+        type: array
+        description: "Which parts of the spend totals are estimates rather than host-reported usage (e.g., [workers, research])"
+        items:
+          type: string
 
   hypothesis_backlog:
     type: array
@@ -223,8 +238,9 @@ experiment_entry:
 # proposed (in hypothesis_backlog)
 #   -> selected for batch
 #     -> experiment dispatched
+#       -> leakage check failed     -> outcome: degenerate (reason recorded, not measured)
 #       -> measurement completed
-#         -> gates failed           -> outcome: degenerate
+#         -> gates failed          -> outcome: degenerate
 #         -> measurement error      -> outcome: error
 #         -> measurement timeout    -> outcome: timeout
 #         -> gates passed
