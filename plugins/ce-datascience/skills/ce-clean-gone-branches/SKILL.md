@@ -1,6 +1,6 @@
 ---
 name: ce-clean-gone-branches
-description: "Clean local git branches whose upstream tracking branches are gone, with confirmation before branch or worktree deletion."
+description: "Clean local git branches whose upstream tracking branches are gone, with confirmation before branch or worktree deletion. Use when the user asks to clean gone branches, prune local branches, or remove branches whose remotes no longer exist."
 ---
 
 # Clean Gone Branches
@@ -26,7 +26,8 @@ Delete local branches whose remote tracking branch has been deleted, including a
 Run the discovery script to fetch the latest remote state and identify gone branches:
 
 ```bash
-bash scripts/clean-gone
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/clean-gone"
 ```
 
 `scripts/clean-gone`

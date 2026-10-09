@@ -1,6 +1,6 @@
 ---
 name: ce-fabric-semantic-models
-description: "Design, audit, or troubleshoot Microsoft Fabric and Power BI semantic models, including Direct Lake, DAX, RLS/OLS, model refresh, semantic-link, and sempy workflows."
+description: "Design, audit, or troubleshoot Microsoft Fabric and Power BI semantic models, including Direct Lake, DAX, RLS/OLS, model refresh, semantic-link, and sempy workflows. Use when a task involves Direct Lake, DAX, RLS/OLS, a Power BI semantic model, semantic-link, or sempy."
 argument-hint: "[direct-lake|dax|security|refresh|debug]"
 ---
 

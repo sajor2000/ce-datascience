@@ -1,5 +1,16 @@
 # Bulk Action Preview
 
+## Contents
+
+- When the preview fires
+- Preview structure
+- Scope summary wording by path
+- Per-finding line format
+- Question and options
+- Cancel semantics
+- Proceed semantics
+- Edge cases
+
 This reference defines the compact plan preview that Interactive mode shows before every bulk action — best-judgment (routing option B), Append-to-Open-Questions (routing option C), and the walk-through's `Auto-resolve with best judgment on the rest` (option D of the per-finding question). The preview gives the user a single-screen view of what the agent is about to do, with exactly two options to Proceed or Cancel.
 
 Interactive mode only.

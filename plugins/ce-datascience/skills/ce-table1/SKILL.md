@@ -1,6 +1,6 @@
 ---
 name: ce-table1
-description: "Generate publication-ready Table 1 baseline-characteristics artifacts from SAP, tabular SAP variables, and style profile."
+description: "Generate publication-ready Table 1 baseline-characteristics artifacts from SAP, tabular SAP variables, and style profile. Use when the user asks for Table 1, baseline characteristics, demographic table, or manuscript-ready descriptive cohort table."
 argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama]"
 ---
 
@@ -39,7 +39,8 @@ If the variables catalog is missing, ask the user for the baseline variable list
 2. Run:
 
 ```bash
-python3 scripts/generate_table1.py --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama
 ```
 
 3. Review the generated validation report before presenting the table as ready.

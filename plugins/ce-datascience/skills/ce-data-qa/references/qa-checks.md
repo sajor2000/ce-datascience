@@ -1,5 +1,17 @@
 # Data QA Check Catalog
 
+## Contents
+
+- Structural checks (always run)
+- Key-and-uniqueness checks
+- Range and distribution checks
+- Date sanity checks
+- Missingness pattern checks
+- CONSORT flow (RCT only) / STROBE flow (observational)
+- Provenance checks
+- Causal workflow integrity checks (Python/Pandas/Polars/DuckDB)
+- Adding a new check
+
 Each check has: id, applies_when, bucket, language-agnostic intent, R/Python recipes, what to put in findings table.
 
 ## Structural checks (always run)

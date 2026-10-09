@@ -1,6 +1,6 @@
 ---
 name: ce-pubmed
-description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output."
+description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output. Use when the user asks for PubMed, MEDLINE, PMIDs, biomedical abstracts, or literature metadata."
 argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-control|prediction|review --max 50"
 ---
 
@@ -57,7 +57,8 @@ If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, 
 The `scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries. Prefer it over hand-rolling `requests` because Entrez already implements the rate-limit + retry logic that hand-rolled code routinely gets wrong.
 
 ```bash
-python3 scripts/pubmed_search.py \
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/pubmed_search.py" \
     "sepsis bundle compliance ICU" \
     --years 10 --study-type cohort --max 50 \
     --out analysis/pubmed/sepsis-bundle-2025.csv

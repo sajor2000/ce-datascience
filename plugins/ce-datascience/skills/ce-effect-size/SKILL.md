@@ -1,6 +1,6 @@
 ---
 name: ce-effect-size
-description: "Extract, compute, or pool effect-size evidence to ground power, SAP assumptions, and study justification."
+description: "Extract, compute, or pool effect-size evidence to ground power, SAP assumptions, and study justification. Use when the user needs effect-size assumptions, pilot estimates, pooled estimates, or literature-derived values."
 argument-hint: "<path/to/methods.csv>, optional: --metric or|hr|rr|md|smd"
 ---
 

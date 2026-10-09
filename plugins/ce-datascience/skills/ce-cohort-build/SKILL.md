@@ -1,6 +1,6 @@
 ---
 name: ce-cohort-build
-description: "Define a reproducible study cohort with inclusion/exclusion criteria, index event, vocabulary-pinned concepts, SQL/CTE output, and waterfall counts."
+description: "Define a reproducible study cohort with inclusion/exclusion criteria, index event, vocabulary-pinned concepts, SQL/CTE output, and waterfall counts. Use when the user needs an EHR, OMOP, claims, phenotype, or observational-study cohort before data QA or SAP finalization."
 argument-hint: "<cohort name>, optional: --vocab omop|icd10|icd9|cpt|loinc|snomed --index-event <event>"
 ---
 

@@ -1,5 +1,12 @@
 # Evidence-Grounded Scientific Writing Patterns
 
+## Contents
+
+- Evidence base
+- Rules that change the prose
+- Published examples and reusable structures
+- Editing checks
+
 Use these patterns to solve a sentence-level reporting problem after the study design, section, and evidence are established. They are not mandatory wording. Replace brackets only with verified study information, vary the syntax to preserve author voice, and follow the applicable reporting guideline and journal instructions.
 
 ## Evidence base

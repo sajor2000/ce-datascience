@@ -1,6 +1,6 @@
 ---
 name: ce-r-review
-description: "Review R scripts, Quarto/R Markdown analyses, and R package code for correctness, reproducibility, idiomatic practices, data integrity, and statistical-method risks. Use for read-only R code audits."
+description: "Review R scripts, Quarto/R Markdown analyses, and R package code for correctness, reproducibility, idiomatic practices, data integrity, and statistical-method risks. Use when the user wants a read-only R code audit, a pre-merge R review, or an explanation of an R-specific warning or result."
 argument-hint: "[path or scope]"
 ---
 

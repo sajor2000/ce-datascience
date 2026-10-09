@@ -1,5 +1,9 @@
 # Document Review Sub-agent Prompt Template
 
+## Contents
+
+- Template: `<persona>`, `<output-contract>`, `<review-context>`, and `<decision-primer-rules>` blocks
+
 This template is used by the ce-doc-review orchestrator to spawn each reviewer sub-agent. Variable substitution slots are filled at dispatch time.
 
 ---

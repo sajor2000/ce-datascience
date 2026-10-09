@@ -1,6 +1,6 @@
 ---
 name: ce-ideate
-description: "Generate and rank grounded ideas before brainstorming or planning, using repo, literature, issue, or topic context when available."
+description: "Generate and rank grounded ideas before brainstorming or planning, using repo, literature, issue, or topic context when available. Use when the user asks for ideas, directions, research opportunities, feature concepts, or surprise-me exploration."
 argument-hint: "[feature, focus area, or constraint]"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ce-notebook-edit
-description: "Safely modify existing Jupyter, Marimo, or Quarto notebooks using anchors, backups, and metadata-preserving edits."
+description: "Safely modify existing Jupyter, Marimo, or Quarto notebooks using anchors, backups, and metadata-preserving edits. Use when the user asks to update, patch, or extend an existing notebook rather than generate a new one."
 argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--cell-type markdown|code]"
 ---
 
@@ -33,7 +33,8 @@ Existing notebooks are fragile because cell order, metadata, outputs, and JSON s
 3. Load the `ce-notebook-standards` skill before adding or materially changing executable cells. Put the explanatory Markdown and new code body in small project files, then run:
 
 ```bash
-python3 scripts/notebook_edit.py --notebook analysis/notebook.ipynb --tag sap-5-1 --markdown-source analysis/notebook-edits/new-cell.md --source analysis/notebook-edits/new-cell.py --cell-type code
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/notebook_edit.py" --notebook analysis/notebook.ipynb --tag sap-5-1 --markdown-source analysis/notebook-edits/new-cell.md --source analysis/notebook-edits/new-cell.py --cell-type code
 ```
 
 4. Review the generated backup, modified notebook diff, and `.edit-report.md` file.

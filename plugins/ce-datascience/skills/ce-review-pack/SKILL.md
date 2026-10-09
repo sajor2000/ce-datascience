@@ -1,6 +1,6 @@
 ---
 name: ce-review-pack
-description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages."
+description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages. Use when the user needs PI review, statistician signoff, coordinating-center handoff, or approval workflow packaging."
 argument-hint: "[optional: --ledger analysis/signoff/signoff-ledger.json]"
 ---
 
@@ -27,7 +27,8 @@ Create a concise study-team handoff and validate named human approvals. This ski
 3. Validate the signoff ledger:
 
 ```bash
-python3 scripts/validate_signoff_ledger.py --ledger analysis/signoff/signoff-ledger.json --project-root .
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_signoff_ledger.py" --ledger analysis/signoff/signoff-ledger.json --project-root .
 ```
 
 4. If the ledger is missing or invalid, keep readiness at blocked or ready-with-review, never approved.

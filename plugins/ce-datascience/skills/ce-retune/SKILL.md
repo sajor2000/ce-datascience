@@ -1,6 +1,6 @@
 ---
 name: ce-retune
-description: "Measure and improve a CE skill corpus against a declared behavioral benchmark; maintainer use only."
+description: "Measure and improve a CE skill corpus against a declared behavioral benchmark; maintainer use only. Use when a CE maintainer needs to improve a skill corpus for a model, failure pattern, or measurable quality regression."
 disable-model-invocation: true
 argument-hint: "[target model or symptom] [corpus path; default plugins/ce-datascience/skills] [bar:<n>]"
 ---

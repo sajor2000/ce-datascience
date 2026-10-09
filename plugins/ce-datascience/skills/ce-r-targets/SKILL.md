@@ -1,6 +1,6 @@
 ---
 name: ce-r-targets
-description: "Design, create, validate, or debug reproducible R targets pipelines using _targets.R, targets, tarchetypes, branching, storage formats, and Quarto/R Markdown integration."
+description: "Design, create, validate, or debug reproducible R targets pipelines using _targets.R, targets, tarchetypes, branching, storage formats, and Quarto/R Markdown integration. Use when the project has `_targets.R`, uses targets/tarchetypes, or needs a reproducible R analysis pipeline."
 argument-hint: "[new|edit|debug|review]"
 ---
 

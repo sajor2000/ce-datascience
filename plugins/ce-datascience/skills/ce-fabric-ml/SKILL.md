@@ -1,6 +1,6 @@
 ---
 name: ce-fabric-ml
-description: "Run or review data-science and ML workflows in Microsoft Fabric, including MLflow experiments, registered models, batch scoring, model endpoints, SynapseML, and AI functions."
+description: "Run or review data-science and ML workflows in Microsoft Fabric, including MLflow experiments, registered models, batch scoring, model endpoints, SynapseML, and AI functions. Use when a Fabric project uses MLflow, an Experiment, registered models, PREDICT, distributed scoring, SynapseML, or AI functions."
 argument-hint: "[experiment|register|batch-score|endpoint|review]"
 ---
 

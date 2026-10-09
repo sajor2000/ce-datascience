@@ -1,5 +1,13 @@
 # R CI Patterns
 
+## Contents
+
+- GitHub Actions with r-lib/actions
+- Docker with Rocker Images
+- renv in CI
+- Common R CI Patterns
+- Anti-patterns to Avoid
+
 Reference guide for continuous integration with R projects. Load when setting up CI/CD for R analysis projects or when the shipping workflow detects R test infrastructure.
 
 ---

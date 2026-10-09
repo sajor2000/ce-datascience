@@ -1,5 +1,12 @@
 # Shipping Workflow
 
+## Contents
+
+- Phase 3: Quality Check
+- Phase 4: Ship It
+- Quality Checklist
+- Code Review Tiers
+
 This file contains the shipping workflow (Phase 3-4). Load it only when all Phase 2 tasks are complete and execution transitions to quality check.
 
 ## Phase 3: Quality Check

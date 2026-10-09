@@ -1,6 +1,6 @@
 ---
 name: ce-sprint
-description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail."
+description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail. Use when the user wants an auditable analysis sprint, human signoff, scoped SAP execution, or sprint closeout."
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 
@@ -72,7 +72,7 @@ sprint:
 
 ### `ce-sprint close`
 
-1. Run `python3 scripts/sprint.py close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
+1. Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/sprint.py" close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
 
    ```
    __CE_SPRINT_AUDIT_DISPATCH__ sprint=<name> reviewer=ce-sprint-audit-reviewer human_reviewer=<name> scope=<csv> commit_open=<sha> commit_close=<sha>

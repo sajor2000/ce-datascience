@@ -1,6 +1,6 @@
 ---
 name: ce-babysit-pr
-description: "Monitor one open GitHub PR within a bounded watch or checkpoint and surface actionable CI and review residuals."
+description: "Monitor one open GitHub PR within a bounded watch or checkpoint and surface actionable CI and review residuals. Use when a user asks to monitor, watch, or babysit one GitHub pull request."
 argument-hint: "[PR number, URL, or blank for current branch] [watch|checkpoint] [duration]"
 ---
 

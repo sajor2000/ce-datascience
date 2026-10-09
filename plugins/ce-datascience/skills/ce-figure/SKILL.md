@@ -1,6 +1,6 @@
 ---
 name: ce-figure
-description: "Create or validate publication-ready scientific figures with JAMA-style typography, layout, and traceability checks."
+description: "Create or validate publication-ready scientific figures with JAMA-style typography, layout, and traceability checks. Use when the user asks for a figure, JAMA-style plot, manuscript graphic, or figure QA."
 argument-hint: "[optional: --manifest analysis/publication/figures/figure-manifest.json --project-root .]"
 ---
 
@@ -28,7 +28,8 @@ When the requested figure workflow creates or materially extends a Marimo, Jupyt
 2. Run:
 
 ```bash
-python3 scripts/validate_figure_manifest.py --manifest analysis/publication/figures/figure-manifest.json --project-root .
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_figure_manifest.py" --manifest analysis/publication/figures/figure-manifest.json --project-root .
 ```
 
 3. Resolve blockers before marking any figure as manuscript-ready.

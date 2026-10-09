@@ -1,6 +1,6 @@
 ---
 name: ce-evidence-map
-description: "Build a source-backed evidence map for biomedical research questions. Uses PubMed metadata as the required baseline and optionally deepens with Paperclip full-text search, grep, map, SQL, and figure review when the Paperclip CLI is installed and authenticated."
+description: "Build a source-backed evidence map for biomedical research questions. Uses PubMed metadata as the required baseline and optionally deepens with Paperclip full-text search, grep, map, SQL, and figure review when the Paperclip CLI is installed and authenticated. Use when the user needs evidence for a SAP, method justification, effect-size selection, manuscript background, or review pack."
 argument-hint: "[research query, optional: --source pmc|abstracts|trials|fda --max 10]"
 ---
 

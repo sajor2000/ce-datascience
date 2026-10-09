@@ -1,5 +1,15 @@
 # Compliance Report Format
 
+## Contents
+
+- Report Structure
+- Header Format
+- Checklist Status Format
+- Waiver Format
+- Changelog Format
+- Agent Instructions for Updating the Report
+- SAP Tracking Integration
+
 Defines the format for `.ce-datascience/compliance-report.md` — the Git-native compliance tracking file maintained by `ce-reporting-checklist-reviewer`. This file lives in the user's project and is append-only: existing entries are never deleted or overwritten, only updated and extended.
 
 ---

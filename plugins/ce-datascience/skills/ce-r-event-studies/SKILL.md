@@ -1,6 +1,6 @@
 ---
 name: ce-r-event-studies
-description: "Plan, implement, or review R event-study and difference-in-differences analyses, including staggered treatment adoption, treatment timing, fixed effects, dynamic effects, and diagnostics."
+description: "Plan, implement, or review R event-study and difference-in-differences analyses, including staggered treatment adoption, treatment timing, fixed effects, dynamic effects, and diagnostics. Use when the study uses difference-in-differences, event time, treatment adoption, panel fixed effects, or dynamic treatment effects."
 argument-hint: "[plan|implement|review]"
 ---
 

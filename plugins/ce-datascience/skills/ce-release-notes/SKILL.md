@@ -1,6 +1,6 @@
 ---
 name: ce-release-notes
-description: "Summarize recent ce-datascience plugin releases or answer version-specific questions from release metadata."
+description: "Summarize recent ce-datascience plugin releases or answer version-specific questions from release metadata. Use when the user asks what changed, whether a skill shipped, or what happened in recent plugin releases."
 argument-hint: "[optional: question about a past release]"
 disable-model-invocation: true
 ---
@@ -35,7 +35,8 @@ Version-like inputs (`2.65.0`, `v2.65.0`, `ce-datascience-v2.65.0`) are query st
 Run the helper from the skill directory:
 
 ```bash
-python3 scripts/list-plugin-releases.py --limit 40
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/list-plugin-releases.py" --limit 40
 ```
 
 The helper always exits 0 and emits a single JSON object on stdout. It owns all transport logic (`gh` preferred, anonymous API fallback) — never branch on transport here.
@@ -104,7 +105,8 @@ Stop. Summary mode is done.
 Run the helper with a wider buffer so the search window can be filled even when sibling tags interleave heavily:
 
 ```bash
-python3 scripts/list-plugin-releases.py --limit 100
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/list-plugin-releases.py" --limit 100
 ```
 
 Apply the same launch-failure handling as Phase 2 (fixed `python3 is required…` message if the helper subprocess can't even start).

@@ -1,5 +1,16 @@
 # Stack-Profile-Aware Scaffolding
 
+## Contents
+
+- Stack Profile Resolution
+- Tiered Notebook Support
+- Golden Path: R + tidyverse + Quarto
+- Golden Path: Python + pandas
+- Other Combinations
+- R Project Bootstrap
+- Golden Path: Python + marimo
+- SAP Section Headers
+
 This reference defines how `ce-work` generates analysis code scaffolding adapted to the user's stack profile. Load it when creating new analysis files during execution.
 
 ---

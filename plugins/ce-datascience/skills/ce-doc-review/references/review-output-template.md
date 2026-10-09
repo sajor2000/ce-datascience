@@ -1,5 +1,11 @@
 # Document Review Output Template
 
+## Contents
+
+- Example
+- Section Rules
+- Chain-Rendering Rules
+
 Use this **exact format** when presenting synthesized review findings in Interactive mode. Findings are grouped by severity, not by reviewer.
 
 **IMPORTANT:** Use pipe-delimited markdown tables (`| col | col |`). Do NOT use ASCII box-drawing characters.

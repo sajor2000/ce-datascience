@@ -1,6 +1,6 @@
 ---
 name: ce-fabric-kql
-description: "Write, audit, or debug Microsoft Fabric Real-Time Intelligence workflows: Eventhouse, KQL databases, Eventstreams, ingestion mappings, update policies, materialized views, Real-Time Dashboards, Activator, and KQL queries."
+description: "Write, audit, or debug Microsoft Fabric Real-Time Intelligence workflows: Eventhouse, KQL databases, Eventstreams, ingestion mappings, update policies, materialized views, Real-Time Dashboards, Activator, and KQL queries. Use when the task involves Eventhouse, KQL, Eventstream, ingestion mappings, update policies, materialized views, or a real-time dashboard."
 argument-hint: "[query|ingestion|policy|dashboard|debug]"
 ---
 

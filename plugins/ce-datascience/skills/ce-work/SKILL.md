@@ -1,6 +1,6 @@
 ---
 name: ce-work
-description: "Execute implementation or analysis plans with task tracking, tests, SAP awareness, and shipping checks."
+description: "Execute implementation or analysis plans with task tracking, tests, SAP awareness, and shipping checks. Use when the user asks to work, implement, execute a plan, or continue from the latest plan document."
 argument-hint: "[Plan doc path or description of work. Blank to auto use latest plan doc]"
 ---
 

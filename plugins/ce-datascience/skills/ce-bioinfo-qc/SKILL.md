@@ -1,6 +1,6 @@
 ---
 name: ce-bioinfo-qc
-description: "Run sequencing and omics QA before downstream analysis. Use for FASTQ, BAM/CRAM, VCF, count matrices, methylation arrays, sample-swap checks, and batch-effect screening."
+description: "Run sequencing and omics QA before downstream analysis. Use when working with FASTQ, BAM/CRAM, VCF, count matrices, methylation arrays, sample-swap checks, and batch-effect screening."
 argument-hint: "<data dir or sample sheet>, optional: --modality wgs|wes|rnaseq|chipseq|methyl|atac|microarray"
 ---
 

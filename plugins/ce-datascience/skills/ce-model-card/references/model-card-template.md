@@ -1,5 +1,17 @@
 # Model Card: {{ model.id }}
 
+## Contents
+
+- 1. Model details
+- 2. Intended use
+- 3. Factors
+- 4. Metrics
+- 5. Evaluation data
+- 6. Training data
+- 7. Quantitative analyses
+- 8. Ethical considerations
+- 9. Caveats and recommendations
+
 ## 1. Model details
 
 | Field | Value |

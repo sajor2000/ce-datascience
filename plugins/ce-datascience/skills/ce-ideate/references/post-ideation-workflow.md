@@ -1,5 +1,13 @@
 # Post-Ideation Workflow
 
+## Contents
+
+- Phase 3: Adversarial Filtering
+- Phase 4: Present the Survivors
+- Phase 5: Persistence (Opt-In, Mode-Aware)
+- Phase 6: Refine or Hand Off
+- Quality Bar
+
 Read this file after Phase 2 ideation agents return and the orchestrator has merged and deduped their outputs into a master candidate list. Do not load before Phase 2 completes.
 
 ## Phase 3: Adversarial Filtering

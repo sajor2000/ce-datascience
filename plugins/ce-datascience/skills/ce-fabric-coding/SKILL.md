@@ -1,6 +1,6 @@
 ---
 name: ce-fabric-coding
-description: "Write or review Microsoft Fabric Lakehouse, OneLake, Warehouse, Spark, Python-notebook, and Delta-table code. Use for PySpark, Spark SQL, T-SQL, Fabric notebooks, Spark job definitions, OneLake paths, and SQL analytics endpoint questions."
+description: "Write or review Microsoft Fabric Lakehouse, OneLake, Warehouse, Spark, Python-notebook, and Delta-table code. Use when the task involves PySpark, Spark SQL, T-SQL, Fabric notebooks, Spark job definitions, OneLake paths, and SQL analytics endpoint questions."
 argument-hint: "[lakehouse|warehouse|spark|python-notebook]"
 ---
 

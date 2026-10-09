@@ -1,6 +1,6 @@
 ---
 name: ce-research-question
-description: "Harden a fuzzy biomedical idea into PICO, FINER, hypothesis, and PubMed-query YAML for downstream study workflows."
+description: "Harden a fuzzy biomedical idea into PICO, FINER, hypothesis, and PubMed-query YAML for downstream study workflows. Use when the user has a clinical or biomedical study idea that needs PICO/FINER framing before evidence search."
 argument-hint: "<one-line research question>, optional: --ideation-survivor <path>"
 ---
 

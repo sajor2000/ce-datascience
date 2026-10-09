@@ -1,6 +1,6 @@
 ---
 name: ce-genome-build
-description: "Pin genome build, annotation, contig naming, and liftover assumptions for genomics workflows."
+description: "Pin genome build, annotation, contig naming, and liftover assumptions for genomics workflows. Use when the user mentions genome build, GRCh37/38, hg19/hg38, annotation versions, liftover, or VCF/BAM compatibility."
 argument-hint: "[--ref-fasta path, --annotation-gtf path, --check]"
 ---
 

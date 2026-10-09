@@ -1,6 +1,6 @@
 ---
 name: ce-sap-tabular
-description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets."
+description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets. Use when the user has a prose SAP and needs programmer handoff sheets, output catalog, variable catalog, or workbook contract."
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 
@@ -111,7 +111,7 @@ A 3-10 row example of the wide-format (one row per patient or per hospitalizatio
 
 ### Step 4: Generate the workbook
 
-Run `python3 scripts/generate-tabular-sap.py <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
+Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/generate-tabular-sap.py" <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
 
 If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alone are a valid output.
 

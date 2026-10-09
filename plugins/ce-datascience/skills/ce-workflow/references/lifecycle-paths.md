@@ -1,5 +1,14 @@
 # Lifecycle Paths
 
+## Contents
+
+- Data-First Planning Invariant
+- Path 1: Observational Study
+- Path 2: Clinical Trial Analysis
+- Path 3: Prediction / ML Model
+- Path 4: Bioinformatics / Omics
+- Path 5: Technical / Software Implementation
+
 Ordered skill sequences for each project type. Steps marked with language-specific notes where they differ.
 
 ---

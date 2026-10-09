@@ -1,6 +1,6 @@
 ---
 name: ce-data-qa
-description: "Run a pre-SAP column profile or GO/NO-GO data quality gate before SAP finalization, modeling, or unblinding."
+description: "Run a pre-SAP column profile or GO/NO-GO data quality gate before SAP finalization, modeling, or unblinding. Use when the user asks to inspect columns, validate a fresh extract, compare data to cohort/SAP expectations, or check readiness."
 argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 ---
 

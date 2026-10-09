@@ -198,7 +198,16 @@ If two skills need the same supporting file, duplicate it into each skill's dire
 
 This plugin is authored once and converted for multiple agent platforms (Claude Code, Codex, Gemini CLI, etc.). Do not use platform-specific environment variables or string substitutions (e.g., `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_SKILL_DIR}`, `${CLAUDE_SESSION_ID}`, `CODEX_SANDBOX`, `CODEX_SESSION_ID`) in skill content without a graceful fallback that works when the variable is unavailable or unresolved.
 
-**Preferred approach — relative paths:** Reference co-located scripts and files using relative paths from the skill directory (e.g., `bash scripts/my-script.sh ARG`). All major platforms resolve these relative to the skill's directory. No variable prefix needed.
+**Preferred approach — relative paths for reads, `SKILL_DIR` for executed scripts:** Files Claude *reads* (`references/x.md`, `assets/template.yaml`) stay relative to the skill root; the agent resolves them. Bundled scripts that are *executed* through a shell tool must be anchored. The shell starts in the user's project root, not the skill directory, on Claude Code, Codex, and Cursor, so a bare `bash scripts/x.sh` copied into a Bash call misses the file. Use the model-filled anchor with a trailing `;`, check that the file exists, and give a fallback:
+
+```
+SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>";
+bash "$SKILL_DIR/scripts/my-script.sh" ARG
+```
+
+Python helpers may call `python3`, since skills target Unix-like shells. When a safety check must not be silently skipped (for example a validator), probe `python3`, `python`, `py` in that order and fall back to a documented manual check when none is available. `tests/plugin-content-portability.test.ts` rejects unanchored `bash|sh|python3 scripts/...` invocations.
+
+**Load-time `!` pre-resolution:** Avoid it for anything that can exit non-zero. On Claude Code a failing `!` command aborts the skill load; for example, `git diff HEAD` fails in an unborn repo and `git status` fails outside one. Gather context at runtime instead, one argv-style command per shell call, and state what a non-zero exit means. The only acceptable `!` lines always exit 0 (for example `git rev-parse --show-toplevel 2>/dev/null || true`).
 
 **When a platform variable is unavoidable:** Use the pre-resolution pattern (`!` backtick syntax) and include explicit fallback instructions in the skill content, so the agent knows what to do if the value is empty, literal, or an error:
 

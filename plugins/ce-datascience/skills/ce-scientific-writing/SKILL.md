@@ -1,6 +1,6 @@
 ---
 name: ce-scientific-writing
-description: Draft, revise, or audit evidence-bound scientific manuscripts across journals and disciplines. Use for full papers, sections, abstracts, and responses when the work must preserve claim provenance, reporting-guideline fit, statistical meaning, and author voice without imposing one journal's style.
+description: "Draft, revise, or audit evidence-bound scientific manuscripts across journals and disciplines. Use when drafting full papers, sections, abstracts, or reviewer responses that must preserve claim provenance, reporting-guideline fit, statistical meaning, and author voice without imposing one journal's style."
 ---
 
 # Scientific Writing

@@ -1,6 +1,6 @@
 ---
 name: ce-debug
-description: "Systematically reproduce, trace, and fix broken or slow behavior by establishing the causal chain before changing code."
+description: "Systematically reproduce, trace, and fix broken or slow behavior by establishing the causal chain before changing code. Use when the user reports an error, failed test, broken behavior, stack trace, issue, or asks why something is failing."
 argument-hint: "[issue reference, error message, test path, or description of broken behavior]"
 ---
 

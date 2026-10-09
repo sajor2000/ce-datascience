@@ -1,6 +1,6 @@
 ---
 name: ce-model-card
-description: "Generate clinical or biomedical model cards covering intended use, data, performance, calibration, fairness, and limitations."
+description: "Generate clinical or biomedical model cards covering intended use, data, performance, calibration, fairness, and limitations. Use when the user asks for a model card, prediction model documentation, AI reporting artifact, or validation summary."
 argument-hint: "<model artifact path>, optional: --eval-output path/to/eval-results.json"
 ---
 

@@ -1,5 +1,35 @@
 # PROSPERO Registration Template (Systematic Reviews)
 
+## Contents
+
+- 1. Review title
+- 2. Original language title
+- 3. Anticipated or actual start date
+- 4. Anticipated completion date
+- 5. Stage of review at submission
+- 6. Named contact
+- 7. Named contact organisation
+- 8. Funding sources / sponsors
+- 9. Conflicts of interest
+- 10. Collaborators
+- 11. Review question
+- 12. Searches
+- 13. URL to search strategy (if applicable)
+- 14. Condition or domain being studied
+- 15. Participants / population
+- 16. Intervention(s) / exposure(s)
+- 17. Comparator(s) / control
+- 18. Types of study to be included
+- 19. Context
+- 20. Main outcome(s)
+- 21. Additional outcome(s)
+- 22. Data extraction (selection and coding)
+- 23. Risk of bias (quality) assessment
+- 24. Strategy for data synthesis
+- 25. Analysis of subgroups or subsets
+- 26. Type and method of review
+- 27. Country, language, dissemination
+
 For systematic reviews of human / animal studies. Submit at https://www.crd.york.ac.uk/PROSPERO/
 
 ## 1. Review title

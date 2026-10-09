@@ -1,6 +1,6 @@
 ---
 name: ce-fabric-pipelines
-description: "Design, debug, or review Microsoft Fabric Data Factory pipelines, Copy activity or Copy job, Dataflows Gen2, gateways, schedules, notebook activities, incremental loads, and failure handling."
+description: "Design, debug, or review Microsoft Fabric Data Factory pipelines, Copy activity or Copy job, Dataflows Gen2, gateways, schedules, notebook activities, incremental loads, and failure handling. Use when a Fabric task involves orchestration, Copy, Dataflow Gen2, a gateway, a notebook activity, scheduling, or alerting."
 argument-hint: "[design|debug|incremental-load|alerting]"
 ---
 

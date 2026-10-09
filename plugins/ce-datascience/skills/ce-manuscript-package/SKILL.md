@@ -1,6 +1,6 @@
 ---
 name: ce-manuscript-package
-description: "Assemble manuscript-ready packages from SAP, outputs, tables, figures, reporting checklist, and provenance artifacts."
+description: "Assemble manuscript-ready packages from SAP, outputs, tables, figures, reporting checklist, and provenance artifacts. Use when the user needs a journal/manuscript package, submission bundle, or final report handoff."
 argument-hint: "[optional: --out-dir manuscript --format quarto]"
 ---
 
@@ -32,7 +32,8 @@ Build a traceable manuscript package manifest. The skill wires known study artif
 6. Run:
 
 ```bash
-python3 scripts/build_package_manifest.py --project-root . --out-dir manuscript --format quarto
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/build_package_manifest.py" --project-root . --out-dir manuscript --format quarto
 ```
 
 7. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.

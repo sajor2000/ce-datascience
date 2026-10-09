@@ -1,6 +1,6 @@
 ---
 name: ce-r-performance
-description: "Profile, benchmark, and optimize R code using evidence-driven performance work. Use for slow R scripts, memory pressure, vectorization, data.table/dplyr trade-offs, parallelism, or runtime regressions."
+description: "Profile, benchmark, and optimize R code using evidence-driven performance work. Use when facing slow R scripts, memory pressure, vectorization, data.table/dplyr trade-offs, parallelism, or runtime regressions."
 argument-hint: "[profile|benchmark|memory|parallel]"
 ---
 

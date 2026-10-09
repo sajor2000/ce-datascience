@@ -1,5 +1,22 @@
 # CLIF-Safe Rules
 
+## Contents
+
+- 1. Storage
+- 2. Identifiers
+- 3. Datetime
+- 4. mCIDE vocabularies
+- 5. Project layout (from `CLIF-Project-Template`)
+- 6. Template workflow (from `CLIF-Project-Template`)
+- 7. PHI / data privacy authorization
+- 8. Protected paths (no edits without POC sign-off)
+- 9. Federated analysis pattern
+- 9b. Staged data loading
+- 9c. Hybrid Python + R pipeline
+- 10. Common pitfalls (codified from `CLIF_CLAUDE.md` and observed in consortium repos)
+- 11. Reporting checklist defaults under CLIF profile
+- 12. References (read-only, cite as needed)
+
 These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and selected data-dictionary/mCIDE family. Support CLIF 2.1 + mCIDE 2.1 and CLIF 3.0 + mCIDE 3.0. Read `version-families.md` before category validation; never apply the v2.1 cache to v3. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-TableOne`, and `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage

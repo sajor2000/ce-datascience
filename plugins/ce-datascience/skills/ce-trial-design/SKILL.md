@@ -1,6 +1,6 @@
 ---
 name: ce-trial-design
-description: "Build auditable two-arm group-sequential design frontiers from version-pinned rpact or gsDesign results without reimplementing the statistical engine."
+description: "Build auditable two-arm group-sequential design frontiers from version-pinned rpact or gsDesign results without reimplementing the statistical engine. Use when a statistician needs to compare two-arm group-sequential superiority designs across effect, information-time, spending-rule, or futility scenarios."
 argument-hint: "<endpoint and estimand>, optional: --engine rpact|gsDesign --alpha <value> --power <value>"
 ---
 
@@ -51,10 +51,11 @@ Completion evidence: the script exits successfully, the pinned version is visibl
 
 ### 4. Build the CE-owned frontier and receipt
 
-Keep the project root as the working directory. Invoke the co-located `scripts/build_frontier.py` by that skill-relative path so the project-relative inputs and outputs remain in the user's workspace:
+Keep the project root as the working directory so the project-relative inputs and outputs remain in the user's workspace. Invoke the co-located `scripts/build_frontier.py` through the absolute `SKILL_DIR` anchor, because the shell does not start in the skill directory:
 
 ```bash
-python3 scripts/build_frontier.py \
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/build_frontier.py" \
   --spec analysis/trial-design/<design-id>/design-spec.json \
   --results analysis/trial-design/<design-id>/engine-results.csv \
   --engine-script analysis/trial-design/<design-id>/engine-run.R \

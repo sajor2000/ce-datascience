@@ -1,6 +1,6 @@
 ---
 name: ce-language-detect
-description: "Detect R, Python, or mixed-language data science signals from repo files and emit a machine-readable language handoff."
+description: "Detect R, Python, or mixed-language data science signals from repo files and emit a machine-readable language handoff. Use when another skill needs language evidence, or the user asks what stack the repo appears to use."
 argument-hint: "[optional: --off]"
 ---
 

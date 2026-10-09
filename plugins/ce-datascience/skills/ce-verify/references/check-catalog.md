@@ -1,5 +1,15 @@
 # Verification Check Catalog
 
+## Contents
+
+- 1. Sample Size Check
+- 2. Data Leakage Scan
+- 3. Effect Direction Check
+- 4. Missing Data Audit
+- 5. PHI Scan
+- 6. Figure Quality
+- 7. Reproducibility Check
+
 Each check runs independently. Skip checks that don't apply to the current analysis.
 
 ## 1. Sample Size Check

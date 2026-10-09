@@ -1,6 +1,6 @@
 ---
 name: ce-prereg
-description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows."
+description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows. Use when the user asks for preregistration, registry package, ClinicalTrials.gov, OSF, PROSPERO, or protocol registration."
 argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --sap path"
 ---
 
@@ -125,7 +125,8 @@ If any of these fails the automated check (SAP unlocked, blinding state unblinde
 Before emitting the signal, run:
 
 ```bash
-python3 scripts/validate_registry_package.py --package-dir analysis/prereg/<registry>-<date> --registry <registry>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_registry_package.py" --package-dir analysis/prereg/<registry>-<date> --registry <registry>
 ```
 
 If the validator returns `BLOCKED`, stop and fix the package. Do not ask the user to paste incomplete registry text into a live registry.

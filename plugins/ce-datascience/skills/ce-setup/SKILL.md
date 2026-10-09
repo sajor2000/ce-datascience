@@ -1,6 +1,6 @@
 ---
 name: ce-setup
-description: "Configure a project-local ce-datascience profile by inferring its stack first, confirming concise defaults, and offering an optional detailed survey."
+description: "Configure a project-local ce-datascience profile by inferring its stack first, confirming concise defaults, and offering an optional detailed survey. Use when starting a project, changing its tools, or checking a corporate/locked-down environment."
 argument-hint: "[--locked-down|--no-install]"
 disable-model-invocation: true
 ---
@@ -191,13 +191,15 @@ then emit the canonical `__CE_LANG__` handoff.
 Run the co-located `scripts/check-health` script:
 
 ```bash
-bash scripts/check-health
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/check-health"
 ```
 
 For `--locked-down` or `--no-install`:
 
 ```bash
-bash scripts/check-health --locked-down
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/check-health" --locked-down
 ```
 
 Treat optional tools as yellow: optional tools are reported as yellow but do

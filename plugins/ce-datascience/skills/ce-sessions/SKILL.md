@@ -1,6 +1,6 @@
 ---
 name: ce-sessions
-description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim."
+description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim. Use when the user asks what happened before, what was tried, prior decisions, or session-history questions."
 ---
 
 # `ce-sessions`
@@ -73,7 +73,8 @@ Claude Code retains session history for ~30 days by default. Wider windows may f
 Run the discovery + metadata pipeline (preserving the null-delimited xargs hardening that lets `extract-metadata.py` run in batch mode):
 
 ```bash
-bash scripts/discover-sessions.sh <repo> <days> | tr '\n' '\0' | xargs -0 python3 scripts/extract-metadata.py --cwd-filter <repo>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/discover-sessions.sh" <repo> <days> | tr '\n' '\0' | xargs -0 python3 "$SKILL_DIR/scripts/extract-metadata.py" --cwd-filter <repo>
 ```
 
 Each output line is a JSON object describing a session (platform, file, size, ts, session, plus platform-specific fields). The final `_meta` line carries `files_processed` and `parse_errors`.
@@ -121,7 +122,8 @@ Capture the absolute path; thread it into Step 5 and Step 6. The OS handles clea
 For each selected session, run the skeleton extractor with `--output` so content writes directly to the scratch file — extraction bytes never round-trip through the orchestrator's tool results:
 
 ```bash
-python3 scripts/extract-skeleton.py --output "$SCRATCH/<session-id>.skeleton.txt" < <session-file>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/extract-skeleton.py" --output "$SCRATCH/<session-id>.skeleton.txt" < <session-file>
 ```
 
 Stdout receives only a one-line JSON status (`{"_meta": true, "wrote": "...", "bytes": N, ...}`). Capture `bytes` and `parse_errors` from each status line.
@@ -129,7 +131,8 @@ Stdout receives only a one-line JSON status (`{"_meta": true, "wrote": "...", "b
 **Conditional tail-extract** — if a skeleton terminates mid-investigation (last visible turn is a tool call with no resolution, or the assistant is mid-debugging without a conclusion), re-extract with a `tail` shape:
 
 ```bash
-python3 scripts/extract-skeleton.py --output "$SCRATCH/<session-id>.skeleton.tail.txt" < <session-file>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/extract-skeleton.py" --output "$SCRATCH/<session-id>.skeleton.tail.txt" < <session-file>
 ```
 
 (The skeleton script does not accept a `tail:N` cap directly; if a tail-only view is needed, post-process the scratch file in shell with `tail -n 50` after extraction. Use this only when the head output suggests the session was truncated mid-investigation.)
@@ -137,7 +140,8 @@ python3 scripts/extract-skeleton.py --output "$SCRATCH/<session-id>.skeleton.tai
 **Conditional errors-mode** — for sessions where investigation dead-ends are likely valuable:
 
 ```bash
-python3 scripts/extract-errors.py --output "$SCRATCH/<session-id>.errors.txt" < <session-file>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/extract-errors.py" --output "$SCRATCH/<session-id>.errors.txt" < <session-file>
 ```
 
 Use selectively — only when understanding what went wrong adds value. Cursor agent transcripts don't log tool results, so errors-mode produces nothing for Cursor sessions.

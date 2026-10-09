@@ -1,5 +1,21 @@
 # Investigation Techniques
 
+## Contents
+
+- Root-Cause Tracing
+- Multi-Component Boundary Instrumentation
+- Git Bisect for Regressions
+- Intermittent Bug Techniques
+- Repro Minimization
+- Framework-Specific Debugging
+- Stepping Debugger vs Instrumentation
+- Race Condition Investigation
+- Heisenbugs and the Observer Effect
+- Browser Debugging
+- Evidence Harvesting Across Systems
+- System Boundary Checks
+- Bug-Class Pattern Checklist
+
 Techniques for deeper investigation when standard code tracing is not enough. Load this when a bug does not reproduce reliably, involves timing or concurrency, or requires framework-specific tracing.
 
 ---

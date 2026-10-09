@@ -1,6 +1,6 @@
 ---
 name: ce-method-extract
-description: "Extract study methods, cohort definitions, endpoints, models, and assumptions from literature for SAP justification."
+description: "Extract study methods, cohort definitions, endpoints, models, and assumptions from literature for SAP justification. Use when the user has PubMed, Paperclip, or literature-search results and needs methods grounding."
 argument-hint: "<path/to/pubmed-results.csv>, optional: --full-text-only --max 25"
 ---
 

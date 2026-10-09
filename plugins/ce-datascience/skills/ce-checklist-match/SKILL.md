@@ -1,6 +1,6 @@
 ---
 name: ce-checklist-match
-description: "Select reporting guidelines before SAP writing. Routes studies to CONSORT, STROBE, RECORD, PRISMA, TRIPOD+AI, CLAIM, STARD, and related extensions."
+description: "Select reporting guidelines before SAP writing. Routes studies to CONSORT, STROBE, RECORD, PRISMA, TRIPOD+AI, CLAIM, STARD, and related extensions. Use when the user asks which checklist applies, mentions EQUATOR/reporting standards, or starts a study without a guideline."
 argument-hint: "[study description, optional --interactive]"
 ---
 

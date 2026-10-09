@@ -50,7 +50,8 @@ codex exec --sandbox read-only --ephemeral --skip-git-repo-check --cd "<repo-roo
 Run the validator from this skill directory after either peer succeeds:
 
 ```bash
-python3 scripts/validate_peer_artifact.py --repo-root "<repo-root>" --input "<run-dir>/peer.md" --output "<run-dir>/peer.normalized.json"
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_peer_artifact.py" --repo-root "<repo-root>" --input "<run-dir>/peer.md" --output "<run-dir>/peer.normalized.json"
 ```
 
 ## Research grounding

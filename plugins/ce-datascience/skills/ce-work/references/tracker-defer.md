@@ -1,5 +1,17 @@
 # Tracker Detection and Defer Execution
 
+## Contents
+
+- Execution Modes
+- Detection
+- Probe timing and caching
+- Label logic (Interactive mode)
+- Fallback chain
+- Ticket composition
+- Failure path
+- Per-tracker behavior
+- Cross-platform notes
+
 This reference covers how Defer actions file tickets in the project's tracker. It is loaded by `SKILL.md` when Interactive mode's routing question needs to decide whether to offer option C (File tickets), when the walk-through's Defer option executes, and when the bulk-preview of option C is shown. It is also loaded by autonomous callers, including external core Compound Engineering callers such as `lfg` when installed, that need to file residual actionable findings without user prompts — see Execution Modes below.
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: ce-report-bug
-description: "Collect a reproducible ce-datascience bug report and file it or draft it when GitHub tooling is unavailable."
+description: "Collect a reproducible ce-datascience bug report and file it or draft it when GitHub tooling is unavailable. Use when the user wants to report a plugin bug, setup issue, broken skill, conversion problem, or workflow failure."
 argument-hint: "[optional: brief description of the bug]"
 disable-model-invocation: true
 ---
