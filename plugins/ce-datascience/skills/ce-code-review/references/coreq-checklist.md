@@ -1,5 +1,16 @@
 # COREQ Checklist for Qualitative Research
 
+## Contents
+
+- Domain 1: Research Team and Reflexivity -- Personal Characteristics
+- Domain 1: Research Team and Reflexivity -- Relationship with Participants
+- Domain 2: Study Design -- Theoretical Framework
+- Domain 2: Study Design -- Participant Selection
+- Domain 2: Study Design -- Setting
+- Domain 2: Study Design -- Data Collection
+- Domain 3: Analysis and Findings -- Data Analysis
+- Domain 3: Analysis and Findings -- Reporting
+
 Consolidated Criteria for Reporting Qualitative Research (COREQ).
 32-item checklist applicable to qualitative research (interviews and focus groups).
 

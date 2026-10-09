@@ -1,5 +1,20 @@
 # CHARMS Checklist for Systematic Reviews of Prediction Modelling Studies
 
+## Contents
+
+- Domain 1: Source of Data
+- Domain 2: Participants
+- Domain 3: Outcome to be Predicted
+- Domain 4: Candidate Predictors
+- Domain 5: Sample Size
+- Domain 6: Missing Data
+- Domain 7: Model Development
+- Domain 8: Model Performance
+- Domain 9: Model Evaluation
+- Domain 10: Results
+- Domain 11: Interpretation and Discussion
+- Presentation and Summary for Systematic Reviews
+
 CHecklist for critical Appraisal and data extraction for systematic Reviews of prediction Modelling Studies (CHARMS).
 11-domain framework for data extraction and critical appraisal of studies reporting development, validation, or updating of clinical prediction models in systematic reviews.
 

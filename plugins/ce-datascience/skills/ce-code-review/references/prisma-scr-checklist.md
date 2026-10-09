@@ -1,5 +1,15 @@
 # PRISMA-ScR Checklist for Scoping Reviews
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Funding
+
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses extension for Scoping Reviews (PRISMA-ScR).
 22-item checklist applicable to scoping reviews that map the extent, range, and nature of evidence on a topic.
 

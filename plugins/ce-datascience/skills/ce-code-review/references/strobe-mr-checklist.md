@@ -1,5 +1,12 @@
 # STROBE-MR Checklist for Mendelian Randomization Studies
 
+## Contents
+
+- Introduction
+- Methods
+- Results
+- Discussion
+
 Strengthening the Reporting of Mendelian Randomization Studies (STROBE-MR).
 Extension of STROBE for observational studies using genetic variants as instrumental variables to estimate causal effects.
 

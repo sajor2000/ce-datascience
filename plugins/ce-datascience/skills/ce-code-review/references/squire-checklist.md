@@ -1,5 +1,14 @@
 # SQUIRE 2.0 Checklist for Quality Improvement Studies
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other Information
+
 Standards for QUality Improvement Reporting Excellence (SQUIRE 2.0).
 18-item checklist for reporting quality improvement work in healthcare.
 

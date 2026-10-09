@@ -1,5 +1,15 @@
 # Study Metadata Schema
 
+## Contents
+
+- study_design
+- dataset_split
+- leakage_assessment
+- software_provenance
+- llm_provenance
+- statistical_rules
+- llm_note_grading
+
 Defines the schema for `.ce-datascience/study-metadata.yaml` -- a per-project file documenting reproducibility provenance. Reviewers (reporting-checklist-reviewer, reproducibility-reviewer) check this file for completeness relative to the study type and AI involvement level declared in the SAP.
 
 All field groups are optional. Populate only what applies to the study.

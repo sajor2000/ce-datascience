@@ -1,5 +1,19 @@
 # TARGET Checklist for Target Trial Emulation Studies
 
+## Contents
+
+- Protocol Components
+  - TARGET 1 -- Eligibility criteria
+  - TARGET 2 -- Treatment strategies
+  - TARGET 3 -- Treatment assignment
+  - TARGET 4 -- Outcome
+  - TARGET 5 -- Time zero (baseline)
+  - TARGET 6 -- Follow-up
+  - TARGET 7 -- Statistical analysis
+- Reporting
+  - TARGET 8 -- Table mapping target trial to emulation
+  - TARGET 9 -- Assumptions and limitations
+
 TARGET (TArgeted Reporting of observational studies emulating a randomized trial using the TARGET framework).
 Reporting checklist for observational studies that explicitly emulate a hypothetical target trial.
 

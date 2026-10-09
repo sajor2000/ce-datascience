@@ -1,5 +1,14 @@
 # SPIRIT-AI Checklist for Clinical Trial Protocols Involving AI Interventions
 
+## Contents
+
+- Administrative Information
+- Introduction
+- Methods -- Participants, Interventions, and Outcomes
+- Methods -- Data Collection and Management
+- Methods -- Statistical Analysis
+- Ethics and Dissemination
+
 AI EXTENSION checklist for reporting clinical trial protocols that evaluate interventions with an artificial intelligence component.
 
 **Base guideline:** SPIRIT 2013

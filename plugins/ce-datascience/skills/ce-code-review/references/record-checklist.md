@@ -1,5 +1,13 @@
 # RECORD Checklist for Studies Using Routinely-Collected Health Data
 
+## Contents
+
+- Title and Abstract
+- Methods
+- Results
+- Discussion
+- Other Information
+
 REporting of studies Conducted using Observational Routinely-collected health Data (RECORD).
 13-item extension of the STROBE checklist for studies using EHR, administrative claims, registry, or other routinely-collected data sources.
 

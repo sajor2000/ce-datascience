@@ -1,5 +1,21 @@
 # CARE Checklist for Clinical Case Reports
 
+## Contents
+
+- Title
+- Key Words
+- Abstract
+- Introduction
+- Patient Information
+- Clinical Findings
+- Timeline
+- Diagnostic Assessment
+- Therapeutic Intervention
+- Follow-up and Outcomes
+- Discussion
+- Patient Perspective
+- Informed Consent
+
 CAse REport Guidelines (CARE).
 13-item checklist applicable to clinical case reports.
 

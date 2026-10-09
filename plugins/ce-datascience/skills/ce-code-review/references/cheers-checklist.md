@@ -1,5 +1,15 @@
 # CHEERS 2022 Checklist for Health Economic Evaluations
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other
+
 Consolidated Health Economic Evaluation Reporting Standards (CHEERS 2022).
 28-item checklist applicable to health economic evaluations.
 

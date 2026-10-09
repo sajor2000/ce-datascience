@@ -1,5 +1,16 @@
 # PDSQI-9 Candidate Tool for Prediction Model Dataset Quality
 
+## Contents
+
+- Data Source
+- Temporal Coverage
+- Missing Data
+- Variable Definitions
+- Outcome Ascertainment
+- Data Linkage
+- Data Dictionaries
+- Data Version Control
+
 AI EXTENSION checklist for assessing the quality of datasets used in predictive model studies, particularly those built from electronic health records (EHR) and administrative data.
 
 **Base guideline:** TRIPOD+AI (when building prediction models from EHR or administrative data)

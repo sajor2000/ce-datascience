@@ -1,5 +1,31 @@
 # ARRIVE 2.0 Checklist for Animal Research
 
+## Contents
+
+- Essential 10
+  - Item 1 -- Study design
+  - Item 2 -- Sample size
+  - Item 3 -- Inclusion and exclusion criteria
+  - Item 4 -- Randomisation
+  - Item 5 -- Blinding
+  - Item 6 -- Outcome measures
+  - Item 7 -- Statistical methods
+  - Item 8 -- Experimental animals
+  - Item 9 -- Experimental procedures
+  - Item 10 -- Results
+- Recommended Set
+  - Item 11 -- Abstract
+  - Item 12 -- Background
+  - Item 13 -- Objectives
+  - Item 14 -- Ethical review
+  - Item 15 -- Housing and husbandry
+  - Item 16 -- Animal care and monitoring
+  - Item 17 -- Interpretation/scientific implications
+  - Item 18 -- Generalisability/translation
+  - Item 19 -- Protocol registration
+  - Item 20 -- Data access
+  - Item 21 -- Declaration of interests
+
 Animal Research: Reporting of In Vivo Experiments (ARRIVE 2.0).
 21-item checklist (10 essential + 11 recommended) applicable to animal research reporting.
 

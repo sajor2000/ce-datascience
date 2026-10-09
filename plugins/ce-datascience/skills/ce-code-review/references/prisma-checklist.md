@@ -1,5 +1,15 @@
 # PRISMA 2020 Checklist for Systematic Reviews and Meta-Analyses
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Funding
+
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA 2020).
 Current checklist applicable to systematic reviews and meta-analyses.
 

@@ -1,5 +1,15 @@
 # CONSORT-AI Checklist for Clinical Trials Involving AI Interventions
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods -- Intervention
+- Methods -- Outcomes
+- Methods -- Sample Size
+- Results
+- Discussion
+
 AI EXTENSION checklist for reporting clinical trial reports that evaluate interventions with an artificial intelligence component.
 
 **Base guideline:** Current CONSORT core (CONSORT 2025); this extension was published against CONSORT 2010 and should be interpreted with the current core.

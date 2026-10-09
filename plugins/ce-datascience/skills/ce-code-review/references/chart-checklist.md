@@ -1,5 +1,15 @@
 # CHART Checklist for Chatbot Health Advice Studies
 
+## Contents
+
+- Intended Use Documentation
+- Model Card
+- Performance Across Subgroups
+- Deployment Environment
+- Monitoring Plan
+- Update Strategy
+- Known Limitations
+
 Chatbot Assessment Reporting Tool (CHART) statement for studies evaluating chatbots that provide health advice.
 
 **Scope:** Reporting guideline for chatbot health-advice studies; it is not a generic extension for every clinical AI, prediction, diagnostic, or intervention study.

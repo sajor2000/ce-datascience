@@ -1,5 +1,16 @@
 # STaRT-RWE Checklist for Real-World Evidence Studies
 
+## Contents
+
+- Regulatory and Decision Context
+- Data Source
+- Study Design
+- Exposure and Comparator
+- Outcome
+- Confounding
+- Statistical Analysis
+- Transparency and Reproducibility
+
 Structured Template for Planning and Reporting on the Implementation of Real World Evidence (STaRT-RWE).
 Checklist for planning and reporting real-world evidence studies intended for regulatory decision-making.
 

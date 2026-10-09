@@ -30,6 +30,23 @@ describe("ce-datascience skill portability", () => {
     expect(sprint).not.toContain("Run `scripts/sprint.py close <name>`")
   })
 
+  // The shell starts in the user's project root, not the skill directory, so an
+  // executed bundled script must be anchored on SKILL_DIR and the anchor defined.
+  test("executed bundled scripts are anchored on SKILL_DIR", async () => {
+    const skillMarkdown = await collectFiles(skillsRoot, (file) => file.endsWith(".md"))
+    const bareInvocation = /(?<![\w/$"])(?:bash|sh|python3|python) +(?:\.\/)?(?:scripts\/[A-Za-z0-9_.-]+|references\/[A-Za-z0-9_.-]+\.(?:sh|py)\b)/
+    const offenders: string[] = []
+    for (const file of skillMarkdown) {
+      const content = await fs.readFile(file, "utf8")
+      const rel = path.relative(skillsRoot, file)
+      if (bareInvocation.test(content)) offenders.push(`${rel}: bare scripts/ invocation`)
+      if (content.includes("$SKILL_DIR/scripts/") && !content.includes("SKILL_DIR=")) {
+        offenders.push(`${rel}: uses $SKILL_DIR without defining it`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
   test("Claude-only cache maintenance skill is platform-filtered", async () => {
     const updateSkill = await fs.readFile(path.join(skillsRoot, "ce-update", "SKILL.md"), "utf8")
     expect(updateSkill).toContain("ce_platforms: [claude]")

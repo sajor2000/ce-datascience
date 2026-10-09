@@ -1,5 +1,10 @@
 # Sub-agent Prompt Template
 
+## Contents
+
+- Template
+- Variable Reference
+
 This template is used by the orchestrator to spawn each reviewer sub-agent. Variable substitution slots are filled at spawn time.
 
 ---

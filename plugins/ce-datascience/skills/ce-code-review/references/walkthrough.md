@@ -1,5 +1,16 @@
 # Per-finding Walk-through
 
+## Contents
+
+- Entry
+- Per-finding presentation
+- Per-finding routing
+- Override rule
+- State
+- End-of-walk-through dispatch
+- Unified completion report
+- Execution posture
+
 This reference defines Interactive mode's per-finding walk-through — the path the user enters by picking option A (`Review each finding one by one — accept the recommendation or choose another action`) from the routing question. It also covers the unified completion report that every terminal path (walk-through, best-judgment, File tickets, zero findings) emits.
 
 Interactive mode only.

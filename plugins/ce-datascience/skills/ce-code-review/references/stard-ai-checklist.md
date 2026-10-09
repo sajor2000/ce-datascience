@@ -1,5 +1,12 @@
 # STARD-AI Checklist for AI-Assisted Diagnostic Accuracy Studies
 
+## Contents
+
+- Title and Abstract
+- Methods
+- Results
+- Discussion
+
 Standards for Reporting of Diagnostic Accuracy Studies -- Artificial Intelligence (STARD-AI).
 Extension of STARD for studies evaluating AI/ML-based diagnostic tests against a reference standard.
 

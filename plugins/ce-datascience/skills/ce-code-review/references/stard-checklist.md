@@ -1,5 +1,18 @@
 # STARD 2015 Checklist for Diagnostic Accuracy Studies
 
+## Contents
+
+- Title/Abstract
+- Introduction
+- Methods -- Participants
+- Methods -- Test methods
+- Methods -- Analysis
+- Results -- Participants
+- Results -- Test results
+- Results -- Estimates
+- Discussion
+- Other Information
+
 Standards for Reporting Diagnostic Accuracy Studies (STARD 2015).
 30-item checklist applicable to diagnostic accuracy studies.
 

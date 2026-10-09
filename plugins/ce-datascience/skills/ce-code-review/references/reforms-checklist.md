@@ -1,5 +1,13 @@
 # REFORMS Checklist for Machine Learning-Based Science
 
+## Contents
+
+- Data
+- Experimental Setup
+- Evaluation
+- Reproducibility
+- Reporting
+
 AI EXTENSION checklist providing consensus-based recommendations for conducting and reporting machine learning-based scientific research across disciplines.
 
 **Base guideline:** Applies across multiple study types (any ML/computational study in biomedical or scientific research)

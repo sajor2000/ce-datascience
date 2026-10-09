@@ -1,5 +1,12 @@
 # Code Review Output Template
 
+## Contents
+
+- Example
+- Anti-patterns
+- Formatting Rules
+- Headless Mode Format
+
 Use this **exact format** when presenting synthesized review findings. Findings are grouped by severity, not by reviewer.
 
 **IMPORTANT:** Use pipe-delimited markdown tables (`| col | col |`). Do NOT use ASCII box-drawing characters.

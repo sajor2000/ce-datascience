@@ -1,5 +1,14 @@
 # CONSORT 2025 Checklist for Randomized Controlled Trials
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other Information
+
 Consolidated Standards of Reporting Trials (CONSORT) 2025 Statement.
 Current core checklist for randomized trials; the 2010 checklist remains a legacy reference for older extensions and manuscripts.
 

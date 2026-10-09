@@ -1,5 +1,13 @@
 # QUADAS-2 Tool for Diagnostic Accuracy Studies
 
+## Contents
+
+- Domain 1: Patient Selection
+- Domain 2: Index Test
+- Domain 3: Reference Standard
+- Domain 4: Flow and Timing
+- Presentation and Summary
+
 Quality Assessment of Diagnostic Accuracy Studies, second version (QUADAS-2).
 Structured tool for assessing the quality and applicability of primary diagnostic accuracy studies included in systematic reviews, comprising four domains each evaluated for risk of bias and applicability concerns.
 

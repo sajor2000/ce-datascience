@@ -1,5 +1,11 @@
 # STREGA Checklist for Genetic Association Studies
 
+## Contents
+
+- Methods
+- Results
+- Discussion
+
 STrengthening the REporting of Genetic Association Studies (STREGA).
 Extension of STROBE for observational studies reporting on gene-disease associations.
 

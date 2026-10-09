@@ -1,5 +1,15 @@
 # PRISMA-NMA Checklist for Network Meta-Analyses
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Funding
+
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses incorporating Network Meta-Analysis (PRISMA-NMA).
 Extension of PRISMA for systematic reviews that include a network meta-analysis.
 
