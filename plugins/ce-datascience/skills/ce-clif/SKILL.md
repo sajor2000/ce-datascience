@@ -173,7 +173,7 @@ When the session is about to edit any `protected_paths` entry, the skill's guard
 - Does not edit files in the upstream CLIF repo on the user's behalf
 - Does not contact POCs (it only cites the right person)
 - Does not replace `ce-data-qa`, `ce-cohort-build`, etc. — it just changes how those skills behave when CLIF mode is active
-- Does not de-identify data or run PHI scans (use the `ce-phi-leak-reviewer` skill)
+- Does not de-identify data or run PHI scans (dispatch the `ce-phi-leak-reviewer` agent)
 
 ## Handoff signal (canonical envelope)
 

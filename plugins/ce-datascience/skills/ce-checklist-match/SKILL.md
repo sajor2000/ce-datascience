@@ -140,7 +140,7 @@ The bracket-list form mirrors how `ce-plan` parses signals in its SAP-Phase 3 st
 
 ## What this skill does NOT do
 
-- Does not validate against the checklist (use the `ce-reporting-checklist-reviewer` skill at review time)
+- Does not validate against the checklist (dispatch the `ce-reporting-checklist-reviewer` agent at review time)
 - Does not write the SAP (use the `ce-plan` skill)
 - Does not pre-register (use the `ce-prereg` skill)
 - Does not explain WHY a checklist was missed -- just which one applies; the validating reviewer handles compliance scoring

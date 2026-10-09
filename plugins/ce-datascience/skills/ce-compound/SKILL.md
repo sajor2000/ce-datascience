@@ -373,10 +373,10 @@ Based on problem type, optionally invoke specialized agents to review the docume
 - **performance_issue** -> `ce-performance-oracle`
 - **security_issue** -> `ce-security-sentinel`
 - **database_issue** -> `ce-data-mapping-reviewer`
-- Any code-heavy issue -> always load the `ce-code-simplicity-reviewer` skill, and additionally run the kieran reviewer that matches the repo's primary stack:
+- Any code-heavy issue -> always dispatch the `ce-code-simplicity-reviewer` agent, and additionally run the kieran reviewer that matches the repo's primary stack:
   - Python -> also load the `ce-kieran-python-reviewer` skill
   - R -> also load the `ce-r-code-reviewer` skill
-  - TypeScript/JavaScript -> use the `ce-code-simplicity-reviewer` skill; no separate TypeScript specialist ships in ce-datascience
+  - TypeScript/JavaScript -> dispatch the `ce-code-simplicity-reviewer` agent; no separate TypeScript specialist ships in ce-datascience
   - Other stacks -> no kieran reviewer needed
 
 </parallel_tasks>

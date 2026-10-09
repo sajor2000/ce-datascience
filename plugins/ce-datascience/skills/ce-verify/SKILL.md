@@ -45,7 +45,7 @@ Run each check from the catalog in `references/check-catalog.md`. Each check pro
 
 Read the stack profile for language and data paths. Check for:
 - `analysis/research-question.yaml` — for hypothesis direction check
-- `docs/plans/` for a SAP file (file with `sap_version` in frontmatter) — for sample size and imputation checks
+- The SAP: `analysis/sap.md`, or any markdown file with `sap_version` in its frontmatter (for example under `docs/plans/`) — for sample size and imputation checks
 - `analysis/data-qa-report.md` — for expected N from the data QA gate
 - `analysis/power/` — for minimum sample size from power calculation
 - `analysis/signoff/signoff-ledger.json` — for unresolved human signoffs surfaced by `ce-review-pack`

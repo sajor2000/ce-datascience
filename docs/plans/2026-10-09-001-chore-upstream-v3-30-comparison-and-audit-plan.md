@@ -170,6 +170,48 @@ This is the part of the plugin upstream cannot audit for us.
 
 ---
 
+## Anthropic skill-creator audit (all 79 skills)
+
+The audit applied Anthropic's [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) and the [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) to every skill.
+
+| Check | Result |
+|---|---|
+| `quick_validate.py` (frontmatter, kebab-case name, description at most 1024 chars, no angle brackets) | All 79 pass once Claude Code's documented `argument-hint` / `disable-model-invocation` keys and the converter's `ce_platforms` key are allowed |
+| Description says what the skill does **and** when to use it | Before: 53 of 79 had no trigger. Now: all 79 have a "Use when ..." clause, enforced by `tests/skill-best-practices.test.ts` |
+| SKILL.md body under 500 lines | Before: 4 over (code-review 1012, optimize 682, plan 576, compound-refresh 509). Now: all under |
+| Contents list on long reference files; references one level deep | Before: 82 files lacked one. Now: all have one; SKILL.md links needed references directly |
+| Imperative voice, explaining why over all-caps MUST/NEVER | 7 all-caps imperatives across 79 skills; no "you should" phrasing |
+| Lack of surprise (no exfiltration or unsafe shell) | Clean |
+| Test cases (`evals.json`) and trigger evals | Before: 6 skills covered. Now: every skill has 3 test prompts with verifiable expectations plus 20 trigger queries (10 near-miss negatives) under `evals/ce-datascience/skill-creator/`, checked by `tests/skill-creator-evals.test.ts` |
+
+**Mismatches fixed while writing the eval sets:**
+- `ce-sprint`: the script described a "closed" status and a sign-off subcommand that do not exist.
+- `ce-bioinfo-qc`: batch-confound thresholds disagreed with its reference (P0 above 0.5, P1 for 0.3-0.5).
+- `ce-brainstorm`: phase numbering mismatched between SKILL.md and a reference (2.9 vs 2.5).
+- `ce-verify`: looked for the SAP only under `docs/plans/`; it now also checks `analysis/sap.md`.
+- Four places called reviewer agents "skills".
+- Five descriptions promised more than the body delivers: `ce-figure`, `ce-table1`, `ce-notebook-edit`, `ce-phenotype-validate`, `ce-ml-experiment-track`.
+
+**Open findings (need a product decision):**
+- **Small-cell floor differs across skills.** `ce-cohort-build` suppresses n < 11 (CMS-style), while the CLIF skills allow n >= 10 (consortium rule). Decide whether this is intentional per data-use agreement, and say so in each skill.
+- **Overlapping triggers to settle with the skill-creator description loop.** The groups:
+  - `ce-plan` vs `ce-statistical-analysis-plan`
+  - `ce-literature-search` vs `ce-pubmed` vs `ce-evidence-map`
+  - `ce-scientific-writing` vs `ce-pre-submission-audit` vs `ce-manuscript-section-discipline` vs `ce-clinical-research-voice`
+  - `ce-marimo` vs `ce-notebook-standards` vs `ce-notebook-edit`
+  - `ce-data-qa` vs `ce-verify`
+  - `ce-power` vs `ce-trial-design` vs `ce-effect-size`
+  - `ce-ideate` vs `ce-brainstorm` vs `ce-research-question`
+  - `ce-rstats` and `ce-fabric` routers vs their sub-skills
+  - `ce-optimize` vs `ce-retune`
+- **Smaller wording gaps:**
+  - `ce-report-bug` should tell users to redact secrets and PHI from pasted logs.
+  - `ce-genome-build` mentions a "declare mode" that has no flag.
+  - `ce-release-notes` skips phase 4.
+  - `ce-handoff` doesn't say how to choose among several matching handoffs.
+  - `ce-doc-review` asks about edit-vs-report mode yet always auto-applies safe fixes.
+- **Live evaluation not run.** skill-creator's `run_loop.py` makes about 60 `claude -p` calls per skill (20 queries x 3 runs). Run it on the overlap groups above first, and treat the eval sets as a starting point for human review in skill-creator's viewer.
+
 ## mattpocock/skills evaluation
 
 [mattpocock/skills](https://github.com/mattpocock/skills) is MIT-licensed (Copyright (c) 2026 Matt Pocock). Adapting ideas needs no notice. Copying a substantial portion requires shipping the MIT notice with that skill, for example in a `CREDITS.md` inside the skill directory.

@@ -1,6 +1,6 @@
 ---
 name: ce-figure
-description: "Create or validate publication-ready scientific figures with JAMA-style typography, layout, and traceability checks. Use when the user asks for a figure, JAMA-style plot, manuscript graphic, or figure QA."
+description: "Validate publication figures against a figure manifest for JAMA-style typography, layout, and traceability, then visually check exported images. Use when the user asks for figure QA, a figure manifest, a JAMA-style plot check, or confirmation that manuscript figures are ready."
 argument-hint: "[optional: --manifest analysis/publication/figures/figure-manifest.json --project-root .]"
 ---
 

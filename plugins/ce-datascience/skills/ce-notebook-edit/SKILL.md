@@ -1,6 +1,6 @@
 ---
 name: ce-notebook-edit
-description: "Safely modify existing Jupyter, Marimo, or Quarto notebooks using anchors, backups, and metadata-preserving edits. Use when the user asks to update, patch, or extend an existing notebook rather than generate a new one."
+description: "Safely modify existing Jupyter .ipynb notebooks using cell anchors, backups, and metadata-preserving edits. Use when the user asks to update, patch, or extend an existing .ipynb notebook rather than generate a new one; Marimo notebooks belong to ce-marimo."
 argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--cell-type markdown|code]"
 ---
 

@@ -118,6 +118,13 @@ Before dispatch, record the case, prompt, and target SHA-256 digests in
   credentials, PHI, or patient-level fixtures. Commit only synthetic or seeded
   fixtures and sanitized evidence summaries.
 
+Every skill also has an Anthropic skill-creator eval set under
+`evals/ce-datascience/skill-creator/<skill>/`. `evals.json` holds three realistic
+prompts with verifiable expectations; `trigger-evals.json` holds 10
+should-trigger and 10 near-miss should-not-trigger queries for skill-creator's
+description loop (`scripts/run_loop.py`). Update both when a skill's behavior
+or scope changes. `tests/skill-creator-evals.test.ts` enforces coverage and shape.
+
 See
 [`docs/solutions/skill-design/behavioral-evaluation.md`](docs/solutions/skill-design/behavioral-evaluation.md)
 for the contract, run layout, acceptance policy, and interpretation limits.

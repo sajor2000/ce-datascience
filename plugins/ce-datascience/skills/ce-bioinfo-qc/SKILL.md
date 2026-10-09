@@ -65,7 +65,7 @@ Different modality → different checks. Refuse to proceed if conflicting signal
 
 ### Step 3: Batch-effect screening (no removal)
 
-Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch (Pearson correlation between batch indicator and condition indicator > 0.3), emit a P0 finding:
+Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch, grade by the Pearson correlation between the batch indicator and the condition indicator, using the thresholds in `references/batch-confound-rules.md`: above 0.5 is a P0 finding; 0.3-0.5 is a P1 partial confound that can be modeled at a cost in power. For a P0, report:
 
 > Batch is confounded with condition. Removing the batch effect (ComBat / RUV / SVA) will also remove condition signal. Re-block the experiment or add explicit batch correction in the model.
 
