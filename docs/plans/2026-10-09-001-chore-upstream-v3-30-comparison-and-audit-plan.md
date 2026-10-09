@@ -77,6 +77,8 @@ follow AGENTS.md: validate with `skill-creator`, then run any affected
 
 ### Phase 1: Shared-skill reliability ports (high priority, small)
 
+**Status: done in this PR.** Every item below landed, with focused tests. See "Status update" further down.
+
 These are concrete bugs that upstream later fixed and that are still present
 in the fork's copies.
 
@@ -167,6 +169,34 @@ This is the part of the plugin upstream cannot audit for us.
 - Cross-model acpx peers, Compound Packs, the upstream babysit watcher, ce-work unit workspaces, and plan/brainstorm unification. These have high churn and are software-product oriented. Revisit once Phases 1 and 2 have landed.
 
 ---
+
+## mattpocock/skills evaluation
+
+[mattpocock/skills](https://github.com/mattpocock/skills) is MIT-licensed (Copyright (c) 2026 Matt Pocock). Adapting ideas needs no notice. Copying a substantial portion requires shipping the MIT notice with that skill, for example in a `CREDITS.md` inside the skill directory.
+
+Of its 38 skills, most are TypeScript, course or software-product tooling, or are already covered by `ce-*` skills (for example, `diagnosing-bugs` closely matches `ce-debug`). The ones that complement this plugin:
+
+| Rank | mattpocock skill | Verdict | ce-datascience fit | Effort |
+|---|---|---|---|---|
+| 1 | `to-questionnaire` | Adopt | New PI/clinician questionnaire. Asynchronous questions on phenotype rules, clinically meaningful differences, intercurrent events and outcome adjudication, using aggregate or synthetic examples only. Clinical input is the usual blocker on SAP and phenotype decisions, and no `ce-*` skill gathers it. | S |
+| 2 | `grilling` / `grill-me` | Adapt as an opt-in mode | Estimand stress-test of a draft SAP in `ce-statistical-analysis-plan`: ICH E9(R1) attributes, then time zero, missing data and multiplicity. Each question comes with a recommended answer. Existing review skills critique documents; they don't interview the analyst. | M |
+| 3 | `domain-modeling` | Adapt | Study glossary for overloaded terms ("baseline", "index date", "encounter"), plus analytic decision records. A record is written only when a decision is hard to reverse, surprising, and a real trade-off. | M |
+| 4 | `git-guardrails-claude-code` | Adapt | The plugin ships no hooks. A PHI/data guardrail would block committing `data/**/*.{csv,parquet,rds,sas7bdat,dta}` and block `reset --hard` / `clean -f`. Push should ask, not block. Rewrite the naive command regex. This is Claude-specific, so it needs a portability note. | M |
+| 5 | `wait-what` | Adapt | Re-explain a method or result for a clinician collaborator in plain language, using the study glossary. | S |
+
+Techniques worth folding into existing skills (each S):
+- **Tautological tests** (`tdd` -> `ce-work`, `ce-r-package-testing`): expected values must come from an independent source, such as a published worked example or a simulation with known truth.
+- **Tracer-bullet slices** (`to-tickets` -> `ce-plan`): build one estimand end to end on a sample before widening.
+- **Numeric before/after evidence** (`pr` -> `ce-commit-push-pr`): Table 1 N, estimates, waterfall counts.
+- **Environment-level fixes** (`retro` -> `ce-compound`): repeated mistakes become validation scripts or reviewer rules.
+
+Authoring techniques from `writing-for-agents`:
+- Pair each "Do not do" with the positive behavior wanted, keeping bare prohibitions for real guardrails such as PHI.
+- Use one precise leading term, repeated, rather than restated adjective triads.
+- Ask only for decisions, each with a recommended answer that "yes" accepts.
+- Mark hand-run skills `disable-model-invocation` to cut the description text loaded on every turn.
+
+These additions are product decisions and are not implemented in this PR.
 
 ## Validation
 
