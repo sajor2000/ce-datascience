@@ -1,0 +1,22 @@
+[
+  {"query": "We're about to create the analysis notebooks for the sepsis trial in Quarto - one master .qmd or separate notebooks per stage? Also what's the chunk structure standard?", "should_trigger": true},
+  {"query": "Set the documentation contract for our new R Markdown analysis: every chunk needs narrative before it, named chunks, and size limits. Then scaffold the sections.", "should_trigger": true},
+  {"query": "materially extending our jupyter notebook with a whole new secondary-analysis section (~10 cells). what structure should the new cells follow?", "should_trigger": true},
+  {"query": "Our notebooks are unreviewable - 300-line cells, no markdown. For the new workflow we're starting, define a topology and cell contract the team will follow.", "should_trigger": true},
+  {"query": "Plan a multi-notebook workflow for the omics project: QC notebook, normalization notebook, DE notebook, figures notebook, with execution order and a master entry point.", "should_trigger": true},
+  {"query": "Before I write any cells in the new marimo notebook for cohort exploration, what responsibilities should each cell have and how big can they be?", "should_trigger": true},
+  {"query": "I'm adding a whole new modeling chapter to analysis/report.qmd - set the chunk naming, narrative, and execution option conventions for those chunks.", "should_trigger": true},
+  {"query": "new notebook work for the AKI project: decide master vs multi-file and record it in the plan, then lay out cells for validation, transformation, analysis, viz, reporting", "should_trigger": true},
+  {"query": "What's our standard for notebook cells - do I need a markdown cell before each code cell, and when is a big cell acceptable?", "should_trigger": true},
+  {"query": "We're creating three new Jupyter notebooks for the readmission study; set up the structure and record which one is the entry point.", "should_trigger": true},
+  {"query": "Insert one code cell after the cell tagged sap-5-1 in analysis/primary.ipynb with a backup and edit report.", "should_trigger": false},
+  {"query": "marimo check reports a cycle between two cells in analysis/eda.py - fix the reactive dependency.", "should_trigger": false},
+  {"query": "Review this R Markdown analysis for correctness, reproducibility and statistical-method risks.", "should_trigger": false},
+  {"query": "Write an implementation plan for the readmission analysis pipeline with units, test files, and dependencies.", "should_trigger": false},
+  {"query": "Assemble the Quarto manuscript package with manuscript.qmd, tables, figures, supplement and checklists.", "should_trigger": false},
+  {"query": "Set up a targets pipeline (_targets.R) with branching over sites and a Quarto report target.", "should_trigger": false},
+  {"query": "Write PySpark code in a Fabric notebook to merge encounters and labs into a Delta table.", "should_trigger": false},
+  {"query": "Profile the extract's columns and run the GO/NO-GO data quality gate before notebook analysis begins.", "should_trigger": false},
+  {"query": "Make a JAMA-style figure for the notebook's survival curve output and validate typography.", "should_trigger": false},
+  {"query": "Refactor this tidyverse pipeline in analysis/clean.R to use across() and joins more idiomatically.", "should_trigger": false}
+]

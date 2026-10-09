@@ -72,6 +72,8 @@ sprint:
 
 ### `ce-sprint close`
 
+Status flow in `analysis/sprint-log.yaml`: `open` -> `pending_review` (script, awaiting audit) -> `closed_pending_signoff` (audit passed) -> `signed_off` (human reviewer). A failing audit returns the sprint to `open`.
+
 1. Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/sprint.py" close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
 
    ```
@@ -153,7 +155,7 @@ audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 
 6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `ce-review-pack` to build the PI-facing package and validate the signoff ledger.
 
-7. After human sign-off, the user runs `ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
+7. After the named reviewer signs off, record it in `sprint-log.yaml`: set `status: signed_off` and add `signed_off_by` and `signed_off_at`. The bundled script has no sign-off subcommand; edit the YAML and confirm the change with the user.
 
 ### `ce-sprint status`
 

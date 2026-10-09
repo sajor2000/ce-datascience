@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-cohort-build",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build the cohort for our new-user statin study: adults with T2DM initiating a statin 2018-2023, OMOP CDM v5.4 with vocabulary release 2024-Q1, index = first statin drug_exposure on/after T2DM diagnosis, exclude T1DM ever and any statin in the prior 365 days, require 365 days of prior observation, 365-day follow-up. stack_profile.data_root is set.",
+      "expected_output": "Concept-set YAMLs, a parameterized OMOP CTE SQL file, a CONSORT-style waterfall (md + csv) with small-cell suppression, a cohort spec YAML pinning the vocabulary version, and the __CE_COHORT__ handoff line.",
+      "files": [],
+      "expectations": [
+        "Writes concept sets to analysis/cohort/concept-sets/<set-name>.yaml with vocabulary_version pinned (2024-Q1) and include_descendants/excluded_concepts fields",
+        "Writes CTE-based OMOP SQL to analysis/cohort/sql/<cohort-name>.sql using parameterized concept-set joins against standard tables (person, condition_occurrence, drug_exposure, observation_period)",
+        "Writes analysis/cohort/<cohort-name>-waterfall.md and -waterfall.csv and suppresses or merges any step whose lost-N is below the disclosure floor (default n<11)",
+        "Writes analysis/cohort/<cohort-name>.yaml with index_event, inclusion, exclusion windows (T1DM any; statin prior_365_days), follow_up, and vocabulary_version",
+        "Prints __CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path> waterfall=<path> with both yaml= and waterfall= keys"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "__CE_CLIF__ active=true version=2.1.0 mcide_version=2.1.0 selection=declared strict=true rules=references/clif-rules.md\n__CE_LANG__ primary=r\n\nDefine the cohort: adult ICU patients on invasive mechanical ventilation for >=24h, 2020-2024. Name it imv24.",
+      "expected_output": "In CLIF mode, skips OMOP SQL and emits an R arrow+dplyr cohort script under code/01_cohort_imv24.R, persists patient-level IDs only as output/intermediate_phi/cohort_ids.parquet, and writes only disclosure-reviewed waterfall counts to output/final_no_phi/cohort_waterfall.csv.",
+      "files": [],
+      "expectations": [
+        "Does not generate OMOP CTE SQL; instead writes code/01_cohort_imv24.R using arrow::open_dataset() reading CLIF parquet tables",
+        "Uses hospitalization_id (VARCHAR, no integer cast) as the cohort identifier and persists IDs only to output/intermediate_phi/cohort_ids.parquet, never CSV",
+        "Defaults inclusion to adt.location_category == 'icu' and hospitalization.age_at_admission >= 18, with timezone-aware UTC datetime filters",
+        "Uses only mCIDE 2.1 allow-listed _category values (e.g. respiratory_support device_category) and refuses unknown category strings",
+        "Writes only aggregate cohort-flow counts to output/final_no_phi/cohort_waterfall.csv"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Make me a cohort of 'heart failure patients' from our claims data and then run the Cox model for SGLT2 vs DPP4 on readmission. I don't have a code list yet, just use whatever ICD codes make sense.",
+      "expected_output": "Elicits the missing cohort facts (vocabulary and pinned version, index event, windows, code list) one question at a time instead of inventing codes or locking a vague population, and declines to run the Cox model.",
+      "files": [],
+      "expectations": [
+        "Does not invent an unpinned ICD code list or present the vague 'heart failure patients' population as a locked cohort",
+        "Asks for a pinned vocabulary version (e.g. ICD-10-CM year) and the index event before generating SQL",
+        "Asks one decision-changing question at a time",
+        "Does not run the Cox model or any statistical analysis, routing that to later workflow (ce-work after ce-data-qa)"
+      ]
+    }
+  ]
+}

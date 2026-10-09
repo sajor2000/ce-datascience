@@ -1,0 +1,22 @@
+[
+  {"query": "Hospitals adopted the early-warning score between 2016 and 2021 at different times. Help me plan a staggered difference-in-differences in R with did or fixest::sunab, and tell me which comparison group to use.", "should_trigger": true},
+  {"query": "event study in R: county-month opioid overdose deaths before/after naloxone standing-order laws, staggered by state. need dynamic effects plot and pre-trend checks", "should_trigger": true},
+  {"query": "Review my analysis/did_medicaid.R: I'm using feols with i(rel_year) and state + year FE across staggered adopters. Is TWFE biased here?", "should_trigger": true},
+  {"query": "We want to estimate the effect of a nurse-staffing mandate on in-hospital mortality using a DiD with California vs other states, 2000-2010. Draft the design contract and estimator choice in R.", "should_trigger": true},
+  {"query": "callaway-santanna vs de chaisemartin-d'haultfoeuille vs borusyak imputation for my panel of 340 clinics with rolling EHR go-live dates? pick one and justify it, R implementation", "should_trigger": true},
+  {"query": "How should I handle anticipation in an event study where hospitals announced the sepsis protocol 2 quarters before go-live? R panel, quarterly.", "should_trigger": true},
+  {"query": "Set up the panel fixed effects model for the effect of a price transparency rule on outpatient imaging volume, with event-time bins and clustering by health system.", "should_trigger": true},
+  {"query": "my DiD pre-trends look bad at t=-3. what sensitivity analyses (honestdid?) should I prespecify, and how do I report it without overclaiming?", "should_trigger": true},
+  {"query": "Write R code for a dynamic treatment effects analysis of telehealth parity laws on rural ED visits, with event window -8 to +8 quarters and never-treated controls.", "should_trigger": true},
+  {"query": "Implement the interrupted rollout analysis (difference-in-differences with treatment adoption by ward) for our antimicrobial stewardship study in R; units are ward-months.", "should_trigger": true},
+  {"query": "Fit an interrupted time series (segmented regression) for monthly C. diff rates at one hospital before and after a stewardship policy, with ARIMA errors.", "should_trigger": false},
+  {"query": "Choose between a GEE and a mixed model for repeated ICU daily SOFA scores clustered within patients and hospitals, and justify the choice.", "should_trigger": false},
+  {"query": "Plan a target trial emulation for statin initiation and dementia in Medicare claims, with clone-censor-weight to handle immortal time.", "should_trigger": false},
+  {"query": "Write the full SAP for our staggered-adoption hospital study, including estimands, claims-to-datasets schema, and decision evidence for each analysis.", "should_trigger": false},
+  {"query": "Refactor my dplyr pipeline that builds the hospital-quarter panel; I think a many-to-many join is duplicating rows.", "should_trigger": false},
+  {"query": "Our DiD script takes 3 hours because of a bootstrap loop over 5000 reps; profile it and speed it up without changing the estimates.", "should_trigger": false},
+  {"query": "Do a general code review of the PR that adds the event-study branch; check tests and style too.", "should_trigger": false},
+  {"query": "Compute power for a cluster randomized stepped-wedge trial with 12 hospitals and 6 steps, ICC 0.02.", "should_trigger": false},
+  {"query": "Turn the DiD project into a targets pipeline so the panel build, model fits, and Quarto report rebuild only when inputs change.", "should_trigger": false},
+  {"query": "Run a regression discontinuity on the age-65 Medicare eligibility threshold for ED visit rates using rdrobust.", "should_trigger": false}
+]

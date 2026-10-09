@@ -1,0 +1,22 @@
+[
+  {"query": "Rewrite the Discussion of our sepsis-alert paper so it sounds like a clinical AI journal article: calibrated verbs, 'we' for interpretation, no hype, limitations in their own subsection. Draft is in manuscript/discussion.md.", "should_trigger": true},
+  {"query": "Our abstract conclusions say the model 'dramatically outperforms' clinicians. Tone it down to match the evidence (AUROC 0.81 vs 0.78, CI overlapping) in a precise, detached register.", "should_trigger": true},
+  {"query": "draft a cover letter to NEJM AI for our automation-bias RCT. keep it clinically detached, no overselling, evidence-calibrated", "should_trigger": true},
+  {"query": "Write the Specific Aims narrative for our R01 on LLM-assisted triage in the house style: subject-first sentences, verbs matched to evidence strength, hedged only where warranted.", "should_trigger": true},
+  {"query": "Can you revise my Introduction so the evidence gap is framed with one rhetorical question that's immediately answered by our design, and so em-dashes are only used for definitions?", "should_trigger": true},
+  {"query": "The Discussion keeps saying 'substantial' and 'robust' with no numbers attached and treats the subgroup result as confirmatory. Fix the voice.", "should_trigger": true},
+  {"query": "Polish the limitations subsection of our Discussion: neutral concessive phrasing, no editorializing, single-center and vignette-design caveats.", "should_trigger": true},
+  {"query": "I need the background paragraph of the abstract for our diagnostic-error LLM study rewritten in a formal clinical AI register with parenthetical stats.", "should_trigger": true},
+  {"query": "Revise this grant significance section — it reads like marketing. Make it precise and methodologically transparent, every claim traceable to data or citation.", "should_trigger": true},
+  {"query": "Our Discussion explains mechanism poorly. Rewrite it using clinical-cognition analogies (anchoring, cognitive offloading) where they clarify, in a detached voice.", "should_trigger": true},
+  {"query": "Our Methods section has interpretive sentences like 'this robust approach ensures validity'. Strip anything that isn't factual/procedural and move rationale appropriately.", "should_trigger": false},
+  {"query": "Scan the whole manuscript for generic AI-writing tells like 'delve', 'tapestry', 'it is important to note' and remove them.", "should_trigger": false},
+  {"query": "Run the final pre-submission gate on the manuscript: section discipline, voice, and anti-slop together before I send it to co-authors.", "should_trigger": false},
+  {"query": "Draft the full manuscript for our retrospective cohort from the SAP and results tables, following STROBE and preserving claim provenance.", "should_trigger": false},
+  {"query": "Write the response-to-reviewers letter addressing Reviewer 2's concerns about our calibration analysis.", "should_trigger": false},
+  {"query": "Check that every citation in the Discussion supports the claim it's attached to and fix the reference list formatting.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our LLM chatbot medical-advice evaluation study?", "should_trigger": false},
+  {"query": "Write the figure legends and table footnotes for the Kaplan-Meier figure and Table 2.", "should_trigger": false},
+  {"query": "Assemble the submission package: cover letter, title page, checklist, data availability statement for JAMA Netw Open.", "should_trigger": false},
+  {"query": "Review docs/plans/sap-v2.md for clarity and completeness before circulating it.", "should_trigger": false}
+]

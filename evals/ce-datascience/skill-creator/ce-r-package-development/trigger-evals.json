@@ -1,0 +1,22 @@
+[
+  {"query": "Create a new R package for our lab's OMOP phenotype helpers with DESCRIPTION, roxygen2, NAMESPACE, a testthat skeleton, and one vignette.", "should_trigger": true},
+  {"query": "add an exported fn to pkg/icuscores that computes qSOFA from a vitals tibble, with roxygen docs and an example. keep NAMESPACE in sync", "should_trigger": true},
+  {"query": "Our internal package exports 40 functions and half are helpers. Help me tighten the public API, mark internals with @noRd/@keywords internal, and plan deprecations.", "should_trigger": true},
+  {"query": "Move these 6 functions from scripts/utils.R into a proper R package so other analysts can install it with remotes::install_github.", "should_trigger": true},
+  {"query": "roxygen keeps overwriting my hand-edited NAMESPACE and devtools::document() complains about @importFrom dplyr. fix the package docs setup", "should_trigger": true},
+  {"query": "I want to deprecate `calc_egfr()` in favor of `egfr_ckdepi2021()` without breaking downstream users. Implement the lifecycle deprecation in our package.", "should_trigger": true},
+  {"query": "Write a vignette for pkg/corecohort showing a cohort waterfall end-to-end, and make sure the examples in man/ match current behavior.", "should_trigger": true},
+  {"query": "Should our package Import or Suggest arrow? It's only used in one export function for parquet IO. Update DESCRIPTION accordingly.", "should_trigger": true},
+  {"query": "building an R package for NHANES survey-weighted helpers - need input validation at the boundaries and a sensible exported API. help me design it", "should_trigger": true},
+  {"query": "Bump our package to 0.3.0 with a NEWS.md entry for the new exports and check that DESCRIPTION Authors@R and License are correct.", "should_trigger": true},
+  {"query": "Run R CMD check --as-cran on pkg/icuscores and tell me if it's ready to submit to CRAN.", "should_trigger": false},
+  {"query": "Write snapshot tests and mocks for the API-calling function fetch_cohort() in our package so tests don't hit the network.", "should_trigger": false},
+  {"query": "Do a read-only review of the package's R/ folder for partial matching, recycling, and hidden global state; don't change anything.", "should_trigger": false},
+  {"query": "Profile pkg/corecohort::build_waterfall() on 2M rows and benchmark data.table vs dplyr before changing internals.", "should_trigger": false},
+  {"query": "Our package tests pass locally but fail on CI with a timezone difference in test-dates.R; diagnose the failing test.", "should_trigger": false},
+  {"query": "Create a Python package with pyproject.toml for our sepsis scoring utilities, with pytest tests.", "should_trigger": false},
+  {"query": "Turn analysis scripts 01_clean.R through 05_report.R into a targets pipeline with Quarto at the end.", "should_trigger": false},
+  {"query": "Rewrite the join logic in scripts/merge_labs.R with dplyr and explicit relationship= arguments.", "should_trigger": false},
+  {"query": "Assess whether our SAS macros library for Table 1 can be migrated to R and what the reproducibility risks are.", "should_trigger": false},
+  {"query": "Commit the package changes and open a PR with a conventional title.", "should_trigger": false}
+]

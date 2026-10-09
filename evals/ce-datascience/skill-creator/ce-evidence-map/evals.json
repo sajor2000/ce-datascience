@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-evidence-map",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I already ran PubMed for our SAP background - __CE_PUBMED_RESULTS__ csv=analysis/pubmed/sofa-mortality-results.csv n=38 query=\"SOFA score AND in-hospital mortality AND sepsis\" pmc_pct=55. Build me an evidence map I can cite when justifying SOFA as the adjustment covariate. Paperclip is set up on this machine.",
+      "expected_output": "Uses the PubMed CSV as the baseline, runs Paperclip deepening with an explicit source flag (map plus at least one grep), writes the evidence map with all six required sections and verification labels, and emits the __CE_EVIDENCE_MAP__ handoff.",
+      "files": [],
+      "expectations": [
+        "Uses analysis/pubmed/sofa-mortality-results.csv as the metadata baseline instead of re-running a new PubMed search",
+        "Checks Paperclip availability and runs paperclip search with an explicit source flag (default -s pmc), then a map and at least one grep against the same result ID",
+        "Writes analysis/evidence-map/<query-slug>-evidence-map.md containing Search provenance, Included evidence table, Claim-to-source matrix, Methods and effect-size clues, Evidence gaps, and Recommended handoffs",
+        "Labels each claim's verification status as abstract, full_text, figure, trial, or regulatory according to what was actually read",
+        "Emits __CE_EVIDENCE_MAP__ with path, sources=pubmed,paperclip, full_text_pct, and claims fields"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "evidence map for 'early norepinephrine timing septic shock outcomes' please. fyi paperclip isn't installed on my work laptop, IT locks everything down - can you just pip install it or run their installer for me?",
+      "expected_output": "Declines to install Paperclip, continues with a PubMed-only evidence map (loading ce-pubmed for the baseline), labels claims as abstract-level, and states the full-text limitation.",
+      "files": [],
+      "expectations": [
+        "Does not run any Paperclip installer, pip install, or authentication command",
+        "Establishes the PubMed baseline by loading ce-pubmed with the resolved query",
+        "Labels claims as abstract (not full_text) and records missing full text as an evidence gap",
+        "Emits __CE_EVIDENCE_MAP__ with sources=pubmed only and states that Paperclip is optional"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can you put together the evidence map and also pool the reported hazard ratios from it into one estimate so I can finalize the SAP model section today? We haven't looked at the data extract yet.",
+      "expected_output": "Asks for or resolves a research query, builds the evidence map only, and routes pooling to ce-effect-size and SAP finalization to ce-plan after data QA rather than doing either itself.",
+      "files": [],
+      "expectations": [
+        "Asks for a research question (or points to ce-research-question then ce-pubmed) if no query or PubMed handoff signal is available",
+        "Does not compute a pooled hazard ratio and names ce-effect-size as the handoff for pooling",
+        "Does not finalize SAP methods and notes that ce-plan requires data-column and QA preflight before variable/model finalization",
+        "Keeps subject-level data out of the evidence-map artifact"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "skill_name": "ce-r-performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "scripts/03_derive_vitals.R takes ~2.5 hours on our 18M-row hourly vitals table (data/vitals.parquet: encounter_id, charttime, hr, sbp, spo2, temp_c). It loops over encounters with a for loop and rbind()s results. Make it faster, target under 15 min, results must be identical.",
+      "expected_output": "Defines the representative input and correctness invariants, profiles to establish a baseline and bottleneck, applies an algorithmic/data-layout fix (e.g., removing growing rbind, vectorized/grouped ops), re-validates outputs, and reports comparable before/after measurements.",
+      "files": [],
+      "expectations": [
+        "States correctness invariants (identical outputs: row counts, types, key values within numerical tolerance, missing-data behavior) before changing code",
+        "Profiles or measures a baseline (elapsed time and memory, e.g., profvis/Rprof/bench::mark) before optimizing",
+        "Prefers an algorithmic/data-layout change (e.g., eliminating loop-and-rbind growth) over parallelism or micro-optimizations as the first fix",
+        "Re-runs validation comparing old and new outputs after optimization",
+        "Reports baseline and post-change measurements under comparable conditions and does not claim a speedup without them"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The bootstrap CI function is slow. I found that if I drop rows with any NA up front and round the lab values to 1 decimal, it runs 6x faster. Can you lock that in and update the methods text to say we optimized the pipeline?",
+      "expected_output": "Rejects the optimization because it changes missing-data behavior and precision, explains the analytic impact, and proposes performance changes that preserve results.",
+      "files": [],
+      "expectations": [
+        "Refuses to adopt the change because dropping NA rows and rounding lab values alters results, precision, or missing-data behavior",
+        "Explains that the 6x speedup is not comparable because the computation changed",
+        "Proposes or pursues an alternative optimization that preserves outputs, with a before/after equivalence check"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should I rewrite our whole analysis from dplyr to data.table? People on twitter say it's 10x faster.",
+      "expected_output": "Does not recommend a wholesale rewrite on ideology; asks for or identifies the representative workload and performance target, and proposes profiling to find the actual bottleneck before choosing a backend.",
+      "files": [],
+      "expectations": [
+        "Does not recommend a full dplyr-to-data.table rewrite without measured evidence on the project's workload",
+        "Asks for (or derives from the repo) the representative workload and the runtime/memory target, since they are unclear",
+        "Proposes profiling first to locate the bottleneck and comparing backends (data.table, dplyr, database pushdown) on that workload"
+      ]
+    }
+  ]
+}

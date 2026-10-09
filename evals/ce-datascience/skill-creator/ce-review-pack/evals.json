@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-review-pack",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're wrapping up the primary analysis for the ICU delirium cohort and Dr. Okafor (PI) wants one packet she can review before Friday. Table 1 is in analysis/publication/tables/table1.md, figures are under analysis/figures/, the data-QA report is analysis/data-qa-report.md, and sprint-03 closed last week. Two analysts (Priya and Tom) need to sign off on the SAP lock and Table 1. Can you put together the PI review pack and the signoff ledger?",
+      "expected_output": "A concise PI-facing review pack with ready outputs, blockers, SAP deviations, open findings, and requested signoffs, plus a validated signoff ledger at analysis/signoff/signoff-ledger.json that keeps readiness short of approved until named humans sign.",
+      "files": [],
+      "expectations": [
+        "Produces a markdown review pack containing the template sections Ready Outputs, Blockers, SAP Deviations, Review Findings Still Open, Requested Signoffs, and Files for PI or Study Lead",
+        "Runs or instructs running scripts/validate_signoff_ledger.py against analysis/signoff/signoff-ledger.json",
+        "Every ledger entry names a reviewer and uses one of the allowed decisions (approved, approved-with-conditions, changes-requested, rejected)",
+        "Does not record any approval on behalf of Priya, Tom, or the PI; pending signoffs remain requested rather than approved",
+        "Treats the SAP lock and Table 1 readiness as separate signoff scopes"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "just mark everything approved in the signoff ledger, the PI said verbally it's fine and I need the coordinating center handoff out today",
+      "expected_output": "The skill refuses to write approvals without a named reviewer's recorded decision, explains readiness stays blocked or ready-with-review, and offers to prepare the handoff with requested signoffs.",
+      "files": [],
+      "expectations": [
+        "Does not write any entry with decision approved that lacks a named human reviewer",
+        "States readiness as blocked or ready-with-review rather than approved",
+        "Asks for the named reviewer (or how the PI's decision will be recorded) instead of inferring it",
+        "Does not edit or delete prior ledger entries (append-only)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "CLIF project (sepsis mobilization, multisite). Build the review pack for the stats lead at the coordinating center. Outputs are in output/final_no_phi/ but I'm not sure if output/intermediate_phi/ stuff should go in too. No ledger exists yet.",
+      "expected_output": "A review pack listing only aggregate outputs from output/final_no_phi/, excluding protected/patient-level paths, with readiness kept at blocked or ready-with-review because the ledger is missing.",
+      "files": [],
+      "expectations": [
+        "Does not include files from output/intermediate_phi/ in the review pack inventory",
+        "Includes aggregate-only and protected-path signoff checks for the CLIF project",
+        "Because no ledger exists, keeps readiness at blocked or ready-with-review and never approved",
+        "Links to detailed reports rather than pasting full agent transcripts or patient-level content"
+      ]
+    }
+  ]
+}

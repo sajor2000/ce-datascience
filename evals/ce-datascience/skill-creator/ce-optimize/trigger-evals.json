@@ -1,0 +1,22 @@
+[
+  {"query": "Run an iterative optimization loop on our AKI prediction pipeline: target is grouped-CV AUROC from analysis/ml/evaluate.py, try feature engineering and hyperparameter hypotheses, max 6 iterations, keep the test set untouched.", "should_trigger": true},
+  {"query": "I want to optimize the prompt we use to extract delirium mentions from notes - LLM judge scoring against a rubric on a sample of 10, cost cap $5.", "should_trigger": true},
+  {"query": "Here's optimize/sepsis-spec.yaml - please validate it and kick off the optimization run in serial mode.", "should_trigger": true},
+  {"query": "our cohort-building pipeline takes 40 min; set up a metric-driven loop to cut runtime while a degenerate gate keeps the cohort counts identical", "should_trigger": true},
+  {"query": "Resume the optimization run for spec readmit-calib - the session crashed mid-batch, the experiment log should be under .context.", "should_trigger": true},
+  {"query": "Set up a bounded experiment loop that tries different imputation strategies and model families for our heart failure model, scoring Brier score on validation folds, with a plateau stop.", "should_trigger": true},
+  {"query": "Can we systematically improve the clustering of ICU phenotypes? More clusters isn't better - I'd want a judge rubric scoring clinical coherence on sampled patients.", "should_trigger": true},
+  {"query": "optimize the chart-abstraction workflow prompt so its agreement with adjudicated labels goes up, with seeds fixed and every iteration logged to mlflow", "should_trigger": true},
+  {"query": "Build an evaluation harness for our readmission model (CV only, never the test set), establish a baseline, then run parallel experiments in worktrees to beat it.", "should_trigger": true},
+  {"query": "Use a scored loop with a stopping rule to tune the NLP rules for detecting sepsis in triage notes; target F1 >= 0.85 on the validation split.", "should_trigger": true},
+  {"query": "Profile and speed up analysis/clean.R - the dplyr joins are slow and memory use spikes on the 20M-row labs table.", "should_trigger": false},
+  {"query": "Set up mlflow experiment tracking for our sepsis model with data hashes, seeds, and calibration metrics per run.", "should_trigger": false},
+  {"query": "Choose the primary model for our clustered longitudinal eGFR data and justify it with literature.", "should_trigger": false},
+  {"query": "Review analysis/train.py for data leakage - the scaler might be fit before splitting.", "should_trigger": false},
+  {"query": "Improve the description of our ce-plan skill so it triggers more reliably, measured against a behavioral benchmark.", "should_trigger": false},
+  {"query": "Our query in the Fabric warehouse is slow - optimize the T-SQL joins and partitioning for the encounters table.", "should_trigger": false},
+  {"query": "Debug why the cross-validation AUROC dropped from 0.81 to 0.62 after yesterday's commit.", "should_trigger": false},
+  {"query": "Compute the sample size needed so our model's AUROC CI half-width is under 0.05.", "should_trigger": false},
+  {"query": "Plan the implementation of a hyperparameter search module for the ML pipeline with units, tests and files.", "should_trigger": false},
+  {"query": "Write the model card summarizing the final tuned model's performance and subgroup calibration.", "should_trigger": false}
+]

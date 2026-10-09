@@ -1,0 +1,22 @@
+[
+  {"query": "Context is getting long - write a handoff doc so a fresh session can continue the propensity-score analysis without needing this conversation.", "should_trigger": true},
+  {"query": "I'm passing the readmission modeling task to a Codex agent tomorrow. Capture what's verified, what's pending, the SAP gate status, and the next safe step.", "should_trigger": true},
+  {"query": "resume from the handoff about the phenotype validation, think it's in docs/handoffs somewhere from last week", "should_trigger": true},
+  {"query": "pls create a handoff, focus on the table1 bug we half-fixed - branch fix/table1-missing-row, tests partially passing", "should_trigger": true},
+  {"query": "Pick up where the last agent left off using docs/handoffs/2026-10-01-fabric-pipeline.md, but double check its claims before changing anything.", "should_trigger": true},
+  {"query": "End of day. Write a continuity record for this task: objective, changed files, commands run, residual risks, and one next action.", "should_trigger": true},
+  {"query": "My coauthor is taking over the SAP revisions in her own Claude session. Write something portable she can start from - no chat history available to her.", "should_trigger": true},
+  {"query": "continue the cohort build work from yesterday's handoff note - verify the branch and files still exist first", "should_trigger": true},
+  {"query": "Before compaction wipes this, save a handoff for the dynamic AUC work including which validations actually ran and which are only assumed.", "should_trigger": true},
+  {"query": "Write a handoff record for switching this genomics audit task over to another agent; include constraints about not touching the locked data wave.", "should_trigger": true},
+  {"query": "What did we try last month when the CLIF datetime conversion broke? Search my previous coding sessions for it.", "should_trigger": false},
+  {"query": "Document the validated approach we used to fix the timezone bug in docs/solutions so future analysts can reuse it.", "should_trigger": false},
+  {"query": "Where am I in the project lifecycle and what skill should I run next for the readmission study?", "should_trigger": false},
+  {"query": "Commit these changes, push the branch, and open a PR describing the cohort fix.", "should_trigger": false},
+  {"query": "Assemble a PI review pack with the outputs, deviations, and a signoff ledger for the statistician.", "should_trigger": false},
+  {"query": "Close out this analysis sprint with the reviewer signoff and a report of planned vs completed SAP outputs.", "should_trigger": false},
+  {"query": "Continue executing the plan in docs/plans/2026-10-02-aki-plan.md from unit U4 onward.", "should_trigger": false},
+  {"query": "Write release notes summarizing what changed in the plugin since the last version.", "should_trigger": false},
+  {"query": "Spin up a parallel cloud session to run the sensitivity analyses while I keep working on the primary model here.", "should_trigger": false},
+  {"query": "Set up a worktree for the new branch so I can work on the figure fixes without disturbing my current checkout.", "should_trigger": false}
+]

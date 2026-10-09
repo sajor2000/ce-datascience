@@ -1,0 +1,22 @@
+[
+  {"query": "Review the current branch before I open a PR. It touches R/derive_outcomes.R, a Quarto report, and the SAP variable CSV. I want correctness, SAP drift, PHI, and reproducibility checked, and safe fixes applied.", "should_trigger": true},
+  {"query": "PR review please: https://github.com/example-lab/ehr-readmit/pull/77 — python feature engineering + sklearn pipeline changes.", "should_trigger": true},
+  {"query": "code review my changes, theres a new IPTW + doubly robust estimator in analysis/causal.py and some notebook edits", "should_trigger": true},
+  {"query": "mode:autofix review the diff against origin/main and give me the residual actionable work summary", "should_trigger": true},
+  {"query": "Before merge, run the full reviewer roster (depth:full) on the cohort SQL and concept-set YAML changes — I want OMOP mapping and concept drift looked at too.", "should_trigger": true},
+  {"query": "Find fixable issues in what I've changed today across the targets pipeline (_targets.R) and the modeling functions, and fix the safe ones.", "should_trigger": true},
+  {"query": "I finished the task from the plan docs/plans/2026-09-28-002-feat-table2-plan.md. Review the changes and check requirements completeness against that plan.", "should_trigger": true},
+  {"query": "Review this diff for anything that could leak PHI or break reproducibility — notebooks with outputs and a renv.lock update are in it.", "should_trigger": true},
+  {"query": "mode:headless base:abc1234 — review for the parent workflow and return structured findings", "should_trigger": true},
+  {"query": "can you do a multi-persona review of the Fine-Gray + multiple-imputation code on this branch, statistical methods and multiplicity included", "should_trigger": true},
+  {"query": "Get Codex to independently stress-test this high-stakes diff and surface where you two disagree; read-only, no fixes.", "should_trigger": false},
+  {"query": "Do a read-only audit of analysis/02_models.R for idiomatic R, data integrity, and statistical-method risks — just that one script, no PR.", "should_trigger": false},
+  {"query": "Review docs/plans/sap-v3.md for clarity, completeness, and scope control before I send it to the PI.", "should_trigger": false},
+  {"query": "Reviewers left comments on PR #77; triage the threads, apply valid fixes, and reply to each reviewer.", "should_trigger": false},
+  {"query": "Quick sanity check of the step I just finished: N, leakage, effect direction, missingness, PHI in figures.", "should_trigger": false},
+  {"query": "Watch PR #77 for 30 minutes and handle CI failures or review comments as they come in.", "should_trigger": false},
+  {"query": "Score our manuscript against TRIPOD+AI item by item before submission.", "should_trigger": false},
+  {"query": "The test test-survival.R fails with 'non-conformable arguments' after my change; find the root cause and fix it.", "should_trigger": false},
+  {"query": "Simplify R/utils.R: remove duplication and dead helpers without changing behavior.", "should_trigger": false},
+  {"query": "Close the analysis sprint with the named reviewer's signoff and audit the delivered SAP outputs.", "should_trigger": false}
+]

@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-statistical-analysis-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ce-plan gave us the canonical SAP (docs/plans/sepsis-bundle-sap.md) for a multisite EHR study estimating the effect of 1-hour bundle completion on in-hospital mortality, emulating a target trial. The causal pieces are thin. Deepen it with the claims-to-datasets schema, estimands, diagnostics, and decision evidence.",
+      "expected_output": "Builds the linked Study/Dataset/Claim/Variable/Analysis/Diagnostic/Output/Decision_Evidence schema added to the existing canonical SAP, with explicit estimand, time zero, and unresolved decisions rather than defaults.",
+      "files": [],
+      "expectations": [
+        "Creates linked objects Study, Dataset, Claim, Variable, Analysis, Diagnostic, Output, and Decision_Evidence before rendering prose",
+        "Adds to the ce-plan SAP rather than creating a competing SAP",
+        "Makes the estimand, treatment strategy, time zero, and assumptions explicit, and marks unresolved choices as blocking finalization",
+        "Attaches at least one diagnostic or sensitivity analysis and an explicit missing-data strategy to every primary analysis",
+        "Records at least one method citation in Decision_Evidence for each high-stakes method choice"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "quick q for the SAP: what model should we use for the primary outcome (ventilator-free days)? I don't know yet whether the data is one row per patient or per ventilator-day, need an answer for the protocol draft today",
+      "expected_output": "Gives a clearly provisional method recommendation tagged with the unconfirmed unit of analysis and its key assumption, without presenting it as final.",
+      "files": [],
+      "expectations": [
+        "Prefixes the recommendation with the tag [PROVISIONAL \u2014 unit of analysis not yet confirmed]",
+        "Names the likely method and the assumption it rests on",
+        "Does not present the method as final while dataset grain and unit of analysis are unknown",
+        "Asks for or lists dataset grain/unit of analysis as a load-bearing gap"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write the complete SAP for our new prediction model study from scratch -- there's no plan yet, just the idea and a CSV extract at data/extract_v1.csv.",
+      "expected_output": "Routes the canonical SAP to ce-plan and the data gate to ce-data-qa first, positioning this skill to deepen the plan afterward rather than authoring a competing SAP.",
+      "files": [],
+      "expectations": [
+        "Routes creation of the canonical SAP to ce-plan",
+        "Requires running ce-data-qa on the extract before finalizing variables or models",
+        "Does not silently choose a missing-data method, threshold, or analysis unit",
+        "Does not produce workbook rendering itself (hands off to ce-sap-tabular)"
+      ]
+    }
+  ]
+}

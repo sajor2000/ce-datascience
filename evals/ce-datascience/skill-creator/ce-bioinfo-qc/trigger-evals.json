@@ -1,0 +1,22 @@
+[
+  {"query": "We just got 96 FASTQ pairs back from the core for the ATAC-seq project (/data/atac/run_0915). Run FastQC/MultiQC and flag outlier samples before anyone starts peak calling.", "should_trigger": true},
+  {"query": "Before DESeq2, check whether plate is confounded with treatment arm in our RNA-seq counts (counts/salmon_merged.tsv, sample sheet meta/samples.csv has condition and batch columns).", "should_trigger": true},
+  {"query": "EPIC methylation IDATs from two array batches in /data/methyl/idat. Need bisulfite conversion, detection p-values, and sex-prediction discordance checked before the EWAS.", "should_trigger": true},
+  {"query": "pls do a sample swap check on the WGS crams, sheet has declared sex + family IDs. somalier if you can", "should_trigger": true},
+  {"query": "Is our VCF sane? joint-called cohort.vcf.gz from 300 exomes - want Ti/Tv, het/hom ratios and novel variant fraction before the association analysis.", "should_trigger": true},
+  {"query": "A re-sequence of the samples that failed QC last month just came back. Re-run the omics QA gate on /data/runs/reseq_oct and give me GO/NO-GO.", "should_trigger": true},
+  {"query": "Collaborator wants our bulk RNA-seq BAMs. Sanity-check strand specificity, intronic %, mapping and duplicate rate first so we don't ship garbage.", "should_trigger": true},
+  {"query": "PCA of my count matrix looks like it splits by sequencing lane. Can you formally screen for batch effects (flag only, don't correct) against the condition variable?", "should_trigger": true},
+  {"query": "bioinfo QC on /data/chip/h3k27ac --modality chipseq, sample sheet chip_samples.tsv", "should_trigger": true},
+  {"query": "New microarray batch registered as data wave w3. Run the modality-appropriate QC and write the report under reports/ before the downstream team picks it up.", "should_trigger": true},
+  {"query": "Profile the columns of data/raw/icu_extract.parquet and give me a GO/NO-GO data quality gate before I finalize the SAP.", "should_trigger": false},
+  {"query": "Our VCFs are hg19 but the annotation is GRCh38 - pin the genome build, contig naming, and plan the liftover.", "should_trigger": false},
+  {"query": "Review the Snakefile and rules/*.smk in this diff for pipeline correctness before merge.", "should_trigger": false},
+  {"query": "Run DESeq2 for sepsis vs control with batch as a covariate and produce a volcano plot of the results.", "should_trigger": false},
+  {"query": "Apply ComBat-seq to remove the plate effect from counts.tsv and save the corrected matrix.", "should_trigger": false},
+  {"query": "salmon quant is crashing with 'std::bad_alloc' on three of the samples; figure out why and fix the Nextflow config.", "should_trigger": false},
+  {"query": "Validate that the lab values in the EHR extract are in plausible ranges and the missingness matches what the cohort spec expects.", "should_trigger": false},
+  {"query": "Quick sanity check of the analysis step I just finished: sample size, effect direction, missingness, any PHI in the figures.", "should_trigger": false},
+  {"query": "Write the Methods paragraph describing our batch-confound assessment and sensitivity analysis for the manuscript.", "should_trigger": false},
+  {"query": "Validate our sepsis phenotype definition and code list against chart review expectations.", "should_trigger": false}
+]

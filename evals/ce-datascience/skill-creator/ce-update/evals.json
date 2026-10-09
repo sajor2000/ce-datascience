@@ -1,0 +1,40 @@
+{
+  "skill_name": "ce-update",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ce-update -- is my ce-datascience plugin current? I installed it from the marketplace a couple months ago.",
+      "expected_output": "Compares the loaded marketplace-cache version against upstream plugin.json on main and either confirms it is up to date or gives the claude plugin update command with the derived marketplace name.",
+      "files": [],
+      "expectations": [
+        "Compares the currently loaded version (from the skill directory path) with the upstream plugins/ce-datascience/.claude-plugin/plugin.json version on main, not a release tag",
+        "If versions match, reports 'ce-datascience vX is installed and up to date'",
+        "If stale, recommends 'claude plugin update ce-datascience@<marketplace-name>' with the marketplace name derived from the path, then restart",
+        "Does not modify files under ~/.claude/plugins/cache/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/ce-update. I'm running claude --plugin-dir ~/code/ce-datascience/plugins/ce-datascience for local dev.",
+      "expected_output": "Detects the non-marketplace load path and explains no action is needed for this session, suggesting a regular session to check the marketplace cache.",
+      "files": [],
+      "expectations": [
+        "Recognizes the __CE_UPDATE_NOT_MARKETPLACE__ case from the skill directory path",
+        "States the skill is loaded from outside ~/.claude/plugins/cache/ and no action is needed this session",
+        "Suggests loading ce-update in a regular Claude Code session without --plugin-dir to check the marketplace install",
+        "Does not recommend an update command"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/ce-update -- gh isn't authenticated on this machine and I'm on a hospital network that blocks api.github.com.",
+      "expected_output": "Reports that the upstream version could not be fetched and stops, without guessing a version or mutating caches.",
+      "files": [],
+      "expectations": [
+        "Recognizes the __CE_UPDATE_VERSION_FAILED__ sentinel and tells the user the upstream version could not be fetched",
+        "Stops without guessing the latest version",
+        "Does not attempt to mutate plugin caches or marketplace directories as a workaround"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {"query": "Declare the reference genome for our WGS project: refs/Homo_sapiens.GRCh38.dna.primary_assembly.fa and gencode.v44 GTF. Write a manifest with md5s that we commit.", "should_trigger": true},
+  {"query": "reviewer asks 'what genome build did you use' - audit all our bams/vcfs and make a supplementary traceability table proving it", "should_trigger": true},
+  {"query": "Some of our BED files use 'chr1' and others use '1' and bedtools intersect returns nothing. Check contig naming consistency against the declared build.", "should_trigger": true},
+  {"query": "Our counts matrix was built with GENCODE 36 but the manifest says 44. How bad is that and what else drifted? Audit the whole project.", "should_trigger": true},
+  {"query": "hg19 vs hg38 - I inherited a project and can't tell which build the VCFs were called against. Figure it out from the headers.", "should_trigger": true},
+  {"query": "The VEP cache version in our annotated VCF doesn't match our reference. Check build/annotation consistency across all outputs.", "should_trigger": true},
+  {"query": "Before merging two cohorts' VCFs, verify both are GRCh38 with matching contig lengths and reference URLs, and flag any mismatch as blocking.", "should_trigger": true},
+  {"query": "We updated from GRCh38.p13 to p14 and GENCODE 43 to 44. Re-declare the build and audit which outputs are now stale.", "should_trigger": true},
+  {"query": "The @PG lines in half our BAMs don't record the aligner version. Flag those and build the per-output traceability table for the paper.", "should_trigger": true},
+  {"query": "Methylation EPIC array + RNA-seq + WGS in one project - pin genome build and annotation versions so all three are consistent and auditable.", "should_trigger": true},
+  {"query": "Run QC on our FASTQ files and BAMs: read quality, duplication rate, sex-check sample swaps, and batch effects across lanes.", "should_trigger": false},
+  {"query": "Write a Snakemake pipeline that aligns FASTQs with BWA-MEM2 to GRCh38 and calls variants with GATK HaplotypeCaller.", "should_trigger": false},
+  {"query": "Do a differential expression analysis with DESeq2 on counts/gene-counts.tsv comparing responders vs non-responders.", "should_trigger": false},
+  {"query": "Our ancestry PCA shows two samples clustering far from their reported population - check for sample swaps or contamination.", "should_trigger": false},
+  {"query": "Search PubMed for GWAS of sepsis susceptibility and summarize lead SNPs and their effect sizes.", "should_trigger": false},
+  {"query": "Write the Methods paragraph describing our alignment and variant-calling pipeline for the manuscript.", "should_trigger": false},
+  {"query": "Detect whether this repo is R or Python - we have Bioconductor scripts and some pysam utilities.", "should_trigger": false},
+  {"query": "Review the R code in analysis/R/deseq.R for statistical correctness and reproducibility.", "should_trigger": false},
+  {"query": "Validate our phenotype definition for type 2 diabetes in the EHR-linked biobank against published code lists.", "should_trigger": false},
+  {"query": "Calculate power for a GWAS with 5,000 cases and 10,000 controls to detect OR 1.15 at MAF 0.2.", "should_trigger": false}
+]

@@ -1,0 +1,22 @@
+[
+  {"query": "Write a KQL query against our Eventhouse table MonitorEvents that summarizes heart-rate alarms per bed per hour, using event time not ingest time.", "should_trigger": true},
+  {"query": "our real-time dashboard in fabric shows fewer sepsis alerts after we added a join to the PatientLocation table - audit the KQL and tell me why counts dropped", "should_trigger": true},
+  {"query": "Design an Eventstream -> Eventhouse ingestion mapping for JSON ventilator data with schema evolution and a replay plan for when the feed goes down.", "should_trigger": true},
+  {"query": "Create a materialized view in our KQL database that keeps the latest lactate per encounter, and explain how late-arriving results affect it.", "should_trigger": true},
+  {"query": "kql help: arg_max vs summarize take_any for latest vitals per patient? also want to know if empty bins should be zero or missing for our ICU dashboard", "should_trigger": true},
+  {"query": "Set up an Activator alert in Fabric Real-Time Intelligence that fires when a bed's SpO2 stays below 88 for 5 minutes, validated against a known window first.", "should_trigger": true},
+  {"query": "Debug our update policy in the Eventhouse - rows land in the raw table but the typed LabResults table stays empty since Tuesday.", "should_trigger": true},
+  {"query": "I keep writing T-SQL habits into KQL and getting weird join results. Rewrite this Eventhouse query with explicit join kinds and cardinality checks.", "should_trigger": true},
+  {"query": "We want to turn the Eventhouse vitals table into an hourly analytic dataset for a deterioration model. Write the KQL with time zone and late data handled.", "should_trigger": true},
+  {"query": "Review the KQL behind our real-time ED census dashboard for time-zone bugs and double counting from the ingestion retries.", "should_trigger": true},
+  {"query": "Write the Spark notebook that copies the Eventhouse data into a Lakehouse Delta table every night for the research team.", "should_trigger": false},
+  {"query": "Design the Data Factory pipeline that schedules the nightly vitals export with failure alerts and retries.", "should_trigger": false},
+  {"query": "Write DAX for the ICU census measure in our Direct Lake semantic model and validate RLS by unit.", "should_trigger": false},
+  {"query": "Write Azure Monitor Log Analytics KQL to find failed logins on our analysis VM over the last week.", "should_trigger": false},
+  {"query": "Write a Microsoft Sentinel hunting query in KQL for suspicious sign-ins to the research tenant.", "should_trigger": false},
+  {"query": "We're on Fabric but unsure whether the telemetry project belongs in Eventhouse or Lakehouse - help me pick the right path.", "should_trigger": false},
+  {"query": "Build a time-dependent AUC and calibration evaluation for our deterioration model at 6, 12, and 24 hour horizons.", "should_trigger": false},
+  {"query": "Write a T-SQL query in our Fabric Warehouse that computes hourly vitals summaries from dbo.vitals.", "should_trigger": false},
+  {"query": "Set up Kafka consumers in Python that stream HL7 messages into Postgres for the research database.", "should_trigger": false},
+  {"query": "Profile the exported hourly vitals parquet for missingness, impossible values, and duplicate bed-hours before modeling.", "should_trigger": false}
+]

@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-manuscript-citations",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have manuscript/drafts/sepsis-lactate-v4.docx going to Critical Care Medicine. The Introduction has 14 claims flagged with [CITE] placeholders (e.g. 'lactate clearance at 6 h predicts 28-day mortality'). Please find supporting papers, verify they actually say what we claim, and give me a Word file with real Zotero citations in Vancouver style. My Zotero group library is 'ICU-outcomes'.",
+      "expected_output": "Resolves candidate sources through PubMed, checks claim support with Paperclip full text where available, writes a citation ledger, and produces a separate field-bearing DOCX master with live Zotero fields while leaving the original DOCX untouched.",
+      "files": [],
+      "expectations": [
+        "Copies sepsis-lactate-v4.docx to a new field-bearing master and does not overwrite the original file",
+        "Writes a citation ledger (e.g. manuscript/citations/citation-ledger.json) whose records include claim text, PMID/DOI, evidence level (full_text/abstract/metadata_only/unverified) and a support status of supported/partially_supported/unsupported/unverified",
+        "Inserts citations as Zotero Word fields and does not type numeric superscripts or a static bibliography as the final representation",
+        "Does not promote partially_supported, unsupported, or unverified claims into finished citations without flagging them for author review",
+        "Ends with an audit report and the __CE_CITATION_LEDGER__ handoff line including supported, unresolved, and fields_verified counts"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "quick one - can you just add the refs to my abstract (abstract_ATS2027.docx)? I don't use Zotero and Word isn't installed on this server, just paste [1],[2] superscripts and a reference list at the bottom, that's fine",
+      "expected_output": "Explains that without Zotero/Word integration it cannot produce an editable citation deliverable, and offers only a clearly labeled static review copy plus a ledger rather than claiming editable citations.",
+      "files": [],
+      "expectations": [
+        "States that Zotero fields cannot be created or verified in this environment and does not claim the output is an editable citation deliverable",
+        "If a static copy is produced, labels it explicitly as static/flattened rather than as the editable master",
+        "Still resolves each reference via PubMed (or labeled fallback) and does not invent PMIDs or references",
+        "Preserves abstract_ATS2027.docx unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Reviewer 2 says reference 23 in our JAMA Netw Open submission (manuscript/submission/main.docx) doesn't support the sentence 'SGLT2 inhibitors reduced AKI incidence by 30% in non-diabetic CKD'. Paperclip is down today. Can you audit that citation and the other 40-ish refs while you're at it?",
+      "expected_output": "Audits the existing citations against PubMed metadata/abstracts, labels the full-text limitation because Paperclip is unavailable, and reports which claims are supported, partially supported, or unverified without asserting full-text support.",
+      "files": [],
+      "expectations": [
+        "Labels claims checked without Paperclip as abstract or metadata_only evidence and does not write full-text-supported language for them",
+        "Reports reference 23's support status explicitly (e.g. partially_supported/unsupported/unverified) with an author-review note",
+        "Runs a structural field audit reporting static-citation or field-loss findings in addition to any visual render check",
+        "Does not modify or write to the Zotero library without an explicit request"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {"query": "Is pkg/survtools ready for CRAN? Audit DESCRIPTION, examples, docs, and run R CMD check --as-cran, then give me a prioritized blocker list.", "should_trigger": true},
+  {"query": "R CMD check gives me 'checking CRAN incoming feasibility ... NOTE: New submission, Possibly misspelled words' and a URL 301 note. which of these will block a CRAN submission?", "should_trigger": true},
+  {"query": "we want to put our epi helper package on cran next month. what do we still need - cran-comments.md, NEWS, win-builder, rhub? make a checklist", "should_trigger": true},
+  {"query": "CRAN bounced our resubmission of `icuscores` saying examples take >5s and we write to the user's home dir. Help me fix those and get it resubmission-ready (I'll submit myself).", "should_trigger": true},
+  {"query": "Prepare the cran submission for pkg/riskcalc: check URLs, Authors@R, license file, and examples that need internet. Don't actually submit.", "should_trigger": true},
+  {"query": "Our package suggests a Bioconductor dep and uses an API in tests. Is that going to be a problem on CRAN's check farm? Audit it.", "should_trigger": true},
+  {"query": "pre-CRAN audit plz: rhub and win-builder results attached, 1 WARNING on Windows about non-ASCII chars in R/labels.R", "should_trigger": true},
+  {"query": "What does the current CRAN policy say about packages writing to tempdir vs user files, and does our package comply? Verify against the official CRAN page.", "should_trigger": true},
+  {"query": "Get pkg/omopqc to a 0 errors / 0 warnings / 0 notes R CMD check --as-cran state for first CRAN submission and report what's left for me to decide.", "should_trigger": true},
+  {"query": "is my R package cran-ready? DESCRIPTION has no URL field, vignette uses knitr, and tests use testthat 3e", "should_trigger": true},
+  {"query": "Add a new exported function calc_apache2() to pkg/icuscores with roxygen docs and update NAMESPACE.", "should_trigger": false},
+  {"query": "Write testthat tests for compute_sofa() covering missing labs, out-of-range values, and the error message when platelets are negative; use snapshots for the print method.", "should_trigger": false},
+  {"query": "Do a read-only review of R/derive_cohort.R for silent recycling and join row-count issues before I merge it.", "should_trigger": false},
+  {"query": "My targets pipeline keeps rebuilding the model target even though nothing changed; debug _targets.R invalidation.", "should_trigger": false},
+  {"query": "Profile our package's bootstrap_ci() function; it takes 40 minutes on 200k rows and I want before/after benchmarks.", "should_trigger": false},
+  {"query": "Is the ce-datascience plugin up to date in my Claude Code install? Check the marketplace version.", "should_trigger": false},
+  {"query": "Set up a new R package skeleton for our lab's EHR phenotyping helpers with DESCRIPTION, roxygen2, and a vignette.", "should_trigger": false},
+  {"query": "Our testthat suite fails only on CI with 'object not found' in test-cohort.R; figure out why and fix the test, not the expectation.", "should_trigger": false},
+  {"query": "Refactor scripts/clean_vitals.R to tidyverse with explicit join relationships and stopifnot row checks.", "should_trigger": false},
+  {"query": "Which R workflow should I use for this project? It has renv.lock, a DESCRIPTION, and _targets.R, and I'm not sure where to start.", "should_trigger": false}
+]

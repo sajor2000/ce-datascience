@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-manuscript-package",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're ready to submit the ICU delirium cohort paper to JAMA Network Open. Repo has analysis/sap.md (sap_version 3, final), the Table 1 spec, figures manifest, STROBE checklist under reporting/, and the manuscript is Quarto (manuscript/manuscript.qmd). Please put together the submission package.",
+      "expected_output": "Runs the package-manifest builder with Quarto format, writes manuscript/package-manifest.json and package-readiness-report.md, and reports readiness as ready-with-review (not submission-ready) pending named human review.",
+      "files": [],
+      "expectations": [
+        "Confirms analysis/sap.md exists and is the correct study contract before building the package",
+        "Runs scripts/build_package_manifest.py with --format quarto (anchored via SKILL_DIR) and --out-dir manuscript",
+        "Produces or references manuscript/package-manifest.json and manuscript/package-readiness-report.md and reviews the readiness report before any submission-ready claim",
+        "Includes the STROBE reporting checklist in the manifest",
+        "Does not write new manuscript prose, results, or scientific claims"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Bundle everything for the Lancet Digital Health submission - the sepsis prediction model paper. There's no figures folder yet and I never made a Table 1 but just stub something in so the package looks complete, the editor wants it Friday.",
+      "expected_output": "Refuses to invent the missing Table 1 or figures, surfaces them as blockers in the readiness report, and flags that a prediction-model study needs a model card in the package.",
+      "files": [],
+      "expectations": [
+        "Does not create placeholder or fabricated tables or figures",
+        "Reports missing Table 1 spec and figure manifest as blockers, with readiness 'blocked'",
+        "Flags the model card as an expected artifact for a prediction-model study (TRIPOD+AI context)",
+        "Points to the owning skills for the missing artifacts (e.g. ce-table1, ce-figure, ce-model-card) rather than generating them inside the package"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Final deliverable is a Word manuscript (manuscript/main.docx) for Critical Care Medicine, not Quarto. Can you build the package manifest and make sure the references are in good shape?",
+      "expected_output": "Generates the manifest without forcing a Quarto conversion and routes the DOCX through ce-manuscript-citations so the package includes the field-bearing DOCX master and its citation ledger.",
+      "files": [],
+      "expectations": [
+        "Does not convert the Word manuscript to Quarto; generates the same manifest and section stubs for a non-Quarto project",
+        "Runs or requires ce-manuscript-citations before final packaging",
+        "Includes the field-bearing DOCX master and the citation ledger in the package, and does not treat a flattened DOCX or static bibliography as the editable master",
+        "Does not mark the package submission-ready without a named human reviewer recorded"
+      ]
+    }
+  ]
+}

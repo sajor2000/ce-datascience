@@ -1,0 +1,22 @@
+[
+  {"query": "/ce-retune claude-opus-5-5 plugins/ce-datascience/skills bar:0.9", "should_trigger": true},
+  {"query": "/ce-retune the new model skips the PHI check in ce-verify about 30% of the time; baseline runs are saved, bar:0.95", "should_trigger": true},
+  {"query": "ce-retune: measure and improve the R skills (ce-r-*) against the behavioral cases, the tidyverse join gate regressed after the last model bump", "should_trigger": true},
+  {"query": "/ce-retune symptom: agents write the SAP before data QA. corpus plugins/ce-datascience/skills, use the versioned eval cases, bar:0.85", "should_trigger": true},
+  {"query": "/ce-retune sonnet regression on ce-prereg refusal gates - run baseline vs candidate with fresh contexts and report whether we clear bar:0.9", "should_trigger": true},
+  {"query": "run ce-retune on the manuscript skills; the audit gate is being skipped under speed pressure prompts. we have cases + scoring, bar is 0.9", "should_trigger": true},
+  {"query": "/ce-retune plugins/ce-datascience/skills/ce-pubmed bar:1.0 -- MeSH query line not surfaced in half the runs", "should_trigger": true},
+  {"query": "/ce-retune target model haiku, corpus default, symptom: ignores ask-one-question-at-a-time rule", "should_trigger": true},
+  {"query": "ce-retune please: maintainer here, behavioral eval scores dropped from 0.92 to 0.81 across ce-plan cases after switching models. find and fix with evidence", "should_trigger": true},
+  {"query": "/ce-retune no bar specified yet but the CLIF skills seem off - can you set up what's needed and tell me what's missing before touching anything?", "should_trigger": true},
+  {"query": "Optimize our LLM chart-abstraction prompt with a scored eval set and bounded iterations until F1 stops improving.", "should_trigger": false},
+  {"query": "Write skill-creator evals.json and trigger-evals.json for the ce-table1 skill.", "should_trigger": false},
+  {"query": "Hyperparameter-tune our XGBoost readmission model with nested CV and track runs in MLflow.", "should_trigger": false},
+  {"query": "Capture what we learned about the data-QA gate regression as a docs/solutions learning.", "should_trigger": false},
+  {"query": "Audit docs/solutions/skill-design for stale guidance that no longer matches the skills.", "should_trigger": false},
+  {"query": "Run bun run eval:validate and tell me if the case files are well-formed.", "should_trigger": false},
+  {"query": "Improve the description of ce-pubmed so it triggers more reliably; run the description optimization loop.", "should_trigger": false},
+  {"query": "Review the diff to ce-plan's SKILL.md with the reviewer personas before I open the PR.", "should_trigger": false},
+  {"query": "Recalibrate our sepsis prediction model on the 2025 data; calibration slope drifted to 0.7.", "should_trigger": false},
+  {"query": "File a bug that ce-verify skipped the PHI check in my last session.", "should_trigger": false}
+]

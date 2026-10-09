@@ -1,0 +1,22 @@
+[
+  {"query": "Final check before I email this to my co-authors: the attached abstract for our ATS submission on high-flow nasal cannula vs NIV. Make sure nothing interpretive is sitting in the Results subsection and there are no 'studies show' lines without a cite.", "should_trigger": true},
+  {"query": "pls do the last pass on manuscript/discussion.md + manuscript/results.md before it goes to the PI, we're submitting to Lancet Digital Health friday. scrub AI-sounding stuff and any editorializing in results", "should_trigger": true},
+  {"query": "I edited the Methods section of our TTE paper on statin initiation and dementia; can you gate it before I hand it back to Maria? Keep the TARGET-required rationale but strip anything that's really Discussion.", "should_trigger": true},
+  {"query": "Here's our R01 Specific Aims + Significance narrative. Before it goes to the co-Is tomorrow, run the full handoff audit: voice, anti-slop, uncited claims, the works. Give me counts by category.", "should_trigger": true},
+  {"query": "can u audit this cover letter for NEJM AI before i send it to the senior author? i think it has too many em dashes and 'robust' everywhere lol", "should_trigger": true},
+  {"query": "You just drafted the Results and figure legends for the readmission model paper. Before you show me, run the presubmission gate on them so I'm not the one catching interpretation in the legends.", "should_trigger": true},
+  {"query": "pre-sub audit on docs/manuscript/v7_full.md please. it's going to all 9 co-authors tonight. intro, methods, results, discussion, table footnotes all in there.", "should_trigger": true},
+  {"query": "Revised the abstract after reviewer 2's comments (structured: Background/Methods/Results/Conclusions). Before it goes back to the corresponding author, check each subsection against the right bar and fix what you can.", "should_trigger": true},
+  {"query": "Final handoff QA for the JAMA Pediatrics research letter: is there any 'significant' without a p or CI, any hedging in results, any 'experts believe'? Fix them and tell me what changed.", "should_trigger": true},
+  {"query": "We need a quick but rigorous pass on this grant progress-report narrative before the PI signs it; it reads like ChatGPT wrote it. Clean it to clinical research voice and flag anything uncited.", "should_trigger": true},
+  {"query": "Write the Discussion section for our sepsis bundle cohort paper from analysis/results_summary.md and the SAP; include limitations and comparison to the prior RCTs.", "should_trigger": false},
+  {"query": "Add Zotero citation fields to manuscript/draft_v5.docx for every reference in the bibliography and fix the three broken PMIDs in the intro.", "should_trigger": false},
+  {"query": "Assemble the submission bundle for Circulation: SAP, Table 1, figures, STROBE checklist, and provenance files into one package folder.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our EHR-based prediction model study, TRIPOD+AI or STROBE with RECORD? We haven't written the SAP yet.", "should_trigger": false},
+  {"query": "Review docs/plans/sap-v2.md for completeness and scope creep before we lock it; is the estimand section clear enough?", "should_trigger": false},
+  {"query": "Make figure 2 (forest plot of subgroup HRs) JAMA-style: Arial, 8pt, no gridlines, and check the CI whiskers match table 3.", "should_trigger": false},
+  {"query": "Draft a point-by-point response to reviewers for our resubmission to Critical Care Medicine; reviewer 1 wants a sensitivity analysis excluding transfers.", "should_trigger": false},
+  {"query": "Put together the PI review pack and statistician signoff ledger for the final tables and figures so Dr. Chen and the coordinating center can approve them.", "should_trigger": false},
+  {"query": "Run a quick sanity check on the mortality model outputs: sample size matches the cohort waterfall, no leakage from post-index labs, and effect direction makes sense.", "should_trigger": false},
+  {"query": "I'm still mid-draft on the Methods, nowhere near handing it off. Just explain which of my sentences in methods_draft.md count as interpretation under the section-discipline red-flag list so I learn the rule.", "should_trigger": false}
+]

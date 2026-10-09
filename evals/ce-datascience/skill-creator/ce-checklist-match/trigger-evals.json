@@ -1,0 +1,22 @@
+[
+  {"query": "Which EQUATOR checklist applies to a diagnostic accuracy study of an AI chest X-ray triage tool against radiologist consensus? I want it set before writing the SAP.", "should_trigger": true},
+  {"query": "We're starting a case-control study on PPI use and C. diff using claims data. What reporting guideline(s) and extensions should the project be set up against?", "should_trigger": true},
+  {"query": "what checklist do i follow for a systematic review + meta-analysis of diagnostic test accuracy for procalcitonin? prisma something?", "should_trigger": true},
+  {"query": "Set the reporting_checklist in our stack profile for this project — it's a target trial emulation of early vs late anticoagulation using CLIF data.", "should_trigger": true},
+  {"query": "Before ce-plan drafts the SAP, pick the right reporting standards for our pragmatic cluster RCT of a sepsis alert, and drop fillable checklist files into the repo.", "should_trigger": true},
+  {"query": "Our study is evaluating whether an LLM chatbot gives safe medication advice to patients. Is there a reporting guideline for that, and what extensions?", "should_trigger": true},
+  {"query": "New project, no guideline chosen yet: qualitative interviews with ICU nurses about alarm fatigue. Which reporting checklist?", "should_trigger": true},
+  {"query": "TRIPOD or TRIPOD+AI or CLAIM? We're building a deep learning model on CT images to predict mortality. Choose the checklist stack for planning.", "should_trigger": true},
+  {"query": "We're doing a cost-effectiveness analysis of rapid sepsis diagnostics alongside a cohort. Which reporting standard(s) apply so the SAP covers them?", "should_trigger": true},
+  {"query": "reporting standard selection for a retrospective cohort, EHR, causal aim, no AI -- write it to config and emit the checklist signal", "should_trigger": true},
+  {"query": "Score our final manuscript against STROBE item by item and list what's missing before submission.", "should_trigger": false},
+  {"query": "Review this diff, including the reporting-checklist reviewer since our stack profile says TRIPOD+AI.", "should_trigger": false},
+  {"query": "Write the statistical analysis plan for our retrospective statin cohort following STROBE and RECORD.", "should_trigger": false},
+  {"query": "Register this RCT on ClinicalTrials.gov and draft the SPIRIT-aligned protocol registration fields.", "should_trigger": false},
+  {"query": "Run the final pre-submission audit on the manuscript: Methods/Results discipline, voice, and anti-slop.", "should_trigger": false},
+  {"query": "Configure the ce-datascience profile for this repo: R, renv, Quarto, and our data root.", "should_trigger": false},
+  {"query": "Turn my idea about statins after stroke into PICO/FINER YAML with a hypothesis and suggested design.", "should_trigger": false},
+  {"query": "Build the CONSORT flow diagram counts for our cohort: inclusion, exclusions, final N, with concept sets.", "should_trigger": false},
+  {"query": "Assemble the manuscript submission package for JAMA Network Open, including the completed checklist PDF and cover letter.", "should_trigger": false},
+  {"query": "Write a model card for our deterioration prediction model documenting intended use, performance, and fairness.", "should_trigger": false}
+]

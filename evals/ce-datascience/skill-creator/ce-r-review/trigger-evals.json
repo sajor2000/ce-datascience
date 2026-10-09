@@ -1,0 +1,22 @@
+[
+  {"query": "Read-only audit of analysis/*.R before merge: joins, factor levels, date parsing, NA handling. Don't change anything, just give me findings with severity.", "should_trigger": true},
+  {"query": "can you review my R markdown report reports/qtr_quality.Rmd? worried about the merge step duplicating patients and that set.seed is missing", "should_trigger": true},
+  {"query": "Why does R give me 'Warning: NAs introduced by coercion' in my lab cleaning script, and does it mean my creatinine values are wrong? Look at scripts/clean_labs.R.", "should_trigger": true},
+  {"query": "Pre-merge R review of the Quarto analysis for the readmission paper - reproducibility (renv), hidden globals, and whether the grouped summaries are right.", "should_trigger": true},
+  {"query": "review the R code in R/ of our package for partial matching, T/F instead of TRUE/FALSE, sapply type instability, and silent recycling", "should_trigger": true},
+  {"query": "My colleague's R script produces a plausible hazard ratio but I don't trust the data prep. Audit 01_prep.R and 02_model.R for data-integrity issues without editing them.", "should_trigger": true},
+  {"query": "explain this R warning: 'Detected an unexpected many-to-many relationship between x and y' in my left_join - is my cohort count now inflated?", "should_trigger": true},
+  {"query": "R code review please: analysis/tte_statins.R. Check grain and keys first, then the event-time construction. I know the causal parts may need a separate method review.", "should_trigger": true},
+  {"query": "Is this R script reproducible? It uses library() calls not in renv.lock and reads from ~/Downloads. Audit it and list what blocks reproducibility.", "should_trigger": true},
+  {"query": "audit my .qmd: as.numeric on a factor column for the ordinal pain score and ifelse dropping Date class. are the results wrong?", "should_trigger": true},
+  {"query": "Review the whole PR diff (Python ETL, SQL, and R) with the reviewer personas and post confidence-gated findings.", "should_trigger": false},
+  {"query": "Rewrite scripts/merge_labs.R in tidyverse with explicit relationship and unmatched arguments and add stopifnot row checks.", "should_trigger": false},
+  {"query": "Adversarially stress-test this high-stakes diff that changes the primary outcome derivation before we unblind.", "should_trigger": false},
+  {"query": "Fix the bug in scripts/derive_exposure.R where statin exposure starts a day late; reproduce it and patch it.", "should_trigger": false},
+  {"query": "Review my Python pandas cohort script for chained assignment warnings and merge duplication.", "should_trigger": false},
+  {"query": "Review analysis/sap.md for clarity and completeness before we lock it.", "should_trigger": false},
+  {"query": "Profile scripts/rolling_sofa.R and make it faster with identical outputs.", "should_trigger": false},
+  {"query": "Audit our Stata .do files and SAS PROCs for reproducibility and migration risk to R.", "should_trigger": false},
+  {"query": "Plan the event-study estimator for staggered hospital adoption; TWFE or Callaway-Sant'Anna?", "should_trigger": false},
+  {"query": "Resolve the reviewer comments on PR #212 about the R join logic and reply to each thread.", "should_trigger": false}
+]

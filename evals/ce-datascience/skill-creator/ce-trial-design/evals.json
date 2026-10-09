@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-trial-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Two-arm phase III superiority trial, time-to-event primary endpoint (PFS, HR scale, null HR=1, alternative 0.75), one-sided alpha 0.025, 90% power, interim analyses at 50% and 75% information. I want to compare O'Brien-Fleming vs Pocock-type spending and binding vs non-binding futility using rpact (renv pins rpact 4.1.1).",
+      "expected_output": "Writes design-spec.json, a version-pinned engine-run.R that runs every scenario through rpact, normalized engine-results.csv, then builds the frontier and receipt with build_frontier.py and presents the full feasible frontier pending named statistician review.",
+      "files": [],
+      "expectations": [
+        "Writes analysis/trial-design/<design-id>/design-spec.json with endpoint, estimand, sidedness, alpha, power, information times, and candidates",
+        "engine-run.R contains a fail-closed assertion that packageVersion('rpact') exactly matches the pinned version and logs R/package versions",
+        "Operating characteristics (power, type I error, max/expected information) are read from rpact output, not recomputed in CE code",
+        "Runs scripts/build_frontier.py producing evaluated-results.csv, frontier.csv, receipt.json, and sap-handoff.md",
+        "Does not select a single design without a user-supplied preference rule and emits __CE_TRIAL_DESIGN__ with status review-pending when no named statistician review is recorded"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Can you design a 4-arm platform trial with response-adaptive randomization and a Bayesian stopping rule? Use gsDesign or whatever.",
+      "expected_output": "Stops and names the unsupported scope (multi-arm platform, response-adaptive randomization, Bayesian rules) instead of reducing it to a two-arm design.",
+      "files": [],
+      "expectations": [
+        "Explicitly states platform/multi-arm, response-adaptive randomization, and Bayesian decision rules are unsupported",
+        "Does not silently reduce the request to a simpler two-arm group-sequential design",
+        "Does not write engine scripts or frontier artifacts for the unsupported design"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "just give me the boundaries for a 3-look group sequential design, binary endpoint, 30% vs 20% response. I don't have rpact installed, can you just compute the Lan-DeMets boundaries in python and pick the best design for us?",
+      "expected_output": "Refuses to reimplement boundary mathematics or pick the clinically acceptable design; asks about sidedness/alpha/power and engine, and does not install packages without approval.",
+      "files": [],
+      "expectations": [
+        "Does not reimplement boundary or operating-characteristic calculations in Python or CE code",
+        "Does not install or upgrade R packages without the user's approval",
+        "Asks for missing contract fields such as sidedness, alpha, target power, or information times",
+        "Does not choose a single 'best' design or imply regulatory acceptance"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-r-tidyverse",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write dplyr code to attach the first lactate within 6h of ED arrival to each encounter. encounters: one row per encounter_id (cols encounter_id, patient_id, ed_arrival_dttm). labs: many rows per encounter (encounter_id, lab_name, result_dttm, value). Output should be one row per encounter, NA lactate if none.",
+      "expected_output": "Names the output grain (one row per encounter), declares join keys and relationship, filters the time window with explicit time zones, selects the first lactate deterministically, preserves encounters with no lactate, and adds boundary assertions on row counts.",
+      "files": [],
+      "expectations": [
+        "States the expected output grain (one row per encounter_id) before the pipeline and asserts it at the end (e.g., stopifnot(nrow(out) == nrow(encounters)) or n_distinct check)",
+        "Declares join keys with by = and sets relationship deliberately (e.g., 'one-to-many') or performs an equivalent preflight uniqueness check",
+        "Selects the first lactate with explicit ordering (e.g., slice_min(result_dttm, with_ties = FALSE) or arrange then slice) rather than an arbitrary first match",
+        "Preserves encounters with no qualifying lactate as NA (left join or equivalent) instead of silently dropping them",
+        "Handles time zones or datetime comparison explicitly and ungroups after grouped operations"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "my inner_join between claims and members drops ~3% of rows and some member_ids are duplicated in members. just use distinct() and natural join so the counts look right, deadline is tomorrow",
+      "expected_output": "Refuses to repair the data with natural joins, silent drops, or arbitrary distinct(); diagnoses unmatched and duplicate keys, specifies unmatched and multiple-match handling, and routes to ce-data-qa for join gates.",
+      "files": [],
+      "expectations": [
+        "Does not use a natural join (no by=) or arbitrary distinct() to make counts 'look right'",
+        "Quantifies unmatched claims and duplicated member_id keys (e.g., anti_join, count(member_id) filter(n > 1)) before choosing handling",
+        "Specifies unmatched and multiple-match handling explicitly (e.g., unmatched = 'error' or a documented decision) because it changes the analytic population",
+        "Recommends the ce-data-qa skill for join, type, and missingness gates"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Make a ggplot2 figure for the manuscript: monthly sepsis bundle compliance % by hospital (data in analysis/compliance_monthly.csv: hospital, month, n_eligible, n_compliant). Some hospital-months have n_eligible < 11 that we suppress per our DUA.",
+      "expected_output": "Produces ggplot2 code with explicit factor levels and ordering, pairs the figure with a data/source check, and describes the suppressed small cells and missing values rather than silently dropping them.",
+      "files": [],
+      "expectations": [
+        "Includes a data/source check for the figure (e.g., verifying n_compliant <= n_eligible, expected months per hospital)",
+        "Explicitly handles and describes suppressed hospital-months with n_eligible < 11 (e.g., notes in caption or legend) rather than silently dropping them",
+        "Sets factor levels/ordering and na.rm behavior explicitly rather than relying on defaults"
+      ]
+    }
+  ]
+}

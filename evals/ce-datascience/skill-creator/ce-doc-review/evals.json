@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-doc-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can you review docs/plans/2026-09-30-sepsis-readmission-sap-plan.md before I send it to the PI? It has 14 implementation units across P0/P1/P2, uses EHR data with PHI, and proposes a new target-trial emulation approach. I want findings, not a rewrite.",
+      "expected_output": "Classifies the document as a plan, announces the reviewer team with justifications for conditional personas, dispatches the reviewers, synthesizes confidence-gated findings, and routes non-safe_auto findings through the user decision step without executing the analysis.",
+      "files": [],
+      "expectations": [
+        "Classifies the document type from content shape (plan) and states it",
+        "Announces a reviewer team that always includes ce-coherence-reviewer and ce-feasibility-reviewer",
+        "Activates ce-scope-guardian-reviewer (multiple priority tiers, >8 units) and ce-security-lens-reviewer or ce-adversarial-document-reviewer (PHI / new methodology) with a one-line justification each",
+        "Presents findings grouped by tier (safe_auto / gated_auto / manual / FYI) and asks how to handle remaining findings rather than silently applying all edits",
+        "Does not run any statistical analysis or implement the plan's units"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "mode:non-interactive",
+      "expected_output": "Stops without dispatching any reviewers because headless mode requires a document path, and returns the documented failure message.",
+      "files": [],
+      "expectations": [
+        "Does not dispatch any reviewer agents",
+        "Returns a failure message stating that headless/non-interactive mode requires a document path, with the re-invocation hint",
+        "Does not ask an interactive question or search docs/plans for a fallback document"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Strengthen docs/brainstorms/delirium-prediction-requirements.md - it's the requirements doc for our ICU delirium prediction model (actors, endpoints, outstanding questions). Tell me what's missing or unclear before we plan.",
+      "expected_output": "Classifies the doc as requirements, activates the adversarial and product-lens personas where requirements claims are challengeable, and returns prioritized findings without turning the review into a plan or model build.",
+      "files": [],
+      "expectations": [
+        "Classifies the document as requirements based on its content signals (actors, endpoints, outstanding questions)",
+        "Activates ce-adversarial-document-reviewer because it is a requirements document in a high-stakes clinical prediction domain",
+        "Does not report missing Implementation Units or test scenarios as findings for a requirements document",
+        "Does not write a plan, SAP, or model code as part of the review"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-power",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Power for our two-arm RCT of a delirium-prevention bundle: continuous outcome (delirium-free days), assumed d = 0.40 from the method-extract work (range 0.28-0.52), alpha 0.05 two-sided, 80% power, 15% dropout. R project. Need the SAP-2.5 paragraph.",
+      "expected_output": "Picks the two-sample t design, writes a reproducible R script with a sensitivity sweep and plot, captures log/sweep/plot outputs, writes the SAP-ready summary paragraph, and emits the __CE_POWER__ signal.",
+      "files": [],
+      "expectations": [
+        "Uses pwr::pwr.t.test (two-sample t) and writes analysis/power/<design>-<date>.R with input parameters as a named list",
+        "Includes a sensitivity sweep over effect size (covering 0.28-0.52), power, and alpha, saved to analysis/power/<design>-<date>-sweep.csv, plus a plot of N vs effect size",
+        "Writes analysis/power/<design>-<date>-summary.md stating alpha, power, effect size source, per-arm and total N, and dropout-inflated enrollment",
+        "Emits '__CE_POWER__ design=<name> total=<n> file=<path> n_per_arm=<n> with_dropout=<n>'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our trial finished with a non-significant result (p=0.12, n=180). The reviewer asked whether we were underpowered - can you compute the observed power from our data?",
+      "expected_output": "Declines to run post-hoc observed power, explains why it is an anti-pattern, and offers a design-based alternative such as reporting the confidence interval or the detectable effect from the prespecified assumptions.",
+      "files": [],
+      "expectations": [
+        "Does not compute post-hoc/observed power from the observed effect",
+        "Explains that post-hoc power is a statistical anti-pattern",
+        "Offers an alternative (e.g. interpreting the CI or a minimum detectable effect under prespecified assumptions)",
+        "Does not emit a __CE_POWER__ signal for a post-hoc calculation"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "need a sample size for our cohort study on statins and post-op delirium. ce-effect-size gave me something earlier in this chat, use that. we're in python.",
+      "expected_output": "Scans chat for the __CE_EFFECT_SIZE__ signal; if mode=reml uses its point and CI as anchor and sweep bounds, and if mode=narrative or missing, asks for an explicit effect-size assumption rather than silently picking one; also asks for the binary outcome event rate if missing.",
+      "files": [],
+      "expectations": [
+        "Scans recent chat for '__CE_EFFECT_SIZE__' before asking for an effect size",
+        "If mode=reml, prints the '[effect-size] anchor from ce-effect-size: ...' line and uses ci bounds for the sweep",
+        "If mode=narrative, point=null, or the signal is absent, asks the user for an explicit effect-size assumption instead of silently choosing one",
+        "Asks only one missing load-bearing input at a time (e.g. control-group event rate) and does not guarantee feasibility",
+        "Uses statsmodels (Python) rather than R for the script"
+      ]
+    }
+  ]
+}

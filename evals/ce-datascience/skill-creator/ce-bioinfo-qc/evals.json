@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-bioinfo-qc",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "New bulk RNA-seq wave landed: /data/runs/run_2026_09 with salmon quant.sf files for 48 samples and sample sheet data/runs/run_2026_09/samples.tsv (columns sample_id, condition [sepsis/control], batch [plate1/plate2], sex). Before we start DESeq2, run the QC gate. --modality rnaseq",
+      "expected_output": "A modality-specific RNA-seq QA run that screens PCA for batch-condition confounding, writes the HTML and markdown reports under reports/bioinfo-qa/, and emits a GO/NO-GO marker without running differential expression.",
+      "files": [],
+      "expectations": [
+        "Runs PCA on the count matrix colored by batch and condition and reports the batch-condition correlation; emits a P0 'batch is confounded with condition' finding if PCs separate by batch and the correlation exceeds 0.3",
+        "Writes reports/bioinfo-qa/<wave_id>.md (and the MultiQC-rendered .html) containing modality and N, per-sample pass/warn/fail table, batch confound assessment, sample swap assessment, aggregate metrics, and a sign-off block",
+        "Ends with exactly __CE_BIOINFO_QC_PASS__ or __CE_BIOINFO_QC_FAIL__ wave=<id> blockers=<count>",
+        "Does not run DESeq2 differential expression or apply ComBat/RUV/SVA batch removal; only flags",
+        "Does not modify any input data files"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "WES BAMs for our trio cohort are in /data/wes/batch7/*.bam, sample sheet at /data/wes/batch7/sheet.csv with declared sex and pedigree. Collaborator at another site wants them next week. Can you check for sample swaps and coverage problems first?",
+      "expected_output": "An alignment-stage WES QC that runs flagstat/mosdepth-style coverage checks and somalier relate against declared sex and pedigree, flagging any mismatch as a P0 sample-swap-suspected finding.",
+      "files": [],
+      "expectations": [
+        "Detects the alignment (BAM, WES) stage from file extensions rather than asking for modality",
+        "Includes mapping rate, duplicate rate, and coverage uniformity / mean depth / percent on-target checks (samtools flagstat, mosdepth)",
+        "Runs or specifies somalier extract + relate against the declared sex/pedigree, and labels each mismatch as a P0 sample-swap-suspected finding",
+        "Does not de-identify data or call variants, and notes genomic re-identification/sharing questions belong to IRB",
+        "Emits the GO/NO-GO marker with the blocker count"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "QC this folder please: /data/proj_x/ has a bunch of fastq.gz files and also a counts.tsv someone dropped in there. Sample sheet is proj_x/meta.csv. Then go ahead and run the differential expression for tumor vs normal.",
+      "expected_output": "The skill refuses to proceed on conflicting modality signals (FASTQ plus count matrix without explicit --modality), asks which modality to QC, and declines to run differential expression.",
+      "files": [],
+      "expectations": [
+        "Refuses to proceed with checks because of mixed FASTQ and count-matrix signals and asks for an explicit --modality",
+        "Does not run differential expression and states that DE is outside this skill",
+        "Asks only one decision-changing question at a time (e.g. modality first) rather than a questionnaire",
+        "Does not emit __CE_BIOINFO_QC_PASS__"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Scrub this Discussion of generic AI-writing tells -- throat-clearing, 'not only X but also Y', 'leverage', 'deep dive' -- but keep the hedges that are actually warranted",
+    "should_trigger": true
+  },
+  {
+    "query": "can you de-slop my abstract? it reads like an LLM wrote it ('It turns out...', 'game-changer', 'only time will tell')",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit the Introduction for uncited claims like 'research suggests' and 'it is well established that' and give me P0/P1/P2 severities",
+    "should_trigger": true
+  },
+  {
+    "query": "Our reviewer said the manuscript 'sounds AI-generated'. Find the tells in manuscript/main.md and rewrite them without changing meaning",
+    "should_trigger": true
+  },
+  {
+    "query": "check for synonym drift: we defined 'ventilator-free days' and I think later sections call it 'days off the vent' and 'VFDs' inconsistently",
+    "should_trigger": true
+  },
+  {
+    "query": "Flag every non-definitional em-dash and every 'significant/substantial/robust' not backed by a statistic in this Results paragraph",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm drafting the cover letter and limitations paragraph; run the anti-slop catalog on them, P0 first",
+    "should_trigger": true
+  },
+  {
+    "query": "Is 'In this section, we will describe...' and 'As we'll see' OK in a JAMA Network Open paper? Clean up meta-commentary in the draft",
+    "should_trigger": true
+  },
+  {
+    "query": "Please do the anti-slop pass only (not the full pre-submission gate) on the Discussion -- remove empty conclusions like 'the future looks bright'",
+    "should_trigger": true
+  },
+  {
+    "query": "remove AI writing tells from this grant specific aims page but keep the passive voice in the approach/methods part",
+    "should_trigger": true
+  },
+  {
+    "query": "Run the full pre-submission audit across voice, Methods/Results discipline, and anti-slop before I send this to my co-authors",
+    "should_trigger": false
+  },
+  {
+    "query": "Move the interpretive sentences out of my Results section into the Discussion and keep Results strictly factual",
+    "should_trigger": false
+  },
+  {
+    "query": "Rewrite this Discussion in a clinically detached NEJM AI house style with authorial 'we' and calibrated verbs",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft the full manuscript from our frozen results and SAP for a STROBE cohort study",
+    "should_trigger": false
+  },
+  {
+    "query": "Add Zotero citation fields to the DOCX and repair broken references",
+    "should_trigger": false
+  },
+  {
+    "query": "Review analysis/sap.md for clarity, gaps, and scope creep",
+    "should_trigger": false
+  },
+  {
+    "query": "Find PubMed citations supporting the claim that early mobilization reduces delirium",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a response-to-reviewers letter addressing the three methodological critiques",
+    "should_trigger": false
+  },
+  {
+    "query": "Check whether our reporting follows STROBE and which checklist items are missing",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix the figure legend so it only describes what's plotted and the table footnotes define abbreviations",
+    "should_trigger": false
+  }
+]

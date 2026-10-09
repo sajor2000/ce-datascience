@@ -1,0 +1,22 @@
+[
+  {"query": "How many patients per arm do we need for a two-arm RCT, 30-day mortality 25% vs 18%, alpha 0.05 two-sided, 90% power, 10% loss to follow-up? Please give me a script and a sensitivity sweep.", "should_trigger": true},
+  {"query": "samp size for a log-rank test - HR 0.75, control 1-yr event rate 30%, 2 yr accrual + 1 yr follow-up, 15% dropout. R pls", "should_trigger": true},
+  {"query": "Write the SAP power section (SAP-2.5) for our cluster RCT: 20 ICUs, ICC 0.05, mean cluster size 60, binary outcome 20% vs 15%.", "should_trigger": true},
+  {"query": "What's the minimum sample size for developing a prediction model with 15 candidate predictors, outcome prevalence 12%, expected C-statistic 0.78? Use pmsampsize.", "should_trigger": true},
+  {"query": "Use the pooled effect from ce-effect-size (point 0.32, CI 0.20-0.45) to compute the required N for our paired pre-post design and tabulate N across the CI.", "should_trigger": true},
+  {"query": "What effect size can we detect with the 1,200 eligible patients in our registry at 80% power for a continuous outcome? Need to know if the study is feasible.", "should_trigger": true},
+  {"query": "Non-inferiority trial of oral vs IV antibiotics, margin 10%, expected cure 85% in both arms - how many per arm with TOST at alpha 0.025?", "should_trigger": true},
+  {"query": "longitudinal study with 4 visits, mixed model, effect on slope - need sample size with longpower and the summary paragraph for the protocol", "should_trigger": true},
+  {"query": "Reviewer flagged missing power justification in our protocol. Compute it for the diagnostic accuracy study: expected sensitivity 0.90, desired CI width 0.10.", "should_trigger": true},
+  {"query": "Three-arm trial with Bonferroni adjustment - what N per arm for d = 0.5 vs control, 80% power, python statsmodels?", "should_trigger": true},
+  {"query": "Design a two-arm group-sequential superiority trial with two interim looks and O'Brien-Fleming boundaries using rpact, and compare design frontiers.", "should_trigger": false},
+  {"query": "Pool the mean differences from these six pilot studies with a random-effects model to get an effect-size assumption.", "should_trigger": false},
+  {"query": "Extract reported effect sizes and sample sizes from the 25 papers in analysis/pubmed/delirium-2026-10-01.csv into a comparison table.", "should_trigger": false},
+  {"query": "Write the full SAP for our two-arm delirium-prevention trial, including the primary analysis, missing data, and multiplicity.", "should_trigger": false},
+  {"query": "Choose the primary model for our longitudinal eGFR study with repeated measures nested in clinics.", "should_trigger": false},
+  {"query": "Generate ClinicalTrials.gov registration content for our trial, including the sample size statement we already computed.", "should_trigger": false},
+  {"query": "Plan a Bayesian response-adaptive platform trial for three antivirals with simulation-based operating characteristics.", "should_trigger": false},
+  {"query": "Validate our sepsis phenotype against chart review and report PPV and sensitivity with Wilson CIs.", "should_trigger": false},
+  {"query": "Profile the registry extract to confirm how many eligible patients and events we actually have before deciding on the study.", "should_trigger": false},
+  {"query": "Our observed difference was not significant; draft the Discussion paragraph explaining the limitation of the sample size.", "should_trigger": false}
+]

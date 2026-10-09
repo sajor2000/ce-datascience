@@ -1,0 +1,22 @@
+[
+  {"query": "Before merging feature/mice-imputation I want someone to actively try to break it: construct concrete scenarios where the multiple-imputation chained equations code in R/impute.R gives a biased pooled estimate. Get Codex to do an independent pass too.", "should_trigger": true},
+  {"query": "this diff touches the dose-response spline that drives our primary result in the JAMA Netw Open resubmission. high stakes. pls do a red-team style review of the branch vs main, local + claude peer, deep mode", "should_trigger": true},
+  {"query": "Can you have the other harness independently review docs/plans/2026-10-01-002-feat-multisite-federated-plan.md and challenge whether federated meta-analysis is really needed vs pooling? I want the load-bearing assumptions stress-tested, not a copyedit.", "should_trigger": true},
+  {"query": "adverserial reveiw of my PR https://github.com/example-lab/icu-delirium/pull/88 -- assume the author (me) is wrong and find failure chains in the CAM-ICU parsing + outcome derivation", "should_trigger": true},
+  {"query": "I'm in Codex right now. Get Claude Code to do an independent read-only critique of the current branch's changes to the propensity score matching pipeline; I want disagreements between you two surfaced explicitly.", "should_trigger": true},
+  {"query": "Pre-merge challenge please: the new competing-risks code in analysis/finegray.py replaced cause-specific Cox. Find concrete inputs or data states where this produces wrong cumulative incidence. Quick depth is fine, local-only if no peer.", "should_trigger": true},
+  {"query": "Our SAP-derived implementation plan for the stepped-wedge analysis is about to go to the PI. Before that, stress-test the plan's premises and omitted alternatives with an independent second model. Plan is at docs/plans/stepped-wedge-plan.md.", "should_trigger": true},
+  {"query": "I don't trust that one model reviewing its own code catches everything. For the risk-score recalibration diff on this branch, get a second opinion from the other coding agent and reconcile where you disagree.", "should_trigger": true},
+  {"query": "devil's advocate review on the sepsis-3 onset logic change (src/sepsis_onset.py) - what multi-step cascades could make us misclassify onset time? peer:local is fine, no external harness", "should_trigger": true},
+  {"query": "This change rewires how we censor at transplant in the survival model and it's going into a regulatory submission. Do the independent adversarial review, both local and Codex, and tell me which findings were corroborated by both.", "should_trigger": true},
+  {"query": "Do a full code review of my branch before I open the PR: correctness, tests, reproducibility, SAP drift, PHI, the usual personas, and apply the safe fixes.", "should_trigger": false},
+  {"query": "Review my R script analysis/02_models.R for tidyverse idioms, reproducibility, and statistical-method risks; read-only audit please.", "should_trigger": false},
+  {"query": "Can you review docs/plans/sap-v3.md for clarity, completeness, and whether the scope is controlled before I circulate it to co-investigators?", "should_trigger": false},
+  {"query": "Two reviewers left comments on PR #212 about the bootstrap CI method and a missing sensitivity analysis. Triage the threads, fix the valid ones, and reply to them.", "should_trigger": false},
+  {"query": "Our manuscript Discussion overstates the subgroup findings. Audit it for evidence calibration and AI-writing tells before I send it to co-authors.", "should_trigger": false},
+  {"query": "Quick sanity check after finishing the cohort step: are the Ns plausible, any leakage, any PHI in outputs? I just want the lightweight mid-workflow gate.", "should_trigger": false},
+  {"query": "The bootstrap in analysis/boot_ci.py throws 'ValueError: a must be non-empty' on the site-stratified resample. Trace why and fix it.", "should_trigger": false},
+  {"query": "Turn the requirements doc docs/brainstorms/2026-09-12-frailty-requirements.md into an implementation plan with SAP sections and units of work.", "should_trigger": false},
+  {"query": "Watch PR #301 for the next 30 minutes and tell me when CI goes green or reviewers leave actionable feedback.", "should_trigger": false},
+  {"query": "Prepare a PI-facing review pack with a statistician signoff ledger for the final tables and figures of the readmission study.", "should_trigger": false}
+]

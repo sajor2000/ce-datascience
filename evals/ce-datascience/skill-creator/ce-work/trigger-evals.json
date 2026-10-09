@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Execute the plan in docs/plans/2026-10-01-readmission-plan.md -- implement each unit with tests and commit as you go",
+    "should_trigger": true
+  },
+  {
+    "query": "continue from the latest plan doc, pick up where we left off",
+    "should_trigger": true
+  },
+  {
+    "query": "Implement the outputs in analysis/sap-tables/02-outputs.csv for the open sprint and make sure each file lands in the right subfolder",
+    "should_trigger": true
+  },
+  {
+    "query": "work on U3 and U4 from the plan: add the sensitivity analysis script and its tests",
+    "should_trigger": true
+  },
+  {
+    "query": "The plan's done and reviewed. Build it -- parallel subagents are fine if units don't overlap",
+    "should_trigger": true
+  },
+  {
+    "query": "implement this: add a --site filter to scripts/build_cohort.py and update the tests",
+    "should_trigger": true
+  },
+  {
+    "query": "Run the analysis plan for the delirium study end to end, labeling anything outside the SAP as exploratory",
+    "should_trigger": true
+  },
+  {
+    "query": "ok lets execute the plan, I'm on a feature branch already (feat/aki-models)",
+    "should_trigger": true
+  },
+  {
+    "query": "Ship the plan in docs/plans/fabric-ingest-plan.md: implement, test, then go through the shipping workflow and open a PR",
+    "should_trigger": true
+  },
+  {
+    "query": "mode:return-to-caller docs/plans/2026-10-03-table2-plan.md",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a plan for adding Table 2 regression outputs -- don't implement yet",
+    "should_trigger": false
+  },
+  {
+    "query": "Open a sprint for SAP-3.3 with reviewer jcr",
+    "should_trigger": false
+  },
+  {
+    "query": "Commit my staged changes with a good conventional message",
+    "should_trigger": false
+  },
+  {
+    "query": "Commit, push, and open a PR for the current branch",
+    "should_trigger": false
+  },
+  {
+    "query": "Debug why the Fine-Gray model throws a convergence error on site 4",
+    "should_trigger": false
+  },
+  {
+    "query": "Review the diff on this branch for correctness bugs before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate the tabular SAP workbook from analysis/sap.md",
+    "should_trigger": false
+  },
+  {
+    "query": "Brainstorm study design options for the AKI nephrotoxin question",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a quick verification gate on the outputs I just produced",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up an isolated worktree for PR #57 so I can review it",
+    "should_trigger": false
+  }
+]

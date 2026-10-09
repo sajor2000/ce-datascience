@@ -1,0 +1,22 @@
+[
+  {"query": "Review docs/plans/2026-10-01-aki-cohort-plan.md for clarity, scope creep, and feasibility before the analyst starts implementing it.", "should_trigger": true},
+  {"query": "can u look over my requirements doc in docs/brainstorms/readmission-study.md and tell me whats unclear or missing? not looking for a rewrite, just findings", "should_trigger": true},
+  {"query": "Our SAP draft (analysis/sap.md) reads complete but I suspect gaps in traceability between objectives and endpoints. Give it a document review with prioritized findings.", "should_trigger": true},
+  {"query": "Simplify and tighten docs/plans/fabric-migration-plan.md - it's 40 units long and I think half of it is out of scope. Auto-fix the safe stuff and walk me through the rest.", "should_trigger": true},
+  {"query": "Before I hand this plan to the coordinating center, validate that it's review-ready: docs/plans/2026-09-12-multisite-validation.md", "should_trigger": true},
+  {"query": "Run a headless review on docs/plans/dynamic-auc-plan.md and return structured findings to the calling workflow - mode:non-interactive", "should_trigger": true},
+  {"query": "Stress the premises in docs/brainstorms/ai-triage-requirements.md - is the problem framing defensible, are there alternatives we ignored, and is the scope sane?", "should_trigger": true},
+  {"query": "pls do a multi-persona review of the plan doc I just wrote (docs/plans/2026-10-08-phenotype-plan.md), security lens too since it touches PHI exports", "should_trigger": true},
+  {"query": "The ce-unified-plan artifact at docs/plans/delirium-unified.md is marked implementation-ready. Check that the implementation units, verification contract, and definition of done actually hold together.", "should_trigger": true},
+  {"query": "Review this requirements doc for the patient-portal survey feature and push back on anything that's vague: docs/brainstorms/portal-survey.md", "should_trigger": true},
+  {"query": "Review the code changes on my branch for correctness bugs and leakage before I open the PR.", "should_trigger": false},
+  {"query": "Audit the manuscript draft in manuscript/draft-v3.docx for Methods/Results discipline, clinical research voice, and AI-slop phrasing before I send it to co-authors.", "should_trigger": false},
+  {"query": "Check whether our analysis code still follows the amended SAP and list any undocumented deviations from analysis/sap.md v2.1.", "should_trigger": false},
+  {"query": "Turn the approved requirements in docs/brainstorms/readmission-study.md into an implementation plan with units, files, and test scenarios.", "should_trigger": false},
+  {"query": "Assemble a PI review pack with the tables, figures, deviations log, and a signoff ledger for the statistician and PI.", "should_trigger": false},
+  {"query": "Adversarially stress-test the diff in PR #51 that rewrites the censoring logic - use the other harness too if it's available.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our retrospective EHR prediction model paper - TRIPOD+AI or STROBE? Then map the manuscript sections to it.", "should_trigger": false},
+  {"query": "Revise the Discussion section of manuscript/sections/discussion.md so every claim traces back to a result and the limitations paragraph is evidence-bound.", "should_trigger": false},
+  {"query": "Deepen the SAP for our multisite causal study with a claims-to-datasets schema, estimands, and diagnostics.", "should_trigger": false},
+  {"query": "Brainstorm the requirements for a new delirium prediction study - population, endpoints, and what we'd need to decide before planning.", "should_trigger": false}
+]

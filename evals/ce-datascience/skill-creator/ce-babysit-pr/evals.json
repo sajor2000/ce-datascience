@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-babysit-pr",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Babysit PR #147 (feat(cohort): add 30-day readmission outcome) for the next 45 minutes. CI runs the testthat suite and a lintr check; Dr. Okafor said she'd leave methodology comments this afternoon. I'm on the PR's head branch already.",
+      "expected_output": "A bounded watch of PR #147 for 45 minutes that collects review threads, check status, mergeability, and base currency each snapshot, delegates only actionable feedback or real failing checks, and ends with an honest looks-ready, blocked, residual, or budget-exhausted report.",
+      "files": [],
+      "expectations": [
+        "Resolves the PR with gh and confirms it is open and the checkout is on its head branch before delegating any mutation",
+        "Limits the watch to the stated 45 minutes (never more than 60 without a new request)",
+        "Final report uses exactly one of the statuses looks-ready, blocked, residual, or budget-exhausted",
+        "Does not merge, approve, rebase, or force-push the PR",
+        "Reports looks-ready only if GitHub shows a clean merge state, all observed checks are terminal and passing, and no actionable feedback or parked residuals remain"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "checkpoint on https://github.com/example-lab/ehr-sepsis/pull/63 - the R CMD check job is red and there are 2 unresolved review threads from the biostat reviewer about the Fine-Gray model. just take one snapshot and handle what you can",
+      "expected_output": "A single snapshot of PR #63 that delegates one bounded diagnostic pass for the failing check to ce-debug and one bounded feedback pass for the actionable threads to ce-resolve-pr-feedback, then reports blockers and residuals.",
+      "files": [],
+      "expectations": [
+        "Takes exactly one snapshot because checkpoint mode was requested (no repeated polling)",
+        "Delegates the red R CMD check job to ce-debug for one bounded diagnostic pass, only if it is a real failing check",
+        "Delegates the actionable review threads to ce-resolve-pr-feedback for one bounded pass",
+        "Any needs-human item (e.g. a methodological choice beyond delegated authority) is reported as a visible residual rather than silently resolved",
+        "Does not report looks-ready while the check is red or threads remain unresolved"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Watch my PR until it's green and then merge it to main so the release can go out tonight. Keep an eye on it all evening, like 4-5 hours.",
+      "expected_output": "The skill clarifies which PR when it cannot be resolved, caps the watch at its bounded duration instead of 4-5 hours, and refuses to merge, treating a green check as not equivalent to merge authorization.",
+      "files": [],
+      "expectations": [
+        "Does not merge the PR even if all checks pass, and says merging is outside this skill's authority",
+        "Caps the watch at 60 minutes maximum (default 30) rather than the requested 4-5 hours, and says a new request is needed to continue",
+        "If no PR exists for the current branch or the target is ambiguous, asks for the PR number or URL instead of guessing",
+        "Does not treat a green check as human merge authorization"
+      ]
+    }
+  ]
+}

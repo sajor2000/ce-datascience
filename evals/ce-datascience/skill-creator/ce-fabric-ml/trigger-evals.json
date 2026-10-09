@@ -1,0 +1,22 @@
+[
+  {"query": "Train an XGBoost readmission model in a Fabric notebook on our Lakehouse features table and log params, metrics, and the data version to an MLflow Experiment.", "should_trigger": true},
+  {"query": "fabric mlflow: how do I register the best sepsis model with a proper signature and then batch score with PREDICT on the nightly cohort table? need it done safely", "should_trigger": true},
+  {"query": "Review our Fabric ML workflow for the AKI prediction model - I suspect leakage because features are computed after the index time and the split is by row, not patient.", "should_trigger": true},
+  {"query": "Use SynapseML in Fabric to do distributed scoring of 30M encounters with our registered LightGBM model. What do we need to validate first?", "should_trigger": true},
+  {"query": "We want to use Fabric AI functions to classify free-text discharge reasons into categories. Set it up with tracking and a review boundary before anything writes back.", "should_trigger": true},
+  {"query": "MLflow runs in our Fabric workspace are missing the environment and data version, so we can't reproduce last month's model. Fix the tracking setup.", "should_trigger": true},
+  {"query": "Create a model endpoint in Fabric for the deterioration model so the ED dashboard can call it - what authorization and checks do we need?", "should_trigger": true},
+  {"query": "Batch scoring with PREDICT fails with a schema mismatch on two features in Fabric. Don't just fill them with zeros - figure out the right fix.", "should_trigger": true},
+  {"query": "Plan a Fabric Experiment for a dynamic survival model (time to ICU transfer) with landmark times and horizon-specific evaluation, tracked in MLflow.", "should_trigger": true},
+  {"query": "set up the whole ML lifecycle in fabric for our delirium project - experiment, registry, batch scoring - with proper guardrails for PHI", "should_trigger": true},
+  {"query": "Write the PySpark feature-engineering notebook in our Fabric Lakehouse that builds gold_icu_features from silver tables with row-count checks.", "should_trigger": false},
+  {"query": "Add MLflow experiment tracking to our local scikit-learn delirium model running on a laptop - no Fabric involved.", "should_trigger": false},
+  {"query": "Write the model card for our validated delirium prediction model: intended use, performance, calibration, fairness, limitations.", "should_trigger": false},
+  {"query": "Choose between logistic regression with splines and a gradient-boosted model for 30-day readmission given 2,000 events - justify the choice.", "should_trigger": false},
+  {"query": "Train and register a model in Azure Machine Learning with a managed online endpoint.", "should_trigger": false},
+  {"query": "Build a Direct Lake semantic model that surfaces the delirium risk scores in a Power BI report with RLS by unit.", "should_trigger": false},
+  {"query": "Schedule a Fabric Data Factory pipeline that runs the scoring notebook nightly and alerts on failure.", "should_trigger": false},
+  {"query": "Review my Python code that computes time-dependent AUC with censoring at 30 days for correctness before merge.", "should_trigger": false},
+  {"query": "Set up ML experiment tracking guidance for our prediction model project - splits, metrics, and which tracking tool to use, we haven't picked a platform.", "should_trigger": false},
+  {"query": "We have a Fabric workspace but I don't know yet whether this is an ML task or a data engineering task. Help me route it.", "should_trigger": false}
+]

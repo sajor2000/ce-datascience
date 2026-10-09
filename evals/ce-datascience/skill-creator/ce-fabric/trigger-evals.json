@@ -1,0 +1,22 @@
+[
+  {"query": "We're starting a new outcomes research project in Microsoft Fabric - OneLake, a Lakehouse, some Power BI on top. What's the right way to structure the work with the CE workflows?", "should_trigger": true},
+  {"query": "our analytics team is on fabric now. I need to get the ED visits data from the warehouse into a model and then a dashboard, not sure which piece to tackle first", "should_trigger": true},
+  {"query": "Help me with a Fabric project: we have Lakehouse tables, a Data Factory pipeline, and a Direct Lake semantic model. Which part should handle the cohort derivation logic?", "should_trigger": true},
+  {"query": "Fabric question - my research data lives in OneLake and I want to run a reproducible analysis on it. What guardrails apply and where do I begin?", "should_trigger": true},
+  {"query": "I'm not sure whether the ICU telemetry stream should go into Eventhouse or a Lakehouse in Fabric. Can you route me to the right workflow?", "should_trigger": true},
+  {"query": "We use MS Fabric (onelake + warehouse + real-time intelligence). Set up how we should approach a sepsis surveillance project end to end.", "should_trigger": true},
+  {"query": "fabric workspace 'Research-Prod' - need to do some data work on the readmission tables, haven't decided spark vs t-sql", "should_trigger": true},
+  {"query": "Our IT just provisioned a Fabric capacity for the clinical research group. Before anyone writes code, what's the CE process for working there safely?", "should_trigger": true},
+  {"query": "Is Fabric's SQL analytics endpoint the right place to write my cleaned cohort tables, or should that go somewhere else? Route me appropriately.", "should_trigger": true},
+  {"query": "We have a Fabric project mixing MLflow experiments, a Lakehouse, and a Power BI report. Which CE skill should own each part?", "should_trigger": true},
+  {"query": "Write the PySpark notebook that reads Tables/bronze_encounters in our attached Lakehouse, dedupes on encounter_id, and writes a Delta table silver_encounters with row-count assertions.", "should_trigger": false},
+  {"query": "Write DAX measures for 30-day readmission rate in our Direct Lake semantic model and set up RLS so each hospital only sees its own rows.", "should_trigger": false},
+  {"query": "Our Fabric Copy activity reports success but the target table is empty - debug the pipeline's dependency paths and failure handling.", "should_trigger": false},
+  {"query": "Write a KQL query in our Eventhouse that computes hourly heart-rate alarms per bed with late-arriving data handled.", "should_trigger": false},
+  {"query": "Register the trained delirium model in MLflow in our Fabric workspace and set up batch scoring with PREDICT on the nightly cohort.", "should_trigger": false},
+  {"query": "Set up our ce-datascience project profile - we use Python, Databricks, and GitHub Actions.", "should_trigger": false},
+  {"query": "Build an Azure Databricks job that reads from ADLS Gen2 and writes Delta tables for the sepsis cohort.", "should_trigger": false},
+  {"query": "Write the dbt models in our Snowflake warehouse that build the readmission cohort with tests on encounter_id uniqueness.", "should_trigger": false},
+  {"query": "Profile the parquet extract I downloaded locally from our lakehouse - grain, keys, null rates - before we write the SAP.", "should_trigger": false},
+  {"query": "Build an interactive Power BI-style dashboard as an HTML page from this CSV of monthly readmission rates.", "should_trigger": false}
+]

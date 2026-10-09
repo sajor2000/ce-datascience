@@ -1,0 +1,22 @@
+[
+  {"query": "It's fixed — the KM curves were wrong because survfit was getting time in days for one site and months for another. Write this up in docs/solutions so nobody repeats it.", "should_trigger": true},
+  {"query": "document the learning from today: renv restore kept failing on the cluster until we pinned the CRAN snapshot date in renv.lock + set RENV_CONFIG_REPOS_OVERRIDE. capture it for the team", "should_trigger": true},
+  {"query": "We validated that multiple imputation with 40 imputations and the outcome in the imputation model fixed the biased HR. Preserve this approach as a reusable statistical pattern.", "should_trigger": true},
+  {"query": "working now! the CLIF adt join was duplicating rows because of overlapping in/out dttm. Compound this so the next project knows.", "should_trigger": true},
+  {"query": "Capture the decision we made about using Fine-Gray rather than cause-specific Cox for the transplant outcome, with the rationale, as team knowledge.", "should_trigger": true},
+  {"query": "Problem solved: polars was silently coercing our hospitalization_id to int and dropping leading zeros. Please write the solution doc with prevention tips.", "should_trigger": true},
+  {"query": "can u compound this data science pattern - always check observation_period coverage before applying washout in OMOP new-user designs", "should_trigger": true},
+  {"query": "Turn this session's debugging of the bootstrap CI (stratify by site, set seed per worker) into a durable learning with what didn't work.", "should_trigger": true},
+  {"query": "Record the reporting convention we agreed on for suppressing cells under 11 in Table 1 as documented team guidance.", "should_trigger": true},
+  {"query": "That approach to handling time-varying covariates with tmerge worked. Document it in our knowledge store with code examples.", "should_trigger": true},
+  {"query": "Audit our docs/solutions learnings for stale references after the R/ directory restructure and consolidate overlapping ones.", "should_trigger": false},
+  {"query": "Search our past coding sessions for what we tried last month on the renv cluster problem.", "should_trigger": false},
+  {"query": "Write a handoff record so another agent can continue the imputation work tomorrow.", "should_trigger": false},
+  {"query": "The KM curves look wrong — times seem off by a factor of 30 at one site. Find the root cause and fix it.", "should_trigger": false},
+  {"query": "Commit the KM fix with a good message.", "should_trigger": false},
+  {"query": "Write the Methods paragraph explaining our multiple-imputation approach for the manuscript.", "should_trigger": false},
+  {"query": "Update the SAP to switch the primary analysis from Cox to Fine-Gray and log the deviation.", "should_trigger": false},
+  {"query": "Write a model card for the deterioration model documenting intended use and limitations.", "should_trigger": false},
+  {"query": "Look through docs/solutions and tell me whether we've documented anything about OMOP washout before I start planning.", "should_trigger": false},
+  {"query": "File a bug report against the ce-datascience plugin: ce-table1 crashes on labelled factors.", "should_trigger": false}
+]

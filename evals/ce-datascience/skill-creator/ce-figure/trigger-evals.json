@@ -1,0 +1,22 @@
+[
+  {"query": "Make a JAMA-style cumulative incidence figure for the primary outcome by treatment arm from analysis/outputs/cif.csv, with source data and code recorded for the manuscript.", "should_trigger": true},
+  {"query": "pls clean up fig1 for the NEJM-style submission - fonts too small, legend sits on top of the curves, and I need alt text + caption", "should_trigger": true},
+  {"query": "Validate analysis/publication/figures/figure-manifest.json before we build the journal package - check captions, alt text, SAP links, and paths.", "should_trigger": true},
+  {"query": "Create a publication-ready forest plot of subgroup HRs from analysis/outputs/subgroups.csv in ggplot2, 8pt minimum text, exported as PDF, linked to SAP-5.4.", "should_trigger": true},
+  {"query": "figure QA: check our three manuscript figures for text overlap, legend placement, and readability, and confirm each traces back to source data", "should_trigger": true},
+  {"query": "Turn the calibration plot from the model notebook into a manuscript graphic for Figure 3 with the right style profile and a STROBE/TRIPOD checklist link.", "should_trigger": true},
+  {"query": "Reviewer 2 says Figure 2's axis labels are unreadable and the panels overlap. Fix the figure and update the manifest so it's resubmission-ready.", "should_trigger": true},
+  {"query": "Build a multi-panel (A-C) figure of SOFA trajectories by survivor status for JAMA Internal Medicine, Arial font, legends outside plot area.", "should_trigger": true},
+  {"query": "Need a CONSORT-style flow diagram figure exported as vector PDF for the manuscript with caption and alt text in the figure manifest.", "should_trigger": true},
+  {"query": "our matplotlib figures are just PNG screenshots right now - make them proper publication figures with source code + data alongside and a manifest entry each", "should_trigger": true},
+  {"query": "Make Table 1 of baseline characteristics by exposure group, JAMA style, for the manuscript.", "should_trigger": false},
+  {"query": "Build an interactive Plotly dashboard of weekly ED volumes for the operations team.", "should_trigger": false},
+  {"query": "Assemble the full submission bundle: SAP, tables, figures, checklist, and provenance artifacts for JAMA Network Open.", "should_trigger": false},
+  {"query": "Run the final pre-submission audit on the manuscript text for Methods/Results discipline and anti-slop phrasing.", "should_trigger": false},
+  {"query": "Do a quick sanity check after my analysis step - sample size, effect direction, missingness, figures look reasonable - before I mark it done.", "should_trigger": false},
+  {"query": "Write the Results section describing Figure 2's Kaplan-Meier curves with the hazard ratio and CI in the NEJM AI register.", "should_trigger": false},
+  {"query": "Make slides for my ATS conference talk from the results, with the KM curve and forest plot on separate slides.", "should_trigger": false},
+  {"query": "Pool the subgroup estimates from the literature and give me a forest plot for the power section.", "should_trigger": false},
+  {"query": "Generate a model card with calibration and fairness plots for our delirium prediction model.", "should_trigger": false},
+  {"query": "Write DAX and a Power BI visual for monthly readmission rate by hospital in our Fabric semantic model.", "should_trigger": false}
+]

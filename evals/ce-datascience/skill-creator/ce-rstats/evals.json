@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-rstats",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our project is R-first (renv.lock, _targets.R, Quarto reports in reports/). I need to add a sensitivity analysis to the readmission model -- a negative binomial with site random effects instead of the Poisson GLM in R/fit_models.R. What's the right workflow here?",
+      "expected_output": "Routes to the shared R workflow: inspects renv.lock/_targets.R/existing conventions first, requires SAP and data-QA gates before model code, and records sessionInfo with results rather than freely adding packages.",
+      "files": [],
+      "expectations": [
+        "Inspects renv.lock, DESCRIPTION or _targets.R, and existing Quarto/R files before proposing packages or layout",
+        "Checks for a canonical SAP via ce-plan and a ce-data-qa gate before writing model code",
+        "Does not add or change package dependencies (e.g., installing glmmTMB/lme4) without explicit authorization",
+        "Requires recording sessionInfo() or equivalent environment evidence with the reproducible result",
+        "Routes the causal/modeling claim review to ce-code-review rather than treating R syntax as methodological validation"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "help with my R stuff",
+      "expected_output": "Because the request could belong to several R workflows, the skill asks one routing question (analysis, review, tidyverse, package, testing, CRAN, performance, targets) instead of guessing.",
+      "files": [],
+      "expectations": [
+        "Asks exactly one decision-changing routing question before acting",
+        "Offers the route options from the skill's table (e.g., analysis, review, tidyverse, event studies, package, testing, CRAN, performance, targets)",
+        "Does not write or modify any R code before the route is chosen"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My R package clinicalscores is failing R CMD check with 2 NOTEs and the targets pipeline in the analysis repo is also slow (~40 min per tar_make). Which should I tackle and with what? I want to submit to CRAN next month.",
+      "expected_output": "Separates the two tasks and routes CRAN readiness to ce-r-cran and pipeline slowness to ce-r-performance/ce-r-targets, without publishing to CRAN or making unverified API claims.",
+      "files": [],
+      "expectations": [
+        "Routes the R CMD check / CRAN submission concern to the ce-r-cran skill",
+        "Routes the slow tar_make runtime to ce-r-performance and/or ce-r-targets",
+        "Does not submit or publish anything to CRAN",
+        "Does not cite a CRAN policy or package API from memory without stating a verification gap or reading an official source"
+      ]
+    }
+  ]
+}

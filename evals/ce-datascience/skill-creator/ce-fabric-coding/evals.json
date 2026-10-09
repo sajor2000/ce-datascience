@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-fabric-coding",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In our Fabric Spark notebook (Lakehouse 'lh_research' is attached and declared in .ce-datascience/config.local.yaml), write PySpark that reads Tables/bronze_encounters, keeps adult inpatient encounters, dedupes on encounter_id keeping the latest load_ts, and writes Tables/silver_encounters as Delta. We're authorized to write to silver only.",
+      "expected_output": "Produces Spark code that uses the injected session, states source, target, grain, keys, and write boundary, and adds schema, key-uniqueness, row-count reconciliation, and post-write readability assertions.",
+      "files": [],
+      "expectations": [
+        "States the source item, target item, expected grain, key column (encounter_id), and that the write boundary is silver_encounters only before the code",
+        "Uses the host-injected spark session rather than creating a new SparkSession",
+        "Includes assertions for schema, encounter_id uniqueness, source-to-target row-count reconciliation, and post-write readability",
+        "Writes via table APIs to the declared Delta target and records the full target path; does not overwrite any undeclared table",
+        "Recommends ce-data-qa before modeling or publication use of the silver table"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "the cleaned cohort needs to be updated - just run an UPDATE through the lakehouse SQL analytics endpoint to set discharge_disposition = 'Home' where it's null. faster than spinning up spark",
+      "expected_output": "Explains that the Lakehouse SQL analytics endpoint is read-only for generated tables, refuses to mutate through it, and offers the authorized write path (Spark/Delta) while questioning the silent null imputation.",
+      "files": [],
+      "expectations": [
+        "States that the SQL analytics endpoint is a read-only query surface and does not produce an UPDATE against it",
+        "Offers an authorized write path such as a Spark notebook writing to the Delta table, with a declared target",
+        "Flags that recoding null discharge_disposition to 'Home' is a silent coercion and asks for confirmation or a documented missing-data rule"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write a Fabric notebook that loads the lab results from OneLake and computes daily max creatinine per patient. Not sure which lakehouse it's in, just use whatever path makes sense, and if the table isn't there fall back to a small synthetic sample so the notebook still runs.",
+      "expected_output": "Does not guess a OneLake path or lakehouse; asks for the item identifier, and refuses to substitute synthetic data on missing access, stopping with the exact failed boundary instead.",
+      "files": [],
+      "expectations": [
+        "Asks for the lakehouse/item identifier or connection handoff instead of guessing a OneLake path",
+        "Does not include synthetic or sample fallback data when the source table is missing",
+        "Specifies that on missing access the notebook stops with the exact failed boundary",
+        "Loads or recommends ce-notebook-standards before creating cells for a new notebook"
+      ]
+    }
+  ]
+}

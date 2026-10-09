@@ -1,0 +1,22 @@
+[
+  {"query": "Write a model card for models/sepsis-xgb-v4.pkl using reports/eval-2026-10.json - intended use, training data, overall and subgroup performance, calibration, fairness, limitations.", "should_trigger": true},
+  {"query": "TRIPOD+AI item 16 wants model documentation - can you produce the card for our deterioration model from the eval json? need md + json for the registry", "should_trigger": true},
+  {"query": "The code review flagged that our prediction-model study has no model card. Generate one from models/aki.rds and reports/eval-aki-2026-08.json.", "should_trigger": true},
+  {"query": "Our hospital AI governance committee wants a validation summary for the readmission risk model covering intended users, out-of-scope uses, subgroup AUCs and known risks.", "should_trigger": true},
+  {"query": "make a mitchell-style model card for the delirium classifier, eval output is in reports/delirium_eval.json, highlight any subgroup gaps", "should_trigger": true},
+  {"query": "Document the external validation of our chest X-ray triage model (site B, n=5500) in a model card with ethical considerations and a monitoring plan.", "should_trigger": true},
+  {"query": "Before submitting to Lancet Digital Health we need the AI reporting artifact for the model: performance by sex/race/age/site, calibration by group, demographic parity and equalized odds.", "should_trigger": true},
+  {"query": "Generate analysis/model-card.html from the trained ONNX model and eval results so I can share it with the clinical leads.", "should_trigger": true},
+  {"query": "Update the model card after recalibration - new eval JSON is reports/eval-recal-2026-10.json; caveats should mention the recalibration plan.", "should_trigger": true},
+  {"query": "Need prediction model documentation for the FDA presubmission meeting - intended use, data provenance, metrics, limitations. eval file attached as reports/eval_final.json.", "should_trigger": true},
+  {"query": "Review our sepsis model's calibration - the slope looks like 0.7 on external validation; is recalibration needed?", "should_trigger": false},
+  {"query": "Set up mlflow tracking so every run logs AUC, Brier, calibration slope and the data hash.", "should_trigger": false},
+  {"query": "Evaluate models/aki.rds on the test set and compute AUC, Brier, and subgroup metrics by sex and race into eval-results.json.", "should_trigger": false},
+  {"query": "Assemble the manuscript submission bundle for our TRIPOD+AI paper, including SAP, tables, figures and checklists.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our AI prediction model study - TRIPOD+AI or CLAIM?", "should_trigger": false},
+  {"query": "Choose a modeling approach for our clustered ICU mortality prediction problem and justify it in a memo.", "should_trigger": false},
+  {"query": "Register the sepsis model in Microsoft Fabric and deploy a real-time scoring endpoint.", "should_trigger": false},
+  {"query": "Validate our sepsis phenotype algorithm against the 200-patient chart review: PPV, sensitivity, Wilson CIs.", "should_trigger": false},
+  {"query": "Write the Methods section of the manuscript describing model development and validation for our deterioration score.", "should_trigger": false},
+  {"query": "Our model shows lower sensitivity for Hispanic patients - what mitigation options (reweighting, threshold per group) should we consider?", "should_trigger": false}
+]

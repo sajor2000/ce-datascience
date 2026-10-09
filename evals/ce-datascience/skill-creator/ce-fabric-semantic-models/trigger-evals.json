@@ -1,0 +1,22 @@
+[
+  {"query": "Write DAX measures for risk-adjusted mortality (observed/expected) in our Direct Lake semantic model and explain which logic should live upstream vs in DAX.", "should_trigger": true},
+  {"query": "our power bi semantic model in fabric keeps falling back to DirectQuery and the totals drift from the lakehouse - help me troubleshoot", "should_trigger": true},
+  {"query": "Set up OLS to hide the race/ethnicity columns from most users and RLS by department in our Fabric semantic model, and tell me how to test it properly.", "should_trigger": true},
+  {"query": "Use sempy / semantic-link in a Fabric notebook to reconcile the semantic model's readmission totals against the source Lakehouse table by month and hospital.", "should_trigger": true},
+  {"query": "Design the star schema and relationships for a Direct Lake model over fact_admission, dim_patient_dt, dim_unit - one row per admission. Ambiguous paths are biting us.", "should_trigger": true},
+  {"query": "Model refresh / framing for Direct Lake: the report shows yesterday's data even though the Delta table updated at 6am. Why and how do I fix it?", "should_trigger": true},
+  {"query": "Audit our quality-dashboard semantic model before the board meeting: data currency, query mode, security assumptions, and whether totals reconcile.", "should_trigger": true},
+  {"query": "dax help - distinct patient count measure is double counting across the bridge table to diagnoses in our fabric model. fix the relationship or measure?", "should_trigger": true},
+  {"query": "Should our length-of-stay calculation be a calculated column, a DAX measure, or done in the Lakehouse? We have a Direct Lake semantic model.", "should_trigger": true},
+  {"query": "Our compliance team wants proof that hospital-level RLS works in the Fabric semantic model. Write the validation plan with effective identities.", "should_trigger": true},
+  {"query": "Write the PySpark that builds fact_encounter in the Lakehouse from silver tables with key checks.", "should_trigger": false},
+  {"query": "Build a static matplotlib figure of readmission rates by hospital, JAMA style, for the manuscript.", "should_trigger": false},
+  {"query": "Write a KQL query for our real-time ED census dashboard in Eventhouse.", "should_trigger": false},
+  {"query": "Schedule the pipeline that refreshes the Lakehouse tables before the semantic model refresh, with failure alerts.", "should_trigger": false},
+  {"query": "Write a Tableau calculated field for 30-day readmission rate with LOD expressions.", "should_trigger": false},
+  {"query": "Write the SQL Server Analysis Services tabular model deployment script for our on-prem cube - no Fabric.", "should_trigger": false},
+  {"query": "Build an interactive HTML dashboard from this CSV of monthly mortality by unit.", "should_trigger": false},
+  {"query": "Make Table 1 of baseline characteristics by hospital for the quality-improvement paper.", "should_trigger": false},
+  {"query": "We're on Fabric and need some reporting done; not sure if that's a semantic model, a pipeline, or lakehouse code. Help me choose.", "should_trigger": false},
+  {"query": "Register the risk model in MLflow and batch score encounters so we can show predicted risk in the report.", "should_trigger": false}
+]

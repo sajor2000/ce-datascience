@@ -1,0 +1,22 @@
+[
+  {"query": "Add testthat coverage for pkg/icuscores::calc_news2(): edge cases at each score threshold, NA handling, and the error when spo2 > 100.", "should_trigger": true},
+  {"query": "our snapshot tests for print.cohort_waterfall break every time cli updates. should these be snapshots at all? audit the test suite", "should_trigger": true},
+  {"query": "test-fetch.R hits the network; mock the httr2 call with local_mocked_bindings so the tests are deterministic and offline.", "should_trigger": true},
+  {"query": "write a regression test for the bug where km_table() drops the last time point when n.risk hits 0, then fix it", "should_trigger": true},
+  {"query": "Tests pass on my Mac but fail on the Linux CI runner in test-dates.R with off-by-one-day results. Diagnose the failing test (I suspect TZ/locale).", "should_trigger": true},
+  {"query": "Audit tests/testthat/ in our package: which exported functions have no tests, which tests depend on Sys.time() or set.seed outside withr, and what fixtures are oversized?", "should_trigger": true},
+  {"query": "need fixtures for testing the OMOP cohort builder - tiny synthetic person/visit/condition tables, clearly labeled as test fixtures, not real data", "should_trigger": true},
+  {"query": "Is it OK to use skip_on_cran() for the slow bootstrap tests in our package? Check what testthat actually does with it and set it up properly.", "should_trigger": true},
+  {"query": "convert our old expect_that()-style tests to testthat 3rd edition and make sure warnings are asserted rather than suppressed", "should_trigger": true},
+  {"query": "covr says 41% coverage on pkg/corecohort. Prioritize which API boundaries need tests and write the first batch.", "should_trigger": true},
+  {"query": "Write pytest tests with fixtures for our Python sepsis scoring module, including parametrized edge cases.", "should_trigger": false},
+  {"query": "Our cohort extraction script returns 0 rows after the latest EHR refresh; find out why the production pipeline is failing.", "should_trigger": false},
+  {"query": "Prepare pkg/icuscores for CRAN: run --as-cran checks, review cran-comments.md, and list submission blockers.", "should_trigger": false},
+  {"query": "Add a new exported function and roxygen docs for calc_apache2() and update NAMESPACE and the vignette.", "should_trigger": false},
+  {"query": "Validate the fresh EHR extract: column types, missingness, duplicate encounter_ids, and compare row counts to the cohort waterfall.", "should_trigger": false},
+  {"query": "Review R/derive_exposure.R read-only for silent recycling and join cardinality problems before merge.", "should_trigger": false},
+  {"query": "Run a quick verification gate on the analysis: sample size vs waterfall, leakage, effect direction, PHI in outputs.", "should_trigger": false},
+  {"query": "Benchmark compute_sofa() on 5M rows and optimize it while keeping outputs identical to the current version.", "should_trigger": false},
+  {"query": "My targets pipeline target `model_fit` errors with 'object labs_clean not found'; debug the _targets.R dependency graph.", "should_trigger": false},
+  {"query": "Review the open PR's code changes with the reviewer personas and give confidence-gated findings.", "should_trigger": false}
+]

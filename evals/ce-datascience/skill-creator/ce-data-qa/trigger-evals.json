@@ -1,0 +1,22 @@
+[
+  {"query": "New extract landed for the AKI study, wave W3 in analysis/data-waves.md. Can you check row counts, key uniqueness on encounter_id, missingness, and whether creatinine_peak still matches the SAP type before we hand it to modeling?", "should_trigger": true},
+  {"query": "before I write the SAP I need to know what columns are actually in data/raw/icu_vitals.parquet - grain, keys, null rates, weird dates, the works", "should_trigger": true},
+  {"query": "is this dataset ready? pls do a go/no-go on data/clean/hf_cohort_v4.csv against analysis/sap.md, we're unblinding friday", "should_trigger": true},
+  {"query": "The vendor re-pulled the claims after we fixed the ICD-10 query bug. Compare the new file to what the SAP expects (N around 12k, treatment in {placebo, drug}) and tell me if anything blocks analysis.", "should_trigger": true},
+  {"query": "can u profile the cols in the redcap export (exports/redcap_2026-10-01.csv)? want dup rates, sentinel 999 values, impossible dob's flagged, no row dumps", "should_trigger": true},
+  {"query": "We're running a CLIF project (__CE_CLIF__ active=true, version 2.1). Validate the vitals and labs parquet tables in clif_tables/ before we start the cohort analysis - check tz-aware dttm columns and mCIDE categories.", "should_trigger": true},
+  {"query": "Someone renamed lactate_mmol to lactate in the latest pull and I think the value set for discharge_disposition expanded. Can you check whether the data shape drifted from the SAP before I rerun the models?", "should_trigger": true},
+  {"query": "Final QA pass needed against the locked SAP for the confirmatory analysis - extract_id ext-0917, run the full data quality gate and write the report", "should_trigger": true},
+  {"query": "My polars pipeline builds the causal analysis dataset in pipelines/build_ate.py. Before I estimate anything, check the output frame for silent fallback data, duplicated person-periods, and treatment assigned after outcome.", "should_trigger": true},
+  {"query": "pre-modeling sanity: check missingness patterns (MCAR-looking or not) and outliers in data/analytic/stroke.parquet and give me a QA report with a PI sign-off block for anything that warns", "should_trigger": true},
+  {"query": "The SAP at analysis/sap.md was amended twice since the protocol was registered. Check whether our current analysis code and outputs still follow the latest SAP version and flag any undocumented deviations.", "should_trigger": false},
+  {"query": "Build the cohort for the sepsis study from the OMOP CDM: adults with first ICU admission, exclude prior dialysis, give me the SQL and a CONSORT waterfall with counts at each step.", "should_trigger": false},
+  {"query": "Our FASTQ and BAM files from the RNA-seq run need QC - check read quality, sample swaps via sex-check, and batch effects across the two sequencing lanes before differential expression.", "should_trigger": false},
+  {"query": "Make Table 1 for the manuscript from data/analytic/cohort.parquet stratified by treatment arm with SMDs, JAMA style.", "should_trigger": false},
+  {"query": "Write the cleaning script that recodes 999 sentinel values to NA, harmonizes the sex coding, and drops duplicate encounter rows in data/raw/w2.parquet - I already ran QA and know what's wrong.", "should_trigger": false},
+  {"query": "I just finished fitting the logistic model in analysis/models/primary.R. Do a quick sanity check on effect direction, leakage, and whether the N in the output matches the cohort before I mark the step done.", "should_trigger": false},
+  {"query": "Validate our heart failure phenotype definition - check the ICD-10 code list against published definitions and compare the prevalence and age distribution to what the literature reports.", "should_trigger": false},
+  {"query": "Draft the statistical analysis plan for the readmission study now that the data profile is done - primary outcome readmit_30d, mixed-effects logistic with hospital random intercept.", "should_trigger": false},
+  {"query": "Figure out the multiple imputation strategy for the missing BMI and smoking variables - MICE vs complete case, how many imputations, and how to pool the estimates in the primary model.", "should_trigger": false},
+  {"query": "Write the PySpark notebook in our Fabric lakehouse that reads bronze.encounters, dedupes on encounter_id, and writes silver.encounters as a Delta table.", "should_trigger": false}
+]
