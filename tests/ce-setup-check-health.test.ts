@@ -8,6 +8,6 @@ describe("ce-setup check-health", () => {
   // Here-strings are backed by a temp file, which fails in read-only sandboxes.
   test("does not require temporary-file-backed here-strings", async () => {
     const script = await readFile(checkHealthScript, "utf8")
-    expect(script).not.toMatch(/<<<\s/)
+    expect(script).not.toMatch(/<<</)
   })
 })

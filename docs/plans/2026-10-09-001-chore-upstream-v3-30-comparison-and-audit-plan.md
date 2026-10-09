@@ -170,6 +170,6 @@ This is the part of the plugin upstream cannot audit for us.
 
 ## Validation
 
-- `bun test` (1246 pass after this PR), `bun run typecheck`, and `bun run release:validate`.
+- `bun test` (1247 pass after the CLI port commit), `bun run typecheck`, and `bun run release:validate`.
 - For each Phase 1 skill port, the `skill-creator` eval workflow, plus `bun run eval:validate` and two fresh-context runs per affected case.
 - Re-run this comparison at each future sync: diff `src/` and `skills/` against the latest upstream tag, and update `docs/solutions/workflow/upstream-ce-feature-curation.md`.
