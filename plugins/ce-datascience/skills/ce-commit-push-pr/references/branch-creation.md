@@ -1,67 +1,59 @@
-# Branch creation from default branch
+# Branch creation from the default branch
 
-When Step 4 fires on the default branch, the local `<base>` (e.g., local `main`) is untrustworthy as a starting point. Two failure modes drive this:
+Used by Step 4 when work sits on the default branch `<base>`. Local `<base>` is not a trustworthy starting point, for two reasons local git cannot tell apart:
 
-- **Stale-base contamination.** Another agent session, worktree, or background process may have advanced local `<base>` past `origin/<base>` with commits unrelated to this work. Branching from local HEAD would carry those into the new feature branch and the eventual PR.
-- **Forgot-to-branch.** The user authored real commits on local `<base>` intending them for a feature branch. Branching from `origin/<base>` would silently drop them.
+- **Stale-base contamination.** Another session, worktree, or background process advanced local `<base>` past `origin/<base>` with unrelated commits. Branching from local `HEAD` carries them into the PR.
+- **Forgot-to-branch.** The user authored real commits on local `<base>` meant for a feature branch. Branching from `origin/<base>` silently drops them.
 
-Local git state alone cannot distinguish these two — the unpushed commits look identical. Author email is unreliable in multi-session setups where every session shares `user.email`. The skill therefore surfaces the choice to the user when unpushed commits are present.
+Author email does not help (sessions often share `user.email`), so ask when unpushed commits exist.
 
 ## Decision flow
 
-Run the steps in order. Each step's outcome determines whether the next runs.
+Run each command as its own shell call and branch on its exit status.
 
-### 1. Fetch fresh remote base
+### 1. Fetch the remote base
 
 ```bash
 git fetch --no-tags origin <base>
 ```
 
-- **Fetch succeeds:** continue to step 2.
-- **Fetch fails:** skip to the bottom of this file, "Fetch failure fallback".
+- **Exit 0:** continue to step 2.
+- **Non-zero** (network, auth, no remote): go to "Fetch failure fallback".
 
-### 2. Check for unpushed local commits on `<base>`
+### 2. Check for unpushed commits on local `<base>`
 
 ```bash
 git log origin/<base>..HEAD --oneline
 ```
 
-- **Empty output:** no unpushed commits — proceed to step 3 with `BASE_REF=origin/<base>`.
-- **Non-empty output:** unpushed commits exist on local `<base>`. Show the user the commit list and ask (per the platform's blocking question tool — see the "Asking the user" convention at the top of `SKILL.md`):
+- **Empty output:** set `BASE_REF=origin/<base>` and go to step 3.
+- **Non-empty output:** show the commit list and ask (Skill Value interaction rule in `SKILL.md`):
 
   > "Local `<base>` has N unpushed commits not on `origin/<base>`. Carry them onto the new feature branch, or leave them on local `<base>`?"
 
-  Two options:
-  - **Carry forward** (intent: "I forgot to branch first") — set `BASE_REF=HEAD`. The new branch starts from current local HEAD, preserving the commits.
-  - **Leave on `<base>`** (intent: "stale-base contamination from another session") — set `BASE_REF=origin/<base>`. The new branch starts clean; the commits remain on local `<base>` for the user to handle separately.
+  - **Carry forward** (forgot to branch): `BASE_REF=HEAD`.
+  - **Leave on `<base>`** (stale base): `BASE_REF=origin/<base>`. The commits stay on local `<base>` for the user to handle.
 
-  If the blocking tool is unavailable and you must fall back to chat, default to **leaving on `<base>`** only after the user replies — never silently. Carrying foreign commits into a PR is a worse failure than asking again.
+  Never pick silently. Carrying foreign commits into a PR is worse than asking again.
 
 ### 3. Create the feature branch
 
 ```bash
-git checkout -b <branch-name> "$BASE_REF"
+git checkout --no-overwrite-ignore -b <branch-name> "$BASE_REF"
 ```
 
-- **Checkout succeeds:** branch created, continue to Step 4.2 in `SKILL.md`.
-- **Checkout fails because uncommitted changes would be overwritten:** local `<base>` diverges from `origin/<base>` in files the user has also edited. Stash, retry, pop:
+`--no-overwrite-ignore` makes git abort instead of silently replacing a gitignored working-tree file with a tracked file of the same path from `BASE_REF`. In analysis repos those ignored files are often irreplaceable: raw data pulls, PHI or patient-level extracts, credentials, cached model fits. A plain `git checkout -b` overwrites them without warning.
 
-  ```bash
-  git stash push -u -m "ce-commit-push-pr: pre-branch <branch-name>"
-  git checkout -b <branch-name> "$BASE_REF"
-  git stash pop
-  ```
-
-  If `git stash pop` reports conflicts (rare same-files case), surface the conflict output and the stash ref to the user so they can resolve manually. Do not attempt to auto-resolve.
-
-  Note: this stash-retry-pop applies whether `BASE_REF` is `HEAD` or `origin/<base>`. In the `HEAD` case the overwrite collision is unlikely (the index was already at HEAD), but the same recovery sequence is safe to run.
+- **Exit 0:** the branch exists. Return to Step 4 in `SKILL.md`.
+- **Non-zero because uncommitted or ignored files would be overwritten:** stop. Show the colliding paths from git's error and ask the user how to handle them (for example, move the data file outside the repo, or commit or discard the tracked edit). Do not stash, delete, move, or overwrite the colliding paths yourself, and do not retry with a plain `git checkout`.
+- **Non-zero for another reason** (branch name exists, invalid ref): pick a non-conflicting name or report the error.
 
 ## Fetch failure fallback
 
-If `git fetch --no-tags origin <base>` fails (network, auth, no remote), the skill cannot verify base freshness or detect unpushed commits remotely. Fall back to:
+Without a fresh `origin/<base>`, freshness and unpushed-commit checks are unreliable. Branch from local `HEAD` (the working tree does not change, so nothing is overwritten):
 
 ```bash
 git checkout -b <branch-name>
 ```
 
-This branches from current local HEAD. Note in the user-facing summary that base freshness was not verified. Do not attempt the unpushed-commits check — without a fresh `origin/<base>`, the answer is unreliable.
+Say in the user-facing summary that base freshness was not verified. Skip the unpushed-commits check.

@@ -4,6 +4,19 @@ How to resolve the right commit range and compose a PR title and body. Loaded on
 
 Step Pre-A resolves the commit range, diff, and (for existing PRs) the current PR body. Steps A through H assume Pre-A's outputs are in context.
 
+## Contents
+
+- The core principle
+- Step Pre-A: Resolve the PR commit range and diff
+- Step A: Classify commits
+- Step B: Decide on evidence
+- Step C: Frame the narrative
+- Step D: Size the change
+- Step E: Apply writing principles
+- Step F: Compose the title
+- Step G: Compose the body
+- Step H: Compression pass
+
 ---
 
 ## The core principle
@@ -24,13 +37,15 @@ Determine which commits and diff the description should cover. Run this first; S
 ### Mode
 
 - **Current-branch mode.** Describe HEAD vs the repo's default base. Used when the caller has no explicit PR reference (Step 6 of ce-commit-push-pr's full workflow; description-only mode without a PR ref).
-- **PR mode.** Describe a specific PR's commit range. Used by DU-3 (the existing PR on the current branch) and description-only mode (the user pasted a PR URL/number). The PR ref may be a bare number, `#NN`, `pr:NN`, or a full URL — the caller passes it to `gh pr view <ref>` directly. (`gh pr view` accepts numbers and URLs natively; `#NN` and `pr:NN` need the `#` or `pr:` stripped before passing.)
+- **PR mode.** Describe a specific PR's commit range. Used by DU-3 and by Step 6 when the PR check matched an existing PR (pass its URL), and by description-only mode (the user pasted a PR URL/number). The PR ref may be a bare number, `#NN`, `pr:NN`, or a full URL — the caller passes it to `gh pr view <ref>` directly. (`gh pr view` accepts numbers and URLs natively; `#NN` and `pr:NN` need the `#` or `pr:` stripped before passing.)
 
 ### Resolve PR metadata (PR mode and current-branch-with-existing-PR)
 
 ```bash
-gh pr view [<ref>] --json baseRefName,headRefOid,baseRefOid,headRepository,headRepositoryOwner,isCrossRepository,url,body,state
+gh pr view <ref> --json baseRefName,headRefOid,baseRefOid,headRepository,headRepositoryOwner,isCrossRepository,url,body,state
 ```
+
+`<ref>` is the pasted PR ref, or the URL of the matching entry from the caller's `gh pr list` check. If this command exits non-zero, report that the PR could not be read and stop; do not fall back to current-branch mode.
 
 If the returned `state` is not `OPEN`, report `"PR <number> is <state>; cannot generate description"` and exit gracefully — do not invent a description.
 
