@@ -8,7 +8,7 @@
   {"query": "Collaborator wants our bulk RNA-seq BAMs. Sanity-check strand specificity, intronic %, mapping and duplicate rate first so we don't ship garbage.", "should_trigger": true},
   {"query": "PCA of my count matrix looks like it splits by sequencing lane. Can you formally screen for batch effects (flag only, don't correct) against the condition variable?", "should_trigger": true},
   {"query": "bioinfo QC on /data/chip/h3k27ac --modality chipseq, sample sheet chip_samples.tsv", "should_trigger": true},
-  {"query": "New microarray batch registered as data wave w3. Run the modality-appropriate QC and write the report under reports/ before the downstream team picks it up.", "should_trigger": true},
+  {"query": "New ATAC-seq batch registered as data wave w3. Run the modality-appropriate QC and write the report under reports/ before the downstream team picks it up.", "should_trigger": true},
   {"query": "Profile the columns of data/raw/icu_extract.parquet and give me a GO/NO-GO data quality gate before I finalize the SAP.", "should_trigger": false},
   {"query": "Our VCFs are hg19 but the annotation is GRCh38 - pin the genome build, contig naming, and plan the liftover.", "should_trigger": false},
   {"query": "Review the Snakefile and rules/*.smk in this diff for pipeline correctness before merge.", "should_trigger": false},

@@ -46,8 +46,8 @@ When SAS/Stata signals dominate and Python/R scores do not meet thresholds, keep
 
 ## 3. Classification thresholds
 
-- `python` when Python score >= 4 and R score <= 2
-- `r` when R score >= 4 and Python score <= 2
+- `python` when Python score >= 4 and R score <= 3
+- `r` when R score >= 4 and Python score <= 3
 - `both` when Python score >= 4 and R score >= 4
 - `unknown` otherwise
 
@@ -56,7 +56,7 @@ When SAS/Stata signals dominate and Python/R scores do not meet thresholds, keep
 - `r` when `primary=python` and R score >= 3
 - `python` when `primary=r` and Python score >= 3
 - `python` (or `r`) when `primary=both` using whichever score is smaller as secondary
-- `null` for `unknown`
+- `null` for `unknown`, and when the other language scores 2 or less
 
 ## 4. Tie-breaks
 
