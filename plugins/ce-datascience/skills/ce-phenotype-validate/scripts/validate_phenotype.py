@@ -184,7 +184,7 @@ def main() -> None:
         for r in present:
             by_value[r[axis]].append(r)
         subgroups[axis] = {v: compute_metrics(rs) for v, rs in by_value.items()
-                           if compute_metrics(rs)["n"] >= 10}
+                           if compute_metrics(rs)["n"] >= 11}
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(render_markdown(args.name, overall, subgroups))

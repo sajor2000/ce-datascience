@@ -8,8 +8,8 @@ Based on problem type, optionally run specialized reviewers on the written docum
 - **security_issue** -> `ce-security-sentinel`
 - **database_issue** -> `ce-data-mapping-reviewer`
 - Any code-heavy issue -> always dispatch the `ce-code-simplicity-reviewer` agent, and additionally run the kieran reviewer that matches the repo's primary stack:
-  - Python -> also load the `ce-kieran-python-reviewer` skill
-  - R -> also load the `ce-r-code-reviewer` skill
+  - Python -> also dispatch the `ce-kieran-python-reviewer` agent
+  - R -> also dispatch the `ce-r-code-reviewer` agent
   - TypeScript/JavaScript -> dispatch the `ce-code-simplicity-reviewer` agent; no separate TypeScript specialist ships in ce-datascience
   - Other stacks -> no kieran reviewer needed
 

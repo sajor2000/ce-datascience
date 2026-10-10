@@ -12,7 +12,7 @@ argument-hint: "[issue reference, error message, test path, or description of br
 - **Problem it solves:** Bug fixing fails when agents patch symptoms without reproducing or understanding the root cause.
 - **Use when:** The user reports an error, failed test, broken behavior, stack trace, issue, or asks why something is failing.
 - **Output:** A reproduced cause, minimal fix, targeted tests, and a concise explanation of the causal chain.
-- **Ask only if:** Only when reproduction requires unavailable credentials, data state, user role, or another external condition.
+- **Ask only if:** Only when reproduction requires unavailable credentials, data state, user role, or another external condition, or at the fix / diagnosis-only, branch, and learning-capture decision points.
 - **Do not do:** Do not guess-fix without a causal chain unless the user explicitly accepts a best-available hypothesis.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
@@ -35,7 +35,7 @@ For a performance symptom, the reproduction check is a numeric baseline from a t
 
 ## Execution Flow
 
-Phases: 0 Triage -> 1 Investigate -> 2 Root Cause (causal chain gate, smart escalation) -> 3 Fix (only if the user chose to fix) -> 4 Handoff. All phases self-size; no complexity classification, no phase skipping.
+Phases: 0 Triage -> 1 Investigate -> 2 Root Cause (causal chain gate, smart escalation) -> 3 Fix (only if the user chose to fix) -> 4 Handoff. All phases self-size; no complexity classification, and no phase skipping other than Phase 3 on "Diagnosis only" or "Rethink the design".
 
 ---
 

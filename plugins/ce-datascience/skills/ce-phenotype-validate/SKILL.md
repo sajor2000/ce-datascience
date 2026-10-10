@@ -9,9 +9,9 @@ argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-
 
 ## Skill Value
 
-- **Problem it solves:** Phenotype algorithms can look plausible but fail validity, portability, or source-code consistency checks.
+- **Problem it solves:** Phenotype algorithms can look plausible but misclassify cases, and their accuracy can differ across subgroups or datasets.
 - **Use when:** The user defines, reviews, or validates clinical phenotypes, code lists, or computable cohort definitions.
-- **Output:** Phenotype validation report with evidence, code-list checks, data plausibility, and unresolved risks.
+- **Output:** Phenotype validation report (2x2, PPV/NPV/sensitivity/specificity with Wilson CIs, subgroup results, sample-size caveats), a suppressed aggregate CSV, a concept-set provenance update, and a handoff signal.
 - **Ask only if:** Only when phenotype target, source vocabularies, or validation data are unclear.
 - **Do not do:** Do not certify clinical validity without evidence.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
@@ -39,7 +39,7 @@ The chart-review file is patient-level PHI — a manually adjudicated gold stand
 
 - Keep the chart-review and algorithm-output files in a gitignored location (e.g., `output/intermediate_phi/`); never commit, share, or copy them into report directories. If they arrive elsewhere, verify the path is gitignored before proceeding.
 - Never echo `subject_id`s, row-level data, or free-text chart excerpts into the report, the chat, or error messages. Reports carry aggregate counts only.
-- Apply small-cell suppression to every reported cell — confusion-matrix cells and subgroup rows alike. Default disclosure floor for EHR/claims data is n<11 (use the site's declared policy when one exists): suppress or merge subgroups below the floor, and suppress complementary cells recoverable by subtraction from totals. Small N is a re-identification risk, not only a CI-width problem.
+- Apply small-cell suppression to every reported cell — confusion-matrix cells and subgroup rows alike. Default disclosure floor is n<11 unless the project declares its own floor (for example the CLIF consortium floor of n>=10) or a site or DUA rule is stricter: suppress or merge subgroups below the floor, and suppress complementary cells recoverable by subtraction from totals. Small N is a re-identification risk, not only a CI-width problem.
 - The saved cell-count CSV (Step 6) contains only suppressed aggregate counts, never `subject_id`-level rows.
 
 ## Core workflow
@@ -128,6 +128,15 @@ Sensitivity in 18-44 is lower; if the cohort skews young, expect under-ascertain
 
 Save `reports/phenotype-validation/<phenotype>-<date>.csv` for the cell counts and confusion matrix — suppressed aggregates only, per "PHI and disclosure rules" (no `subject_id`s, no cells below the disclosure floor).
 
+The bundled script computes Steps 2-5 from one merged CSV (`subject_id`, `chart_label`, `algo_label`, optional `sex`/`age_band`/`race`/`site`), so write the Step 1 merge to a gitignored path first:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_phenotype.py" <phenotype> <merged-csv> --out reports/phenotype-validation/<phenotype>-<date>.md
+```
+
+It writes the Markdown report and a `.yaml` validation block beside it, and drops subgroups with n<11. It does not suppress confusion-matrix or complementary cells and does not write the CSV: apply the disclosure rules to both before saving or sharing.
+
 ### Step 7: Update the concept set provenance
 
 Add to `analysis/cohort/concept-sets/<phenotype>.yaml`:
@@ -151,7 +160,7 @@ validation:
 The bundled script (`scripts/validate_phenotype.py`) prints the canonical envelope:
 
 ```
-__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> yaml=<path-to-validation.yaml> report=<path-to-report.md>
+__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> report=<path-to-report.md> yaml=<path-to-validation.yaml>
 ```
 
 Surface this line so `ce-plan` SAP mode and the concept-set provenance YAML pick the validation up.

@@ -53,8 +53,8 @@ When signals are ambiguous (only weak signals, or the user mentions a CLIF table
 ### Select the CLIF and mCIDE family
 
 Read `references/version-families.md` before selecting a family. Inspect, in
-order, an explicit `--version`, `clif.data_dictionary_version` and
-`clif.mcide_version` in local config, a project data-dictionary declaration,
+order, an explicit `--version`, `stack_profile.clif.data_dictionary_version` and
+`stack_profile.clif.mcide_version` in local config, a project data-dictionary declaration,
 and a documented source manifest. Treat `--version` as a full direct call:
 
 ```text
@@ -133,22 +133,23 @@ Then ensure `__CE_LANG__` exists:
 
 ### Step 3: Read the project's local override (optional)
 
-If the resolved config contains a `clif:` block, merge it over the defaults. Recognized keys:
+If the resolved config contains a `clif:` block under `stack_profile:`, merge it over the defaults. Recognized keys:
 
 ```yaml
-profile: clif
-clif:
-  data_dictionary_version: "2.1.0"   # selected family: 2.1.0 or 3.0.0
-  mcide_version: "2.1.0"             # must match data_dictionary_version unless an authoritative exception is documented
-  parquet_only: true                  # refuse CSV/Feather for CLIF tables
-  protected_paths:                    # in addition to the built-in list
-    - mCIDE/**
-    - ddl/**
-    - outlier-handling/**
-    - reference_ranges/**
-    - WORKFLOW.md
-  poc_table_path: ./CLIF_POCs.md      # optional override; defaults to references/poc-table.md
-  strict: true                        # block on any rule violation rather than warn
+stack_profile:
+  profile: clif
+  clif:
+    data_dictionary_version: "2.1.0"   # selected family: 2.1.0 or 3.0.0
+    mcide_version: "2.1.0"             # must match data_dictionary_version unless an authoritative exception is documented
+    parquet_only: true                  # refuse CSV/Feather for CLIF tables
+    protected_paths:                    # in addition to the built-in list
+      - mCIDE/**
+      - ddl/**
+      - outlier-handling/**
+      - reference_ranges/**
+      - WORKFLOW.md
+    poc_table_path: ./CLIF_POCs.md      # optional override; defaults to references/poc-table.md
+    strict: true                        # block on any rule violation rather than warn
 ```
 
 ### Step 4: Emit the signal

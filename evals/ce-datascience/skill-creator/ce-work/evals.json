@@ -7,7 +7,7 @@
       "expected_output": "Reads the plan, produces the SAP coverage summary, seeds one task per output-catalog row, asks how to branch off main, and executes with tests and fail-loud analytical code.",
       "files": [],
       "expectations": [
-        "Produces a SAP coverage summary (implemented / pending / exploratory) before creating the task list",
+        "Produces a SAP coverage summary (Implemented / Not implemented / Partial, plus exploratory analyses) before creating the task list",
         "Seeds one task per non-banner row of analysis/sap-tables/02-outputs.csv and refuses to mark a catalog task complete until the output file exists at the expected subfolder",
         "Because the current branch is main, offers to create a feature branch or worktree and does not commit to main without explicit confirmation",
         "Does not edit the plan body during execution (only the final status flip at shipping)",

@@ -11,7 +11,7 @@ description: "Capture validated analytical approaches, decisions, and reusable p
 - **Problem it solves:** Good methods and debugging decisions get lost after a session unless they are turned into reusable team knowledge.
 - **Use when:** The user wants to document learnings, preserve a validated approach, or compound a data science pattern.
 - **Output:** A concise solution or learning document under docs/solutions/ plus any discoverability recommendation.
-- **Ask only if:** Only to choose lightweight vs full capture or to approve project-instruction discoverability changes.
+- **Ask only if:** Only to choose lightweight vs full capture, the Full-mode session-history opt-in, a targeted refresh, project-instruction discoverability changes, or the closing "What's next?" choice.
 - **Do not do:** Do not write memory files or document unvalidated speculation as a durable pattern.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
@@ -215,5 +215,5 @@ Writes the final learning directly into `docs/solutions/`. For the Full-mode suc
 
 ## Related
 
-- `/research [topic]` - Deep investigation (searches docs/solutions/ for patterns)
+- `ce-learnings-researcher` agent - searches docs/solutions/ for applicable past learnings
 - `ce-plan` - Planning workflow (references documented solutions)

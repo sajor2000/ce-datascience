@@ -33,7 +33,7 @@ Pins the reference genome and annotation versions used in a bioinformatics study
 
 ## Core workflow
 
-### Step 1: Declare the build (--declare mode)
+### Step 1: Declare the build (`--ref-fasta` / `--annotation-gtf`)
 
 Hash the reference FASTA, parse its first contig name, look up the build:
 
@@ -106,6 +106,11 @@ If `--check` found any P0 → exit non-zero, print a clear report. The user reso
 
 ## References
 
-`scripts/audit_build.py` — audits a declared genome build against the reference files present in the project; run it when verifying a build declaration.
+`scripts/audit_build.py` — supports Step 2 by walking a directory for BAM/CRAM, VCF, and GTF/GFF3 files, flagging differing contig MD5s, mixed `chr1`/`1` naming, and a chromosome-1 MD5 that does not match `--declared` (`GRCh37`, `GRCh38`, or `T2T`). It writes its findings as YAML to `--manifest` and a Markdown report to `--report`, prints `__CE_GENOME_BUILD__ declared=<build> files=<n> issues=<n> manifest=<path> report=<path>`, and exits 2 on any issue, including P1 naming mismatches; classify each issue by the Step 2 severities before gating. `--manifest` is overwritten, so never point it at `analysis/genome-build/manifest.yaml`:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/audit_build.py" <project-dir> --declared GRCh38 --manifest analysis/genome-build/audit-findings.yaml --report analysis/genome-build/audit-report.md
+```
 
 @./references/build-detection-rules.md

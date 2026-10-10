@@ -69,6 +69,7 @@ Knowledge track:
 - data-quality-issues/ — data validation, cleaning strategies, and quality assurance patterns
 - reporting-conventions/ — standardized reporting formats and presentation guidelines
 - reproducibility-patterns/ — environment pinning, seed management, and result reproducibility
+- literature-patterns/ — recurring literature-derived methods or evidence patterns
 
 ## Common Mistakes to Avoid
 
@@ -107,10 +108,9 @@ What's next?
 2. Link related documentation
 3. Update other references
 4. View documentation
-5. Other
 ```
 
-**After displaying the success output, present the "What's next?" options using the platform's blocking question tool:** `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question. Do not continue the workflow or end the turn without the user's selection.
+**After displaying the success output, present the "What's next?" options with the current harness's blocking question UI** (a free-form reply is also accepted). Fall back to numbered options in chat only when no blocking question UI exists or the call errors. Never silently skip the question. Do not continue the workflow or end the turn without the user's selection.
 
 **Alternate output (when updating an existing doc due to high overlap):**
 

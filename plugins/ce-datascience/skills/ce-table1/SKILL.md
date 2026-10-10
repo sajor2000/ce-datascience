@@ -6,7 +6,7 @@ argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --ou
 
 # Table 1 Generator
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Run the script from the user's project root.** `$SKILL_DIR` anchors the script path; the data and output paths resolve against `--project-root` (default: the current directory) and must stay project-relative.
 
 
 ## Skill Value
@@ -44,21 +44,21 @@ python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/
 ```
 
 3. Review the generated validation report before presenting the table as ready.
-4. **Small-cell suppression (always, not only in CLIF mode):** before presenting or writing any stratified table, suppress or aggregate cells with n below the project's disclosure floor (default n<11 for EHR/claims data; use the site's policy when one is declared). Suppress complementary cells too when a suppressed value could be recovered by subtraction from totals. A Table 1 stratified by exposure routinely produces small cells — check every stratum, not just the obvious ones.
+4. **Small-cell suppression (always, not only in CLIF mode):** before presenting or writing any stratified table, suppress or aggregate cells with n below the project's disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter). Suppress complementary cells too when a suppressed value could be recovered by subtraction from totals. A Table 1 stratified by exposure routinely produces small cells — check every stratum, not just the obvious ones.
 5. Table 1 output is aggregate-only: never write patient-level rows to publication, review-pack, or shared directories. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`.
 
 ## Outputs
 
-- `table1-spec.json` -- structured variables, strata, style profile, and readiness state
+- `table1-spec.json` -- structured variables, source paths, style profile, and readiness state
 - `table1.csv` -- editable table shell
 - `table1.md` -- Markdown table shell for manuscripts and review packs
 - `table1-validation-report.md` -- blockers, warnings, and provenance
 
 ## Readiness Rules
 
-- Block when no baseline variables are declared.
-- Warn when no stratification variable is declared.
-- Warn when no SAP path is provided.
+- Block when no baseline variables are declared (the script exits 1 and writes the blocker to the validation report).
+- Warn when no SAP or outputs catalog is found (the script records these in the validation report).
+- Warn when no stratification variable is declared; the script does not record strata, so check this before presenting the table.
 - Preserve repo-relative paths in all generated artifacts.
 - Use the configured journal style profile for formatting expectations.
 

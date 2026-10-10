@@ -22,7 +22,7 @@ Ask again, and overwrite the saved value, only when the user says the data envir
 
 ## 2. Ask once (interactive mode only)
 
-Ask exactly one question with the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini and Pi). In Claude Code, load it first with `ToolSearch` and `select:AskUserQuestion` when its schema is not loaded. If no blocking tool exists or the call errors, show the two options as a numbered list in chat and wait.
+Ask exactly one question with the current harness's blocking question UI. If no blocking question UI exists or the call errors, show the two options as a numbered list in chat and wait.
 
 - Question: "Are both this data environment and the active model endpoint compliant for PHI/PII?"
 - Options: "Yes, both are compliant" and "No or unsure"

@@ -11,7 +11,7 @@ description: "Audit existing docs/solutions guidance for drift, then keep, updat
 - **Problem it solves:** Old solution notes can mislead future agents when the codebase or workflow has changed.
 - **Use when:** The user asks to refresh, audit, sweep, consolidate, or clean stale docs/solutions learnings.
 - **Output:** A report of applied and recommended actions, with updated solution docs when safe.
-- **Ask only if:** Only for borderline stale/consolidation decisions or edits that need human confirmation in interactive mode.
+- **Ask only if:** Only for borderline stale/consolidation decisions, edits that need human confirmation, the broad-scope starting area, or the Phase 5 commit choice, in interactive mode.
 - **Do not do:** Do not delete or replace uncertain guidance without evidence.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 

@@ -20,7 +20,7 @@ This file contains the shipping workflow (Phase 3-4). Load it only when all Phas
    # Examples: bin/rails test, npm test, pytest, go test, etc.
 
    # Run linting (per AGENTS.md)
-   # Use linting-agent before pushing to origin
+   # Run the project's linter before pushing to origin
    ```
 
    **R project detection** — when the project contains R source files, also check for:
@@ -136,7 +136,7 @@ Before creating PR, verify:
 - [ ] All clarifying questions asked and answered
 - [ ] All tasks marked completed
 - [ ] Testing addressed -- tests pass AND new/changed behavior has corresponding test coverage (or an explicit justification for why tests are not needed)
-- [ ] Linting passes (use linting-agent)
+- [ ] Linting passes (project linter)
 - [ ] Code follows existing patterns
 - [ ] Figma designs match implementation (if applicable)
 - [ ] Evidence decision handled by `ce-commit-push-pr` when the change has observable behavior

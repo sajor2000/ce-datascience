@@ -17,7 +17,7 @@ After gathering evidence, assign one recommended action per artifact.
 
 ### Keep
 
-The learning is still accurate and useful. Do not edit the file — report that it was reviewed and remains trustworthy. Only add `last_refreshed` if already making a meaningful update for another reason.
+The learning is still accurate and useful. Do not edit the file — report that it was reviewed and remains trustworthy. Only add `last_updated` if already making a meaningful update for another reason.
 
 ### Update
 

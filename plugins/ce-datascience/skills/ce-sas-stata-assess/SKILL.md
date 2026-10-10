@@ -6,7 +6,7 @@ argument-hint: "[optional: --scan-dir analysis --report analysis/sas-stata-asses
 
 # SAS/Stata Project Assessment
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Run the script from the user's project root.** `$SKILL_DIR` anchors the script path; `--scan-dir` and `--report` resolve against `--project-root` and must stay project-relative.
 
 
 ## Skill Value

@@ -84,7 +84,7 @@ To narrow the platform set, add `--platform claude`, `--platform codex`, or `--p
 
 Apply these filters in order to pick the sessions worth deep-diving:
 
-1. **Branch filter (Claude Code only).** Keep sessions where `branch == dispatch_branch` exactly, or where the branch name contains a keyword from the question's topic (e.g., a question about "auth middleware" matches branches `feat/auth-fix`, `chore/auth-refactor`). Codex sessions don't carry `gitBranch` — skip this filter for them.
+1. **Branch filter (Claude Code only).** Keep sessions where `branch` equals the git branch resolved above (or the branch a caller passed) exactly, or where the branch name contains a keyword from the question's topic (e.g., a question about "auth middleware" matches branches `feat/auth-fix`, `chore/auth-refactor`). Codex sessions don't carry `gitBranch` — skip this filter for them.
 
 2. **If the branch filter returned zero sessions, or you're processing Codex sessions:**
    - Derive 2-4 keywords from the question's topic. For "a recent crash in the auth middleware where session-validation rejects valid tokens", derive `auth,middleware,session,token` (or similar).

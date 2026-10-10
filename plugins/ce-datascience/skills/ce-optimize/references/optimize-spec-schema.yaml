@@ -8,8 +8,8 @@
 # configure the entire optimization run.
 #
 # Contents:
-#   REQUIRED FIELDS   name, description, metric (primary, degenerate_gates,
-#                     diagnostics, judge), measurement, scope
+#   REQUIRED FIELDS   name, description, metric (primary, degenerate_gates;
+#                     optional diagnostics, judge), measurement, scope
 #   OPTIONAL FIELDS   execution, parallel, dependencies, constraints,
 #                     stopping (incl. max_total_cost_usd), max_runner_up_merges_per_batch
 #   VALIDATION RULES  checks applied before Phase 1

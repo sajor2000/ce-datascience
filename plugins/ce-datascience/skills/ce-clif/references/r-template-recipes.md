@@ -13,7 +13,8 @@ Canonical R patterns for working with CLIF data, drawn directly from `Common-Lon
 7. Outlier handling (`03_outlier_handling_template.R`).
 8. Analysis (`04_project_analysis_template.R`).
 9. Reading Parquet via `arrow::open_dataset()`.
-10. Where to read more.
+10. Federated meta-analysis patterns.
+11. Where to read more.
 
 ---
 
@@ -310,9 +311,9 @@ flow$adult <- nrow(cohort)
 cohort <- cohort |> filter(icu_los_hours >= 24)
 flow$icu_24h <- nrow(cohort)
 
-# Save as CSV alongside the analysis
+# Save as CSV alongside the analysis; suppress any step count below the CLIF floor (n >= 10) before sharing
 flow_df <- tibble(step = names(flow), n = unlist(flow))
-write_csv(flow_df, file.path("output", "cohort_flow.csv"))
+write_csv(flow_df, file.path("output", "final_no_phi", "cohort_flow.csv"))
 ```
 
 ## 8. Analysis
@@ -468,7 +469,7 @@ library(ggplot2)
 theme_clif <- theme_classic(base_size = 12, base_family = "Arial") +
   theme(legend.position = "bottom", strip.background = element_blank())
 
-ggsave(file.path("output", "graphs", "figure_name.pdf"), width = 10, height = 6)
+ggsave(file.path("output", "final_no_phi", "graphs", "figure_name.pdf"), width = 10, height = 6)
 ```
 
 ### 10e. Config with timezone

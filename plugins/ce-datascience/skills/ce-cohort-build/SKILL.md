@@ -49,8 +49,8 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 
 **CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative data-dictionary family. If the pair is missing, incomplete, or mixed, route to the `ce-clif` skill before emitting `_category` filters.
 
-- Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
-- The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` — never CSV, never with an integer cast, and never share or commit them.
+- Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from the `tables_path` in `config/config.json`.
+- The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` after verifying that path is approved, local, non-synced, and gitignored (otherwise under the approved restricted data root) — never CSV, never with an integer cast, and never share or commit them.
 - Inclusion criteria default to `adt.location_category == "icu"` for ICU studies; `hospitalization.age_at_admission >= 18` for adult studies.
 - All datetime filters are timezone-aware UTC.
 - Write only disclosure-reviewed cohort-flow summaries to `output/final_no_phi/cohort_waterfall.csv`; replace SQL/CTE generation with a `code/01_cohort_<name>.{py,R}` script that starts the template workflow.
@@ -112,7 +112,7 @@ Persons in source                        : N0
 
 Save as `analysis/cohort/<cohort-name>-waterfall.md` and `analysis/cohort/<cohort-name>-waterfall.csv`. This is the CONSORT-style figure for the manuscript.
 
-**Small-cell suppression (always, not only in CLIF mode):** waterfall steps are aggregate counts, but a step that loses very few patients can still disclose. Before saving or sharing the waterfall, suppress or merge any step whose lost-N is below the project's disclosure floor (default n<11 for EHR/claims data, or the site's declared policy), and never annotate a step with patient-identifying examples.
+**Small-cell suppression (always, not only in CLIF mode):** waterfall steps are aggregate counts, but a step that loses very few patients can still disclose. Before saving or sharing the waterfall, suppress or merge any step whose lost-N is below the project's disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter), and never annotate a step with patient-identifying examples.
 
 ### Step 5: Write the cohort spec
 
@@ -123,7 +123,7 @@ cohort_name: T2DM_statin_init_2018_2023
 cohort_purpose: ...
 vocabulary: OMOP
 vocabulary_version: 2024-Q1
-data_wave_id: <from data-state.yaml>
+data_wave_id: <from analysis/data-waves.md>
 index_event:
   description: First statin prescription on or after T2DM diagnosis
   source: drug_exposure
@@ -164,7 +164,12 @@ The `yaml=` key points at the cohort spec (`analysis/cohort/<cohort-name>.yaml` 
 
 ## References
 
-`scripts/concept_set_to_capr.R` — converts a concept-set YAML into CAPR concept-set R code; use it when `__CE_LANG__ primary=r` and the cohort is OMOP-based.
+`scripts/concept_set_to_capr.R` — converts a concept-set YAML into Capr concept-set R code and ATLAS-compatible JSON, then prints a `__CE_COHORT_CAPR__` summary line; use it when `__CE_LANG__ primary=r` and the cohort is OMOP-based. It requires the `Capr` and `yaml` R packages and stops when `vocabulary_version` is missing:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+Rscript "$SKILL_DIR/scripts/concept_set_to_capr.R" --in analysis/cohort/concept-sets/<set>.yaml --out-r analysis/cohort/concept-sets/<set>.R --out-json analysis/cohort/concept-sets/<set>.json
+```
 
 @./references/omop-cohort-template.sql
 

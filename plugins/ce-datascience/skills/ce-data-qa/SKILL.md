@@ -43,7 +43,7 @@ If no SAP is available, run **pre-SAP column profile mode**:
 
 - Inspect the dataset or table schema before `ce-plan` writes SAP variable/model sections.
 - Produce row count, column count, column names and types, candidate grain, primary or candidate keys, important date columns, timezone assumptions, null rates, duplicate rates, distinct counts for categorical columns, and basic numeric summaries.
-- **PHI guard (always, not only in CLIF mode):** never echo row-level data, free-text columns, identifiers, or dates of birth into the QA report — report counts and masked samples instead. When listing distinct categorical values with counts in a report that may be shared, suppress categories below the disclosure floor (default n<11 for EHR/claims data) or bucket them as "other".
+- **PHI guard (always, not only in CLIF mode):** never echo row-level data, free-text columns, identifiers, or dates of birth into the QA report — report counts and masked samples instead. When listing distinct categorical values with counts in a report that may be shared, suppress categories below the disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter) or bucket them as "other".
 - Flag obvious validity issues such as impossible dates, negative counts where not plausible, sentinel missing values, mixed-grain rows, and PHI-suspect columns.
 - Do not invent study variables or analysis models. Mark SAP-dependent checks as "deferred until SAP exists."
 - Emit `__CE_DATA_PROFILE__` so `ce-plan` can use the actual columns and state which variables remain provisional.

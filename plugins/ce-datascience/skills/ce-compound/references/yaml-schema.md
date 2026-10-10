@@ -28,7 +28,7 @@ The `problem_type` determines which **track** applies. Each track has different 
 | Track | problem_types | Description |
 |-------|--------------|-------------|
 | **Bug** | `build_error`, `test_failure`, `runtime_error`, `performance_issue`, `database_issue`, `security_issue`, `ui_bug`, `integration_issue`, `logic_error` | Defects and failures that were diagnosed and fixed |
-| **Knowledge** | `best_practice`, `documentation_gap`, `workflow_issue`, `developer_experience`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention`, `methods_decision`, `statistical_pattern`, `data_quality_issue`, `reporting_convention`, `reproducibility_pattern` | Practices, patterns, conventions, decisions, statistical methods, workflow improvements, and documentation. Prefer the narrowest applicable value; `best_practice` is the fallback. |
+| **Knowledge** | `best_practice`, `documentation_gap`, `workflow_issue`, `developer_experience`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention`, `methods_decision`, `statistical_pattern`, `data_quality_issue`, `reporting_convention`, `reproducibility_pattern`, `literature_pattern` | Practices, patterns, conventions, decisions, statistical methods, workflow improvements, and documentation. Prefer the narrowest applicable value; `best_practice` is the fallback. |
 
 ## Required Fields (both tracks)
 
@@ -58,6 +58,11 @@ No additional required fields beyond the shared ones. All fields below are optio
 
 - **related_components**: Other components involved
 - **tags**: Search keywords, lowercase and hyphen-separated
+- **title** and **category**: written by `assets/resolution-template.md` (category is the `docs/solutions/` subdirectory from Category Mapping)
+- **fingerprint**: deterministic dedup key `<problem_type>::<component-or-_>::<root-cause-slug>`, computed by `ce-compound`
+- **last_updated**: `YYYY-MM-DD` when an existing doc is updated by `ce-compound` or `ce-compound-refresh`
+- **status**, **stale_reason**, **stale_date**: written by `ce-compound-refresh` when it marks a doc stale (`status: stale`)
+- **supersedes**: filename of the learning a Replace successor supersedes
 
 ## Backward Compatibility
 
@@ -90,6 +95,7 @@ Docs created before the track system may have `symptoms`/`root_cause`/`resolutio
 - `data_quality_issue` -> `docs/solutions/data-quality-issues/`
 - `reporting_convention` -> `docs/solutions/reporting-conventions/`
 - `reproducibility_pattern` -> `docs/solutions/reproducibility-patterns/`
+- `literature_pattern` -> `docs/solutions/literature-patterns/`
 
 ## Validation Rules
 
@@ -126,5 +132,5 @@ Example — after (parses cleanly):
       - "`sudo dscacheutil -flushcache` does not restore in-container mDNS"
 
 This rule applies to all array-of-strings frontmatter fields. Scalar string
-fields like `description:` have their own quoting rules (see plugin
-`AGENTS.md` under "YAML Frontmatter").
+fields have their own quoting rule: quote the whole value when it contains
+` #` or `: ` (checked by `scripts/validate-frontmatter.py`).

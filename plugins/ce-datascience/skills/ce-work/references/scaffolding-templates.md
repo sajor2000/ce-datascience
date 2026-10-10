@@ -203,7 +203,7 @@ When uncertain about the stack, match the patterns visible in the existing codeb
 
 ## R Project Bootstrap
 
-When `r_project_type` is `package`, `shiny`, `plumber`, or `targets`, scaffold project infrastructure alongside analysis files. This section is triggered by the stack profile's `r_project_type` field.
+When `r_project_type` is `script`, `package`, `shiny`, `plumber`, or `targets`, scaffold project infrastructure alongside analysis files. This section is triggered by the stack profile's `r_project_type` field.
 
 ### R Analysis Script Project
 

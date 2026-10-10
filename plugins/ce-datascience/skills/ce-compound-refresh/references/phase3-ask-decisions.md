@@ -6,7 +6,7 @@ Detail for `ce-compound-refresh` § "Phase 3: Ask for Decisions". Linked from SK
 
 1. Autofix mode (skip phase entirely).
 2. Interactive mode — when to ask, when not to.
-3. Question style (platform blocking tools, one-at-a-time, multiple choice, recommended-first).
+3. Question style (blocking question UI, one-at-a-time, multiple choice, recommended-first).
 4. Focused-scope interaction (single artifact).
 5. Batch-scope interaction (groups: Keep / Update / Consolidate / Replace / Delete).
 6. Broad-scope interaction (incremental sweep).
@@ -34,7 +34,7 @@ Do **not** ask questions about whether code changes were intentional, whether th
 
 #### Question Style
 
-Always present choices using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in plain text only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+Always present choices using the current harness's blocking question UI (at most 4 options). Fall back to numbered options in plain text only when no blocking question UI exists or the call errors. Never silently skip the question.
 
 Question rules:
 

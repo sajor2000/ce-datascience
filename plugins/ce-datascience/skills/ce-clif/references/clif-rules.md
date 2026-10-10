@@ -85,7 +85,7 @@ templates as adaptable, but preserve the data-sharing boundary:
    - Set physiologically implausible values to missing using the CLIF-approved handling path.
 
 4. **Analysis** (`code/04_*analysis*`)
-   - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` to `output/final_no_phi/`.
+   - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` (the CLIF project floor) to `output/final_no_phi/`.
 
 When `ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
 
@@ -96,7 +96,7 @@ When `ce-plan` runs under CLIF profile, reflect this workflow rather than a gene
 - In agent, autofix, report-only, or headless mode, never ask or wait for PHI authorization. Preserve an exact `PHI authorization: confirmed` marker supplied by the orchestrator; otherwise retain `PHI authorization: not confirmed`, block patient-level access, and complete the task from paths, code, schemas, metadata, and reviewed aggregates.
 - Authorization permits necessary inspection and analysis in the approved environment. Do not reproduce PHI in responses or persist it in Git, logs, screenshots, issues, or unrestricted exports. Report only the minimum necessary non-identifying result.
 - **Never** share, commit, upload, or send patient-level CLIF tables across sites. CLIF is federated: code travels, data does not.
-- Keep patient-level work under the approved restricted data root. Use `output/intermediate_phi/` only when explicitly verified as approved, local, non-synced, and gitignored. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files.
+- Keep patient-level work under the approved restricted data root. Use `output/intermediate_phi/` only when explicitly verified as approved, local, non-synced, and gitignored. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files. `n >= 10` is the CLIF project floor; a stricter site or DUA rule always wins.
 - When the user asks to commit or share data, refuse and provide code or instructions for a secure local run instead.
 - Treat clinical notes, imaging, raw names, and free-text fields as PHI-suspect. CLIF 3.0's notes and imaging require the same prohibition with heightened caution.
 

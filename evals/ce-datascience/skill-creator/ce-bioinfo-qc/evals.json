@@ -7,7 +7,7 @@
       "expected_output": "A modality-specific RNA-seq QA run that screens PCA for batch-condition confounding, writes the HTML and markdown reports under reports/bioinfo-qa/, and emits a GO/NO-GO marker without running differential expression.",
       "files": [],
       "expectations": [
-        "Runs PCA on the count matrix colored by batch and condition and reports the batch-condition correlation; emits a P0 'batch is confounded with condition' finding if PCs separate by batch and the correlation exceeds 0.3",
+        "Runs PCA on the count matrix colored by batch and condition and reports the batch-condition correlation; emits a P0 'batch is confounded with condition' finding if PCs separate by batch and the correlation exceeds 0.5, or a P1 partial confound for 0.3-0.5",
         "Writes reports/bioinfo-qa/<wave_id>.md (and the MultiQC-rendered .html) containing modality and N, per-sample pass/warn/fail table, batch confound assessment, sample swap assessment, aggregate metrics, and a sign-off block",
         "Ends with exactly __CE_BIOINFO_QC_PASS__ or __CE_BIOINFO_QC_FAIL__ wave=<id> blockers=<count>",
         "Does not run DESeq2 differential expression or apply ComBat/RUV/SVA batch removal; only flags",

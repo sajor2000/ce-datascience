@@ -11,7 +11,7 @@ argument-hint: "[path to optimization spec YAML, or describe the optimization go
 - **Problem it solves:** Optimization work drifts when success metrics, samples, judges, and stopping criteria are unclear.
 - **Use when:** The user wants to optimize a prompt, workflow, model behavior, or scored process.
 - **Output:** An optimization spec, scored iterations, winning candidate, and residual risks.
-- **Ask only if:** Only when objective, sample set, scoring rubric, or acceptable tradeoff is unclear.
+- **Ask only if:** Only when objective, sample set, scoring rubric, or acceptable tradeoff is unclear, or at the resume, baseline-approval, new-dependency, and wrap-up decision points.
 - **Do not do:** Do not optimize without a measurable target or representative cases.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
@@ -20,7 +20,7 @@ argument-hint: "[path to optimization spec YAML, or describe the optimization go
 1. **Cross-validation awareness.** Never optimize on the test set. Every iteration evaluates via cross-validation on the training set (or a held-out validation split); the test set is scored once, for the final locked result, in Phase 4.
 2. **Data leakage guard.** Before measuring each experiment, verify features do not use the outcome, normalization/encoding/imputation is fit on training data only, and temporal ordering holds for time-series splits. On a leakage signal, abort with a FAIL verdict (log `degenerate` with the reason) instead of recording the metric.
 3. **Experiment tracking integration.** When `ce-ml-experiment-track` is configured (mlflow, wandb, dvc, or offline-YAML), log each iteration there (hypothesis, hyperparameters changed, metrics, kept/reverted).
-4. **SAP alignment check.** If a SAP exists (`docs/plans/` with `sap_version` in frontmatter), confirm the optimization target aligns with its primary endpoint. If it differs, warn before starting and require explicit user confirmation.
+4. **SAP alignment check.** If a SAP exists (default `analysis/sap.md`, or any markdown file with `sap_version` in frontmatter), confirm the optimization target aligns with its primary endpoint. If it differs, warn before starting and require explicit user confirmation.
 5. **Reproducibility seeds.** Record every random seed that affects the metric (CV split, model initialization, resampling, judge `sample_seed`) in the spec; hold them fixed across baseline and experiments.
 
 ## Input

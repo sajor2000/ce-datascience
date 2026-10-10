@@ -16,13 +16,13 @@ The Table 1 shell is a contract between the SAP, analyst, and manuscript package
 
 ## Refusal Conditions
 
-- No SAP and no variables catalog are available.
+- The variables catalog is not available (ask the user for the baseline variable list).
 - The variables catalog has no baseline, patient, clinical, demographic, exposure, or cohort-characteristic rows.
 - Requested output paths would be absolute or traverse outside the project.
 
 ## Disclosure Constraint (all data sources)
 
-Table 1 output is aggregate-only everywhere: do not write patient-level extracts to `analysis/publication/` or review-pack directories, regardless of data source. Apply small-cell suppression (default floor n<11 for EHR/claims data, or the site's declared policy) to every stratified cell, including complementary cells recoverable by subtraction.
+Table 1 output is aggregate-only everywhere: do not write patient-level extracts to `analysis/publication/` or review-pack directories, regardless of data source. Apply small-cell suppression (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter) to every stratified cell, including complementary cells recoverable by subtraction.
 
 ## CLIF Constraint
 

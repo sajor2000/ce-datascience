@@ -4,22 +4,19 @@ Walks an analysis directory and inspects:
   - BAM/CRAM @SQ headers via samtools view -H
   - VCF/VCF.gz ##contig and ##reference lines
   - GTF/GFF3 first non-comment line for chromosome naming convention
-  - tabix indexes (chr-prefix style)
-  - any chain files (cross-build mapping)
 
 Detects:
   - chr-prefix mixing ("chr1" vs "1" -- common GRCh37 vs GRCh38 confusion)
   - GRCh37/hg19 contigs in a GRCh38-declared run
   - Different MD5 sums for the same contig name
-  - Missing @SQ M5 tags (recommended for reproducibility)
 
 Exits non-zero on any mismatch so the skill can gate the next step.
 
 Usage:
     python audit_build.py analysis/bioinfo \\
         --declared GRCh38 \\
-        --manifest analysis/bioinfo/build-manifest.yaml \\
-        --report reports/genome-build-audit.md
+        --manifest analysis/genome-build/audit-findings.yaml \\
+        --report analysis/genome-build/audit-report.md
 """
 from __future__ import annotations
 

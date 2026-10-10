@@ -30,6 +30,18 @@
 | location | `<path / s3 uri / box folder>` |
 | prior_wave | `<extract_id of preceding wave, if any>` |
 
+## Column profile
+
+| Field | Value |
+|-------|-------|
+| candidate grain | `<grain or unknown>` |
+| candidate keys | `<key columns>` |
+| date columns | `<columns, timezone assumption>` |
+
+| Column | Type | % Null | % Duplicate | Distinct |
+|--------|------|--------|-------------|----------|
+| ...    | ...  | ...    | ...         | ...      |
+
 ## CONSORT / STROBE flow
 
 ```
@@ -59,7 +71,7 @@ Source population: <N>
 
 | QA-id | Variable | Detail | PI decision |
 |-------|----------|--------|-------------|
-| QA-6  | `bp_diastolic` | 12% missing; SAP allows ≤ 5% | __pending__ |
+| QA-6  | `bp_diastolic` | Primary outcome 4% missing; SAP allows ≤ 5% (warn above 0.5 × tolerance) | __pending__ |
 
 ### Info findings (N)
 
@@ -77,12 +89,12 @@ Source population: <N>
 
 ```
 [ ] I have reviewed each warn finding above.
-[ ] For QA-6 (bp_diastolic 12% missing), I authorize: <imputation strategy / sensitivity plan>.
+[ ] For QA-6 (bp_diastolic 4% missing), I authorize: <imputation strategy / sensitivity plan>.
 Signed: ____________________ Date: ____________
 ```
 
 ## Next steps
 
-If GO: an authorized human records a dated `locked` entry with the QA report path and content hash in `analysis/data-waves.md`, then proceeds to modeling. Update `.ce-datascience/data-state.yaml` too when the project uses it.
+If GO after SAP-aligned QA: an authorized human records a dated `locked` entry with the QA report path and content hash in `analysis/data-waves.md`, then proceeds to modeling. Update `.ce-datascience/data-state.yaml` too when the project uses it.
 
 If NO-GO: file each blocker as a data extract issue, re-extract, and re-register a new wave.
