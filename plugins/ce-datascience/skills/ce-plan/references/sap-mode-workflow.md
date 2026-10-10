@@ -97,7 +97,7 @@ Every new SAP must be paired with the biostatistics-style tabular SAP workbook c
    - `analysis/sap-tables/03-variables.csv` with exact columns `Category`, `Variable`, `Description`, `Type`, `Format / Values`, `File`, one flag column per analysis (`A2`, `A3`, etc.), and optional `Notes`
    - `analysis/sap-tables/<slug>-tabular-sap.xlsx` when `openpyxl` is available
 3. Use visible section-banner rows in `02-outputs.csv` such as `SETUP / DIAGNOSTICS | <script>`, `TABLE OUTPUTS | <script>`, `MODEL OUTPUTS | <script>`, and `FIGURE DATA OUTPUTS | <script>`. The remaining cells in a banner row stay blank so the workbook renderer can merge the row.
-4. If data QA is missing or blocked, or a required model strategy remains `blocked`/`provisional`, do not invent workbook rows. Keep `status: draft` and retain the relevant gap comment. For QA-only gaps, list `ce-data-qa` followed by `ce-sap-tabular <slug>`; when a model strategy is also required, insert `ce-model-strategy` between them. Complete these handoffs before `ce-sprint`, `ce-work`, coding, or modeling.
+4. If data QA is missing or blocked, or a required model strategy is absent, `blocked`, or `provisional`, do not invent workbook rows. Keep `status: draft` and retain the relevant gap comment. For QA-only gaps, list `ce-data-qa` followed by `ce-sap-tabular <slug>`; when a model strategy is also required, insert `ce-model-strategy` between them. Complete these handoffs before `ce-sprint`, `ce-work`, coding, or modeling.
 5. The SAP gap report must state whether the tabular companion is present, generated, or blocked by missing data QA. A new SAP with no tabular companion and no explicit blocker is incomplete.
 
 ## 5. SAP Phase 5: Gap Check and Review

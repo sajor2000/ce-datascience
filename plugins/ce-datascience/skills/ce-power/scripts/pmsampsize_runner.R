@@ -30,12 +30,14 @@
 # Riley, R.D., Snell, K.I.E., Ensor, J. et al. Minimum sample size for developing
 # a multivariable prediction model. BMJ 368:m441 (2020).
 
-suppressPackageStartupMessages({
-  if (!requireNamespace("pmsampsize", quietly = TRUE)) {
-    stop("install current CRAN pmsampsize: install.packages('pmsampsize')")
-  }
-  library(pmsampsize)
-})
+if (!requireNamespace("pmsampsize", quietly = TRUE)) {
+  cat("pmsampsize_runner.R: R package 'pmsampsize' is not installed; run install.packages('pmsampsize') and re-run\n",
+      file = stderr())
+  quit(status = 1)
+}
+suppressPackageStartupMessages(library(pmsampsize))
+
+`%||%` <- function(x, y) if (is.null(x)) y else x  # base R only gained %||% in 4.4
 
 parse_args <- function(args) {
   out <- list()
@@ -48,10 +50,19 @@ parse_args <- function(args) {
   out
 }
 
-`%||%` <- function(x, y) if (is.null(x)) y else x  # base R only gained %||% in 4.4
-
 a <- parse_args(commandArgs(trailingOnly = TRUE))
-stopifnot(!is.null(a$type), !is.null(a$parameters))
+
+need <- function(...) {
+  keys <- c(...)
+  absent <- keys[vapply(keys, function(k) is.null(a[[k]]), logical(1))]
+  if (length(absent) > 0) {
+    cat(sprintf("pmsampsize_runner.R: --type %s requires %s (missing: %s); see the usage block at the top of the script\n",
+                a$type %||% "<unset>", paste0("--", keys, collapse = " "),
+                paste0("--", absent, collapse = " ")), file = stderr())
+    quit(status = 2)
+  }
+}
+need("type", "parameters")
 
 shrinkage <- as.numeric(a$shrinkage %||% 0.9)
 params    <- as.integer(a$parameters)
@@ -72,14 +83,14 @@ fit_args <- function(type) {
 }
 
 if (a$type == "b") {
-  stopifnot(!is.null(a$prevalence))
+  need("prevalence")
   fit <- fit_args("b")
   res <- do.call(pmsampsize::pmsampsize, c(
     list(type = "b", parameters = params, prevalence = as.numeric(a$prevalence), shrinkage = shrinkage),
     fit
   ))
 } else if (a$type == "s") {
-  stopifnot(!is.null(a$rate), !is.null(a$timepoint), !is.null(a$meanfup))
+  need("rate", "timepoint", "meanfup")
   fit <- fit_args("s")
   res <- do.call(pmsampsize::pmsampsize, c(
     list(type = "s", parameters = params,
@@ -90,7 +101,7 @@ if (a$type == "b") {
     fit
   ))
 } else if (a$type == "c") {
-  stopifnot(!is.null(a$intercept), !is.null(a$sd), !is.null(a$rsquared))
+  need("intercept", "sd", "rsquared")
   fit <- list(rsquared = as.numeric(a$rsquared))
   res <- pmsampsize::pmsampsize(
     type = "c", rsquared = fit$rsquared, parameters = params,
@@ -123,11 +134,16 @@ md <- c(
   "https://www.bmj.com/content/368/bmj.m441"
 )
 
+# pmsampsize names the per-parameter ratio EPV (older), EPP (binary/survival,
+# current), or SPP (continuous); fall back rather than silently dropping the line.
+epv <- res$EPV %||% res$EPP %||% res$SPP
+epv_txt <- if (is.null(epv) || !is.finite(epv)) "NA" else sprintf("%.1f", epv)
+
 if (!is.null(a$out)) {
   dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
   writeLines(md, a$out)
-  cat(sprintf("__CE_POWER__ design=prediction-model total=%d n_per_arm=null epv=%.1f file=%s\n",
-              res$sample_size, res$EPV, a$out))
+  cat(sprintf("__CE_POWER__ design=prediction-model total=%d n_per_arm=null epv=%s file=%s\n",
+              as.integer(res$sample_size), epv_txt, a$out))
 } else {
   cat(md, sep = "\n")
 }

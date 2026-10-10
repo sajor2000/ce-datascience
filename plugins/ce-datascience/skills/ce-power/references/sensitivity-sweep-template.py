@@ -7,10 +7,15 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from statsmodels.stats.power import TTestIndPower
+try:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+    from statsmodels.stats.power import TTestIndPower
+except ImportError as exc:  # pragma: no cover - environment-dependent
+    raise SystemExit(
+        f"missing dependency ({exc.name}): python3 -m pip install matplotlib numpy pandas statsmodels"
+    ) from exc
 
 params = {
     "design": "two-sample-t",

@@ -49,7 +49,8 @@ Use connected MCP servers for literature; never invent a citation, effect size, 
 
 If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> pi=<lo,hi|NA> i2=<pct|null> mode=<reml|narrative>`.
 
-- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size`. Sweep range: use `pi=lo,hi` (95% prediction interval, the plausible range for a new study) when both bounds are finite numbers; otherwise (`pi=NA`, missing, or non-finite) fall back to `ci=lo,hi`. Print `[effect-size] anchor from ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%); sweep over <PI|CI> <lo>-<hi>; other interval <CI|PI> <lo>-<hi|not available>`.
+- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size`. Sweep range: use `pi=lo,hi` (95% prediction interval, the plausible range for a new study) when both bounds are finite numbers; otherwise (`pi=NA`, missing, or non-finite) fall back to `ci=lo,hi`. Print this exact line in the response before any calculation: `[effect-size] anchor from ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%); sweep over <PI|CI> <lo>-<hi>; other interval <CI|PI> <lo>-<hi|not available>`.
+- The signal carries numbers only. The PMIDs/DOIs behind it are in `analysis/effect-size/<query>-included.csv` (written by `ce-effect-size` next to `<query>-pooled.md`); read that file for the SAP-6 citation, and write `PMIDs: see <path>` only when it is absent, never a guessed list.
 - If the sweep interval crosses the null (HR/OR/RR = 1, MD/SMD = 0), required N is unbounded near it: sweep only the side containing `point`, stop short of the null, and state the truncation.
 - If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user load the `ce-effect-size` skill again with more studies.
 
@@ -107,7 +108,14 @@ Print one line so `ce-plan` SAP mode can drop the value into SAP-6 (Sample Size 
 __CE_POWER__ design=<name> total=<n> file=<path-to-summary.md> n_per_arm=<n> with_dropout=<n>
 ```
 
-The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope when `--out` is passed with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `ce-plan` SAP mode.
+The bundled `scripts/pmsampsize_runner.R` (prediction-model development path; needs R with CRAN `pmsampsize`) emits the same envelope when `--out` is passed with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `ce-plan` SAP mode. Binary example (`--type s` and `--type c` inputs are in the script header):
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+Rscript "$SKILL_DIR/scripts/pmsampsize_runner.R" --type b --csrsquared 0.15 --parameters 30 --prevalence 0.18 --out analysis/power/prediction-model-sample-size.md
+```
+
+The sweep templates inlined above are starting points: copy one to `analysis/power/`, edit `params`, and run it from the project root (the R template installs `pwr`/`ggplot2` if missing; the Python one needs `matplotlib numpy pandas statsmodels`).
 
 ## What this skill does NOT do
 

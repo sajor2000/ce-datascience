@@ -57,7 +57,7 @@ Use exactly one status:
 | `provisional` | A leading method can be named only under explicit unresolved assumptions. | None |
 | `ready_for_review` | Inputs, rationale, evidence, diagnostics, and implementation path are complete enough for human review. | Required |
 
-Do not call a recommendation final or approved. A failed data-QA or bioinformatics-QA gate is `blocked`. When no data exist yet, a design-stage recommendation may be `provisional`, with the exact future QA facts required to promote it.
+Do not call a recommendation final or approved. A failed data-QA or bioinformatics-QA gate is `blocked`. When no data exist yet, a design-stage recommendation may be `provisional`, with the exact future QA facts required to promote it. An estimand or design element that had to be assumed rather than established (for example, how death or another intercurrent event enters the estimand) is an unresolved assumption: ask the one question it raises, and if the answer is not yet in hand, use `provisional` and name the assumption in the approval prerequisites.
 
 ## Route the Model
 
@@ -96,6 +96,7 @@ Use PubMed as the required biomedical metadata baseline and treat Paperclip as b
 - Map each nontrivial decision to 1-3 sources with PMID, PMCID when available, DOI, query/date provenance, and verification status (a ledger status such as `verified`/`unverified`; it is not an evidence label).
 - Label support `abstract` unless the exact claim was checked in full text; label it `full_text` only when Paperclip or another lawful full-text source was read (`figure`, `trial`, `regulatory`, or `documentation` when that is what was read).
 - Record unavailable or contradictory evidence. Paperclip failure does not block a PubMed-supported recommendation, but the memo must state the full-text limitation.
+- General web search is not an evidence source for the ledger. When neither PubMed MCP nor the `ce-pubmed` script is reachable, keep the reference-file seed identifiers as `unverified`, emit `evidence=none`, and say in the memo that no source was verified.
 
 Literature never overrides observed grain, estimand, design constraints, or a failed QA gate.
 

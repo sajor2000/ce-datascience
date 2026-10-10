@@ -49,19 +49,28 @@ If neither an explicit path nor the signal is present, ask the user to load the 
 
 ### Step 1: Load and parse
 
-Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns. Drop rows where parsing fails; report count of dropped rows. Where a row's effect, CI, or metric is ambiguous and the paper is lawfully available, read the results section (see Evidence access) rather than guess, and note the row's `evidence_level` (`full_text` or `abstract`) in the included-studies CSV.
+Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns, normalise adjusted labels (`aHR` -> `HR`), and write `analysis/effect-size/<query>-parsed.csv` plus the parsing script next to it (the parsed-CSV contract is in that reference; `scripts/pool_effects.R` reads the parsed CSV, not the raw methods table). Drop rows where parsing fails; report count of dropped rows. Where a row's effect, CI, or metric is ambiguous and the paper is lawfully available, read the results section (see Evidence access) rather than guess, and note the row's `evidence_level` (`full_text` or `abstract`) in the included-studies CSV.
 
 ### Step 2: Filter to comparable studies
 
 Filter:
 - `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
-- Sample size present and ≥ 50. This cutoff is a working assumption of this skill, not a literature-derived threshold; state it in the output and change it when the user or the question calls for a different one
+- Sample size present and ≥ 50 (`--min-n`, default 50, applied by `scripts/pool_effects.R`, which prints every count it drops). This cutoff is a working assumption of this skill, not a literature-derived threshold; state it in the output and change it when the user or the question calls for a different one
 - Year within last `--years` window if passed
 - Optional: study type filter (e.g., RCTs only)
 
 Report N studies in the meta-analysis vs N in the input.
 
 ### Step 3: Pool
+
+Run the bundled script on the parsed CSV from Step 1 (columns `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi`; it exits with a one-line message naming any missing column, so the raw methods table will not work). It applies the Step 2 metric, CI, and `--min-n` filters, prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, and the Step 6 signal:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-parsed.csv --metric HR --out analysis/effect-size/<query>-pooled.md
+```
+
+Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
 
 If N ≥ 3:
 - For OR / HR / RR: log-transform → random-effects REML (use R `meta::metagen` or Python `pymeta`-style direct computation)
@@ -79,7 +88,7 @@ After pooling, compare the result with any published meta-analysis found under E
 
 ### Step 4: Write the output
 
-`analysis/effect-size/<query>-pooled.md` (the numbers below are template placeholders; every value comes from the computation, and the "Prior pooled estimates" line names the PMID/DOI of each comparison or says none was found):
+`analysis/effect-size/<query>-pooled.md`. `scripts/pool_effects.R` writes the pooled-estimate block and the forest-plot line; append the filtering counts, the "Prior pooled estimates" section, and the `ce-power` handoff to that same file rather than writing a second one (the numbers below are template placeholders; every value comes from the computation, and the "Prior pooled estimates" line names the PMID/DOI of each comparison or says none was found):
 
 ```
 # Pooled effect-size: <metric> for <outcome> in <population>
@@ -107,7 +116,7 @@ Use point estimate 0.78 with sensitivity sweep across PI bounds (0.52 to 1.17).
 Power calc anchor: detect HR <= 0.78 with alpha=0.05, power=0.80.
 ```
 
-Also save a CSV: `analysis/effect-size/<query>-included.csv` (which studies, why included, their PMID/DOI, and `evidence_level`).
+Also save a CSV: `analysis/effect-size/<query>-included.csv` (which studies, why included, their PMID/DOI, and `evidence_level`). `ce-power` reads this file for the PMIDs it cites in SAP-6, since the signal line carries numbers only.
 
 ### Step 5: Generate forest plot
 

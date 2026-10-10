@@ -11,12 +11,22 @@ RR 0.80 [0.71-0.90]             -> metric=RR, point=0.80, lo=0.71, hi=0.90
 adjusted HR 0.77, 95% CI 0.61 to 0.97 -> metric=HR, point=0.77, lo=0.61, hi=0.97
 ```
 
-Regex (Python):
+Regex (Python; the optional comma after the point and the `(?:-|–|,|to)` group are what let the "0.77, 95% CI 0.61 to 0.97" form parse):
 
 ```
 metric_re = r'\b(HR|OR|RR|aOR|aHR|aRR|IRR|SMR|HRR)\b'
-estimate_re = r'(?:=|\s)([\d.]+)\s*[\(\[]?\s*(?:95%\s*CI\s*)?([\d.]+)\s*[-,–to]\s*([\d.]+)'
+estimate_re = r'(?:=|\s)([\d.]+),?\s*[\(\[]?\s*(?:95%\s*CI[:\s]*)?([\d.]+)\s*(?:-|–|,|to)\s*([\d.]+)'
 ```
+
+After parsing, check every row: point and both bounds must be positive for ratio metrics, and `lo <= point <= hi`. A row that fails is a parse error, not data; drop it and count it with the other unparseable rows.
+
+## Adjusted labels
+
+`aHR`, `aOR`, `aRR`, and "adjusted HR" are the same metric as `HR`, `OR`, `RR` for pooling. Normalise them to the base label in the `metric` column and keep the adjustment in a separate `adjusted` (true/false) column, because `scripts/pool_effects.R` matches `--metric` against the label exactly and would silently leave `aHR` rows out of an `HR` pool.
+
+## Parsed CSV contract
+
+Write the parsed table to `analysis/effect-size/<query>-parsed.csv` with at least `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi` (plus `doi`, `pmcid`, `study_type`, `adjusted`, `evidence_level` when present). Save the parsing code itself as `analysis/effect-size/<query>-parse.R` or `.py` in the project, not in a scratch directory, so the pooled number can be regenerated from the methods CSV.
 
 ## Mean differences
 

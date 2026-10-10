@@ -31,6 +31,12 @@ Store every temporary path list and PR metadata file under
 `$REVIEW_SCOPE_DIR`. Keep the trap active through scope collection so success,
 failure, and interruption remove the captured data.
 
+Each shell tool call is its own session, so the trap removes the directory
+when that call ends. Finish base resolution, path capture, and the
+deterministic preflight check (risk boolean, counts, extensions) inside one
+call; in later calls re-derive paths from the printed `BASE:` value instead of
+reading the removed directory.
+
 ## Capture path names
 
 Every path below ends by capturing path names locally for the preflight without printing them, once `BASE` is resolved:
