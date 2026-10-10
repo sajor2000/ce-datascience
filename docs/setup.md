@@ -480,7 +480,7 @@ given the scientific question, analysis goal, or code task they need.
 
 For Microsoft Fabric, start with `/ce-fabric`; it routes Lakehouse/Warehouse
 coding, Data Factory pipelines, semantic models, ML, and Eventhouse/KQL work to
-the matching CE skill. The router keeps the standard data-QA and fail-loud
+the matching workflow reference inside the same skill. The router keeps the standard data-QA and fail-loud
 boundaries in place and does not create cloud resources or guess workspace
 identities.
 
@@ -489,8 +489,9 @@ text-native Marimo `.py` notebooks, preserves reactive cell dependencies, and
 requires a `marimo check` validation pass when the project runner is
 available.
 
-For R-first projects, start with `/ce-rstats`. It routes to R review,
-tidyverse, event-study, package, CRAN, performance, and `targets` workflows
+For R-first projects, start with `/ce-rstats`. It holds the R review,
+tidyverse, event-study, package, CRAN, performance, and `targets` workflows as
+reference files
 while preserving the same estimand, data-QA, and reproducibility expectations
 as Python projects.
 

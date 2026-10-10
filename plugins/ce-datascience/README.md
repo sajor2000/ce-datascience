@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 79 |
+| Skills | 66 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -325,15 +325,10 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-fabric` | Route Microsoft Fabric work to Lakehouse/Warehouse coding, pipelines, semantic models, ML, or Eventhouse/KQL while keeping CE data and method gates in place |
-| `/ce-fabric-coding` | Build or review Lakehouse, OneLake, Spark, Python-notebook, Warehouse T-SQL, and Delta-table work with declared read/write boundaries |
-| `/ce-fabric-pipelines` | Design or debug Data Factory pipelines, Copy, Dataflows Gen2, gateways, schedules, notebook activities, incremental loads, and failure routes |
-| `/ce-fabric-semantic-models` | Audit Direct Lake, DAX, RLS/OLS, refresh, semantic-link, and sempy workflows with evidence-backed data and identity checks |
-| `/ce-fabric-ml` | Run Fabric MLflow, experiment, registration, batch-scoring, model-endpoint, and AI-function workflows without weakening model-review gates |
-| `/ce-fabric-kql` | Write and validate Eventhouse, KQL, Eventstream, ingestion-policy, dashboard, and Activator workflows with explicit event-time and join semantics |
+| `/ce-fabric` | Microsoft Fabric workflows in one skill: Lakehouse/OneLake and Warehouse code, Data Factory pipelines, Direct Lake semantic models, Fabric ML, and Eventhouse/KQL, each in its own reference file, with CE data and method gates in place |
 | `/ce-marimo` | Create and review text-native reactive Marimo notebooks with explicit dependencies, validation, and fail-loud data boundaries |
 
-The Fabric family is an original CE DataScience adaptation of the routing areas
+The Fabric workflows are an original CE DataScience adaptation of the routing areas
 documented in [sajor2000/fabric-skills](https://github.com/sajor2000/fabric-skills);
 it keeps those platform surfaces inside CE's research-design, data-QA, and
 evidence gates rather than copying upstream prompts.
@@ -342,17 +337,9 @@ evidence gates rather than copying upstream prompts.
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-rstats` | Route R-first analysis projects to the appropriate CE R workflow while preserving CE study-design, QA, and review gates |
-| `/ce-r-review` | Perform a read-only audit of R scripts, Quarto/R Markdown analyses, and package code for correctness and reproducibility |
-| `/ce-r-tidyverse` | Use explicit tidyverse joins, groups, missing-value behavior, reshaping, and visualization validation |
-| `/ce-r-event-studies` | Plan and review event-study and staggered-adoption DiD designs with timing and estimand safeguards |
-| `/ce-r-package-development` | Build or review R package API, documentation, dependencies, and release structure |
-| `/ce-r-package-testing` | Create and audit testthat tests, fixtures, snapshots, mocks, and regression coverage |
-| `/ce-r-cran` | Audit R package CRAN readiness without submitting or claiming acceptance |
-| `/ce-r-performance` | Profile and optimize R code with before/after evidence and preserved analytical behavior |
-| `/ce-r-targets` | Build and validate reproducible `targets` pipelines, branching, and report integration |
+| `/ce-rstats` | R workflows in one skill: analysis design, read-only R review, tidyverse, event studies, package development, testthat, CRAN readiness, performance, and `targets` pipelines, each in its own reference file, preserving CE study-design, QA, and review gates |
 
-R skills are evidence-first: they begin with the project's pinned environment, use Ref MCP for exact package documentation when available, and use Tavily MCP only to discover primary current sources. If a research integration is unavailable, the skills surface the verification gap rather than guessing current APIs or CRAN policy.
+The R workflows are evidence-first: they begin with the project's pinned environment, use Ref MCP for exact package documentation when available, and use Tavily MCP only to discover primary current sources. If a research integration is unavailable, the workflow surfaces the verification gap rather than guessing current APIs or CRAN policy.
 
 The R family is an original CE DataScience adaptation of the categories curated
 by [awesome-rstats-skills](https://github.com/christopherkenny/awesome-rstats-skills);

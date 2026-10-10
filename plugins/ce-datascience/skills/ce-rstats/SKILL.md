@@ -1,6 +1,6 @@
 ---
 name: ce-rstats
-description: "Route R programming and statistical-analysis tasks to CE R workflows for analysis, tidyverse, event studies, package development, testing, CRAN, performance, and targets pipelines. Use when a project is R-first or the user asks for R-specific guidance."
+description: "R programming and statistical-analysis workflows: analysis design, read-only R code review, tidyverse joins and reshaping, event-study and staggered difference-in-differences designs, package development, testthat testing, CRAN readiness, profiling, and targets pipelines. Use when a project is R-first (.R, .Rmd, .qmd, renv, DESCRIPTION, _targets.R) or the user asks for R code review, dplyr/ggplot2 help, an event study, an R package, testthat, CRAN submission prep, slow R code, or a targets pipeline."
 argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|performance|targets]"
 ---
 
@@ -16,17 +16,19 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 
 ## Route
 
-| Task | Skill |
+Pick the narrowest row and read its reference file before writing code. Each file holds that workflow's scope, steps, and guardrails.
+
+| Task | Workflow |
 |---|---|
 | R analysis design, base R, modeling, sensitivity analysis | Use the shared R workflow below |
-| Read-only R code review | Load the `ce-r-review` skill |
-| dplyr, tidyr, ggplot2, purrr, joins | Load the `ce-r-tidyverse` skill |
-| Event-study or staggered adoption design | Load the `ce-r-event-studies` skill |
-| Package API, documentation, release structure | Load the `ce-r-package-development` skill |
-| testthat fixtures, snapshots, mocks | Load the `ce-r-package-testing` skill |
-| CRAN readiness and submission preparation | Load the `ce-r-cran` skill |
-| Profiling and performance improvement | Load the `ce-r-performance` skill |
-| `targets` pipeline authoring and validation | Load the `ce-r-targets` skill |
+| Read-only R code review | Read `references/review.md` |
+| dplyr, tidyr, ggplot2, purrr, joins | Read `references/tidyverse.md` |
+| Event-study or staggered adoption design | Read `references/event-studies.md` |
+| Package API, documentation, release structure | Read `references/package-development.md` |
+| testthat fixtures, snapshots, mocks | Read `references/package-testing.md` |
+| CRAN readiness and submission preparation | Read `references/cran.md` |
+| Profiling and performance improvement | Read `references/performance.md` |
+| `targets` pipeline authoring and validation | Read `references/targets.md` |
 
 ## Shared R workflow
 

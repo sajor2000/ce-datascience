@@ -28,11 +28,11 @@
     {
       "id": 3,
       "prompt": "My R package clinicalscores is failing R CMD check with 2 NOTEs and the targets pipeline in the analysis repo is also slow (~40 min per tar_make). Which should I tackle and with what? I want to submit to CRAN next month.",
-      "expected_output": "Separates the two tasks and routes CRAN readiness to ce-r-cran and pipeline slowness to ce-r-performance/ce-r-targets, without publishing to CRAN or making unverified API claims.",
+      "expected_output": "Separates the two tasks and follows references/cran.md for CRAN readiness and references/performance.md / references/targets.md for pipeline slowness, without publishing to CRAN or making unverified API claims.",
       "files": [],
       "expectations": [
-        "Routes the R CMD check / CRAN submission concern to the ce-r-cran skill",
-        "Routes the slow tar_make runtime to ce-r-performance and/or ce-r-targets",
+        "Follows references/cran.md for the R CMD check / CRAN submission concern",
+        "Follows references/performance.md and/or references/targets.md for the slow tar_make runtime",
         "Does not submit or publish anything to CRAN",
         "Does not cite a CRAN policy or package API from memory without stating a verification gap or reading an official source"
       ]

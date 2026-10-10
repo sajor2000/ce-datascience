@@ -202,7 +202,7 @@ The audit applied Anthropic's [skill-creator](https://github.com/anthropics/skil
   - `ce-data-qa` vs `ce-verify`
   - `ce-power` vs `ce-trial-design` vs `ce-effect-size`
   - `ce-ideate` vs `ce-brainstorm` vs `ce-research-question`
-  - `ce-rstats` and `ce-fabric` routers vs their sub-skills
+  - ~~`ce-rstats` and `ce-fabric` routers vs their sub-skills~~ **Resolved:** the 8 R and 5 Fabric sub-skills were merged into their routers as `references/` files (79 -> 66 skills). Removed names are registered for cleanup on upgrade.
   - `ce-optimize` vs `ce-retune`
 - **Smaller wording gaps:**
   - `ce-report-bug` should tell users to redact secrets and PHI from pasted logs.
@@ -210,6 +210,7 @@ The audit applied Anthropic's [skill-creator](https://github.com/anthropics/skil
   - `ce-release-notes` skips phase 4.
   - `ce-handoff` doesn't say how to choose among several matching handoffs.
   - `ce-doc-review` asks about edit-vs-report mode yet always auto-applies safe fixes.
+- **Literature MCP routing:** `ce-literature-search/references/mcp-routing.md` now maps each evidence need to the connected MCP tools (PubMed, Paperclip, Context7 or Ref, web search) and to a no-MCP fallback, with a no-PHI-in-queries rule.
 - **Live evaluation not run.** skill-creator's `run_loop.py` makes about 60 `claude -p` calls per skill (20 queries x 3 runs). Run it on the overlap groups above first, and treat the eval sets as a starting point for human review in skill-creator's viewer.
 
 ## mattpocock/skills evaluation

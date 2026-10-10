@@ -4,10 +4,10 @@
     {
       "id": 1,
       "prompt": "Our health system moved the readmissions data mart into Microsoft Fabric. I need a nightly job that copies the Epic Clarity encounter extract through the on-prem gateway into the Lakehouse bronze layer and alerts the data team if it fails. Where do I start?",
-      "expected_output": "Selects the pipelines route, loads ce-fabric-pipelines, states the applicable guardrails, and prints the route handoff line without creating schedules or connections.",
+      "expected_output": "Selects the pipelines route, reads references/pipelines.md, states the applicable guardrails, and prints the route handoff line without creating schedules or connections.",
       "files": [],
       "expectations": [
-        "Selects the pipelines route and loads the ce-fabric-pipelines skill before writing any pipeline definition",
+        "Selects the pipelines route and reads references/pipelines.md before writing any pipeline definition",
         "Prints a handoff line of the form [ce-fabric] route=pipelines data_layer=fabric write_boundary=<declared|unknown>",
         "Does not create schedules, gateway connections, credentials, or cloud resources without explicit authorization",
         "Does not assume a workspace or lakehouse name that the user did not provide"

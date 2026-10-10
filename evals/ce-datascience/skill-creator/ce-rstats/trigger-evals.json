@@ -4,31 +4,7 @@
     "should_trigger": true
   },
   {
-    "query": "I'm in RStudio with a .qmd analysis and need R-specific guidance on how to structure a logistic regression with multiple imputation (mice) for the SAP",
-    "should_trigger": true
-  },
-  {
-    "query": "r project here, not sure if I need the tidyverse skill or the package-dev skill for what I'm doing -- I'm wrapping my cleaning functions into something reusable",
-    "should_trigger": true
-  },
-  {
-    "query": "Which R workflow should handle adding testthat snapshot tests vs. profiling my slow data.table joins? Want the right tool for each",
-    "should_trigger": true
-  },
-  {
     "query": "We're R-first. Before I write the lme4 code for the longitudinal eGFR analysis, what gates and R conventions does the plugin expect?",
-    "should_trigger": true
-  },
-  {
-    "query": "Route me: I have an R repo with DESCRIPTION, renv.lock and a staggered-adoption policy evaluation to set up",
-    "should_trigger": true
-  },
-  {
-    "query": "how do i do R analysis properly in this repo w/ renv + quarto, record sessionInfo etc?",
-    "should_trigger": true
-  },
-  {
-    "query": "R-specific guidance please: I want to run a GEE with geepack on clustered ED visit data, version-sensitive behavior matters since renv pins geepack 1.3.9",
     "should_trigger": true
   },
   {
@@ -36,35 +12,35 @@
     "should_trigger": true
   },
   {
-    "query": "Set me up on the R path for this study -- fit models in base R, compare sensitivity specs, and keep everything reproducible",
+    "query": "Do a read-only review of R/clean_labs.R for correctness and reproducibility before I merge",
     "should_trigger": true
   },
   {
-    "query": "Do a read-only review of R/clean_labs.R for correctness and reproducibility before I merge",
-    "should_trigger": false
-  },
-  {
     "query": "Refactor this nested for-loop over patients into idiomatic dplyr with group_by and summarise",
-    "should_trigger": false
+    "should_trigger": true
   },
   {
     "query": "Prepare my package for CRAN submission: check DESCRIPTION metadata, examples, and the R CMD check results",
-    "should_trigger": false
+    "should_trigger": true
   },
   {
     "query": "My _targets.R pipeline errors on tar_make with a branching issue in tar_map; help me debug it",
-    "should_trigger": false
+    "should_trigger": true
   },
   {
     "query": "Profile this R script, it takes 3 hours on 12M rows and I think the merge is the bottleneck",
-    "should_trigger": false
-  },
-  {
-    "query": "Choose and justify the statistical model for clustered longitudinal outcomes; I haven't decided between GEE and mixed models",
-    "should_trigger": false
+    "should_trigger": true
   },
   {
     "query": "Set up a difference-in-differences event study with staggered Medicaid expansion timing and plot dynamic effects",
+    "should_trigger": true
+  },
+  {
+    "query": "Add testthat tests with fixtures and mocks for my package's API-calling functions",
+    "should_trigger": true
+  },
+  {
+    "query": "Choose and justify the statistical model for clustered longitudinal outcomes; I haven't decided between GEE and mixed models",
     "should_trigger": false
   },
   {
@@ -76,7 +52,31 @@
     "should_trigger": false
   },
   {
-    "query": "Add testthat tests with fixtures and mocks for my package's API-calling functions",
+    "query": "Review the Python feature-engineering module in src/features.py for leakage and correctness before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Refactor this pandas groupby/merge chain that builds the 30-day readmission flag so it's faster and clearer",
+    "should_trigger": false
+  },
+  {
+    "query": "Profile the new EHR extract in data/raw/encounters_2026.parquet (row counts, keys, missingness) and give me a GO/NO-GO before I finalize the SAP",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the statistical analysis plan for our retrospective cohort of sepsis bundle compliance; estimand, primary model and sensitivity analyses",
+    "should_trigger": false
+  },
+  {
+    "query": "How many patients do I need to detect a 5-point difference in SOFA score at 80% power, alpha 0.05, two-sided?",
+    "should_trigger": false
+  },
+  {
+    "query": "Patch cell 14 in analysis/notebooks/qc.ipynb to add a missingness heatmap without breaking the notebook metadata",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a reactive marimo notebook for exploring the ICU lab trends with sliders for the time window",
     "should_trigger": false
   }
 ]

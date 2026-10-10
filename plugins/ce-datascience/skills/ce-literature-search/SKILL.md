@@ -17,7 +17,7 @@ argument-hint: "[research query, PICO/PECO question, DOI/PMID list, or source re
 
 ## Route
 
-Choose the narrowest route that satisfies the request:
+Choose the narrowest route that satisfies the request. Before calling any search tool, read `references/mcp-routing.md`: it maps each need to the connected MCP tools (PubMed, Paperclip, Context7 or Ref, web search) and to the fallback when none is connected.
 
 | Need | Route |
 |---|---|
