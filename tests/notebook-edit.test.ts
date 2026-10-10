@@ -87,6 +87,10 @@ describe("notebook edit workflow", () => {
     expect(notebook.cells[2].metadata.tags).toEqual(["sap-5-1-sensitivity"])
     expect(notebook.metadata).toEqual(original.metadata)
     expect(notebook.cells[0]).toEqual(original.cells[0])
+    // nbformat 4.5 requires cell ids: inserted cells get unique ones, untouched cells keep their shape.
+    expect(notebook.cells[1].id).toMatch(/^[0-9a-f]{8}$/)
+    expect(notebook.cells[2].id).toMatch(/^[0-9a-f]{8}$/)
+    expect(notebook.cells[1].id).not.toBe(notebook.cells[2].id)
     expect(backup).toContain("# Primary analysis")
     expect(report).toContain("Result: EDITED-WITH-REVIEW")
   })

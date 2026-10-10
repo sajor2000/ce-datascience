@@ -1,12 +1,12 @@
 ---
 name: ce-notebook-edit
-description: "Safely modify existing Jupyter, Marimo, or Quarto notebooks using anchors, backups, and metadata-preserving edits."
-argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--cell-type markdown|code]"
+description: "Safely modify existing Jupyter .ipynb notebooks using cell anchors, backups, and metadata-preserving edits. Use when the user asks to update, patch, or extend an existing .ipynb notebook rather than generate a new one; Marimo notebooks belong to ce-marimo."
+argument-hint: "<notebook.ipynb> --tag <anchor-tag> --source <file> [--markdown-source <file>] [--cell-type markdown|code]"
 ---
 
 # Guarded Notebook Editing
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Run the script from the user's project root.** `$SKILL_DIR` anchors the script path; `--notebook`, `--source`, and `--markdown-source` resolve against `--project-root` (default: the current directory) and must stay project-relative.
 
 
 ## Skill Value
@@ -33,7 +33,8 @@ Existing notebooks are fragile because cell order, metadata, outputs, and JSON s
 3. Load the `ce-notebook-standards` skill before adding or materially changing executable cells. Put the explanatory Markdown and new code body in small project files, then run:
 
 ```bash
-python3 scripts/notebook_edit.py --notebook analysis/notebook.ipynb --tag sap-5-1 --markdown-source analysis/notebook-edits/new-cell.md --source analysis/notebook-edits/new-cell.py --cell-type code
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/notebook_edit.py" --notebook analysis/notebook.ipynb --tag sap-5-1 --markdown-source analysis/notebook-edits/new-cell.md --source analysis/notebook-edits/new-cell.py --cell-type code
 ```
 
 4. Review the generated backup, modified notebook diff, and `.edit-report.md` file.
@@ -52,7 +53,7 @@ When an edit adds or changes code that reads, creates, transforms, validates, or
 ## What This Skill Does Not Do
 
 - Does not rewrite or reorder existing cells.
-- Does not execute notebooks.
+- Does not execute notebooks inside the edit script; step 5 runs them only through the project's normal runner.
 - Does not edit notebooks without a unique metadata tag anchor.
 - Does not hide manual review; `.ipynb` diffs must be inspected before treating the change as complete.
 

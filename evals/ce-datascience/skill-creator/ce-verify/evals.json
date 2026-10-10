@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-verify",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Just finished the primary logistic model for the AKI study -- outputs are in output/models/a2/. Data-QA reported N=8,234 in analysis/data-qa-report.md and analysis/research-question.yaml says we expect nephrotoxin exposure to be harmful. Quick sanity check before I mark the task done?",
+      "expected_output": "Runs the applicable checks from the catalog (sample size, effect direction, missingness, PHI, reproducibility, and leakage only if a split exists), emits a PASS/WARN/FAIL report and the __CE_VERIFY__ signal.",
+      "files": [],
+      "expectations": [
+        "Cross-references the analysis N against analysis/data-qa-report.md (N=8,234) using the 10%/25% thresholds",
+        "Compares the observed effect direction with the hypothesis in analysis/research-question.yaml and WARNs on mismatch",
+        "Skips the leakage scan if no train/test split exists",
+        "Emits a numbered Verification Report with PASS/WARN/FAIL lines and a summary count",
+        "Emits '__CE_VERIFY__ pass=<n> warn=<n> fail=<n> blocking=<true|false>' with blocking=true if any FAIL"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "verify my prediction model pipeline in analysis/model.py -- I fit StandardScaler on the full X and then did train_test_split, and the AUROC is 0.97. also can you fix it while you're there?",
+      "expected_output": "Reports a FAIL for data leakage (scaler fit before split), marks the result blocking, and does not modify analysis files since verification is read-only.",
+      "files": [],
+      "expectations": [
+        "Reports the StandardScaler().fit on full data before train_test_split as a FAIL leakage finding",
+        "Sets blocking=true in the __CE_VERIFY__ signal",
+        "Does not modify analysis/model.py (read-only verification) and recommends the fix instead",
+        "Does not claim to replace full code review"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run ce-verify on output/ -- there's a csv called output/tables/patient_list_with_mrn.csv in there that a student exported, plus figure fig2.png.",
+      "expected_output": "Flags the patient-identifier export as a PHI FAIL without reproducing identifiers, and runs figure-quality and other applicable checks.",
+      "files": [],
+      "expectations": [
+        "Reports a PHI scan FAIL for output/tables/patient_list_with_mrn.csv",
+        "Does not print MRNs or other identifier values from the file in the report",
+        "Runs the figure quality check on fig2.png",
+        "Emits __CE_VERIFY__ with blocking=true"
+      ]
+    }
+  ]
+}

@@ -7,8 +7,7 @@ These rules apply to every reviewer. They define what is "your code to review" v
 Determine the diff to review using this priority order:
 
 1. **User-specified scope.** If the caller passed `BASE:`, `FILES:`, or `DIFF:` markers, use that scope exactly.
-2. **Working copy changes.** If there are unstaged or staged changes (`git diff HEAD` is non-empty), review those.
-3. **Unpushed commits vs base branch.** If the working copy is clean, review `git diff $(git merge-base HEAD <base>)..HEAD` where `<base>` is the default branch (main or master).
+2. **Merge-base against the working tree.** Otherwise, review `git diff $BASE`, where `$BASE` is the merge-base of HEAD and the resolved review base branch; this covers committed, staged, and unstaged changes together. Never fall back to `git diff HEAD` when the base cannot be resolved.
 
 The scope step in the SKILL.md handles discovery and passes you the resolved diff. You do not need to run git commands yourself.
 

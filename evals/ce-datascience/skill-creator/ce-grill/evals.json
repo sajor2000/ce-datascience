@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-grill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Grill me on this before I write the SAP: early statin use after ICU admission for sepsis reduces 90-day mortality. Data is our health system EHR 2015-2024, about 18,000 sepsis admissions. Target journal is Critical Care Medicine, audience is intensivists.",
+      "expected_output": "Looks up facts it can find (existing repo files, the journal's article limits and reporting checklist) instead of asking, then interviews one question at a time with a recommended answer first, starting with the decision that unlocks the most downstream choices (e.g., time zero and the comparator), flags immortal time bias for 'early statin use', and saves a grill record after the user confirms a shared understanding.",
+      "files": [],
+      "expectations": [
+        "Asks exactly one question per turn, each with up to 4 options and the recommended answer listed first and labeled (Recommended)",
+        "Raises immortal time bias or time-zero definition for the 'early statin use after admission' exposure",
+        "Looks up the target journal's limits or required reporting checklist itself rather than asking the user for them, or marks them unverified",
+        "Looks up prior studies on statins in sepsis and published 90-day mortality rates through the PubMed MCP, reading a source before citing it and keeping the PMID, or marks them unverified, instead of asking the user for them",
+        "Summarizes the decisions and asks the user to confirm a shared understanding before saving anything",
+        "Saves the record to docs/brainstorms/<date>-<slug>-grill.md with a Decisions table, ranked open risks, and a reviewer attack list"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Stress-test my idea: an ML model predicts 30-day readmission after heart failure discharge. I'll paste a few patient rows from the extract so you can see the data. We're aiming for JAMA.",
+      "expected_output": "Declines the patient rows and asks about the data by schema, counts, and definitions only, then grills the goal (what decision the prediction changes), the hypothesis, data fitness, the analysis (validation, calibration, events per predictor), the JAMA fit with a backup journal, and the audience, recording TRIPOD+AI as the expected checklist.",
+      "files": [],
+      "expectations": [
+        "Does not request or accept patient-level rows; asks about schema, cohort size, event counts, and definitions instead",
+        "Probes what clinical decision changes if the model works, not only model performance",
+        "Raises validation or calibration and the number of outcome events relative to candidate predictors",
+        "Names TRIPOD+AI (or TRIPOD) as the reporting checklist and asks for or recommends a backup journal"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "grill me on the hypothesis that night-shift nurse staffing ratio affects in-hospital falls, then just go ahead and write the full statistical analysis plan and run the models on our data.",
+      "expected_output": "Runs the grill interview one question at a time and saves the grill record, but does not write the SAP or run any analysis; it names ce-plan (SAP mode) or another next skill as the follow-up based on what remains open.",
+      "files": [],
+      "expectations": [
+        "Conducts the interview one question at a time with a recommended answer for each",
+        "Does not write a statistical analysis plan or run models",
+        "Ends by naming the next skill (for example ce-plan in SAP mode, ce-data-qa, or ce-power) based on the remaining open decisions"
+      ]
+    }
+  ]
+}

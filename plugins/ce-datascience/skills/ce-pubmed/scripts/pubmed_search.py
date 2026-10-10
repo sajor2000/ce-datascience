@@ -153,7 +153,7 @@ def search(term: str, years: int | None, study_type: str | None,
     for start in range(0, actual, batch_size):
         with Entrez.efetch(db="pubmed", retmode="xml",
                            webenv=es["WebEnv"], query_key=es["QueryKey"],
-                           retstart=start, retmax=batch_size) as handle:
+                           retstart=start, retmax=min(batch_size, actual - start)) as handle:
             records = Entrez.read(handle)
         for rec in records.get("PubmedArticle", []):
             row = parse_record(rec)
@@ -161,7 +161,8 @@ def search(term: str, years: int | None, study_type: str | None,
             rows.append(row)
         time.sleep(0.35)  # belt-and-suspenders; Entrez already throttles
 
-    return rows
+    # The history server holds every match, not just --max; never return more.
+    return rows[:actual]
 
 
 def write_csv(rows: list[dict], path: Path) -> None:

@@ -1,0 +1,22 @@
+[
+  {"query": "I need some literature to ground the SAP for our tele-ICU evaluation - prior studies, methods they used, and maybe current guidance. Can you figure out the right way to search?", "should_trigger": true},
+  {"query": "find papers on frailty and post-op delirium in older adults, plus whatever the current AGS guideline says. not sure if this is a pubmed thing or a web thing", "should_trigger": true},
+  {"query": "Look up these identifiers and tell me what they are: 10.1001/jama.2023.12345, PMID 34567890, and the NICE guideline on sepsis NG51.", "should_trigger": true},
+  {"query": "Evidence grounding needed for our choice of target trial emulation over a standard cohort design - papers and methods sources, reproducible search please.", "should_trigger": true},
+  {"query": "we're thinking of a scoping review on AI sepsis alerts. what would a proper search look like and what do we need to decide before calling it comprehensive?", "should_trigger": true},
+  {"query": "lit search: PECO = adults on chronic opioids, exposure = rapid taper, comparator = slow taper, outcome = overdose. need sources across pubmed and FDA safety communications", "should_trigger": true},
+  {"query": "I want background references for the introduction, method references for the SAP, and current CMS reporting rules for the quality measure - help me route these searches.", "should_trigger": true},
+  {"query": "What's out there on using MIMIC-IV for delirium prediction, and what's the current version of the TRIPOD+AI statement? Keep track of query strings and dates.", "should_trigger": true},
+  {"query": "Need evidence on SGLT2 inhibitors and euglycemic DKA in surgical patients - abstracts are fine for now but flag which claims would need full text.", "should_trigger": true},
+  {"query": "my PI asked for 'the literature' on early mobilization before Friday. I don't know if she wants a pubmed dump, an evidence map, or effect sizes - help me scope and run it", "should_trigger": true},
+  {"query": "Run a PubMed E-utilities search for (sepsis[MeSH] AND vasopressin) 2015:2026[dp], RCT filter, and export PMIDs, abstracts, and MeSH terms to CSV.", "should_trigger": false},
+  {"query": "Build a claim-to-source evidence map from analysis/pubmed/vasopressin-results.csv with Paperclip full-text deepening and verification labels.", "should_trigger": false},
+  {"query": "Extract cohort definitions, endpoints, and model types from the 15 studies in analysis/pubmed/vasopressin-results.csv into a methods table.", "should_trigger": false},
+  {"query": "Pool the hazard ratios from analysis/pubmed/vasopressin-methods.csv with REML for the power calculation.", "should_trigger": false},
+  {"query": "Insert editable Zotero citations for PMIDs 31234567 and 32345678 into manuscript/intro.docx and fix the broken bibliography.", "should_trigger": false},
+  {"query": "Turn my fuzzy idea about vasopressin timing into PICO and FINER with a starting PubMed query in YAML.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our systematic review protocol - PRISMA-P or PROSPERO fields - and register it.", "should_trigger": false},
+  {"query": "Generate the PROSPERO registration content for our systematic review of dexmedetomidine and delirium.", "should_trigger": false},
+  {"query": "Write the Introduction section of manuscript/draft.md from the evidence map we already built, keeping every claim cited.", "should_trigger": false},
+  {"query": "Brainstorm ranked research questions on vasopressin use in septic shock that we could answer with our ICU EHR data.", "should_trigger": false}
+]

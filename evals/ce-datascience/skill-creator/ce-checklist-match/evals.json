@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-checklist-match",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Which reporting guideline do we follow? Study: retrospective cohort using our health system's EHR (Epic Clarity extract) 2018-2024, causal aim — does early statin exposure after stroke reduce 1-year mortality. No AI involved. Not preregistered yet. Setup was already run.",
+      "expected_output": "Routes the study to STROBE with RECORD, writes the canonical string fields to <repo-root>/.ce-datascience/config.local.yaml, drops fillable checklist placeholders under analysis/checklists/, and prints the __CE_CHECKLIST__ signal.",
+      "files": [],
+      "expectations": [
+        "Selects STROBE as primary and RECORD as an extension",
+        "Writes stack_profile.reporting_checklist: STROBE (string form, not boolean) and reporting_checklist_extensions: [RECORD] to <repo-root>/.ce-datascience/config.local.yaml resolved via git rev-parse --show-toplevel",
+        "Writes analysis/checklists/STROBE.md and analysis/checklists/RECORD.md as fillable checklist tables",
+        "Heads each checklist placeholder with the guideline statement's citation (PMID/DOI) confirmed through the PubMed MCP rather than an invented or unverified reference",
+        "Prints exactly one line of the form __CE_CHECKLIST__ primary=STROBE extensions=[RECORD]",
+        "Does not re-ask routing questions already answered in the prompt (design, direction, aim, AI involvement)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "__CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=prediction_model checklist=?\n\nOk the research question is locked. We're developing a gradient-boosted model to predict in-hospital deterioration from vitals and labs, then external validation at a second site. Pick the checklist(s) before I start the SAP.",
+      "expected_output": "Pre-fills routing answers from the research-question YAML, surfaces them for confirmation, and routes to TRIPOD+AI as primary with REFORMS as the ML-based-science extension before writing the stack profile, recording ai_involvement with a canonical value (CHARMS is not added because it applies only to systematic reviews of prediction models).",
+      "files": [],
+      "expectations": [
+        "Reads analysis/research-question.yaml and surfaces pre-filled design/AI involvement/population values for user confirmation before writing to the stack profile",
+        "Routes to TRIPOD+AI as the primary checklist (prediction model with AI involvement) and does not make REFORMS the primary; REFORMS, if added, is an extension",
+        "Writes ai_involvement using only a canonical value (none, ai-assisted, ai-primary, or llm-based; here ai-primary), never model-as-study-object or model-as-tool",
+        "Does not write the SAP itself",
+        "Emits a __CE_CHECKLIST__ line with primary=TRIPOD+AI"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's our finished manuscript draft at manuscript/main.docx for the RCT of a nurse-led sepsis bundle. Score it against CONSORT and tell me which items we're missing.",
+      "expected_output": "Recognizes this is a review-time compliance scoring request, which this skill does not do; at most it confirms CONSORT as the applicable checklist and routes compliance scoring to review time (ce-reporting-checklist-reviewer via code/document review).",
+      "files": [],
+      "expectations": [
+        "Does not produce an item-by-item compliance score of the manuscript",
+        "States that checklist compliance review happens at review time (ce-reporting-checklist-reviewer during code/document review)",
+        "If it identifies the checklist, names CONSORT for the RCT"
+      ]
+    }
+  ]
+}

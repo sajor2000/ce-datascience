@@ -1,6 +1,6 @@
 ---
 name: ce-doc-review
-description: "Review plans, SAPs, manuscripts, requirements, or docs for clarity, completeness, scope control, and review readiness."
+description: "Review plans, SAPs, manuscripts, requirements, or docs for clarity, completeness, scope control, and review readiness. Use when the user asks to review, strengthen, simplify, or validate a document rather than code."
 argument-hint: "[mode:non-interactive|headless] [path/to/document.md]"
 ---
 
@@ -16,33 +16,19 @@ argument-hint: "[mode:non-interactive|headless] [path/to/document.md]"
 - **Do not do:** Do not turn document review into implementation or scientific analysis execution.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Review requirements or plan documents through multi-persona analysis. Dispatches specialized reviewer agents in parallel, auto-applies `safe_auto` fixes, and routes remaining findings through a four-option interaction (per-finding walk-through, auto-resolve with best judgment, Append-to-Open-Questions, Report-only) for user decision.
+Reviews requirements or plan documents with parallel reviewer personas, auto-applies `safe_auto` fixes, and routes remaining findings through a four-option interaction (per-finding walk-through, auto-resolve with best judgment, Append-to-Open-Questions, Report-only).
 
 ## Interactive mode rules
 
-When this skill asks a user-facing question, follow the Skill Value interaction rule above.
+Every user-facing question follows the Skill Value interaction rule above.
 
 ## Phase 0: Detect Mode
 
 Check the skill arguments for `mode:non-interactive` or its backwards-compatible alias `mode:headless`. Arguments may contain a document path and either token. Tokens starting with `mode:` are flags, not file paths — normalize `mode:non-interactive` to `mode:headless`, strip it, and use the remaining token (if any) as the document path for Phase 1. Both aliases together are not a conflict.
 
-If either alias is present, set **non-interactive mode** for the rest of the workflow.
+If either alias is present, set **non-interactive mode** for the rest of the workflow (e.g., `Skill("ce-doc-review", "mode:non-interactive docs/plans/my-plan.md")`). It changes delivery, not classification: tier judgment is identical, `safe_auto` fixes still apply silently, `gated_auto`, `manual`, and FYI findings return as structured text with their original classifications (no blocking questions, no routing), and Phase 5 returns immediately with "Review complete".
 
-**Non-interactive mode** changes the interaction model, not the classification boundaries. ce-doc-review still applies the same judgment about which tier each finding belongs in. The only difference is how non-safe_auto findings are delivered:
-
-- `safe_auto` fixes are applied silently (same as interactive)
-- `gated_auto`, `manual`, and FYI findings are returned as structured text for the caller to handle — no blocking-question prompts, no interactive routing
-- Phase 5 returns immediately with "Review complete" (no routing question, no terminal question)
-
-The caller receives findings with their original classifications intact and decides what to do with them.
-
-Callers should invoke non-interactive mode with `mode:non-interactive`; `mode:headless` remains supported for backwards compatibility, e.g.:
-
-```
-Skill("ce-doc-review", "mode:non-interactive docs/plans/my-plan.md")
-```
-
-If neither alias is present, the skill runs in its default interactive mode with the routing question, walk-through, and bulk-preview behaviors documented in `references/walkthrough.md` and `references/bulk-preview.md`.
+Otherwise run in default interactive mode with the routing question, walk-through, and bulk preview.
 
 ## Phase 1: Get and Analyze Document
 
@@ -133,46 +119,32 @@ Do NOT activate adversarial on a routine plan document that derives from a valid
 
 ## Phase 2: Announce and Dispatch Personas
 
-### Announce the Review Team
+### Build and Announce the Team
 
-Tell the user which personas will review and why. For conditional personas, include the justification:
+Always include `ce-coherence-reviewer` and `ce-feasibility-reviewer`. Add each activated conditional: `ce-product-lens-reviewer`, `ce-design-lens-reviewer`, `ce-security-lens-reviewer`, `ce-scope-guardian-reviewer`, `ce-adversarial-document-reviewer`. Tell the user the team, with a one-line justification per conditional:
 
 ```
 Reviewing with:
 - ce-coherence-reviewer (always-on)
 - ce-feasibility-reviewer (always-on)
 - ce-scope-guardian-reviewer -- plan has 12 requirements across 3 priority levels
-- ce-security-lens-reviewer -- plan adds API endpoints with auth flow
 ```
-
-### Build Agent List
-
-Always include:
-- `ce-coherence-reviewer`
-- `ce-feasibility-reviewer`
-
-Add activated conditional personas:
-- `ce-product-lens-reviewer`
-- `ce-design-lens-reviewer`
-- `ce-security-lens-reviewer`
-- `ce-scope-guardian-reviewer`
-- `ce-adversarial-document-reviewer`
 
 ### Dispatch
 
 Dispatch agents using **bounded parallelism** with the platform's subagent primitive (e.g., `Agent` in Claude Code, `spawn_agent` in Codex, `subagent` in Pi via the `pi-subagents` extension). Omit the `mode` parameter so the user's configured permission settings apply. Respect the current harness's active-subagent limit: queue selected reviewers, dispatch only as many as the harness accepts, and fill freed slots as reviewers complete. Treat active-agent/thread/concurrency-limit spawn errors as backpressure, not reviewer failure.
 
-Each agent receives the prompt built from the subagent template included below with these variables filled:
+Read `references/subagent-template.md` and `references/findings-schema.json` now. Build each agent's prompt from the template with these variables filled:
 
 | Variable | Value |
 |----------|-------|
 | `{persona_file}` | Full content of the agent's markdown file |
-| `{schema}` | Content of the findings schema included below |
-| `{document_type}` | "requirements" or "plan" from Phase 1 classification |
+| `{schema}` | Content of `references/findings-schema.json` |
+| `{document_type}` | Phase 1 classification |
 | `{document_path}` | Path to the document |
 | `{document_content}` | Full text of the document |
-| `{origin_path}` | Value of the document's `origin:` frontmatter field if present, or the literal string `none` if absent. Personas that adapt on origin read this slot instead of re-parsing frontmatter. |
-| `{decision_primer}` | Cumulative prior-round decisions in the current session, or an empty `<prior-decisions>` block on round 1. See "Decision primer" below. |
+| `{origin_path}` | The document's `origin:` frontmatter value, or the literal string `none` |
+| `{decision_primer}` | Prior-round decisions in the current session (see Decision primer) |
 
 Pass each agent the **full document** — do not split into sections.
 
@@ -186,51 +158,13 @@ Round 1 — no prior decisions.
 </prior-decisions>
 ```
 
-On round 2+ (after one or more prior rounds in the current interactive session), accumulate prior-round decisions and render them as:
+On round 2+ in the same interactive session, read `references/decision-primer.md` and render the accumulated prior-round decisions in its format.
 
-```
-<prior-decisions>
-Round 1 — applied (N entries):
-- {section}: "{title}" ({reviewer}, {confidence})
-  Evidence: "{evidence_snippet}"
-
-Round 1 — rejected (M entries):
-- {section}: "{title}" — Skipped because {reason}
-  Evidence: "{evidence_snippet}"
-- {section}: "{title}" — Deferred to Open Questions because {reason or "no reason provided"}
-  Evidence: "{evidence_snippet}"
-- {section}: "{title}" — Acknowledged without applying because {reason or "no suggested_fix — user acknowledged"}
-  Evidence: "{evidence_snippet}"
-
-Round 2 — applied (N entries):
-...
-</prior-decisions>
-```
-
-Each entry carries an `Evidence:` line because synthesis R29 (rejected-finding suppression) and R30 (fix-landed verification) both use an evidence-substring overlap check as part of their matching predicate — without the evidence snippet in the primer, the orchestrator cannot compute the `>50%` overlap test and has to fall back to fingerprint-only matching, which either re-surfaces rejected findings or suppresses too aggressively. The `{evidence_snippet}` is the first evidence quote from the finding, truncated to the first ~120 characters (preserving whole words at the boundary) and with internal quotes escaped. If a finding has multiple evidence entries, use the first one; the rest live in the run artifact and are not needed for the overlap check.
-
-Accumulate across all rounds in the current session. Skip, Defer, and Acknowledge actions all count as "rejected" for suppression purposes — each signals the user decided the finding wasn't worth actioning this round (Acknowledge is the no-fix-guard variant: the user saw a finding with no `suggested_fix`, chose not to defer or skip explicitly, and recorded acknowledgement instead; for round-to-round suppression that is semantically equivalent to Skip). Applied findings stay on the applied list so round-N+1 personas can verify fixes landed (see R30 in `references/synthesis-and-presentation.md`).
-
-Cross-session persistence is out of scope. A new invocation of ce-doc-review on the same document starts with a fresh round 1 and no carried primer, even if prior sessions deferred findings into the document's Open Questions section.
-
-**Error handling:** If an agent fails or times out, proceed with findings from agents that completed. Note the failed agent in the Coverage section. Do not block the entire review on a single agent failure.
-
-**Dispatch limit:** Even at maximum (7 agents), use bounded parallel dispatch. If the harness cap is lower than the selected team size, queue the remainder and launch them as active reviewers complete.
+**Error handling:** If an agent fails or times out, proceed with the completed agents' findings and note the failure in Coverage.
 
 ## Phases 3-5: Synthesis, Presentation, and Next Action
 
-After all dispatched agents return, read `references/synthesis-and-presentation.md` for the synthesis pipeline (validate, anchor-based gate, dedup, cross-persona agreement promotion, resolve contradictions, auto-promotion, route by three tiers with FYI subsection), `safe_auto` fix application, headless-envelope output, and the handoff to the routing question.
+After all dispatched agents return, read `references/synthesis.md` for the synthesis pipeline (validate, anchor-based gate, dedup, cross-persona agreement promotion, resolve contradictions, auto-promotion, route by three tiers with FYI subsection); its step 3.5c lives in `references/synthesis-chains.md`. Then read `references/presentation.md` for `safe_auto` fix application, headless-envelope output, the handoff to the routing question, and the Phase 5 terminal question.
 
-For the four-option routing question and per-finding walk-through (interactive mode), read `references/walkthrough.md`. For the bulk-action preview used by best-judgment routing, Append-to-Open-Questions, and walk-through `Auto-resolve with best judgment on the rest`, read `references/bulk-preview.md`. Do not load these files before agent dispatch completes.
+For the four-option routing question (interactive mode), read `references/routing-question.md`; for the per-finding walk-through and unified completion report, read `references/walkthrough.md`. For the bulk-action preview used by best-judgment routing, Append-to-Open-Questions, and walk-through `Auto-resolve with best judgment on the rest`, read `references/bulk-preview.md`. Do not load these files before agent dispatch completes. For Append-to-Open-Questions (Defer) actions, read `references/open-questions-defer.md`; for the final report shape, read `references/review-output-template.md`.
 
----
-
-## Included References
-
-### Subagent Template
-
-@./references/subagent-template.md
-
-### Findings Schema
-
-@./references/findings-schema.json

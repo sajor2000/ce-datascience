@@ -103,7 +103,7 @@ Return findings as JSON conforming to the findings schema. Each finding must inc
 - `suggested_fix`: Concrete code or documentation change to address the item (required for "Not addressed" items)
 
 Additionally, include:
-- `checklist_item`: The specific checklist item identifier, prefixed by the guideline abbreviation (e.g., `STROBE-12a`, `CONSORT-7a`, `CONSORT-AI-3`, `REFORMS-5`). Use the abbreviation exactly as it appears in the checklist file header.
+- `checklist_item`: The specific checklist item identifier, prefixed by the guideline abbreviation (e.g., `STROBE-12a`, `CONSORT-16a`, `CONSORT-AI-3`, `REFORMS-5`). Use the abbreviation exactly as it appears in the checklist file header.
 - `coverage`: One of `addressed`, `partially_addressed`, `not_addressed`, `not_applicable`
 - `guideline`: The guideline abbreviation this finding belongs to (e.g., `STROBE`, `CONSORT-AI`)
 

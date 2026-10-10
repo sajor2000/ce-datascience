@@ -7,16 +7,16 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 | Skill | Done signal | In-progress signal |
 |---|---|---|
 | `ce-research-question` | `analysis/research-question.yaml` exists and contains `pico:` block | File exists but `pico:` has empty slots |
-| `ce-pubmed` | `analysis/literature/` directory exists with `.md` or `.json` result files | Directory exists but is empty |
-| `ce-method-extract` | `analysis/literature/` contains `methods-comparison.*` or `method-extract.*` | — |
-| `ce-checklist-match` | `analysis/checklist.yaml` exists | — |
-| `ce-effect-size` | `analysis/effect-size.*` exists (`.R`, `.py`, or `.md`) | — |
+| `ce-pubmed` | `analysis/pubmed/` contains a result `.csv` (with its sibling `.md` summary) | Directory exists but is empty |
+| `ce-method-extract` | `analysis/pubmed/` contains `*-methods.csv` or `*-methods-summary.md` | — |
+| `ce-checklist-match` | `stack_profile.reporting_checklist` is set in `.ce-datascience/config.local.yaml`, or `analysis/checklists/*.md` exists | — |
+| `ce-effect-size` | `analysis/effect-size/` contains a `*-pooled.md` result | — |
 | `ce-power` | `analysis/power/` directory or `analysis/power-analysis.*` file exists | — |
 | `ce-cohort-build` | `analysis/cohort/` contains `.sql` or `.json` concept-set files | Directory exists but no SQL/JSON |
-| `ce-data-qa` | `reports/data-qa/*.md` or `analysis/data-qa-report.md` exists and contains `GO`, `__CE_DATA_PROFILE__`, or `__CE_DATA_QA__` verdict | Report exists but contains `NO-GO`, blockers, or no verdict |
+| `ce-data-qa` | `reports/data-qa/*.md` or `analysis/data-qa-report.md` exists and contains a `GO` verdict (not `NO-GO`), `__CE_DATA_PROFILE__`, or `__CE_DATA_QA__ ... pass=true` | Report exists but contains `NO-GO`, blockers, or no verdict |
 | `ce-model-strategy` | Every `analysis/model-strategy/*-model-strategy.md` has an exact `Status: ready_for_review` line | Any strategy memo has `Status: blocked`, `Status: provisional`, a conflicting status, or no exact status line |
-| `ce-phenotype-validate` | `analysis/phenotype-validation.*` exists with PPV/sensitivity results | — |
-| `ce-plan` (SAP) | `docs/plans/` contains a file with `sap_version` in YAML frontmatter | Plan file exists without `sap_version` (implementation plan, not SAP) |
+| `ce-phenotype-validate` | `reports/phenotype-validation/*.md` exists with PPV/sensitivity results | — |
+| `ce-plan` (SAP) | `analysis/sap.md` (or the user-specified SAP path) has `sap_version` in YAML frontmatter and `status: final` or `status: amended` | SAP has `sap_version` with `status: draft` |
 | `ce-plan` (implementation) | `docs/plans/` contains a file with `status: active` or `status: completed` | — |
 | `ce-sap-tabular` | `analysis/sap-tables/` directory exists with CSV files | — |
 | `ce-sprint` (open) | `analysis/sprint-log.yaml` exists and contains `status: open` | — |
@@ -24,7 +24,7 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 | `ce-work` | Implementation files exist matching the plan's unit file lists | — |
 | `ce-code-review` | PR exists on the current branch, or `/tmp/ce-datascience/ce-code-review/` contains a run artifact | — |
 | `ce-compound` | `docs/solutions/` contains a new learning file dated within the last 7 days | — |
-| `ce-bioinfo-qc` | `analysis/qc/` directory exists with QC reports | — |
+| `ce-bioinfo-qc` | `reports/bioinfo-qa/*.md` QC summary exists | — |
 | `ce-genome-build` | `.ce-datascience/config.local.yaml` contains `genome_build` key | — |
 | `ce-ml-experiment-track` | `mlruns/`, `wandb/`, or `dvc.yaml` exists at repo root | — |
 | `ce-model-card` | `analysis/model-card.md` or `docs/model-card.md` exists | — |

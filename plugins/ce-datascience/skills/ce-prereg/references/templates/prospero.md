@@ -1,10 +1,42 @@
 # PROSPERO Registration Template (Systematic Reviews)
 
+## Contents
+
+- 1. Review title
+- 2. Original language title
+- 3. Anticipated or actual start date
+- 4. Anticipated completion date
+- 5. Stage of review at submission
+- 6. Named contact
+- 7. Named contact organisation
+- 8. Funding sources / sponsors
+- 9. Conflicts of interest
+- 10. Collaborators
+- 11. Review question
+- 12. Searches
+- 13. URL to search strategy (if applicable)
+- 14. Condition or domain being studied
+- 15. Participants / population
+- 16. Intervention(s) / exposure(s)
+- 17. Comparator(s) / control
+- 18. Types of study to be included
+- 19. Context
+- 20. Main outcome(s)
+- 21. Additional outcome(s)
+- 22. Data extraction (selection and coding)
+- 23. Risk of bias (quality) assessment
+- 24. Strategy for data synthesis
+- 25. Analysis of subgroups or subsets
+- 26. Type and method of review
+- 27. Country, language, dissemination
+
 For systematic reviews of human / animal studies. Submit at https://www.crd.york.ac.uk/PROSPERO/
+
+Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP title }}` is the SAP H1; `{{ user: ... }}` comes from the user or project study metadata (never SAP frontmatter; ask, never invent); `{{ protocol: ... }}` marks a field that is not in the SAP template; take it from the systematic-review protocol.
 
 ## 1. Review title
 
-{{ sap.title }}
+{{ SAP title }}
 
 ## 2. Original language title
 
@@ -12,11 +44,11 @@ For systematic reviews of human / animal studies. Submit at https://www.crd.york
 
 ## 3. Anticipated or actual start date
 
-{{ sap.frontmatter.review_start }}
+{{ user: review start date }}
 
 ## 4. Anticipated completion date
 
-{{ sap.frontmatter.review_completion }}
+{{ user: review completion date }}
 
 ## 5. Stage of review at submission
 
@@ -24,90 +56,96 @@ For systematic reviews of human / animal studies. Submit at https://www.crd.york
 
 ## 6. Named contact
 
-{{ sap.frontmatter.contact_name }}, {{ sap.frontmatter.contact_email }}
+{{ user: contact name }}, {{ user: contact email }}
 
 ## 7. Named contact organisation
 
-{{ sap.frontmatter.affiliation }}
+{{ user: affiliation }}
 
 ## 8. Funding sources / sponsors
 
-{{ sap.frontmatter.funding }}
+{{ user: funding }}
 
 ## 9. Conflicts of interest
 
-{{ sap.frontmatter.conflicts | default("None declared") }}
+{{ user: conflicts | default("None declared") }}
 
 ## 10. Collaborators
 
-{{ sap.frontmatter.authors }}
+{{ user: authors / collaborators }}
 
 ## 11. Review question
 
-{{ sap.section_1_1_research_question }}
+{{ SAP-1.1: primary objective / review question }}
 
 ## 12. Searches
 
+Not in the SAP template; take from the systematic-review protocol.
+
 Databases:
-{{ sap.section_2_1_databases | default("PubMed, Embase, Cochrane CENTRAL, Web of Science") }}
+{{ protocol: databases }} (list every database the protocol names; there is no default list)
 
-Search dates: from {{ sap.section_2_1_search_from | default("inception") }} to {{ sap.section_2_1_search_to }}.
+Search dates: from {{ protocol: search start | default("inception") }} to {{ protocol: search end }}.
 
-Language restrictions: {{ sap.section_2_1_language | default("English") }}
+Language restrictions: {{ protocol: language restrictions | default("English") }}
 
 Search strategy: see `analysis/pubmed/<query>-<date>.md` (output of `ce-pubmed`)
 
 ## 13. URL to search strategy (if applicable)
 
-{{ sap.section_2_1_search_strategy_url | default("Stored in repository at analysis/pubmed/") }}
+{{ protocol: search strategy URL | default("Stored in repository at analysis/pubmed/") }}
 
 ## 14. Condition or domain being studied
 
-{{ sap.section_3_condition }}
+{{ SAP-1.1 and SAP-2.2: condition or domain }}
 
 ## 15. Participants / population
 
-{{ sap.section_2_2_population }}
+{{ SAP-2.2: study population }}
 
 ## 16. Intervention(s) / exposure(s)
 
-{{ sap.section_2_3_intervention }}
+{{ SAP-2.3: exposure / intervention }}
 
 ## 17. Comparator(s) / control
 
-{{ sap.section_2_4_comparator }}
+{{ SAP-2.4: comparator }}
 
 ## 18. Types of study to be included
 
-{{ sap.section_2_5_study_types }}
+{{ SAP-2.2: eligible study designs (inclusion / exclusion criteria) }}
 
 ## 19. Context
 
-{{ sap.section_1_2_context }}
+{{ SAP-2.2: setting and source population }}
 
 ## 20. Main outcome(s)
 
-{{ sap.section_3_1_primary_outcomes }}
+{{ SAP-3.1: primary endpoints }}
 
 ## 21. Additional outcome(s)
 
-{{ sap.section_3_2_secondary_outcomes }}
+{{ SAP-3.2: secondary endpoints }}
 
 ## 22. Data extraction (selection and coding)
 
-{{ sap.section_4_1_extraction }} -- two reviewers, disagreements resolved by consensus or third reviewer.
+Not in the SAP template; take from the systematic-review protocol.
+
+{{ protocol: selection and extraction process }} -- two reviewers, disagreements resolved by consensus or third reviewer.
 
 ## 23. Risk of bias (quality) assessment
 
-{{ sap.section_4_2_risk_of_bias }} -- e.g., Cochrane RoB 2 for RCTs, ROBINS-I for non-randomized, QUADAS-2 for diagnostic accuracy.
+Not in the SAP template; take from the systematic-review protocol.
+
+{{ protocol: risk-of-bias tools }} -- e.g., Cochrane RoB 2 for RCTs, ROBINS-I for non-randomized, QUADAS-2 for diagnostic accuracy.
 
 ## 24. Strategy for data synthesis
 
-{{ sap.section_4_3_synthesis }} -- meta-analysis (random-effects, REML; heterogeneity by I^2; subgroup pre-specified) or narrative synthesis if pooling not feasible.
+{{ SAP-5.1: pooling model }} -- meta-analysis (random-effects, REML; heterogeneity by I^2; subgroup pre-specified). Sensitivity analyses: {{ SAP-9: sensitivity analyses }}. If pooling is not feasible, take the narrative-synthesis rules from the systematic-review protocol when the SAP does not state them.
 
 ## 25. Analysis of subgroups or subsets
 
-{{ sap.section_4_4_subgroups }}
+{{ SAP-5.3: subgroup analyses }}
 
 ## 26. Type and method of review
 
@@ -115,4 +153,4 @@ Search strategy: see `analysis/pubmed/<query>-<date>.md` (output of `ce-pubmed`)
 
 ## 27. Country, language, dissemination
 
-{{ sap.frontmatter.country }} | {{ sap.frontmatter.publication_language }} | {{ sap.frontmatter.dissemination_plan }}
+{{ user: country }} | {{ user: publication language }} | {{ user: dissemination plan }}

@@ -20,7 +20,7 @@ Rationale must name the data source, the cohort-size estimate, and the methods b
 - **2** — Niche audience; answer would interest a small subset of researchers
 - **1** — Question is settled or has been answered repeatedly with consistent results
 
-Rationale must cite at least one current paper, guideline, or controversy.
+Rationale must cite at least one current paper, guideline, or controversy, found and read through the skill's Evidence access tools, with its PMID and the level read (`abstract` or `full_text`).
 
 ## N — Novel (1-5)
 
@@ -30,7 +30,7 @@ Rationale must cite at least one current paper, guideline, or controversy.
 - **2** — Mostly answered; this study would add precision but not direction
 - **1** — Already answered with high-quality evidence; redoing it does not advance the field
 
-Rationale must cite the closest prior paper. If you cannot find one, the novelty score is suspect — re-search the literature before claiming 5.
+Rationale must cite the closest prior paper by PMID after reading it (label the level read). If none is found, the novelty score is suspect — re-run the PubMed search with broader terms before claiming 5, and say that no prior paper was found.
 
 ## E — Ethical (1-5)
 
@@ -56,6 +56,6 @@ Rationale should name the practice change a positive (or null) result would trig
 
 - All scores ≥ 3: proceed without comment
 - Any score = 2: surface the issue and ask the user whether it is acknowledged or whether the question should be reframed
-- Any score = 1: stop and tell the user the question has a serious gap; offer to refine the question rather than proceed
+- Any score = 1: tell the user plainly the question has a serious gap and offer to refine it; proceed only after the user acknowledges the gap (a low score is a flag, not a refusal)
 
 A 1 on N (already answered) is not a refusal — replication studies are valuable when explicitly framed as replication. The skill should ask: "Are you framing this as a replication study? If yes, the suggested reporting checklist becomes the original study's checklist plus a 'replication' framing in SAP-1."

@@ -1,0 +1,22 @@
+[
+  {"query": "Build me a marimo notebook for exploring the sepsis cohort parquet - dropdown for site, slider for lactate cutoff, and a reactive table of outcomes by group.", "should_trigger": true},
+  {"query": "marimo check is failing on analysis/eda.py with 'multiple definitions of df' - can you fix the cells so the reactive graph is clean?", "should_trigger": true},
+  {"query": "I want a reactive python notebook (not jupyter) for our readmission analysis where changing the lookback window re-runs everything downstream. Use PEP 723 deps inline.", "should_trigger": true},
+  {"query": "Export analysis/notebooks/km_curves.py (it's a marimo app) to HTML for the lab meeting and make sure it runs non-interactively first.", "should_trigger": true},
+  {"query": "Review our marimo notebook for hidden state - somebody mutates a dataframe in one cell and reads it in another and the results change depending on order.", "should_trigger": true},
+  {"query": "add a mo.ui.date_range widget to the existing marimo notebook so the PI can filter admissions by date, don't touch the other cells", "should_trigger": true},
+  {"query": "Set up a new marimo app for the ICU vitals dashboard with separate cells for loading, cleaning, modeling, and reporting, using our uv environment.", "should_trigger": true},
+  {"query": "My marimo notebook swallows errors because every cell has try/except Exception: pass. Refactor it to fail loudly on missing files and schema problems.", "should_trigger": true},
+  {"query": "The PEP 723 header in analysis/cohort_app.py lists polars but the cells now import pyarrow and altair too - sync it and run marimo check.", "should_trigger": true},
+  {"query": "Create a reactive notebook with import marimo for the phenotype sensitivity analysis so reviewers can toggle code lists and see cohort counts update.", "should_trigger": true},
+  {"query": "Insert a new code cell after the cell tagged sap-5-2 in analysis/primary.ipynb with the sensitivity analysis, keeping a backup and metadata intact.", "should_trigger": false},
+  {"query": "We're starting a multi-notebook Quarto workflow for the trial analysis - should we use one master notebook or several, and what should each chunk look like?", "should_trigger": false},
+  {"query": "Profile the columns and run the GO/NO-GO quality gate on data/restricted/aki_cohort_v3.parquet before anyone builds notebooks on it.", "should_trigger": false},
+  {"query": "Write a PySpark notebook in Microsoft Fabric to load the lakehouse Delta table of encounters and compute daily census.", "should_trigger": false},
+  {"query": "Set up a targets pipeline in R with _targets.R that renders our Quarto report after fitting the models.", "should_trigger": false},
+  {"query": "Review analysis/models.py for statistical and data-leakage bugs before we freeze the code.", "should_trigger": false},
+  {"query": "Make a publication-ready JAMA-style figure of the calibration curve from outputs/calibration.csv.", "should_trigger": false},
+  {"query": "Plan the implementation of an interactive cohort-exploration app: units, files, tests, and dependencies, before we write any code.", "should_trigger": false},
+  {"query": "Convert this R Markdown report into a parameterized Quarto document with named chunks.", "should_trigger": false},
+  {"query": "Set up mlflow tracking for our gradient boosting experiments with data hashes and seeds logged per run.", "should_trigger": false}
+]

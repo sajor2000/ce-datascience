@@ -1,10 +1,16 @@
 # Document Review Output Template
 
+## Contents
+
+- Example
+- Section Rules
+- Chain-Rendering Rules
+
 Use this **exact format** when presenting synthesized review findings in Interactive mode. Findings are grouped by severity, not by reviewer.
 
 **IMPORTANT:** Use pipe-delimited markdown tables (`| col | col |`). Do NOT use ASCII box-drawing characters.
 
-This template describes the Phase 4 interactive presentation — what the user sees before the routing question (`references/walkthrough.md`) fires. The headless-mode envelope is documented in `references/synthesis-and-presentation.md` (Phase 4 "Route Remaining Findings" section) and is separate from this template.
+This template describes the Phase 4 interactive presentation — what the user sees before the routing question (`references/routing-question.md`) fires. The headless-mode envelope is documented in `references/presentation.md` (Phase 4 "Route Remaining Findings" section) and is separate from this template.
 
 **Vocabulary note.** Internal enum values (`safe_auto`, `gated_auto`, `manual`, `FYI`) live in the schema and synthesis pipeline. User-facing rendered text uses plain-language labels instead: fixes (for `safe_auto`), proposed fixes (for `gated_auto`), decisions (for `manual`), and FYI observations (for `FYI`). The `Tier` column in the tables below is the one place that still names the internal enum so the user can see the synthesis decision; everything else reads as plain language.
 
@@ -89,14 +95,13 @@ Residual concerns are issues the reviewers noticed but could not confirm at conf
 | Persona | Status | Findings | Auto | Proposed | Decisions | FYI | Residual |
 |---------|--------|----------|------|----------|-----------|-----|----------|
 | coherence | completed | 5 | 3 | 0 | 1 | 1 | 0 |
-| feasibility | completed | 3 | 1 | 1 | 0 | 0 | 1 |
+| feasibility | completed | 2 | 1 | 1 | 0 | 0 | 1 |
 | security-lens | completed | 2 | 1 | 1 | 0 | 0 | 0 |
 | scope-guardian | completed | 2 | 0 | 0 | 1 | 1 | 0 |
 | product-lens | not activated | -- | -- | -- | -- | -- | -- |
 | design-lens | not activated | -- | -- | -- | -- | -- | -- |
 
 Dropped: 3 (anchors 0/25 suppressed)
-Chains: 1 root with 2 dependents
 Restated: 2 (residual/deferred items suppressed as duplicates of actionable findings)
 ```
 
@@ -114,8 +119,8 @@ Restated: 2 (residual/deferred items suppressed as duplicates of actionable find
 
 ## Chain-Rendering Rules
 
-Premise-dependency chains from synthesis step 3.5c annotate roots and dependents. Rendering follows the same count invariant documented in the synthesis reference; this template restates the rules so interactive output cannot drift from the headless envelope.
+Premise-dependency chains from synthesis step 3.5c annotate roots and dependents. Rendering follows the same count invariant documented in `references/synthesis-chains.md`; this template restates the rules so interactive output cannot drift from the headless envelope.
 
 - **Dependents render only under their root.** When a finding has `dependents`, render the root at its normal severity position (in its P-tier Errors or Omissions table). Immediately below the root's table row, emit an indented `Dependents (N)` sub-block listing each dependent's `# | Section | Issue | Reviewer | Confidence | Tier` entry. Dependents MUST NOT appear at their own severity position. Findings without `depends_on` and without `dependents` render as they do today.
 - **Count invariant.** The `Findings` column in Coverage continues to equal Auto + Proposed + Decisions + FYI. Each finding counts exactly once: a dependent counts in its assigned bucket (`Auto` / `Proposed` / `Decisions` / `FYI`) but does NOT render at its own severity position. The source of truth is the post-Step-4 `dependents` array on each root — the same array the headless envelope reads — so coverage count and rendering cannot drift.
-- **Chains line (optional).** When one or more chains exist, add a final line to the coverage block: `Chains: N root(s) with M dependents` where N is the number of roots and M is the total dependent count summed across all roots. Omit the line when no chains exist. This mirrors the `Chains:` line the headless envelope emits in `references/synthesis-and-presentation.md` so reviewers get the same chain visibility in both modes.
+- **Chains line (optional).** When one or more chains exist, add a footnote line below the coverage table (in the footnote order above): `Chains: N root(s) with M dependents` where N is the number of roots and M is the total dependent count summed across all roots. Omit the line when no chains exist. This mirrors the `Chains:` line the headless envelope emits in `references/presentation.md` so reviewers get the same chain visibility in both modes.

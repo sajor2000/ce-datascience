@@ -4,22 +4,19 @@ Walks an analysis directory and inspects:
   - BAM/CRAM @SQ headers via samtools view -H
   - VCF/VCF.gz ##contig and ##reference lines
   - GTF/GFF3 first non-comment line for chromosome naming convention
-  - tabix indexes (chr-prefix style)
-  - any chain files (cross-build mapping)
 
 Detects:
   - chr-prefix mixing ("chr1" vs "1" -- common GRCh37 vs GRCh38 confusion)
   - GRCh37/hg19 contigs in a GRCh38-declared run
   - Different MD5 sums for the same contig name
-  - Missing @SQ M5 tags (recommended for reproducibility)
 
 Exits non-zero on any mismatch so the skill can gate the next step.
 
 Usage:
     python audit_build.py analysis/bioinfo \\
         --declared GRCh38 \\
-        --manifest analysis/bioinfo/build-manifest.yaml \\
-        --report reports/genome-build-audit.md
+        --manifest analysis/genome-build/audit-findings.yaml \\
+        --report analysis/genome-build/audit-report.md
 """
 from __future__ import annotations
 
@@ -182,7 +179,13 @@ def main() -> None:
             {"declared_build": args.declared, "files": findings},
             sort_keys=True, allow_unicode=True))
     except ImportError:
-        args.manifest.write_text(repr({"declared": args.declared, "files": findings}))
+        # JSON is valid YAML; keep the manifest machine-readable without PyYAML.
+        import json
+        args.manifest.write_text(json.dumps(
+            {"declared_build": args.declared, "files": findings},
+            sort_keys=True, indent=2, ensure_ascii=False) + "\n")
+        print("audit_build.py: PyYAML not installed; wrote the manifest as JSON "
+              "(run `python3 -m pip install --upgrade pyyaml` for YAML output)", file=sys.stderr)
 
     # Markdown report
     md = [f"# Genome-build audit", "",
@@ -194,7 +197,7 @@ def main() -> None:
         md.extend(f"- {x}" for x in issues)
     else:
         md.append("No build mismatches detected.")
-    args.report.write_text("\n".join(md))
+    args.report.write_text("\n".join(md) + "\n")
 
     print(f"__CE_GENOME_BUILD__ declared={args.declared} files={len(findings)} "
           f"issues={len(issues)} manifest={args.manifest} report={args.report}")

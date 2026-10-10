@@ -1,6 +1,19 @@
 # Full Mode
 
-Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode** — no argument given, or a PR number was provided. Full mode processes all unresolved threads on the PR.
+Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode** — no argument given, or a PR number was provided. Full mode processes all unresolved feedback on the PR: inline review threads, review submission bodies, and top-level PR comments.
+
+## Contents
+
+- 1. Fetch Unresolved Threads (includes the pending-review stop)
+- 2. Triage: Separate New from Pending
+- 3. Cross-Invocation Cluster Analysis (Gated)
+- 4. Plan
+- 5. Implement (PARALLEL) (in `references/full-mode-implement.md`)
+- 6. Validate Combined State
+- 7. Commit and Push
+- 8. Reply and Resolve (REST reply from a body file, read-back, pending recheck, resolve)
+- 9. Verify
+- 10. Summary (in `references/full-mode-summary.md`)
 
 ## 1. Fetch Unresolved Threads
 
@@ -12,16 +25,24 @@ gh pr view --json number -q .number
 Then fetch all feedback using `scripts/get-pr-comments`:
 
 ```bash
-bash scripts/get-pr-comments PR_NUMBER
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER
 ```
 
-Returns a JSON object with three keys:
+Returns a JSON object with these keys:
 
 | Key | Contents | Has file/line? | Resolvable? |
 |-----|----------|---------------|-------------|
-| `review_threads` | Unresolved inline code review threads (includes outdated; each carries its `isOutdated` flag so the resolver can account for line drift) | Yes | Yes (GraphQL) |
-| `pr_comments` | Top-level PR conversation comments (excludes PR author) | No | No |
-| `review_bodies` | Review submission bodies with non-empty text (excludes PR author) | No | No |
+| `pending_review` | Node ID of your own unsubmitted (PENDING) review on this PR, or `null` | n/a | n/a |
+| `review_threads` | Unresolved inline code review threads (includes outdated; each node carries its `isOutdated` flag so the resolver can account for line drift). Each wrapper carries `root_comment_id`, the numeric REST ID of the thread's first comment, used for the reply; the node `id` is the GraphQL thread ID used for resolution | Yes | Yes (GraphQL) |
+| `pr_comments` | Top-level PR conversation comments with non-blank bodies | No | No |
+| `review_bodies` | Review submission bodies with non-blank text | No | No |
+| `pr_author` / `viewer` | The PR author's login and the acting account's login, for judging identity in step 2 | n/a | n/a |
+| `cross_invocation` | `signal` plus the last 10 `resolved_threads`, input to step 3 | n/a | n/a |
+
+**All three feedback surfaces are in scope.** `review_threads`, `pr_comments`, and `review_bodies` are judged the same way; only the reply and resolve mechanics differ (step 8). The fetch excludes nothing by identity. A top-level comment from the PR author is the ordinary way a human asks for a change on an agent-opened PR, so it is feedback like any other.
+
+**Stop here if `pending_review` is non-null.** A thread reply posted while you hold an unsubmitted review can be absorbed into that draft: the call returns a comment ID and URL as if it succeeded, but the reviewer sees nothing until the draft is submitted. Do not proceed into steps 2-9. Tell the user they have an unsubmitted review on the PR and that it must be submitted or discarded before this skill can reply, then stop. Do not submit or discard it yourself; a draft review is unsent human writing.
 
 If the script fails, fall back to:
 ```bash
@@ -33,18 +54,22 @@ gh api repos/{owner}/{repo}/pulls/PR_NUMBER/comments
 
 Before processing, classify each piece of feedback as **new** or **already handled**.
 
-**Review threads**: Read the thread's comments. If there's a substantive reply that acknowledges the concern but defers action (e.g., "need to align on this", "going to think through this", or a reply that presents options without resolving), it's a **pending decision** -- don't re-process. If there's only the original reviewer comment(s) with no substantive response, it's **new**.
+**Review threads**: A handled thread is complete only when it has both a visible, submitted substantive reply and authoritative thread resolution. Check the two conditions independently:
+
+- A reply that explicitly defers a human choice (e.g., "need to align on this", "going to think through this", or options without a decision) is a **pending decision**. Keep the thread open and do not re-process it.
+- A reply that records a completed fix or answer while the thread is still open (for example, an earlier run stopped on a pending review after posting) is **resolution-pending**. Do not repost the reply or reapply the fix; carry the existing reply to step 8 and complete only the missing resolution.
+- A thread with neither kind of substantive response is **new**.
 
 **PR comments and review bodies**: These have no resolve mechanism, so they reappear on every run. Apply two filters in order:
 
-1. **Actionability**: Skip items that contain no actionable feedback or questions to answer. Examples: review wrapper text ("Here are some automated review suggestions..."), approvals ("this looks great!"), status badges ("Validated"), CI summaries with no follow-up asks. If there's nothing to fix, answer, or decide, it's not actionable -- drop it from the count entirely.
+1. **Actionability**: An item is actionable when it is someone's open request to this PR -- something to fix, answer, or decide. Who posted it never decides this, including the PR author (`pr_author`). A reply posted by this skill in an earlier run (typically authored by `viewer`) is a record of handling, not a request, so drop it here; re-reading its own write-up as fresh feedback would keep the loop from settling. Skip items that contain no actionable feedback or questions to answer. Examples: review wrapper text ("Here are some automated review suggestions..."), approvals ("this looks great!"), status badges ("Validated"), CI summaries with no follow-up asks. If there's nothing to fix, answer, or decide, it's not actionable -- drop it from the count entirely.
 2. **Already replied**: For actionable items, check the PR conversation for an existing reply that quotes and addresses the feedback. If a reply already exists, skip. If not, it's new.
 
 The distinction is about content, not who posted what. A deferral from a teammate, a previous skill run, or a manual reply all count. Similarly, actionability is about content -- bot feedback that requests a specific code change is actionable; a bot's boilerplate header wrapping those requests is not.
 
-**Silent drop.** Non-actionable items are dropped without narration. Do not announce, list, or count dropped items in conversation, the task list, or the step 10 summary. Review-bot wrappers from CodeRabbit, Codex, Gemini Code Assist, and Copilot (bodies like "Here are some automated review suggestions...") commonly appear here -- recognize them by their boilerplate content, drop silently. Only CI/status bot summaries (Codecov) are pre-filtered at the script level; everything else relies on this content-aware check so bot format changes cannot silently hide actionable findings.
+**Silent drop.** Non-actionable items are dropped without narration. Do not announce, list, or count dropped items in conversation, the task list, or the step 10 summary. Review-bot wrappers from CodeRabbit, Codex, Gemini Code Assist, and Copilot (bodies like "Here are some automated review suggestions...") commonly appear here -- recognize them by their boilerplate content, drop silently. The script pre-filters only blank bodies. Every identity and surface -- the PR author, CI/status bots such as Codecov, review bots -- relies on this content-aware check, so identity reuse or bot format changes cannot silently hide actionable findings.
 
-If there are no new items across all feedback types, skip steps 3-9 and go straight to step 10.
+If there are no new or resolution-pending items across all feedback types, skip steps 3-9 and go straight to step 10. If only resolution-pending threads remain, skip steps 3-7 and go straight to step 8.
 
 ## 3. Cross-Invocation Cluster Analysis (Gated)
 
@@ -105,66 +130,7 @@ If step 3 produced clusters, include them in the task list as cluster items alon
 
 ## 5. Implement (PARALLEL)
 
-Process all three feedback types. Review threads are the primary type; PR comments and review bodies are secondary but should not be ignored.
-
-### Dispatch boundary for previously-resolved threads
-
-Previously-resolved threads (from `cross_invocation.resolved_threads`) participate in clustering and appear in cluster briefs as `<prior-resolutions>` context. They are NEVER individually dispatched — they were already resolved in prior rounds. Only new threads get individual or cluster dispatch.
-
-### Individual dispatch (default)
-
-**For review threads** (`review_threads`): Spawn a `ce-pr-comment-resolver` agent for each new thread that is NOT already assigned to a cluster from step 3. Clustered threads are handled by cluster dispatch below -- do not dispatch them individually.
-
-Each agent receives:
-- The thread ID
-- The file path and location fields: `line`, `originalLine`, `startLine`, `originalStartLine` (any can be null; outdated and file-level threads often have `line == null` and must fall back to `originalLine`)
-- The full comment text (all comments in the thread)
-- The PR number (for context)
-- The feedback type (`review_thread`)
-- The `isOutdated` flag from the thread node (tells the agent the reported line may have drifted)
-
-**For PR comments and review bodies** (`pr_comments`, `review_bodies`): These lack file/line context. Spawn a `ce-pr-comment-resolver` agent for each actionable non-clustered item. The agent receives the comment ID, body text, PR number, and feedback type (`pr_comment` or `review_body`). The agent must identify the relevant files from the comment text and the PR diff.
-
-### Cluster dispatch
-
-For each cluster identified in step 3, dispatch ONE `ce-pr-comment-resolver` agent that receives:
-- The `<cluster-brief>` XML block
-- All thread details for threads in the cluster (IDs, file paths, line numbers, comment text)
-- The PR number
-- The feedback types
-
-The cluster agent reads the broader area before making targeted fixes. It returns one summary per thread it handled (same structure as individual agents), plus a `cluster_assessment` field describing what broader investigation revealed and whether a holistic or individual approach was taken.
-
-### Agent return format
-
-Each agent returns a short summary:
-- **verdict**: `fixed`, `fixed-differently`, `replied`, `not-addressing`, `declined`, or `needs-human`
-- **feedback_id**: the thread ID or comment ID it handled
-- **feedback_type**: `review_thread`, `pr_comment`, or `review_body`
-- **reply_text**: the markdown reply to post (quoting the relevant part of the original feedback)
-- **files_changed**: list of files modified (empty if replied/not-addressing)
-- **reason**: brief explanation of what was done or why it was skipped
-
-Cluster agents additionally return:
-- **cluster_assessment**: what the broader investigation found, whether a holistic or individual approach was taken
-
-Verdict meanings:
-- `fixed` -- code change made as requested
-- `fixed-differently` -- code change made, but with a better approach than suggested
-- `replied` -- no code change needed; answered a question, acknowledged feedback, or explained a design decision
-- `not-addressing` -- feedback is factually wrong about the code; skip with evidence
-- `declined` -- observation may be valid, but implementing the suggested fix would actively make the code worse; reply cites the specific harm
-- `needs-human` -- cannot determine the right action; needs user decision
-
-### Batching and conflict avoidance
-
-**Batching**: Clusters count as 1 dispatch unit regardless of how many threads they contain. If there are 1-4 dispatch units total (clusters + individual items), dispatch all in parallel. For 5+ dispatch units, batch in groups of 4.
-
-**Conflict avoidance**: No two dispatch units that touch the same file should run in parallel. Before dispatching, check for file overlaps across all dispatch units (clusters and individual items). If a cluster's file list overlaps with an individual item's file, or with another cluster's files, serialize those units -- dispatch one, wait for it to complete, then dispatch the next. Non-overlapping units can still run in parallel. Within a single dispatch unit handling multiple threads on the same file, the agent addresses them sequentially.
-
-**Sequential fallback**: Platforms that do not support parallel dispatch should run agents sequentially. Dispatch cluster units first (they are higher-leverage), then individual items.
-
-Fixes can occasionally expand beyond their referenced file (e.g., renaming a method updates callers elsewhere). This is rare but can cause parallel agents to collide. Step 6 (combined validation) catches test breakage; step 9 (verify) catches unresolved threads. If either surfaces inconsistent changes from parallel fixes, re-run the affected agents sequentially.
+Read `references/full-mode-implement.md` and follow it: dispatch boundary for previously-resolved threads, individual and cluster dispatch of `ce-pr-comment-resolver`, the agent return format and verdicts, and batching and conflict avoidance.
 
 ## 6. Validate Combined State
 
@@ -200,7 +166,7 @@ git push
 
 ## 8. Reply and Resolve
 
-After the push succeeds, post replies and resolve where applicable. The mechanism depends on the feedback type.
+After the push succeeds (or directly, when step 6 skipped the commit), post replies and resolve where applicable. The done condition for a review thread is one visible, submitted substantive reply plus authoritative resolution; satisfy each independently and never repeat a satisfied half. The mechanism depends on the feedback type.
 
 ### Reply format
 
@@ -231,32 +197,74 @@ For `needs-human` verdicts, post the reply but do NOT resolve the thread. Leave 
 
 ### Review threads
 
+Select the first unsatisfied condition before acting. A thread with no visible submitted reply runs steps 0-4. A `resolution-pending` thread skips step 1, uses its existing reply's ID in step 2, and runs steps 0 and 2-4; do not judge, fix, or post again. A `needs-human` thread stops after step 2 and stays unresolved. Order: steps 0-2 for each thread, step 3 once for the whole pass, then step 4 for each thread to resolve.
+
 0. **Verify the thread ID** before replying. GitHub Enterprise can return inconsistent node IDs for the same thread depending on the query path. Always confirm the ID from `get-pr-comments` resolves to the correct thread using `scripts/get-thread-for-comment` with the comment's numeric URL ID:
 ```bash
 # Extract numeric comment ID from the comment URL (for example, discussion_r2589700 -> 2589700)
 GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/COMMENT_ID --jq .node_id
-bash scripts/get-thread-for-comment PR_NUMBER COMMENT_NODE_ID OWNER/REPO
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-thread-for-comment" PR_NUMBER COMMENT_NODE_ID OWNER/REPO
 ```
-The returned `id` is the authoritative thread ID to use for reply and resolve. If it differs from what `get-pr-comments` returned, use the one from this script.
+The returned `id` is the authoritative thread ID to use for resolve. If it differs from what `get-pr-comments` returned, use the one from this script. The returned `root_comment_id` is the numeric REST ID of the thread's first comment, used for the reply. If it is `null`, take the numeric ID from the first comment's URL fragment.
 
-1. **Reply** using `scripts/reply-to-pr-thread`:
+1. **Reply to the root comment over REST.** Write the body to a private temp file with a quoted heredoc, then run `scripts/reply-to-pr-thread` with that file on stdin. A reply is multiline Markdown (a quote line, a blank line, then the response); never compose it with `echo "..."` or `printf`, which turn line breaks into a run-on line with literal `\n`. The quoted delimiter (`<<'EOF'`) also stops the shell from expanding backticks, `$`, and `!` inside quoted code or statistical notation:
 ```bash
-echo "REPLY_TEXT" | bash scripts/reply-to-pr-thread THREAD_ID
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+REPLY_BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-reply.XXXXXX")
+cat > "$REPLY_BODY_FILE" <<'EOF'
+> the specific sentence being addressed from the reviewer's comment
+
+Addressed: the sensitivity analysis now uses multiple imputation, matching SAP section 9.3.
+EOF
+bash "$SKILL_DIR/scripts/reply-to-pr-thread" PR_NUMBER ROOT_COMMENT_ID OWNER/REPO < "$REPLY_BODY_FILE"
 ```
-Check that the returned comment URL contains the correct `OWNER/REPO` and PR number before proceeding.
+The script posts to `repos/OWNER/REPO/pulls/PR_NUMBER/comments/ROOT_COMMENT_ID/replies`. If the script is unavailable, use that same endpoint with `gh api --method POST ... -F body=@"$REPLY_BODY_FILE"`. Never substitute the GraphQL `addPullRequestReviewThreadReply` mutation, `gh pr review`, or a `/reviews` POST: those go through review-submission state, so the reply can sit in an unsubmitted draft while the call reports success.
 
-2. **Resolve** using `scripts/resolve-pr-thread`:
+Exit code 2 means the reply was posted but a pending review is visible afterwards: stop without resolving any thread, report the pending review to the user, and do not submit or discard it. On success, check that the returned comment URL contains the correct `OWNER/REPO` and PR number before proceeding.
+
+2. **Read back the stored reply** before resolving. Take the reply's numeric ID from the returned URL fragment (`#discussion_r2589700` -> `2589700`):
 ```bash
-bash scripts/resolve-pr-thread THREAD_ID
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID --jq .body
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID --jq '.pull_request_review_id // empty'
+```
+The body must show real line breaks. If it shows `\n` or `\n\n` as literal characters inside one line, **do not resolve the thread**. Rewrite the body file with a quoted heredoc, PATCH it, and read back again:
+```bash
+GH_REPO=OWNER/REPO gh api --method PATCH repos/{owner}/{repo}/pulls/comments/REPLY_COMMENT_ID -F body=@"$REPLY_BODY_FILE"
+```
+If the second command prints a review ID, require that review's state to be something other than `PENDING`; a pending state means the reply is not submitted, whatever the POST returned:
+```bash
+GH_REPO=OWNER/REPO gh api repos/{owner}/{repo}/pulls/PR_NUMBER/reviews/REVIEW_ID --jq .state
+```
+
+3. **Re-check pending-review state** once after the reply pass and before resolving. This catches a draft created after step 1's initial fetch:
+```bash
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER OWNER/REPO | jq -r '.pending_review // empty'
+```
+If this prints an ID, stop without resolving any thread from this pass. Report the pending review; do not submit or discard it.
+
+4. **Resolve** using `scripts/resolve-pr-thread`:
+```bash
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/resolve-pr-thread" THREAD_ID
 ```
 
 ### PR comments and review bodies
 
-These cannot be resolved via GitHub's API. Reply with a top-level PR comment referencing the original:
+These cannot be resolved via GitHub's API. Reply with a top-level PR comment referencing the original. Use a body file with a quoted heredoc, as for thread replies; `--body-file` keeps the Markdown line breaks that `--body "..."` and command substitution can mangle:
 
 ```bash
-gh pr comment PR_NUMBER --body "REPLY_TEXT"
+REPLY_BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-reply.XXXXXX")
+cat > "$REPLY_BODY_FILE" <<'EOF'
+> the specific sentence being addressed from the reviewer's comment
+
+Addressed: Table 2 now reports the STROBE-required unadjusted and adjusted estimates.
+EOF
+gh pr comment PR_NUMBER -R OWNER/REPO --body-file "$REPLY_BODY_FILE"
 ```
+
+Confirm the posted comment renders with real line breaks, not one line containing literal `\n`.
 
 Include enough quoted context in the reply so the reader can follow which comment is being addressed without scrolling.
 
@@ -265,7 +273,8 @@ Include enough quoted context in the reply so the reader can follow which commen
 Re-fetch feedback to confirm resolution:
 
 ```bash
-bash scripts/get-pr-comments PR_NUMBER
+SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";
+bash "$SKILL_DIR/scripts/get-pr-comments" PR_NUMBER
 ```
 
 The `review_threads` array should be empty (except `needs-human` items).
@@ -280,58 +289,4 @@ PR comments and review bodies have no resolve mechanism, so they will still appe
 
 ## 10. Summary
 
-Present a concise summary of all work done. Group by verdict, one line per item describing *what was done* not just *where*. This is the primary output the user sees.
-
-Format:
-
-```
-Resolved N of M new items on PR #NUMBER:
-
-Fixed (count): [brief description of each fix]
-Fixed differently (count): [what was changed and why the approach differed]
-Replied (count): [what questions were answered]
-Not addressing (count): [what was skipped and why]
-Declined (count): [what was declined and the harm cited]
-
-Validation: [one line -- e.g., "bun test passed (893/893)" or "bun test passed with pre-existing failure in X noted"; omit when no code changes were committed]
-```
-
-If any clusters were investigated, append a cluster investigation section:
-
-```
-Cluster investigations (count):
-
-1. [theme] in [area]: [cluster_assessment from the agent --
-   what was found, whether a holistic or individual approach was taken]
-```
-
-If any agent returned `needs-human`, append a decisions section. These are rare but high-signal. Each `needs-human` agent returns a `decision_context` field with a structured analysis: what the reviewer said, what the agent investigated, why it needs a decision, concrete options with tradeoffs, and the agent's lean if it has one.
-
-Present the `decision_context` directly -- it's already structured for the user to read and decide quickly:
-
-```
-Needs your input (count):
-
-1. [decision_context from the agent -- includes quoted feedback,
-   investigation findings, why it needs a decision, options with
-   tradeoffs, and the agent's recommendation if any]
-```
-
-The `needs-human` threads already have a natural-sounding acknowledgment reply posted and remain open on the PR.
-
-If there are **pending decisions from a previous run** (threads detected in step 2 as already responded to but still unresolved), surface them after the new work:
-
-```
-Still pending from a previous run (count):
-
-1. [Thread path:line] -- [brief description of what's pending]
-   Previous reply: [link to the existing reply]
-   [Re-present the decision options if the original context is available,
-   or summarize what was asked]
-```
-
-If a blocking question tool is available, use it to ask about all pending decisions (both new `needs-human` and previous-run pending) together. If there are only pending decisions and no new work was done, the summary is just the pending items.
-
-Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Use it to present the decisions and wait for the user's response. After they decide, process the remaining items: fix the code, compose the reply, post it, and resolve the thread.
-
-Fall back to presenting the decisions in the summary output and waiting in conversation only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip. If the user doesn't respond, the items remain open on the PR for later handling.
+Read `references/full-mode-summary.md` and follow it to present the verdict-grouped summary, cluster investigations, `needs-human` decisions, and pending decisions from a previous run.

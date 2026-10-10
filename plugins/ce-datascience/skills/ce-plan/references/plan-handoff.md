@@ -33,12 +33,12 @@ If artifact-backed mode was used:
 
 After document-review completes, present the options using the current harness's blocking question mechanism when one is available. Fall back to numbered options in chat only when no blocking question mechanism exists in the harness or it cannot be called. Never silently skip the question.
 
-**Question:** "Plan ready at `docs/plans/YYYY-MM-DD-NNN-<type>-<name>-plan.md`. What would you like to do next?"
+**Question:** "Plan ready at `<plan path>`. What would you like to do next?" (use the actual written path, `.md` or `.html`; in SAP mode, the SAP path)
 
 **Options:**
 1. **load the `ce-work` skill** (recommended) - Begin implementing this plan in the current session
 2. **Create Issue** - Create a tracked issue from this plan in your configured issue tracker (GitHub or Linear)
-3. **Open in Proof (web app) — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others
+3. **Open in Proof (web app) — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Optional: show this option only when the core Compound Engineering `ce-proof` skill is available in the current harness; ce-datascience does not ship it. When it is unavailable, omit the option and renumber the rest.
 4. **Done for now** - Pause; the plan file is saved and can be resumed later
 
 **Surface additional document review contextually, not as a menu fixture:** When the prior document-review pass surfaced residual P0/P1 findings that the user has not addressed, mention them adjacent to the menu and offer another review pass in prose (e.g., "Document review flagged 2 P1 findings you may want to address — want me to run another pass before you pick?"). Do not add it to the option list.

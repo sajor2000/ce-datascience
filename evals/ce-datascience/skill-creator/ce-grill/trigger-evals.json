@@ -1,0 +1,22 @@
+[
+  {"query": "grill me on my study idea: does early mobilization in ventilated adults cut ICU-acquired weakness? I want every weak spot found before I commit.", "should_trigger": true},
+  {"query": "Before I write anything, stress-test my hypothesis, data source, and analysis plan for a sepsis readmission paper aimed at Critical Care Medicine.", "should_trigger": true},
+  {"query": "Interrogate this project one question at a time: goal, hypothesis, data, methods, target journal, audience. Push back hard.", "should_trigger": true},
+  {"query": "Is my diabetes claims-data project actually ready to target Diabetes Care? Grill me on the design and journal fit.", "should_trigger": true},
+  {"query": "play hostile reviewer and interview me about my AKI prediction project until we agree on every decision, then write up what we settled", "should_trigger": true},
+  {"query": "Poke holes in my plan to use the registry for a target trial emulation of anticoagulation after stroke. Ask me questions, don't just list issues.", "should_trigger": true},
+  {"query": "I have a fuzzy idea about loneliness and ED visits in older adults. Challenge my goal and who the audience is before I bother planning.", "should_trigger": true},
+  {"query": "Grill the proposed analysis for my nurse staffing and falls study: estimand, confounders, missing data, power. One question at a time please.", "should_trigger": true},
+  {"query": "Run a grilling session on docs/brainstorms/2026-10-01-statins-sepsis-requirements.md and record decisions and open risks.", "should_trigger": true},
+  {"query": "can you question me relentlessly about whether our EHR data can even answer the delirium hypothesis and whether JAMA IM is the right target", "should_trigger": true},
+  {"query": "Turn 'early mobilization and ICU weakness' into a PICO with FINER scores and a PubMed query YAML.", "should_trigger": false},
+  {"query": "Brainstorm study design options and requirements for an opioid tapering cohort before planning.", "should_trigger": false},
+  {"query": "Write the statistical analysis plan for the statin-sepsis study.", "should_trigger": false},
+  {"query": "Review docs/plans/sap.md for clarity, completeness, and internal consistency.", "should_trigger": false},
+  {"query": "Do an adversarial review of the analysis code in analysis/models/ and challenge the causal claims.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to my retrospective cohort study using claims data?", "should_trigger": false},
+  {"query": "Calculate the sample size for a two-arm trial with an expected 10% absolute risk reduction.", "should_trigger": false},
+  {"query": "Run data QA on the cohort extract and report missingness and duplicate encounters.", "should_trigger": false},
+  {"query": "Generate 10 new research ideas in sepsis outcomes research and rank them.", "should_trigger": false},
+  {"query": "Edit the Discussion section of my manuscript to sound less AI-written.", "should_trigger": false}
+]

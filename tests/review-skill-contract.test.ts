@@ -7,9 +7,31 @@ async function readRepoFile(relativePath: string): Promise<string> {
   return readFile(path.join(process.cwd(), relativePath), "utf8")
 }
 
+// ce-code-review uses progressive disclosure: SKILL.md is the router and each stage's
+// procedure lives in a reference file that SKILL.md links directly. Contract strings may
+// live in SKILL.md or in any of these stage references; the structure test in
+// tests/ce-code-review-structure.test.ts locks in that SKILL.md links each one directly.
+const REVIEW_SKILL_DIR = "plugins/ce-datascience/skills/ce-code-review"
+const REVIEW_STAGE_REFERENCES = [
+  "references/scope.md",
+  "references/intent-and-plan.md",
+  "references/select-reviewers.md",
+  "references/dispatch-reviewers.md",
+  "references/merge-findings.md",
+  "references/synthesis-and-output.md",
+  "references/post-review.md",
+]
+
+async function readReviewSkill(): Promise<string> {
+  const parts = await Promise.all(
+    ["SKILL.md", ...REVIEW_STAGE_REFERENCES].map((file) => readRepoFile(`${REVIEW_SKILL_DIR}/${file}`)),
+  )
+  return parts.join("\n")
+}
+
 describe("ce-code-review contract", () => {
   test("documents explicit modes and orchestration boundaries", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     expect(content).toContain("## Mode Detection")
     expect(content).toContain("mode:autofix")
@@ -30,13 +52,13 @@ describe("ce-code-review contract", () => {
   })
 
   test("uses a fail-closed lite roster only for trivial low-risk code diffs", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
     expect(content).toContain("Stage 3c: Apply the fail-closed lite-roster gate")
     expect(content).toContain("This optimization never applies to analytical code, notebooks, statistical methods, or reporting artifacts")
   })
 
   test("documents headless mode contract for programmatic callers", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Headless mode has its own rules section
     expect(content).toContain("### Headless mode rules")
@@ -78,7 +100,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("documents policy-driven routing and residual handoff", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Routing taxonomy and fixer queue semantics
     expect(content).toContain("## Action Routing")
@@ -292,7 +314,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("Stage 5 synthesis uses anchor gate and one-anchor promotion", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Confidence value constraint is integer enum
     expect(content).toMatch(/confidence:\s*integer in \{0, 25, 50, 75, 100\}/)
@@ -315,7 +337,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("Stage 5b validation pass dispatches conditionally and bounds parallelism", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
     const validatorTemplate = await readRepoFile(
       "plugins/ce-datascience/skills/ce-code-review/references/validator-template.md",
     )
@@ -357,13 +379,14 @@ describe("ce-code-review contract", () => {
     // Validator template exists and is read-only
     expect(validatorTemplate).toContain("independent validator")
     expect(validatorTemplate).toContain("operationally read-only")
-    expect(validatorTemplate).toContain('"validated": true | false')
+    expect(validatorTemplate).toContain('"validated": true,')
+    expect(validatorTemplate).toContain("`validated` is `true` or `false`.")
     expect(validatorTemplate).toMatch(/introduced by THIS diff/i)
     expect(validatorTemplate).toMatch(/handled elsewhere/i)
   })
 
   test("best-judgment path post-run failure-handling question fires only when failed bucket non-empty", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Post-run question fires when the fixer's `failed` bucket is non-empty.
     expect(content).toMatch(/N findings could not be auto-resolved/)
@@ -376,7 +399,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("fixer subagent contract supports heterogeneous best-judgment queue", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Step 3 documents both queue shapes: homogeneous (autofix/headless/walk-through Apply)
     // and heterogeneous (best-judgment path with gated_auto + manual + advisory).
@@ -397,7 +420,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("PR-mode skip-condition pre-check stops without dispatching reviewers", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Skip-check section exists
     expect(content).toContain("**Skip-condition pre-check.**")
@@ -440,7 +463,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("mode-aware demotion routes weak general-quality findings to soft buckets", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // Mode-aware demotion step exists (sub-step within Stage 5; numbering may shift if steps reorder)
     expect(content).toMatch(/Mode-aware demotion of weak general-quality findings/i)
@@ -505,7 +528,7 @@ describe("ce-code-review contract", () => {
 
   test("project standards prefer scoped CODING_STANDARDS criteria", async () => {
     const [skill, persona, catalog] = await Promise.all([
-      readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md"),
+      readReviewSkill(),
       readRepoFile("plugins/ce-datascience/agents/ce-project-standards-reviewer.md"),
       readRepoFile("plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md"),
     ])
@@ -536,7 +559,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("documents stack-specific conditional reviewers for the JSON pipeline", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
     const catalog = await readRepoFile(
       "plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md",
     )
@@ -593,7 +616,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("fails closed when merge-base is unresolved instead of falling back to git diff HEAD", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
 
     // No scope path should fall back to `git diff HEAD` or `git diff --cached` — those only
     // show uncommitted changes and silently produce empty diffs on clean feature branches.
@@ -649,7 +672,7 @@ describe("ce-code-review contract", () => {
   })
 
   test("ce-code-review autofix emits a residual-work summary in-chat, not only in the artifact", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/skills/ce-code-review/SKILL.md")
+    const content = await readReviewSkill()
     expect(content).toMatch(/Emit a compact Residual Actionable Work summary/)
     expect(content).toContain("Residual actionable work: none.")
   })

@@ -1,5 +1,21 @@
 # CLAIM Checklist for Artificial Intelligence in Medical Imaging
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods -- Study Design
+- Methods -- Data
+- Methods -- Ground Truth
+- Methods -- Data Preprocessing
+- Methods -- Model
+- Methods -- Evaluation
+- Results
+- Results -- Failure Analysis
+- Discussion
+- Other Information
+- Methods -- Additional Items (2024 Update)
+
 AI EXTENSION checklist for studies applying artificial intelligence to medical imaging, covering study design through performance evaluation.
 
 **Base guideline:** STARD 2015 (when the AI model is used as a diagnostic test)

@@ -1,5 +1,18 @@
 # TRIPOD Checklist for Prediction Model Studies
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods -- Source of Data
+- Methods -- Outcome and Predictors
+- Methods -- Sample Size
+- Methods -- Missing Data
+- Methods -- Statistical Analysis
+- Results
+- Discussion
+- Other Information
+
 Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD).
 22-item checklist for studies developing, validating, or updating multivariable prediction models using regression methods.
 

@@ -18,16 +18,33 @@ async function collectFiles(root: string, predicate: (file: string) => boolean):
 describe("ce-datascience skill portability", () => {
   test("script invocation instructions use installed skill-local paths", async () => {
     const pubmed = await fs.readFile(path.join(skillsRoot, "ce-pubmed", "SKILL.md"), "utf8")
-    expect(pubmed).toContain("python3 scripts/pubmed_search.py")
+    expect(pubmed).toContain('python3 "$SKILL_DIR/scripts/pubmed_search.py"')
     expect(pubmed).not.toContain("plugins/ce-datascience/skills/ce-pubmed/scripts/pubmed_search.py")
 
     const sapTabular = await fs.readFile(path.join(skillsRoot, "ce-sap-tabular", "SKILL.md"), "utf8")
-    expect(sapTabular).toContain("python3 scripts/generate-tabular-sap.py")
+    expect(sapTabular).toContain('python3 "$SKILL_DIR/scripts/generate-tabular-sap.py"')
     expect(sapTabular).not.toContain("Run `scripts/generate-tabular-sap.py`")
 
     const sprint = await fs.readFile(path.join(skillsRoot, "ce-sprint", "SKILL.md"), "utf8")
-    expect(sprint).toContain("python3 scripts/sprint.py close <name>")
+    expect(sprint).toContain('python3 "$SKILL_DIR/scripts/sprint.py" close <name>')
     expect(sprint).not.toContain("Run `scripts/sprint.py close <name>`")
+  })
+
+  // The shell starts in the user's project root, not the skill directory, so an
+  // executed bundled script must be anchored on SKILL_DIR and the anchor defined.
+  test("executed bundled scripts are anchored on SKILL_DIR", async () => {
+    const skillMarkdown = await collectFiles(skillsRoot, (file) => file.endsWith(".md"))
+    const bareInvocation = /(?<![\w/$"])(?:bash|sh|python3|python) +(?:\.\/)?(?:scripts\/[A-Za-z0-9_.-]+|references\/[A-Za-z0-9_.-]+\.(?:sh|py)\b)/
+    const offenders: string[] = []
+    for (const file of skillMarkdown) {
+      const content = await fs.readFile(file, "utf8")
+      const rel = path.relative(skillsRoot, file)
+      if (bareInvocation.test(content)) offenders.push(`${rel}: bare scripts/ invocation`)
+      if (content.includes("$SKILL_DIR/scripts/") && !content.includes("SKILL_DIR=")) {
+        offenders.push(`${rel}: uses $SKILL_DIR without defining it`)
+      }
+    }
+    expect(offenders).toEqual([])
   })
 
   test("Claude-only cache maintenance skill is platform-filtered", async () => {

@@ -12,6 +12,14 @@ has a `value`, `confidence`, and short `evidence` list.
 | Storage | verified connection, SQL models, Parquet files, or Fabric project markers | Ask one storage question only when an analysis needs it |
 | Data domain | CLIF, OMOP, claims, bioinformatics, generic EHR, or generic data signals | Report `generic-data`; do not claim a biomedical source |
 
+When the `ce-language-detect` skill cannot be loaded, apply this minimal
+version of its rules: Python markers are `pyproject.toml`, `requirements.txt`,
+`uv.lock`, `poetry.lock`, `.py`, or `.ipynb` files; R markers are `renv.lock`,
+`.Rproj`, `DESCRIPTION`, `.R`, `.Rmd`, or `.qmd` files. Only Python markers
+(a manifest or lockfile plus source) -> `python`; only R markers -> `r`; both
+sets with active source files -> `both`; otherwise `unknown`. Ignore vendor
+and generated paths.
+
 Use `high` only for direct project evidence, `medium` for multiple indirect
 signals, and `low` for a single weak signal. Existing project configuration is
 user-confirmed evidence and takes precedence unless it conflicts with an
@@ -27,7 +35,7 @@ Detected profile
   Storage: Parquet (medium: cohort.parquet)
   Data domain: generic EHR (medium: cohort + encounter fields)
 
-Choose: Continue with this profile | Adjust a field | Full survey
+Choose: Continue with detected profile | Adjust a field | Full survey
 ```
 
 Do not write this evidence block as a required configuration schema. When it is

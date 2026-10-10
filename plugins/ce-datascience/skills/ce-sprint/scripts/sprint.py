@@ -6,14 +6,17 @@ file is the audit trail.
 
 Subcommands:
     open NAME [--scope SAP-3.1,SAP-3.2] [--reviewer jcr]
-    close NAME
+    close [NAME]            (defaults to the currently open sprint)
     status [--name NAME]
 
-State machine:
-    open  -> writes a sprint with status=open, captures git HEAD as commit_open,
-             refuses if any sprint is currently open (one open sprint at a time)
-    close -> writes commit_close + outputs_actual + flips status=closed,
-             refuses if entry sprint not signed off, runs reproducibility re-check
+State machine (statuses written to sprint-log.yaml):
+    open                   -> `open NAME` writes status=open and captures git HEAD
+                              as commit_open; refuses while another sprint is open
+    pending_review         -> `close NAME` captures commit_close and waits for the
+                              ce-sprint-audit-reviewer verdict
+    closed_pending_signoff -> set by the skill when the audit passes; a failing
+                              audit sets the sprint back to open
+    signed_off             -> recorded after the named human reviewer signs off
 """
 from __future__ import annotations
 
@@ -100,8 +103,14 @@ def open_sprint(name: str, scope: list[str], reviewer: str) -> int:
     return 0
 
 
-def close_sprint(name: str) -> int:
+def close_sprint(name: str | None) -> int:
     log = load_log()
+    if name is None:
+        open_sprints = [s for s in log["sprints"] if s.get("status") == "open"]
+        if not open_sprints:
+            print("no sprint is currently open; pass the sprint name explicitly", file=sys.stderr)
+            return 1
+        name = open_sprints[0]["name"]
     sprint = find(log, name)
     if not sprint:
         print(f"no such sprint: {name}", file=sys.stderr); return 1
@@ -121,7 +130,7 @@ def close_sprint(name: str) -> int:
     # Machine-parseable dispatch hint. The skill body in ce-sprint/SKILL.md tells
     # the orchestrator to use this line to fire the Task tool with
     # subagent_type=ce-sprint-audit-reviewer. The reviewer's verdict gates whether
-    # status flips closed (pass) or back to open (fail).
+    # status moves to closed_pending_signoff (pass) or back to open (fail).
     print(f"__CE_SPRINT_AUDIT_DISPATCH__ "
           f"sprint={name} "
           f"reviewer=ce-sprint-audit-reviewer "
@@ -130,7 +139,8 @@ def close_sprint(name: str) -> int:
           f"commit_open={sprint.get('commit_open') or ''} "
           f"commit_close={sprint['commit_close'] or ''}")
     print(f"next: dispatch ce-sprint-audit-reviewer per the line above; "
-          f"on pass, human reviewer ({sprint['reviewer']}) signs off and status flips to closed.")
+          f"on pass, status becomes closed_pending_signoff until the human reviewer "
+          f"({sprint['reviewer']}) signs off (status signed_off).")
     return 0
 
 
@@ -153,7 +163,8 @@ def main() -> None:
     o.add_argument("--reviewer", default=os.environ.get("USER", "unknown"))
 
     c = sub.add_parser("close")
-    c.add_argument("name")
+    c.add_argument("name", nargs="?", default=None,
+                   help="sprint to close; defaults to the currently open sprint")
 
     s = sub.add_parser("status")
     s.add_argument("--name", default=None)

@@ -2,6 +2,8 @@
 
 This template is used by Stage 5b to spawn one validator sub-agent per surviving finding before externalization. The validator's job is **independent re-verification**, not re-reasoning. It is a fresh second opinion, not a critic of the original persona's analysis.
 
+In a PHI-risk review, replace the read-tool list in `<scope-context>` and the git blame step in question 2 with the Stage 5b prohibition on `git diff`, `git show`, `git blame`, `git log`, and `gh`; the validator then uses only the supplied PHI-free context.
+
 ---
 
 ## Template
@@ -50,10 +52,12 @@ Return ONLY this JSON, no prose:
 
 ```json
 {
-  "validated": true | false,
+  "validated": true,
   "reason": "<one sentence explaining the verdict>"
 }
 ```
+
+`validated` is `true` or `false`.
 
 Examples:
 
@@ -78,7 +82,7 @@ Rules:
 | `{finding_severity}` | Stage 5 merged finding | P0 / P1 / P2 / P3 |
 | `{finding_file}` | Stage 5 merged finding | Repo-relative file path |
 | `{finding_line}` | Stage 5 merged finding | Primary line number |
-| `{finding_why_it_matters}` | Per-agent artifact file (detail tier) | Loaded from disk for this validation; required for the validator to understand the finding |
+| `{finding_why_it_matters}` | Per-agent artifact file (detail tier) | Loaded from disk when available; pass empty string when the artifact is absent or its write failed, and the validator works from the diff and cited code |
 | `{finding_suggested_fix}` | Stage 5 merged finding (optional) | Pass empty string if not present |
 | `{finding_reviewer}` | Stage 5 merged finding | Original persona name (informational; helps validator interpret the framing) |
 | `{finding_confidence}` | Stage 5 merged finding | The persona's anchor (informational) |

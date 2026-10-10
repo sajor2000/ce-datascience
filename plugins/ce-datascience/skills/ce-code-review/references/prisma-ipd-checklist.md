@@ -1,5 +1,15 @@
 # PRISMA-IPD Checklist for Systematic Reviews Using Individual Participant Data
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Funding
+
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Individual Participant Data (PRISMA-IPD).
 Extension of PRISMA for systematic reviews and meta-analyses that use individual participant data.
 

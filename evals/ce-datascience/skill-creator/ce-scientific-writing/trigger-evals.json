@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Draft the Results and Methods for our cohort paper from analysis/output/ and the approved SAP -- STROBE, target journal is Critical Care Medicine",
+    "should_trigger": true
+  },
+  {
+    "query": "Help me plan the manuscript: build a claim-evidence outline from our frozen tables before I start writing",
+    "should_trigger": true
+  },
+  {
+    "query": "revise this paper draft -- reviewers said the conclusions outrun the design. do a developmental pass then line edit",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a reviewer response letter for our ML validation paper; keep every number traceable to the results and don't change our claims",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit manuscript/main.md for evidence/provenance failures, inference risk, and cross-artifact inconsistencies with the tables",
+    "should_trigger": true
+  },
+  {
+    "query": "We're submitting to Nature Medicine as an Article; draft the abstract and title from the finished Results without inventing anything",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn our frozen results ledger and figures into a full first draft of an original research paper on remote monitoring in heart failure",
+    "should_trigger": true
+  },
+  {
+    "query": "my co-author's Discussion turns an association into causation and treats a secondary analysis as primary -- fix the argument, then polish",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft a structured abstract for a TRIPOD+AI prediction model paper using only the numbers in analysis/output/tables/performance.csv",
+    "should_trigger": true
+  },
+  {
+    "query": "Rewrite the Introduction so it sets up our specific research question and estimand rather than generic background",
+    "should_trigger": true
+  },
+  {
+    "query": "Do just the AI-tell pass on this paragraph -- remove throat-clearing and business jargon",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the final pre-submission audit gate on the abstract and cover letter before it goes to the PI",
+    "should_trigger": false
+  },
+  {
+    "query": "Which reporting guideline applies to our diagnostic accuracy study -- STARD or TRIPOD?",
+    "should_trigger": false
+  },
+  {
+    "query": "Add editable Zotero citations to manuscript.docx and fix the broken reference list",
+    "should_trigger": false
+  },
+  {
+    "query": "Make Table 1 baseline characteristics in JAMA style from 03-variables.csv",
+    "should_trigger": false
+  },
+  {
+    "query": "Assemble the submission bundle with tables, figures, checklist, and provenance for JAMA",
+    "should_trigger": false
+  },
+  {
+    "query": "Search PubMed for RCTs of vasopressin in septic shock since 2015",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate a publication-ready Kaplan-Meier figure with JAMA typography",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the OSF preregistration for our secondary analysis",
+    "should_trigger": false
+  },
+  {
+    "query": "Review analysis/sap.md for completeness before lock",
+    "should_trigger": false
+  }
+]

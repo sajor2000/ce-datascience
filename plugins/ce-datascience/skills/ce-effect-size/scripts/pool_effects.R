@@ -9,22 +9,29 @@
 #
 # Usage:
 #   Rscript pool_effects.R \
-#     --in analysis/pubmed/sepsis-bundle-methods.csv \
+#     --in analysis/effect-size/sepsis-bundle-parsed.csv \
 #     --metric HR \
-#     --out analysis/effect-size/sepsis-bundle-pooled.md
+#     --out analysis/effect-size/sepsis-bundle-pooled.md \
+#     [--min-n 50]
 #
-# Input CSV must have at minimum: pmid, year, sample_size, effect (point),
-# effect_lo, effect_hi, metric. Use scripts/parse_effect.py first if these
-# columns are missing -- it parses the free-text effect_size_reported field.
+# Input CSV must have at minimum: pmid, year, first_author, sample_size,
+# metric, effect (point), effect_lo, effect_hi. The ce-method-extract table
+# carries only free-text effect_size_reported, so parse it first (see
+# references/effect-parser.md) and pass the parsed CSV here.
+#
+# Filters applied here, each count printed: metric equals --metric exactly
+# (normalise aHR -> HR before calling); point and CI present and, for ratio
+# metrics, positive, with effect_lo <= effect <= effect_hi; sample_size >=
+# --min-n (default 50, the skill's working cutoff, not a literature value).
 
-suppressPackageStartupMessages({
-  for (pkg in c("meta", "ggplot2")) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      stop(sprintf("install current CRAN %s: install.packages('%s')", pkg, pkg))
-    }
+for (pkg in c("meta", "ggplot2")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    cat(sprintf("pool_effects.R: R package '%s' is not installed; run install.packages('%s') and re-run\n", pkg, pkg),
+        file = stderr())
+    quit(status = 1)
   }
-  library(meta)
-})
+}
+suppressPackageStartupMessages(library(meta))
 
 parse_args <- function(args) {
   out <- list()
@@ -41,28 +48,62 @@ a <- parse_args(commandArgs(trailingOnly = TRUE))
 stopifnot(!is.null(a$`in`), !is.null(a$metric), !is.null(a$out))
 
 dat <- read.csv(a$`in`, stringsAsFactors = FALSE)
-dat <- subset(dat, metric == a$metric &
-                   !is.na(effect) & !is.na(effect_lo) & !is.na(effect_hi) &
-                   effect_lo > 0 & effect_hi > 0)
+needed  <- c("pmid", "year", "first_author", "sample_size", "metric", "effect", "effect_lo", "effect_hi")
+missing <- setdiff(needed, names(dat))
+if (length(missing) > 0) {
+  cat(sprintf("pool_effects.R: %s is missing column(s): %s\n", a$`in`, paste(missing, collapse = ", ")),
+      "Parse the free-text effect_size_reported field into metric, effect, effect_lo, effect_hi ",
+      "first (see references/effect-parser.md), then re-run.\n", sep = "", file = stderr())
+  quit(status = 1)
+}
+dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
+
+# Step 2 filters, each count reported so the summary can state what was dropped.
+min_n    <- as.numeric(if (is.null(a$`min-n`)) 50 else a$`min-n`)
+n_input  <- nrow(dat)
+is_ratio <- a$metric %in% c("HR", "OR", "RR", "aOR", "aHR", "aRR", "IRR", "SMR", "HRR")
+
+dat <- dat[!is.na(dat$metric) & dat$metric == a$metric, , drop = FALSE]
+n_metric_drop <- n_input - nrow(dat)
+
+ok_ci <- !is.na(dat$effect) & !is.na(dat$effect_lo) & !is.na(dat$effect_hi) &
+         dat$effect_lo <= dat$effect & dat$effect <= dat$effect_hi
+if (is_ratio) ok_ci <- ok_ci & dat$effect > 0 & dat$effect_lo > 0 & dat$effect_hi > 0
+n_ci_drop <- sum(!ok_ci)
+dat <- dat[ok_ci, , drop = FALSE]
+
+ok_n <- !is.na(dat$sample_size) & dat$sample_size >= min_n
+n_small_drop <- sum(!ok_n)
+dat <- dat[ok_n, , drop = FALSE]
+
+cat(sprintf("Input rows: %d; dropped %d (metric != %s), %d (missing, non-positive, or inconsistent point/CI), %d (sample_size < %g); %d studies enter pooling.\n",
+            n_input, n_metric_drop, a$metric, n_ci_drop, n_small_drop, min_n, nrow(dat)))
 
 if (nrow(dat) < 3) {
   cat(sprintf("Only %d studies with metric=%s and complete CI; pooling not meaningful.\n",
               nrow(dat), a$metric))
   cat("Reporting narrative range instead.\n")
-  pt_min <- min(dat$effect); pt_med <- median(dat$effect); pt_max <- max(dat$effect)
-  best   <- dat[order(-dat$sample_size, -dat$year)[1], ]
-  out_md <- c(
-    sprintf("# Effect-size narrative (k = %d, %s)", nrow(dat), a$metric),
-    sprintf("Range: %.2f to %.2f (median %.2f)", pt_min, pt_max, pt_med),
-    sprintf("Anchor study: PMID %s, %s, N=%d, point=%.2f",
-            best$pmid, best$year, best$sample_size, best$effect),
-    "",
-    "Pooling deferred -- fewer than 3 studies. Use the anchor or the range",
-    "as the /ce-power input. Consider widening the search."
-  )
-  dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
+  if (nrow(dat) == 0) {
+    out_md <- c(
+      sprintf("# Effect-size narrative (k = 0, %s)", a$metric),
+      "No study in the input has this metric with a complete, positive CI.",
+      "Check the metric label (case-sensitive) or widen the search."
+    )
+  } else {
+    pt_min <- min(dat$effect); pt_med <- median(dat$effect); pt_max <- max(dat$effect)
+    best   <- dat[order(-dat$sample_size, -dat$year)[1], ]
+    out_md <- c(
+      sprintf("# Effect-size narrative (k = %d, %s)", nrow(dat), a$metric),
+      sprintf("Range: %.2f to %.2f (median %.2f)", pt_min, pt_max, pt_med),
+      sprintf("Anchor study: PMID %s, %s, N=%s, point=%.2f",
+              best$pmid, best$year, best$sample_size, best$effect),
+      "",
+      "Pooling deferred -- fewer than 3 studies. Use the anchor or the range",
+      "as the ce-power input. Consider widening the search."
+    )
+  }
   writeLines(out_md, a$out)
-  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null i2=null mode=narrative\n",
+  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null pi=NA i2=null mode=narrative\n",
               a$metric, nrow(dat)))
   quit(status = 0)
 }
@@ -72,7 +113,12 @@ ratio_metric <- a$metric %in% c("HR", "OR", "RR", "aOR", "aHR", "aRR", "IRR", "S
 if (ratio_metric) {
   dat$te    <- log(dat$effect)
   dat$se_te <- (log(dat$effect_hi) - log(dat$effect_lo)) / (2 * 1.96)
-  sm        <- a$metric  # used by meta for axis labels
+  # meta only back-transforms summary measures it recognises (OR, RR, HR, IRR);
+  # adjusted or study-specific labels must map to one, or the forest plot and
+  # printed summary stay on the log scale.
+  sm <- switch(a$metric,
+               aOR = "OR", aRR = "RR", aHR = "HR", HRR = "HR", SMR = "RR",
+               a$metric)
 } else {
   dat$te    <- dat$effect
   dat$se_te <- (dat$effect_hi - dat$effect_lo) / (2 * 1.96)
@@ -84,6 +130,7 @@ m <- meta::metagen(
   seTE     = dat$se_te,
   studlab  = paste0(dat$first_author, " ", dat$year, " (PMID ", dat$pmid, ")"),
   sm       = sm,
+  title    = a$metric,
   method.tau = "REML",
   prediction = TRUE
 )
@@ -96,12 +143,25 @@ if (ratio_metric) {
   pi_lo  <- m$lower.predict; pi_hi <- m$upper.predict
 }
 
+# meta returns the prediction interval only when k and tau^2 allow one; guard
+# length before is.finite() so a NULL or NA bound yields pi=NA, not an error.
+pi_ok  <- length(pi_lo) == 1 && length(pi_hi) == 1 &&
+          is.finite(pi_lo) && is.finite(pi_hi)
+pi_txt <- if (pi_ok) sprintf("%.2f-%.2f", pi_lo, pi_hi) else "not available"
+pi_sig <- if (pi_ok) sprintf("%.3f,%.3f", pi_lo, pi_hi) else "NA"
+sweep_line <- if (pi_ok) {
+  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% prediction interval)", pi_lo, pi_hi)
+} else {
+  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% CI; prediction interval not available)",
+          ci_lo, ci_hi)
+}
+
 # Forest plot
 fp_path <- sub("\\.md$", "-forest.png", a$out)
 png(fp_path, width = 1200, height = 100 + 60 * nrow(dat), res = 150)
 meta::forest(m, sortvar = dat$year, prediction = TRUE,
              leftcols = c("studlab"), rightcols = c("effect.ci"))
-dev.off()
+invisible(dev.off())
 
 # Markdown summary
 out_md <- c(
@@ -110,20 +170,18 @@ out_md <- c(
   sprintf("Source: %s (k = %d studies after filtering)", a$`in`, nrow(dat)),
   sprintf("Method: random-effects meta-analysis, REML for tau^2, prediction interval reported"),
   "",
-  sprintf("Pooled %s = %.2f (95%% CI %.2f-%.2f; 95%% PI %.2f-%.2f)",
-          a$metric, pooled, ci_lo, ci_hi, pi_lo, pi_hi),
+  sprintf("Pooled %s = %.2f (95%% CI %.2f-%.2f; 95%% PI %s)",
+          a$metric, pooled, ci_lo, ci_hi, pi_txt),
   sprintf("Heterogeneity: I^2 = %.0f%%, tau^2 = %.3f", m$I2 * 100, m$tau2),
   "",
-  "## For /ce-power",
+  "## For `ce-power`",
   "",
   sprintf("Anchor: %.2f", pooled),
-  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% prediction interval)",
-          pi_lo, pi_hi),
+  sweep_line,
   "",
   sprintf("Forest plot: %s", fp_path)
 )
-dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
 writeLines(out_md, a$out)
 
-cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f i2=%.0f mode=reml\n",
-            a$metric, nrow(dat), pooled, ci_lo, ci_hi, m$I2 * 100))
+cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f pi=%s i2=%.0f mode=reml\n",
+            a$metric, nrow(dat), pooled, ci_lo, ci_hi, pi_sig, m$I2 * 100))

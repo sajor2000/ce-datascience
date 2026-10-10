@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Put together a review packet for our PI with Table 1, the KM figures, and the open SAP deviations so she can sign off before we send to the coordinating center",
+    "should_trigger": true
+  },
+  {
+    "query": "need a statistician signoff ledger for the SAP v1.2 lock and data lock - two analysts plus the PI, keep it append-only",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you validate analysis/signoff/signoff-ledger.json and tell me if we're ready to hand off the manuscript package to the study lead?",
+    "should_trigger": true
+  },
+  {
+    "query": "the co-PIs want one doc showing what outputs are ready, what's blocked, and who still needs to approve. outputs are scattered across analysis/figures and analysis/publication",
+    "should_trigger": true
+  },
+  {
+    "query": "Sprint-04 just closed with a pass from the audit; build the PI-facing package and add the sprint summary to the signoff ledger",
+    "should_trigger": true
+  },
+  {
+    "query": "prep the coordinating-center handoff for the multisite AKI study -- registry package, Table 1, and figure readiness each need separate signoff",
+    "should_trigger": true
+  },
+  {
+    "query": "We need a formal approval workflow record: Dr. Lee approved Table 1 with conditions, Dr. Shah requested changes on Figure 2. Record these and summarize readiness",
+    "should_trigger": true
+  },
+  {
+    "query": "make a reveiw pack for the PI before the DSMB meeting, list unresolved code review findings and SAP drift",
+    "should_trigger": true
+  },
+  {
+    "query": "Our biostat core requires a named-reviewer signoff for every deliverable. Package the current outputs and tell me which signoffs are still missing",
+    "should_trigger": true
+  },
+  {
+    "query": "What's left before the study lead can approve the registry package? Pull together blockers and requested signoffs in one PI-facing markdown file",
+    "should_trigger": true
+  },
+  {
+    "query": "Close sprint-02 and run the audit reviewer against the planned outputs in 02-outputs.csv",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a quick sanity check on the outputs in analysis/output/ -- sample size, leakage, PHI -- before I mark this step done",
+    "should_trigger": false
+  },
+  {
+    "query": "Assemble the JAMA submission bundle: manuscript, tables, figures, STROBE checklist, and provenance files",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this PR diff for the mixed-effects model code before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Do a final pre-submission audit of the Discussion and abstract for voice, section discipline, and AI-writing tells before I send to co-authors",
+    "should_trigger": false
+  },
+  {
+    "query": "Review analysis/sap.md for clarity, completeness, and whether the scope is controlled before we lock it",
+    "should_trigger": false
+  },
+  {
+    "query": "Resolve the reviewer comments on PR #142 about the competing-risks methodology and reply to each thread",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate the model card for our sepsis prediction model covering calibration, fairness, and intended use",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a handoff note so another agent can pick up the Table 1 work tomorrow without the chat history",
+    "should_trigger": false
+  },
+  {
+    "query": "Open a new sprint for SAP-3.3 and SAP-3.4 with reviewer jcr",
+    "should_trigger": false
+  }
+]

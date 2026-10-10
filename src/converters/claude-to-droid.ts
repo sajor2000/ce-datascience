@@ -2,6 +2,7 @@ import { formatFrontmatter } from "../utils/frontmatter"
 import { type ClaudeAgent, type ClaudeCommand, type ClaudePlugin, filterSkillsByPlatform } from "../types/claude"
 import type { DroidBundle, DroidCommandFile, DroidAgentFile } from "../types/droid"
 import type { ClaudeToOpenCodeOptions } from "./claude-to-opencode"
+import { isReservedPathRoot } from "../utils/slash-command"
 
 export type ClaudeToDroidOptions = ClaudeToOpenCodeOptions
 
@@ -20,7 +21,7 @@ const CLAUDE_TO_DROID_TOOLS: Record<string, string> = {
   task: "Task",
   todowrite: "TodoWrite",
   todoread: "TodoWrite",
-  question: "AskUser",
+  askuserquestion: "AskUser",
 }
 
 const VALID_DROID_TOOLS = new Set([
@@ -106,7 +107,7 @@ function mapAgentTools(agent: ClaudeAgent): string[] | undefined {
 
   const mentionedTools = new Set<string>()
   for (const [claudeTool, droidTool] of Object.entries(CLAUDE_TO_DROID_TOOLS)) {
-    if (bodyLower.includes(claudeTool)) {
+    if (new RegExp(`\\b${claudeTool}\\b`).test(bodyLower)) {
       mentionedTools.add(droidTool)
     }
   }
@@ -142,7 +143,7 @@ export function transformContentForDroid(body: string): string {
   const slashCommandPattern = /(?<![:\w])\/([a-z][a-z0-9_:-]*?)(?=[\s,."')\]}`]|$)/gi
   result = result.replace(slashCommandPattern, (match, commandName: string) => {
     if (commandName.includes('/')) return match
-    if (['dev', 'tmp', 'etc', 'usr', 'var', 'bin', 'home'].includes(commandName)) return match
+    if (isReservedPathRoot(commandName)) return match
     const flattened = flattenCommandName(commandName)
     return `/${flattened}`
   })

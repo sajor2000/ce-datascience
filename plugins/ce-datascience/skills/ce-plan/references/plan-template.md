@@ -2,7 +2,7 @@
 
 Canonical templates the writer fills in during Phase 4 of `ce-plan` when **implementation mode** is active. SAP-mode templates live in `sap-template.md`. Linked from `SKILL.md` § Phase 4.2.
 
-## Table of contents
+## Contents
 
 1. Core Plan Template — frontmatter, Summary, Problem Frame, Requirements Trace, Scope, Context, Decisions, Open Questions, Output Structure (optional), High-Level Technical Design (optional), Implementation Units, System-Wide Impact, Risks, Documentation Notes, Sources & References.
 2. Optional Deep-Plan Extensions — Alternative Approaches, Success Metrics, Dependencies, Risk Analysis, Phased Delivery, Documentation Plan, Operational / Rollout Notes.
@@ -59,7 +59,7 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 ## Scope Boundaries
 
-<!-- Default structure (no origin doc, or origin was Lightweight / Standard / Deep-feature):
+<!-- Default structure (no origin doc, or origin was Lightweight / Standard / Deep-analysis):
      a single bulleted list of explicit non-goals. The optional `### Deferred to Follow-Up Work`
      subsection below may still be included when this plan's implementation is intentionally
      split across other PRs/issues/repos. -->
@@ -68,14 +68,14 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 <!-- Optional plan-local subsection — include when this plan's implementation is intentionally
      split across other PRs, issues, or repos. Distinct from origin-carried "Deferred for later"
-     (product sequencing) and "Outside this product's identity" (positioning). -->
+     (product sequencing) and "Outside this study's scope" (positioning). -->
 ### Deferred to Follow-Up Work
 
 - [Work that will be done separately]: [Where or when -- e.g., "separate PR in repo-x", "future iteration"]
 
 <!-- Triggered structure: replace the single list above with the three subsections below ONLY
-     when the origin doc is Deep-product (detectable by presence of an "Outside this product's
-     identity" subsection in the origin's Scope Boundaries). At all other tiers and when no
+     when the origin doc is Deep-program (detectable by presence of an "Outside this study's
+     scope" subsection, or legacy "Outside this product's identity", in the origin's Scope Boundaries). At all other tiers and when no
      origin exists, use the single-list structure above. -->
 
 <!--
@@ -85,7 +85,7 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 - [Item]
 
-### Outside this product's identity
+### Outside this study's scope
 
 [Carried from origin — positioning rejection. Adjacent product the plan must not accidentally build.]
 
@@ -93,7 +93,7 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 ### Deferred to Follow-Up Work
 
-[Plan-local — implementation work intentionally split across other PRs/issues/repos. Distinct from origin's "Deferred for later" (product) and "Outside this product's identity" (positioning).]
+[Plan-local — implementation work intentionally split across other PRs/issues/repos. Distinct from origin's "Deferred for later" (product) and "Outside this study's scope" (positioning).]
 
 - [Item]
 -->
@@ -223,7 +223,7 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 ## Sources & References
 
-- **Origin document:** [docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md](path)
+- **Origin document:** `docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md`
 - Related code: [path or symbol]
 - Related PRs/issues: #[number]
 - External docs: [url]

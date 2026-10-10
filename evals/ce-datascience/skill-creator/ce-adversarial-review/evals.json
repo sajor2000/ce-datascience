@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-adversarial-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Before I merge feature/iptw-weights into main, I want an adversarial pass on the diff. It changes R/weights.R (stabilized IPTW with truncation at the 1st/99th percentile) and R/outcome_model.R (svyglm with robust SEs). This feeds the primary estimand in our sepsis readmission paper, so I care about ways it silently produces wrong effect estimates. target:code depth:quick",
+      "expected_output": "A read-only adversarial synthesis of the branch diff against its merge base, with local and peer coverage labeled, concrete failure scenarios for the weighting/outcome code, and no edits made.",
+      "files": [],
+      "expectations": [
+        "Does not edit, stage, or commit any file in the repository",
+        "Final report uses the exact section structure: Adversarial review header with Target, Mode, Coverage, Research grounding, then Confirmed findings, Converged after rebuttal, Not debated due to budget, Harness disagreement, Residual risks and verification gaps",
+        "Every reported finding names a specific file:line location, a trigger, a consequence, and a confidence of 50, 75, or 100",
+        "Coverage line states either the peer harness used or an explicit local-only reason (e.g. local-only (peer unavailable) with the failed availability check); it never claims a peer review that did not run",
+        "With depth:quick, performs no rebuttal rounds"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "can you get codex to independently tear apart docs/plans/2026-09-30-001-feat-target-trial-emulation-plan.md? its the plan for our TTE of early vs delayed dialysis in AKI using the CLIF extract. i want the load-bearing assumptions challenged (grace period, clone-censor-weight choice, the eligibility window). peer:codex",
+      "expected_output": "A plan-target adversarial review that runs Codex read-only as the named peer (or stops and asks if Codex is unavailable), challenging premises, load-bearing decisions, and omitted alternatives in the plan.",
+      "files": [],
+      "expectations": [
+        "Treats the supplied .md path as target:plan and reviews only that document",
+        "Runs the Codex availability check (codex login status) before dispatch; if it fails, stops, reports the failed check, and asks whether to retry later or continue local-only rather than silently falling back",
+        "Captures peer output under /tmp/ce-datascience/ce-adversarial-review/<run-id>/ and validates it with scripts/validate_peer_artifact.py before using it in synthesis",
+        "Findings focus on plan-level challenges (premises, load-bearing decisions, reversal cost, omitted alternatives) rather than code style",
+        "Does not pass raw patient-level CLIF data or credentials into the peer prompt"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Run an adversarial review. There are two candidate docs I was working on: docs/plans/sap-v2.md and docs/brainstorms/2026-09-12-frailty-index-requirements.md, plus some uncommitted changes in analysis/frailty.py. Just pick whatever makes sense and also fix anything critical you find.",
+      "expected_output": "The skill refuses to guess among multiple candidate targets, asks the user to specify target:code or target:plan <path>, and declines to apply fixes because the workflow is read-only.",
+      "files": [],
+      "expectations": [
+        "Asks the user to choose target:code or target:plan <path> instead of choosing among the multiple candidate documents itself",
+        "Does not edit analysis/frailty.py or any plan document, stating the review is read-only",
+        "Mentions that actionable code findings can be routed to ce-code-review and plan findings to ce-doc-review or ce-plan if follow-through is wanted",
+        "Does not dispatch a peer harness before the target is resolved"
+      ]
+    }
+  ]
+}

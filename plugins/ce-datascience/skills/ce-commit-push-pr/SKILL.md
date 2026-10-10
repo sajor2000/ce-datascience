@@ -1,6 +1,6 @@
 ---
 name: ce-commit-push-pr
-description: "Commit, push, and open or update a pull request with an adaptive value-first title and description."
+description: "Commit, push, and open or update a pull request with an adaptive value-first title and description. Use when the user asks to commit and PR, push and open PR, ship this, create a PR, or refresh a PR description."
 ---
 
 # Git Commit, Push, and PR
@@ -15,140 +15,104 @@ description: "Commit, push, and open or update a pull request with an adaptive v
 - **Do not do:** Do not push default branches, fabricate evidence, or overwrite an existing PR body without confirmation when required.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Go from working changes to an open pull request, rewrite an existing PR description, or generate a description without touching git state.
-
-When this skill asks a user-facing question, follow the Skill Value interaction rule above.
+Go from working changes to an open pull request, rewrite an existing PR description, or generate a description without touching git state. Every user-facing question below follows the Skill Value interaction rule.
 
 ## Mode detection
 
-Three flavors of intent. Pick one and follow the matching path; otherwise default to the full workflow.
+Pick one path; default to the full workflow.
 
-- **Description-only generation.** If the user asked for *just* a PR description with no commit or push intent (e.g., "write a PR description", "draft a PR description for this branch", "describe this PR", or pasted a PR URL/number alone), skip Steps 4–5 AND Step 1's decision tree (its stop gates are full-workflow only and would terminate common cases like "feature branch, all pushed, open PR → stop"). Use the data from the Context section above instead. Then go to Step 6 to compose. If the user pasted a PR URL/number, pass it to Step 6 as the PR ref so Pre-A resolves the right commit range (otherwise Pre-A defaults to current-branch mode). Print the result back to the user; apply via `gh pr edit`/`gh pr create` only if the user asks.
-- **Description update on existing PR.** If the user is asking to update, refresh, or rewrite an existing PR description (with no mention of committing or pushing), follow the Description Update workflow below. The user may also provide a focus (e.g., "update the PR description and add the benchmarking results"). Note any focus for DU-3.
-- **Full workflow.** Otherwise, follow the Full workflow below.
+- **Description-only.** The user wants *just* a PR description, with no commit or push intent ("write a PR description", "describe this PR", or a pasted PR URL/number alone). Skip Step 1's decision tree and Steps 3-5. Gather only the Context needed to resolve the range, then go to Step 6. Pass a pasted PR ref to Step 6 so Pre-A resolves that PR's range. Print the result; apply with `gh pr edit` or `gh pr create` only if the user asks.
+- **Description update.** The user wants to update, refresh, or rewrite an existing PR description, with no mention of committing or pushing. Read `references/description-update.md` and follow it, using `references/pr-description-writing.md` at its DU-3 step. Note any focus the user gives (for example, "add the sensitivity-analysis results") for DU-3.
+- **Full workflow.** Otherwise, follow the Full workflow.
 
 ## Context
 
-**On platforms other than Claude Code**, skip to the "Context fallback" section below and run the command there to gather context.
+Gather context at runtime. Run each command below as its **own** shell call (program and arguments only), in order; the PR check needs the branch name. Do not join commands with `;`, `&&`, `||`, pipes, `$(...)`, or redirects such as `2>/dev/null`: that syntax fails under some shells. Read each exit status directly. A non-zero exit is a state to interpret, not a failure to suppress.
 
-**In Claude Code**, the six labeled sections below contain pre-populated data. Use them directly -- do not re-run these commands.
+| Command | Purpose | Non-zero exit / empty output means |
+| --- | --- | --- |
+| `git rev-parse --show-toplevel` | Repo root | Not a git repository: report and stop |
+| `git status` | Working-tree state | (fails only outside a repo) |
+| `git diff HEAD` | Uncommitted changes | Unborn repo (no commits yet): every file is new; rely on `git status` |
+| `git branch --show-current` | Current branch `<branch>` | Empty output = detached HEAD |
+| `git log --oneline -10` | Recent commit and title style | Unborn repo: no history to match |
+| `git rev-parse --abbrev-ref origin/HEAD` | Remote default branch | No `origin/HEAD` (it may still print `origin/HEAD`; ignore that output): resolve in Step 1 |
+| `gh pr list --head <branch> --state open --json number,url,title,state,headRefName,headRepositoryOwner` | Open PR for this branch | See "PR check rules" |
 
-**Git status:**
-!`git status`
+### PR check rules
 
-**Working tree diff:**
-!`git diff HEAD`
+- **Exit 0 with `[]`** is the only result that means "no open PR".
+- **Non-zero exit** means `gh` is missing, unauthenticated, or offline: PR state is **unknown**, never "no PR". Run `gh auth status` and re-run the check once auth or connectivity is fixed. Never create a PR while state is unknown; if it stays unknown, stop before Step 7 and report it.
+- **Detached HEAD (empty `<branch>`):** skip the check. `gh pr list` with an empty `--head` drops the filter and lists unrelated PRs. Run it after a branch exists.
+- **Branch name only.** Never pass `<owner>:<branch>`; `--head` does not accept it and silently returns `[]`, which opens a duplicate PR. On a fork checkout, target the base repo with `-R <base-owner>/<repo>`.
+- **Non-empty result:** do not take index 0. Select the entry whose `headRefName` and `headRepositoryOwner` match the head this workflow pushes. If several entries share the branch name from different owners and none is confirmed as the current head, stop and show the candidates.
 
-**Current branch:**
-!`git branch --show-current`
+**Snapshot rule.** Context output is a hint, not ground truth. Re-run `git branch --show-current` immediately before committing (Step 4) and pushing (Step 5), and re-run the PR check immediately before `gh pr create` (Step 7).
 
-**Recent commits:**
-!`git log --oneline -10`
+## Writing the PR body file
 
-**Remote default branch:**
-!`git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo 'DEFAULT_BRANCH_UNRESOLVED'`
-
-**Existing PR check:**
-!`gh pr view --json url,title,state 2>/dev/null || echo 'NO_OPEN_PR'`
-
-### Context fallback
-
-**In Claude Code, skip this section — the data above is already available.**
-
-Run this single command to gather all context:
+Whenever this skill applies a body, write it to a temp file and pass `--body-file <path>`. Never use `--body-file -`, stdin pipes, heredoc-to-stdin, or `--body "$(cat ...)"`: wrappers and stdin handling can silently produce an empty PR body while `gh` still exits 0 and returns a URL.
 
 ```bash
-printf '=== STATUS ===\n'; git status; printf '\n=== DIFF ===\n'; git diff HEAD; printf '\n=== BRANCH ===\n'; git branch --show-current; printf '\n=== LOG ===\n'; git log --oneline -10; printf '\n=== DEFAULT_BRANCH ===\n'; git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo 'DEFAULT_BRANCH_UNRESOLVED'; printf '\n=== PR_CHECK ===\n'; gh pr view --json url,title,state 2>/dev/null || echo 'NO_OPEN_PR'
-```
-
----
-
-## Description Update workflow
-
-### DU-1: Confirm intent
-
-Ask the user: "Update the PR description for this branch?" If declined, stop.
-
-### DU-2: Find the PR
-
-Use the current branch and existing PR check from context. If the current branch is empty (detached HEAD), report no branch and stop. If the PR check returned `state: OPEN`, note the PR `url` and proceed to DU-3. Otherwise, report no open PR and stop.
-
-### DU-3: Write and apply the updated description
-
-**Read `references/pr-description-writing.md` once now** — DU-3 walks through Pre-A then Steps A through H without re-reading. Run Pre-A in PR mode using the existing PR's URL from DU-2 (it resolves the commit range, diff, and current body). Then continue with Steps A through H from the already-loaded reference to compose the title and body. If the user provided focus (e.g., "include the benchmarking results"), apply it as steering — do not let it override the writing principles or fabricate content the diff does not support.
-
-**Evidence decision:** the writing reference preserves any existing `## Demo` or `## Screenshots` block from the current body by default. If the user's focus asks to refresh or remove evidence, honor that. If no evidence block exists and one would benefit the reader, use the core Compound Engineering `ce-demo-reel` skill when it is installed, then re-compose with the captured URL/path spliced in. If `ce-demo-reel` is not available, ask for existing evidence or skip the evidence section; do not pretend ce-datascience ships its own demo-capture skill.
-
-**Compare and confirm.** Briefly explain what the new description covers differently from the old one. Ask the user to confirm before applying. If the user provided focus, confirm it was addressed.
-
-If confirmed, apply with `gh pr edit`. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes. The body must be written to a temp file and passed with `--body-file` to avoid shell-escaping and empty-body wrapper failures:
-
-```bash
-BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
+BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat >> "$BODY_FILE" <<'__CE_PR_BODY_END__'
 <the composed body markdown goes here, verbatim>
 __CE_PR_BODY_END__
-gh pr edit --title "<TITLE>" --body-file "$BODY_FILE"
 ```
 
-The quoted sentinel keeps `$VAR`, backticks, and any literal `EOF` inside the body from being expanded.
-
-Report the PR URL.
+- Append with `>>`; a truncating `>` fails under zsh `noclobber` and leaves the body empty. Keep the sentinel quoted.
+- Substitute `<TITLE>` verbatim in `gh` commands; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes.
 
 ---
 
 ## Full workflow
 
-### Step 1: Gather context
+### Step 1: Resolve branch and state
 
-Use the context above. All data needed for this step and Step 3 is already available -- do not re-run those commands.
+Run every Context command.
 
-The remote default branch value returns something like `origin/main`. Strip the `origin/` prefix. If it returned `DEFAULT_BRANCH_UNRESOLVED` or a bare `HEAD`, try:
+**Default branch:** strip a leading `origin/` from the `origin/HEAD` result. If that command exited non-zero or returned bare `HEAD`, run `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`. If both fail, use `main`. Compare bare names only.
 
-```bash
-gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
-```
+**Detached HEAD:** a branch is required. Ask whether to create a feature branch now. If yes, derive a name from the change content, run `git checkout -b <branch-name>`, re-read `git branch --show-current`, then run the PR check. If no, stop.
 
-If both fail, fall back to `main`.
+**Clean working tree** (no staged, modified, or untracked files): determine whether there is unpushed work.
 
-If the current branch is empty (detached HEAD), explain that a branch is required. Ask whether to create a feature branch now.
-- If yes, derive a branch name from the change content, create with `git checkout -b <branch-name>`, and use that for the rest of the workflow.
-- If no, stop.
-
-If the working tree is clean (no staged, modified, or untracked files), determine the next action:
-
-1. Run `git rev-parse --abbrev-ref --symbolic-full-name @{u}` to check upstream.
-2. If upstream exists, run `git log <upstream>..HEAD --oneline` for unpushed commits.
+1. Run `git rev-parse --abbrev-ref --symbolic-full-name "@{u}"`. Non-zero means no upstream.
+2. If an upstream exists, run `git log <upstream>..HEAD --oneline` for unpushed commits.
 
 Decision tree:
 
-- **On default branch with work to do** (uncommitted, unpushed, or no upstream) -- automatically create a feature branch (pushing default directly is not supported). Derive a name from the change content and continue from Step 4, which handles branch creation safely. Do not ask whether to branch -- committing or pushing on the default branch is not an option here.
-- **On default branch, all pushed, no open PR** -- report no feature branch work. Stop.
-- **Feature branch, no upstream** -- skip Step 4, continue from Step 5.
-- **Feature branch, unpushed commits** -- skip Step 4, continue from Step 5.
-- **Feature branch, all pushed, no open PR** -- skip Steps 4-5, continue from Step 6.
-- **Feature branch, all pushed, open PR** -- report up to date. Stop.
+- **Default branch with work** (uncommitted, unpushed, or no upstream): create a feature branch in Step 4 without asking; pushing the default branch is not an option here.
+- **Default branch, all pushed:** report that there is no feature-branch work and stop.
+- **Feature branch, no upstream or unpushed commits:** skip Step 4; continue from Step 5.
+- **Feature branch, all pushed, no open PR (exit 0 `[]`):** skip Steps 4-5; continue from Step 6.
+- **Feature branch, all pushed, open PR:** report that the PR is up to date and stop.
+- **Feature branch, all pushed, PR state unknown:** resolve per "PR check rules"; if still unknown, stop and report.
 
 ### Step 2: Determine conventions
 
-Priority order for commit messages and PR titles:
+For commit messages and PR titles, in priority order:
 
-1. **Repo conventions in context** -- follow project instructions if they specify conventions. Do not re-read; they load at session start.
-2. **Recent commit history** -- match the pattern in the last 10 commits.
-3. **Default** -- `type(scope): description` (conventional commits).
+1. **Repo conventions in context:** follow loaded project instructions. Do not re-read them.
+2. **Recent history:** match the pattern in the last 10 commits.
+3. **Default:** conventional commits, `type(scope): description`.
 
-When using conventional commits, choose the type that most precisely describes the change. Where `fix:` and `feat:` both seem to fit, default to `fix:`: a change that remedies broken or missing behavior is `fix:` even when implemented by adding code. Reserve `feat:` for capabilities the user could not previously accomplish. Other types (`chore:`, `refactor:`, `docs:`, `perf:`, `test:`, `ci:`, `build:`, `style:`) remain primary when they fit better. The user may override for a specific change.
+Choose the type by intent. Where `fix:` and `feat:` both fit, default to `fix:`: remedying broken or missing behavior is `fix:` even when it adds code. Reserve `feat:` for capabilities the user could not previously accomplish. Other types (`chore:`, `refactor:`, `docs:`, `perf:`, `test:`, `ci:`, `build:`, `style:`) remain primary when they fit better. The user may override.
 
-### Step 3: Check for existing PR
+Commit subjects are imperative and name the outcome (what is now possible or fixed), not the file list.
 
-Use the current branch and existing PR check from context. If the branch is empty, report detached HEAD and stop.
+### Step 3: Route on the PR check
 
-If the PR check returned `state: OPEN`, note the URL -- this is the existing-PR flow. Continue to Step 4 and 5 (commit any pending work and push), then go to Step 7 to ask whether to rewrite the description. Only run Step 6 if the user confirms the rewrite. Otherwise (no open PR), continue through Steps 6, 7, and 8 in order.
+- **Matching open PR:** existing-PR flow. Run Steps 4-5 (commit pending work and push), then go to Step 7, which asks whether to rewrite the description. Run Step 6 only if the user confirms the rewrite.
+- **Exit 0 `[]`:** new-PR flow. Run Steps 4 through 8 in order.
+- **Unknown (non-zero):** committing and pushing are still safe. Run Steps 4-6, but Step 7 must re-check before creating anything.
 
 ### Step 4: Branch, stage, and commit
 
-1. If on the default branch, branch creation needs to handle three conditional cases: stale local `<base>`, unpushed commits on local `<base>` (intent unclear without asking), and uncommitted changes that collide with the fresh remote base. Read `references/branch-creation.md` and follow its decision flow, then continue to step 2 below.
-2. Scan changed files for naturally distinct concerns. If files clearly group into separate logical changes, create separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, one commit is fine.
-3. Commit each named group through a temporary index so the user's real index remains untouched until success. Copy a named file's existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Avoid `git add -A`, `git add .`, shell interpolation, and pathspec commits:
+1. **Default branch:** read `references/branch-creation.md` and follow its decision flow. It handles a stale local base, unpushed commits on the local base, and branch switches that would overwrite uncommitted or gitignored files (raw data, PHI extracts). Then re-run the PR check for the new branch.
+2. **Data, PHI, and large-output check.** Review every file named for a commit. Leave out, and report as left out: patient-level or raw data files (`.csv`, `.tsv`, `.parquet`, `.feather`, `.rds`, `.RData`, `.sas7bdat`, `.dta`, `.sav`, `.xlsx`, and similar) unless clearly synthetic fixtures or aggregate outputs the repo already tracks; anything that may hold PHI or identifiers, credentials, or `.env` files; large or regenerable outputs (model objects, caches, untracked rendered reports, files over roughly 50 MB). Never `git add -f` an ignored path. If the user explicitly asks to commit such a file, confirm it is synthetic or de-identified first.
+3. **Group.** If files clearly split into separate logical changes, make separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, make one commit.
+4. **Re-read the branch.** Run `git branch --show-current` immediately before committing. If it is empty, the default branch, or not the branch resolved above, stop and re-resolve per Step 1.
+5. **Commit.** Commit each named group through a temporary index so the user's real index remains untouched until success. Copy a named file's existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Avoid `git add -A`, `git add .`, shell interpolation, and pathspec commits. Write the message to a file outside the repository with the file-write tool:
    ```bash
    group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
    group_index="$group_index_dir/index"
@@ -167,11 +131,13 @@ If the PR check returned `state: OPEN`, note the URL -- this is the existing-PR 
    GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
    git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
    ```
-   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. This excludes unrelated entries in the user's real index and preserves later working-tree edits.
+   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
 
 ### Step 5: Push
 
-Before pushing, discover any additional path-scoped instructions governing the committed files, then satisfy every applicable pre-push or review-ready requirement from those and the project's active instructions for the exact final commit state. If required evidence is missing or failing, keep the local commit, stop before the external write, and report it. This is the **Project publishing gate**. Then push the live `HEAD`.
+**Project publishing gate.** Before pushing, discover any additional path-scoped instructions governing the committed files, then satisfy every applicable pre-push or review-ready requirement from those and the project's active instructions for the exact final commit state. If required evidence is missing or failing, keep the local commit, stop before the external write, and report it.
+
+Then run `git branch --show-current` immediately before pushing. Push only when it is a non-empty feature branch, not the default branch. Push the live `HEAD` so a stale branch name from Context cannot be pushed:
 
 ```bash
 git push -u origin HEAD
@@ -179,64 +145,48 @@ git push -u origin HEAD
 
 ### Step 6: Generate the PR title and body
 
-The working-tree diff from Step 1 only shows uncommitted changes at invocation time. The PR description must cover **all commits** in the PR.
+The PR description must cover **all commits** in the PR, not just the working-tree diff from Step 1.
 
-**Read `references/pr-description-writing.md` once now** — Step 6 walks through it in order (Pre-A through H) with one interruption (the evidence decision below). Do not re-read the file later; refer to it by step letter.
+Read `references/pr-description-writing.md` once now and walk it in order (Pre-A through H), with one interruption for the evidence decision below. Do not re-read it later.
 
-**Resolve the commit range and diff.** Run Step Pre-A from the reference (current-branch mode by default; PR mode if a PR ref was passed in from description-only mode). Pre-A handles base detection, in-repo SHA fetching with the `refs/pull/N/head` fallback, and the API-only fallback for fork-PRs and any local-git failure. Use Pre-A's commit list and diff (not Step 1's working-tree diff or `git log -10`) for both the evidence decision below and the rest of the reference.
+**Resolve the range.** Run Pre-A: current-branch mode by default; PR mode with the matching PR URL from the PR check, or with a PR ref passed in from description-only mode. Use Pre-A's commit list and diff (not Step 1's working-tree diff or `git log -10`) for everything that follows.
 
-**Evidence decision (before composition).** Before running the full decision, two short-circuits:
+**Evidence decision (before composition).** Read `references/evidence-decision.md` and follow it. Capture uses the core Compound Engineering `ce-demo-reel` skill only when installed; do not pretend ce-datascience ships its own demo-capture skill. Never put PHI, patient-level rows, or small cells in captured evidence.
 
-1. **User explicitly asked for evidence.** If the user's invocation requested it ("ship with a demo", "include a screenshot"), proceed directly to capture. If capture turns out to be not possible (no runnable surface, missing credentials, docs-only diff) or clearly not useful, note that briefly and proceed without evidence — do not force capture for its own sake.
-
-2. **Agent judgment on authored changes.** If you authored the commits in this session and know the change is clearly non-observable (internal plumbing, backend refactor without user-facing effect, type-level changes, etc.), skip the prompt without asking. The categorical skip list below is not exhaustive — trust judgment about the change you just wrote.
-
-Otherwise, run the full decision: if the branch diff changes observable behavior (UI, CLI output, API behavior with runnable code, generated artifacts, workflow output) and evidence is not otherwise blocked (unavailable credentials, paid services, deploy-only infrastructure, hardware), ask: "This PR has observable behavior. Capture evidence for the PR description?"
-
-- **Capture now** -- use the core Compound Engineering `ce-demo-reel` skill with a target description inferred from the branch diff when that skill is installed. It returns `Tier`, `Description`, `URL`, and `Path`; exactly one of `URL` or `Path` contains a real value, and the other is `"none"`. If capture returns a public URL, splice it into the body as a `## Demo` section. If capture returns a local `Path` instead (user chose local save), note in the body that a demo was recorded but is not embedded because the user chose local save. If capture returns `Tier: skipped` or both `URL` and `Path` are `"none"`, proceed with no evidence. If the skill is unavailable, tell the user demo capture is a core Compound Engineering capability and offer "Use existing evidence" or "Skip".
-- **Use existing evidence** -- ask for the URL or markdown embed, then splice it in as a `## Demo` section.
-- **Skip** -- proceed with no evidence section.
-
-When evidence is not possible (docs-only, markdown-only, changelog-only, release metadata, CI/config-only, test-only, or pure internal refactors), skip without asking.
-
-**Compose the title and body.** Continue with Steps A through H from the already-loaded reference (commit classification, evidence handling, narrative framing, sizing, writing voice and principles, visual communication, title format, body assembly, the CE DataScience badge, and the compression pass). For an existing PR, the current body was already read in Pre-A.
+**Compose.** Continue with Steps A through H (classification, evidence, narrative, sizing, writing principles, visuals, title, body with the CE DataScience badge, compression). For an existing PR, Pre-A already read the current body.
 
 ### Step 7: Create or update the PR
 
-Apply via `gh pr create` (new PR) or `gh pr edit` (existing PR). The body must be written to a temp file and passed with `--body-file <path>`. Never use `--body-file -`, stdin pipes, heredoc-to-stdin, or `--body "$(cat ...)"` -- wrappers and stdin handling can silently produce an empty PR body while `gh` still exits 0 and returns a URL. Substitute `<TITLE>` verbatim; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes:
+Write the body file per "Writing the PR body file".
 
-```bash
-BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat > "$BODY_FILE" <<'__CE_PR_BODY_END__'
-<the composed body markdown goes here, verbatim>
-__CE_PR_BODY_END__
-```
+#### New PR (no matching PR from Step 3, or state unknown)
 
-The quoted sentinel keeps `$VAR`, backticks, and any literal `EOF` inside the body from being expanded.
+Immediately before creating, re-run the PR check (`gh pr list --head <branch> --state open --json number,url,title,state,headRefName,headRepositoryOwner`, branch name only; `-R` on a fork):
 
-#### New PR (no existing PR from Step 3)
+- **Matching entry:** a PR appeared or was missed; switch to the existing-PR path below.
+- **Non-zero exit:** stop. Do not create a PR. Report that PR state is unknown and what `gh auth status` showed; the commits are already pushed.
+- **Exit 0 with `[]`:** create it:
 
 ```bash
 gh pr create --title "<TITLE>" --body-file "$BODY_FILE"
 ```
 
-Keep the title under 72 characters; the writing reference already emits a conventional-commit title in that range.
+Keep the title under 72 characters.
 
-#### Existing PR (found in Step 3)
+#### Existing PR
 
 The new commits are already on the PR from Step 5. Report the PR URL, then ask whether to rewrite the description.
 
-- If **no** -- skip Step 6 entirely and finish. Do not run composition or evidence capture when the user declined the rewrite.
-- If **yes**, perform these three actions in order. They are separate steps with a hand-off boundary between them -- do not stop between actions.
+- **No:** skip Step 6 and finish. Do not run composition or evidence capture.
+- **Yes:** do these three actions in order without stopping between them:
   1. Run Step 6 to compose the new title and body.
-  2. **Preview and confirm.** Read the first two sentences of the Summary, plus the total line count. Ask the user (per the "Asking the user" convention at the top of this skill): "New title: `<title>` (`<N>` chars). Summary leads with: `<first two sentences>`. Total body: `<L>` lines. Apply?" The first two sentences of the Summary carry most of the reviewer's attention. If the user declines, they may pass focus text back for a regenerate; do not apply.
-  3. If confirmed, apply with `gh pr edit`:
+  2. **Preview and confirm.** Ask: "New title: `<title>` (`<N>` chars). Summary leads with: `<first two sentences>`. Total body: `<L>` lines. Apply?" If declined, the user may pass focus text back for a regenerate; do not apply.
+  3. If confirmed, write the body file and apply:
 
      ```bash
-     gh pr edit --title "<TITLE>" --body-file "$BODY_FILE"
+     gh pr edit <PR-URL> --title "<TITLE>" --body-file "$BODY_FILE"
      ```
-
-  Then report the PR URL (Step 8).
 
 ### Step 8: Report
 
-Output the PR URL.
+Output the PR URL, plus any files left out in Step 4 and any unverified base freshness from `references/branch-creation.md`.

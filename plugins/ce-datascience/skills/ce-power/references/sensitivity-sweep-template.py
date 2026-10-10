@@ -4,21 +4,27 @@ Edit the params block; rest is fixed.
 """
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from statsmodels.stats.power import TTestIndPower
+try:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+    from statsmodels.stats.power import TTestIndPower
+except ImportError as exc:  # pragma: no cover - environment-dependent
+    raise SystemExit(
+        f"missing dependency ({exc.name}): python3 -m pip install matplotlib numpy pandas statsmodels"
+    ) from exc
 
 params = {
     "design": "two-sample-t",
-    "effect_point": 0.40,            # Cohen's d -- supply from /ce-method-extract
+    "effect_point": 0.40,            # example placeholder, not a literature value: replace with the ce-effect-size anchor or a PMID-cited study
     "effect_grid": np.arange(0.20, 0.65, 0.05),
     "alpha": 0.05,
     "power_target": 0.80,
     "alternative": "two-sided",      # or "larger"
-    "dropout": 0.15,
+    "dropout": 0.15,                 # assumption: replace with the observed loss-to-follow-up rate
 }
 
 analysis = TTestIndPower()
@@ -43,7 +49,8 @@ for d in params["effect_grid"]:
 sweep = pd.DataFrame(rows)
 out = Path("analysis/power")
 out.mkdir(parents=True, exist_ok=True)
-sweep.to_csv(out / "sweep.csv", index=False)
+stem = f"{params['design']}-{date.today().isoformat()}"
+sweep.to_csv(out / f"{stem}-sweep.csv", index=False)
 
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.plot(sweep["effect_size"], sweep["n_total"], marker="o")
@@ -52,4 +59,4 @@ ax.set_ylabel("Total N")
 ax.set_title("Required N as a function of effect size")
 ax.grid(True, alpha=0.3)
 fig.tight_layout()
-fig.savefig(out / "sweep.png", dpi=144)
+fig.savefig(out / f"{stem}.png", dpi=144)

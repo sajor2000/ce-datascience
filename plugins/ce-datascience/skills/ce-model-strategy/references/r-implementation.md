@@ -32,4 +32,4 @@ The `.R` scaffold must:
 
 For mixed models, include variance/correlation summaries, singularity checks, and a predeclared simplification path. For nonlinear links, use appropriate marginal standardization when the memo requests population-average effects.
 
-Record `sessionInfo()` or the repository's equivalent reproducibility evidence. If an unfamiliar API is version-sensitive, verify its official documentation before writing it; otherwise leave the scaffold blocked with the exact version gap.
+Record `sessionInfo()` or the repository's equivalent reproducibility evidence. If an unfamiliar API is version-sensitive, verify its official documentation before writing it; otherwise write no scaffold, use `provisional` or `blocked` with `code=none`, and record the exact version gap.

@@ -1,0 +1,22 @@
+[
+  {"query": "Build a claim-to-source evidence map for using lactate clearance as a resuscitation endpoint - I need it for the SAP rationale and want to know which claims are full-text verified vs abstract only.", "should_trigger": true},
+  {"query": "pubmed search is done (analysis/pubmed/delirium-dexmed-results.csv). next: deepen with paperclip full text, grep for hazard ratio / propensity, and write up the evidence map", "should_trigger": true},
+  {"query": "For the manuscript background I need a traceable map from each statement to PMIDs, with cohort definitions, outcomes, and limitations pulled out. Topic: frailty indices predicting post-op complications in older adults.", "should_trigger": true},
+  {"query": "Justify our choice of Fine-Gray over cause-specific hazards with literature - build an evidence map with a claims matrix and evidence gaps section.", "should_trigger": true},
+  {"query": "evidence map pls: SGLT2 inhibitors and AKI in hospitalized pts. use paperclip --source trials too if it's available", "should_trigger": true},
+  {"query": "The review pack needs an evidence summary showing which published effect estimates came from full text and which from abstracts. Can you put that together for our anticoagulation question?", "should_trigger": true},
+  {"query": "Look at the figures in the top sepsis prediction papers via paperclip ask_image and capture what the AUROC curves show, then fold it into an evidence map with figure-level verification labels.", "should_trigger": true},
+  {"query": "__CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml query=\"early mobilization ICU-acquired weakness\" -- now map the evidence before we pick an effect size", "should_trigger": true},
+  {"query": "I want source-backed grounding for the covariate set in our SAP (Charlson, SOFA, age) - which papers adjust for what, and where are the contradictions?", "should_trigger": true},
+  {"query": "We're on a locked-down corporate laptop without Paperclip. Still need an evidence map for telemonitoring and heart-failure readmission, PubMed-only is fine.", "should_trigger": true},
+  {"query": "Search PubMed for RCTs on dexmedetomidine and delirium since 2018 with MeSH terms and export PMIDs, abstracts, and journals to CSV.", "should_trigger": false},
+  {"query": "Pool the hazard ratios from the extracted methods table into a random-effects estimate with a forest plot for the power calculation.", "should_trigger": false},
+  {"query": "Extract the methods - cohort definition, endpoints, model type, covariates - from these 12 papers into a structured table for SAP justification.", "should_trigger": false},
+  {"query": "I just need papers on sepsis bundles, not sure if that means PubMed, guidelines, or full text - help me figure out the right search route.", "should_trigger": false},
+  {"query": "Add editable Zotero citations for PMIDs 31234567 and 32345678 into manuscript/intro.docx and fix the broken references.", "should_trigger": false},
+  {"query": "Turn my fuzzy idea about statins and post-op delirium into a PICO with FINER scoring and a starting PubMed query.", "should_trigger": false},
+  {"query": "What's the current Surviving Sepsis Campaign guidance on fluid volume in the first 3 hours? Use the official guideline.", "should_trigger": false},
+  {"query": "Which reporting checklist should our target-trial emulation paper follow, and what items do we need in the Methods?", "should_trigger": false},
+  {"query": "Write the Introduction for manuscript/draft.md using the evidence we already mapped, keeping every claim tied to its source.", "should_trigger": false},
+  {"query": "Brainstorm research directions for ICU delirium prediction using our EHR data and recent literature - give me ranked ideas.", "should_trigger": false}
+]

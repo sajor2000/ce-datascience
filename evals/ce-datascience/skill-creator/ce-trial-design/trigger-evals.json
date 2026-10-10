@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Compare two-arm group-sequential superiority designs across efficacy spending functions and futility rules with rpact, and give me the Pareto frontier",
+    "should_trigger": true
+  },
+  {
+    "query": "I need an auditable gsDesign run for a 2-arm trial: 3 analyses, one-sided 0.025, 85% power, binary endpoint -- keep provenance and a SAP handoff",
+    "should_trigger": true
+  },
+  {
+    "query": "build a design frontier across effect-size scenarios (HR 0.70, 0.75, 0.80) for our two-arm survival trial using rpact 4.1.1",
+    "should_trigger": true
+  },
+  {
+    "query": "Which interim timing (40/70% vs 50/75% information) minimizes expected information under H1 while keeping 90% power? two arms, group sequential, use the external engine",
+    "should_trigger": true
+  },
+  {
+    "query": "set up the group sequential design package for the DSMB: locked design spec, engine script, log, receipt, operating characteristics table",
+    "should_trigger": true
+  },
+  {
+    "query": "Statistician here -- want to compare binding vs non-binding futility for a two-arm continuous-endpoint superiority trial with gsDesign, pinned version",
+    "should_trigger": true
+  },
+  {
+    "query": "Produce a version-pinned rpact script, normalized operating characteristics CSV, and frontier for candidate designs; no candidate selection yet",
+    "should_trigger": true
+  },
+  {
+    "query": "two-arm GSD with O'Brien-Fleming vs Hwang-Shih-DeCani spending -- I want the exact engine outputs not your approximations",
+    "should_trigger": true
+  },
+  {
+    "query": "We need the trial design receipt hashing the engine script, log and session info so the SAP can cite it",
+    "should_trigger": true
+  },
+  {
+    "query": "evaluate a grid of group-sequential designs for our phase 3 RCT under optimistic and pessimistic control-event rates",
+    "should_trigger": true
+  },
+  {
+    "query": "Calculate the sample size for a fixed-design two-arm trial detecting a 10-point difference with 80% power",
+    "should_trigger": false
+  },
+  {
+    "query": "Pool effect sizes from prior RCTs to justify the HR assumption in our power calculation",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the SAP section describing the interim analyses for our trial",
+    "should_trigger": false
+  },
+  {
+    "query": "Preregister the trial on ClinicalTrials.gov with primary endpoint and interim plan",
+    "should_trigger": false
+  },
+  {
+    "query": "Simulate a Bayesian adaptive dose-finding design with Stan",
+    "should_trigger": false
+  },
+  {
+    "query": "Which reporting checklist applies to our adaptive trial -- CONSORT Adaptive?",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose the right survival model (Cox vs Fine-Gray) for the secondary endpoint",
+    "should_trigger": false
+  },
+  {
+    "query": "Review our R script that calls rpact for code quality before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Analyze the completed trial's primary endpoint with a stratified log-rank test",
+    "should_trigger": false
+  },
+  {
+    "query": "Tune the R performance of our simulation loop over 10,000 trial replicates",
+    "should_trigger": false
+  }
+]

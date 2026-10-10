@@ -1,10 +1,23 @@
 # PDSQI-9 Candidate Tool for Prediction Model Dataset Quality
 
+## Contents
+
+- Data Source
+- Temporal Coverage
+- Missing Data
+- Variable Definitions
+- Outcome Ascertainment
+- Data Linkage
+- Data Dictionaries
+- Data Version Control
+
 AI EXTENSION checklist for assessing the quality of datasets used in predictive model studies, particularly those built from electronic health records (EHR) and administrative data.
 
 **Base guideline:** TRIPOD+AI (when building prediction models from EHR or administrative data)
 
 **Evidence status:** Unverified. The repository has not identified a primary publication establishing the PDSQI-9 acronym and checklist represented here. Do not present this file as a published reporting guideline or route it automatically.
+
+**Related reference (acronym collision):** in PubMed, PDSQI-9 denotes the Provider Documentation Summarization Quality Instrument, a clinician-rated scale for LLM clinical-note summaries (for example Croxford E, et al. NPJ Digit Med. 2025;8:640. doi:10.1038/s41746-025-02005-2. PMID: 41193667), not a prediction-model dataset-quality checklist. Resolve the intended source before using this file's name in any output.
 
 This candidate may be used only as an explicitly labeled local data-quality aid after the study team verifies the intended source. It does not replace TRIPOD or TRIPOD+AI.
 

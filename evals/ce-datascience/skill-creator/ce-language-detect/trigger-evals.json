@@ -1,0 +1,22 @@
+[
+  {"query": "Is this repo R, Python, or both? Look at the lockfiles and source directories and give me the machine-readable language signal for the other skills.", "should_trigger": true},
+  {"query": "before the CLIF QA picks clifpy vs the R template, detect which language the project uses from the repo files", "should_trigger": true},
+  {"query": "what stack does this repo appear to use? I see pyproject.toml and some .Rmd files in analysis/ and can't tell which is primary", "should_trigger": true},
+  {"query": "Emit the __CE_LANG__ handoff for this project so ce-cohort-build knows whether to scaffold SQL+R or SQL+Python.", "should_trigger": true},
+  {"query": "I inherited this analysis repo - check whether it's primarily python or r based on renv/poetry/uv lockfiles and the code in src/ and R/", "should_trigger": true},
+  {"query": "Auto-detect the repo's data science language without asking me, then tell me what secondary language shows up.", "should_trigger": true},
+  {"query": "We're in a git worktree and the detection keeps saying unknown. Re-run language detection and fall back to the cached value from the main checkout config if signals are missing.", "should_trigger": true},
+  {"query": "lang detect pls - mostly .do files and some .py, want to know if it counts as python or something else", "should_trigger": true},
+  {"query": "Which language should templates default to for this repo? Infer it from files only - environment.yml, notebooks, Quarto docs, whatever's there.", "should_trigger": true},
+  {"query": "Score the Python vs R evidence in this repository using your detection rules and report primary/secondary/source.", "should_trigger": true},
+  {"query": "Set up the project profile for this repo - infer the stack, confirm defaults with me, and write the config.", "should_trigger": false},
+  {"query": "Assess this SAS project for reproducibility and migration risk - PROC PHREG models and LIBNAME paths everywhere.", "should_trigger": false},
+  {"query": "Convert our R analysis scripts in analysis/R/ to Python with pandas and statsmodels.", "should_trigger": false},
+  {"query": "Route this R-first project to the right CE R workflow - we have a targets pipeline and a package in development.", "should_trigger": false},
+  {"query": "Review the R code in analysis/R/ for reproducibility and statistical-method risks.", "should_trigger": false},
+  {"query": "Activate CLIF-safe guidance for this repo - we have CLIF_CLAUDE.md and mCIDE 2.1 tables.", "should_trigger": false},
+  {"query": "Which Python version and package versions does this project pin? Check pyproject and the lockfile for conflicts.", "should_trigger": false},
+  {"query": "Show me the lifecycle status for this project and the next skill I should run.", "should_trigger": false},
+  {"query": "Set up the notebook standards for a new multi-notebook Quarto + Jupyter workflow in analysis/.", "should_trigger": false},
+  {"query": "Our renv restore fails on arrow - debug why the R environment won't install.", "should_trigger": false}
+]

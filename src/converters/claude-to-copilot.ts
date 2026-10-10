@@ -1,5 +1,6 @@
 import { formatFrontmatter } from "../utils/frontmatter"
 import { sanitizePathName } from "../utils/files"
+import { isReservedPathRoot } from "../utils/slash-command"
 import { type ClaudeAgent, type ClaudeCommand, type ClaudeMcpServer, type ClaudePlugin, filterSkillsByPlatform } from "../types/claude"
 import type {
   CopilotAgent,
@@ -117,7 +118,7 @@ export function transformContentForCopilot(body: string): string {
   const slashCommandPattern = /(?<![:\w])\/([a-z][a-z0-9_:-]*?)(?=[\s,."')\]}`]|$)/gi
   result = result.replace(slashCommandPattern, (match, commandName: string) => {
     if (commandName.includes("/")) return match
-    if (["dev", "tmp", "etc", "usr", "var", "bin", "home"].includes(commandName)) return match
+    if (isReservedPathRoot(commandName)) return match
     const normalized = flattenCommandName(commandName)
     return `/${normalized}`
   })

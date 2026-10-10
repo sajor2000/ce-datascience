@@ -1,0 +1,22 @@
+[
+  {"query": "Insert the new sensitivity-analysis cell into analysis/primary.ipynb right after the cell tagged sap-5-2, and keep a backup - the notebook has outputs we need to preserve.", "should_trigger": true},
+  {"query": "reviewer wants one extra markdown note + code cell in our existing jupyter notebook after the KM plot cell (tag fig-2). please don't reformat the whole ipynb", "should_trigger": true},
+  {"query": "SAP amendment v4 adds a per-protocol analysis. Patch notebooks/05_primary.ipynb to include it after the ITT cell without touching cell metadata or execution history.", "should_trigger": true},
+  {"query": "Last time someone edited our .ipynb with a text editor it corrupted the JSON. Can you safely add a Table 1 footnote cell to notebooks/table1.ipynb using an anchor?", "should_trigger": true},
+  {"query": "Extend the existing notebook analysis/cohort.ipynb with a waterfall-count cell after the exclusion step (tagged cohort-excl), with a change report I can review.", "should_trigger": true},
+  {"query": "Need to update one cell in the shared jupyter notebook - the calibration plot code - but preserve all the other cells and the PI's markdown comments.", "should_trigger": true},
+  {"query": "Add the E-value calculation to our existing Quarto-rendered ipynb after the tagged Cox model cell and validate the notebook schema afterward.", "should_trigger": true},
+  {"query": "pls add a cell after the one tagged 'qa-missingness' in eda.ipynb that writes the missingness table to outputs/, w/ an explanatory markdown cell above it", "should_trigger": true},
+  {"query": "Our notebook analysis/secondary.ipynb needs a new subgroup cell inserted (anchor tag sap-6-3). Make sure there's a .bak and an edit report.", "should_trigger": true},
+  {"query": "Patch the existing .ipynb for the review finding #7 fix: insert the corrected dose-response code after the tagged cell rather than regenerating the notebook.", "should_trigger": true},
+  {"query": "Create a new marimo notebook for exploring the sepsis cohort with a slider for the lactate cutoff.", "should_trigger": false},
+  {"query": "We're starting a new multi-notebook analysis for the trial - one master notebook or several files? Define the cell/chunk contract.", "should_trigger": false},
+  {"query": "marimo check fails on analysis/eda.py with duplicate variable definitions - fix the reactive cells.", "should_trigger": false},
+  {"query": "Implement plan unit U2: write the cleaning script analysis/clean.py with tests for the deduplication logic.", "should_trigger": false},
+  {"query": "Review the R Markdown analysis report for reproducibility and statistical-method risks.", "should_trigger": false},
+  {"query": "Write a PySpark Fabric notebook that loads encounters from the lakehouse and builds the cohort.", "should_trigger": false},
+  {"query": "Debug why analysis/primary.ipynb throws KeyError: 'admit_dt' when run top to bottom after the new extract arrived.", "should_trigger": false},
+  {"query": "Convert our Jupyter notebooks into a reproducible R targets pipeline with Quarto output.", "should_trigger": false},
+  {"query": "Review the code changes in this PR, including the notebook diff, for correctness and leakage.", "should_trigger": false},
+  {"query": "Plan the SAP amendment for adding a per-protocol analysis: what changes in the SAP and which outputs are affected?", "should_trigger": false}
+]

@@ -1,6 +1,6 @@
 ---
 name: ce-report-bug
-description: "Collect a reproducible ce-datascience bug report and file it or draft it when GitHub tooling is unavailable."
+description: "Collect a reproducible ce-datascience bug report and file it or draft it when GitHub tooling is unavailable. Use when the user wants to report a plugin bug, setup issue, broken skill, conversion problem, or workflow failure."
 argument-hint: "[optional: brief description of the bug]"
 disable-model-invocation: true
 ---
@@ -25,7 +25,7 @@ When this skill asks a user-facing question, follow the Skill Value interaction 
 
 **Question 1: Bug Category**
 - What type of issue are you experiencing?
-- Options: Agent not working, Command not working, Skill not working, MCP server issue, Installation problem, Other
+- Options: Skill or slash command not working, Agent not working, Installation or setup problem, Other (conversion, MCP server, or workflow failure)
 
 **Question 2: Specific Component**
 - Which specific component is affected?
@@ -152,7 +152,7 @@ The maintainer will review your report and respond as soon as possible.
 
 ## Error Handling
 
-- If `gh` CLI is not installed or not authenticated: prompt the user to install/authenticate first
+- If `gh` CLI is not installed or not authenticated: do not block on it; display the formatted report as a markdown draft the user can file manually, and mention that installing and authenticating `gh` enables direct filing next time
 - If issue creation fails: display the formatted report so the user can manually create the issue
 - If required information is missing: re-prompt for that specific field
 

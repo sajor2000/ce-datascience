@@ -1,6 +1,6 @@
 ---
 name: ce-checklist-match
-description: "Select reporting guidelines before SAP writing. Routes studies to CONSORT, STROBE, RECORD, PRISMA, TRIPOD+AI, CLAIM, STARD, and related extensions."
+description: "Select reporting guidelines before SAP writing. Routes studies to CONSORT, STROBE, RECORD, PRISMA, TRIPOD+AI, CLAIM, STARD, and related extensions. Use when the user asks which checklist applies, mentions EQUATOR/reporting standards, or starts a study without a guideline."
 argument-hint: "[study description, optional --interactive]"
 ---
 
@@ -30,6 +30,16 @@ Picks the right reporting checklist(s) at PLAN time so the SAP is written agains
 - A one-line study description (or `ce-ideate` output)
 - Stack profile exists (the user has run the `ce-setup` command; if not, ask them to, or infer the stack from the repository and confirm)
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** the target journal's required checklist (journal author guidelines via web search, URL kept) and the current version of each selected guideline: confirm the statement citation by PMID with the metadata tool before it is written into the `analysis/checklists/` placeholder. The guideline registry's citations themselves are owned by `ce-code-review`.
+
 ## Core workflow
 
 ### Step 0: Context inputs (scan chat first)
@@ -48,7 +58,7 @@ Pre-fills are starting points, not answers — the model must surface them and l
 ```
 [research-question] pre-filled from analysis/research-question.yaml:
   design: cohort_retrospective
-  ai_involvement: none
+  ai_involvement: none                         # none | ai-assisted | ai-primary | llm-based
   population: human
   primary checklist (suggested): STROBE
   extensions (suggested): RECORD
@@ -61,7 +71,7 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 and ask all qu
 
 - Observational cohort → STROBE + RECORD (always; CLIF is EHR-derived).
 - Prediction model → TRIPOD+AI.
-- Target trial emulation → TARGET (with STROBE underneath).
+- Target trial emulation → TARGET as primary, with STROBE + RECORD as companions (CLIF is EHR-derived).
 - RCT using CLIF for outcome ascertainment → CONSORT (and RECORD if outcomes are EHR-defined).
 
 Surface these defaults to the user and let them override before writing to stack profile.
@@ -73,11 +83,11 @@ If `--interactive` or the study description is too sparse, ask 4-6 questions one
 1. **Design**: RCT / observational cohort / case-control / cross-sectional / qualitative / systematic review / meta-analysis / case report / animal study / economic evaluation / diagnostic accuracy / prediction model
 2. **Direction** (if observational): prospective / retrospective
 3. **Aim**: causal / descriptive / predictive / qualitative-exploratory / mixed
-4. **AI involvement**: none / data-cleaning only / model-as-tool (e.g., classifier in pipeline) / model-as-study-object (the model itself is being evaluated)
+4. **AI involvement** (canonical `ai_involvement` values shared with `ce-code-review` and `ce-plan`): `none` / `ai-assisted` (AI as a tool within traditional methods, e.g., data cleaning or a classifier in the pipeline) / `ai-primary` (the AI model is the primary analytical approach or the object being evaluated) / `llm-based` (the study uses or evaluates a large language model). Older answers map as: none -> `none`; data-cleaning only -> `ai-assisted`; model-as-tool -> `ai-assisted`; model-as-study-object -> `ai-primary`, or `llm-based` when the model under study is an LLM. Write only the canonical values.
 5. **Pre-registration**: planned / not planned / already done
 6. **Population**: human / animal / cell / in-silico
 
-If the description already answers some of these, skip those questions.
+If the description already answers some of these, skip those questions. When a target journal is known, look up its author guidelines by web search for a mandated checklist and record the URL; never ask the user to recall it.
 
 ### Step 2: Apply the routing rules
 
@@ -85,24 +95,27 @@ Use `references/routing-map.md` to map answers to a checklist set. Apply only ev
 
 | Design | Direction | Aim | AI | Primary checklist | Extensions |
 |--------|-----------|-----|----|-----|------|
-| RCT | n/a | causal | none | CONSORT | SPIRIT (protocol) |
-| RCT | n/a | causal | model-as-study-object | CONSORT-AI | SPIRIT-AI (protocol) |
-| Observational cohort | prospective | causal | none | STROBE | RECORD if EHR/claims |
-| Observational cohort | retrospective | causal | none | STROBE | RECORD-PE if claims |
-| Case-control | n/a | causal | none | STROBE | RECORD if EHR |
-| Cross-sectional | n/a | descriptive | none | STROBE | RECORD if EHR |
-| Prediction model | n/a | predictive | yes | TRIPOD+AI | CHARMS for development |
-| Prediction model | n/a | predictive | no | TRIPOD | CHARMS |
-| Diagnostic accuracy | n/a | n/a | none | STARD | QUADAS-2 for review |
-| Diagnostic accuracy | n/a | n/a | yes | STARD-AI | + CLAIM if imaging |
-| Imaging study | n/a | n/a | yes | CLAIM | + STARD-AI / TRIPOD+AI |
-| Qualitative | n/a | exploratory | n/a | COREQ | SRQR alternative |
+| RCT | n/a | causal | none | CONSORT | -- (SPIRIT protocols are not in the registry) |
+| RCT | n/a | causal | ai-primary / llm-based (AI is the intervention) | CONSORT | CONSORT-AI; SPIRIT-AI (protocol stage) |
+| Observational cohort | prospective | causal | none | STROBE | RECORD if EHR/claims/registry |
+| Observational cohort | retrospective | causal | none | STROBE | RECORD if EHR/claims/registry; RECORD-PE if claims pharmacoepidemiology |
+| Target trial emulation | n/a | causal | none | TARGET | STROBE (always, companion); RECORD if EHR/claims/registry |
+| Case-control | n/a | causal | none | STROBE | RECORD if EHR/claims/registry |
+| Cross-sectional | n/a | descriptive | none | STROBE | RECORD if EHR/claims/registry |
+| Prediction model | n/a | predictive | ai-assisted / ai-primary / llm-based | TRIPOD+AI | REFORMS if ai-primary / llm-based (ML-based science); CHARMS (appraisal) only for systematic reviews of prediction models |
+| Prediction model | n/a | predictive | none | TRIPOD | CHARMS (appraisal) only for systematic reviews of prediction models |
+| Diagnostic accuracy | n/a | n/a | none | STARD | QUADAS-2 (appraisal) only for systematic reviews |
+| Diagnostic accuracy | n/a | n/a | AI index test | STARD | STARD-AI; + CLAIM if imaging |
+| Imaging study | n/a | n/a | AI index test or model | STARD or TRIPOD+AI (by aim) | CLAIM; + STARD-AI if diagnostic accuracy |
+| Qualitative | n/a | exploratory | n/a | COREQ | -- (SRQR is not in the registry) |
+| Mixed methods | n/a | mixed | n/a | Quantitative strand's primary (route it through this table) | GRAMMS (provisional; never primary) |
+| Quality improvement | n/a | n/a | n/a | SQUIRE 2.0 | -- |
 | Animal | n/a | n/a | n/a | ARRIVE | -- |
 | Systematic review | n/a | n/a | n/a | PRISMA | PRISMA-DTA / PRISMA-NMA |
 | Case report | n/a | descriptive | n/a | CARE | -- |
 | Economic evaluation | n/a | n/a | n/a | CHEERS | -- |
-| ML methods paper | n/a | predictive | model-as-study-object | REFORMS | + TRIPOD+AI if clinical |
-| Generative AI (LLM) | n/a | n/a | chatbot health advice | CHART | Ask before applying any provisional or unverified domain tool |
+| ML-based science (AI prediction model) | n/a | predictive | ai-primary / llm-based | TRIPOD+AI (or the design's primary if not a prediction model) | REFORMS |
+| Chatbot health advice (generative AI) | n/a | n/a | llm-based | CHART | Ask before applying any provisional or unverified domain tool |
 
 If the answers don't fit a row, ask a clarifying question rather than guessing.
 
@@ -112,9 +125,9 @@ Resolve the repository root with `git rev-parse --show-toplevel` and update `<re
 
 ```yaml
 stack_profile:
-  ...existing fields...
+  # existing fields unchanged
   study_type: cohort_retrospective
-  ai_involvement: none
+  ai_involvement: none                         # none | ai-assisted | ai-primary | llm-based
   reporting_checklist: STROBE                  # canonical primary; non-null string turns on ce-reporting-checklist-reviewer
   reporting_checklist_extensions:              # zero or more strings
     - RECORD
@@ -126,7 +139,7 @@ The string form (`reporting_checklist: STROBE`) is what `ce-code-review` Stage 3
 
 ### Step 4: Drop the checklist into the project
 
-For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. The user (or `ce-work`) fills these as the SAP and analysis develop.
+For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. Head it with the guideline statement's citation (PMID/DOI confirmed with the metadata tool) and the version, taken from the matching `references/checklist-snippets/` file when one exists. For a guideline without a snippet, write the confirmed citation and an empty table to be filled from the published checklist; never invent items. The user (or `ce-work`) fills these as the SAP and analysis develop.
 
 ### Step 5: Emit signal for downstream skills
 
@@ -140,7 +153,7 @@ The bracket-list form mirrors how `ce-plan` parses signals in its SAP-Phase 3 st
 
 ## What this skill does NOT do
 
-- Does not validate against the checklist (use the `ce-reporting-checklist-reviewer` skill at review time)
+- Does not validate against the checklist (dispatch the `ce-reporting-checklist-reviewer` agent at review time)
 - Does not write the SAP (use the `ce-plan` skill)
 - Does not pre-register (use the `ce-prereg` skill)
 - Does not explain WHY a checklist was missed -- just which one applies; the validating reviewer handles compliance scoring

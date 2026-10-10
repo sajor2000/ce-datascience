@@ -95,6 +95,25 @@ export const STALE_SKILL_DIRS = [
   "ce-onboarding",
   "ce-pr-description",
   "ce-mcp-server",
+
+  // Merged into router skills as references (ce-rstats, ce-fabric)
+  "ce-fabric-coding",
+  "ce-fabric-kql",
+  "ce-fabric-ml",
+  "ce-fabric-pipelines",
+  "ce-fabric-semantic-models",
+  "ce-r-cran",
+  "ce-r-event-studies",
+  "ce-r-package-development",
+  "ce-r-package-testing",
+  "ce-r-performance",
+  "ce-r-review",
+  "ce-r-targets",
+  "ce-r-tidyverse",
+
+  // Removed as outside the data-science scope
+  "ce-babysit-pr",
+  "ce-retune",
 ]
 
 /** Old agent names (used as generated skill dirs or flat .md files). */
@@ -250,6 +269,36 @@ const LEGACY_PROMPT_CURRENT_SKILL_FOR_FILE: Record<string, string> = {
  * — the exact string is the ownership proof.
  */
 const LEGACY_ONLY_SKILL_DESCRIPTIONS: Record<string, string> = {
+  "ce-babysit-pr":
+    "Monitor one open GitHub PR within a bounded watch or checkpoint and surface actionable CI and review residuals.",
+  "ce-retune":
+    "Measure and improve a CE skill corpus against a declared behavioral benchmark; maintainer use only.",
+  "ce-fabric-coding":
+    "Write or review Microsoft Fabric Lakehouse, OneLake, Warehouse, Spark, Python-notebook, and Delta-table code. Use for PySpark, Spark SQL, T-SQL, Fabric notebooks, Spark job definitions, OneLake paths, and SQL analytics endpoint questions.",
+  "ce-fabric-kql":
+    "Write, audit, or debug Microsoft Fabric Real-Time Intelligence workflows: Eventhouse, KQL databases, Eventstreams, ingestion mappings, update policies, materialized views, Real-Time Dashboards, Activator, and KQL queries.",
+  "ce-fabric-ml":
+    "Run or review data-science and ML workflows in Microsoft Fabric, including MLflow experiments, registered models, batch scoring, model endpoints, SynapseML, and AI functions.",
+  "ce-fabric-pipelines":
+    "Design, debug, or review Microsoft Fabric Data Factory pipelines, Copy activity or Copy job, Dataflows Gen2, gateways, schedules, notebook activities, incremental loads, and failure handling.",
+  "ce-fabric-semantic-models":
+    "Design, audit, or troubleshoot Microsoft Fabric and Power BI semantic models, including Direct Lake, DAX, RLS/OLS, model refresh, semantic-link, and sempy workflows.",
+  "ce-r-cran":
+    "Prepare an R package for CRAN checks or submission by auditing metadata, documentation, tests, examples, dependencies, and check results. Use when a user asks about CRAN readiness or submission.",
+  "ce-r-event-studies":
+    "Plan, implement, or review R event-study and difference-in-differences analyses, including staggered treatment adoption, treatment timing, fixed effects, dynamic effects, and diagnostics.",
+  "ce-r-package-development":
+    "Design, build, or review R packages using DESCRIPTION, roxygen2, NAMESPACE, testthat, vignettes, and reproducible package conventions. Use when creating or modifying an R package.",
+  "ce-r-package-testing":
+    "Create, improve, or audit R package tests using testthat, fixtures, snapshots, mocks, and deterministic expectations. Use when an R package needs test coverage or failing-test diagnosis.",
+  "ce-r-performance":
+    "Profile, benchmark, and optimize R code using evidence-driven performance work. Use for slow R scripts, memory pressure, vectorization, data.table/dplyr trade-offs, parallelism, or runtime regressions.",
+  "ce-r-review":
+    "Review R scripts, Quarto/R Markdown analyses, and R package code for correctness, reproducibility, idiomatic practices, data integrity, and statistical-method risks. Use for read-only R code audits.",
+  "ce-r-targets":
+    "Design, create, validate, or debug reproducible R targets pipelines using _targets.R, targets, tarchetypes, branching, storage formats, and Quarto/R Markdown integration.",
+  "ce-r-tidyverse":
+    "Write, refactor, or review idiomatic tidyverse R for data wrangling, joins, grouping, reshaping, strings, functional iteration, and ggplot2. Use when a task specifically needs dplyr, tidyr, purrr, stringr, or ggplot2 patterns.",
   "claude-permissions-optimizer":
     "Optimize Claude Code permissions by finding safe Bash commands from session history and auto-applying them to settings.json. Can run from any coding agent but targets Claude Code specifically. Use when experiencing permission fatigue, too many permission prompts, wanting to optimize permissions, or needing to set up allowlists. Triggers on \"optimize permissions\", \"reduce permission prompts\", \"allowlist commands\", \"too many permission prompts\", \"permission fatigue\", \"permission setup\", or complaints about clicking approve too often.",
   "feature-video":

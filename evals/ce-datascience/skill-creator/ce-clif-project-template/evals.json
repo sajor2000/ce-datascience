@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-clif-project-template",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "init ~/projects/clif-early-mobility --version 2.1.0. The directory exists but is empty. Study: early mobility and ICU delirium, adults with >=24h ICU stay, R with renv. Tables from the SAP: patient, hospitalization, adt, patient_assessments, vitals.",
+      "expected_output": "Initializes a new project from the official CLIF Project Template into the confirmed-empty directory with the selected 2.1 family, creates the standard structure, fills README placeholders from the SAP-supplied facts, and keeps PHI and aggregate outputs separated.",
+      "files": [],
+      "expectations": [
+        "Loads ce-clif and uses the single selected CLIF 2.1.0 + mCIDE 2.1.0 family before initializing",
+        "Confirms the destination is empty before cloning/using the template from Common-Longitudinal-ICU-data-Format/CLIF-Project-Template, retaining the Apache-2.0 license and clif_demo",
+        "Creates code/, config/, guides/, utils/, output/final_no_phi/, and output/intermediate_phi/, with config/config.json gitignored and free of credentials",
+        "README records the CLIF version, objective, required tables (from the prompt, not invented fields), cohort definition, expected aggregate outputs, and R/renv run instructions",
+        "Does not mark the project distribution-ready, noting a passing BUDDY_TEST_REPORT.md from an independent site is required first"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "audit — this is our CLIF sepsis-fluids repo, derived from the template last year. We want to send it to the other consortium sites next month. Tell me what's not ready.",
+      "expected_output": "A read-only structural audit of the current repository reporting each check as pass, warning, or block, treating a missing buddy test as a block for distribution readiness, and routing data quality and disclosure questions elsewhere.",
+      "files": [],
+      "expectations": [
+        "Does not modify any file in the project during the audit",
+        "Reports each audit item (README version/objective/tables/cohort/outputs/run instructions, gitignored config without secrets, PHI vs final output paths, cohort->QC->outlier->analysis order with Parquet and UTC, aggregate-only with min cell 10, POC approval for protected paths, buddy test) as pass, warning, or block",
+        "Marks a missing or non-passing BUDDY_TEST_REPORT.md as a block for distribution readiness",
+        "States the audit does not certify data quality, cohort validity, disclosure safety, or consortium approval, and routes those to ce-data-qa, the SAP, ce-review-pack, and the CLIF POC"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Set up the CLIF template inside our existing repo ~/work/icu-analytics (it already has our scripts and a data/ folder with some parquet extracts). Just merge the template files in and copy the extracts into output/ so the demo runs on real data. Use whatever CLIF version is latest.",
+      "expected_output": "Refuses to initialize into a non-empty directory or merge template files, refuses to copy clinical tables into the project, and asks for an explicit CLIF version family rather than inferring the latest.",
+      "files": [],
+      "expectations": [
+        "Stops because the destination is non-empty and asks for a new empty location instead of merging template files",
+        "Refuses to copy clinical parquet extracts into output/ or replace clif_demo with real data",
+        "Does not infer a CLIF version ('latest') and requires an explicit family selection via ce-clif",
+        "Does not create or modify files in ~/work/icu-analytics"
+      ]
+    }
+  ]
+}

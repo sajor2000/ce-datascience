@@ -1,0 +1,59 @@
+# clinical.mplstyle -- journal-neutral clinical publication figure style.
+# Load with: plt.style.use("path/to/clinical.mplstyle")
+# Equivalent to apply_clinical_style() in clinical_style.py, minus the
+# font-availability check. Sizes are in points at final print width.
+
+font.family: sans-serif
+font.sans-serif: Arial, Helvetica, Liberation Sans, DejaVu Sans
+font.size: 9
+axes.titlesize: 10
+axes.titleweight: bold
+axes.labelsize: 10
+xtick.labelsize: 8
+ytick.labelsize: 8
+legend.fontsize: 8
+legend.title_fontsize: 8
+figure.titlesize: 12
+figure.titleweight: bold
+
+axes.spines.top: False
+axes.spines.right: False
+axes.linewidth: 0.75
+axes.edgecolor: black
+axes.labelcolor: black
+axes.grid: False
+axes.axisbelow: True
+axes.prop_cycle: cycler("color", ["0072B2", "D55E00", "009E73", "E69F00", "CC79A7", "56B4E9"])
+
+xtick.direction: out
+ytick.direction: out
+xtick.major.width: 0.75
+ytick.major.width: 0.75
+xtick.major.size: 3
+ytick.major.size: 3
+xtick.minor.visible: False
+ytick.minor.visible: False
+xtick.color: black
+ytick.color: black
+
+lines.linewidth: 1.0
+lines.markersize: 4
+errorbar.capsize: 2
+patch.linewidth: 0.5
+
+legend.frameon: False
+legend.loc: best
+
+figure.figsize: 7, 4.5
+figure.dpi: 100
+figure.facecolor: white
+figure.autolayout: False
+
+savefig.dpi: 300
+savefig.bbox: tight
+savefig.pad_inches: 0.02
+savefig.facecolor: white
+savefig.transparent: False
+pdf.fonttype: 42
+ps.fonttype: 42
+svg.fonttype: none

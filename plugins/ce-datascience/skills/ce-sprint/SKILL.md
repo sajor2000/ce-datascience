@@ -1,6 +1,6 @@
 ---
 name: ce-sprint
-description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail."
+description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail. Use when the user wants an auditable analysis sprint, human signoff, scoped SAP execution, or sprint closeout."
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 
@@ -42,37 +42,40 @@ Wraps `ce-work` in bounded sprints with explicit entry/exit criteria and human r
 3. Resolve the reviewer. The user passes `reviewer=<name>` or, if absent, prompt for one. The named human is the person who will sign the sprint summary. Their name lands in `sprint-log.yaml` -- this is the audit-trail anchor.
 
 4. Check entry criteria:
-   - Prior sprint (if any) is `closed` and `signed_off`
+   - Prior sprint (if any) has status `signed_off`
    - Data wave is `locked`
    - SAP `sap_version` is committed (no uncommitted SAP edits)
    - Stack profile is set
 
    If any fails, refuse to open the sprint and report what's blocking.
 
-5. Append the new sprint entry to `analysis/sprint-log.yaml` (top-level, one file per project — every sprint becomes a list item under `sprints:`). The script handles the append; the example below shows one such entry:
+5. Append the new sprint entry to `analysis/sprint-log.yaml` (top-level, one file per project — every sprint becomes a list item under `sprints:`). Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";`, then run `python3 "$SKILL_DIR/scripts/sprint.py" open <name> --scope <SAP-section-csv> --reviewer <reviewer>`; it refuses if a sprint is open or the name exists, writes `name`, `status: open`, `scope`, `reviewer`, `opened_at`, `commit_open`, and empty `outputs_planned`/`outputs_actual`, and prints `__CE_SPRINT__ action=open ...`. Then fill `outputs_planned` from step 2 and add `entry_criteria` to that entry:
 
 ```yaml
-sprint:
-  name: sprint-02
-  status: open
-  opened: 2025-04-28T09:00:00
-  reviewer: jcr
-  scope:
-    sap_sections: [SAP-3.3, SAP-3.4]
-    planned_outputs:
+sprints:
+  - name: sprint-02
+    status: open
+    scope: [SAP-3.3, SAP-3.4]
+    reviewer: jcr
+    opened_at: 2025-04-28T09:00:00Z
+    commit_open: <sha>
+    outputs_planned:
       - { id: T3, output_file: table-mortality-by-arm.csv, subfolder: tables/, sap_section: SAP-3.3 }
       - { id: F2, output_file: km-curve-overall.png, subfolder: figures/, sap_section: SAP-3.4 }
-  entry_criteria:
-    sap_version: 1.2
-    data_wave_id: wave_2025_03_15
-    prior_sprint: sprint-01 (closed, signed off 2025-04-20)
+    outputs_actual: []
+    entry_criteria:
+      sap_version: 1.2
+      data_wave_id: wave_2025_03_15
+      prior_sprint: sprint-01 (signed off 2025-04-20)
 ```
 
 6. Print a one-line summary and hand off to `ce-work` with the planned-outputs list as the task seed. The user works inside the sprint as they would inside `ce-work` normally; the sprint just bounds what's in scope.
 
 ### `ce-sprint close`
 
-1. Run `python3 scripts/sprint.py close <name>`. The script flips status to `pending_review`, captures `commit_close`, and prints two lines: a human-readable `__CE_SPRINT__ action=close ...` line and a machine-parseable dispatch hint:
+Status flow in `analysis/sprint-log.yaml`: `open` -> `pending_review` (script, awaiting audit) -> `closed_pending_signoff` (audit passed) -> `signed_off` (human reviewer). A failing audit returns the sprint to `open`.
+
+1. Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/sprint.py" close <name>` (`<name>` defaults to the currently open sprint). The script flips status to `pending_review`, captures `closed_at` and `commit_close`, and prints a human-readable `__CE_SPRINT__ action=close ...` line, a machine-parseable dispatch hint, and a `next:` reminder:
 
    ```
    __CE_SPRINT_AUDIT_DISPATCH__ sprint=<name> reviewer=ce-sprint-audit-reviewer human_reviewer=<name> scope=<csv> commit_open=<sha> commit_close=<sha>
@@ -145,7 +148,6 @@ Date: ____________
 
 ```yaml
 status: closed_pending_signoff
-closed: 2025-04-28T17:00:00
 audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 ```
 
@@ -153,11 +155,11 @@ audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 
 6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `ce-review-pack` to build the PI-facing package and validate the signoff ledger.
 
-7. After human sign-off, the user runs `ce-sprint sign-off <name>` (or edits the YAML directly to `status: signed_off` with a `signed_off_by` and `signed_off_at` field).
+7. After the named reviewer signs off, record it in `sprint-log.yaml`: set `status: signed_off` and add `signed_off_by` and `signed_off_at`. The bundled script has no sign-off subcommand; edit the YAML and confirm the change with the user.
 
 ### `ce-sprint status`
 
-Print the current sprint state plus the audit-reviewer findings if closed-pending. Useful for "where am I?".
+With `SKILL_DIR` set as above, run `python3 "$SKILL_DIR/scripts/sprint.py" status [--name <name>]` and print the current sprint state plus the audit-reviewer findings if closed-pending. Useful for "where am I?".
 
 ## What this skill does NOT do
 

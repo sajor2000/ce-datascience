@@ -1,5 +1,16 @@
 # Markdown Rendering
 
+## Contents
+
+- Hard invariants
+- Format principles
+- Section anatomy
+- Diagrams
+- Inline code and code blocks
+- No process exhaust
+- Frontmatter shape
+- Post-write audit
+
 This is a format-rendering reference — it describes how to render any
 artifact in markdown, independent of which skill is producing it.
 
@@ -42,7 +53,7 @@ distinctive on its own; bolding it inflates visual noise.
 - **R1.** The plan returns paginated sessions.   ← wrong (bolded prefix)
 ```
 
-Same applies to unit headings: `### U1. Cloak detection in preflight contract`.
+Same applies to unit headings: `- U1. **Cloak detection in preflight contract**` (plain prefix, bold name only).
 
 ### Content shape: prose vs bullets vs tables
 
@@ -105,7 +116,7 @@ contracts — the agent picks the shape that fits the content.
   render a flat list only when every requirement is about the same thing.
   When requirements have status, traceability, or severity that warrant
   additional columns, escalate to a table.
-- **Implementation Units** — H3 heading per unit with `U<N>.` prefix.
+- **Implementation Units** — one `- U<N>. **[Name]**` heading line per unit.
   Fields (Goal, Files, Patterns, Test Scenarios, Verification) render as
   bullets with bold leader labels, or as sub-headings if the field has
   multi-paragraph content.
@@ -114,7 +125,7 @@ contracts — the agent picks the shape that fits the content.
 - **Key Flows / Acceptance Examples** — bullets with bold leader labels
   (Trigger / Actors / Steps / Outcome / Covers / Given-When-Then).
 - **Scope Boundaries** — bullets, optionally split into "Deferred for
-  later" / "Outside this product's identity" sub-headings when the
+  later" / "Outside this study's scope" sub-headings when the
   positioning distinction matters.
 
 The agent picks more elaborate or simpler shapes based on what each

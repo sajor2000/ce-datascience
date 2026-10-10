@@ -1,0 +1,22 @@
+[
+  {"query": "Go through the unresolved review threads on PR 214, fix what's valid, reply to each reviewer, and resolve the threads.", "should_trigger": true},
+  {"query": "reviewers left like 15 comments on my SAP + R code PR (multiplicity, missing data, a couple nits). work through them all and reply", "should_trigger": true},
+  {"query": "Address this specific review comment only: https://github.com/example-lab/icu-delirium/pull/31#discussion_r987654321", "should_trigger": true},
+  {"query": "The statistician's review on PR #88 says our subgroup analyses aren't in the SAP and the power section is outdated. Resolve that feedback - fix or explain - and close out the threads.", "should_trigger": true},
+  {"query": "resolve pr feedback on the current branch pls, the PI left a top-level comment asking for the forest plot to use log scale", "should_trigger": true},
+  {"query": "Copilot and two humans reviewed the cohort-build PR. Triage which comments are valid, apply fixes, run tests, push, and respond on each thread.", "should_trigger": true},
+  {"query": "A reviewer flagged possible PHI in a committed output CSV and a hardcoded site name in the Table 1 code on PR 140. Handle the review comments.", "should_trigger": true},
+  {"query": "Handle the methodology concerns in the review on PR 77 (estimand mismatch between SAP and code, MI vs complete case); some may need an explanation rather than a code change.", "should_trigger": true},
+  {"query": "pr 19 has review comments about renv.lock drift and a non-seeded bootstrap. fix them and reply in-thread", "should_trigger": true},
+  {"query": "There are outdated review threads on my PR after I force-pushed; figure out which still apply, fix the rest, reply and resolve.", "should_trigger": true},
+  {"query": "Review PR 214's code changes with the reviewer personas and give me confidence-gated findings I can fix.", "should_trigger": false},
+  {"query": "Watch PR 214 until CI finishes and tell me if any new review comments or failures show up.", "should_trigger": false},
+  {"query": "Commit these fixes, push, and update the PR description to mention the calibration plot change.", "should_trigger": false},
+  {"query": "Draft a point-by-point response letter to journal reviewers for our JAMA Network Open revision.", "should_trigger": false},
+  {"query": "Do a read-only R review of analysis/02_cohort.R before I open the PR.", "should_trigger": false},
+  {"query": "Adversarially stress-test this diff before I request review; it changes the primary outcome derivation.", "should_trigger": false},
+  {"query": "Review docs/plans/sap-v3.md for completeness before we send it to the steering committee for comments.", "should_trigger": false},
+  {"query": "Clean up local branches whose remote PR branches were deleted after merge.", "should_trigger": false},
+  {"query": "Put together the PI review pack and signoff ledger for the outputs changed in this PR.", "should_trigger": false},
+  {"query": "CI is failing on PR 214 with a testthat error in test-cohort.R; reproduce and fix the failure.", "should_trigger": false}
+]

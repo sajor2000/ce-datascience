@@ -1,6 +1,6 @@
 ---
 name: ce-phenotype-validate
-description: "Validate phenotype definitions against evidence, code lists, data behavior, and expected cohort characteristics."
+description: "Validate a computable phenotype against chart-review reference labels: 2x2 table, sensitivity, specificity, PPV, and NPV with Wilson intervals, plus subgroup and sample-size-aware reporting. Use when the user defines, reviews, or re-validates a clinical phenotype or code-list cohort definition with chart-review data."
 argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-output csv"
 ---
 
@@ -9,9 +9,9 @@ argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-
 
 ## Skill Value
 
-- **Problem it solves:** Phenotype algorithms can look plausible but fail validity, portability, or source-code consistency checks.
+- **Problem it solves:** Phenotype algorithms can look plausible but misclassify cases, and their accuracy can differ across subgroups or datasets.
 - **Use when:** The user defines, reviews, or validates clinical phenotypes, code lists, or computable cohort definitions.
-- **Output:** Phenotype validation report with evidence, code-list checks, data plausibility, and unresolved risks.
+- **Output:** Phenotype validation report (2x2, PPV/NPV/sensitivity/specificity with Wilson CIs, subgroup results, sample-size caveats), a suppressed aggregate CSV, a concept-set provenance update, and a handoff signal.
 - **Ask only if:** Only when phenotype target, source vocabularies, or validation data are unclear.
 - **Do not do:** Do not certify clinical validity without evidence.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
@@ -31,7 +31,7 @@ EHR phenotypes are algorithmic case definitions (e.g., "T2DM = 2+ ICD codes with
 - An algorithm output file: same `subject_id`s, with `algo_label` (0/1 = phenotype-not-met / phenotype-met)
 - Optional: subgroup columns (`sex`, `age_band`, `race`)
 
-Typical chart-review N: 100-300 patients, sampled in a stratified way (50% algo-positive, 50% algo-negative).
+Typical chart-review N: 100-300 patients (a project convention, not a literature value), sampled in a stratified way (50% algo-positive, 50% algo-negative).
 
 ## PHI and disclosure rules
 
@@ -39,8 +39,18 @@ The chart-review file is patient-level PHI — a manually adjudicated gold stand
 
 - Keep the chart-review and algorithm-output files in a gitignored location (e.g., `output/intermediate_phi/`); never commit, share, or copy them into report directories. If they arrive elsewhere, verify the path is gitignored before proceeding.
 - Never echo `subject_id`s, row-level data, or free-text chart excerpts into the report, the chat, or error messages. Reports carry aggregate counts only.
-- Apply small-cell suppression to every reported cell — confusion-matrix cells and subgroup rows alike. Default disclosure floor for EHR/claims data is n<11 (use the site's declared policy when one exists): suppress or merge subgroups below the floor, and suppress complementary cells recoverable by subtraction from totals. Small N is a re-identification risk, not only a CI-width problem.
+- Apply small-cell suppression to every reported cell — confusion-matrix cells and subgroup rows alike. Default disclosure floor is n<11 unless the project declares its own floor (for example the CLIF consortium floor of n>=10) or a site or DUA rule is stricter: suppress or merge subgroups below the floor, and suppress complementary cells recoverable by subtraction from totals. Small N is a re-identification risk, not only a CI-width problem.
 - The saved cell-count CSV (Step 6) contains only suppressed aggregate counts, never `subject_id`-level rows.
+
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** published PPV/sensitivity/specificity benchmarks for this phenotype, vocabulary, and population (PheKB/eMERGE validations, RECORD-style validation reports), cited by PMID and used only as comparators; any PPV assumed before the chart review (for example the planning value in `references/sampling-strategies.md`) is an assumption until a looked-up or measured value replaces it.
 
 ## Core workflow
 
@@ -77,7 +87,7 @@ ci = (center - half_width, center + half_width)
 
 ### Step 4: Per-subgroup validation
 
-Repeat all metrics by subgroup (sex, age band, race, site) when subgroup data is in the chart-review file. Phenotypes often perform very differently across subgroups (e.g., diabetes phenotypes have lower PPV in pediatric populations).
+Repeat all metrics by subgroup (sex, age band, race, site) when subgroup data is in the chart-review file. Phenotype performance can differ by subgroup; do not assert a published subgroup pattern (for example a lower PPV in one age band) without a source read and cited by PMID per Evidence access.
 
 ### Step 5: Sample-size-aware reporting
 
@@ -122,11 +132,22 @@ Sampling: stratified random within algo strata
 
 ## Implications for the study
 
-PPV >= 0.90 → bias from misclassified cases is small.
+PPV >= 0.90 (project threshold; an assumption unless a cited benchmark replaces it) → misclassification bias judged small for this use.
 Sensitivity in 18-44 is lower; if the cohort skews young, expect under-ascertainment.
 ```
 
+The numbers in this example are illustrative, not benchmarks; a comparison with a published PPV or sensitivity cites its PMID and evidence label.
+
 Save `reports/phenotype-validation/<phenotype>-<date>.csv` for the cell counts and confusion matrix — suppressed aggregates only, per "PHI and disclosure rules" (no `subject_id`s, no cells below the disclosure floor).
+
+The bundled script computes Steps 2-5 from one merged CSV (`subject_id`, `chart_label`, `algo_label`, optional `sex`/`age_band`/`race`/`site`), so write the Step 1 merge to a gitignored path first:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_phenotype.py" <phenotype> <merged-csv> --out reports/phenotype-validation/<phenotype>-<date>.md
+```
+
+It writes the Markdown report and a `.yaml` validation block beside it, and drops subgroups with n<11. It does not suppress confusion-matrix or complementary cells and does not write the CSV: apply the disclosure rules to both before saving or sharing.
 
 ### Step 7: Update the concept set provenance
 
@@ -151,7 +172,7 @@ validation:
 The bundled script (`scripts/validate_phenotype.py`) prints the canonical envelope:
 
 ```
-__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> yaml=<path-to-validation.yaml> report=<path-to-report.md>
+__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> ppv=<v> sens=<v> report=<path-to-report.md> yaml=<path-to-validation.yaml>
 ```
 
 Surface this line so `ce-plan` SAP mode and the concept-set provenance YAML pick the validation up.

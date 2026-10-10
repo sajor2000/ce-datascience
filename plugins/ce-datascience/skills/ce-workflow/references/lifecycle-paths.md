@@ -1,5 +1,14 @@
 # Lifecycle Paths
 
+## Contents
+
+- Data-First Planning Invariant
+- Path 1: Observational Study
+- Path 2: Clinical Trial Analysis
+- Path 3: Prediction / ML Model
+- Path 4: Bioinformatics / Omics
+- Path 5: Technical / Software Implementation
+
 Ordered skill sequences for each project type. Steps marked with language-specific notes where they differ.
 
 ---
@@ -35,6 +44,7 @@ Full biomedical lifecycle — 15 steps. Most common path for EHR, OMOP, CLIF, an
 ### Optional bookends
 
 - `ce-ideate` before step 1 — when the research question is still fuzzy
+- `ce-grill` before step 1 or step 11 — stress-test goal, hypothesis, data, analysis, target journal, and audience one question at a time
 - `ce-prereg` after step 12 — pre-register on OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted
 - `ce-compound` after step 15 — document validated analytical approaches and learnings
 
@@ -91,7 +101,7 @@ Condensed path — the trial protocol already defines population, intervention, 
 ### Optional additions
 - `ce-power` before step 3 — if the protocol's sample size needs independent verification
 - `ce-prereg` after step 4 — update ClinicalTrials.gov SAP
-- `ce-compound` after step 7 — document learnings
+- `ce-compound` after step 8 — document learnings
 
 ---
 

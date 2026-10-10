@@ -1,6 +1,6 @@
 ---
 name: ce-update
-description: "Check Claude Code marketplace ce-datascience plugin version and recommend the plugin update command when stale."
+description: "Check Claude Code marketplace ce-datascience plugin version and recommend the plugin update command when stale. Use when the user asks whether ce-datascience is up to date in Claude Code."
 disable-model-invocation: true
 ce_platforms: [claude]
 ---
@@ -30,7 +30,7 @@ below handles those cases.
 
 `${CLAUDE_SKILL_DIR}` is a Claude Code-documented substitution that resolves
 at skill-load time. For a marketplace-cached install it looks like
-`~/.claude/plugins/cache/<marketplace>ce-datascience/<version>/skills/ce-update`,
+`~/.claude/plugins/cache/<marketplace>/ce-datascience/<version>/skills/ce-update`,
 so the currently-loaded version is the basename two `dirname` levels up.
 
 The upstream version comes from `plugins/ce-datascience/.claude-plugin/plugin.json`

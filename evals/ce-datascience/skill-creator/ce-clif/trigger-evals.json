@@ -1,0 +1,22 @@
+[
+  {"query": "We're a CLIF consortium site. Write me Python to pull patients on vasopressors from medication_admin_continuous using med_category, and make sure the categories match mCIDE.", "should_trigger": true},
+  {"query": "this repo has CLIF_CLAUDE.md at the root. what are the rules I need to follow for datetimes and outputs before I write the SOFA code in R?", "should_trigger": true},
+  {"query": "ce-clif --version 3.0.0 — we're targeting the multimodal release for the notes + imaging project.", "should_trigger": true},
+  {"query": "Is it OK to save the CLIF vitals subset as CSV for a quick look? Our config.json has tables_path pointing at clif_*.parquet files.", "should_trigger": true},
+  {"query": "Need to validate that the location_category values in our adt table are legit mCIDE values for CLIF 2.1 before running the ICU cohort.", "should_trigger": true},
+  {"query": "common longitudinal icu data format project: what's the right way to read hospitalization and patient tables in R with arrow, and where do outputs go?", "should_trigger": true},
+  {"query": "I want to edit ddl/labs.sql in the CLIF repo to add a new lab_category. What's the process?", "should_trigger": true},
+  {"query": "turn off the CLIF profile for this session, I'm switching to an unrelated OMOP project. ce-clif --off", "should_trigger": true},
+  {"query": "Our mCIDE says 2.1 but someone set clif.data_dictionary_version to 3.0.0 in config.local.yaml. Sort out which family we should be on before I build category filters.", "should_trigger": true},
+  {"query": "Writing clifpy code with ClifOrchestrator to build a wide dataset of vitals and respiratory support for the ARDS cohort — use the consortium's conventions.", "should_trigger": true},
+  {"query": "Initialize a new CLIF analysis repo from the official CLIF Project Template in ~/projects/clif-delirium (empty dir), version 2.1.0.", "should_trigger": false},
+  {"query": "Audit our existing template-derived CLIF project for structure, gitignored config, output folders, and buddy-test readiness.", "should_trigger": false},
+  {"query": "Build an OMOP cohort of adults with sepsis using condition_occurrence and concept_ancestor, with a waterfall.", "should_trigger": false},
+  {"query": "Run a GO/NO-GO data quality gate on our MIMIC-IV-derived ICU vitals and labs parquet files before SAP finalization: missingness, ranges, duplicates.", "should_trigger": false},
+  {"query": "Map our local Epic flowsheet IDs for ventilator settings to OMOP concepts and review the mapping.", "should_trigger": false},
+  {"query": "Our ICU dataset has tables called vitals and labs in a custom schema (not CLIF). Profile the columns before analysis.", "should_trigger": false},
+  {"query": "Detect whether this repo is primarily R or Python and emit the language handoff.", "should_trigger": false},
+  {"query": "Review this diff of R/sofa.R for correctness and reproducibility before merge.", "should_trigger": false},
+  {"query": "Validate our ICU delirium phenotype (CAM-ICU positive or haloperidol order) against chart review.", "should_trigger": false},
+  {"query": "Generate Table 1 for the ARDS cohort from the SAP variables and style profile.", "should_trigger": false}
+]

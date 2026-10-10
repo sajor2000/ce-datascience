@@ -1,12 +1,9 @@
 ---
 name: ce-sessions
-description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim."
+description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim. Use when the user asks what happened before, what was tried, prior decisions, or session-history questions."
 ---
 
 # `ce-sessions`
-
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
-
 
 ## Skill Value
 
@@ -36,20 +33,18 @@ If the line above resolved to a plain branch name (like `feat/my-branch`), use i
 
 If the line above resolved to a path, take its last path component as the repo folder name and use that for session discovery. If it is empty or still contains a backtick command string, derive the repo name at runtime instead.
 
-## Note: 2026
+## Current year
 
 Resolve the current year at runtime (`date +%Y`) rather than assuming one; use it when interpreting session timestamps.
 
 ## Guardrails
 
-These rules apply at all times during orchestration and synthesis.
-
 - **Never read entire session files into context.** Session files can be 1-7MB. Always use the extraction scripts to filter first, then reason over the filtered output.
 - **Never extract or reproduce tool call inputs/outputs verbatim.** Summarize what was attempted and what happened.
 - **Never include thinking or reasoning block content.** Claude Code thinking blocks are internal reasoning; Codex reasoning blocks are encrypted. Neither is actionable.
 - **Never analyze the current session.** Its conversation history is already available to the caller.
-- **Surface technical content, not personal content.** Sessions contain everything — credentials, frustration, half-formed opinions. Use judgment about what belongs in a technical summary and what doesn't.
-- **Fail fast on access errors.** If session discovery fails on permissions, report the issue immediately. Do not retry the same operation with different tools or approaches — repeated retries waste tokens without changing the outcome.
+- **Surface technical content, not personal content.** Leave out credentials, frustration, and half-formed opinions.
+- **Fail fast on access errors.** If session discovery fails on permissions, report the issue immediately. Do not retry the same operation with different tools or approaches.
 
 ## Execution
 
@@ -70,10 +65,11 @@ Claude Code retains session history for ~30 days by default. Wider windows may f
 
 ### Step 2 — Discover sessions and extract metadata
 
-Run the discovery + metadata pipeline (preserving the null-delimited xargs hardening that lets `extract-metadata.py` run in batch mode):
+Run the discovery + metadata pipeline (keep the null-delimited `xargs -0`):
 
 ```bash
-bash scripts/discover-sessions.sh <repo> <days> | tr '\n' '\0' | xargs -0 python3 scripts/extract-metadata.py --cwd-filter <repo>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/discover-sessions.sh" <repo> <days> | tr '\n' '\0' | xargs -0 python3 "$SKILL_DIR/scripts/extract-metadata.py" --cwd-filter <repo>
 ```
 
 Each output line is a JSON object describing a session (platform, file, size, ts, session, plus platform-specific fields). The final `_meta` line carries `files_processed` and `parse_errors`.
@@ -88,7 +84,7 @@ To narrow the platform set, add `--platform claude`, `--platform codex`, or `--p
 
 Apply these filters in order to pick the sessions worth deep-diving:
 
-1. **Branch filter (Claude Code only).** Keep sessions where `branch == dispatch_branch` exactly, or where the branch name contains a keyword from the question's topic (e.g., a question about "auth middleware" matches branches `feat/auth-fix`, `chore/auth-refactor`). Codex sessions don't carry `gitBranch` — skip this filter for them.
+1. **Branch filter (Claude Code only).** Keep sessions where `branch` equals the git branch resolved above (or the branch a caller passed) exactly, or where the branch name contains a keyword from the question's topic (e.g., a question about "auth middleware" matches branches `feat/auth-fix`, `chore/auth-refactor`). Codex sessions don't carry `gitBranch` — skip this filter for them.
 
 2. **If the branch filter returned zero sessions, or you're processing Codex sessions:**
    - Derive 2-4 keywords from the question's topic. For "a recent crash in the auth middleware where session-validation rejects valid tokens", derive `auth,middleware,session,token` (or similar).
@@ -114,37 +110,33 @@ Create a per-run throwaway scratch directory:
 SCRATCH=$(mktemp -d -t ce-sessions-XXXXXX)
 ```
 
-Capture the absolute path; thread it into Step 5 and Step 6. The OS handles cleanup on session end; an explicit `rm -rf "$SCRATCH"` at the end of Step 7 is harmless and makes intent explicit.
+Capture the absolute path and thread it into Steps 5 and 6.
 
 ### Step 5 — Extract per-session content (file-mediated)
 
 For each selected session, run the skeleton extractor with `--output` so content writes directly to the scratch file — extraction bytes never round-trip through the orchestrator's tool results:
 
 ```bash
-python3 scripts/extract-skeleton.py --output "$SCRATCH/<session-id>.skeleton.txt" < <session-file>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/extract-skeleton.py" --output "$SCRATCH/<session-id>.skeleton.txt" < <session-file>
 ```
 
 Stdout receives only a one-line JSON status (`{"_meta": true, "wrote": "...", "bytes": N, ...}`). Capture `bytes` and `parse_errors` from each status line.
 
-**Conditional tail-extract** — if a skeleton terminates mid-investigation (last visible turn is a tool call with no resolution, or the assistant is mid-debugging without a conclusion), re-extract with a `tail` shape:
-
-```bash
-python3 scripts/extract-skeleton.py --output "$SCRATCH/<session-id>.skeleton.tail.txt" < <session-file>
-```
-
-(The skeleton script does not accept a `tail:N` cap directly; if a tail-only view is needed, post-process the scratch file in shell with `tail -n 50` after extraction. Use this only when the head output suggests the session was truncated mid-investigation.)
+**Conditional tail view** — if a skeleton ends mid-investigation (last visible turn is an unresolved tool call, or debugging without a conclusion), inspect its end with `tail -n 50` on the scratch file. `extract-skeleton.py` has no tail cap; use this only when the head output suggests truncation.
 
 **Conditional errors-mode** — for sessions where investigation dead-ends are likely valuable:
 
 ```bash
-python3 scripts/extract-errors.py --output "$SCRATCH/<session-id>.errors.txt" < <session-file>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/extract-errors.py" --output "$SCRATCH/<session-id>.errors.txt" < <session-file>
 ```
 
 Use selectively — only when understanding what went wrong adds value. Cursor agent transcripts don't log tool results, so errors-mode produces nothing for Cursor sessions.
 
 ### Step 6 — Dispatch synthesis subagent
 
-Dispatch the `ce-session-historian` subagent via the platform's subagent primitive (`Agent` in Claude Code, `spawn_agent` in Codex, `subagent` in Pi via the `pi-subagents` extension). Omit the `mode` parameter so the user's configured permission settings apply. Run on the mid-tier model (e.g., `model: "sonnet"` in Claude Code) — the synthesizer doesn't need frontier reasoning.
+Dispatch the `ce-session-historian` subagent via the platform's subagent primitive (`Agent` in Claude Code, `spawn_agent` in Codex, `subagent` in Pi via the `pi-subagents` extension). Omit the `mode` parameter so the user's configured permission settings apply. Run on the mid-tier model (e.g., `model: "sonnet"` in Claude Code).
 
 The dispatch prompt is the agent's input contract. Pass these fields:
 
@@ -191,19 +183,13 @@ Filter rule: only surface findings directly relevant to this specific problem.
 Ignore unrelated work from the same sessions or branches.
 ```
 
-The agent reads each path via the platform's native file-read tool and returns prose findings. Bulk extraction content lives only in the agent's subagent context — the orchestrator's working state stays at file paths plus small inventory metadata.
+The agent reads each path with the native file-read tool and returns prose findings; the orchestrator holds only file paths and inventory metadata.
 
 ### Step 7 — Return findings
 
 Return the synthesizer's output text to the caller verbatim. If discovery or keyword filtering returned zero sessions (Step 2 or Step 3), return the literal string `no relevant prior sessions` instead.
 
-Optionally clean up scratch:
-
-```bash
-rm -rf "$SCRATCH"
-```
-
-The OS handles cleanup eventually regardless; the explicit cleanup is for readers who expect it.
+Optionally clean up with `rm -rf "$SCRATCH"`.
 
 ## Output
 
@@ -217,7 +203,7 @@ Then the synthesizer's prose findings. When the caller supplies a schema, honor 
 
 ## Time budget
 
-Stop as soon as a complete answer is available. A confident "no relevant prior sessions" within seconds is a complete answer; do not extend the search to fill time. The structural caps in Step 3 (max 5 sessions deep-dived) and Step 5 (conditional tail/errors extraction) bound runtime by construction.
+Stop as soon as a complete answer is available. A confident "no relevant prior sessions" within seconds is a complete answer; do not extend the search to fill time.
 
 ## Error handling
 

@@ -1,0 +1,22 @@
+[
+  {"query": "We have a 200-patient chart review for our heart failure phenotype (chart_label) and the algorithm flags (algo_label). Compute PPV, sensitivity, specificity, NPV with Wilson CIs, by sex and age band.", "should_trigger": true},
+  {"query": "the reviewer says our CKD phenotype isn't validated in this dataset. we have adjudicated charts in output/intermediate_phi/ - can you run the validation and update the concept set yaml?", "should_trigger": true},
+  {"query": "Re-validate the T2DM algorithm from the eMERGE network on our hospital's data against our new chart review - don't trust the original PPV.", "should_trigger": true},
+  {"query": "How good is our sepsis-3 EHR case definition? 2 clinicians adjudicated 150 charts; I need the 2x2, kappa, and a report I can cite in the SAP.", "should_trigger": true},
+  {"query": "Validate the delirium phenotype (CAM-ICU + antipsychotic orders) against chart review, with small-cell suppression since some subgroups are tiny.", "should_trigger": true},
+  {"query": "ppv and sens for the opioid use disorder code list vs chart abstraction? files are chart-review-OUD.csv and algo-OUD.csv, also by race", "should_trigger": true},
+  {"query": "Our computable cohort definition for ARDS uses Berlin criteria from vent settings and imaging reports. We sampled 50% algo-positive, 50% negative for review - report performance and note the sampling design.", "should_trigger": true},
+  {"query": "Before we use the AKI phenotype as the primary outcome, measure its misclassification against nephrologist adjudication and write reports/phenotype-validation/.", "should_trigger": true},
+  {"query": "Check whether our stroke ICD-10 code list performs differently across sites using the chart-review gold standard, and flag subgroups with wide CIs.", "should_trigger": true},
+  {"query": "The administrative-data reviewer flagged our COPD exacerbation phenotype as unvalidated. Run the chart-review validation and emit the handoff for the SAP.", "should_trigger": true},
+  {"query": "Define the T2DM cohort with inclusion/exclusion criteria, index date, vocabulary-pinned concept sets, SQL, and a waterfall of counts.", "should_trigger": false},
+  {"query": "Profile the columns of the new EHR extract and run the GO/NO-GO data quality gate before cohort building.", "should_trigger": false},
+  {"query": "Write the model card for our sepsis prediction model including subgroup sensitivity and specificity.", "should_trigger": false},
+  {"query": "Compute sample size for a diagnostic accuracy study so sensitivity's 95% CI half-width is under 0.05.", "should_trigger": false},
+  {"query": "Search PubMed for published validation studies of EHR sepsis phenotypes and their PPVs.", "should_trigger": false},
+  {"query": "Our CLIF project needs a new ICU cohort with mCIDE-standardized vasopressor categories; set up the CLIF-safe guidance.", "should_trigger": false},
+  {"query": "Review analysis/cohort/build_cohort.sql for join bugs that might duplicate encounters.", "should_trigger": false},
+  {"query": "Which reporting guideline should our phenotype validation paper follow - STARD or RECORD?", "should_trigger": false},
+  {"query": "Evaluate our NLP classifier's AUC and calibration on the held-out test set and log the run.", "should_trigger": false},
+  {"query": "Pool the published PPV estimates from six prior validation studies of the sepsis EHR phenotype into a summary estimate with heterogeneity.", "should_trigger": false}
+]

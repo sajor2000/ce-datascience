@@ -1,5 +1,12 @@
 # Code Review Output Template
 
+## Contents
+
+- Example
+- Anti-patterns
+- Formatting Rules
+- Headless Mode Format
+
 Use this **exact format** when presenting synthesized review findings. Findings are grouped by severity, not by reviewer.
 
 **IMPORTANT:** Use pipe-delimited markdown tables (`| col | col |`). Do NOT use ASCII box-drawing characters.
@@ -13,9 +20,9 @@ Use this **exact format** when presenting synthesized review findings. Findings 
 **Intent:** Add order export endpoint with CSV and JSON format support
 **Mode:** autofix
 
-**Reviewers:** correctness, testing, maintainability, security, api-contract
+**Reviewers:** correctness, testing, maintainability, security, performance
 - security -- new public endpoint accepts user-provided format parameter
-- api-contract -- new /api/orders/export route with response schema
+- performance -- export service loads and serializes full order history
 
 ### P0 -- Critical
 
@@ -28,7 +35,7 @@ Use this **exact format** when presenting synthesized review findings. Findings 
 | # | File | Issue | Reviewer | Confidence | Route |
 |---|------|-------|----------|------------|-------|
 | 2 | `export_service.rb:87` | Loads all orders into memory -- unbounded for large accounts | performance | 100 | `safe_auto -> review-fixer` |
-| 3 | `export_service.rb:91` | No pagination -- response size grows linearly with order count | api-contract, performance | 75 | `manual -> downstream-resolver` |
+| 3 | `export_service.rb:91` | No pagination -- response size grows linearly with order count | correctness, performance | 75 | `manual -> downstream-resolver` |
 
 ### P2 -- Moderate
 
@@ -67,9 +74,9 @@ Use this **exact format** when presenting synthesized review findings. Findings 
 
 - New export endpoint has no CLI/agent equivalent -- agent users cannot trigger exports
 
-### Schema Drift Check
+### SAP Drift Check
 
-- Clean: schema.rb changes match the migrations in scope
+- Clean: analysis changes match the SAP sections in scope
 
 ### Deployment Notes
 
@@ -136,7 +143,7 @@ This fails because: no pipe-delimited tables, no severity-grouped `###` headers,
 
 ## Headless Mode Format
 
-In `mode:headless`, replace the interactive pipe-delimited table report with a structured text envelope. The headless format is defined in the `### Headless output format` section of SKILL.md. Key differences from the interactive format:
+In `mode:headless`, replace the interactive pipe-delimited table report with a structured text envelope. The headless format is defined in the `### Headless output format` section of `references/synthesis-and-output.md`. Key differences from the interactive format:
 
 - **No pipe-delimited tables.** Findings use `[severity][autofix_class -> owner] File: <file:line> -- <title>` line format with indented Why/Evidence/Suggested fix lines.
 - **Findings grouped by autofix_class** (gated-auto, manual, advisory) instead of severity. Within each group, findings are sorted by severity.

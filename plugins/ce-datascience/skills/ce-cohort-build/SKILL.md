@@ -1,6 +1,6 @@
 ---
 name: ce-cohort-build
-description: "Define a reproducible study cohort with inclusion/exclusion criteria, index event, vocabulary-pinned concepts, SQL/CTE output, and waterfall counts."
+description: "Define a reproducible study cohort with inclusion/exclusion criteria, index event, vocabulary-pinned concepts, SQL/CTE output, and waterfall counts. Use when the user needs an EHR, OMOP, claims, phenotype, or observational-study cohort before data QA or SAP finalization."
 argument-hint: "<cohort name>, optional: --vocab omop|icd10|icd9|cpt|loinc|snomed --index-event <event>"
 ---
 
@@ -49,8 +49,8 @@ When `__CE_RESEARCH_QUESTION__` is absent, fall through to step 1 cold.
 
 **CLIF profile**: if chat context contains `__CE_CLIF__ active=true`, switch defaults. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative data-dictionary family. If the pair is missing, incomplete, or mixed, route to the `ce-clif` skill before emitting `_category` filters.
 
-- Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from `config/config.json: data_root`.
-- The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` — never CSV, never with an integer cast, and never share or commit them.
+- Default source schema is the CLIF relational schema (read from Parquet files). Skip OMOP CTE generation; instead emit a `polars` (Python) or `arrow` + `dplyr` (R) script that reads `hospitalization.parquet`, `adt.parquet`, etc. from the `tables_path` in `config/config.json`.
+- The cohort identifier is `hospitalization_id` (VARCHAR). Persist patient-level cohort IDs only as `output/intermediate_phi/cohort_ids.parquet` after verifying that path is approved, local, non-synced, and gitignored (otherwise under the approved restricted data root) — never CSV, never with an integer cast, and never share or commit them.
 - Inclusion criteria default to `adt.location_category == "icu"` for ICU studies; `hospitalization.age_at_admission >= 18` for adult studies.
 - All datetime filters are timezone-aware UTC.
 - Write only disclosure-reviewed cohort-flow summaries to `output/final_no_phi/cohort_waterfall.csv`; replace SQL/CTE generation with a `code/01_cohort_<name>.{py,R}` script that starts the template workflow.
@@ -70,6 +70,16 @@ Ask the user (or parse from `args`):
 7. **Eligibility window** -- continuous enrollment / observation window (e.g., 180 days prior, 365 days follow-up)
 8. **Wash-out / look-back** -- explicit prior-period requirements
 
+### Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** validated code sets and phenotype algorithms for each criterion (PheKB, eMERGE, OHDSI/OMOP phenotype studies) with their reported PPV and sensitivity, cited by PMID; a concept set without a read, published precedent is `project-defined` and the spec must say so.
+
 ### Step 2: Build concept sets
 
 For each criterion, build a concept set:
@@ -86,7 +96,7 @@ concept_set:
     - { concept_id: 201254, concept_name: "Type 1 diabetes mellitus" }
 ```
 
-Save concept sets to `analysis/cohort/concept-sets/<set-name>.yaml`.
+Save concept sets to `analysis/cohort/concept-sets/<set-name>.yaml`. Set `source:` to the published algorithm the set follows (PheKB/eMERGE/OHDSI identifier plus PMID) or `project-defined`, and record any reported PPV/sensitivity in the optional `literature:` block with its PMID and evidence label (see `references/concept-set-yaml.md`); never copy a literature value into the project's own `validation` block, which `ce-phenotype-validate` fills from chart review.
 
 ### Step 3: Generate cohort SQL
 
@@ -112,7 +122,7 @@ Persons in source                        : N0
 
 Save as `analysis/cohort/<cohort-name>-waterfall.md` and `analysis/cohort/<cohort-name>-waterfall.csv`. This is the CONSORT-style figure for the manuscript.
 
-**Small-cell suppression (always, not only in CLIF mode):** waterfall steps are aggregate counts, but a step that loses very few patients can still disclose. Before saving or sharing the waterfall, suppress or merge any step whose lost-N is below the project's disclosure floor (default n<11 for EHR/claims data, or the site's declared policy), and never annotate a step with patient-identifying examples.
+**Small-cell suppression (always, not only in CLIF mode):** waterfall steps are aggregate counts, but a step that loses very few patients can still disclose. Before saving or sharing the waterfall, suppress or merge any step whose lost-N is below the project's disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter), and never annotate a step with patient-identifying examples.
 
 ### Step 5: Write the cohort spec
 
@@ -123,7 +133,7 @@ cohort_name: T2DM_statin_init_2018_2023
 cohort_purpose: ...
 vocabulary: OMOP
 vocabulary_version: 2024-Q1
-data_wave_id: <from data-state.yaml>
+data_wave_id: <from analysis/data-waves.md>
 index_event:
   description: First statin prescription on or after T2DM diagnosis
   source: drug_exposure
@@ -164,7 +174,12 @@ The `yaml=` key points at the cohort spec (`analysis/cohort/<cohort-name>.yaml` 
 
 ## References
 
-`scripts/concept_set_to_capr.R` — converts a concept-set YAML into CAPR concept-set R code; use it when `__CE_LANG__ primary=r` and the cohort is OMOP-based.
+`scripts/concept_set_to_capr.R` — converts a concept-set YAML into Capr concept-set R code and ATLAS-compatible JSON, then prints a `__CE_COHORT_CAPR__` summary line; use it when `__CE_LANG__ primary=r` and the cohort is OMOP-based. It requires the `Capr` and `yaml` R packages and stops when `vocabulary_version` is missing:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+Rscript "$SKILL_DIR/scripts/concept_set_to_capr.R" --in analysis/cohort/concept-sets/<set>.yaml --out-r analysis/cohort/concept-sets/<set>.R --out-json analysis/cohort/concept-sets/<set>.json
+```
 
 @./references/omop-cohort-template.sql
 

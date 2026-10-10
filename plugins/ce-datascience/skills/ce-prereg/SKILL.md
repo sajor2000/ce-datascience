@@ -1,12 +1,12 @@
 ---
 name: ce-prereg
-description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows."
+description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows. Use when the user asks for preregistration, registry package, ClinicalTrials.gov, OSF, PROSPERO, or protocol registration."
 argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --sap path"
 ---
 
 # Pre-Registration Generator
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are relative to this skill's directory.** Prefix each script path with that directory (the `SKILL_DIR` anchor below) — the agent's working directory is the user's project, not the skill, and `--package-dir` resolves against the project root.
 
 
 ## Skill Value
@@ -22,16 +22,17 @@ Pre-registration is once-per-study, painful, and high-value. This skill converts
 
 ## When this skill activates
 
-- SAP is locked (`sap_version` frontmatter, no uncommitted SAP edits)
+- SAP is locked: frontmatter `status: final` (or `status: amended` with `date_amended` set after a final lock), integer `sap_version`, and no uncommitted SAP edits. `status: draft` is not locked.
 - Manual: `ce-prereg osf` or `ce-prereg clinicaltrials`
 - After `ce-checklist-match` recommended pre-registration
 
 ## Prerequisites
 
-- `analysis/sap.md` exists and has `sap_version` frontmatter
+- `analysis/sap.md` exists and follows the `ce-plan` SAP template: frontmatter with integer `sap_version` and `status`, title in the H1 `# Statistical Analysis Plan: <title>`, and `SAP-N.M` section IDs
 - For ClinicalTrials.gov: an IRB approval reference, a sponsor, and an intervention description
-- For PROSPERO: review type and search dates
+- For PROSPERO: review type, search dates, and the systematic-review protocol (searches, data extraction, risk of bias)
 - For OSF: account credentials handled out-of-band
+- Authors, sponsor, funding, IRB, contact, and study start/completion dates are not SAP frontmatter fields. Take them from the user or the project's study metadata; ask for any that are missing and never invent them
 
 ## Core workflow
 
@@ -48,62 +49,77 @@ Map the study type to the registry:
 | Animal study | OSF (preclinical preregistration) |
 | Meta-analysis | PROSPERO or OSF |
 
-If `--registry` not passed, infer from `stack_profile.study_type`.
+If no registry argument is passed, infer from `stack_profile.study_type`.
+
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** every registry-required citation: prior evidence and pilot data in the rationale or background fields, the source of the sample-size assumption, and the risk-of-bias tool references must resolve to a PMID or DOI through the metadata or citation-lookup tool before they enter `form.md`; PROSPERO's databases list and search dates come from the systematic-review protocol, never from a default.
 
 ### Step 2: Map SAP sections → registry fields
 
-Use the registry-specific template in `references/templates/`:
+Use the registry-specific template in `references/templates/`. Section IDs follow the `ce-plan` SAP template: SAP-1 objectives, SAP-2 design (2.1 type, 2.2 population/eligibility, 2.3 exposure/intervention, 2.4 comparator), SAP-3 endpoints, SAP-4 analysis populations, SAP-5 methods (5.1 primary, 5.2 secondary, 5.3 subgroups), SAP-6 sample size, SAP-7 multiplicity, SAP-8 missing data, SAP-9 sensitivity, SAP-13 variable catalog. "User/metadata" means the user or the project's study metadata, never SAP frontmatter.
 
 **OSF (Standard pre-registration form):**
 
-| OSF field | SAP source |
-|-----------|------------|
-| Title | SAP frontmatter `title` |
-| Authors | SAP frontmatter `authors` |
-| Description / hypotheses | SAP-3 |
-| Design | SAP-1.2 |
-| Sampling plan | SAP-2.1 (cohort) |
-| Variables (independent / dependent / covariates) | SAP-2 |
-| Analysis plan (statistical models) | SAP-4 |
-| Inference criteria (alpha, multiple comparisons) | SAP-4.x |
-| Data exclusion rules | SAP-2.3 |
-| Missing data handling | SAP-2.4 |
-| Exploratory analyses | SAP-4.exploratory section |
+| OSF field | Source |
+|-----------|--------|
+| Title | SAP H1 title |
+| Authors | User/metadata |
+| Description / hypotheses | SAP-1.1, SAP-1.2 |
+| Design | SAP-2.1, SAP-2.3, SAP-2.4 |
+| Sampling plan | SAP-2.2 (population, sampling frame), SAP-6 |
+| Variables (independent / dependent / covariates) | SAP-2.3, SAP-3, SAP-13 |
+| Analysis plan (statistical models) | SAP-5.1 to SAP-5.3 |
+| Inference criteria (alpha, multiple comparisons) | SAP-5.1 (threshold), SAP-7 |
+| Data exclusion rules | SAP-2.2 (exclusion criteria), SAP-4 |
+| Missing data handling | SAP-8 |
+| Exploratory analyses | SAP-1.3, SAP-3.3 |
 
 **ClinicalTrials.gov:**
 
-| CT field | SAP source |
-|----------|------------|
-| Brief title / Official title | SAP frontmatter |
+| CT field | Source |
+|----------|--------|
+| Brief title / Official title | SAP H1 title (brief title confirmed by user) |
 | Brief summary | SAP-1.1 |
-| Detailed description | SAP-1 |
-| Study type / Phase | SAP-1.2 |
+| Detailed description | SAP-1, SAP-2 |
+| Study type / Phase | SAP-2.1 (phase from user/metadata if absent) |
 | Primary outcome (with timeframe) | SAP-3.1 |
-| Secondary outcomes | SAP-3.2+ |
-| Eligibility criteria | SAP-2.1 |
-| Sample size | SAP-2.5 (use the `ce-power` skill output) |
-| Arms and interventions | SAP-1.3 |
+| Secondary outcomes | SAP-3.2 |
+| Eligibility criteria | SAP-2.2 |
+| Sample size | SAP-6 (use the `ce-power` skill output) |
+| Arms and interventions | SAP-2.3, SAP-2.4 |
+| Sponsor, IRB, dates | User/metadata |
 | Statistical analysis plan link | This SAP file's URL |
 
 **PROSPERO:**
 
-| PROSPERO field | SAP source |
-|----------------|------------|
+| PROSPERO field | Source |
+|----------------|--------|
 | Review question | SAP-1.1 |
-| Searches (databases, dates, search strategy) | SAP-2.1 (use the `ce-pubmed` skill log) |
-| Condition or domain being studied | SAP-3 |
-| Participants / population | SAP-2 |
-| Intervention / exposure | SAP-2 |
-| Outcomes | SAP-3 |
-| Risk of bias assessment | SAP-4.bias |
-| Strategy for data synthesis | SAP-4 |
+| Searches (databases, dates, search strategy) | Not in the SAP template; take from the systematic-review protocol (and the `ce-pubmed` skill log) |
+| Condition or domain being studied | SAP-1.1, SAP-2.2 |
+| Participants / population | SAP-2.2 |
+| Intervention / exposure | SAP-2.3 |
+| Comparator | SAP-2.4 |
+| Types of study to be included | SAP-2.2 (eligibility) |
+| Outcomes | SAP-3.1, SAP-3.2 |
+| Data extraction | Not in the SAP template; take from the systematic-review protocol |
+| Risk of bias assessment | Not in the SAP template; take from the systematic-review protocol |
+| Strategy for data synthesis | SAP-5.1 (pooling model), SAP-9; narrative-synthesis rules not in the SAP come from the protocol |
+| Subgroups | SAP-5.3 |
 
 ### Step 3: Generate output
 
 Write a package directory at `analysis/prereg/<registry>-<date>/`:
 
 - `form.md` -- the human-readable registry form pre-filled.
-- `payload.json` -- structured payload with registry-specific fields for future automation.
+- `payload.json` -- structured payload with registry-specific fields for future automation. Set `title` from the SAP H1 and `sap_version` to the SAP's integer `sap_version`.
 - `sap-snapshot.md` -- a locked SAP snapshot or `sap_hash` in `payload.json` when the snapshot cannot be copied.
 - `registry-validation-report.md` -- generated by the validation script below.
 
@@ -111,24 +127,26 @@ Include a checklist at the top:
 
 ```
 PRE-REGISTRATION CHECKLIST -- review before submitting:
-☐ SAP is locked (sap_version: 1.2 -- LOCKED)
+☐ SAP is locked (status: final, sap_version: <integer>)
 ☐ Data has not been unblinded (blinding_state: blinded)
 ☐ No inferential analysis has been run (git log of analysis/ shows no model fits)
-☐ All authors listed in SAP frontmatter agree
+☐ All authors (from the user or study metadata) agree
 ☐ Funding source declared
 ☐ IRB approval reference attached (if interventional)
+☐ Every cited prior study, pilot result, or sample-size source resolves to a PMID/DOI (checked with the PubMed MCP)
 ☐ Submission deadline relative to enrollment understood
 ```
 
-If any of these fails the automated check (SAP unlocked, blinding state unblinded, evidence of inferential analysis in the git log), refuse to generate and surface the blocker.
+If any of these fails the automated check (SAP `status` is `draft`, blinding state unblinded, evidence of inferential analysis in the git log), refuse to generate and surface the blocker.
 
 Before emitting the signal, run:
 
 ```bash
-python3 scripts/validate_registry_package.py --package-dir analysis/prereg/<registry>-<date> --registry <registry>
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_registry_package.py" --package-dir analysis/prereg/<registry>-<date> --registry <registry>
 ```
 
-If the validator returns `BLOCKED`, stop and fix the package. Do not ask the user to paste incomplete registry text into a live registry.
+The validator writes `registry-validation-report.md` into the package directory and prints `__CE_PREREG_VALIDATE__ package=<path> result=<READY-WITH-REVIEW|BLOCKED> report=<path>` (exit 1 on `BLOCKED`). If the result is `BLOCKED`, stop and fix the package. Do not ask the user to paste incomplete registry text into a live registry.
 
 ### Step 4: Emit signal
 

@@ -1,5 +1,22 @@
 # CLIF-Safe Rules
 
+## Contents
+
+- 1. Storage
+- 2. Identifiers
+- 3. Datetime
+- 4. mCIDE vocabularies
+- 5. Project layout (from `CLIF-Project-Template`)
+- 6. Template workflow (from `CLIF-Project-Template`)
+- 7. PHI / data privacy authorization
+- 8. Protected paths (no edits without POC sign-off)
+- 9. Federated analysis pattern
+- 9b. Staged data loading
+- 9c. Hybrid Python + R pipeline
+- 10. Common pitfalls (codified from `CLIF_CLAUDE.md` and observed in consortium repos)
+- 11. Reporting checklist defaults under CLIF profile
+- 12. References (read-only, cite as needed)
+
 These rules apply whenever `__CE_CLIF__ active=true` is present in chat context. Core source: `https://clif-icu.com/` is the authoritative public CLIF site for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details after anchoring to the CLIF site and selected data-dictionary/mCIDE family. Support CLIF 2.1 + mCIDE 2.1 and CLIF 3.0 + mCIDE 3.0. Read `version-families.md` before category validation; never apply the v2.1 cache to v3. Implementation sources: `github.com/Common-Longitudinal-ICU-data-Format/CLIF`, `github.com/Common-Longitudinal-ICU-data-Format/clifpy`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC`, `github.com/Common-Longitudinal-ICU-data-Format/CLIF-TableOne`, and `github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template`.
 
 ## 1. Storage
@@ -68,18 +85,18 @@ templates as adaptable, but preserve the data-sharing boundary:
    - Set physiologically implausible values to missing using the CLIF-approved handling path.
 
 4. **Analysis** (`code/04_*analysis*`)
-   - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` to `output/final_no_phi/`.
+   - Read the prepared cohort and write only aggregate results with every reported cell `n >= 10` (the CLIF project floor) to `output/final_no_phi/`.
 
 When `ce-plan` runs under CLIF profile, reflect this workflow rather than a generic QC-first three-script split.
 
 ## 7. PHI / data privacy authorization
 
 - Before opening patient-level data or outputs, check the current conversation for the user's prior confirmation that both the data environment and active model endpoint are approved by their organization for PHI/PII. If both were confirmed, proceed with the authorized work and do not ask again or repeat that PHI cannot be read during the current conversation.
-- If that confirmation is absent or ambiguous in interactive mode, ask once: "Are both this data environment and the active model endpoint compliant for PHI/PII?" Use the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, or `ask_user` in Gemini and Pi). In Claude Code, load the deferred tool first with `ToolSearch` and `select:AskUserQuestion` when needed. Offer "Yes, both are compliant" and "No or unsure." If no blocking tool exists or it errors, present those as numbered options in chat and wait. If the answer is no, do not open patient-level content; work from schemas, code, and reviewed aggregates instead.
+- If that confirmation is absent or ambiguous in interactive mode, ask once: "Are both this data environment and the active model endpoint compliant for PHI/PII?" Use the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, or `ask_user` in Gemini and Pi). In Claude Code, load the deferred tool first with `ToolSearch` and `select:AskUserQuestion` when needed. Offer "Yes, both are compliant" and "No or unsure." If no blocking tool exists or it errors, present those as numbered options in chat and wait. If the answer is no, do not open patient-level content; work from schemas, code, and reviewed aggregates instead. Save the answer as `phi_environment: {compliant: true|false, confirmed_on: <date>}` in `.ce-datascience/config.local.yaml` only when that file is gitignored, so later runs reuse it instead of asking again.
 - In agent, autofix, report-only, or headless mode, never ask or wait for PHI authorization. Preserve an exact `PHI authorization: confirmed` marker supplied by the orchestrator; otherwise retain `PHI authorization: not confirmed`, block patient-level access, and complete the task from paths, code, schemas, metadata, and reviewed aggregates.
 - Authorization permits necessary inspection and analysis in the approved environment. Do not reproduce PHI in responses or persist it in Git, logs, screenshots, issues, or unrestricted exports. Report only the minimum necessary non-identifying result.
 - **Never** share, commit, upload, or send patient-level CLIF tables across sites. CLIF is federated: code travels, data does not.
-- Keep patient-level work under the approved restricted data root. Use `output/intermediate_phi/` only when explicitly verified as approved, local, non-synced, and gitignored. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files.
+- Keep patient-level work under the approved restricted data root. Use `output/intermediate_phi/` only when explicitly verified as approved, local, non-synced, and gitignored. Share only reviewed aggregates in `output/final_no_phi/`, with every reported cell `n >= 10` and no raw data files. `n >= 10` is the CLIF project floor; a stricter site or DUA rule always wins.
 - When the user asks to commit or share data, refuse and provide code or instructions for a secure local run instead.
 - Treat clinical notes, imaging, raw names, and free-text fields as PHI-suspect. CLIF 3.0's notes and imaging require the same prohibition with heightened caution.
 
@@ -159,7 +176,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 
 - Observational cohort study on CLIF data → STROBE + RECORD (EHR extension).
 - Prediction model on CLIF data → TRIPOD+AI.
-- Target trial emulation → TARGET (with STROBE underneath).
+- Target trial emulation → TARGET (primary), with STROBE + RECORD as companions.
 - RCT using CLIF for outcome ascertainment → CONSORT.
 
 `ce-checklist-match` should pre-fill the routing answer with these defaults when CLIF profile is active and the user has not specified otherwise.
@@ -174,5 +191,5 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - **clifpy** (official Python client, PyPI: `python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
 - **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
-- CLIF Lighthouse (validation tool): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse
+- CLIF Lighthouse (validation tool, deprecated in favour of CLIF TableOne in v2.1): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse-Deprecated
 - Consortium contact: clif_consortium@uchicago.edu

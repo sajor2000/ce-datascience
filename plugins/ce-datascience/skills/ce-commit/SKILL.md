@@ -1,6 +1,6 @@
 ---
 name: ce-commit
-description: "Create a focused git commit with a value-oriented conventional message while preserving branch and staging safety."
+description: "Create a focused git commit with a value-oriented conventional message while preserving branch and staging safety. Use when the user says commit, save changes, or create a commit for current staged or unstaged work."
 ---
 
 # Git Commit
@@ -15,90 +15,70 @@ description: "Create a focused git commit with a value-oriented conventional mes
 - **Do not do:** Do not stage unrelated files or commit directly to the default branch without following repo policy.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Create a single, well-crafted git commit from the current working tree changes.
+Create well-crafted local commit(s) from the current working tree. No push, no PR: use the `ce-commit-push-pr` skill for the full ship flow.
 
 ## Context
 
-**On platforms other than Claude Code**, skip to the "Context fallback" section below and run the command there to gather context.
+Gather context at runtime. Run each command below as its **own** shell call (program and arguments only). Do not join commands with `;`, `&&`, `||`, pipes, `$(...)`, or redirects such as `2>/dev/null`: that syntax fails under some shells. Read each exit status directly. A non-zero exit is a state to interpret, not a failure to suppress.
 
-**In Claude Code**, the five labeled sections below (Git status, Working tree diff, Current branch, Recent commits, Remote default branch) contain pre-populated data. Use them directly throughout this skill -- do not re-run these commands.
+| Command | Purpose | Non-zero exit / empty output means |
+| --- | --- | --- |
+| `git status` | Working-tree state | Not a git repository: report and stop |
+| `git diff HEAD` | Uncommitted changes | Unborn repo (no commits yet): every file is new; rely on `git status` |
+| `git branch --show-current` | Current branch | Empty output = detached HEAD |
+| `git log --oneline -10` | Recent message style | Unborn repo: no history to match |
+| `git rev-parse --abbrev-ref origin/HEAD` | Remote default branch | No `origin/HEAD` (it may still print `origin/HEAD`; ignore that output): run `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`; if that also fails, use `main` |
 
-**Git status:**
-!`git status`
+**Default branch name:** strip a leading `origin/` (so `origin/trunk` -> `trunk`) and compare the bare name against the current branch. Never compare against `origin/<name>`.
 
-**Working tree diff:**
-!`git diff HEAD`
-
-**Current branch:**
-!`git branch --show-current`
-
-**Recent commits:**
-!`git log --oneline -10`
-
-**Remote default branch:**
-!`git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo '__DEFAULT_BRANCH_UNRESOLVED__'`
-
-### Context fallback
-
-**In Claude Code, skip this section — the data above is already available.**
-
-Run this single command to gather all context:
-
-```bash
-printf '=== STATUS ===\n'; git status; printf '\n=== DIFF ===\n'; git diff HEAD; printf '\n=== BRANCH ===\n'; git branch --show-current; printf '\n=== LOG ===\n'; git log --oneline -10; printf '\n=== DEFAULT_BRANCH ===\n'; git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo '__DEFAULT_BRANCH_UNRESOLVED__'
-```
-
----
+This output is a snapshot. Re-read the branch immediately before committing (Step 6).
 
 ## Workflow
 
-### Step 1: Gather context
+### Step 1: Gather and check for work
 
-Use the context above (git status, working tree diff, current branch, recent commits, remote default branch). All data needed for this step is already available -- do not re-run those commands.
+Run every Context command. If `git status` shows no staged, modified, or untracked files, report that there is nothing to commit and stop. Do not judge cleanliness from `git diff HEAD` alone; it misses untracked files.
 
-The remote default branch value returns something like `origin/main`. Strip the `origin/` prefix to get the branch name. If it returned `__DEFAULT_BRANCH_UNRESOLVED__` or a bare `HEAD`, try:
+### Step 2: Resolve the branch
 
-```bash
-gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
-```
+- **Detached HEAD:** if the branch decision cannot be inferred, ask whether to create a feature branch (Skill Value interaction rule). If yes, derive a name from the change content, run `git checkout -b <branch-name>`, then re-read `git branch --show-current`. If the user declines, continue on detached HEAD.
+- **On `main`, `master`, or the bare default branch name:** create a feature branch without asking; committing on the default branch is not an option here. Derive the name from the change content, run `git checkout -b <branch-name>`, and re-read `git branch --show-current`. If the name exists, pick a non-conflicting suffix.
+- **Unborn repo** (`git log` failed): there is no default-branch history yet. Ask whether the initial commit goes on the current branch or a new one.
 
-If both fail, fall back to `main`.
+### Step 3: Determine the message convention
 
-If the git status from the context above shows a clean working tree (no staged, modified, or untracked files), report that there is nothing to commit and stop.
+1. **Repo conventions already in context:** follow commit conventions from loaded project instructions (AGENTS.md, CLAUDE.md, or similar). Do not re-read those files.
+2. **Recent history:** otherwise match a clear pattern in the last 10 commits (conventional commits, ticket prefixes).
+3. **Default:** conventional commits, `type(scope): description`, with type one of `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `style`, `build`.
 
-If HEAD is detached and the branch decision cannot be inferred, ask the branch question using the Skill Value interaction rule above.
+Choose the type by intent. Where `fix:` and `feat:` both fit, default to `fix:`: remedying broken or missing behavior is `fix:` even when it adds code. Reserve `feat:` for capabilities the user could not previously accomplish. The user may override.
 
-- If the user chooses to create a branch, derive the name from the change content, create it with `git checkout -b <branch-name>`, then run `git branch --show-current` again and use that result as the current branch name for the rest of the workflow.
-- If the user declines, continue with the detached HEAD commit.
+### Step 4: Group into logical commits
 
-### Step 2: Determine commit message convention
+If changed files clearly split into distinct concerns (for example, a cleaning-script fix and an unrelated figure update), make separate commits. Group at the **file level only** (no `git add -p`), 2-3 commits at most. If the split is ambiguous, make one commit.
 
-Follow this priority order:
+### Step 5: Check for data, PHI, and large outputs
 
-1. **Repo conventions already in context** -- If project instructions (AGENTS.md, CLAUDE.md, or similar) are already loaded and specify commit message conventions, follow those. Do not re-read these files; they are loaded at session start.
-2. **Recent commit history** -- If no explicit convention is documented, examine the 10 most recent commits from Step 1. If a clear pattern emerges (e.g., conventional commits, ticket prefixes, emoji prefixes), match that pattern.
-3. **Default: conventional commits** -- If neither source provides a pattern, use conventional commit format: `type(scope): description` where type is one of `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `style`, `build`.
+Before staging, review every file named for a commit. Leave out, and report as left out:
 
-When using conventional commits, choose the type that most precisely describes the change (the type list above). Where `fix:` and `feat:` both seem to fit, default to `fix:`: a change that remedies broken or missing behavior is `fix:` even when implemented by adding code. Reserve `feat:` for capabilities the user could not previously accomplish. Other types remain primary when they fit better. The user may override for a specific change.
+- Patient-level or raw data files (`.csv`, `.tsv`, `.parquet`, `.feather`, `.rds`, `.RData`, `.sas7bdat`, `.dta`, `.sav`, `.xlsx`, and similar) unless they are clearly synthetic fixtures or aggregate outputs the repo already tracks.
+- Anything that may hold PHI or identifiers (MRNs, names, dates of birth, free-text notes), credentials, or `.env` files.
+- Large or regenerable outputs: model objects, caches (`__pycache__/`, `.Rproj.user/`, `.ipynb_checkpoints/`), rendered reports the repo does not track, and files over roughly 50 MB.
 
-### Step 3: Consider logical commits
+Never use `git add -f` on an ignored path. If the user explicitly asks to commit one of these files, confirm it is synthetic or de-identified first.
 
-Before staging everything together, scan the changed files for naturally distinct concerns. If modified files clearly group into separate logical changes (e.g., a refactor in one directory and a new feature in another, or test files for a different change than source files), create separate commits for each group.
+### Step 6: Stage and commit
 
-Keep this lightweight:
-- Group at the **file level only** -- do not use `git add -p` or try to split hunks within a file.
-- If the separation is obvious (different features, unrelated fixes), split. If it's ambiguous, one commit is fine.
-- Two or three logical commits is the sweet spot. Do not over-slice into many tiny commits.
+Re-run `git branch --show-current` immediately before committing. If it differs from the branch resolved in Step 2, or is now the default branch, stop and re-resolve per Step 2.
 
-### Step 4: Stage and commit
+Write the message:
 
-If the current branch from the context above is `main`, `master`, or the resolved default branch from Step 1, automatically create a feature branch before committing. Derive the branch name from the change content, create it with `git checkout -b <branch-name>`, run `git branch --show-current` to confirm, and use the new branch as the current branch for the rest of the workflow. Do not ask whether to branch -- committing on the default branch is not an option here.
+- **Subject:** imperative, names the outcome (what is now possible or fixed), not the file list. Follow the Step 3 convention.
+  - Bad: `Update clean_labs.R` / `Add tests and fix stuff`
+  - Good: `fix(cohort): exclude encounters after the index discharge`
+- **Body:** only when motivation or trade-offs are not obvious from the subject; separate it with a blank line.
 
-Write the commit message:
-- **Subject line**: Concise, imperative mood, focused on *why* not *what*. Follow the convention determined in Step 2.
-- **Body** (when needed): Add a body separated by a blank line for non-trivial changes. Explain motivation, trade-offs, or anything a future reader would need. Omit the body for obvious single-purpose changes.
-
-For each commit group, isolate the named files in a temporary index so the user's real index remains untouched until the commit succeeds. Never use `git add -A` or `git add .`. For each named file, copy its existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Write the complete message to a file outside the repository, then commit the temporary index without pathspecs:
+For each commit group, isolate the named files in a temporary index so the user's real index remains untouched until the commit succeeds. Never use `git add -A` or `git add .`. For each named file, copy its existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Write the complete message to a file outside the repository with the file-write tool, then commit the temporary index without pathspecs:
 
 ```bash
 group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
@@ -119,8 +99,11 @@ GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
 git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
 ```
 
-Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order and stop immediately if any command fails. Run the final restore only after the temporary-index commit succeeds. Using `-F` passes `$`, quotes, backticks, and multi-line bodies literally across shells. The final restore aligns only the committed paths in the real index with the new `HEAD`.
+- Run the commands in order and stop immediately if any command fails. Run the final restore only after the temporary-index commit succeeds; it aligns only the committed paths in the real index with the new `HEAD`.
+- Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow.
+- In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
+- `-F` passes `$`, quotes, backticks, and multi-line bodies literally under any shell.
 
-### Step 5: Confirm
+### Step 7: Confirm
 
-Run `git status` after the commit to verify success. Report the commit hash(es) and subject line(s).
+Run `git status` to verify. Report the commit hash(es), subject line(s), and any files left out in Step 5.

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Generate Table 1 baseline characteristics stratified by treatment arm from analysis/sap-tables/03-variables.csv",
+    "should_trigger": true
+  },
+  {
+    "query": "make a JAMA-style demographic table for the cohort -- No. (%) for categoricals, median (IQR) for skewed continuous",
+    "should_trigger": true
+  },
+  {
+    "query": "need the baseline characteristics table for the manuscript, exposure vs unexposed, with the validation report",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a publication-ready descriptive cohort table from our SAP and variables catalog using the jama style profile",
+    "should_trigger": true
+  },
+  {
+    "query": "table one for the sepsis paper pls, stratify by septic shock yes/no, catalog is in analysis/sap-tables",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you build the Table 1 shell (csv + markdown) so the analyst can fill and verify it, and flag any missing strata?",
+    "should_trigger": true
+  },
+  {
+    "query": "Our reviewer wants the baseline table regenerated with small-cell suppression applied to every stratum -- redo Table 1",
+    "should_trigger": true
+  },
+  {
+    "query": "Produce table1-spec.json and table1.md for the review pack from the declared baseline variables",
+    "should_trigger": true
+  },
+  {
+    "query": "For the NEJM-style manuscript we need a characteristics-of-participants table by site; variables are declared in 03-variables.csv",
+    "should_trigger": true
+  },
+  {
+    "query": "build Table 1 with gtsummary in a new Quarto doc for the delirium study, stratified by sedation strategy",
+    "should_trigger": true
+  },
+  {
+    "query": "Generate the tabular SAP workbook (Overview, Outputs, Master Variables) from analysis/sap.md",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a JAMA-style forest plot of subgroup hazard ratios for Figure 3",
+    "should_trigger": false
+  },
+  {
+    "query": "Profile the columns and missingness in the new extract before we write the SAP",
+    "should_trigger": false
+  },
+  {
+    "query": "Build the PI review pack including Table 1 readiness and the signoff ledger",
+    "should_trigger": false
+  },
+  {
+    "query": "Assemble the full manuscript submission package with tables, figures, and STROBE checklist",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft the Results paragraph describing baseline characteristics from Table 1",
+    "should_trigger": false
+  },
+  {
+    "query": "Define the cohort waterfall counts and inclusion/exclusion SQL for the ARDS study",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a quick verification check on sample size and PHI in output/ after the Table 2 models",
+    "should_trigger": false
+  },
+  {
+    "query": "Fit the multivariable logistic regression and make the odds ratio table (Table 2)",
+    "should_trigger": false
+  },
+  {
+    "query": "Reformat this messy Excel spreadsheet of baseline labs into a clean xlsx with formulas",
+    "should_trigger": false
+  }
+]

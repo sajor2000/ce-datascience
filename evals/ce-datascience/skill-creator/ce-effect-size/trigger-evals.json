@@ -1,0 +1,22 @@
+[
+  {"query": "Pool the hazard ratios in analysis/pubmed/hf-sglt2-methods.csv with random-effects REML so I have an anchored HR and prediction interval for the power calc.", "should_trigger": true},
+  {"query": "I keep picking the most optimistic OR from the lit for my sample size. Can you take the extracted methods table and give me a defensible pooled estimate with I^2?", "should_trigger": true},
+  {"query": "ce-method-extract just finished (__CE_METHOD_EXTRACT__ csv=analysis/pubmed/aki-methods.csv n=11). next step: combine the effect estimates for the SAP effect-size assumption", "should_trigger": true},
+  {"query": "need a forest plot + pooled SMD (hedges g) from the 8 pilot/feasibility studies in analysis/pubmed/cbt-insomnia-methods.csv to justify the detectable difference in my R21", "should_trigger": true},
+  {"query": "what effect size do i assume for the sepsis bundle trial? i have a methods csv from pubmed with HRs and CIs, want something traceable not a guess", "should_trigger": true},
+  {"query": "Literature-derived mean difference for 6MWT after pulmonary rehab: pool the MDs in analysis/pubmed/rehab-6mwt-methods.csv on the raw scale and write up the uncertainty for the SAP.", "should_trigger": true},
+  {"query": "Only 2 usable RRs from the extraction for my outcome - can you summarize them as an effect-size anchor for the grant power section anyway?", "should_trigger": true},
+  {"query": "Filter the extracted studies to RCTs from the last 10 years with n>=50, pool the ORs, and hand the result to the power skill.", "should_trigger": true},
+  {"query": "The reported effects in my methods table are a mix of ORs and HRs. Subset to the dominant metric, pool those, and describe the rest narratively.", "should_trigger": true},
+  {"query": "For the SAP sensitivity analysis I want the 95% prediction interval bounds from prior studies to sweep the assumed HR. methods file: analysis/pubmed/ckd-methods.csv", "should_trigger": true},
+  {"query": "Compute the sample size for a two-arm trial to detect HR 0.78 with 80% power, alpha 0.05, and 2 years of accrual.", "should_trigger": false},
+  {"query": "Extract cohort definitions, endpoints, models, and reported effect sizes from the 20 PubMed results in analysis/pubmed/sepsis-results.csv into a methods table.", "should_trigger": false},
+  {"query": "We're doing a full systematic review and meta-analysis with risk-of-bias scoring and a PRISMA flow diagram for statins and delirium. Set up the reporting framework.", "should_trigger": false},
+  {"query": "Build a network meta-analysis comparing five anticoagulants for VTE prophylaxis using netmeta.", "should_trigger": false},
+  {"query": "Search PubMed for RCTs of early mobilization in ICU patients from 2015 onward with MeSH expansion and give me the PMIDs and abstracts.", "should_trigger": false},
+  {"query": "Map the evidence for using SOFA-based adjustment in sepsis cohort studies - which claims are supported by full text vs abstract only?", "should_trigger": false},
+  {"query": "Our fitted Cox model gives HR 0.84 for the exposure. Help me compute and report the E-value and confidence interval in the Results section.", "should_trigger": false},
+  {"query": "Compare two-arm group-sequential designs across efficacy boundaries and information fractions using rpact for our assumed HR of 0.75.", "should_trigger": false},
+  {"query": "Choose the right model for the primary analysis - repeated measures of 6MWT at 3 visits, clustered by site.", "should_trigger": false},
+  {"query": "Add citations with Zotero fields for the eight studies we pooled into the Introduction of manuscript/draft.docx.", "should_trigger": false}
+]

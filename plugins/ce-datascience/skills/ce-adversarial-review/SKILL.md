@@ -1,6 +1,6 @@
 ---
 name: ce-adversarial-review
-description: "Independently stress-test a code diff or implementation plan with a local adversarial pass and, when available, the other authenticated coding harness. Use for high-consequence changes, pre-merge review, or plan challenge."
+description: "Independently stress-test a code diff or implementation plan with a local adversarial pass and, when available, the other authenticated coding harness. Use when a change is high-consequence, a diff needs pre-merge challenge, or a plan needs an independent review."
 argument-hint: "[target:auto|code|plan] [peer:auto|claude|codex|local] [depth:quick|auto|deep] [diff base, PR URL, or plan path]"
 ---
 
@@ -11,7 +11,7 @@ argument-hint: "[target:auto|code|plan] [peer:auto|claude|codex|local] [depth:qu
 - **Problem it solves:** A single harness can share the same blind spots as the author; an independent peer review challenges failure modes and load-bearing assumptions.
 - **Use when:** The user asks for adversarial code review, adversarial plan review, an independent Claude/Codex review, or a high-consequence pre-merge challenge.
 - **Output:** A read-only synthesis with local and peer coverage, evidence-backed findings, disagreements, residual risks, and verification gaps.
-- **Ask only if:** Target selection is ambiguous or the active harness cannot be inferred for `peer:auto`.
+- **Ask only if:** Target selection is ambiguous, the active harness cannot be inferred for `peer:auto`, or a named peer is unavailable (retry later or continue local-only).
 - **Do not do:** Do not edit the target, install MCP servers, expose credentials, or report a peer review that did not run.
 
 Run this workflow read-only. Read `references/peer-review-contract.md` before dispatching a peer harness.

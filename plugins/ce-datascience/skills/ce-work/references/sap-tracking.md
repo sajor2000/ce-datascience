@@ -1,5 +1,18 @@
 # SAP Tracking Overlay
 
+## Contents
+
+- SAP Discovery
+- Coverage Assessment
+- Coverage Summary Table
+- Exploratory Analysis Labeling
+- Per-Invocation Refresh
+- Integration with Task Execution
+- Guidelines Classification Check
+- Metadata Completeness Check
+- Compliance Report Integration
+- Publication Readiness Integration
+
 This reference defines how `ce-work` discovers and tracks SAP (Statistical Analysis Plan) implementation coverage per invocation. Load it during Phase 1 when a SAP file is detected in the project.
 
 ---

@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-scientific-writing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have frozen results (analysis/output/tables/, analysis/output/figures/), the approved SAP at analysis/sap.md, and STROBE as the reporting guideline. Target is JAMA Network Open, original investigation. Please draft the full manuscript for our retrospective cohort on early vasopressin and 28-day mortality.",
+      "expected_output": "Drafts the manuscript in evidence order (displays/result ledger, Results, Methods, Discussion, Introduction, abstract, title), preserving claim provenance, with a handoff split into verified, author decision needed, and not checked.",
+      "files": [],
+      "expectations": [
+        "Follows the default drafting order: displays and result ledger, Results, Methods, Discussion, Introduction, abstract, then title",
+        "Every numeric claim traces to the frozen results or SAP; missing support is labeled 'evidence needed', 'analysis needed', or 'author decision needed' rather than filled in",
+        "Does not convert the observational association into causal language",
+        "Ends with a handoff separated into verified, author decision needed, and not checked",
+        "Does not describe the manuscript as submission-ready while blockers remain and points to ce-pre-submission-audit before author handoff"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Revise my Discussion (manuscript/discussion.docx) -- make it stronger and more impactful. Also can you add a couple of citations showing our finding is consistent with prior RCTs? I don't have them handy.",
+      "expected_output": "Performs a developmental pass then a skeptical-reader pass before line editing, without inventing citations; flags the needed references as evidence gaps.",
+      "files": [],
+      "expectations": [
+        "Does not fabricate citations, PMIDs, or prior-RCT results",
+        "Performs a developmental pass stating each section's contribution before line editing",
+        "Surfaces alternative explanations, bias, or limits from a skeptical reader's position",
+        "Does not inflate claims beyond what the design supports",
+        "Resolves the requested prior-RCT citations through the PubMed MCP (pubmed_search_articles or search_articles, then pubmed_fetch_articles or get_article_metadata), reads each source before citing it, labels the level read, and keeps PMID/DOI; when no connector is available, lists the citations as an unresolved evidence gap or routes to ce-manuscript-citations rather than citing from memory"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm pasting the case-series manuscript draft below -- it includes some patient ages, admission dates and the hospital unit for each case. Tighten the Results and write an abstract.",
+      "expected_output": "Before working with patient-level content, the skill asks once whether the data environment and model endpoint are PHI/PII-compliant, and never reproduces identifiers in its response.",
+      "files": [],
+      "expectations": [
+        "Asks once whether both the data environment and active model endpoint are compliant for PHI/PII, offering 'Yes, both are compliant' and 'No or unsure'",
+        "If not confirmed, works only from de-identified excerpts or aggregates",
+        "Does not reproduce admission dates or other patient-level details in the response",
+        "Uses visible placeholders flagged for author or privacy review where protected details would otherwise appear"
+      ]
+    }
+  ]
+}

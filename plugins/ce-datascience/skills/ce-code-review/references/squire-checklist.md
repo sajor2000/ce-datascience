@@ -1,11 +1,20 @@
 # SQUIRE 2.0 Checklist for Quality Improvement Studies
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other Information
+
 Standards for QUality Improvement Reporting Excellence (SQUIRE 2.0).
 18-item checklist for reporting quality improvement work in healthcare.
 
-**Primary reference:** Ogrinc G, Davies L, Goodman D, Batalden P, Davidoff F, Stevens D. SQUIRE 2.0 (Standards for QUality Improvement Reporting Excellence): revised publication guidelines from a detailed consensus process. BMJ Qual Saf. 2016;25(12):986-992. doi:10.1136/bmjqs-2015-004411. PMID: 25505110.
+**Primary reference:** Ogrinc G, Davies L, Goodman D, Batalden P, Davidoff F, Stevens D. SQUIRE 2.0 (Standards for QUality Improvement Reporting Excellence): revised publication guidelines from a detailed consensus process. BMJ Qual Saf. 2016;25(12):986-992. doi:10.1136/bmjqs-2015-004411. PMID: 26369893. PMCID: PMC5256233.
 
-**Explanation and elaboration:** Goodman D, Ogrinc G, Davies L, Baker GR, Barnsteiner J, Foster TC, et al. Explanation and elaboration of the SQUIRE (Standards for Quality Improvement Reporting Excellence) Guidelines, V.2.0: examples of SQUIRE elements in the healthcare improvement literature. BMJ Qual Saf. 2016;25(12):e7. doi:10.1136/bmjqs-2015-004480. PMID: 26385936.
+**Explanation and elaboration:** Goodman D, Ogrinc G, Davies L, Baker GR, Barnsteiner J, Foster TC, et al. Explanation and elaboration of the SQUIRE (Standards for Quality Improvement Reporting Excellence) Guidelines, V.2.0: examples of SQUIRE elements in the healthcare improvement literature. BMJ Qual Saf. 2016;25(12):e7. doi:10.1136/bmjqs-2015-004480. PMID: 27076505. PMCID: PMC5256235.
 
 Apply when reporting studies that describe healthcare quality, safety, or value improvement interventions in local or organizational contexts. SQUIRE 2.0 acknowledges that QI work is complex, context-dependent, and iterative. Items should be addressed as fully as their relevance allows; not all items apply to every study.
 

@@ -6,12 +6,8 @@ const repoRoot = resolve(import.meta.dir, "..")
 const skill = async (name: string) => readFile(resolve(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"), "utf8")
 
 test("curated upstream skills keep CE authority and evidence boundaries", async () => {
-  const [handoff, babysit, retune] = await Promise.all([skill("ce-handoff"), skill("ce-babysit-pr"), skill("ce-retune")])
+  const handoff = await skill("ce-handoff")
   expect(handoff).toContain("never includes credentials, raw patient data, or private model transcripts")
-  expect(babysit).toContain("never merges, approves checks, force-pushes, rebases")
-  expect(babysit).toContain("defaulting to 30 minutes and never exceeding 60 minutes")
-  expect(retune).toContain("requires a benchmark harness")
-  expect(retune).toContain("versioned behavioral cases and fresh-context scoring")
 })
 
 test("doc review keeps the canonical non-interactive compatibility contract and readable-path gate", async () => {
@@ -22,7 +18,7 @@ test("doc review keeps the canonical non-interactive compatibility contract and 
 })
 
 test("new skill directories are self-contained portable units", async () => {
-  await Promise.all(["ce-handoff", "ce-babysit-pr", "ce-retune", "ce-clif-project-template"].map((name) => access(resolve(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))))
+  await Promise.all(["ce-handoff", "ce-clif-project-template"].map((name) => access(resolve(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))))
 })
 
 test("CLIF project-template support preserves version and PHI safeguards", async () => {

@@ -47,7 +47,22 @@ then run setup.
 
 ### Claude Code
 
-macOS, Linux, WSL, or Git Bash:
+No checkout needed (Claude Code 2.1.275 or later): install straight from the
+GitHub marketplace, then start Claude Code.
+
+```bash
+claude plugin install ce-datascience --marketplace sajor2000/ce-datascience
+claude
+```
+
+The same one-step install works inside a running Claude Code session:
+
+```text
+/plugin install ce-datascience --marketplace sajor2000/ce-datascience
+```
+
+From a source checkout (also adds the optional bare `/ce-*` aliases), on macOS,
+Linux, WSL, or Git Bash:
 
 ```bash
 git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
@@ -121,7 +136,7 @@ is recommended for the compact setup confirmation.
 |---|---|---|
 | Claude Code | Registers this checkout as a local marketplace, installs `ce-datascience`, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
 | Codex | Registers the local marketplace and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
-| Pi | Writes generated CE skills, agents, and prompts under the selected Pi home | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
+| Pi | Writes generated CE skills and agents under the selected Pi home, plus a managed block in that root's `AGENTS.md` | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
 
 The installer does not configure every research project globally. The
 `ce-setup` skill creates project-local configuration after the plugin is loaded.
@@ -307,9 +322,15 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills
 ```
 
-Standalone mode writes generated skills, agents, and managed Codex hooks. Managed
-hooks preserve manual hooks and hooks from other plugins. Optional MCP
-integrations remain user-configured.
+Standalone mode writes generated skills and agents. Managed `.codex/hooks.json`
+entries are written only for plugins that declare hooks (CE DataScience
+currently declares none); when present they preserve manual hooks and hooks
+from other plugins. Optional MCP integrations remain user-configured.
+
+Both Codex modes also write a managed `CE DATASCIENCE CODEX TOOL MAP` block to
+`$CODEX_HOME/AGENTS.md`. The `ce-setup` health check reports only the retired
+`COMPOUND CODEX TOOL MAP` block from older installs; re-running the installer
+for the same `CODEX_HOME` replaces it.
 
 ### OpenCode
 
@@ -320,10 +341,11 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to opencode --output /path/to/workspace
 ```
 
-This writes `opencode.json` plus `.opencode/agents`, `.opencode/skills`, and
-`.opencode/plugins` under the workspace. If the output directory itself is named
-`opencode` or `.opencode`, the writer treats it as a global OpenCode config root
-and writes a flat layout instead.
+This writes `opencode.json` plus `.opencode/agents` and `.opencode/skills` under
+the workspace (`.opencode/plugins` appears only when the plugin declares hooks;
+CE DataScience currently declares none). If the output directory itself is
+named `opencode` or `.opencode`, the writer treats it as a global OpenCode
+config root and writes a flat layout instead.
 
 ### Gemini CLI
 
@@ -332,7 +354,8 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path/to/gemini-workspace
 ```
 
-This writes `.gemini/skills`, `.gemini/agents`, and `.gemini/settings.json`.
+This writes `.gemini/skills` and `.gemini/agents`. `.gemini/settings.json` is
+merged only when the plugin declares MCP servers; CE DataScience declares none.
 
 ### Kiro
 
@@ -341,7 +364,9 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/ce-datascience --to kiro --output /path/to/kiro-workspace
 ```
 
-This writes `.kiro/skills`, `.kiro/agents`, steering files, and MCP settings.
+This writes `.kiro/skills`, `.kiro/agents`, and a `.kiro/steering` file. MCP
+settings are written only when the plugin declares MCP servers; CE DataScience
+declares none.
 
 ### Pi
 
@@ -367,6 +392,14 @@ qwen extensions install sajor2000/ce-datascience:ce-datascience
 
 Qwen is not a generated `--to qwen` target. `--to all` only writes generated
 targets that are detected on the machine.
+
+### Cursor, Copilot, and Droid
+
+These tools load plugins through their own marketplace or plugin install flows
+and are not generated converter targets; `--to cursor`, `--to copilot`, and
+`--to droid` exit with a message that says so. The repo ships a Cursor
+marketplace manifest (`.cursor-plugin/marketplace.json`) for Cursor's native
+plugin install.
 
 ## 7. First Run In A Project
 
@@ -480,7 +513,7 @@ given the scientific question, analysis goal, or code task they need.
 
 For Microsoft Fabric, start with `/ce-fabric`; it routes Lakehouse/Warehouse
 coding, Data Factory pipelines, semantic models, ML, and Eventhouse/KQL work to
-the matching CE skill. The router keeps the standard data-QA and fail-loud
+the matching workflow reference inside the same skill. The router keeps the standard data-QA and fail-loud
 boundaries in place and does not create cloud resources or guess workspace
 identities.
 
@@ -489,8 +522,9 @@ text-native Marimo `.py` notebooks, preserves reactive cell dependencies, and
 requires a `marimo check` validation pass when the project runner is
 available.
 
-For R-first projects, start with `/ce-rstats`. It routes to R review,
-tidyverse, event-study, package, CRAN, performance, and `targets` workflows
+For R-first projects, start with `/ce-rstats`. It holds the R review,
+tidyverse, event-study, package, CRAN, performance, and `targets` workflows as
+reference files
 while preserving the same estimand, data-QA, and reproducibility expectations
 as Python projects.
 
@@ -655,5 +689,6 @@ The build writes:
 | Local install says it cannot find `plugins/ce-datascience` remotely | Use `./plugins/ce-datascience` from the repo root, including the leading `./`. |
 | Codex installed into the wrong profile | Set `CODEX_HOME` and pass the same value to `--codex-home`. |
 | Codex has duplicate or stale CE files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |
+| `ce-setup` reports a legacy Compound Codex tool map | Rerun `install --to codex --codex-home "$CODEX_HOME"`; it replaces the retired `COMPOUND CODEX TOOL MAP` block with the current CE block. Or remove the block after reviewing it, as the skill offers. |
 | OpenCode did not create `.opencode/` | Do not use an output directory named `opencode` or `.opencode` when you want workspace nesting. Use a normal workspace path. |
 | MCP writes reports into the plugin cache | Set `CE_DATASCIENCE_PROJECT_ROOT=/absolute/path/to/project` or pass `project_root` where the MCP tool supports it. |

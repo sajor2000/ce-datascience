@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # clean-gone: List local branches whose remote tracking branch is gone.
-# Outputs one branch name per line, or nothing if none found.
+# Outputs one branch name per line, or __NONE__ if none found.
 
 set -euo pipefail
 

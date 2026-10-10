@@ -1,0 +1,22 @@
+[
+  {"query": "We restructured R/ last month. Audit docs/solutions for learnings that reference files or functions that no longer exist and fix or retire them.", "should_trigger": true},
+  {"query": "refresh the data-quality-issues learnings, I think a couple of them contradict each other now", "should_trigger": true},
+  {"query": "Our docs/solutions folder has three different docs about renv on the cluster. Consolidate them into one canonical doc.", "should_trigger": true},
+  {"query": "mode:autofix sweep all of docs/solutions and give me the applied/recommended report", "should_trigger": true},
+  {"query": "The pattern doc docs/solutions/patterns/iptw-truncation.md may be outdated now that we switched to overlap weights. Check it against its supporting learnings and update or replace it.", "should_trigger": true},
+  {"query": "Stale-doc sweep please: which solution notes are misleading given the current code, and which should be kept, updated, consolidated, replaced, or deleted?", "should_trigger": true},
+  {"query": "After the polars migration, a bunch of learnings still show pandas snippets. Refresh the reproducibility-patterns docs so code examples match the current implementation.", "should_trigger": true},
+  {"query": "ce-compound-refresh sofa-score-calculation", "should_trigger": true},
+  {"query": "Clean up stale learnings in our knowledge store — some reference the old cohort_builder module — and commit the changes on a branch.", "should_trigger": true},
+  {"query": "audit docs/solutions for drift vs the codebase; mark anything uncertain as stale rather than deleting it", "should_trigger": true},
+  {"query": "We just fixed the SOFA unit bug. Document the fix as a new learning in docs/solutions.", "should_trigger": false},
+  {"query": "Review docs/plans/sap-v3.md for clarity and completeness before I circulate it.", "should_trigger": false},
+  {"query": "Delete local git branches whose remotes are gone.", "should_trigger": false},
+  {"query": "Update plugins README tables to reflect the current skill inventory and counts.", "should_trigger": false},
+  {"query": "Search our past sessions for what we decided about overlap weights.", "should_trigger": false},
+  {"query": "Our SAP drifted from the code; detect where the implementation diverges from analysis/sap.md.", "should_trigger": false},
+  {"query": "Check whether the brainstorm doc for the frailty study is still current and resume refining it.", "should_trigger": false},
+  {"query": "Review this diff that edits several docs/solutions files and the R code they describe.", "should_trigger": false},
+  {"query": "Summarize what changed in recent ce-datascience plugin releases.", "should_trigger": false},
+  {"query": "Write a handoff record capturing the current state of the docs cleanup for the next session.", "should_trigger": false}
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Our SAP from ce-plan needs claim-level linkage among datasets, variables, estimands, diagnostics and outputs for the multisite registry analysis",
+    "should_trigger": true
+  },
+  {
+    "query": "deepen the SAP for the target trial emulation: estimand, time zero, treatment strategies, decision log with citations for the IPW approach",
+    "should_trigger": true
+  },
+  {
+    "query": "Build a decision-evidence log for every threshold, recode and exclusion in our validation study SAP -- nothing should live only in prose",
+    "should_trigger": true
+  },
+  {
+    "query": "For the hospital benchmarking SAP, map every claim to its dataset grain and denominator before we pick hierarchical models",
+    "should_trigger": true
+  },
+  {
+    "query": "Review our draft SAP for unresolved claim/dataset/schema decisions and separate integrity blockers from methods questions",
+    "should_trigger": true
+  },
+  {
+    "query": "The prediction model SAP is too vague ('appropriate tests were used'). Turn it into a claims-based analysis contract with diagnostics per analysis",
+    "should_trigger": true
+  },
+  {
+    "query": "add estimands and SA-<name> sensitivity rows to the existing SAP in docs/plans/ for the competing-risks readmission study",
+    "should_trigger": true
+  },
+  {
+    "query": "We need a schema-first SAP extension for a complex EHR causal study -- Study, Dataset, Claim, Variable, Analysis, Diagnostic, Output, Decision_Evidence",
+    "should_trigger": true
+  },
+  {
+    "query": "Is our SAP's choice of Fine-Gray justified? Add Decision_Evidence entries with 1-3 method citations and check the unit of analysis",
+    "should_trigger": true
+  },
+  {
+    "query": "multisite validation study: deepen the canonical SAP with used_by variable matrix and missing-data strategy per analysis",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a SAP for our retrospective cohort -- we're just starting and need the canonical plan document",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate the Overview/Outputs/Master Variables workbook from analysis/sap.md for the programmers",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose the regression family and scaffold R code for clustered longitudinal outcomes",
+    "should_trigger": false
+  },
+  {
+    "query": "Calculate sample size for detecting HR 0.75 with 80% power in a two-arm trial",
+    "should_trigger": false
+  },
+  {
+    "query": "Plan the implementation units for adding a new converter target",
+    "should_trigger": false
+  },
+  {
+    "query": "Review analysis/sap.md for clarity and readability before the committee meeting",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft the Methods section of the manuscript from the approved SAP",
+    "should_trigger": false
+  },
+  {
+    "query": "Select the reporting guideline for our diagnostic accuracy study",
+    "should_trigger": false
+  },
+  {
+    "query": "Compare two-arm group-sequential designs across spending rules with rpact",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the GO/NO-GO data quality gate on the new extract before modeling",
+    "should_trigger": false
+  }
+]

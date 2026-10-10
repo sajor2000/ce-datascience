@@ -1,5 +1,13 @@
 # CONSORT Extension for Cluster Randomized Trials
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+
 Consolidated Standards of Reporting Trials (CONSORT) extension for cluster randomized trials (CRTs).
 Supplements the current CONSORT core with items specific to trials in which intact groups rather than individuals are randomized.
 

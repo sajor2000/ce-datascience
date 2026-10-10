@@ -1,5 +1,13 @@
 # CONSORT Extension for N-of-1 Trials
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+
 Consolidated Standards of Reporting Trials (CONSORT) extension for N-of-1 trials.
 Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series.
 

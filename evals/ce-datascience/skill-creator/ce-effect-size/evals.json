@@ -1,0 +1,43 @@
+{
+  "skill_name": "ce-effect-size",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have analysis/pubmed/sepsis-bundle-methods.csv from method extraction - 14 studies with pmid, year, sample_size, effect_size_reported (mostly hazard ratios like 'HR 0.81 (0.70-0.94)', a few ORs). I need a defensible HR for 90-day mortality to plug into the power calc. --metric hr",
+      "expected_output": "Parses and filters to HR studies with n>=50, pools on the log scale with random-effects REML when at least 3 remain, writes the pooled summary, included-studies CSV, and forest plot, and emits the __CE_EFFECT_SIZE__ envelope for ce-power.",
+      "files": [],
+      "expectations": [
+        "Reports how many rows failed parsing and how many studies were dropped by the metric and sample_size>=50 filters versus the input N",
+        "Saves the parsing step in the project (analysis/effect-size/sepsis-bundle-parse.R or .py plus sepsis-bundle-parsed.csv, with aHR normalised to HR) and runs the bundled pool_effects.R on the parsed CSV, not on the raw methods table",
+        "Pools HRs on the log scale with random-effects REML and reports pooled estimate, 95% CI, 95% prediction interval, I^2, and tau^2",
+        "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-pooled-forest.png",
+        "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, pi (the 95% prediction interval bounds, or pi=NA if not computable), i2, and mode=reml",
+        "Does not compute power itself; it hands off to ce-power with a sensitivity range across the prediction interval"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "only found two RCTs on early mobilization and ICU-acquired weakness, both report risk ratios. methods table is analysis/pubmed/icuaw-mobilization-methods.csv. can you pool them so I have one number for the grant?",
+      "expected_output": "Declines to pool because fewer than 3 studies remain, reports a narrative range, highlights the anchor study, caveats fragility, and emits the narrative-mode envelope with null point.",
+      "files": [],
+      "expectations": [
+        "Does not run a pooled meta-analysis with N<3 studies",
+        "Reports a narrative range (min, median, max) and names the highest-quality study as the anchor",
+        "Warns that a one- or two-study power calculation is fragile and recommends a sensitivity sweep",
+        "Emits __CE_EFFECT_SIZE__ with point=null ci=null pi=NA i2=null mode=narrative"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What effect size should I assume for the SAP power section on statins and post-op delirium? Just give me a pooled OR.",
+      "expected_output": "Finds no methods CSV path and no __CE_METHOD_EXTRACT__ signal, so it stops and asks the user to run ce-method-extract first or pass a CSV path instead of inventing an estimate.",
+      "files": [],
+      "expectations": [
+        "Checks for an explicit CSV argument and a __CE_METHOD_EXTRACT__ signal in recent chat before proceeding",
+        "Asks the user to load ce-method-extract first or provide a methods CSV path",
+        "Does not fabricate a pooled OR or cite effect estimates from memory",
+        "Does not write files under analysis/effect-size/ without an input table"
+      ]
+    }
+  ]
+}

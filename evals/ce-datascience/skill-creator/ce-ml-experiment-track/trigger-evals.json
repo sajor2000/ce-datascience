@@ -1,0 +1,22 @@
+[
+  {"query": "Set up mlflow for our AKI prediction project so every run logs the train/test data hash, git SHA, seed, AUC, Brier and calibration slope - we need this before the manuscript runs.", "should_trigger": true},
+  {"query": "we're moving from exploratory notebooks to manuscript-bound runs for the sepsis model. what should every run log and where? we use wandb", "should_trigger": true},
+  {"query": "The leakage reviewer said our eval isn't reproducible because splits and seeds aren't recorded. Wire up run tracking with a required-field schema.", "should_trigger": true},
+  {"query": "Add dvc-based experiment tracking that versions the model artifacts with the data for our ICU mortality XGBoost project.", "should_trigger": true},
+  {"query": "We're on an air-gapped PHI server - how do I track ML experiments without mlflow or wandb? Need something committed to git.", "should_trigger": true},
+  {"query": "Create analysis/ml/run-schema.yaml with the minimum params/metrics/artifacts every prediction model run must log, plus tracking boilerplate in R.", "should_trigger": true},
+  {"query": "Link our final reported model run to the SAP so reviewers can find the exact run-id behind the AUROC in Table 3.", "should_trigger": true},
+  {"query": "new ML project for delirium risk just finished cohort build - set up tracking from day 1 so we can reproduce whichever model ends up in the paper", "should_trigger": true},
+  {"query": "Design the experiment tracking for our external validation runs across 4 sites: per-site AUC, calibration intercept/slope, n_train/n_test, and a YAML mirror in case the server dies.", "should_trigger": true},
+  {"query": "Review our ML repo's tracking setup - runs aren't logging subgroup AUC or decision-curve net benefit, and there's no local fallback.", "should_trigger": true},
+  {"query": "Write the model card for models/aki-xgb-v3.pkl from reports/eval-2026-09.json with subgroup fairness metrics.", "should_trigger": false},
+  {"query": "Run a metric-driven optimization loop on our sepsis model's features, using cross-validated AUROC as the target with a 4-iteration cap.", "should_trigger": false},
+  {"query": "Register our trained model in Microsoft Fabric's MLflow model registry and set up batch scoring on the lakehouse table.", "should_trigger": false},
+  {"query": "Choose between penalized logistic regression and gradient boosting for the readmission prediction model and justify it against TRIPOD guidance.", "should_trigger": false},
+  {"query": "Calculate the minimum sample size for developing our prediction model with 12 candidate predictors using pmsampsize.", "should_trigger": false},
+  {"query": "Review analysis/train.py for data leakage - I think the scaler is fit before the train/test split.", "should_trigger": false},
+  {"query": "Implement the training script in plan unit U3: fit the LightGBM model with grouped CV and save eval-results.json.", "should_trigger": false},
+  {"query": "Write the implementation plan for the sepsis early-warning model project: units, files, tests, dependencies.", "should_trigger": false},
+  {"query": "Run a quick mid-workflow verification of our model eval: sample sizes, leakage, effect direction, PHI in outputs.", "should_trigger": false},
+  {"query": "Set up a targets pipeline in R that fits the tidymodels workflow and renders the validation report.", "should_trigger": false}
+]

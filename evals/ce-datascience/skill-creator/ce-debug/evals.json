@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-debug",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "tests/test_cohort.py::test_index_date_assignment started failing after I merged the timezone refactor yesterday. It says AssertionError: expected 1842 rows, got 1796. The cohort builder is in src/cohort/build.py and uses pandas with admit_dttm as the index event. Can you figure out what's going on and fix it?",
+      "expected_output": "Builds a red-capable reproduction from the failing test, traces where the 46 rows are lost back to the originating change, explains the full causal chain with file:line references, and only then offers to fix with a failing test first.",
+      "files": [],
+      "expectations": [
+        "Runs the failing test (or a narrower equivalent) and records the reproduction command and observed result before proposing a root cause",
+        "Forms ranked hypotheses and presents a causal chain from trigger to symptom with file:line references before editing code",
+        "Offers the next-step choice (Fix it now / Diagnosis only) rather than silently patching, unless the user has already asked for the fix in a way that satisfies the gate",
+        "If fixing, writes or reuses a failing regression test before the code change and reruns it to green",
+        "Produces a Debug Summary containing Problem, Reproduction Loop, Root Cause, Recommended Tests, Fix, Prevention, and Confidence"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our targets pipeline went from 4 minutes to 40 after someone switched the merge step in R/merge_labs.R from data.table to dplyr. Why is it so slow now?",
+      "expected_output": "Treats this as a performance symptom: establishes a numeric timing baseline, attributes the bottleneck with profiling evidence before optimizing, and verifies any fix by repeating the same measurement.",
+      "files": [],
+      "expectations": [
+        "Establishes a numeric baseline with a timing harness or profiler (e.g., bench, profvis, system.time) before proposing an optimization",
+        "Attributes the slowdown to a specific operation with evidence rather than guessing",
+        "Uses git history (log or bisect) on the affected file to locate the regression-introducing change",
+        "Verifies any proposed fix by re-running the same measurement and reporting before/after numbers"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The nightly job that pulls from the hospital warehouse fails with 'ORA-01017: invalid username/password' but only on the shared server, works fine on my laptop. I can't give you the prod credentials or access to that box. Just tell me what the fix is.",
+      "expected_output": "Cannot build a reproduction loop in this environment, so states the attempts and missing condition, asks for a sanitized captured artifact or environment access, and labels any diagnosis as unverified rather than presenting a confirmed root cause.",
+      "files": [],
+      "expectations": [
+        "States that a symptom-specific reproduction loop cannot be built here and names the missing condition (server environment and credentials)",
+        "Asks for a captured artifact, sanitized logs, or environment-difference evidence rather than guess-fixing",
+        "Any diagnosis offered is explicitly labeled unverified / best-available hypothesis, not a confirmed root cause",
+        "Does not ask the user to paste credentials and redacts any secret-like values as <REDACTED> in output"
+      ]
+    }
+  ]
+}

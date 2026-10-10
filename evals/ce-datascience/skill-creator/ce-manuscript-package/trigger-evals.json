@@ -1,0 +1,22 @@
+[
+  {"query": "Assemble the submission package for our retrospective AKI cohort paper going to JASN: SAP, Table 1, figures, STROBE+RECORD checklists, and a readiness report of anything missing.", "should_trigger": true},
+  {"query": "can u bundle up all the manuscript stuff (tables, figs, supplement, checklist) into the manuscript/ folder w a manifest? quarto project, target is JAMA Netw Open", "should_trigger": true},
+  {"query": "Before I hand off to the PI, I need a final report handoff that lists every artifact going into the paper - SAP version, Table 1 validation, figure manifest, preregistration link, model card - and flags what's not there yet.", "should_trigger": true},
+  {"query": "Make a manifest for the journal submission bundle and tell me if we're blocked on anything. Repo root is ~/proj/hf-readmit; SAP is analysis/sap.md.", "should_trigger": true},
+  {"query": "We're doing a TRIPOD+AI prediction model paper. Package the manuscript for submission, including the model card and the TRIPOD checklist, and set up manuscript/tables, figures, supplement, checklists.", "should_trigger": true},
+  {"query": "Put together the supplement + main manuscript package for NEJM Evidence; the paper is in Word so don't convert anything, just give me the manifest and readiness notes.", "should_trigger": true},
+  {"query": "Is the paper submission-ready? Check that the SAP, Table 1, figures, reporting checklist, and provenance files are all present and generate a package readiness report.", "should_trigger": true},
+  {"query": "pls build the journal package for the ARDS phenotype study, OSF prereg is already done and should be linked in", "should_trigger": true},
+  {"query": "Create the quarto manuscript skeleton (manuscript.qmd + package-manifest.json) wired to our existing tables and figures so we can submit to Critical Care.", "should_trigger": true},
+  {"query": "Our study is wrapping up - collect all the publication artifacts into a traceable submission bundle for the Annals of Internal Medicine.", "should_trigger": true},
+  {"query": "Generate Table 1 baseline characteristics stratified by treatment arm from analysis/sap-tables/03-variables.csv for the manuscript.", "should_trigger": false},
+  {"query": "Make a JAMA-style Kaplan-Meier figure for 90-day survival by vasopressin exposure for the manuscript.", "should_trigger": false},
+  {"query": "Add Zotero citations to manuscript/main.docx and verify each reference supports its claim before we submit.", "should_trigger": false},
+  {"query": "Create a PI review pack with a statistician signoff ledger for the tables and figures we're about to put in the manuscript.", "should_trigger": false},
+  {"query": "Run the final pre-submission audit on our manuscript text: Methods/Results discipline, voice, and AI tells.", "should_trigger": false},
+  {"query": "Prepare the ClinicalTrials.gov registration content for our pragmatic trial before enrollment starts.", "should_trigger": false},
+  {"query": "Which reporting guideline applies to our diagnostic accuracy study of a chest x-ray AI tool, STARD or CLAIM?", "should_trigger": false},
+  {"query": "Write the model card for models/sepsis-gbm-v2.pkl using reports/eval-2026-08.json, with subgroup fairness metrics.", "should_trigger": false},
+  {"query": "Draft the full manuscript for our delirium cohort study - Introduction through Discussion - from the SAP and results tables.", "should_trigger": false},
+  {"query": "Prepare our R package for CRAN submission: check DESCRIPTION, examples, and R CMD check notes.", "should_trigger": false}
+]

@@ -43,21 +43,21 @@ Drop to prose only when (a) the answer is inherently narrative ("walk me through
 
 **Offer options to react to when the user is stuck.** People who can't generate from scratch can often evaluate presented options. Use multi-select questions to gather preferences efficiently. Always include a skip option for users who want to move faster.
 
-**Keep presented options to 3-5 at any decision point.** More causes analysis paralysis.
+**Keep presented options to 3-4 at any decision point.** More causes analysis paralysis.
 
 ## How to converge
 
-When the conversation has enough material to narrow — reflect back what you've heard. Name the user's priorities as they've emerged through the conversation (what excited them, what they rejected, what they asked about). Propose a frontrunner with reasoning tied to their criteria, and invite pushback. Keep final options to 3-5 max. Don't force a final decision if the user isn't there yet — clarity on direction is a valid outcome.
+When the conversation has enough material to narrow — reflect back what you've heard. Name the user's priorities as they've emerged through the conversation (what excited them, what they rejected, what they asked about). Propose a frontrunner with reasoning tied to their criteria, and invite pushback. Keep final options to 3-4 max. Don't force a final decision if the user isn't there yet — clarity on direction is a valid outcome.
 
 ## When to wrap up
 
 **Always synthesize a summary in the chat.** Before offering any next steps, reflect back what emerged: key decisions, the direction chosen, open threads, and any assumptions made. This is the primary output of the brainstorm — the user should be able to read the summary and know what they landed on.
 
-**Then offer next steps** using the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+**Then offer next steps** using the current harness's blocking question UI when available; otherwise present numbered options in chat and wait. Never silently skip the question.
 
 **Question:** "Brainstorm wrapped. What would you like to do next?"
 
 - **Create a plan** → hand off to `ce-plan` with the decided goal and constraints
 - **Save summary to disk** → write the summary as a markdown file in the current working directory
-- **Open in Proof (web app) — review and comment to iterate with the agent** → use the core Compound Engineering `ce-proof` skill when it is installed to open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. If it is not installed, save the markdown locally and tell the user Proof review requires the core Compound Engineering plugin.
+- **Open in Proof (web app) — review and comment to iterate with the agent** (optional; show only when the `ce-proof` skill is available) → use the core Compound Engineering `ce-proof` skill when it is installed to open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. If it is not installed, save the markdown locally and tell the user Proof review requires the core Compound Engineering plugin.
 - **Done** → the conversation was the value, no artifact needed

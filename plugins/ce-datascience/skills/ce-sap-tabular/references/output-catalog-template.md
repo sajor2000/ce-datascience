@@ -1,5 +1,17 @@
 # Output catalog -- controlled vocabulary
 
+## Contents
+
+- Section labels (group rows by these)
+- Required catalog columns
+- Diagnostic-output canonical names
+- Table-output canonical names
+- Model-output canonical names (Analysis N)
+- Figure-data canonical names
+- Required columns in MODEL coefs files
+- Required columns in random-effects variance files
+- Filename rules (block-level)
+
 The `02-outputs.csv` catalog uses a constrained set of artifact types and section labels so a coordinating center can pool across sites without parsing prose. Use the patterns below; do not invent new ones unless the existing catalog does not cover the case.
 
 ## Section labels (group rows by these)

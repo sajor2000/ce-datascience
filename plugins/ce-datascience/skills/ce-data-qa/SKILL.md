@@ -1,6 +1,6 @@
 ---
 name: ce-data-qa
-description: "Run a pre-SAP column profile or GO/NO-GO data quality gate before SAP finalization, modeling, or unblinding."
+description: "Run a pre-SAP column profile or GO/NO-GO data quality gate before SAP finalization, modeling, or unblinding. Use when the user asks to inspect columns, validate a fresh extract, compare data to cohort/SAP expectations, or check readiness."
 argument-hint: "[data file path or extract_id, optional --sap path/to/sap.md]"
 ---
 
@@ -43,7 +43,7 @@ If no SAP is available, run **pre-SAP column profile mode**:
 
 - Inspect the dataset or table schema before `ce-plan` writes SAP variable/model sections.
 - Produce row count, column count, column names and types, candidate grain, primary or candidate keys, important date columns, timezone assumptions, null rates, duplicate rates, distinct counts for categorical columns, and basic numeric summaries.
-- **PHI guard (always, not only in CLIF mode):** never echo row-level data, free-text columns, identifiers, or dates of birth into the QA report — report counts and masked samples instead. When listing distinct categorical values with counts in a report that may be shared, suppress categories below the disclosure floor (default n<11 for EHR/claims data) or bucket them as "other".
+- **PHI guard (always, not only in CLIF mode):** never echo row-level data, free-text columns, identifiers, or dates of birth into the QA report — report counts and masked samples instead. When listing distinct categorical values with counts in a report that may be shared, suppress categories below the disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter) or bucket them as "other".
 - Flag obvious validity issues such as impossible dates, negative counts where not plausible, sentinel missing values, mixed-grain rows, and PHI-suspect columns.
 - Do not invent study variables or analysis models. Mark SAP-dependent checks as "deferred until SAP exists."
 - Emit `__CE_DATA_PROFILE__` so `ce-plan` can use the actual columns and state which variables remain provisional.
@@ -71,6 +71,7 @@ If the SAP doesn't specify these, output a `WARN: SAP under-specified` finding a
 **CLIF profile**: when chat context contains `__CE_CLIF__ active=true`, additionally run the CLIF-specific gate before the generic checks. Treat `https://clif-icu.com/` and the matching `version=` + `mcide_version=` values in the CLIF handoff as the authoritative family. If either version is missing, incomplete, or mixed, stop the category check and route to the `ce-clif` skill; do not use a v2.1 cache by default.
 
 - **Storage check**: refuse to QA non-Parquet inputs for CLIF tables; emit a `block` finding if asked to QA CSV/Feather data declared as CLIF.
+- **Parquet reader**: Parquet needs `pyarrow` (or `polars`/`duckdb`) in the Python environment, or `arrow` in R. If the import fails, stop with the install line (`python3 -m pip install pyarrow`, `install.packages('arrow')`) instead of converting the data to CSV.
 - **ID type check**: `patient_id` and `hospitalization_id` are VARCHAR — `block` if cast to int.
 - **Datetime check**: every `*_dttm` column is timezone-aware UTC — `block` if any tz-naive timestamps exist.
 - **mCIDE vocabulary check**: every `*_category` column conforms to the selected CLIF/mCIDE family. Use the bundled allow-list only for 2.1 + 2.1; for 3.0 + 3.0, read the project’s declared v3 mCIDE source and record it in the report. Each violation is a `block` (or `warn` when `strict=false` was set on `__CE_CLIF__`).
@@ -95,7 +96,7 @@ Apply each check from `references/qa-checks.md` against the data. Generate findi
 
 When generating the report as an R Markdown or Quarto notebook rather than a static report, load the `ce-notebook-standards` skill before creating or materially extending its executable chunks.
 
-Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extract_id>.html` (rendered Quarto / RMarkdown). Use `references/report-template.md`. Sections:
+Write to `reports/data-qa/<extract_id>.md` (markdown) and `reports/data-qa/<extract_id>.html` (rendered Quarto / RMarkdown) when the project has a Quarto or RMarkdown render path; otherwise the Markdown report is the deliverable and the report states that the `.html` path was not rendered. Use `references/report-template.md`. Sections:
 
 1. **Summary banner** (GO / NO-GO / GO with PI sign-off)
 2. **Column profile**: row count, column count, names/types, candidate grain, candidate keys, date columns, null rates, duplicate rates

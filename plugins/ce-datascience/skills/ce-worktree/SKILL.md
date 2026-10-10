@@ -12,7 +12,7 @@ description: "Set up isolated git worktrees -- create a new branch for fresh wor
 - **Output:** The existing or newly created isolated workspace path and branch or ref.
 - **Ask only if:** Isolation creation fails and continuing in the current checkout needs explicit approval.
 - **Do not do:** Do not nest worktrees, force duplicate branch checkouts, or silently fall back to the current checkout.
-- **Interaction:** Check isolation first and use the repository's shared interaction rule for any blocking decision.
+- **Interaction:** Check isolation first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Ensure the current work happens in an isolated workspace, without disturbing the user's main checkout. Most coding harnesses now create a worktree by default at session start, so the common case is that **isolation already exists** — detect that first and do not create a redundant one.
 
@@ -55,7 +55,7 @@ Use plain Git only when no native tool exists and Step 0 found no existing isola
 4. Best-effort fetch the base branch without changing the current checkout. A missing remote is non-fatal; use the local ref.
 5. Create the worktree according to the caller's mode:
    - New work: `git worktree add -b <branch-name> .worktrees/<branch-name> origin/<from-branch>`; use the local base when the remote ref does not exist.
-   - Existing branch or tag: `git worktree add .worktrees/<slug> <target-ref>`.
+   - Existing branch, tag, or commit: `git worktree add .worktrees/<slug> <target-ref>`.
    - PR: create a local branch first with `git fetch origin pull/<n>/head:pr-<n>`, then run `git worktree add .worktrees/pr-<n> pr-<n>`. Never leave a PR worktree detached if the caller intends to commit fixes.
 6. Switch into the new worktree.
 

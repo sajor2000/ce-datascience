@@ -1,5 +1,13 @@
 # Universal Planning Workflow
 
+## Contents
+
+- Before starting: verify classification
+- Step 1: Assess Ambiguity and Research Need
+- Step 1b: Focused Q&A
+- Step 2: Structure the Plan
+- Step 3: Save or Share
+
 This file is loaded when ce-plan detects a non-software task (Phase 0.1b). It replaces the software-specific phases (0.2 through 5.1) with a domain-agnostic planning workflow.
 
 ## Before starting: verify classification
@@ -34,7 +42,7 @@ When research is recommended, do it — don't just offer. Stale recommendations 
 
 **Research decomposition pattern:**
 1. Identify 2-5 independent research questions based on the task. Good questions target facts the model is least confident about: current prices, hours, availability, recent changes, seasonal specifics.
-2. Dispatch parallel research. Prefer user-named surfaces first per Core Principle 8 in SKILL.md; fall back to web search for questions those surfaces don't cover.
+2. Dispatch parallel research. Prefer user-named surfaces first per Core Principle 4 in SKILL.md; fall back to web search for questions those surfaces don't cover.
 3. Collate findings into a brief research summary before proceeding to planning.
 
 Example for "plan a date night in Seattle this Saturday":
@@ -44,7 +52,7 @@ Example for "plan a date night in Seattle this Saturday":
 
 ## Step 1b: Focused Q&A
 
-Ask up to 3 questions targeting the unknowns that would most change the plan. Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Fall back to numbered options in chat only when no blocking tool exists or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip the question.
+Ask up to 3 questions targeting the unknowns that would most change the plan. Ask one question at a time with the current harness's blocking question UI when available; otherwise present numbered options in chat and wait. Never silently skip the question.
 
 **How to ask well:**
 - Offer informed options, not open-ended blanks. Instead of "When are you going?", try "Mid-week visits have 30-40% shorter lines — are you flexible on timing?" The question should give the user a frame of reference, not just extract information.
@@ -109,6 +117,8 @@ After structuring the plan, ask the user how they want to receive it using the c
 
 2. **Open in Proof (web app) — review and comment to iterate with the agent** — Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Use the core Compound Engineering `ce-proof` skill when it is installed. If it is not available in the current harness, fall back to saving the markdown file and tell the user Proof review requires the core Compound Engineering plugin.
 
-3. **Save to disk AND open in Proof** — Do both: write the markdown file to disk and open the doc in Proof for review.
+3. **Save to disk AND open in Proof** — Do both: write the markdown file to disk and open the doc in Proof for review. If `ce-proof` is unavailable, save to disk only and say Proof review was skipped.
+
+Show options 2 and 3 only when the core Compound Engineering `ce-proof` skill is available in the current harness; otherwise skip this menu and go straight to the Save to disk location question.
 
 Do not offer `ce-work` (software-only) or issue creation (not applicable to non-software plans).

@@ -17,8 +17,12 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 | `animal` | ARRIVE 2.0 | `references/arrive-checklist.md` |
 | `health-economic` | CHEERS 2022 | `references/cheers-checklist.md` |
 | `prediction-model` | TRIPOD or TRIPOD+AI, based on AI/ML involvement | `references/tripod-checklist.md` or `references/tripod-ai-checklist.md` |
+| `target-trial-emulation` | TARGET (companion: STROBE, plus RECORD for routinely collected EHR, claims, or registry data) | `references/target-checklist.md` (+ `references/strobe-checklist.md`, `references/record-checklist.md`) |
+| `quality-improvement` | SQUIRE 2.0 | `references/squire-checklist.md` |
 | `exploratory` | _(none required)_ | _(reviewer skips unless user overrides)_ |
 | `other` | _(ask user)_ | _(reviewer asks which guideline to apply)_ |
+
+**Target trial emulation:** an `observational` study whose design or SAP explicitly emulates a target trial routes as `target-trial-emulation`: TARGET is the primary reporting guideline and STROBE is always applied as its companion; add RECORD when the data are routinely collected (EHR, claims, registry). Mixed-methods studies keep the quantitative primary and add GRAMMS as a provisional extension; GRAMMS is never the primary.
 
 **Backward compatibility:** The original values `observational`, `rct`, `exploratory`, and `other` continue to work unchanged. New values extend the enum without breaking existing SAPs.
 
@@ -32,11 +36,12 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `ai-primary` | `study_type: rct` (protocol stage) | SPIRIT-AI | `references/spirit-ai-checklist.md` |
 | `ai-primary` | `study_type: prediction-model` | TRIPOD+AI (already primary) | _(no additional file)_ |
 | `ai-primary` | `study_type: prediction-model` | REFORMS | `references/reforms-checklist.md` |
-| `ai-primary` | `study_type: diagnostic-accuracy` | CLAIM | `references/claim-checklist.md` |
+| `ai-primary` | `study_type: diagnostic-accuracy` | STARD-AI | `references/stard-ai-checklist.md` |
+| `ai-primary` | medical imaging study (`diagnostic-accuracy` or `prediction-model`) | CLAIM | `references/claim-checklist.md` |
 | `ai-primary` | pathology deep-learning study | DEAL only with verified-source override | `references/deal-checklist.md` |
 | `ai-primary` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `ai-primary` | EHR-based predictive model | PDSQI-9 is not auto-routed while unverified | `references/pdsqi-checklist.md` |
-| `ai-assisted` | same rules as `ai-primary` | same extensions | _(same files)_ |
+| `ai-assisted` | AI is a tool inside traditional methods, not the intervention or object of study | none auto-added; report the tool's role, version, and validation in Methods (CONSORT-AI, SPIRIT-AI, STARD-AI, and REFORMS apply only to `ai-primary` or `llm-based`) | — |
 | `llm-based` | any study_type | REFORMS | `references/reforms-checklist.md` |
 | `llm-based` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `none` | any | _(no extensions)_ | _(skip AI layer)_ |
@@ -48,15 +53,15 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 3. **Read SAP frontmatter** for `study_type`, `ai_involvement`, and legacy `guidelines_selected`.
 4. **If legacy `guidelines_selected` is explicitly set** and canonical stack-profile fields are absent, use that list as a compatibility override.
 5. **Otherwise, route by `study_type`** to get the primary guideline from the table above.
-4. **If `ai_involvement` is not `none`**, scan the AI extension table for matching conditions. A condition matches when the study attributes and the guideline scope both align. Do not treat generic AI involvement as sufficient for DEAL, CHART, or PDSQI-9.
-5. **Resolve evidence status before combining** primary + extensions. `verified` entries may be routed; `provisional` entries require an explicit note; `unverified` entries are not authoritative selections.
-6. **Combine primary + extensions** into the final checklist set. Load each file and review against it.
+6. **If `ai_involvement` is not `none`**, scan the AI extension table for matching conditions. A condition matches when the study attributes and the guideline scope both align. Do not treat generic AI involvement as sufficient for DEAL, CHART, or PDSQI-9.
+7. **Resolve evidence status before combining** primary + extensions. `verified` entries may be routed; `provisional` entries require an explicit note; `unverified` entries are not authoritative selections.
+8. **Combine primary + extensions** into the final checklist set. Load each file and review against it.
 
 ## Guideline Metadata
 
 | Abbreviation | Full name | Items | Scope |
 |---|---|---|---|
-| CONSORT | Consolidated Standards of Reporting Trials | 25 | RCTs |
+| CONSORT | Consolidated Standards of Reporting Trials (2025) | 30 | RCTs |
 | STROBE | Strengthening the Reporting of Observational Studies in Epidemiology | 22 | Observational |
 | PRISMA | Preferred Reporting Items for Systematic Reviews and Meta-Analyses | 27 | Systematic reviews |
 | STARD | Standards for Reporting Diagnostic Accuracy | 30 | Diagnostic accuracy |
@@ -66,7 +71,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | CHEERS | Consolidated Health Economic Evaluation Reporting Standards | 28 | Health economics |
 | CONSORT-AI | CONSORT extension for AI interventions | 14 | AI + RCT |
 | SPIRIT-AI | SPIRIT extension for AI trial protocols | 15 | AI + trial protocol |
-| TRIPOD+AI | TRIPOD extension for AI prediction models | 22 | AI prediction |
+| TRIPOD+AI | TRIPOD extension for AI prediction models | 27 | AI prediction |
 | REFORMS | Reporting Standards for ML in Science | ~20 | ML/computational |
 | CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
 | DEAL | DEep Learning in pAthology | ~16 | DL + pathology |

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -20,6 +21,9 @@ REQUIRED_FIELDS = [
 ]
 
 PUBLICATION_SUFFIXES = {".pdf", ".eps", ".svg", ".tif", ".tiff", ".png", ".jpg", ".jpeg"}
+KNOWN_STYLE_PROFILES = {"clinical-standard", "jama", "generic-biomedical"}
+CAPTION_PREFIX = re.compile(r"^e?Figure \d+[A-Za-z]?\.")
+MIN_ALT_TEXT_CHARS = 20
 
 
 def is_safe_relative(value: str) -> bool:
@@ -98,6 +102,24 @@ def main(argv: list[str]) -> int:
 
         if not figure.get("checklist_items"):
             warnings.append(f"{figure_id}: no reporting checklist item linked.")
+
+        style_profile = str(figure.get("style_profile", "")).strip()
+        if style_profile and style_profile not in KNOWN_STYLE_PROFILES:
+            warnings.append(
+                f"{figure_id}: style_profile '{style_profile}' is not a shipped profile "
+                f"({', '.join(sorted(KNOWN_STYLE_PROFILES))}); confirm it is defined in the project."
+            )
+
+        caption = str(figure.get("caption", "")).strip()
+        if caption and not CAPTION_PREFIX.match(caption):
+            warnings.append(f"{figure_id}: caption should start with 'Figure <n>.' followed by a title case title.")
+
+        alt_text = str(figure.get("alt_text", "")).strip()
+        if alt_text and len(alt_text) < MIN_ALT_TEXT_CHARS:
+            warnings.append(
+                f"{figure_id}: alt_text is shorter than {MIN_ALT_TEXT_CHARS} characters; "
+                "describe chart type, variables, main pattern, and one key number."
+            )
 
     report_lines = [
         "# Figure Validation Report",

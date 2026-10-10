@@ -27,7 +27,7 @@ describe("journal style profiles", () => {
     ) as StyleProfiles
     const readme = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "README.md"), "utf8")
 
-    expect(Object.keys(profiles.profiles).sort()).toEqual(["generic-biomedical", "jama"])
+    expect(Object.keys(profiles.profiles).sort()).toEqual(["clinical-standard", "generic-biomedical", "jama"])
     expect(readme).toContain("publication profiles")
     expect(readme).toContain("JAMA")
     expect(readme).toContain("generic biomedical")
@@ -42,6 +42,21 @@ describe("journal style profiles", () => {
         expect.arrayContaining([expect.stringMatching(/^https:\/\//)]),
       )
     }
+  })
+
+  test("ce-figure's clinical-standard figure settings match ce-table1's", async () => {
+    const table1 = load(
+      await fs.readFile(path.join(table1SkillRoot, "references", "journal-style-profiles.yaml"), "utf8"),
+    ) as StyleProfiles
+    const figure = load(
+      await fs.readFile(
+        path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-figure", "references", "figure-style-profiles.yaml"),
+        "utf8",
+      ),
+    ) as { profiles: Record<string, { figures?: Record<string, unknown> }> }
+
+    expect(Object.keys(figure.profiles).sort()).toEqual(["clinical-standard", "generic-biomedical", "jama"])
+    expect(figure.profiles["clinical-standard"].figures).toEqual(table1.profiles["clinical-standard"].figures)
   })
 
   test("the skill references only files inside its own directory", async () => {

@@ -1,12 +1,18 @@
 # Handoff
 
+## Contents
+
+- 4.1 Present Next-Step Options
+- 4.2 Handle the Selected Option
+- 4.3 Closing Summary
+
 This content is loaded when Phase 4 begins — after the requirements document is written.
 
 ---
 
 #### 4.1 Present Next-Step Options
 
-The Phase 4 menu's visible option count varies by state: no requirements doc hides the review and Proof options, unresolved `Resolve Before Planning` hides `Plan implementation` and `Build it now`, a failing direct-to-work gate hides `Build it now`. Count the visible options for the current state and choose the rendering mode accordingly:
+The Phase 4 menu's visible option count varies by state: no requirements doc hides the review and Proof options, an unavailable `ce-proof` skill hides the Proof option, unresolved `Resolve Before Planning` hides `Plan implementation` and `Build it now`, a failing direct-to-work gate hides `Build it now`. Count the visible options for the current state and choose the rendering mode accordingly:
 
 - **4 or fewer visible:** use the current harness's blocking question mechanism when one is available. This is the default.
 - **5 or more visible:** render as a numbered list in chat. This is the narrow option-overflow fallback; trimming would hide legitimate choices (plan, review, Proof, build, refine, pause are all distinct destinations). Include a hint that free-form input is accepted ("Pick a number or describe what you want.") so the numbered list retains the blocking tool's open-endedness.
@@ -45,7 +51,7 @@ Present only the options that apply. Renumber so visible options stay contiguous
 
 1. **Plan implementation with `ce-plan` (Recommended)** - Move to `ce-plan` for structured implementation planning. Shown only when `Resolve Before Planning` is empty.
 2. **Agent review of requirements doc with `ce-doc-review`** - Dispatch reviewer agents to check the doc for coherence, feasibility, scope, and other persona-specific issues; auto-apply safe fixes; route remaining findings interactively. Shown only when a requirements document exists.
-3. **Open in Proof — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Shown only when a requirements document exists.
+3. **Open in Proof — review and comment to iterate with the agent** - Open the doc in Every's Proof editor, iterate with the agent via comments, or copy a link to share with others. Shown only when a requirements document exists **and** the core Compound Engineering `ce-proof` skill is available in the current harness (ce-datascience does not ship it); the saved local requirements doc is the fallback review surface.
 4. **Build it now with `ce-work` (skip planning)** - Skip planning and move to `ce-work`; suited to lightweight, well-defined changes. Shown only when `Resolve Before Planning` is empty **and** scope is lightweight, success criteria are clear, scope boundaries are clear, and no meaningful technical or research questions remain (the "direct-to-work gate").
 5. **More clarifying questions to sharpen the doc** - Keep refining scope, edge cases, constraints, and preferences through further dialogue. Always shown.
 6. **Done for now** - Pause; the requirements doc is saved and can be resumed later. Always shown.

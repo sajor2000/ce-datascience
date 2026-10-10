@@ -25,7 +25,7 @@ For each candidate research question, attempt a clean PICO (Population, Interven
 
 Score each candidate on: **F**easible (cohort size, data access, time horizon), **I**nteresting (does the field care?), **N**ovel (does the literature already answer it?), **E**thical (equipoise, IRB-able, consent feasible), **R**elevant (will the answer change practice?).
 
-- Bias: `external:` warrant — explicitly cite the prior art the grounding summary returned.
+- Bias: `external:` warrant — explicitly cite the prior art the grounding summary returned and the PMIDs from the literature pulse in `references/evidence-access.md` (labelled `abstract`).
 - Surface candidates that score 4-5 on all five. Mention candidates that fail one criterion (commonly novelty or feasibility) so the user can see what would have to change to make them viable.
 
 ### Frame 3 — Equipoise and clinical-relevance check
@@ -39,7 +39,7 @@ Generate candidates that survive equipoise — the field is genuinely uncertain 
 
 For observational data, generate candidates as the trial you would run if it were possible — a target trial, with eligibility, treatment strategies, assignment procedures, follow-up, and outcome. The `ce-checklist-match` skill will later route candidates that surface here to the TARGET checklist.
 
-- Bias: `reasoned:` plus `external:` (Hernán & Robins target-trial framework).
+- Bias: `reasoned:` plus `external:` (Hernán & Robins target-trial framework: Am J Epidemiol 2016;183(8):758-64, PMID 26994063, doi:10.1093/aje/kwv254).
 - Surface candidates where the observational design is a credible emulation, and explicitly flag candidates where it is not (e.g., self-selection into the exposure that no IPTW could plausibly correct).
 
 ### Frame 5 — Reporting-checklist anchoring
@@ -51,7 +51,7 @@ For each candidate, name the reporting checklist it would be written against (CO
 
 ### Frame 6 — Prior-art landscape
 
-Generate candidates by mapping the literature landscape (use the web-research grounding summary plus any `ce-pubmed` results in chat context). Surface gaps: what has been studied 50 times in adults but not children? What has been done in claims data but not EHR? What has been validated in one health system but never multi-site?
+Generate candidates by mapping the literature landscape (use the web-research grounding summary, the literature pulse from `references/evidence-access.md`, and any `ce-pubmed` results in chat context; read a paper before naming it). Surface gaps: what has been studied 50 times in adults but not children? What has been done in claims data but not EHR? What has been validated in one health system but never multi-site?
 
 - Bias: `external:` warrant explicit — every candidate cites at least one paper or class of papers it is differentiated from.
 - Failure mode to avoid: gap-spotting that is just absence-of-publication; the gap has to be a *clinically meaningful* gap.
@@ -66,7 +66,7 @@ Each sub-agent returns:
 - **equipoise_or_relevance** — for interventional candidates, an explicit equipoise statement; for prediction/association candidates, a clinical-relevance / would-clinicians-act-differently statement
 - **suggested_design** — RCT, cohort (prospective / retrospective), case-control, prediction model (development / external validation / impact), diagnostic accuracy, target-trial emulation, etc.
 - **suggested_checklist** — primary checklist plus any AI / specialty extensions
-- **prior_art_anchor** — at least one PMID, journal, or class of papers it differentiates from
+- **prior_art_anchor** — at least one PMID read through the PubMed MCP (label `abstract`), or a class of papers named from the literature pulse, that it differentiates from; never a remembered citation
 - **why_it_matters** — one paragraph
 - **meeting_test** — one line confirming this is worth team discussion
 

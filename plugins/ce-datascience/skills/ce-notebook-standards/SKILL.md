@@ -1,6 +1,6 @@
 ---
 name: ce-notebook-standards
-description: "Set the structure and documentation contract for new or materially extended Marimo, Jupyter, R Markdown, and Quarto notebooks. Use before creating notebook cells, chunks, or multi-notebook analytical workflows."
+description: "Set the structure and documentation contract for new or materially extended Marimo, Jupyter, R Markdown, and Quarto notebooks. Use when about to create notebook cells, chunks, or multi-notebook analytical workflows."
 argument-hint: "[new|extend] [notebook scope or path]"
 ---
 

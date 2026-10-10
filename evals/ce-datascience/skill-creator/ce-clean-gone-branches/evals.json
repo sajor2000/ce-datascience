@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-clean-gone-branches",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My local repo for the readmission study is cluttered — a bunch of feature branches whose PRs were merged and deleted on GitHub. Clean up the gone branches and any worktrees for them.",
+      "expected_output": "Runs the discovery script (fetch --prune, gone upstreams), classifies each candidate as Safe or Needs force approval with evidence, asks for confirmation of only the Safe list, then deletes with non-force commands and reports results.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/clean-gone anchored via SKILL_DIR (which performs git fetch --prune and lists branches marked ': gone]')",
+        "For each candidate, checks worktree status and unique commits versus the default branch and classifies it as Safe or Needs force approval, showing the evidence",
+        "Asks for confirmation before deleting anything, and the confirmation covers only Safe branches",
+        "Uses git worktree remove without --force and git branch -d (not -D) for Safe branches",
+        "Reports each removed worktree and deleted branch plus a final count"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "prune my local branches whose remotes no longer exist. fwiw I think experiment/xgb-tuning still has uncommitted notebook changes in its worktree at .worktrees/xgb, and feature/ppi-cdiff had a couple commits I never pushed",
+      "expected_output": "Classifies the dirty-worktree and unique-commit branches as Needs force approval, presents dirty paths and unique commits, and requires a separate explicit per-branch force confirmation before any --force or -D deletion.",
+      "files": [],
+      "expectations": [
+        "Classifies experiment/xgb-tuning and feature/ppi-cdiff as Needs force approval if the dirty worktree or unique commits are confirmed",
+        "Never combines safe and force-required branches behind one yes/no question",
+        "Requests a separate explicit force confirmation naming each force-required branch before using git worktree remove --force or git branch -D",
+        "Does not treat a general 'delete all' answer as force approval"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Clean gone branches.",
+      "expected_output": "If the discovery script outputs __NONE__, reports that no stale branches were found and stops without deleting anything or asking further questions.",
+      "files": [],
+      "expectations": [
+        "If the script prints __NONE__, reports that no stale branches were found and stops",
+        "Does not delete any branch or worktree when none are gone",
+        "Does not fall back to deleting merged-but-not-gone branches or other branches outside the gone list"
+      ]
+    }
+  ]
+}

@@ -16,8 +16,12 @@ The model performs the extraction; these are anchor prompts for consistency.
 
 ## Effect size
 
-> Extract the headline effect size from the abstract or results conclusion. Format: `<metric> <point> (<lo>, <hi>) [<interpretation>]`. Example: `HR 0.78 (0.65, 0.93) [favors treatment]`. If a p-value only is given, format: `p=<value>`. If neither, "not reported".
+> Extract the headline effect size for the primary outcome from the results section when full text was read, otherwise from the abstract. Format: `<metric> <point> (<lo>, <hi>) [<interpretation>]`. Example: `HR 0.78 (0.65, 0.93) [favors treatment]`. If a p-value only is given, format: `p=<value>`. If neither, "not reported".
 
 ## Conservatism rule
 
 When in doubt, write `not reported`. Inferring "they probably did Cox" is more harmful than admitting the paper did not state.
+
+## Evidence level
+
+Every row records `evidence_level` as `full_text` (PMC full text via PubMed MCP `pubmed_fetch_fulltext` or `get_full_text_article`, Paperclip `cat`/`grep`, or the E-utilities PMC fallback was read) or `abstract` (only the CSV abstract was read). Never record `full_text` on the strength of a search hit, a `map` summary, or a snippet that was not read in the paper itself. The row's PMID and DOI are its provenance.

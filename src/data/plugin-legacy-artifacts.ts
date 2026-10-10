@@ -238,6 +238,21 @@ export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifa
     // Mirrors the compound-engineering entry for installs under the current
     // plugin name. Keep both entries so legacy installs are still cleaned up.
     skills: [
+      "ce-babysit-pr",
+      "ce-retune",
+      "ce-fabric-coding",
+      "ce-fabric-kql",
+      "ce-fabric-ml",
+      "ce-fabric-pipelines",
+      "ce-fabric-semantic-models",
+      "ce-r-cran",
+      "ce-r-event-studies",
+      "ce-r-package-development",
+      "ce-r-package-testing",
+      "ce-r-performance",
+      "ce-r-review",
+      "ce-r-targets",
+      "ce-r-tidyverse",
       "agent-browser",
       "agent-native-architecture",
       "agent-native-audit",

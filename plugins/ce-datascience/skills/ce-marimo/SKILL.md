@@ -1,6 +1,6 @@
 ---
 name: ce-marimo
-description: "Create, modify, validate, or review Marimo reactive Python notebooks for data-science and research workflows. Use for marimo.App notebooks, reactive cells, UI widgets, PEP 723 dependencies, notebook export, or Marimo execution errors."
+description: "Create, modify, validate, or review Marimo reactive Python notebooks for data-science and research workflows. Use when working with marimo.App notebooks, reactive cells, UI widgets, PEP 723 dependencies, notebook export, or Marimo execution errors."
 argument-hint: "[new|edit|validate|export]"
 ---
 
@@ -22,7 +22,7 @@ argument-hint: "[new|edit|validate|export]"
 4. Keep data loading, transformation, modeling, and reporting in separate cells with clear returned values. Let dependencies be visible through cell inputs and outputs.
 5. Treat widgets as user inputs, not hidden defaults. In edit, interactive-run, and script modes, resolve the declared restricted data root for file-backed data (or the registered verified data connection) before reading, creating, transforming, validating, or rendering analytical data or output. Synthetic data are allowed only when the user explicitly requests a clearly labeled test or demonstration; do not replace a failed production source or produce a synthetic study result. If the real source or its QA provenance is unavailable, do not run analytical code and do not persist output. An explicitly requested synthetic test/demo may persist only as a clearly labeled non-study artifact with synthetic fixture or generator provenance, never in a study-output location.
 6. Keep mutable state out of cross-cell objects when a pure derived value can represent the same result.
-7. Run `marimo check <notebook.py>` through the project runner when available, then execute the notebook's non-interactive path or report the validation gap.
+7. Run `marimo check <notebook.py>` through the project runner when available, then execute the notebook's non-interactive path or report the validation gap. For `export`, run `marimo export` through the project runner only after validation passes, and apply the persisted-output rules below to the exported file.
 8. Load the `ce-data-qa`, `ce-plan`, and `ce-code-review` skills for analytical work inside the notebook; Marimo structure does not waive the data or method gates.
 
 ## Existing notebooks

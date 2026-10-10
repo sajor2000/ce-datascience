@@ -1,11 +1,10 @@
 ---
 name: ce-clif
-description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including a selected CLIF/mCIDE 2.1 or 3.0 family, Parquet, UTC datetime, and no-PHI output rules."
+description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including a selected CLIF/mCIDE 2.1 or 3.0 family, Parquet, UTC datetime, and no-PHI output rules. Use when the repo has CLIF_CLAUDE.md, CLIF tables, mCIDE content, CLIF remotes, or the user asks for CLIF-specific analysis."
 argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 ---
 
 # CLIF-Safe Profile
-
 
 ## Skill Value
 
@@ -16,28 +15,28 @@ argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 - **Do not do:** Do not treat generic OMOP, claims, or EHR projects as CLIF without evidence.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Loads the CLIF (Common Longitudinal ICU data Format) ruleset whenever a session is operating against a CLIF consortium repo or a CLIF-derived project. The goal is simple: when a user is doing CLIF work, the rest of the `ce-*` lifecycle should automatically respect CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
+Loads the CLIF (Common Longitudinal ICU data Format) ruleset for CLIF consortium or CLIF-derived projects so the rest of the `ce-*` lifecycle respects CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
 
 **Core source:** Treat `https://clif-icu.com/` as the authoritative public CLIF source for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details only after anchoring the project to the CLIF site and declared data dictionary version.
 
 ## When this skill activates
 
-Auto-activate when **two or more** of the following signals are present (single signals are too generic to distinguish CLIF from other EHR projects):
+Auto-activate on **one strong signal** or **two or more weak signals**:
 
-**Strong signals (any ONE of these alone is sufficient):**
+**Strong signals:**
 - A file named `CLIF_CLAUDE.md` exists at the repo root or `~/CLIF_CLAUDE.md`
 - Git remote URL contains `clif-consortium`, `Common-Longitudinal-ICU-data-Format`, or `clif-icu`
 - The user explicitly says "CLIF", "mCIDE", "clif-icu", or "common longitudinal icu data format"
 - Manual: `ce-clif` (forces activation)
 
-**Weak signals (require 2+ to activate — individually these appear in non-CLIF projects):**
+**Weak signals (require 2+):**
 - A `mCIDE/` directory exists
 - `WORKFLOW.md` exists at the repo root
 - Files named `clif_*.parquet` exist (e.g., `clif_vitals.parquet`, `clif_respiratory_support.parquet`)
 - Code references CLIF-specific table names: `respiratory_support`, `medication_admin_continuous`, `patient_assessments`, `intake_output`
 - `config/config.json` contains a `tables_path` field pointing to parquet files
 
-**NOT activation signals (too generic — appear in OMOP, custom EHR, and non-CLIF projects):**
+**NOT activation signals (too generic):**
 - `patient.parquet` alone (OMOP has `person`, but custom EHR may use `patient`)
 - `hospitalization` alone (generic term)
 - `vitals` or `labs` alone (generic terms)
@@ -54,8 +53,8 @@ When signals are ambiguous (only weak signals, or the user mentions a CLIF table
 ### Select the CLIF and mCIDE family
 
 Read `references/version-families.md` before selecting a family. Inspect, in
-order, an explicit `--version`, `clif.data_dictionary_version` and
-`clif.mcide_version` in local config, a project data-dictionary declaration,
+order, an explicit `--version`, `stack_profile.clif.data_dictionary_version` and
+`stack_profile.clif.mcide_version` in local config, a project data-dictionary declaration,
 and a documented source manifest. Treat `--version` as a full direct call:
 
 ```text
@@ -95,9 +94,7 @@ When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills res
 
 ## Prerequisites
 
-None. The skill is a guardrail layer; it reads context but does not require a stack profile.
-
-Resolve the repository root before reading optional config:
+None; no stack profile is required. Resolve the repository root before reading optional config:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
 Use the resolved absolute path or resolve it at runtime, then read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the config is absent.
@@ -115,7 +112,9 @@ If auto-detection signals are present, activate silently and print the acknowled
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
 Before reading patient-level data, code output, logs, or tracebacks, apply the
-one-time PHI authorization check in `references/clif-rules.md`. If the user has
+one-time PHI authorization check in `references/clif-rules.md`. A saved
+`phi_environment.compliant` in `.ce-datascience/config.local.yaml` counts as the
+user's answer (`true` = confirmed, `false` = no). If the user has
 already confirmed in the current conversation that both the data environment
 and active model endpoint are approved for PHI/PII, proceed without repeating
 the question or warning that PHI cannot be read. If confirmation is absent or
@@ -134,27 +133,28 @@ Then ensure `__CE_LANG__` exists:
 
 ### Step 3: Read the project's local override (optional)
 
-If the resolved config contains a `clif:` block, merge it over the defaults. Recognized keys:
+If the resolved config contains a `clif:` block under `stack_profile:`, merge it over the defaults. Recognized keys:
 
 ```yaml
-profile: clif
-clif:
-  data_dictionary_version: "2.1.0"   # selected family: 2.1.0 or 3.0.0
-  mcide_version: "2.1.0"             # must match data_dictionary_version unless an authoritative exception is documented
-  parquet_only: true                  # refuse CSV/Feather for CLIF tables
-  protected_paths:                    # in addition to the built-in list
-    - mCIDE/**
-    - ddl/**
-    - outlier-handling/**
-    - reference_ranges/**
-    - WORKFLOW.md
-  poc_table_path: ./CLIF_POCs.md      # optional override; defaults to references/poc-table.md
-  strict: true                        # block on any rule violation rather than warn
+stack_profile:
+  profile: clif
+  clif:
+    data_dictionary_version: "2.1.0"   # selected family: 2.1.0 or 3.0.0
+    mcide_version: "2.1.0"             # must match data_dictionary_version unless an authoritative exception is documented
+    parquet_only: true                  # refuse CSV/Feather for CLIF tables
+    protected_paths:                    # in addition to the built-in list
+      - mCIDE/**
+      - ddl/**
+      - outlier-handling/**
+      - reference_ranges/**
+      - WORKFLOW.md
+    poc_table_path: ./CLIF_POCs.md      # optional override; defaults to references/poc-table.md
+    strict: true                        # block on any rule violation rather than warn
 ```
 
 ### Step 4: Emit the signal
 
-Other `ce-*` skills check chat context for `__CE_CLIF__ active=true` and `__CE_LANG__ ...` in their step-0 context scan and switch behavior accordingly. This skill never directly modifies the user's repo — it only loads rules and emits the signal(s).
+Emit the `__CE_CLIF__` line (canonical envelope below) alongside `__CE_LANG__`; downstream `ce-*` skills read both in their step-0 context scan. This skill never modifies the user's repo; it only loads rules and emits signals.
 
 ### Step 5: On protected-path edits
 
@@ -173,7 +173,7 @@ When the session is about to edit any `protected_paths` entry, the skill's guard
 - Does not edit files in the upstream CLIF repo on the user's behalf
 - Does not contact POCs (it only cites the right person)
 - Does not replace `ce-data-qa`, `ce-cohort-build`, etc. — it just changes how those skills behave when CLIF mode is active
-- Does not de-identify data or run PHI scans (use the `ce-phi-leak-reviewer` skill)
+- Does not de-identify data or run PHI scans (dispatch the `ce-phi-leak-reviewer` agent)
 
 ## Handoff signal (canonical envelope)
 
@@ -195,14 +195,11 @@ For a new consortium project or an audit of an existing template-derived reposit
 
 ## References
 
-@./references/clif-rules.md — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow)
+Read each file at the step that names it (backtick paths, loaded on demand):
 
-@./references/mcide-vocab.md — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3
-
-@./references/version-families.md — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
-
-@./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
-
-@./references/clifpy-recipes.md — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
-
-`references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.
+- `references/clif-rules.md` — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow). Read at Step 2, always.
+- `references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
+- `references/mcide-vocab.md` — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3.
+- `references/poc-table.md` — CLIF table / mCIDE subdirectory to responsible POC (name, email, GitHub handle), for the protected-path guardrail.
+- `references/clifpy-recipes.md` — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
+- `references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.

@@ -55,8 +55,19 @@ run_with_timeout() {
     return
   fi
 
-  if command -v python3 >/dev/null 2>&1; then
-    python3 - "$TIMEOUT" "$COMMAND" <<'PY'
+  # Probe for a working Python 3 interpreter instead of assuming python3
+  # (Windows/Git Bash and some distros expose only python or py).
+  PYTHON_BIN=""
+  for candidate in python3 python py; do
+    if command -v "$candidate" >/dev/null 2>&1 \
+      && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' >/dev/null 2>&1; then
+      PYTHON_BIN="$candidate"
+      break
+    fi
+  done
+
+  if [[ -n "$PYTHON_BIN" ]]; then
+    "$PYTHON_BIN" - "$TIMEOUT" "$COMMAND" <<'PY'
 import os
 import signal
 import subprocess
@@ -80,7 +91,7 @@ PY
     return
   fi
 
-  echo "Error: no timeout implementation available (tried timeout, gtimeout, python3)" >&2
+  echo "Error: no timeout implementation available (tried timeout, gtimeout, and a working Python 3 interpreter as python3, python, or py). Install coreutils timeout or Python 3 and rerun." >&2
   exit 1
 }
 

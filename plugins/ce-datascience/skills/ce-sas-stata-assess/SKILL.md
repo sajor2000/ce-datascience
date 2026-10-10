@@ -1,12 +1,12 @@
 ---
 name: ce-sas-stata-assess
-description: "Assess SAS and Stata projects for reproducibility, migration, review, and risk without pretending full native scaffolding exists."
+description: "Assess SAS and Stata projects for reproducibility, migration, review, and risk without pretending full native scaffolding exists. Use when the repo contains .sas, .do, .ado, .dta, PROC statements, or Stata commands and the user asks what can be reviewed or ported."
 argument-hint: "[optional: --scan-dir analysis --report analysis/sas-stata-assessment.md]"
 ---
 
 # SAS/Stata Project Assessment
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Run the script from the user's project root.** `$SKILL_DIR` anchors the script path; `--scan-dir` and `--report` resolve against `--project-root` and must stay project-relative.
 
 
 ## Skill Value
@@ -27,7 +27,8 @@ This skill is intentionally assessment-first. The plugin does not yet provide fi
 3. Write a concise assessment report:
 
 ```bash
-python3 scripts/assess_sas_stata.py --project-root . --scan-dir analysis --report analysis/sas-stata-assessment.md
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/assess_sas_stata.py" --project-root . --scan-dir analysis --report analysis/sas-stata-assessment.md
 ```
 
 4. Use the report to decide whether to:

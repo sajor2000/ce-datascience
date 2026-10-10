@@ -1,5 +1,15 @@
 # DEAL Candidate Checklist for Deep Learning in Pathology
 
+## Contents
+
+- Data Acquisition
+- Annotation
+- Data Processing
+- Model Architecture
+- Validation
+- Interpretability
+- Reproducibility
+
 AI EXTENSION checklist providing reporting guidelines for studies using deep learning in computational pathology.
 
 **Base guideline:** Varies by study type (TRIPOD+AI for prediction models, STARD for diagnostic accuracy, CONSORT for trials)

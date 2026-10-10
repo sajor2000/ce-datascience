@@ -1,5 +1,16 @@
 # Stack-Profile-Aware Scaffolding
 
+## Contents
+
+- Stack Profile Resolution
+- Tiered Notebook Support
+- Golden Path: R + tidyverse + Quarto
+- Golden Path: Python + pandas
+- Other Combinations
+- R Project Bootstrap
+- Golden Path: Python + marimo
+- SAP Section Headers
+
 This reference defines how `ce-work` generates analysis code scaffolding adapted to the user's stack profile. Load it when creating new analysis files during execution.
 
 ---
@@ -192,7 +203,7 @@ When uncertain about the stack, match the patterns visible in the existing codeb
 
 ## R Project Bootstrap
 
-When `r_project_type` is `package`, `shiny`, `plumber`, or `targets`, scaffold project infrastructure alongside analysis files. This section is triggered by the stack profile's `r_project_type` field.
+When `r_project_type` is `script`, `package`, `shiny`, `plumber`, or `targets`, scaffold project infrastructure alongside analysis files. This section is triggered by the stack profile's `r_project_type` field.
 
 ### R Analysis Script Project
 

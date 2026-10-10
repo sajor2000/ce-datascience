@@ -1,0 +1,82 @@
+[
+  {
+    "query": "This project is all R -- renv, Quarto, a _targets.R pipeline. Where should I start for fitting the primary Cox model and the sensitivity analyses?",
+    "should_trigger": true
+  },
+  {
+    "query": "We're R-first. Before I write the lme4 code for the longitudinal eGFR analysis, what gates and R conventions does the plugin expect?",
+    "should_trigger": true
+  },
+  {
+    "query": "I've got .Rmd notebooks, a _targets.R, and an R package in pkg/. Lay out which ce R workflow covers each part",
+    "should_trigger": true
+  },
+  {
+    "query": "Do a read-only review of R/clean_labs.R for correctness and reproducibility before I merge",
+    "should_trigger": true
+  },
+  {
+    "query": "Refactor this nested for-loop over patients into idiomatic dplyr with group_by and summarise",
+    "should_trigger": true
+  },
+  {
+    "query": "Prepare my package for CRAN submission: check DESCRIPTION metadata, examples, and the R CMD check results",
+    "should_trigger": true
+  },
+  {
+    "query": "My _targets.R pipeline errors on tar_make with a branching issue in tar_map; help me debug it",
+    "should_trigger": true
+  },
+  {
+    "query": "Profile this R script, it takes 3 hours on 12M rows and I think the merge is the bottleneck",
+    "should_trigger": true
+  },
+  {
+    "query": "Set up a difference-in-differences event study with staggered Medicaid expansion timing and plot dynamic effects",
+    "should_trigger": true
+  },
+  {
+    "query": "Add testthat tests with fixtures and mocks for my package's API-calling functions",
+    "should_trigger": true
+  },
+  {
+    "query": "Choose and justify the statistical model for clustered longitudinal outcomes; I haven't decided between GEE and mixed models",
+    "should_trigger": false
+  },
+  {
+    "query": "Which language does this repo use -- R, Python, or both? Emit the language handoff",
+    "should_trigger": false
+  },
+  {
+    "query": "Convert my legacy Stata .do files to R; first tell me what can be ported safely",
+    "should_trigger": false
+  },
+  {
+    "query": "Review the Python feature-engineering module in src/features.py for leakage and correctness before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Refactor this pandas groupby/merge chain that builds the 30-day readmission flag so it's faster and clearer",
+    "should_trigger": false
+  },
+  {
+    "query": "Profile the new EHR extract in data/raw/encounters_2026.parquet (row counts, keys, missingness) and give me a GO/NO-GO before I finalize the SAP",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the statistical analysis plan for our retrospective cohort of sepsis bundle compliance; estimand, primary model and sensitivity analyses",
+    "should_trigger": false
+  },
+  {
+    "query": "How many patients do I need to detect a 5-point difference in SOFA score at 80% power, alpha 0.05, two-sided?",
+    "should_trigger": false
+  },
+  {
+    "query": "Patch cell 14 in analysis/notebooks/qc.ipynb to add a missingness heatmap without breaking the notebook metadata",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a reactive marimo notebook for exploring the ICU lab trends with sliders for the time window",
+    "should_trigger": false
+  }
+]

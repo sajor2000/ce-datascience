@@ -33,7 +33,7 @@ The reviewable design package must also declare:
 - information times and number of analyses
 - efficacy spending/boundary family
 - futility rule, scale, and whether binding
-- effect and nuisance-parameter scenarios with evidence provenance
+- effect and nuisance-parameter scenarios with evidence provenance (a PMID/DOI or protocol section with the level read, never a bare number)
 - candidate grid and any exclusion rules
 - simulation seed, iterations, and Monte Carlo criterion when simulation is used
 - expected reviewer and unresolved clinical or operational constraints

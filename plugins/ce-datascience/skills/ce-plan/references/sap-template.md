@@ -1,5 +1,11 @@
 # SAP Template
 
+## Contents
+
+- YAML Frontmatter
+- Section Template
+- Writing Guidance
+
 Use this template when producing a Statistical Analysis Plan in SAP mode. The YAML frontmatter and `SAP-N.M` section identifiers are load-bearing -- downstream skills (`ce-work` SAP tracking, SAP-drift detector) parse them by ID. Do not renumber or restructure section IDs without updating consumers.
 
 Every new SAP must include the biostatistics-style tabular SAP contract. The prose SAP is the narrative plan; `analysis/sap-tables/01-overview.csv`, `02-outputs.csv`, `03-variables.csv`, and the rendered `<slug>-tabular-sap.xlsx` workbook are the programmer/coordinating-center handoff.
@@ -9,7 +15,7 @@ Every new SAP must include the biostatistics-style tabular SAP contract. The pro
 ```yaml
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
 ai_involvement: none | ai-assisted | ai-primary | llm-based
 reporting_checklist: null
 reporting_checklist_extensions: []
@@ -34,7 +40,7 @@ status: draft | final | amended
 ```markdown
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
 ai_involvement: none
 reporting_checklist: null
 reporting_checklist_extensions: []

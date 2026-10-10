@@ -1,6 +1,6 @@
 ---
 name: ce-sap-tabular
-description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets."
+description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets. Use when the user has a prose SAP and needs programmer handoff sheets, output catalog, variable catalog, or workbook contract."
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 
@@ -82,7 +82,7 @@ One row per artifact. Group rows by visible section-banner rows, where column 1 
 | Role at Coordinating Center | What the coordinating center / pooled-analysis layer does with this output |
 | Interpretation | 1-2 sentence pre-result expectation: what this result should mean and what direction or pattern would support the claim |
 
-The `interpretation` column is the most important. It forces a pre-registered expectation, so when results arrive they can be compared to it ("expected OR > 1; got 0.85; investigate").
+The `Interpretation` column is the most important. It forces a pre-registered expectation, so when results arrive they can be compared to it ("expected OR > 1; got 0.85; investigate").
 
 #### Table 3: `03-variables.csv` (Master variables)
 
@@ -111,7 +111,7 @@ A 3-10 row example of the wide-format (one row per patient or per hospitalizatio
 
 ### Step 4: Generate the workbook
 
-Run `python3 scripts/generate-tabular-sap.py <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
+Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/generate-tabular-sap.py" <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs and clearing Step 5's blocking checks. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
 
 If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alone are a valid output.
 
@@ -170,7 +170,7 @@ In `mode:headless`, the skill writes the core CSVs + `.xlsx` and emits `__CE_SAP
 - **It does not invent the analysis content.** The analyst describes each row; the skill provides structure and validates it.
 - **It does not replace the prose SAP.** The two are companions; one narrates methods, one inventories artifacts.
 - **It does not produce the artifacts themselves.** The catalog declares; `ce-work` produces.
-- **It does not include real subject data.** File 1 / File 2 samples are synthetic and clearly marked as such. Never paste real patient-level rows, identifiers, or dates into the catalog. When a catalog row declares a stratified output, note the project's small-cell suppression floor (default n<11 for EHR/claims data, or the site's declared policy) in the row's interpretation so the producing analysis applies it.
+- **It does not include real subject data.** File 1 / File 2 samples are synthetic and clearly marked as such. Never paste real patient-level rows, identifiers, or dates into the catalog. When a catalog row declares a stratified output, note the project's small-cell suppression floor in the row's interpretation so the producing analysis applies it: default n<11 unless the project declares its own floor (for example the CLIF consortium floor of n>=10) or a site rule is stricter.
 
 ## References
 

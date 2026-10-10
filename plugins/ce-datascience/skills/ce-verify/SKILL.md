@@ -1,6 +1,6 @@
 ---
 name: ce-verify
-description: "Run a lightweight mid-workflow verification gate for sample size, leakage, effect direction, missingness, PHI, figures, and reproducibility."
+description: "Run a lightweight mid-workflow verification gate for sample size, leakage, effect direction, missingness, PHI, figures, and reproducibility. Use when the user finishes an analysis step or wants a quick sanity check before marking work done."
 argument-hint: "[optional: path to specific output file or directory to verify]"
 ---
 
@@ -45,8 +45,8 @@ Run each check from the catalog in `references/check-catalog.md`. Each check pro
 
 Read the stack profile for language and data paths. Check for:
 - `analysis/research-question.yaml` — for hypothesis direction check
-- `docs/plans/` for a SAP file (file with `sap_version` in frontmatter) — for sample size and imputation checks
-- `analysis/data-qa-report.md` — for expected N from the data QA gate
+- The SAP: `analysis/sap.md`, or any markdown file with `sap_version` in its frontmatter (for example under `docs/plans/`) — for sample size and imputation checks
+- The data QA report: `reports/data-qa/<extract_id>.md` (written by `ce-data-qa`), falling back to legacy `analysis/data-qa-report.md` — for expected N from the data QA gate
 - `analysis/power/` — for minimum sample size from power calculation
 - `analysis/signoff/signoff-ledger.json` — for unresolved human signoffs surfaced by `ce-review-pack`
 - `__CE_CLIF__ active=true` in context — for CLIF-specific checks

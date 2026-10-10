@@ -1,5 +1,17 @@
 # Data QA Check Catalog
 
+## Contents
+
+- Structural checks (always run)
+- Key-and-uniqueness checks
+- Range and distribution checks
+- Date sanity checks
+- Missingness pattern checks
+- CONSORT flow (RCT only) / STROBE flow (observational)
+- Provenance checks
+- Causal workflow integrity checks (Python/Pandas/Polars/DuckDB)
+- Adding a new check
+
 Each check has: id, applies_when, bucket, language-agnostic intent, R/Python recipes, what to put in findings table.
 
 ## Structural checks (always run)
@@ -188,4 +200,4 @@ Run QA-17 through QA-23 when Python/Pandas/Polars/DuckDB prepares a dataset for 
 
 ## Adding a new check
 
-Each check is a row in this table. To add: pick a unique QA-N id, declare bucket, write the language-agnostic intent + R + Python recipes, and document the finding format. Then add the check to `step 3` of SKILL.md.
+Each check is a `### QA-N` entry in this catalog. To add: pick a unique QA-N id, declare bucket, write the language-agnostic intent + R + Python recipes, and document the finding format. Step 3 of SKILL.md applies every check in this catalog.

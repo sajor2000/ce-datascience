@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-notebook-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "SAP was amended (v3) to add an E-value sensitivity analysis. Please insert it into analysis/primary_analysis.ipynb right after the Cox model cell - that cell is tagged sap-5-1. Don't mess with the other cells, the PI's comments are in there.",
+      "expected_output": "Writes the new Markdown and code bodies to small project files, runs the anchored notebook_edit.py script against the unique sap-5-1 tag, leaves a .bak backup and .edit-report.md, and reports the diff and run/verification status.",
+      "files": [],
+      "expectations": [
+        "Loads ce-notebook-standards before adding the executable cell",
+        "Writes the explanatory Markdown and code to separate project files (e.g. analysis/notebook-edits/) and passes them via --markdown-source and --source",
+        "Invokes scripts/notebook_edit.py via an absolute SKILL_DIR path with --tag sap-5-1 and a repo-relative --notebook path",
+        "Confirms analysis/primary_analysis.ipynb.bak exists and reviews the .edit-report.md and notebook diff",
+        "Does not rewrite, reorder, or delete existing cells"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "add a table 1 footnote cell to notebooks/table1.ipynb under the 'Baseline characteristics' heading",
+      "expected_output": "Inspects the notebook for a unique metadata tag anchor; finding none matching, asks the user which tagged cell to anchor on (or to add a tag) instead of targeting the visible heading text.",
+      "files": [],
+      "expectations": [
+        "Inspects cell.metadata.tags to find an anchor",
+        "Does not use the visible heading text alone as the edit anchor",
+        "Asks a single clarifying question about the anchor tag when no unique tag exists, rather than guessing",
+        "Does not write to the notebook until exactly one matching anchor tag is identified"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Start me a brand new Jupyter notebook for the readmission EDA with like 15 cells for loading, cleaning and plotting. Data is in data/restricted/readmit_2025.parquet.",
+      "expected_output": "Recognizes this is new work rather than an edit to an existing notebook and routes to text-native scaffolding (ce-work / ce-marimo / Quarto) instead of creating a new .ipynb with the edit tool.",
+      "files": [],
+      "expectations": [
+        "Identifies the request as new notebook creation, not an edit of an existing notebook",
+        "Recommends a text-native format (.py, marimo .py, .qmd, or .Rmd) via ce-work scaffolding rather than a new .ipynb",
+        "Does not run notebook_edit.py on a nonexistent notebook",
+        "Does not execute analytical cells on the restricted data as part of this skill"
+      ]
+    }
+  ]
+}

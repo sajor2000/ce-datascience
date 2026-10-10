@@ -1,10 +1,17 @@
 # Evidence-Grounded Scientific Writing Patterns
 
+## Contents
+
+- Evidence base
+- Rules that change the prose
+- Published examples and reusable structures
+- Editing checks
+
 Use these patterns to solve a sentence-level reporting problem after the study design, section, and evidence are established. They are not mandatory wording. Replace brackets only with verified study information, vary the syntax to preserve author voice, and follow the applicable reporting guideline and journal instructions.
 
 ## Evidence base
 
-PubMed and PubMed Central records were verified on September 4, 2026.
+Each row resolves to a live PubMed record by PMID, PMCID (when the article is in PubMed Central), and DOI; those identifiers are the provenance. Re-resolve a row with the PubMed MCP (metadata: `pubmed_fetch_articles` or `get_article_metadata`; identifiers: `pubmed_convert_ids` or `convert_article_ids`) before citing it in a manuscript, and cite PubMed with the DOI. The quoted excerpts below were read at the `abstract` level.
 
 | Source | Identifier | Use in this guide |
 |---|---|---|

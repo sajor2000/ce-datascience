@@ -1,0 +1,22 @@
+[
+  {"query": "Define our study cohort in OMOP: adults with incident atrial fibrillation 2016-2022, index = first AF diagnosis, exclude prior anticoagulant use in 365 days, require 1 year continuous observation. Need concept sets, SQL, and a CONSORT waterfall.", "should_trigger": true},
+  {"query": "build cohort for new users of GLP-1 RAs in MarketScan, washout 180d, continuous enrollment 365d prior, ICD-10-CM 2024 + NDC lists. give me the waterfall counts too", "should_trigger": true},
+  {"query": "We need a reproducible, version-pinned definition of our sepsis ICU cohort with explicit inclusion/exclusion windows before data QA starts.", "should_trigger": true},
+  {"query": "The OMOP vocabulary was refreshed to 2024-Q2. Replay the existing T2DM-statin cohort definition against the new vocab and regenerate the waterfall.", "should_trigger": true},
+  {"query": "Turn the PICO in analysis/research-question.yaml into a cohort spec: inclusion, exclusion, index event, look-back, follow-up, with SQL/CTEs.", "should_trigger": true},
+  {"query": "Write the cohort SQL for our claims-based case cohort of hip fracture after benzodiazepine initiation, with each criterion as a CTE and attrition counts.", "should_trigger": true},
+  {"query": "Need inclusion/exclusion criteria + index date + eligibility windows formalized for the CKD progression cohort in our Epic extract, saved as YAML with code lists.", "should_trigger": true},
+  {"query": "Target trial emulation of early vs delayed dialysis: set up the eligibility criteria, time zero, and grace-period cohort with concept sets in OMOP.", "should_trigger": true},
+  {"query": "CLIF is active (2.1). Identify adult ICU hospitalizations with vasopressor use in the first 24h as the study cohort and produce the cohort flow counts.", "should_trigger": true},
+  {"query": "cohort definition for pediatric asthma ED visits, SNOMED 2024-03 pinned, index = first ED visit with asthma dx, exclude CF. waterfall + spec yaml pls", "should_trigger": true},
+  {"query": "Validate our heart failure phenotype algorithm against 200 chart-reviewed cases and compute PPV/sensitivity.", "should_trigger": false},
+  {"query": "Profile the cohort extract data/derived/afib_cohort.parquet and give me a GO/NO-GO data quality gate before modeling.", "should_trigger": false},
+  {"query": "Generate Table 1 baseline characteristics for the finalized AF cohort, stratified by anticoagulant.", "should_trigger": false},
+  {"query": "Turn my idea about GLP-1 RAs and pancreatitis into PICO/FINER YAML with a PubMed query.", "should_trigger": false},
+  {"query": "Write the SAP section describing the cohort, estimand, and primary Cox model for the statin study.", "should_trigger": false},
+  {"query": "Review the diff that changes analysis/cohort/concept-sets/*.yaml and the cohort SQL for OMOP mapping errors before merge.", "should_trigger": false},
+  {"query": "Run the Cox model for statin initiation vs none on 1-year mortality with IPTW in the finished cohort.", "should_trigger": false},
+  {"query": "Compute the sample size we need for the AF cohort to detect HR 0.8 for stroke with 80% power.", "should_trigger": false},
+  {"query": "Our cohort waterfall lost 70% at the continuous-enrollment step; document this dropout lesson in docs/solutions for future studies.", "should_trigger": false},
+  {"query": "Which reporting guideline applies to our retrospective claims cohort — STROBE plus RECORD-PE?", "should_trigger": false}
+]

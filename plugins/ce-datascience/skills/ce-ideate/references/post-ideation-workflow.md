@@ -1,5 +1,13 @@
 # Post-Ideation Workflow
 
+## Contents
+
+- Phase 3: Adversarial Filtering
+- Phase 4: Present the Survivors
+- Phase 5: Persistence (Opt-In, Mode-Aware)
+- Phase 6: Refine or Hand Off
+- Quality Bar
+
 Read this file after Phase 2 ideation agents return and the orchestrator has merged and deduped their outputs into a master candidate list. Do not load before Phase 2 completes.
 
 ## Phase 3: Adversarial Filtering
@@ -25,9 +33,9 @@ Rejection criteria:
 Score survivors using a consistent rubric weighing: groundedness in stated context, **warrant strength** (`direct:` > `external:` > `reasoned:`; none excluded, but direct-evidence ideas score higher all else equal), expected value, novelty, pragmatism, leverage on future work, implementation burden, and overlap with stronger ideas.
 
 Target output:
-- keep 5-7 survivors by default
+- keep 3-5 survivors in compact divergent mode (the default) and 5-7 in explicit wide mode; direct mode keeps its 1-3 warranted options
 - if too many survive, run a second stricter pass
-- if fewer than 5 survive, report that honestly rather than lowering the bar
+- if fewer than the applicable target survive, report that honestly rather than lowering the bar
 
 ## Phase 4: Present the Survivors
 

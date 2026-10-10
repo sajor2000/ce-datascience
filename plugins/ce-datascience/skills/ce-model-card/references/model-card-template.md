@@ -1,5 +1,17 @@
 # Model Card: {{ model.id }}
 
+## Contents
+
+- 1. Model details
+- 2. Intended use
+- 3. Factors
+- 4. Metrics
+- 5. Evaluation data
+- 6. Training data
+- 7. Quantitative analyses
+- 8. Ethical considerations
+- 9. Caveats and recommendations
+
 ## 1. Model details
 
 | Field | Value |
@@ -119,7 +131,7 @@ See section 4.1.
 | Sex=F × Age 65+ × Race=Black | ... | ... | ... |
 | Sex=M × Age 18-44 × Race=White | ... | ... | ... |
 
-(Report at minimum the smallest-N intersection if N >= 30; otherwise note insufficient data.)
+(Report at minimum the smallest-N intersection if N >= 30, a project default rather than a literature cutoff; otherwise note insufficient data.)
 
 ## 8. Ethical considerations
 

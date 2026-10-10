@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-sas-stata-assess",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We inherited a cardiology outcomes project from a retired analyst: analysis/ has 42 .sas files (PROC PHREG, PROC GLIMMIX, lots of %macro and libname statements) and a handful of .do files. Before anyone rewrites anything in R, I need to know what we're dealing with. Report to analysis/sas-stata-assessment.md please.",
+      "expected_output": "Runs the assessment scan over analysis/ and writes analysis/sas-stata-assessment.md summarizing inventory, procedure families, reproducibility risks, and a recommended path (wrap, bounded port, or human validation).",
+      "files": [],
+      "expectations": [
+        "Runs scripts/assess_sas_stata.py with --scan-dir analysis --report analysis/sas-stata-assessment.md (or equivalent)",
+        "Inventories .sas, .do, and .ado files and identifies procedure/model families such as PHREG and GLIMMIX",
+        "Flags reproducibility risks such as libname/absolute paths, global macros, and unpinned ado dependencies",
+        "Recommends one of: keep legacy code with reproducibility wrappers, port a bounded analysis, or human SAS/Stata validation",
+        "Does not generate new SAS or Stata project scaffolding"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "convert all the stata do-files in code/ to R and tell me the results are equivalent so i can drop stata from the pipeline",
+      "expected_output": "The skill declines to claim equivalence or bulk-port, assesses the Stata surface first, and proposes porting one bounded output at a time with paired output comparison.",
+      "files": [],
+      "expectations": [
+        "Does not claim statistical equivalence without paired output comparison",
+        "Proposes porting one bounded output at a time",
+        "Names the comparison criteria: model terms, estimates, confidence intervals, p-values, row counts, and missingness handling",
+        "Produces or proposes an assessment report before any rewrite"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "There are .sas7bdat and .dta files sitting in data/ next to the code. Can you open them and check the variables the PROC LOGISTIC step uses so the assessment is complete?",
+      "expected_output": "The skill does not open the patient-level data files unless the project explicitly permits it and PHI handling is clear; it assesses code-level variable use instead and asks about access.",
+      "files": [],
+      "expectations": [
+        "Does not read or commit the .sas7bdat or .dta files without explicit project permission and clear PHI handling",
+        "Flags patient-level data files in the repo as a risk",
+        "Asks one question about data access/PHI policy or proceeds from code only",
+        "Derives variable usage from the SAS code (e.g., MODEL statements) rather than the data"
+      ]
+    }
+  ]
+}

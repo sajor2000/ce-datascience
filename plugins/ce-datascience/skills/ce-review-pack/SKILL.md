@@ -1,12 +1,12 @@
 ---
 name: ce-review-pack
-description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages."
+description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages. Use when the user needs PI review, statistician signoff, coordinating-center handoff, or approval workflow packaging."
 argument-hint: "[optional: --ledger analysis/signoff/signoff-ledger.json]"
 ---
 
 # Review Pack and Signoff
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are anchored on `SKILL_DIR`.** Run the command below from the user's project root so `--project-root .` and the project-relative `--ledger` path resolve to the project, not the skill directory.
 
 
 ## Skill Value
@@ -27,10 +27,11 @@ Create a concise study-team handoff and validate named human approvals. This ski
 3. Validate the signoff ledger:
 
 ```bash
-python3 scripts/validate_signoff_ledger.py --ledger analysis/signoff/signoff-ledger.json --project-root .
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/validate_signoff_ledger.py" --ledger analysis/signoff/signoff-ledger.json --project-root .
 ```
 
-4. If the ledger is missing or invalid, keep readiness at blocked or ready-with-review, never approved.
+4. If the ledger is missing or invalid (including a missing or empty top-level `ledger_id` or `study_id`, or a missing `entries` list), the validator reports BLOCKED; keep readiness at blocked, never approved. A valid ledger reports READY-WITH-REVIEW, which is still not an approval.
 
 ## Signoff Principles
 

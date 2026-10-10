@@ -1,0 +1,22 @@
+[
+  {"query": "Clean up my local git branches whose upstream branches were deleted after the PRs merged. Some of them have worktrees under .worktrees/ too.", "should_trigger": true},
+  {"query": "git branch -vv shows like 15 branches with ': gone]'. get rid of them safely pls, but don't nuke anything with unpushed work", "should_trigger": true},
+  {"query": "Prune local branches that no longer exist on origin for the sepsis-analysis repo, and remove their associated worktrees if they're clean.", "should_trigger": true},
+  {"query": "After our sprint closeout we merged and deleted about a dozen remote branches. Can you sweep the stale local ones and orphaned worktrees, confirming before deleting?", "should_trigger": true},
+  {"query": "remove branches whose remotes are gone. list them first and tell me which ones are safe vs need force", "should_trigger": true},
+  {"query": "My checkout is cluttered with old feature/* branches whose GitHub branches were auto-deleted on merge. Tidy that up.", "should_trigger": true},
+  {"query": "Delete local branches tracking deleted remote branches; I think feature/table1-gt has a dirty worktree so ask me separately about that one.", "should_trigger": true},
+  {"query": "fetch --prune and then clean out the gone branches + worktrees, with confirmation", "should_trigger": true},
+  {"query": "Our lab's repo has accumulated orphaned worktrees for branches that were merged and removed remotely. Clean gone branches and their worktrees.", "should_trigger": true},
+  {"query": "I keep tab-completing dead branch names. Get rid of local branches whose upstream no longer exists, safely.", "should_trigger": true},
+  {"query": "Create a new worktree for a fresh branch to try the competing-risks refactor in isolation.", "should_trigger": false},
+  {"query": "Delete the remote branch feature/old-km on GitHub and close its stale PR.", "should_trigger": false},
+  {"query": "Commit my working changes on this branch with a good conventional message, leaving the data files out.", "should_trigger": false},
+  {"query": "Monitor PR #88 for 30 minutes and tell me when it's mergeable.", "should_trigger": false},
+  {"query": "Rebase my feature branch onto the latest main and resolve the conflicts in R/cohort.R.", "should_trigger": false},
+  {"query": "Find out what we tried in previous sessions on the feature/xgb-tuning branch before it was abandoned.", "should_trigger": false},
+  {"query": "Set up a git pre-commit hook that blocks committing .parquet and .csv files.", "should_trigger": false},
+  {"query": "Commit, push, and open a PR for the cleanup changes on this branch.", "should_trigger": false},
+  {"query": "Write a handoff note so another agent can pick up the half-finished branch feature/frailty-index tomorrow.", "should_trigger": false},
+  {"query": "Audit our docs/solutions learnings and delete the stale ones that reference code we removed.", "should_trigger": false}
+]

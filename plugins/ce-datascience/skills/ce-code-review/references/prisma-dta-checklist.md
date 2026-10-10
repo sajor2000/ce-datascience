@@ -1,5 +1,15 @@
 # PRISMA-DTA Checklist for Systematic Reviews of Diagnostic Test Accuracy
 
+## Contents
+
+- Title
+- Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Funding
+
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Diagnostic Test Accuracy (PRISMA-DTA).
 Extension of PRISMA for systematic reviews and meta-analyses of diagnostic test accuracy studies.
 

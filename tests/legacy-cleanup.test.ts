@@ -201,6 +201,33 @@ describe("cleanupStaleSkillDirs", () => {
     expect(await exists(path.join(root, "setup"))).toBe(false)
   })
 
+  test("removes R and Fabric sub-skills that were merged into their routers", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-merged-router-skills-"))
+    // Released in 3.7.0 as standalone skills; now references under ce-rstats and ce-fabric.
+    await createDir(
+      path.join(root, "ce-r-review"),
+      skillContent(
+        "ce-r-review",
+        "Review R scripts, Quarto/R Markdown analyses, and R package code for correctness, reproducibility, idiomatic practices, data integrity, and statistical-method risks. Use for read-only R code audits.",
+      ),
+    )
+    await createDir(
+      path.join(root, "ce-fabric-kql"),
+      skillContent(
+        "ce-fabric-kql",
+        "Write, audit, or debug Microsoft Fabric Real-Time Intelligence workflows: Eventhouse, KQL databases, Eventstreams, ingestion mappings, update policies, materialized views, Real-Time Dashboards, Activator, and KQL queries.",
+      ),
+    )
+    await createDir(path.join(root, "ce-r-targets"), skillContent("ce-r-targets", "A user's own unrelated skill"))
+
+    const removed = await cleanupStaleSkillDirs(root)
+
+    expect(removed).toBe(2)
+    expect(await exists(path.join(root, "ce-r-review"))).toBe(false)
+    expect(await exists(path.join(root, "ce-fabric-kql"))).toBe(false)
+    expect(await exists(path.join(root, "ce-r-targets"))).toBe(true)
+  })
+
   test("removes legacy-only skills that no longer ship a ce-* replacement", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cleanup-legacy-only-skills-"))
     // `feature-video` and `reproduce-bug` were shipped by older plugin versions

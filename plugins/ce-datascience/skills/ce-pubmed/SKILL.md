@@ -1,12 +1,12 @@
 ---
 name: ce-pubmed
-description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output."
+description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output. Use when the user asks for PubMed, MEDLINE, PMIDs, biomedical abstracts, or literature metadata."
 argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-control|prediction|review --max 50"
 ---
 
 # PubMed Method Search
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are relative to this skill's directory.** Prefix each script path with that directory (the `SKILL_DIR` anchor below) — the agent's working directory is the user's project, not the skill, and `--out` paths resolve against the project.
 
 
 ## Skill Value
@@ -26,14 +26,33 @@ Search PubMed/MEDLINE via NCBI E-utilities and return a structured CSV that down
 - Optional but recommended: `export NCBI_API_KEY=<key>` (lifts rate limit from 3 → 10 req/sec)
 - Optional: `export NCBI_EMAIL=<your-email>` (NCBI courtesy)
 
-## Connected PubMed MCP path
+## Evidence access
 
-When a connected PubMed MCP server exposes the `pubmed_*` tools, prefer that
-path for citation work: use `pubmed_search_articles` or
-`pubmed_lookup_citation`, then `pubmed_fetch_articles`,
-`pubmed_fetch_fulltext`, and `pubmed_format_citations` as needed. Preserve the
-returned PMID/PMCID/DOI and query provenance in the downstream ledger. The
-bundled script remains the fallback for environments without the MCP server.
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script (`scripts/pubmed_search.py`, Step 1 below); without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** the PICO query from `analysis/research-question.yaml`, MeSH expansion (NCBI's `QueryTranslation`), and PMID/PMCID/DOI capture for every CSV row.
+
+When the PubMed MCP path is used instead of the script, write the same CSV
+columns (`pmid,year,journal,study_type,title,first_author,doi,pmcid,abstract,mesh_terms,query_used`),
+fill `pmcid`/`doi` with `pubmed_convert_ids` or `convert_article_ids` when the
+metadata call omits them, surface MeSH expansion with `pubmed_lookup_mesh` when
+the default server is connected and otherwise say explicitly that
+`QueryTranslation` was not surfaced, and still emit the `__CE_PUBMED_RESULTS__`
+line in Step 3. The CSV holds abstracts; rows are
+`abstract`-level evidence until a source is read in full.
+
+MCP path mechanics: translate `--years N` into the connector's date filter
+(`date_from` = current year minus N); the connector's `query_translation`
+field is the `[mesh]` line. Fetch metadata in batches of at most 20 PMIDs:
+`get_article_metadata` silently returns at most 20 records per call, and a
+large result may be spooled to a file by the harness instead of shown inline;
+parse that file with a script rather than re-requesting. Before emitting
+`n=`, reconcile the CSV row count against the searched PMID list and fetch any
+PMIDs still missing.
 
 ## Workflow
 
@@ -43,7 +62,7 @@ Before asking the user for a query, scan the most recent ~50 chat turns for `__C
 
 1. Read the YAML at the path (`analysis/research-question.yaml` by default).
 2. Use the `suggested_pubmed_query` field as the default query if no `<query terms>` argument was passed on the command line.
-3. Use `pico.population` and `outcome` to derive a default `--years` window (default 10) and `--study-type` filter (e.g., `cohort` if `suggested_design` starts with "cohort").
+3. Use `pico.population` and `outcome` to derive a default `--years` window (default 10) and `--study-type` filter (e.g., `cohort` if `suggested_design` names a cohort design).
 4. Print one line so the chain is visible:
 
    ```
@@ -57,15 +76,17 @@ If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, 
 The `scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries. Prefer it over hand-rolling `requests` because Entrez already implements the rate-limit + retry logic that hand-rolled code routinely gets wrong.
 
 ```bash
-python3 scripts/pubmed_search.py \
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/pubmed_search.py" \
     "sepsis bundle compliance ICU" \
     --years 10 --study-type cohort --max 50 \
     --out analysis/pubmed/sepsis-bundle-2025.csv
 ```
 
-The script prints two diagnostic lines to stderr the user should always see:
-- `[query] (sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...` — the actual query NCBI ran after MeSH expansion. Surface this; silent MeSH expansion is the #1 source of "why didn't my paper come up?".
+The script prints three diagnostic lines to stderr the user should always see:
+- `[query] (sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...` — the query string sent to NCBI, with the study-type, date, human, and English filters added.
 - `[hits]  142 matched; fetching 50` — the size of the matched set vs what was retrieved.
+- `[mesh]  ...` — NCBI's `QueryTranslation`, the actual query NCBI ran after MeSH expansion. Surface this; silent MeSH expansion is the #1 source of "why didn't my paper come up?".
 
 ### 2. Write the human summary
 

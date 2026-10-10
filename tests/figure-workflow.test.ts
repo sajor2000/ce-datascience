@@ -65,6 +65,42 @@ describe("publication figure workflow", () => {
     expect(report).toContain("Result: READY-WITH-REVIEW")
   })
 
+  test("warns on unknown style profile, caption prefix, and short alt text without blocking", async () => {
+    const root = await makeProject()
+    await writeFile(
+      path.join(root, "analysis", "publication", "figures", "figure-manifest.json"),
+      JSON.stringify({
+        figures: [{
+          figure_id: "fig1",
+          sap_section: "SAP-5.1",
+          source_data: "analysis/publication/figures/fig1-source.csv",
+          source_code: "analysis/scripts/fig1.py",
+          output_path: "analysis/publication/figures/fig1.pdf",
+          caption: "Primary outcome by exposure group.",
+          alt_text: "Line chart.",
+          style_profile: "house-style",
+          checklist_items: ["STROBE-14"],
+        }],
+      }, null, 2),
+    )
+
+    const proc = Bun.spawn([
+      "python3",
+      scriptPath,
+      "--project-root",
+      root,
+    ], { stdout: "pipe", stderr: "pipe" })
+    expect(await proc.exited).toBe(0)
+    const report = await readFile(
+      path.join(root, "analysis", "publication", "figures", "figure-validation-report.md"),
+      "utf8",
+    )
+    expect(report).toContain("Result: READY-WITH-REVIEW")
+    expect(report).toContain("style_profile 'house-style' is not a shipped profile")
+    expect(report).toContain("caption should start with 'Figure <n>.'")
+    expect(report).toContain("alt_text is shorter than 20 characters")
+  })
+
   test("blocks duplicate IDs and missing source data", async () => {
     const root = await makeProject()
     await writeFile(

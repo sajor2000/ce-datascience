@@ -14,7 +14,7 @@ params:
   git_sha: string                 # `git rev-parse HEAD` at run start
   random_seed: integer
   split_strategy: group|temporal|random
-  model_class: string             # e.g., "lightgbm.LGBMClassifier"
+  model_class: string             # recommended in run-schema.yaml; e.g., "lightgbm.LGBMClassifier"
   hyperparams: map                # model hyperparams as a flat map
   feature_count: integer
 
@@ -28,7 +28,7 @@ metrics:
   brier_score: float
   calibration_intercept: float
   calibration_slope: float
-  subgroup_metrics:
+  subgroup_metrics:                 # recommended in run-schema.yaml
     - subgroup: string            # e.g., "sex_F"
       n: integer
       auc: float

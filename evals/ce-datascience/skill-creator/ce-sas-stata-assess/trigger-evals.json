@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Our repo is full of .sas programs with PROC MIXED and macros. What can the plugin review or port, and what are the risks?",
+    "should_trigger": true
+  },
+  {
+    "query": "I have Stata .do and .ado files for a DiD analysis -- assess reproducibility and migration readiness before we move to R",
+    "should_trigger": true
+  },
+  {
+    "query": "can u scan analysis/ for sas + stata code and tell me which models are used and whether porting to python is feasible",
+    "should_trigger": true
+  },
+  {
+    "query": "Legacy SAS pipeline uses libname to a network drive and %include everywhere. Give me a risk assessment and next steps",
+    "should_trigger": true
+  },
+  {
+    "query": "Before handing this to the R team, inventory the PROC statements, data read/write locations, and output commands (ods, putexcel, esttab) in the project",
+    "should_trigger": true
+  },
+  {
+    "query": "We need to decide: keep the old Stata code with wrappers, port one table to R, or get a Stata analyst to validate. Help us decide based on what's in code/",
+    "should_trigger": true
+  },
+  {
+    "query": "The trial's SAS programs produce RTF tables via ODS. Which of these could we realistically port to Quarto, and how would we prove the port matches?",
+    "should_trigger": true
+  },
+  {
+    "query": "assess this stata project for hidden state - globals, cd, unpinned ssc packages, missing set seed for bootstraps",
+    "should_trigger": true
+  },
+  {
+    "query": "write a sas/stata assessment report to analysis/sas-stata-assessment.md",
+    "should_trigger": true
+  },
+  {
+    "query": "Is there anything in this repo (.sas, .do) we can review for reproducibility without having SAS licenses?",
+    "should_trigger": true
+  },
+  {
+    "query": "Review my R translation of the PROC PHREG model in R/cox.R for correctness before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Which language does this repo primarily use -- R or Python? Emit the handoff",
+    "should_trigger": false
+  },
+  {
+    "query": "Profile the columns in the cleaned .parquet extract and run the data-QA gate",
+    "should_trigger": false
+  },
+  {
+    "query": "Rewrite this Python pandas merge in polars for speed",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me write an event-study in R with fixest for staggered adoption, replacing nothing -- this is new work",
+    "should_trigger": false
+  },
+  {
+    "query": "Debug why my R script gives a different hazard ratio every run; I suspect missing set.seed",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up the project profile for a locked-down corporate laptop with no package manager",
+    "should_trigger": false
+  },
+  {
+    "query": "Do a read-only R code audit of the tidyverse cleaning scripts",
+    "should_trigger": false
+  },
+  {
+    "query": "Build a cohort definition with inclusion/exclusion criteria and SQL CTEs from our OMOP instance",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft the Methods section describing the Cox model we ran",
+    "should_trigger": false
+  }
+]

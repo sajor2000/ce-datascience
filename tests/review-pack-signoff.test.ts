@@ -92,4 +92,36 @@ describe("review-pack signoff ledger", () => {
     expect(report).toContain("Duplicate entry_id: signoff-1")
     expect(report).toContain("signoff-1: missing required field 'reviewer'")
   })
+
+  test("blocks ledgers missing schema-required ledger_id or study_id", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "signoff-ledger-missing-id-"))
+    tempRoots.push(root)
+    await mkdir(path.join(root, "analysis", "signoff"), { recursive: true })
+    await writeFile(
+      path.join(root, "analysis", "signoff", "signoff-ledger.json"),
+      JSON.stringify({
+        study_id: "",
+        entries: [{
+          entry_id: "signoff-1",
+          reviewer: "Dr. Reviewer",
+          artifact: "table1",
+          decision: "approved",
+          timestamp: "2026-05-30T12:00:00Z",
+        }],
+      }, null, 2),
+    )
+
+    const proc = Bun.spawn([
+      "python3",
+      scriptPath,
+      "--project-root",
+      root,
+    ], { stdout: "pipe", stderr: "pipe" })
+
+    expect(await proc.exited).toBe(1)
+    const report = await readFile(path.join(root, "analysis", "signoff", "signoff-validation-report.md"), "utf8")
+    expect(report).toContain("Result: BLOCKED")
+    expect(report).toContain("Ledger missing required field 'ledger_id'")
+    expect(report).toContain("Ledger required field 'study_id' is empty.")
+  })
 })

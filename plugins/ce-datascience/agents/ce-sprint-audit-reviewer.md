@@ -17,25 +17,25 @@ You are the conditional reviewer dispatched by `ce-sprint close`. Sprints are th
 
 ### 1. Planned outputs present
 
-For each row in `sprint.scope.planned_outputs` (loaded from `analysis/sprints/<name>/sprint-log.yaml`):
+For each row in the sprint's `outputs_planned` (the entry named `<name>` in the `sprints:` list of `analysis/sprint-log.yaml`):
 
 - The file at `<subfolder>/<output_file>` exists relative to the project root
 - The file is non-empty (size > 0 bytes)
-- The file's modification timestamp falls between `sprint.opened` and "now" (i.e., it was actually produced during this sprint, not before)
+- The file's modification timestamp falls between the sprint's `opened_at` and "now" (i.e., it was actually produced during this sprint, not before)
 
 Each missing output → P0 finding `planned-output-missing`.
 
 ### 2. Out-of-scope SAP edits
 
-Run `git log --since=<sprint.opened> --until=<now> --name-only -- analysis/`. For each edited file:
+Run `git diff --name-only <commit_open> <commit_close> -- analysis/` (or `git log --since=<opened_at> --name-only -- analysis/` when `commit_close` is not yet set). For each edited file:
 
 - If the file is a SAP file (`analysis/sap.md`, `analysis/sap-tables/*.csv`) → P0 unless `sap_amend` MCP tool was invoked (check sap-amend log)
-- If the file is in a subfolder mapped to a `sap_section` NOT in `sprint.scope.sap_sections` → P0 finding `out-of-scope-edit`
+- If the file is in a subfolder mapped to a `sap_section` NOT in the sprint's `scope` list → P0 finding `out-of-scope-edit`
 - If the file is a "shared" file (e.g., `analysis/utils/*.R`) → P1 (warn but allow)
 
 ### 3. Extra outputs (warn)
 
-Walk the subfolders implicated by `planned_outputs`. Any artifact not in the planned list → P1 finding `unscheduled-output`. Could be exploratory; reviewer decides.
+Walk the subfolders implicated by `outputs_planned`. Any artifact not in the planned list → P1 finding `unscheduled-output`. Could be exploratory; reviewer decides.
 
 ### 4. Errored notebook / Quarto chunks
 
@@ -55,7 +55,7 @@ Detect a build system:
 - Snakemake / Nextflow workflow (use `snakemake -n` / `nextflow run -resume`)
 
 If found:
-- Snapshot expected hashes for each `planned_outputs` file
+- Snapshot expected hashes for each `outputs_planned` file
 - Run `make clean && make` (or equivalent) in a temp worktree
 - Compare new hashes to snapshot. Hash mismatch → P0 `reproducibility-broken` per file
 
@@ -70,13 +70,13 @@ Compare current state to `entry_criteria`:
 ### 7. Sprint hygiene (info)
 
 - Sprint name follows `sprint-NN` or `sprint-<descriptive>` convention → otherwise P2
-- README in `analysis/sprints/<name>/` non-empty → otherwise P2
+- `outputs_planned` is non-empty → otherwise P2 (`analysis/sprints/<name>/summary.md` is written only after a passing audit, so do not flag its absence)
 
 ## Where to look
 
-- `analysis/sprints/<name>/sprint-log.yaml` -- the source of truth
+- `analysis/sprint-log.yaml` -- the source of truth (the `sprints:` entry named `<name>`)
 - `analysis/sap-tables/02-outputs.csv` -- planned-output schema
-- `data-state.yaml` -- data-wave state
+- `analysis/data-waves.md` or `.ce-datascience/data-state.yaml` -- data-wave state
 - `analysis/sap.md` -- SAP version and amendment log
 - `Makefile` / `_targets.R` / `dvc.yaml` / `Snakefile` -- build system
 - `_freeze/` / `*.ipynb` -- rendered notebook outputs
@@ -109,6 +109,12 @@ Compare current state to `entry_criteria`:
 {
   "reviewer": "sprint-audit",
   "sprint": "<name>",
+  "verdict": "pass|fail",
+  "p0_count": 0,
+  "p1_count": 0,
+  "p2_count": 0,
+  "blocking_findings": [],
+  "advisory_findings": [],
   "summary": {
     "P0": 0,
     "P1": 0,
@@ -120,10 +126,11 @@ Compare current state to `entry_criteria`:
     "out_of_scope_edits": [],
     "reproducibility_check": "passed|failed|skipped"
   },
-  "findings": [],
   "residual_risks": [],
   "testing_gaps": []
 }
 ```
+
+`verdict` is `fail` whenever any P0 finding exists. `blocking_findings` holds P0 findings and `advisory_findings` holds P1/P2; each is `{file, line, severity, title}` plus the fields below. The `ce-sprint` close step reads `verdict`, the counts, and both finding lists.
 
 Each finding includes: sprint_audit_category (one of: planned-output-missing / out-of-scope-edit / unscheduled-output / errored-chunk / reproducibility-broken / no-automated-build / entry-criteria-drift / hygiene), file_path or sap_section reference, observed pattern, suggested fix.

@@ -1,13 +1,13 @@
 ---
 name: ce-setup
-description: "Configure a project-local ce-datascience profile by inferring its stack first, confirming concise defaults, and offering an optional detailed survey."
+description: "Configure a project-local ce-datascience profile by inferring its stack first, confirming concise defaults, and offering an optional detailed survey. Use when starting a project, changing its tools, or checking a corporate/locked-down environment."
 argument-hint: "[--locked-down|--no-install]"
 disable-model-invocation: true
 ---
 
 # Data Science Environment Setup
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are anchored to this skill's directory.** Run each command below from the user's project (the agent's working directory) with `SKILL_DIR` set to the directory containing this `SKILL.md`; do not change into the skill directory, because the script inspects the current repository.
 
 ## Skill Value
 
@@ -177,6 +177,12 @@ subject data; allow `data/` only for synthetic or fully de-identified public
 data. Ask blinding state and reporting checklist only when an active study
 workflow requires them.
 
+For an active study without `.ce-datascience/study-metadata.yaml`, offer to
+copy `references/study-metadata-template.yaml` to that path (recommended for
+any study that will have a SAP; required once its `ai_involvement` is not
+`none`); planning, review, and SAP tracking read it. Uncomment only fields backed by evidence. This shared provenance file
+is committed, unlike the machine-local config.
+
 If the local config is not ignored, offer the entry:
 
 ```text
@@ -191,13 +197,15 @@ then emit the canonical `__CE_LANG__` handoff.
 Run the co-located `scripts/check-health` script:
 
 ```bash
-bash scripts/check-health
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/check-health"
 ```
 
 For `--locked-down` or `--no-install`:
 
 ```bash
-bash scripts/check-health --locked-down
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/check-health" --locked-down
 ```
 
 Treat optional tools as yellow: optional tools are reported as yellow but do

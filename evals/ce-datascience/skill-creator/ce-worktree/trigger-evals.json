@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Set up an isolated git worktree for the new sensitivity-analysis branch so I don't disturb main",
+    "should_trigger": true
+  },
+  {
+    "query": "attach a worktree to the existing branch feat/aki-phenotype so I can work on it in parallel",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to review PR #88 in isolation -- create a worktree from the PR head with a local branch",
+    "should_trigger": true
+  },
+  {
+    "query": "create a worktree off origin/main for fixing the converter bug, use a meaningful branch name",
+    "should_trigger": true
+  },
+  {
+    "query": "Isolate commit a1b2c3d in its own worktree so I can bisect without touching my checkout",
+    "should_trigger": true
+  },
+  {
+    "query": "am I already in a worktree? if not, make one for the Table 1 refactor",
+    "should_trigger": true
+  },
+  {
+    "query": "Need parallel workspaces: keep my current branch and spin up an isolated checkout for hotfix/phi-scan",
+    "should_trigger": true
+  },
+  {
+    "query": "make sure .worktrees/ is gitignored and add a worktree for feat/sap-tabular-validation",
+    "should_trigger": true
+  },
+  {
+    "query": "worktree for the release-prep branch pls, it's already checked out somewhere I think -- tell me where",
+    "should_trigger": true
+  },
+  {
+    "query": "Before starting the plan execution, set up isolation in a worktree from the default branch",
+    "should_trigger": true
+  },
+  {
+    "query": "Clean up local branches whose remote tracking branches are gone, and remove their worktrees",
+    "should_trigger": false
+  },
+  {
+    "query": "Execute the plan in docs/plans/latest.md on a new branch",
+    "should_trigger": false
+  },
+  {
+    "query": "Commit, push, and open a PR from this branch",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a focused commit for my staged changes",
+    "should_trigger": false
+  },
+  {
+    "query": "Rename my auto-generated branch worktree-jolly-raven to something meaningful and continue working",
+    "should_trigger": false
+  },
+  {
+    "query": "Monitor PR #88 CI and surface review residuals",
+    "should_trigger": false
+  },
+  {
+    "query": "Resolve the review comments on PR #214 and reply to each thread",
+    "should_trigger": false
+  },
+  {
+    "query": "Review the current branch's diff for correctness bugs",
+    "should_trigger": false
+  },
+  {
+    "query": "Rebase my feature branch onto main and resolve conflicts",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a handoff so another agent can continue this branch's work",
+    "should_trigger": false
+  }
+]

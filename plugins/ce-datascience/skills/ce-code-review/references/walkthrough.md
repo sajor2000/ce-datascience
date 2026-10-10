@@ -1,5 +1,16 @@
 # Per-finding Walk-through
 
+## Contents
+
+- Entry
+- Per-finding presentation
+- Per-finding routing
+- Override rule
+- State
+- End-of-walk-through dispatch
+- Unified completion report
+- Execution posture
+
 This reference defines Interactive mode's per-finding walk-through — the path the user enters by picking option A (`Review each finding one by one — accept the recommendation or choose another action`) from the routing question. It also covers the unified completion report that every terminal path (walk-through, best-judgment, File tickets, zero findings) emits.
 
 Interactive mode only.
@@ -14,15 +25,15 @@ The walk-through receives, from the orchestrator:
 - The cached tracker-detection tuple from `tracker-defer.md` (`{ tracker_name, confidence, named_sink_available, any_sink_available }`). `any_sink_available` determines whether the Defer option is offered; `named_sink_available` + `confidence` determine whether the label names the tracker inline.
 - The run id for artifact lookups.
 
-Each finding's recommended action has already been normalized by Stage 5 (step 7b — tie-break on action). The walk-through surfaces that recommendation to the user but does not recompute it.
+Each finding's recommended action has already been normalized by Stage 5 (step 6b — recommended action and cross-reviewer tie-break). The walk-through surfaces that recommendation to the user but does not recompute it.
 
 ---
 
 ## Per-finding presentation
 
-Each finding is presented in two parts: a **terminal output block** carrying the explanation, and a **question** via the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)) carrying the decision. Never merge the two — the terminal block uses markdown; the question uses plain text.
+Each finding is presented in two parts: a **terminal output block** carrying the explanation, and a **question** via the current harness's blocking question UI carrying the decision. Never merge the two — the terminal block uses markdown; the question uses plain text.
 
-In Claude Code the tool should already be loaded from the Interactive-mode pre-load step in `SKILL.md` — if it isn't, call `ToolSearch` with query `select:AskUserQuestion` now. Fall back to presenting the per-finding options as a numbered list only when the harness genuinely lacks a blocking tool — `ToolSearch` returns no match, the tool call explicitly fails, or the runtime mode does not expose it (e.g., Codex edit modes without `request_user_input`). A pending schema load is not a fallback trigger. Never silently skip the question.
+Fall back to presenting the per-finding options as a numbered list in chat and waiting only when the harness has no blocking question UI or the call fails. Never silently skip the question.
 
 ### Terminal output block (print before firing the question)
 
@@ -51,7 +62,7 @@ Render as markdown. Labels on their own line, blank lines between sections:
 Substitutions:
 
 - **`{plain-English title}`:** a 3-8 word summary suitable as a heading. Derived from the merged finding's `title` field but rephrased so it reads as observable behavior (e.g., "Path traversal in loadUserFromCache" rather than "Missing userId validation on line 36").
-- **`why_it_matters`:** read the contributing reviewer's artifact file at `/tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json` using the same `file + line_bucket(line, +/-3) + normalize(title)` matching that headless mode uses (see `SKILL.md` Stage 6 detail enrichment). When multiple reviewers flagged the merged finding, try them in the order they appear in the merged finding's reviewer list. Use the first match.
+- **`why_it_matters`:** read the contributing reviewer's artifact file at `/tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json` using the same `file + line_bucket(line, +/-3) + normalize(title)` matching that headless mode uses (see `references/synthesis-and-output.md` detail enrichment). When multiple reviewers flagged the merged finding, try them in the order they appear in the merged finding's reviewer list. Use the first match.
 - **`suggested_fix`:** from the merged finding's `suggested_fix` field. Render as prose describing **intent**, not as syntax. The fixer subagent owns the exact code — the walk-through just needs enough for the user to trust or reject the action. Rules:
   - **Default — one sentence describing the effect.** What does the fix achieve, and where does it live? Prefer intent language over quoted code.
     - ✅ `Throw on non-2xx response before parsing JSON.`
@@ -65,7 +76,7 @@ Substitutions:
   - **Summary + artifact pointer** — when prose can't capture the fix: one-sentence transformation + key symbol/location + `Full fix: /tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json → findings[].suggested_fix`.
   - **No diff blocks.** Modifications to existing code render as prose.
 - **`Why it works`:** grounded reasoning that, where possible, references a similar pattern already used elsewhere in the codebase (e.g., "matches the format-validation pattern already used at src/cli/io.ts:41"). One to three sentences.
-- **R15 conflict context line (when applicable):** when contributing reviewers implied different actions for this finding and Stage 5 step 7b broke the tie, surface that briefly. Example: `Correctness recommends Apply; Testing recommends Skip (low confidence). Agent's recommendation: Skip.` The orchestrator's recommendation — the post-tie-break value — is what the menu labels "recommended."
+- **R15 conflict context line (when applicable):** when contributing reviewers implied different actions for this finding and Stage 5 step 6b broke the tie, surface that briefly. Example: `Correctness recommends Apply; Testing recommends Skip (low confidence). Agent's recommendation: Skip.` The orchestrator's recommendation — the post-tie-break value — is what the menu labels "recommended."
 
 When no artifact match exists for the finding (merge-synthesized finding, or the persona's artifact write failed), the terminal block degrades to the heading + `suggested_fix` only (omit the `What's wrong` and `Why it works` sections) and records the gap for the Coverage section of the completion report.
 
@@ -135,17 +146,17 @@ Render the `[TRACKER]` label per `tracker-defer.md`: when `confidence = high` AN
 4. Auto-resolve with best judgment on the rest
 ```
 
-When reviewers disagreed or content context cuts against the default, still mark one option — whichever Stage 5 step 7b produced — and surface the disagreement in the R15 conflict context line.
+When reviewers disagreed or content context cuts against the default, still mark one option — whichever Stage 5 step 6b produced — and surface the disagreement in the R15 conflict context line.
 
 ### Adaptations
 
-- **No `suggested_fix` (Apply suppressed):** when the finding has no concrete `suggested_fix` (`gated_auto` or `manual` with `suggested_fix == null`), option A (`Apply`) is **omitted from the menu**. Stage 5 step 6b already maps these to a `Defer` recommendation, so the `(recommended)` marker lands on a still-visible option. The menu shows three options: `Defer` / `Skip` / `Auto-resolve with best judgment on the rest` (and reduces to `Skip` / `Auto-resolve with best judgment on the rest` when combined with the no-sink adaptation). When this combines with the advisory variant, the same suppression is moot because option A is already replaced with `Acknowledge`. This rule mirrors the suppression applied during `SKILL.md` Step 2 Interactive option B's post-run `Walk through these one at a time` re-entry, so the same handling applies regardless of which entry path the user came in through.
+- **No `suggested_fix` (Apply suppressed):** when the finding has no concrete `suggested_fix` (`gated_auto` or `manual` with `suggested_fix == null`), option A (`Apply`) is **omitted from the menu**. Stage 5 step 6b already maps these to a `Defer` recommendation, so the `(recommended)` marker lands on a still-visible option. The menu shows three options: `Defer` / `Skip` / `Auto-resolve with best judgment on the rest` (and reduces to `Skip` / `Auto-resolve with best judgment on the rest` when combined with the no-sink adaptation). When this combines with the advisory variant, the same suppression is moot because option A is already replaced with `Acknowledge`. This rule mirrors the suppression applied during `references/post-review.md` Step 2 Interactive option B's post-run `Walk through these one at a time` re-entry, so the same handling applies regardless of which entry path the user came in through.
 - **Advisory-only finding:** when the finding's `autofix_class` is `advisory` (no actionable fix), option A is replaced with `Acknowledge — mark as reviewed`. The other three options remain. The advisory variant is the only case where `Acknowledge` appears in the menu.
 - **N=1 (exactly one pending finding):** the terminal block's heading omits `Finding N of M` and renders as `## {severity} {plain-English title}`. The stem's first line drops the position counter, becoming `{severity} {short handle}.` Option D (`Auto-resolve with best judgment on the rest`) is suppressed because no subsequent findings exist — the menu shows three options: Apply / Defer / Skip (or Acknowledge, for advisory).
-- **No sink (Defer option unavailable):** when the tracker-detection tuple reports `any_sink_available: false` (every tier in the fallback chain — named tracker and GitHub Issues via `gh` — is unreachable), option B (`Defer`) is omitted. The stem appends one line explaining that no issue tracker is configured for this checkout (Linear, GitHub Issues, etc., were probed and unavailable). Phrase it for a developer audience — avoid `tracker sink` jargon, and avoid `platform` since the missing piece is per-project, not per-agent-platform. The menu shows three options: Apply / Skip / Auto-resolve with best judgment on the rest (and Acknowledge in place of Apply for advisory-only findings). **Before rendering the options, remap any per-finding `Defer` recommendation produced by Stage 5 step 7b to `Skip`** so the `(recommended)` marker always lands on an option that is actually in the menu. When the remap fires, surface it on the R15 conflict context line — name what was downgraded and why (so the reader sees the cross-reviewer Defer recommendation hasn't silently disappeared). This is a render-time runtime step; Stage 5 step 7b has no knowledge of sink availability and only orders conflicting reviewer recommendations.
+- **No sink (Defer option unavailable):** when the tracker-detection tuple reports `any_sink_available: false` (every tier in the fallback chain — named tracker and GitHub Issues via `gh` — is unreachable), option B (`Defer`) is omitted. The stem appends one line explaining that no issue tracker is configured for this checkout (Linear, GitHub Issues, etc., were probed and unavailable). Phrase it for a developer audience — avoid `tracker sink` jargon, and avoid `platform` since the missing piece is per-project, not per-agent-platform. The menu shows three options: Apply / Skip / Auto-resolve with best judgment on the rest (and Acknowledge in place of Apply for advisory-only findings). **Before rendering the options, remap any per-finding `Defer` recommendation produced by Stage 5 step 6b to `Skip`** so the `(recommended)` marker always lands on an option that is actually in the menu. When the remap fires, surface it on the R15 conflict context line — name what was downgraded and why (so the reader sees the cross-reviewer Defer recommendation hasn't silently disappeared). This is a render-time runtime step; Stage 5 step 6b has no knowledge of sink availability and only orders conflicting reviewer recommendations.
 - **Combined N=1 + no sink:** the menu shows two options: Apply / Skip (or Acknowledge / Skip).
 
-Only when `ToolSearch` explicitly returns no match or the tool call errors — or on a platform with no blocking question tool — fall back to presenting the options as a numbered list and waiting for the user's next reply.
+Only when the harness has no blocking question UI or the call fails, fall back to presenting the options as a numbered list and waiting for the user's next reply.
 
 ---
 
@@ -157,7 +168,7 @@ For each finding's answer:
 - **Acknowledge — mark as reviewed** (advisory variant) — record Acknowledge in the in-memory decision list. Advance to the next finding. No side effects.
 - **Defer — file a [TRACKER] ticket** — invoke the tracker-defer flow from `tracker-defer.md`. The walk-through's position indicator stays on the current finding during any failure-path sub-question (Retry / Fall back / Convert to Skip). On success, record the tracker URL / reference in the in-memory decision list and advance. On conversion-to-Skip from the failure path, advance with the failure noted in the completion report.
 - **Skip — don't apply, don't track** — record Skip in the in-memory decision list. Advance. No side effects.
-- **Auto-resolve with best judgment on the rest** — exit the walk-through loop and dispatch the fixer subagent (`SKILL.md` Step 3) immediately on the remaining action set: the current finding plus everything not yet decided. No Stage 5b pre-pass. No bulk-preview approval gate. The fixer applies items with concrete `suggested_fix`, no-ops on advisory items, and routes items where the fix cannot be applied cleanly (or where evidence no longer matches the code) to a `failed` bucket with a one-line reason. Apply findings the user already picked during the walk-through are dispatched in the same fixer pass — the remaining set joins the in-memory Apply set so the fixer receives the union and applies all changes against a consistent tree. After the fixer returns, follow the post-run failure-handling logic in `SKILL.md` Step 2 Interactive option B — when the `failed` bucket is non-empty, fire one question with three options (file tickets / walk through / ignore). When the `failed` bucket is empty, emit the unified completion report directly.
+- **Auto-resolve with best judgment on the rest** — exit the walk-through loop and dispatch the fixer subagent (`references/post-review.md` Step 3) immediately on the remaining action set: the current finding plus everything not yet decided. No Stage 5b pre-pass. No bulk-preview approval gate. The fixer applies items with concrete `suggested_fix`, no-ops on advisory items, and routes items where the fix cannot be applied cleanly (or where evidence no longer matches the code) to a `failed` bucket with a one-line reason. Apply findings the user already picked during the walk-through are dispatched in the same fixer pass — the remaining set joins the in-memory Apply set so the fixer receives the union and applies all changes against a consistent tree. After the fixer returns, follow the post-run failure-handling logic in `references/post-review.md` Step 2 Interactive option B — when the `failed` bucket is non-empty, fire one question with three options (file tickets / walk through / ignore). When the `failed` bucket is empty, emit the unified completion report directly.
 
 ---
 
@@ -187,7 +198,7 @@ This section covers the run-to-completion path only — every finding has been a
 
 When the loop runs to completion, the walk-through hands off to the dispatch phase:
 
-1. **Apply set:** spawn one fixer subagent for the full accumulated Apply set. The fixer receives the set as its input queue and applies all changes in one pass against the current working tree. This preserves the existing "one fixer, consistent tree" mechanic and gives the fixer the full set at once to handle inter-fix dependencies (two Applies touching overlapping regions). The existing Step 3 fixer prompt needs a small update to acknowledge this queue may be heterogeneous (`gated_auto` and `manual` mix, not just `safe_auto`) — authored alongside this reference.
+1. **Apply set:** spawn one fixer subagent for the full accumulated Apply set. The fixer receives the set as its input queue and applies all changes in one pass against the current working tree. This preserves the existing "one fixer, consistent tree" mechanic and gives the fixer the full set at once to handle inter-fix dependencies (two Applies touching overlapping regions). Step 3 in `references/post-review.md` treats this as the walk-through Apply-set queue: items may mix `gated_auto` and `manual`, but each carries a concrete `suggested_fix`.
 2. **Defer set:** already executed inline during the walk-through. Nothing to dispatch here.
 3. **Skip / Acknowledge:** no-op.
 
@@ -224,7 +235,7 @@ The report appears after all execution completes. Ordering inside the report: fa
 
 ### Zero-findings degenerate case
 
-When the routing question was skipped because no `gated_auto` / `manual` findings remained after `safe_auto`, the completion report collapses to its summary-counts + verdict form with one added line — the count of `safe_auto` fixes applied. The summary wording mirrors `SKILL.md` Step 2 Interactive mode's zero-remaining case: the unqualified `All findings resolved` form is only accurate when no advisory or pre-existing findings remain. When advisory and/or pre-existing findings remain in the report, use the qualified form that names what was cleared and names what still remains. Examples:
+When the routing question was skipped because no `gated_auto` / `manual` findings remained after `safe_auto`, the completion report collapses to its summary-counts + verdict form with one added line — the count of `safe_auto` fixes applied. The summary wording mirrors `references/post-review.md` Step 2 Interactive mode's zero-remaining case: the unqualified `All findings resolved` form is only accurate when no advisory or pre-existing findings remain. When advisory and/or pre-existing findings remain in the report, use the qualified form that names what was cleared and names what still remains. Examples:
 
 No remaining advisory or pre-existing findings:
 
@@ -246,4 +257,4 @@ Verdict: Ready with fixes.
 
 ## Execution posture
 
-The walk-through is operationally read-only except for two permitted writes: the in-memory Apply set / decision list (managed by the orchestrator) and the tracker-defer dispatch (external ticket creation, described in `tracker-defer.md`). Persona agents remain strictly read-only. The end-of-walk-through fixer dispatch is the single point where file modifications happen — governed by the existing Step 3 fixer contract in `SKILL.md`.
+The walk-through is operationally read-only except for two permitted writes: the in-memory Apply set / decision list (managed by the orchestrator) and the tracker-defer dispatch (external ticket creation, described in `tracker-defer.md`). Persona agents remain strictly read-only. The end-of-walk-through fixer dispatch is the single point where file modifications happen — governed by the existing Step 3 fixer contract in `references/post-review.md`.

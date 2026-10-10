@@ -1,0 +1,22 @@
+[
+  {"query": "Our Results section is full of 'interestingly' and 'as expected' and explanations of why things happened. Can you rewrite it so it just reports findings with the stats?", "should_trigger": true},
+  {"query": "Audit manuscript/methods.md - I think a lot of justification and caveats crept into Methods that belong in Discussion. Keep anything the protocol requires though.", "should_trigger": true},
+  {"query": "draft the Methods section for our retrospective MIMIC-IV cohort on early vs late dialysis: design, setting, population, exposure, outcome, covariates, models. past tense pls", "should_trigger": true},
+  {"query": "Fix these figure legends so they only describe what's shown - right now Fig 2 says 'suggesting experience does not protect against automation bias'.", "should_trigger": true},
+  {"query": "Write the Results for Table 2 and Table 3 of our sepsis trial secondary analysis: primary outcome HR 0.84 (0.72-0.98), secondary outcomes as in analysis/outputs/table3.csv.", "should_trigger": true},
+  {"query": "Reviewer 3 complained that our Methods reads like a Discussion ('this approach was chosen because it is robust...'). Move the interpretation out and keep only what was done.", "should_trigger": true},
+  {"query": "can you check the table footnotes in tables/table2.docx? some of them explain why subgroups differ, which i think is interpretation", "should_trigger": true},
+  {"query": "Edit this Results paragraph: 'Although the cohort was small, mortality decreased substantially, which indicates the protocol works.' The numbers are 18% vs 24%, P=0.03, n=212.", "should_trigger": true},
+  {"query": "Is 'Models were adjusted for age and sex to account for confounding' OK in Methods, or does it belong in Discussion? Our covariates came from a prespecified DAG.", "should_trigger": true},
+  {"query": "Tighten the Methods and Results of our NEJM AI submission so there are zero red-flag phrases (likely due to, notably, to ensure) unless they're required rationale.", "should_trigger": true},
+  {"query": "Run the full pre-submission gate across the whole manuscript: section discipline, clinical research voice, and AI-tell removal, and give me a pass/fail report.", "should_trigger": false},
+  {"query": "Rewrite our Discussion in a more clinically detached house style - fewer adjectives, subject-first sentences, authorial we.", "should_trigger": false},
+  {"query": "Scan the Introduction for generic AI-writing tells like 'in the ever-evolving landscape' and 'delve' and remove them.", "should_trigger": false},
+  {"query": "Write the Discussion: interpret the lower mortality, compare with prior trials, and state limitations including the small sample.", "should_trigger": false},
+  {"query": "Review analysis/sap.md for clarity, completeness, and scope creep before we lock it.", "should_trigger": false},
+  {"query": "Insert Zotero citations into the Methods for the TRIPOD+AI statement and the bootstrap validation reference.", "should_trigger": false},
+  {"query": "Draft a full manuscript for Critical Care Medicine from our SAP and outputs, Introduction through Discussion, including the abstract.", "should_trigger": false},
+  {"query": "Make the Figure 2 forest plot JAMA style with correct typography and a traceability check against the output CSV.", "should_trigger": false},
+  {"query": "Write the statistical methods subsection of the SAP for our cluster-randomized trial, including the primary model and multiplicity handling.", "should_trigger": false},
+  {"query": "Polish my cover letter to the editor of JAMA Internal Medicine so it sounds less salesy.", "should_trigger": false}
+]

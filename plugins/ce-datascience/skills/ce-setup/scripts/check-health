@@ -71,7 +71,7 @@ cli_ok=0; cli_total=0; issues=0
 
 results=()
 for entry in "${deps[@]}"; do
-  IFS='|' read -r name check_cmd tier install_cmd url <<< "$entry"
+  IFS='|' read -r name check_cmd tier install_cmd url < <(printf '%s\n' "$entry")
   cli_total=$((cli_total + 1))
   if eval "$check_cmd" >/dev/null 2>&1; then
     cli_ok=$((cli_ok + 1))
@@ -117,7 +117,7 @@ fi
 section "Tools  ${cli_ok}/${cli_total}"
 
 for result in "${results[@]}"; do
-  IFS='|' read -r name tier status install_cmd url <<< "$result"
+  IFS='|' read -r name tier status install_cmd url < <(printf '%s\n' "$result")
   if [ "$status" = "ok" ]; then
     ok "$name"
   else
@@ -150,6 +150,7 @@ if [ "$legacy_codex_tool_map" = "yes" ]; then
   section "Codex instructions"
   warn "Legacy Compound Codex tool map in ${codex_agents_file}"
   detail "Retired pre-native-install block; remove it only after reviewing references/legacy-codex-tool-map.md."
+  detail "Re-running the ce-datascience Codex installer for this CODEX_HOME replaces it with the current CE block."
   issues=$((issues + 1))
 fi
 

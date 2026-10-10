@@ -1,5 +1,11 @@
 # RECORD-PE Checklist for Pharmacoepidemiology Studies
 
+## Contents
+
+- Methods
+- Results
+- Discussion
+
 RECORD for PharmEpidemiology (RECORD-PE).
 Extension of RECORD and STROBE for studies using routinely-collected data to evaluate drug safety, effectiveness, and utilization.
 

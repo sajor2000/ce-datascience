@@ -1,6 +1,6 @@
 ---
 name: ce-fabric
-description: "Route Microsoft Fabric research and analytics work to the correct CE Fabric workflow: lakehouse or warehouse code, pipelines, semantic models, ML, or Eventhouse/KQL. Use when a project uses OneLake, Fabric notebooks, Warehouses, Data Factory, Power BI Direct Lake, MLflow in Fabric, or Real-Time Intelligence."
+description: "Microsoft Fabric research and analytics workflows: Lakehouse/OneLake and Warehouse code (PySpark, Spark SQL, T-SQL, Delta), Data Factory pipelines and Dataflows Gen2, Direct Lake semantic models (DAX, RLS/OLS, sempy), Fabric ML (MLflow, batch scoring, AI functions), and Eventhouse/KQL real-time work. Use when a project uses Fabric, OneLake, Fabric notebooks, Warehouses, Data Factory, Power BI Direct Lake, MLflow in Fabric, Eventhouse, or KQL."
 argument-hint: "[coding|pipelines|semantic-models|ml|kql]"
 ---
 
@@ -17,17 +17,17 @@ argument-hint: "[coding|pipelines|semantic-models|ml|kql]"
 
 ## Route
 
-Choose the narrowest route and load its named skill before writing code:
+Choose the narrowest route and read its reference file before writing code. Each file holds that engine's scope, steps, and guardrails:
 
 | Task | Route |
 |---|---|
-| Lakehouse/OneLake, PySpark, Spark SQL, Python notebook, Warehouse T-SQL, Delta tables | Load the `ce-fabric-coding` skill |
-| Data Factory pipelines, Copy activity/job, Dataflows Gen2, gateway, scheduling, alerts | Load the `ce-fabric-pipelines` skill |
-| Direct Lake, DAX, RLS/OLS, semantic-link/sempy, model refresh | Load the `ce-fabric-semantic-models` skill |
-| MLflow, experiments, registered models, batch scoring, AI functions | Load the `ce-fabric-ml` skill |
-| Eventhouse, KQL, Eventstreams, Real-Time Dashboards, Activator | Load the `ce-fabric-kql` skill |
+| Lakehouse/OneLake, PySpark, Spark SQL, Python notebook, Warehouse T-SQL, Delta tables | Read `references/coding.md` |
+| Data Factory pipelines, Copy activity/job, Dataflows Gen2, gateway, scheduling, alerts | Read `references/pipelines.md` |
+| Direct Lake, DAX, RLS/OLS, semantic-link/sempy, model refresh | Read `references/semantic-models.md` |
+| MLflow, experiments, registered models, batch scoring, AI functions | Read `references/ml.md` |
+| Eventhouse, KQL, Eventstreams, Real-Time Dashboards, Activator | Read `references/kql.md` |
 
-For new or materially extended Fabric Python notebooks, load the `ce-notebook-standards` skill before routing to the implementation skill.
+For new or materially extended Fabric Python notebooks, load the `ce-notebook-standards` skill before following the route's reference file.
 
 If the route is unclear, follow the Skill Value interaction rule. Because there are five distinct destinations, present the numbered options below in chat when the blocking-question UI cannot show all five, accept free-form input, and wait for the user's response:
 

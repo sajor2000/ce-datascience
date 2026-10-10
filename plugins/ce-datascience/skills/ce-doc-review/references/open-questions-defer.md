@@ -1,5 +1,13 @@
 # Open Questions Deferral
 
+## Contents
+
+- Append flow
+- Concurrent edit safety
+- Failure path
+- Upstream availability signal
+- Example appended content
+
 This reference defines the Defer action's in-doc append mechanic. When the user chooses Defer on a finding (from the walk-through or from the bulk-preview Append-to-Open-Questions path), an entry for that finding appends to a `## Deferred / Open Questions` section at the end of the document under review.
 
 Interactive mode only. Invoked by `references/walkthrough.md` (per-finding Defer option) and `references/bulk-preview.md` (routing option C Proceed).
@@ -70,7 +78,7 @@ If an entry with the same compound key already exists under the same `### From Y
 **Compound key for dedup:** `normalize(section) + normalize(title) + evidence_fingerprint`, reconstructed from each existing entry's `<!-- dedup-key: ... -->` HTML comment (see Step 3 entry format). For a new finding about to append, compute the same fields from the finding's schema data; for existing entries, parse them out of the HTML comment. Match on all three fields.
 
 - `normalize(section)` and `normalize(title)` use the same normalization as synthesis step 3.3 dedup (lowercase, strip punctuation, collapse whitespace)
-- `evidence_fingerprint` is the first ~120 characters of the finding's first evidence quote, sanitized per Step 3 (whitespace collapsed to single spaces, `-->` and stray `<!--` stripped, quotes escaped). The same slice is used in the decision primer — see `SKILL.md` under "Decision primer". When no evidence is available on the new finding, fall back to section+title alone. When an existing entry's HTML comment has `evidence=""`, treat the entry as evidence-less and also fall back to section+title for that comparison. If an existing entry's dedup-key comment is malformed (e.g., a newline or `-->` sequence split the comment across lines in a pre-sanitization entry), treat that entry under the legacy-fallback rule below rather than attempting a partial reconstruction.
+- `evidence_fingerprint` is the first ~120 characters of the finding's first evidence quote, sanitized per Step 3 (whitespace collapsed to single spaces, `-->` and stray `<!--` stripped, quotes escaped). The same slice is used in the decision primer — see `references/decision-primer.md`. When no evidence is available on the new finding, fall back to section+title alone. When an existing entry's HTML comment has `evidence=""`, treat the entry as evidence-less and also fall back to section+title for that comparison. If an existing entry's dedup-key comment is malformed (e.g., a newline or `-->` sequence split the comment across lines in a pre-sanitization entry), treat that entry under the legacy-fallback rule below rather than attempting a partial reconstruction.
 
 Title-only dedup is not sufficient: two different findings in the same document (even in the same review date) can legitimately share a short title if their sections and evidence differ. Using only `{title}` would silently drop one of them — losing user-visible backlog context. The compound key mirrors the R29/R30 matching predicate (`section + title + evidence-substring overlap`) so cross-round and intra-round dedup behave consistently.
 

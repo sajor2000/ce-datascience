@@ -1,5 +1,15 @@
 # CLIFpy Recipes
 
+## Contents
+
+- 1. Load selected tables and validate them
+- 2. Create a wide dataset, then aggregate only if needed
+- 3. Handle outliers and stitch encounters
+- 4. Convert medication doses before SOFA
+- 5. Run the DQA API explicitly
+- 6. Use utility functions for MDRO and comorbidity flags
+- 7. Install and source policy
+
 Use these current `clifpy` patterns with synthetic/demo data, or with real CLIF
 data after the user confirms once that both the data environment and active
 model endpoint are approved for PHI/PII. Source: `https://clif-icu.com/`, the

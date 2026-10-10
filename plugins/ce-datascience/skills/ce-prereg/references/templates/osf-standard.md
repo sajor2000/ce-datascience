@@ -2,34 +2,36 @@
 
 Paste each section into the corresponding OSF field at https://osf.io/prereg/
 
+Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP title }}` is the SAP H1 (`# Statistical Analysis Plan: <title>`); `{{ user: ... }}` comes from the user or project study metadata (never SAP frontmatter; ask, never invent).
+
 ## 1. Title
 
-{{ sap.title }}
+{{ SAP title }}
 
 ## 2. Description
 
-{{ sap.section_1_1_background }}
+{{ SAP-1.1: primary objective }}
 
 ## 3. Hypotheses
 
-{{ sap.section_3_hypotheses }}
+{{ SAP-1.1 and SAP-1.2: primary and secondary hypotheses }}
 
 For each primary hypothesis, the registered prediction is:
-{{ sap.section_3_predictions }}
+{{ SAP-1.1: directional prediction for SAP-3.1 }}
 
 ## 4. Design plan
 
 ### 4.1 Study type
-{{ sap.section_1_2_design }}
+{{ SAP-2.1: study type }}
 
 ### 4.2 Blinding
 {{ stack_profile.blinding_state }} (blinded / unblinded / n/a)
 
 ### 4.3 Study design
-{{ sap.section_1_3_design_detail }}
+{{ SAP-2.1, SAP-2.3, SAP-2.4: design, exposure/intervention, comparator }}
 
 ### 4.4 Randomization (if applicable)
-{{ sap.section_1_3_randomization }}
+{{ SAP-2.1: randomization scheme | default("Not applicable -- observational design") }}
 
 ## 5. Sampling plan
 
@@ -37,58 +39,60 @@ For each primary hypothesis, the registered prediction is:
 {{ "Yes -- this is a retrospective analysis" if stack_profile.is_retrospective else "No -- prospective enrollment" }}
 
 ### 5.2 Explanation of existing data (if applicable)
-{{ sap.section_2_1_data_provenance }}
+{{ SAP-2.2: source population and data provenance }}
 
 ### 5.3 Data collection procedures
-{{ sap.section_2_1_cohort_definition }}
+{{ SAP-2.2: inclusion/exclusion criteria and sampling frame }}
 
 ### 5.4 Sample size
-{{ sap.section_2_5_sample_size }}
+{{ SAP-6: target N }}
 
 Power calculation reference: `analysis/power/<design>-<date>-summary.md`
 
 ### 5.5 Sample size rationale
-{{ sap.section_2_5_rationale }}
+{{ SAP-6: assumptions and rationale }} (cite the effect-size or event-rate source by PMID/DOI)
 
 ### 5.6 Stopping rule
-{{ sap.section_4_stopping_rule | default("None pre-specified -- analysis runs to enrollment target") }}
+{{ SAP-6: interim or stopping rule | default("None pre-specified -- analysis runs to enrollment target") }}
 
 ## 6. Variables
 
 ### 6.1 Manipulated variables (if interventional)
-{{ sap.section_2_2_intervention | default("Not applicable -- observational design") }}
+{{ SAP-2.3: intervention | default("Not applicable -- observational design") }}
 
 ### 6.2 Measured variables
-{{ sap.section_2_3_outcomes }}
-{{ sap.section_2_4_predictors }}
-{{ sap.section_2_5_covariates }}
+{{ SAP-3.1 to SAP-3.3: endpoints }}
+{{ SAP-2.3: exposure / predictors }}
+{{ SAP-5.1 and SAP-13: covariates }}
 
 ### 6.3 Indices (if any composite scores)
-{{ sap.section_2_6_indices | default("Not applicable") }}
+{{ SAP-3: composite endpoint definitions | default("Not applicable") }}
 
 ## 7. Analysis plan
 
 ### 7.1 Statistical models
-{{ sap.section_4_1_primary_model }}
+{{ SAP-5.1 to SAP-5.3: primary, secondary, and subgroup analyses }}
 
 ### 7.2 Transformations (if applicable)
-{{ sap.section_4_2_transformations }}
+{{ SAP-5.1: transformations | default("None") }}
 
 ### 7.3 Inference criteria
-- Alpha: {{ sap.section_4_3_alpha | default("0.05, two-sided") }}
-- Multiple comparisons handling: {{ sap.section_4_3_multiplicity }}
+- Alpha: {{ SAP-5.1: significance threshold | default("0.05, two-sided") }}
+- Multiple comparisons handling: {{ SAP-7: multiplicity adjustments }}
 
 ### 7.4 Data exclusion rules
-{{ sap.section_2_3_exclusions }}
+{{ SAP-2.2: exclusion criteria }}
+{{ SAP-4: analysis populations }}
 
 ### 7.5 Missing data
-{{ sap.section_2_4_missing_data }}
+{{ SAP-8: missing data handling }}
 
 ### 7.6 Exploratory analyses
-{{ sap.section_4_exploratory }}
+{{ SAP-1.3 and SAP-3.3: exploratory objectives and endpoints }}
 
 ## 8. Other (optional)
 
+- Sensitivity analyses: {{ SAP-9: sensitivity analyses }}
 - Reporting checklist followed: {{ stack_profile.reporting_checklist }} {{ stack_profile.reporting_checklist_extensions }}
-- Funding: {{ sap.frontmatter.funding }}
-- Conflicts of interest: {{ sap.frontmatter.conflicts | default("None declared") }}
+- Funding: {{ user: funding }}
+- Conflicts of interest: {{ user: conflicts | default("None declared") }}

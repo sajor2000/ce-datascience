@@ -47,7 +47,7 @@ Ask these three questions, one at a time. Wait for each answer before asking the
 
 After gathering responses, create `~/coding-tutor-tutorials/learner_profile.md` and put the interview Q&A there (along with your commentary):
 
-```yaml
+```markdown
 ---
 created: DD-MM-YYYY
 last_updated: DD-MM-YYYY
@@ -85,7 +85,7 @@ Then show this curriculum plan of **next 3 TUTORIALS** to the user and proceed t
 ## Tutorial Creation
 
 Each tutorial is a markdown file in `~/coding-tutor-tutorials/` with this structure:
-```yaml
+```markdown
 ---
 concepts: [primary_concept, related_concept_1, related_concept_2]
 source_repo: my-app  # Auto-detected: which repo this tutorial's examples come from

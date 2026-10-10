@@ -1,5 +1,14 @@
 # STROBE Checklist for Observational Studies
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other Information
+
 Strengthening the Reporting of Observational Studies in Epidemiology (STROBE).
 22-item checklist applicable to cohort, case-control, and cross-sectional studies.
 

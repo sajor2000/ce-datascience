@@ -1,5 +1,14 @@
 # ACE Checklist for Adaptive Clinical Trial Designs
 
+## Contents
+
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Other Information
+
 Adaptive designs CONSORT Extension (ACE).
 Supplements the current CONSORT core with items specific to randomized controlled trials that use pre-planned adaptations based on accumulating data.
 

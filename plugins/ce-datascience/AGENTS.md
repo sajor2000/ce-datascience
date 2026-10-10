@@ -168,9 +168,13 @@ Design rules for blocking question menus (`AskUserQuestion` / `request_user_inpu
 
 ### Script Path References in Skills
 
-- [ ] In bash code blocks, reference co-located scripts using relative paths (e.g., `bash scripts/my-script ARG`) — not `${CLAUDE_PLUGIN_ROOT}` or other platform-specific variables
-- [ ] All platforms resolve script paths relative to the skill's directory; no env var prefix is needed
-- [ ] Reference the script with a backtick path (e.g., `` `scripts/my-script` ``) so agents can locate it; a markdown link is not needed since the bash code block already provides the invocation
+- [ ] Files the agent *reads* (`references/x.md`) stay relative to the skill root. Scripts the agent *executes* must be anchored: the shell starts in the user's project root, not the skill directory, so a bare `bash scripts/my-script ARG` misses the bundled file. Use the model-filled anchor, never `${CLAUDE_PLUGIN_ROOT}` or other platform variables:
+  ```bash
+  SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+  bash "$SKILL_DIR/scripts/my-script" ARG
+  ```
+- [ ] For safety checks that must not be silently skipped, verify the script exists, probe `python3`/`python`/`py`, and give a manual fallback.
+- [ ] Reference the script with a backtick path (e.g., `` `scripts/my-script` ``) when describing it; `tests/plugin-content-portability.test.ts` rejects unanchored executed invocations.
 
 ### Cross-Platform Reference Rules
 
@@ -190,7 +194,7 @@ Why: shell-heavy exploration causes avoidable permission prompts in sub-agent wo
 - [ ] Never instruct agents to use `find`, `ls`, `cat`, `head`, `tail`, `grep`, `rg`, `wc`, or `tree` through a shell for routine file discovery, content search, or file reading
 - [ ] Describe tools by capability class with platform hints — e.g., "Use the native file-search/glob tool (e.g., Glob in Claude Code)" — not by Claude Code-specific tool names alone
 - [ ] When shell is the only option (e.g., `ast-grep`, `bundle show`, git commands), instruct one simple command at a time — no action chaining (`cmd1 && cmd2`, `cmd1 ; cmd2`) and no error suppression (`2>/dev/null`, `|| true`). Two narrow exceptions: boolean conditions within if/while guards (`[ -n "$X" ] || [ -n "$Y" ]`) are fine — that is normal conditional logic, not action chaining. **Value-producing preparatory commands** (`VAR=$(cmd1) && cmd2 "$VAR"`) are also fine when `cmd2` strictly consumes `cmd1`'s output and splitting would require manually threading the value through model context across bash calls (e.g., `BODY_FILE=$(mktemp -u) && cat > "$BODY_FILE" <<EOF ... EOF`). Simple pipes (e.g., `| jq .field`) and output redirection (e.g., `> file`) are acceptable when they don't obscure failures
-- [ ] **Pre-resolution exception:** `!` backtick pre-resolution commands run at skill load time, not at agent runtime. They may use chaining (`&&`, `||`), error suppression (`2>/dev/null`), and fallback sentinels (e.g., `|| echo '__NO_CONFIG__'`) to produce a clean, parseable value for the model. This is the preferred pattern for environment probes (CLI availability, config file reads) that would otherwise require runtime shell calls with chaining. Example: `` !`command -v codex >/dev/null 2>&1 && echo "AVAILABLE" || echo "NOT_FOUND"` ``
+- [ ] **Pre-resolution exception:** `!` backtick pre-resolution commands run at skill load time, not at agent runtime, and on Claude Code a non-zero exit aborts the skill load. Use them only when the command is guaranteed to exit 0, ending in a fallback sentinel (e.g., `` !`git rev-parse --show-toplevel 2>/dev/null || true` ``). Never pre-resolve commands that can fail in normal states, such as `git diff HEAD` in an unborn repo, `git status` outside a repo, or `gh` while unauthenticated. Gather those at runtime, one command per shell call, and state what a non-zero exit means.
 - [ ] Do not encode shell recipes for routine exploration when native tools can do the job; encode intent and preferred tool classes instead
 - [ ] For shell-only workflows (e.g., `gh`, `git`, `bundle show`, project CLIs), explicit command examples are acceptable when they are simple, task-scoped, and not chained together
 
@@ -272,7 +276,7 @@ The validator enforces: plugin-list parity across all three marketplaces, name/v
 
 ## Documented Solutions
 
-`docs/solutions/` holds documented solutions to past problems — bugs, architecture patterns, design patterns, tooling decisions, conventions, workflow practices, and other institutional knowledge. Entries use YAML frontmatter with fields including `module`, `tags`, and `problem_type`. Knowledge-track `problem_type` values are `methods_decision`, `statistical_pattern`, `data_quality_issue`, `reporting_convention`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention`, `workflow_issue`, `developer_experience`, `documentation_gap`, and `best_practice` (fallback). Bug-track values cover `build_error`, `test_failure`, `runtime_error`, `performance_issue`, `data_issue`, `reproducibility_issue`, `integration_issue`, and `logic_error`. Search this directory before designing new solutions so institutional memory compounds across changes.
+`docs/solutions/` holds documented solutions to past problems — bugs, architecture patterns, design patterns, tooling decisions, conventions, workflow practices, and other institutional knowledge. Entries use YAML frontmatter with fields including `module`, `tags`, and `problem_type`. Knowledge-track `problem_type` values are `methods_decision`, `statistical_pattern`, `data_quality_issue`, `reporting_convention`, `reproducibility_pattern`, `literature_pattern`, `architecture_pattern`, `design_pattern`, `tooling_decision`, `convention`, `workflow_issue`, `developer_experience`, `documentation_gap`, and `best_practice` (fallback). Bug-track values are `build_error`, `test_failure`, `runtime_error`, `performance_issue`, `database_issue`, `security_issue`, `ui_bug`, `integration_issue`, and `logic_error`. The canonical list is `skills/ce-compound/references/schema.yaml`. Search this directory before designing new solutions so institutional memory compounds across changes.
 
 ## Documentation
 

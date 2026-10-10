@@ -13,25 +13,21 @@ async function readSkill(name: string): Promise<string> {
   return readFile(path.join(skillsRoot, name, "SKILL.md"), "utf8")
 }
 
+async function readReference(skill: string, reference: string): Promise<string> {
+  return readFile(path.join(skillsRoot, skill, "references", `${reference}.md`), "utf8")
+}
+
+const FABRIC_ROUTES = ["coding", "pipelines", "semantic-models", "ml", "kql"]
+const R_ROUTES = ["review", "tidyverse", "event-studies", "package-development", "package-testing", "cran", "performance", "targets"]
+
 describe("Fabric and Marimo workflow skills", () => {
   test("ships a complete Fabric routing family", async () => {
-    const names = [
-      "ce-fabric",
-      "ce-fabric-coding",
-      "ce-fabric-pipelines",
-      "ce-fabric-semantic-models",
-      "ce-fabric-ml",
-      "ce-fabric-kql",
-    ]
-    const skills = await Promise.all(names.map(readSkill))
+    const router = await readSkill("ce-fabric")
+    const skills = [router, ...(await Promise.all(FABRIC_ROUTES.map((route) => readReference("ce-fabric", route))))]
 
     expect(skills[0]).toContain("Microsoft Fabric Router")
-    expect(skills[0]).toContain("load its named skill")
-    expect(skills[0]).toContain("`ce-fabric-coding` skill")
-    expect(skills[0]).toContain("`ce-fabric-pipelines` skill")
-    expect(skills[0]).toContain("`ce-fabric-semantic-models` skill")
-    expect(skills[0]).toContain("`ce-fabric-ml` skill")
-    expect(skills[0]).toContain("`ce-fabric-kql` skill")
+    expect(skills[0]).toContain("read its reference file")
+    for (const route of FABRIC_ROUTES) expect(skills[0]).toContain(`\`references/${route}.md\``)
     expect(skills[0]).toContain("`AskUserQuestion` in Claude Code")
     expect(skills[0]).toContain("`request_user_input` in Codex")
     expect(skills[0]).toContain("`ask_user` in Gemini")
@@ -68,10 +64,13 @@ describe("Fabric and Marimo workflow skills", () => {
       "ce-figure",
       "ce-manuscript-package",
       "ce-fabric",
-      "ce-fabric-coding",
-      "ce-fabric-ml",
     ]
-    const skills = await Promise.all(names.map(readSkill))
+    const skills = [
+      ...(await Promise.all(names.map(readSkill))),
+      await readReference("ce-fabric", "coding"),
+      await readReference("ce-fabric", "ml"),
+    ]
+    names.push("ce-fabric/references/coding.md", "ce-fabric/references/ml.md")
 
     for (const [index, content] of skills.entries()) {
       expect(content, names[index]).toContain("`ce-notebook-standards` skill")
@@ -111,8 +110,13 @@ describe("Fabric and Marimo workflow skills", () => {
         path.join(outputRoot, ".opencode", "skills", "ce-fabric", "SKILL.md"),
         "utf8",
       )
-      expect(converted).toContain("load its named skill")
-      expect(converted).toContain("`ce-fabric-coding` skill")
+      expect(converted).toContain("read its reference file")
+      expect(converted).toContain("`references/coding.md`")
+      const convertedReference = await fs.readFile(
+        path.join(outputRoot, ".opencode", "skills", "ce-fabric", "references", "coding.md"),
+        "utf8",
+      )
+      expect(convertedReference).toContain("SQL analytics endpoint")
       expect(converted).toContain("`request_user_input` in Codex")
       expect(converted).toContain("`ToolSearch` with `select:AskUserQuestion`")
       expect(converted).not.toMatch(/`\/ce-[a-z0-9-]+`/)
@@ -147,22 +151,12 @@ describe("Fabric and Marimo workflow skills", () => {
     }
   })
 
-  test("ships original R workflows for the curated R-statistics categories", async () => {
-    const names = [
-      "ce-rstats",
-      "ce-r-review",
-      "ce-r-tidyverse",
-      "ce-r-event-studies",
-      "ce-r-package-development",
-      "ce-r-package-testing",
-      "ce-r-cran",
-      "ce-r-performance",
-      "ce-r-targets",
-    ]
-    const skills = await Promise.all(names.map(readSkill))
+  test("ships the curated R-statistics workflows as router references", async () => {
+    const skills = [await readSkill("ce-rstats"), ...(await Promise.all(R_ROUTES.map((route) => readReference("ce-rstats", route))))]
     const combined = skills.join("\n")
 
     expect(skills[0]).toContain("R Statistics Router")
+    for (const route of R_ROUTES) expect(skills[0]).toContain(`\`references/${route}.md\``)
     expect(combined).toContain("staggered adoption")
     expect(combined).toContain("R CMD check")
     expect(combined).toContain("testthat")
@@ -171,27 +165,16 @@ describe("Fabric and Marimo workflow skills", () => {
   })
 
   test("keeps R guidance version-aware and evidence-first", async () => {
-    const names = [
-      "ce-rstats",
-      "ce-r-review",
-      "ce-r-tidyverse",
-      "ce-r-event-studies",
-      "ce-r-package-development",
-      "ce-r-package-testing",
-      "ce-r-cran",
-      "ce-r-performance",
-      "ce-r-targets",
-    ]
-    const skills = await Promise.all(names.map(readSkill))
+    const skills = [await readSkill("ce-rstats"), ...(await Promise.all(R_ROUTES.map((route) => readReference("ce-rstats", route))))]
     const combined = skills.join("\n")
 
     expect(skills[0]).toContain("Ref MCP")
     expect(skills[0]).toContain("Tavily MCP")
     expect(skills[0]).toContain("verification gap")
-    expect(await readSkill("ce-r-tidyverse")).toContain("relationship")
-    expect(await readSkill("ce-r-tidyverse")).toContain("unmatched")
-    expect(await readSkill("ce-r-targets")).toContain("tar_outdated()")
-    expect(await readSkill("ce-r-cran")).toContain("time-sensitive")
+    expect(await readReference("ce-rstats", "tidyverse")).toContain("relationship")
+    expect(await readReference("ce-rstats", "tidyverse")).toContain("unmatched")
+    expect(await readReference("ce-rstats", "targets")).toContain("tar_outdated()")
+    expect(await readReference("ce-rstats", "cran")).toContain("time-sensitive")
     expect(combined).toContain("pinned")
   })
 })

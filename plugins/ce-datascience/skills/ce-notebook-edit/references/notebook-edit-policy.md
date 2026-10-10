@@ -21,7 +21,7 @@ Do not target a cell by visible heading text alone. Headings change during draft
 ## Review Checklist
 
 - The backup file exists and contains the pre-edit notebook.
-- The inserted cell appears immediately after the intended tagged cell.
+- The inserted cell appears immediately after the intended tagged cell (for a code cell, directly after its explanatory Markdown cell, which follows the tagged cell).
 - The inserted cell has a metadata tag that ties it to the SAP section, review finding, or publication artifact.
 - The notebook validates structurally.
 - A top-to-bottom run was attempted, or the inability to run it is documented.

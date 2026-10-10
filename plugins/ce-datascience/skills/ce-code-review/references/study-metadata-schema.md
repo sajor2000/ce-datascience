@@ -1,5 +1,15 @@
 # Study Metadata Schema
 
+## Contents
+
+- study_design
+- dataset_split
+- leakage_assessment
+- software_provenance
+- llm_provenance
+- statistical_rules
+- llm_note_grading
+
 Defines the schema for `.ce-datascience/study-metadata.yaml` -- a per-project file documenting reproducibility provenance. Reviewers (reporting-checklist-reviewer, reproducibility-reviewer) check this file for completeness relative to the study type and AI involvement level declared in the SAP.
 
 All field groups are optional. Populate only what applies to the study.
@@ -18,6 +28,8 @@ study_design:
   reporting_checklist_extensions: [<extension guidelines>]
   guidelines_selected: [<legacy compatibility only>]
 ```
+
+**`ai_involvement` values** (canonical; shared with the SAP frontmatter and checklist matching): `none` -- no AI/ML; `ai-assisted` -- AI as a tool within traditional methods (for example data cleaning or a classifier inside the pipeline); `ai-primary` -- AI is the primary analytical approach or the model under evaluation; `llm-based` -- the study uses or evaluates a large language model. Legacy checklist-matching labels map as `data-cleaning only` / `model-as-tool` -> `ai-assisted` and `model-as-study-object` -> `ai-primary` (or `llm-based` when the model is an LLM).
 
 **When to populate:** Every study. This is the anchor for all other metadata sections.
 

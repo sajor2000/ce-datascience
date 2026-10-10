@@ -11,7 +11,7 @@ tools:
 
 # Calibration Reviewer
 
-You are the conditional reviewer for calibration in prediction models. AUC alone is not enough: a model can have AUC 0.85 and predict probabilities that are systematically off (e.g., predicts 30% for events that occur 60% of the time). For clinical use, calibration matters as much as discrimination. TRIPOD+AI item 13 requires it; many prediction-model papers omit it.
+You are the conditional reviewer for calibration in prediction models. AUC alone is not enough: a model can have AUC 0.85 and predict probabilities that are systematically off (e.g., predicts 30% for events that occur 60% of the time). For clinical use, calibration matters as much as discrimination. TRIPOD+AI item 12e requires it; many prediction-model papers omit it.
 
 ## What you're hunting for
 
@@ -89,7 +89,7 @@ Reporting fewer than 3 of these is incomplete.
 
 ### 7. Calibration not assessed across subgroups
 
-Even if overall calibration is good, subgroup-specific miscalibration is common in clinical models (e.g., overestimates risk for women, underestimates for men). Report per-subgroup calibration intercept and slope. See TRIPOD+AI item 13 + 22.
+Even if overall calibration is good, subgroup-specific miscalibration is common in clinical models (e.g., overestimates risk for women, underestimates for men). Report per-subgroup calibration intercept and slope. See TRIPOD+AI items 12e and 23a.
 
 ## Where to look
 

@@ -1,0 +1,42 @@
+{
+  "skill_name": "ce-table1",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Make Table 1 for the ARDS cohort paper. Variables catalog is analysis/sap-tables/03-variables.csv, SAP at analysis/sap.md, stratify by prone positioning (prone_any yes/no). Target is JAMA, put outputs in analysis/publication/tables.",
+      "expected_output": "Runs the Table 1 generator with the variables catalog, JAMA profile, and --strata prone_any, writes table1-spec.json, table1.csv, table1.md, and table1-validation-report.md, fills the cells from the SAP-named analytic dataset when one exists, and applies small-cell suppression to every stratum.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/generate_table1.py with --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama and passes the requested stratification with --strata prone_any",
+        "Produces table1-spec.json, table1.csv, table1.md, and table1-validation-report.md",
+        "Reviews the validation report before presenting the table as ready",
+        "Applies small-cell suppression (default n<11) to every stratified cell, including complementary cells recoverable by subtraction",
+        "Uses JAMA formatting such as No. (%) for frequency data"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "need a table 1 for the manuscript asap, just use the usual demographics -- age, sex, race, BMI, comorbidities, whatever makes sense",
+      "expected_output": "Because no variables catalog is available, the skill asks for the baseline variable list instead of inventing variables.",
+      "files": [],
+      "expectations": [
+        "Checks for analysis/sap-tables/03-variables.csv before proceeding",
+        "Asks the user for the baseline variable list when the catalog is missing",
+        "Does not invent variables or cohort strata from the vague request",
+        "Does not mark the table ready (blocks when no baseline variables are declared)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "CLIF project. Generate Table 1 stratified by site (6 hospitals, two of them are tiny with ~15 patients) and also save the patient-level analytic rows next to it in analysis/publication/ so reviewers can check it.",
+      "expected_output": "Produces an aggregate-only Table 1 in output/final_no_phi/ with small-cell suppression at small sites, and refuses to write patient-level rows to publication or shared directories.",
+      "files": [],
+      "expectations": [
+        "Refuses to write patient-level rows to analysis/publication/ or any shared directory",
+        "Writes the aggregate-only Table 1 output to output/final_no_phi/ because CLIF mode is active",
+        "Suppresses or aggregates cells below the disclosure floor in the small-site strata, including complementary cells",
+        "Preserves repo-relative paths in the generated artifacts"
+      ]
+    }
+  ]
+}
