@@ -10,23 +10,25 @@ from manim import (
     Scene,
     Text,
     VGroup,
-    WHITE,
 )
 
 
-BACKGROUND = "#081B2E"
-PANEL = "#102A43"
-PANEL_ALT = "#163A5F"
-TEXT_MUTED = "#B8CCE0"
-BLUE = "#63B3ED"
-TEAL = "#38D9C0"
-GOLD = "#F6C85F"
-LINE = "#2B5278"
+# Print-first editorial palette: restrained, accessible, and legible in PDF.
+# It is a clinical-journal visual treatment, not JAMA branding.
+BACKGROUND = "#FCFBF8"
+PANEL = "#FFFFFF"
+PANEL_ALT = "#F3F1EC"
+TEXT = "#202124"
+TEXT_MUTED = "#555C66"
+BLUE = "#1D4E89"
+TEAL = "#3C6E71"
+GOLD = "#A61B2B"
+LINE = "#B8B4AC"
 
 
 class ReadmeDiagram(Scene):
     def heading(self, title: str, subtitle: str) -> VGroup:
-        heading = Text(title, font="Arial", weight="BOLD", font_size=42, color=WHITE)
+        heading = Text(title, font="Arial", weight="BOLD", font_size=38, color=TEXT)
         subheading = Text(subtitle, font="Arial", font_size=19, color=TEXT_MUTED)
         group = VGroup(heading, subheading).arrange(DOWN, buff=0.12)
         group.scale_to_fit_width(13.1)
@@ -34,32 +36,34 @@ class ReadmeDiagram(Scene):
 
     def card(self, title: str, detail: str, accent: str, width: float = 3.4) -> VGroup:
         box = RoundedRectangle(
-            corner_radius=0.16,
+            corner_radius=0.04,
             width=width,
             height=1.7,
             stroke_color=accent,
-            stroke_width=2.2,
+            stroke_width=1.8,
             fill_color=PANEL,
             fill_opacity=1,
         )
-        title_text = Text(title, font="Arial", weight="BOLD", font_size=23, color=WHITE)
+        title_text = Text(title, font="Arial", weight="BOLD", font_size=23, color=TEXT)
         detail_text = Text(detail, font="Arial", font_size=15, color=TEXT_MUTED, line_spacing=0.75)
-        title_text.scale_to_fit_width(width - 0.35)
-        detail_text.scale_to_fit_width(width - 0.35)
+        if title_text.width > width - 0.65:
+            title_text.scale_to_fit_width(width - 0.65)
+        if detail_text.width > width - 0.35:
+            detail_text.scale_to_fit_width(width - 0.35)
         title_text.move_to(box.get_center() + UP * 0.3)
         detail_text.move_to(box.get_center() + DOWN * 0.32)
         return VGroup(box, title_text, detail_text)
 
     def pill(self, text: str, color: str, width: float = 2.4) -> VGroup:
         box = RoundedRectangle(
-            corner_radius=0.22,
+            corner_radius=0.04,
             width=width,
             height=0.53,
             stroke_color=color,
             fill_color=PANEL_ALT,
             fill_opacity=1,
         )
-        label = Text(text, font="Arial", weight="BOLD", font_size=15, color=WHITE)
+        label = Text(text, font="Arial", weight="BOLD", font_size=15, color=TEXT)
         label.move_to(box)
         return VGroup(box, label)
 
@@ -86,7 +90,7 @@ class ResearchWorkflow(ReadmeDiagram):
                     cards[index + 1][0].get_left() + LEFT * 0.04,
                     buff=0,
                     stroke_width=3,
-                    color=BLUE,
+                    color=TEXT,
                     max_tip_length_to_length_ratio=0.25,
                 )
                 for index in range(len(cards) - 1)
@@ -124,20 +128,20 @@ class PackageWorkflow(ReadmeDiagram):
                     cards[index + 1][0].get_left() + LEFT * 0.04,
                     buff=0,
                     stroke_width=3,
-                    color=TEAL,
+                    color=TEXT,
                     max_tip_length_to_length_ratio=0.25,
                 )
                 for index in range(len(cards) - 1)
             )
         )
-        addons_title = Text("Optional research add-ons", font="Arial", weight="BOLD", font_size=21, color=WHITE)
+        addons_title = Text("Optional research add-ons", font="Arial", weight="BOLD", font_size=21, color=TEXT)
         addons = VGroup(
             self.pill("PubMed MCP", BLUE),
             self.pill("Paperclip", TEAL),
         ).arrange(RIGHT, buff=0.35)
         addon_content = VGroup(addons_title, addons).arrange(DOWN, buff=0.12).to_edge(DOWN, buff=0.67)
         addon_box = RoundedRectangle(
-            corner_radius=0.16,
+            corner_radius=0.04,
             width=6.4,
             height=1.35,
             stroke_color=LINE,
@@ -170,7 +174,7 @@ class SkillCommands(ReadmeDiagram):
                     cards[index + 1][0].get_left() + LEFT * 0.04,
                     buff=0,
                     stroke_width=3,
-                    color=GOLD,
+                    color=TEXT,
                     max_tip_length_to_length_ratio=0.25,
                 )
                 for index in range(len(cards) - 1)
