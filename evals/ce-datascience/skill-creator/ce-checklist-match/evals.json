@@ -17,7 +17,7 @@
     {
       "id": 2,
       "prompt": "__CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=prediction_model checklist=?\n\nOk the research question is locked. We're developing a gradient-boosted model to predict in-hospital deterioration from vitals and labs, then external validation at a second site. Pick the checklist(s) before I start the SAP.",
-      "expected_output": "Pre-fills routing answers from the research-question YAML, surfaces them for confirmation, and routes to TRIPOD+AI (with CHARMS for development) before writing the stack profile.",
+      "expected_output": "Pre-fills routing answers from the research-question YAML, surfaces them for confirmation, and routes to TRIPOD+AI before writing the stack profile (CHARMS is not added because it applies only to systematic reviews of prediction models).",
       "files": [],
       "expectations": [
         "Reads analysis/research-question.yaml and surfaces pre-filled design/AI involvement/population values for user confirmation before writing to the stack profile",

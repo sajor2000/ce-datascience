@@ -29,12 +29,12 @@
     {
       "id": 3,
       "prompt": "CLIF project (sepsis mobilization, multisite). Build the review pack for the stats lead at the coordinating center. Outputs are in output/final_no_phi/ but I'm not sure if output/intermediate_phi/ stuff should go in too. No ledger exists yet.",
-      "expected_output": "A review pack listing only aggregate outputs from output/final_no_phi/, excluding protected/patient-level paths, with readiness kept at blocked or ready-with-review because the ledger is missing.",
+      "expected_output": "A review pack listing only aggregate outputs from output/final_no_phi/, excluding protected/patient-level paths, with readiness kept at blocked because the ledger is missing.",
       "files": [],
       "expectations": [
         "Does not include files from output/intermediate_phi/ in the review pack inventory",
         "Includes aggregate-only and protected-path signoff checks for the CLIF project",
-        "Because no ledger exists, keeps readiness at blocked or ready-with-review and never approved",
+        "Because no ledger exists, keeps readiness at blocked (the validator's BLOCKED result) and never approved",
         "Links to detailed reports rather than pasting full agent transcripts or patient-level content"
       ]
     }

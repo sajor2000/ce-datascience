@@ -113,7 +113,7 @@ Read `references/select-reviewers.md` (authoritative roster, standards mapping, 
 
 ### Stage 4: Spawn sub-agents
 
-Read `references/dispatch-reviewers.md`, `references/subagent-template.md`, `references/diff-scope.md`, and `references/findings-schema.json`. Dispatch every selected reviewer in parallel with the platform's sub-agent primitive (`Agent`/`Task` in Claude Code, `spawn_agent` in Codex), or sequentially if parallel dispatch is unsupported. Omit the `mode` parameter so the user's permission settings apply. Reviewers are read-only; their only permitted write is their artifact under `/tmp/ce-datascience/ce-code-review/<run-id>/`.
+Read `references/dispatch-reviewers.md`, `references/subagent-template.md` (slot sources in `references/subagent-template-variables.md`), `references/diff-scope.md`, and `references/findings-schema.json`. Dispatch every selected reviewer in parallel with the platform's sub-agent primitive (`Agent`/`Task` in Claude Code, `spawn_agent` in Codex), or sequentially if parallel dispatch is unsupported. Omit the `mode` parameter so the user's permission settings apply. Reviewers are read-only; their only permitted write is their artifact under `/tmp/ce-datascience/ce-code-review/<run-id>/`.
 
 ### Stage 5: Merge findings
 

@@ -22,7 +22,7 @@
 | 12d | If applicable, explain how loss to follow-up was addressed | Methods | ☐ | |
 | 12e | Describe any sensitivity analyses | Methods | ☐ | |
 | 13 | Numbers of individuals at each stage of study | Results | ☐ | CONSORT-style waterfall from `ce-cohort-build` |
-| 14 | Characteristics of study participants (Table 1) | Results | ☐ | SAP-tables/04-tables-overview.csv |
+| 14 | Characteristics of study participants (Table 1) | Results | ☐ | Table 1 row in `analysis/sap-tables/02-outputs.csv` |
 | 15 | Number of outcome events or summary measures | Results | ☐ | |
 | 16 | Unadjusted and adjusted estimates with 95% CI | Results | ☐ | |
 | 17 | Analyses for subgroups, interactions, sensitivity | Results | ☐ | |

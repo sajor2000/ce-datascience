@@ -47,6 +47,6 @@ The `ce-code-review` skill uses this catalog to dispatch reviewers. The Roster t
 
 ## Selection notes
 
-- Always spawn the always-on set.
+- Always spawn the always-on set unless the Stage 3c lite-roster gate in `references/select-reviewers.md` applies.
 - For each conditional, check the trigger; spawn when it matches. The reviewer's own frontmatter `description:` reinforces the trigger so the dispatch stays consistent.
 - Announce the team before spawning with a one-line justification per conditional reviewer selected.

@@ -75,7 +75,7 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 - Do not build a fixer queue.
 - Do not write run artifacts.
 - Never file tickets, commit, push, or create a PR. Stop after Stage 6; everything remains in the report.
-- `mode:report-only` is the only mode safe to run concurrently with browser testing on the same checkout, and it never switches the shared checkout (`references/scope.md`).
+- `mode:report-only` (like the read-only `mode:agent`) is safe to run concurrently with browser testing on the same checkout, and it never switches the shared checkout (`references/scope.md`).
 
 ### Headless mode rules
 

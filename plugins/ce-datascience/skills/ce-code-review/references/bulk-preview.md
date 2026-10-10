@@ -15,7 +15,7 @@ This reference defines the compact plan preview that Interactive mode shows befo
 
 Interactive mode only. Option C only.
 
-The best-judgment path (routing option B and the walk-through's `Auto-resolve with best judgment on the rest`) does **not** use the bulk preview. The best-judgment path dispatches the fixer immediately and surfaces failures in a post-run question, per the `(B)` handler in `SKILL.md` Step 2 Interactive mode. Filing tickets is the one bulk action that benefits from a preview because filing produces durable external state that is expensive to undo — applying local fixes on uncommitted edits is not.
+The best-judgment path (routing option B and the walk-through's `Auto-resolve with best judgment on the rest`) does **not** use the bulk preview. The best-judgment path dispatches the fixer immediately and surfaces failures in a post-run question, per the `(B)` handler in `references/post-review.md` Step 2 Interactive mode. Filing tickets is the one bulk action that benefits from a preview because filing produces durable external state that is expensive to undo — applying local fixes on uncommitted edits is not.
 
 ---
 
@@ -91,7 +91,7 @@ When no `why_it_matters` is available for a finding (e.g., Unit 2's template upg
 
 ## Question and options
 
-After the preview body is rendered, ask the user using the platform's blocking question tool (`AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension)). In Claude Code, the tool should already be loaded from the Interactive-mode pre-load step — if it isn't, call `ToolSearch` with query `select:AskUserQuestion` now. The text fallback below applies only when the harness genuinely lacks a blocking tool — `ToolSearch` returns no match, the tool call explicitly fails, or the runtime mode does not expose it (e.g., Codex edit modes without `request_user_input`). A pending schema load is not a fallback trigger. Never silently skip the question.
+After the preview body is rendered, ask the user using the current harness's blocking question UI. The text fallback below applies only when the harness has no blocking question UI or the call fails. Never silently skip the question.
 
 Stem: `The agent is about to file the tickets above. Proceed?`
 
@@ -99,13 +99,13 @@ Options (exactly two):
 - `Proceed` — file every ticket in the preview
 - `Cancel` — do nothing, return to the routing question
 
-Only when `ToolSearch` explicitly returns no match or the tool call errors — or on a platform with no blocking question tool — fall back to presenting numbered options and waiting for the user's next reply.
+Only when the harness has no blocking question UI or the call fails, fall back to presenting numbered options and waiting for the user's next reply.
 
 ---
 
 ## Cancel semantics
 
-`Cancel` returns the user to the routing question (the four-option menu in `SKILL.md` Step 2 Interactive mode). No tickets are filed; no state is recorded. The session's cached tracker-detection tuple is preserved.
+`Cancel` returns the user to the routing question (the four-option menu in `references/post-review.md` Step 2 Interactive mode). No tickets are filed; no state is recorded. The session's cached tracker-detection tuple is preserved.
 
 ---
 

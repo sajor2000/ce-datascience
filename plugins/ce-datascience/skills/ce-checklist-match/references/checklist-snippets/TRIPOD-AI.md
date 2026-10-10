@@ -15,9 +15,9 @@ For prediction-model studies, including ML/AI-based models. The 2024 TRIPOD+AI e
 | 9 | Statistical methods | All steps: feature selection, hyperparameter tuning, validation strategy | ☐ | |
 | 10 | Risk groups | If applicable, definition of risk groups | ☐ | |
 | 11 | Development vs validation | Internal / external validation strategy | ☐ | |
-| 12 | Algorithmic fairness | Performance by sex, race, age, hospital, payer | ☐ | use the `ce-fairness-reviewer` skill |
-| 13 | Calibration | Calibration plot, Brier score, ICI | ☐ | use the `ce-calibration-reviewer` skill |
-| 14 | Dataset shift | Plan for monitoring or detecting concept drift | ☐ | use the `ce-concept-drift-reviewer` skill |
+| 12 | Algorithmic fairness | Performance by sex, race, age, hospital, payer | ☐ | use the `ce-fairness-reviewer` agent |
+| 13 | Calibration | Calibration plot, Brier score, ICI | ☐ | use the `ce-calibration-reviewer` agent |
+| 14 | Dataset shift | Plan for monitoring or detecting concept drift | ☐ | use the `ce-concept-drift-reviewer` agent |
 | 15 | Discrimination | C-statistic, AUC with CI; comparison to existing models | ☐ | |
 | 16 | Model card | Mitchell-style model card published with the study | ☐ | use the `ce-model-card` skill |
 | 17 | Code and data | Reproducibility: where the code and (de-identified) data live | ☐ | |
@@ -26,6 +26,6 @@ For prediction-model studies, including ML/AI-based models. The 2024 TRIPOD+AI e
 | 20 | Ethics | IRB / ethics approval, consent or waiver | ☐ | |
 | 21 | Decision-curve analysis | Net benefit at clinically relevant thresholds | ☐ | |
 | 22 | Subgroup performance | Performance reported by clinically relevant subgroups | ☐ | |
-| 23 | Data leakage check | Statement that no train-test contamination occurred | ☐ | use the `ce-data-leakage-reviewer` skill |
+| 23 | Data leakage check | Statement that no train-test contamination occurred | ☐ | use the `ce-data-leakage-reviewer` agent |
 | 24 | Human-in-the-loop | If clinical deployment, who reviews predictions | ☐ | |
 | 25 | Update plan | When and how the model will be re-validated | ☐ | |

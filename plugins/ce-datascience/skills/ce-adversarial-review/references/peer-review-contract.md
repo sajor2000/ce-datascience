@@ -47,7 +47,7 @@ Use a bounded execution time appropriate to the host. Create the run directory w
 codex exec --sandbox read-only --ephemeral --skip-git-repo-check --cd "<repo-root>" -o "<run-dir>/peer.md" "<peer-prompt>" </dev/null 2> "<run-dir>/peer.stderr"
 ```
 
-Run the validator from this skill directory after either peer succeeds:
+Run the bundled validator, anchored on `SKILL_DIR`, after either peer succeeds:
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this skill's SKILL.md>";

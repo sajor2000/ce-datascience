@@ -17,7 +17,7 @@ Each check runs independently. Skip checks that don't apply to the current analy
 **What:** Does the analysis N match expectations?
 
 **Sources to cross-reference:**
-- `analysis/data-qa-report.md` — expected N from data QA gate
+- `reports/data-qa/<extract_id>.md` (canonical `ce-data-qa` output; fall back to legacy `analysis/data-qa-report.md`) — expected N from data QA gate
 - `analysis/power/` — minimum N from power calculation
 - SAP file — stated sample size or inclusion/exclusion criteria
 
@@ -83,7 +83,7 @@ Each check runs independently. Skip checks that don't apply to the current analy
 **Warn:** Column names suggestive of PHI but values appear de-identified (e.g., hashed IDs).
 **Fail:** Clear PHI detected (dates of birth, names, addresses in output files).
 
-**CLIF-specific:** When `__CE_CLIF__ active=true`, permit patient-level working data only in gitignored `output/intermediate_phi/`; verify it is never shared or committed. Require `output/final_no_phi/` to contain aggregate-only artifacts with no identifiers, raw data files, or reported cells below 10.
+**CLIF-specific:** When `__CE_CLIF__ active=true`, permit patient-level working data only in gitignored `output/intermediate_phi/`; verify it is never shared or committed. Require `output/final_no_phi/` to contain aggregate-only artifacts with no identifiers, raw data files, or reported cells below the CLIF project floor of n>=10 (a stricter site or DUA rule wins).
 
 ## 6. Figure Quality
 

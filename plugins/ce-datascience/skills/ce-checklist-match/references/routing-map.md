@@ -28,7 +28,8 @@ ELIF design == prediction_model:
   IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically
 
 ELIF design == diagnostic_accuracy:
-  primary = STARD-AI when the index test uses AI/ML else STARD
+  primary = STARD
+  IF index test uses AI/ML: extension += STARD-AI
   IF modality == imaging: extension += CLAIM
 
 ELIF design == systematic_review:

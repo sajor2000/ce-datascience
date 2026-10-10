@@ -85,18 +85,18 @@ Use `references/routing-map.md` to map answers to a checklist set. Apply only ev
 
 | Design | Direction | Aim | AI | Primary checklist | Extensions |
 |--------|-----------|-----|----|-----|------|
-| RCT | n/a | causal | none | CONSORT | SPIRIT (protocol) |
-| RCT | n/a | causal | model-as-study-object | CONSORT-AI | SPIRIT-AI (protocol) |
-| Observational cohort | prospective | causal | none | STROBE | RECORD if EHR/claims |
-| Observational cohort | retrospective | causal | none | STROBE | RECORD-PE if claims |
-| Case-control | n/a | causal | none | STROBE | RECORD if EHR |
-| Cross-sectional | n/a | descriptive | none | STROBE | RECORD if EHR |
-| Prediction model | n/a | predictive | yes | TRIPOD+AI | CHARMS for development |
-| Prediction model | n/a | predictive | no | TRIPOD | CHARMS |
-| Diagnostic accuracy | n/a | n/a | none | STARD | QUADAS-2 for review |
-| Diagnostic accuracy | n/a | n/a | yes | STARD-AI | + CLAIM if imaging |
-| Imaging study | n/a | n/a | yes | CLAIM | + STARD-AI / TRIPOD+AI |
-| Qualitative | n/a | exploratory | n/a | COREQ | SRQR alternative |
+| RCT | n/a | causal | none | CONSORT | -- (SPIRIT protocols are not in the registry) |
+| RCT | n/a | causal | model-as-study-object | CONSORT | CONSORT-AI; SPIRIT-AI (protocol stage) |
+| Observational cohort | prospective | causal | none | STROBE | RECORD if EHR/claims/registry |
+| Observational cohort | retrospective | causal | none | STROBE | RECORD if EHR/claims/registry; RECORD-PE if claims pharmacoepidemiology |
+| Case-control | n/a | causal | none | STROBE | RECORD if EHR/claims/registry |
+| Cross-sectional | n/a | descriptive | none | STROBE | RECORD if EHR/claims/registry |
+| Prediction model | n/a | predictive | yes | TRIPOD+AI | CHARMS (appraisal) only for systematic reviews of prediction models |
+| Prediction model | n/a | predictive | no | TRIPOD | CHARMS (appraisal) only for systematic reviews of prediction models |
+| Diagnostic accuracy | n/a | n/a | none | STARD | QUADAS-2 (appraisal) only for systematic reviews |
+| Diagnostic accuracy | n/a | n/a | yes | STARD | STARD-AI; + CLAIM if imaging |
+| Imaging study | n/a | n/a | yes | STARD or TRIPOD+AI (by aim) | CLAIM; + STARD-AI if diagnostic accuracy |
+| Qualitative | n/a | exploratory | n/a | COREQ | -- (SRQR is not in the registry) |
 | Animal | n/a | n/a | n/a | ARRIVE | -- |
 | Systematic review | n/a | n/a | n/a | PRISMA | PRISMA-DTA / PRISMA-NMA |
 | Case report | n/a | descriptive | n/a | CARE | -- |

@@ -32,7 +32,8 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `ai-primary` | `study_type: rct` (protocol stage) | SPIRIT-AI | `references/spirit-ai-checklist.md` |
 | `ai-primary` | `study_type: prediction-model` | TRIPOD+AI (already primary) | _(no additional file)_ |
 | `ai-primary` | `study_type: prediction-model` | REFORMS | `references/reforms-checklist.md` |
-| `ai-primary` | `study_type: diagnostic-accuracy` | CLAIM | `references/claim-checklist.md` |
+| `ai-primary` | `study_type: diagnostic-accuracy` | STARD-AI | `references/stard-ai-checklist.md` |
+| `ai-primary` | medical imaging study (`diagnostic-accuracy` or `prediction-model`) | CLAIM | `references/claim-checklist.md` |
 | `ai-primary` | pathology deep-learning study | DEAL only with verified-source override | `references/deal-checklist.md` |
 | `ai-primary` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `ai-primary` | EHR-based predictive model | PDSQI-9 is not auto-routed while unverified | `references/pdsqi-checklist.md` |
@@ -48,9 +49,9 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 3. **Read SAP frontmatter** for `study_type`, `ai_involvement`, and legacy `guidelines_selected`.
 4. **If legacy `guidelines_selected` is explicitly set** and canonical stack-profile fields are absent, use that list as a compatibility override.
 5. **Otherwise, route by `study_type`** to get the primary guideline from the table above.
-4. **If `ai_involvement` is not `none`**, scan the AI extension table for matching conditions. A condition matches when the study attributes and the guideline scope both align. Do not treat generic AI involvement as sufficient for DEAL, CHART, or PDSQI-9.
-5. **Resolve evidence status before combining** primary + extensions. `verified` entries may be routed; `provisional` entries require an explicit note; `unverified` entries are not authoritative selections.
-6. **Combine primary + extensions** into the final checklist set. Load each file and review against it.
+6. **If `ai_involvement` is not `none`**, scan the AI extension table for matching conditions. A condition matches when the study attributes and the guideline scope both align. Do not treat generic AI involvement as sufficient for DEAL, CHART, or PDSQI-9.
+7. **Resolve evidence status before combining** primary + extensions. `verified` entries may be routed; `provisional` entries require an explicit note; `unverified` entries are not authoritative selections.
+8. **Combine primary + extensions** into the final checklist set. Load each file and review against it.
 
 ## Guideline Metadata
 

@@ -27,7 +27,7 @@ Pass `{run_id}` to every persona sub-agent so they can write their full analysis
 
 Omit the `mode` parameter when dispatching sub-agents so the user's configured permission settings apply. Do not pass `mode: "auto"`.
 
-Spawn each selected persona reviewer as a parallel sub-agent by filling the slots in `references/subagent-template.md` (`{persona_file}`, `{diff_scope_rules}` from `references/diff-scope.md`, `{schema}` from `references/findings-schema.json`). Each persona sub-agent receives:
+Spawn each selected persona reviewer as a parallel sub-agent by filling the slots in `references/subagent-template.md` (sources listed in `references/subagent-template-variables.md`; `{persona_file}`, `{diff_scope_rules}` from `references/diff-scope.md`, `{schema}` from `references/findings-schema.json`). Each persona sub-agent receives:
 
 1. Their persona file content (identity, failure modes, calibration, suppress conditions)
 2. Shared diff-scope rules from `references/diff-scope.md`
@@ -38,7 +38,7 @@ Spawn each selected persona reviewer as a parallel sub-agent by filling the slot
 7. **For `project-standards` only:** the criteria mapping from Stage 3b, pairing each standards file with the changed files it governs, wrapped in a `<standards-paths>` block appended to the review context
 8. **For `phi-leak` only:** the PHI authorization marker resolved in Stage 1 and its separately scoped minimum-necessary or metadata-only context
 
-Persona sub-agents are **read-only** with respect to the project: they review and return structured JSON. They do not edit project files or propose refactors. The one permitted write is saving their full analysis to the run-artifact path specified in the output contract (under `/tmp/ce-datascience/ce-code-review/<run-id>/`).
+Persona sub-agents are **read-only** with respect to the project: they review and return structured JSON. They do not edit project files. The one permitted write is saving their full analysis to the run-artifact path specified in the output contract (under `/tmp/ce-datascience/ce-code-review/<run-id>/`).
 
 Read-only here means **non-mutating**, not unrestricted checkout access: every reviewer prompt carries the SKILL.md reviewer-access rules. No reviewer may edit project files, change branches, commit, push, create PRs, or otherwise mutate the checkout or repository state.
 
