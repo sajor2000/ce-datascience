@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Power for our two-arm RCT of a delirium-prevention bundle: continuous outcome (delirium-free days), assumed d = 0.40 from the method-extract work (range 0.28-0.52), alpha 0.05 two-sided, 80% power, 15% dropout. R project. Need the SAP-2.5 paragraph.",
+      "prompt": "Power for our two-arm RCT of a delirium-prevention bundle: continuous outcome (delirium-free days), assumed d = 0.40 from the method-extract work (range 0.28-0.52), alpha 0.05 two-sided, 80% power, 15% dropout. R project. Need the SAP-6 (sample size and power) paragraph.",
       "expected_output": "Picks the two-sample t design, writes a reproducible R script with a sensitivity sweep and plot, captures log/sweep/plot outputs, writes the SAP-ready summary paragraph, and emits the __CE_POWER__ signal.",
       "files": [],
       "expectations": [
@@ -27,13 +27,13 @@
     },
     {
       "id": 3,
-      "prompt": "need a sample size for our cohort study on statins and post-op delirium. ce-effect-size gave me something earlier in this chat, use that. we're in python.",
-      "expected_output": "Scans chat for the __CE_EFFECT_SIZE__ signal; if mode=reml uses its point and CI as anchor and sweep bounds, and if mode=narrative or missing, asks for an explicit effect-size assumption rather than silently picking one; also asks for the binary outcome event rate if missing.",
+      "prompt": "need a sample size for our cohort study on statins and post-op delirium. ce-effect-size gave me this earlier in the chat: __CE_EFFECT_SIZE__ metric=OR n_studies=6 point=0.72 ci=0.58,0.89 pi=0.41,1.26 i2=48 mode=reml -- use that. we're in python.",
+      "expected_output": "Reads the __CE_EFFECT_SIZE__ signal, anchors on point=0.72, sweeps over the 95% prediction interval (pi=0.41,1.26) rather than the CI because both PI bounds are finite, truncates the sweep before the null OR of 1, reports which interval was used plus the CI, and asks for the control-group delirium rate if missing.",
       "files": [],
       "expectations": [
-        "Scans recent chat for '__CE_EFFECT_SIZE__' before asking for an effect size",
-        "If mode=reml, prints the '[effect-size] anchor from ce-effect-size: ...' line and uses ci bounds for the sweep",
-        "If mode=narrative, point=null, or the signal is absent, asks the user for an explicit effect-size assumption instead of silently choosing one",
+        "Reads the '__CE_EFFECT_SIZE__' line from the chat instead of asking for an effect size, and prints the '[effect-size] anchor from ce-effect-size: point=0.72 ...' line",
+        "Uses the pi= bounds (0.41 to 1.26), not the ci= bounds, as the sensitivity-sweep range and states that the prediction interval was used while also reporting the CI (0.58-0.89)",
+        "Because the PI crosses OR = 1, sweeps only the side containing the point estimate, stops short of the null, and states the truncation",
         "Asks only one missing load-bearing input at a time (e.g. control-group event rate) and does not guarantee feasibility",
         "Uses statsmodels (Python) rather than R for the script"
       ]

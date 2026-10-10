@@ -102,7 +102,7 @@ if (a$type == "b") {
   stop(sprintf("unknown --type %s; valid: b (binary), s (survival), c (continuous)", a$type))
 }
 
-# Render a SAP-2.5-ready paragraph.
+# Render a SAP-6-ready (Sample Size and Power) paragraph.
 md <- c(
   "# Sample size for prediction-model development",
   "",

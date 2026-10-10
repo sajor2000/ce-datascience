@@ -10,7 +10,7 @@
         "Uses analysis/pubmed/sofa-mortality-results.csv as the metadata baseline instead of re-running a new PubMed search",
         "Checks Paperclip availability and runs paperclip search with an explicit source flag (default -s pmc), then a map and at least one grep against the same result ID",
         "Writes analysis/evidence-map/<query-slug>-evidence-map.md containing Search provenance, Included evidence table, Claim-to-source matrix, Methods and effect-size clues, Evidence gaps, and Recommended handoffs",
-        "Labels each claim's verification status as abstract, full_text, figure, trial, or regulatory according to what was actually read",
+        "Labels each claim's verification status as abstract, full_text, figure, trial, regulatory, or documentation according to what was actually read",
         "Emits __CE_EVIDENCE_MAP__ with path, sources=pubmed,paperclip, full_text_pct, and claims fields"
       ]
     },

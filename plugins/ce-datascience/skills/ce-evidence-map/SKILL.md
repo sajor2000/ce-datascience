@@ -124,7 +124,8 @@ analysis/evidence-map/<query-slug>-evidence-map.md
 ```
 
 Create parent directories as needed. Keep real subject data out of this artifact;
-it should contain literature and regulatory evidence only.
+it should contain literature, trial-registry, regulatory, and software
+documentation evidence only.
 
 Required sections:
 
@@ -133,7 +134,8 @@ Required sections:
 2. **Included evidence table**: PMID or document ID, title, year, source,
    journal/document type, DOI, PMC/full-text status, and one-line relevance.
 3. **Claim-to-source matrix**: each claim, supporting source IDs, verification
-   status (`abstract`, `full_text`, `figure`, `trial`, `regulatory`), and notes.
+   status (`abstract`, `full_text`, `figure`, `trial`, `regulatory`,
+   `documentation`), and notes.
 4. **Methods and effect-size clues**: cohort definition, outcome, model/effect
    estimate, key predictors/covariates, limitations, and whether details came
    from abstract or full text.
@@ -148,6 +150,14 @@ Use conservative language:
 - If Paperclip full text was used, label claims `full_text`.
 - If figure QA was used, label claims `figure` and include the figure path or
   paper figure identifier.
+- If a ClinicalTrials.gov or other trial-registry record was read, label claims
+  `trial`.
+- If a regulation or agency guidance document was read at its issuing body's
+  source, label claims `regulatory`.
+- If official software or package documentation was read (for a method
+  justification), label claims `documentation`.
+- Identifier or metadata lookups alone (DOI/PMID conversion, titles, journals)
+  do not verify a claim; label the claim only once its source is read.
 
 ### Step 4: Emit handoff
 

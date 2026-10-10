@@ -58,7 +58,7 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 | `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `ce-data-qa` | SAP-8 data-quality assertions |
 | `__CE_MODEL_STRATEGY__ memo=<path> code=<path\|none> language=<r\|python\|none> status=<blocked\|provisional\|ready_for_review> primary=<model-id\|none> evidence=<path\|none>` | `ce-model-strategy` | SAP-4 model family, estimand alignment, dependence structure, diagnostics, sensitivities, and decision evidence |
 | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `ce-phenotype-validate` | SAP-2 case-definition validation |
-| `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-3.1 MCID and SAP-6 effect-size anchor |
+| `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> pi=<lo,hi\|NA> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-3.1 MCID and SAP-6 effect-size anchor; `ce-power` sweeps `pi=` when finite, else `ci=` |
 | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `ce-power` | SAP-6 sample-size result |
 | `__CE_CLIF__ active=<bool> version=<dd-version> strict=<bool> rules=<path>` | `ce-clif` | SAP frontmatter `data_source: CLIF`, SAP-2 layout, SAP-12 dissemination |
 | `__CE_LANG__ primary=<python\|r\|both\|unknown> secondary=<...\|null> source=<auto\|cached\|manual>` | `ce-language-detect` (via `ce-setup`) | SAP-2 implementation-units split (Python vs R scaffolding choices) |

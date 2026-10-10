@@ -54,7 +54,7 @@ The prediction interval is the range a NEW study's effect would fall in -- wider
 PI = pooled_theta +/- t_{k-2, 0.975} * sqrt(pooled_se^2 + tau^2)
 ```
 
-For ratio metrics, exponentiate. PI is what `ce-power` should use as the sensitivity-sweep bounds.
+For ratio metrics, exponentiate. PI is what `ce-power` should use as the sensitivity-sweep bounds; the signal carries it as `pi=lo,hi`. It needs k >= 3 (t has k - 2 df), so emit `pi=NA` when it is not computable and `ce-power` falls back to `ci=`.
 
 ## When NOT to pool
 

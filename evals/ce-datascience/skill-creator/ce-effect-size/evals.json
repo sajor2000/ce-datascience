@@ -10,7 +10,7 @@
         "Reports how many rows failed parsing and how many studies were dropped by the metric and sample_size>=50 filters versus the input N",
         "Pools HRs on the log scale with random-effects REML and reports pooled estimate, 95% CI, 95% prediction interval, I^2, and tau^2",
         "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-pooled-forest.png",
-        "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, i2, and mode=reml",
+        "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, pi (the 95% prediction interval bounds, or pi=NA if not computable), i2, and mode=reml",
         "Does not compute power itself; it hands off to ce-power with a sensitivity range across the prediction interval"
       ]
     },
@@ -23,7 +23,7 @@
         "Does not run a pooled meta-analysis with N<3 studies",
         "Reports a narrative range (min, median, max) and names the highest-quality study as the anchor",
         "Warns that a one- or two-study power calculation is fragile and recommends a sensitivity sweep",
-        "Emits __CE_EFFECT_SIZE__ with point=null ci=null i2=null mode=narrative"
+        "Emits __CE_EFFECT_SIZE__ with point=null ci=null pi=NA i2=null mode=narrative"
       ]
     },
     {

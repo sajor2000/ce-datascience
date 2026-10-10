@@ -38,7 +38,7 @@ Before searching, record:
 - databases or source classes searched;
 - exact query strings and filters;
 - search date and result count;
-- whether each conclusion was verified from metadata, abstract, or full text.
+- the evidence label for each conclusion (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, or `documentation`, as defined in `references/mcp-routing.md`); metadata alone does not verify a conclusion.
 
 Resolve the current date at runtime. Do not invent a cutoff year or silently narrow the user's population, intervention/exposure, comparator, or outcome.
 

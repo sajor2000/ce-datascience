@@ -62,7 +62,7 @@ if (nrow(dat) < 3) {
   )
   dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
   writeLines(out_md, a$out)
-  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null i2=null mode=narrative\n",
+  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null pi=NA i2=null mode=narrative\n",
               a$metric, nrow(dat)))
   quit(status = 0)
 }
@@ -102,6 +102,19 @@ if (ratio_metric) {
   pi_lo  <- m$lower.predict; pi_hi <- m$upper.predict
 }
 
+# meta returns the prediction interval only when k and tau^2 allow one; guard
+# length before is.finite() so a NULL or NA bound yields pi=NA, not an error.
+pi_ok  <- length(pi_lo) == 1 && length(pi_hi) == 1 &&
+          is.finite(pi_lo) && is.finite(pi_hi)
+pi_txt <- if (pi_ok) sprintf("%.2f-%.2f", pi_lo, pi_hi) else "not available"
+pi_sig <- if (pi_ok) sprintf("%.3f,%.3f", pi_lo, pi_hi) else "NA"
+sweep_line <- if (pi_ok) {
+  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% prediction interval)", pi_lo, pi_hi)
+} else {
+  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% CI; prediction interval not available)",
+          ci_lo, ci_hi)
+}
+
 # Forest plot
 fp_path <- sub("\\.md$", "-forest.png", a$out)
 png(fp_path, width = 1200, height = 100 + 60 * nrow(dat), res = 150)
@@ -116,20 +129,19 @@ out_md <- c(
   sprintf("Source: %s (k = %d studies after filtering)", a$`in`, nrow(dat)),
   sprintf("Method: random-effects meta-analysis, REML for tau^2, prediction interval reported"),
   "",
-  sprintf("Pooled %s = %.2f (95%% CI %.2f-%.2f; 95%% PI %.2f-%.2f)",
-          a$metric, pooled, ci_lo, ci_hi, pi_lo, pi_hi),
+  sprintf("Pooled %s = %.2f (95%% CI %.2f-%.2f; 95%% PI %s)",
+          a$metric, pooled, ci_lo, ci_hi, pi_txt),
   sprintf("Heterogeneity: I^2 = %.0f%%, tau^2 = %.3f", m$I2 * 100, m$tau2),
   "",
   "## For /ce-power",
   "",
   sprintf("Anchor: %.2f", pooled),
-  sprintf("Sensitivity-sweep bounds: %.2f to %.2f (95%% prediction interval)",
-          pi_lo, pi_hi),
+  sweep_line,
   "",
   sprintf("Forest plot: %s", fp_path)
 )
 dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
 writeLines(out_md, a$out)
 
-cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f i2=%.0f mode=reml\n",
-            a$metric, nrow(dat), pooled, ci_lo, ci_hi, m$I2 * 100))
+cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f pi=%s i2=%.0f mode=reml\n",
+            a$metric, nrow(dat), pooled, ci_lo, ci_hi, pi_sig, m$I2 * 100))

@@ -2,31 +2,33 @@
 
 Paste each section into the corresponding ClinicalTrials.gov PRS field. Required by ICMJE for any prospective interventional study; required by FDA for FDA-regulated trials.
 
+Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP title }}` is the SAP H1 (`# Statistical Analysis Plan: <title>`); `{{ user: ... }}` comes from the user or project study metadata (never SAP frontmatter; ask, never invent).
+
 ## Study identification
 
 | Field | Value |
 |-------|-------|
-| Brief title | {{ sap.title.short }} |
-| Official title | {{ sap.title.full }} |
-| Brief summary | {{ sap.section_1_1_background_short }} |
-| Detailed description | {{ sap.section_1 }} |
+| Brief title | {{ user: short title, confirmed from the SAP title }} |
+| Official title | {{ SAP title }} |
+| Brief summary | {{ SAP-1.1: primary objective, in lay terms }} |
+| Detailed description | {{ SAP-1 and SAP-2: objectives and design }} |
 
 ## Study status
 
 | Field | Value |
 |-------|-------|
 | Overall recruitment status | {{ "Not yet recruiting" or "Recruiting" or "Active, not recruiting" }} |
-| Anticipated start date | {{ sap.frontmatter.enrollment_start }} |
-| Anticipated primary completion | {{ sap.frontmatter.primary_completion }} |
-| Anticipated study completion | {{ sap.frontmatter.study_completion }} |
+| Anticipated start date | {{ user: enrollment start }} |
+| Anticipated primary completion | {{ user: primary completion }} |
+| Anticipated study completion | {{ user: study completion }} |
 
 ## Sponsor and collaborators
 
 | Field | Value |
 |-------|-------|
-| Lead sponsor | {{ sap.frontmatter.sponsor }} |
-| Collaborators | {{ sap.frontmatter.collaborators }} |
-| Responsible party | {{ sap.frontmatter.principal_investigator }} |
+| Lead sponsor | {{ user: sponsor }} |
+| Collaborators | {{ user: collaborators }} |
+| Responsible party | {{ user: principal investigator }} |
 
 ## Oversight
 
@@ -34,9 +36,9 @@ Paste each section into the corresponding ClinicalTrials.gov PRS field. Required
 |-------|-------|
 | FDA-regulated drug | {{ "Yes" or "No" }} |
 | FDA-regulated device | {{ "Yes" or "No" }} |
-| IPD sharing plan | {{ sap.frontmatter.ipd_sharing | default("Yes -- de-identified IPD shared per request after publication") }} |
+| IPD sharing plan | {{ user: IPD sharing | default("Yes -- de-identified IPD shared per request after publication") }} |
 | Data monitoring committee | {{ "Yes" or "No -- single-arm or low-risk" }} |
-| Approved IRB | {{ sap.frontmatter.irb_number }} |
+| Approved IRB | {{ user: IRB approval reference }} |
 
 ## Study design
 
@@ -44,24 +46,24 @@ Paste each section into the corresponding ClinicalTrials.gov PRS field. Required
 |-------|-------|
 | Primary purpose | {{ "Treatment" / "Prevention" / "Diagnostic" / "Health-services research" }} |
 | Study type | Interventional |
-| Phase | {{ "Early Phase 1" / "Phase 1" / "Phase 2" / "Phase 3" / "Phase 4" / "Not applicable" }} |
+| Phase | {{ "Early Phase 1" / "Phase 1" / "Phase 2" / "Phase 3" / "Phase 4" / "Not applicable" }} (SAP-2.1, else user) |
 | Allocation | {{ "Randomized" or "Non-randomized" or "Not applicable" }} |
 | Intervention model | {{ "Parallel" / "Crossover" / "Factorial" / "Sequential" / "Single-group" }} |
 | Masking | {{ "None (Open Label)" / "Single (specify)" / "Double" / "Triple" / "Quadruple" }} |
-| Number of arms | {{ sap.section_1_3_n_arms }} |
-| Enrollment | {{ sap.section_2_5_target_n }} |
+| Number of arms | {{ SAP-2.3 and SAP-2.4: number of arms }} |
+| Enrollment | {{ SAP-6: target N }} |
 
 ## Eligibility
 
 | Field | Value |
 |-------|-------|
 | Sexes eligible | {{ "All" or "Female only" or "Male only" }} |
-| Minimum age | {{ sap.section_2_1_min_age }} |
-| Maximum age | {{ sap.section_2_1_max_age }} |
+| Minimum age | {{ SAP-2.2: minimum age }} |
+| Maximum age | {{ SAP-2.2: maximum age }} |
 | Healthy volunteers accepted | {{ "Yes" or "No" }} |
 | Sampling method | {{ "Probability" or "Non-probability" }} |
-| Inclusion criteria | {{ sap.section_2_1_inclusion }} |
-| Exclusion criteria | {{ sap.section_2_1_exclusion }} |
+| Inclusion criteria | {{ SAP-2.2: inclusion criteria }} |
+| Exclusion criteria | {{ SAP-2.2: exclusion criteria }} |
 
 ## Outcomes
 
@@ -69,18 +71,18 @@ Paste each section into the corresponding ClinicalTrials.gov PRS field. Required
 
 | Field | Value |
 |-------|-------|
-| Title | {{ sap.section_3_1_primary }} |
-| Description | {{ sap.section_3_1_primary_definition }} |
-| Time frame | {{ sap.section_3_1_primary_timeframe }} |
+| Title | {{ SAP-3.1: primary endpoint }} |
+| Description | {{ SAP-3.1: measurement definition }} |
+| Time frame | {{ SAP-3.1: time point }} |
 
 ### Secondary outcomes
 
-For each, include title, description, and time frame from SAP-3.2+
+For each, include title, description, and time frame from SAP-3.2.
 
 ## Statistical analysis plan
 
 Link or attach: this SAP file's URL or DOI.
 
-Brief: {{ sap.section_4_1_primary_model_summary }}
+Brief: {{ SAP-5.1: primary analysis summary }}
 
-Sample size: {{ sap.section_2_5_sample_size }} (see attached SAP for full power calculation)
+Sample size: {{ SAP-6: sample size and power }} (see attached SAP for full power calculation)

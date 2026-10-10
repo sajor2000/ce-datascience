@@ -36,9 +36,10 @@ Wraps the standard power calculations behind a single command. Produces a script
 
 ### Step 0: Context inputs (scan chat first)
 
-If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> ... mode=<reml|narrative>`.
+If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> pi=<lo,hi|NA> i2=<pct|null> mode=<reml|narrative>`.
 
-- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size` and use `ci=lo,hi` as the sensitivity-sweep bounds. Print `[effect-size] anchor from ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%)`.
+- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size`. Sweep range: use `pi=lo,hi` (95% prediction interval, the plausible range for a new study) when both bounds are finite numbers; otherwise (`pi=NA`, missing, or non-finite) fall back to `ci=lo,hi`. Print `[effect-size] anchor from ce-effect-size: point=<v> (n_studies=<n>, I^2=<i2>%); sweep over <PI|CI> <lo>-<hi>; other interval <CI|PI> <lo>-<hi|not available>`.
+- If the sweep interval crosses the null (HR/OR/RR = 1, MD/SMD = 0), required N is unbounded near it: sweep only the side containing `point`, stop short of the null, and state the truncation.
 - If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user load the `ce-effect-size` skill again with more studies.
 
 When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption (or recommend `ce-method-extract` + `ce-effect-size` first).
@@ -72,9 +73,9 @@ Write to `analysis/power/<design>-<date>.R` or `.py`. Include:
 
 Execute the script (or print it for manual run). Capture stdout to `analysis/power/<design>-<date>.log`. Save the sweep table to `analysis/power/<design>-<date>-sweep.csv` and the plot to `<design>-<date>.png`.
 
-### Step 4: Write the SAP-2.5 paragraph
+### Step 4: Write the SAP-6 paragraph
 
-Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`:
+Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`. When the anchor came from `ce-effect-size`, name the interval swept (PI or CI) and report the other one:
 
 ```
 With α = 0.05 (two-sided), power = 0.80, and an assumed effect size of d = 0.40
@@ -89,7 +90,7 @@ Reference the prior literature explicitly so the assumption is auditable.
 
 ### Step 5: Emit signal
 
-Print one line so `ce-plan` SAP mode can drop the value into SAP-2.5 automatically. Required keys: `design`, `total`, `file`. Optional keys for specific designs: `n_per_arm` (two-arm), `with_dropout` (any), `epv` (prediction-model).
+Print one line so `ce-plan` SAP mode can drop the value into SAP-6 (Sample Size and Power) automatically. Required keys: `design`, `total`, `file`. Optional keys for specific designs: `n_per_arm` (two-arm), `with_dropout` (any), `epv` (prediction-model).
 
 ```
 __CE_POWER__ design=<name> total=<n> file=<path-to-summary.md> n_per_arm=<n> with_dropout=<n>

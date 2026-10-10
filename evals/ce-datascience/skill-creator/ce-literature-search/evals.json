@@ -10,6 +10,7 @@
         "Records the question or PICO elements, sources searched, exact query strings and filters, search date, and result count before or alongside searching",
         "Routes PubMed metadata to ce-pubmed first, then claim-level synthesis to ce-evidence-map, and effect estimates to ce-effect-size",
         "Uses a web search of primary authoritative sources for the current Surviving Sepsis Campaign guidance",
+        "Labels each conclusion with the shared evidence-label set (abstract, full_text, figure, trial, regulatory, documentation) at the level actually read; the Surviving Sepsis guideline is full_text only if read in full, and no 'metadata' or 'primary_web' label is used",
         "Does not itself produce a pooled effect estimate or an evidence-map artifact owned by a specialist skill",
         "Resolves the current date at runtime and does not invent a cutoff year"
       ]

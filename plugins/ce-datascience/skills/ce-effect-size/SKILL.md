@@ -57,7 +57,8 @@ If N ≥ 3:
 - For OR / HR / RR: log-transform → random-effects REML (use R `meta::metagen` or Python `pymeta`-style direct computation)
 - For MD: random-effects REML on the raw scale
 - For SMD: Hedges g + REML
-- Report: pooled estimate, 95% CI, prediction interval, I^2 heterogeneity, tau^2
+- Report: pooled estimate, 95% CI, 95% prediction interval (PI), I^2 heterogeneity, tau^2
+- If `meta` returns no finite PI bounds, say so and report the CI as the fallback sweep range
 
 If N < 3:
 - Report narrative range (min, median, max) -- DO NOT pool
@@ -101,16 +102,18 @@ Use R `meta::forest()` or Python `matplotlib`. Each study's point and CI; pooled
 The bundled `scripts/pool_effects.R` prints the canonical envelope. REML (k>=3) form:
 
 ```
-__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> i2=<pct> mode=reml
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> pi=<lo,hi|NA> i2=<pct> mode=reml
 ```
+
+`pi=` carries the 95% prediction interval on the reported scale (exponentiated for ratio metrics). It is `pi=NA` when `meta` returns no finite PI bounds for this k and tau^2.
 
 Narrative form (k<3, no pooling):
 
 ```
-__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=null ci=null i2=null mode=narrative
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=null ci=null pi=NA i2=null mode=narrative
 ```
 
-Both forms share the same key set so `ce-power` can scan one regex. When `mode=narrative`, `ce-power` should fall back to the user-supplied effect size or stop and ask, rather than try to read `point=null` as a number.
+Both forms share the same key set so `ce-power` can scan one regex. `ce-power` sweeps over `pi=` when both bounds are finite and falls back to `ci=` otherwise. When `mode=narrative`, `ce-power` should fall back to the user-supplied effect size or stop and ask, rather than try to read `point=null` as a number.
 
 ## What this skill does NOT do
 

@@ -6,7 +6,9 @@
 - Routing table
 - Rules for every route
 
-Connected MCP servers make searches faster and more complete, but none is required. Every route has a no-MCP fallback, and the evidence label records which path produced each claim.
+Connected MCP servers make searches faster and more complete, but none is required. Every route has a no-MCP fallback, and the evidence label records the deepest level at which each claim was actually read.
+
+Evidence labels are the same set `ce-evidence-map` uses: `abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`. A route that only locates or identifies a source produces no label until the source is read.
 
 ## Check what is connected
 
@@ -17,14 +19,14 @@ Before choosing a route, list the MCP tools available in this session (for examp
 | Need | Preferred MCP tools | Fallback without MCP | Evidence label |
 |---|---|---|---|
 | Biomedical search, MeSH, PMIDs, abstracts | `PubMed:search_articles`, `PubMed:get_article_metadata` | The `ce-pubmed` skill's bundled E-utilities search script | `abstract` |
-| DOI / PMID / PMCID conversion, citation lookup | `PubMed:convert_article_ids`, `PubMed:lookup_article_by_citation` | E-utilities ID converter via `ce-pubmed` | `metadata` |
+| DOI / PMID / PMCID conversion, citation lookup | `PubMed:convert_article_ids`, `PubMed:lookup_article_by_citation` | E-utilities ID converter via `ce-pubmed` | None (identifier lookup); label the claim when the source is read |
 | Related or citing papers for a seed study | `PubMed:find_related_articles` | PubMed "similar articles" through `ce-pubmed` | `abstract` |
 | Lawful open full text (PMC) | `PubMed:get_full_text_article` after `PubMed:get_copyright_status` | User-supplied PDF or institutional access; otherwise report the gap | `full_text` |
 | Full-text search across papers, preprints, trials, FDA documents, patents | `Paperclip:search`, `Paperclip:grep`, `Paperclip:map`, `Paperclip:lookup` | `paperclip` CLI if installed and authenticated (see `ce-evidence-map`); otherwise PubMed-only with the limitation stated | `full_text` |
-| Figures and tables inside a paper | `Paperclip:ask-image` | Read the figure from a lawful PDF; otherwise report the gap | `full_text` |
-| ClinicalTrials.gov registrations and results | `Paperclip:search` (trials source) | ClinicalTrials.gov website or API, primary record only | `registry` |
+| Figures and tables inside a paper | `Paperclip:ask-image` | Read the figure from a lawful PDF; otherwise report the gap | `figure` |
+| ClinicalTrials.gov registrations and results | `Paperclip:search` (trials source) | ClinicalTrials.gov website or API, primary record only | `trial` |
 | R, Python, or software package documentation | `Context7:resolve-library-id` then `Context7:query-docs`, or Ref MCP documentation search | Official package docs, CRAN or PyPI pages, vignettes, read directly | `documentation` |
-| Current guidelines, regulations, agency guidance | Web search MCP (Tavily, Exa) to find candidates, then read the primary source | Web search and fetch of the issuing body's own page | `primary_web` |
+| Current guidelines, regulations, agency guidance | Web search MCP (Tavily, Exa) to find candidates, then read the primary source | Web search and fetch of the issuing body's own page | `regulatory` for regulations and agency guidance; `full_text` for a clinical guideline read in full (`abstract` if only its summary was read) |
 
 ## Rules for every route
 
