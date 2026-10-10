@@ -8,6 +8,8 @@ Compound engineering for computational scientists. SAP management, statistical r
 
 ![Steps for using CE DataScience setup, workflow, and task-specific slash commands](../../docs/ce-datascience-skill-commands.png)
 
+[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+
 ## Getting Started
 
 For complete copy-paste setup across Claude Code, Codex, OpenCode, Gemini CLI,
