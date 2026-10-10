@@ -176,7 +176,7 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 
 - Observational cohort study on CLIF data → STROBE + RECORD (EHR extension).
 - Prediction model on CLIF data → TRIPOD+AI.
-- Target trial emulation → TARGET (with STROBE underneath).
+- Target trial emulation → TARGET (primary), with STROBE + RECORD as companions.
 - RCT using CLIF for outcome ascertainment → CONSORT.
 
 `ce-checklist-match` should pre-fill the routing answer with these defaults when CLIF profile is active and the user has not specified otherwise.

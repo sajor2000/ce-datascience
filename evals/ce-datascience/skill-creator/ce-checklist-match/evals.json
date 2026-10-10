@@ -17,11 +17,12 @@
     {
       "id": 2,
       "prompt": "__CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=prediction_model checklist=?\n\nOk the research question is locked. We're developing a gradient-boosted model to predict in-hospital deterioration from vitals and labs, then external validation at a second site. Pick the checklist(s) before I start the SAP.",
-      "expected_output": "Pre-fills routing answers from the research-question YAML, surfaces them for confirmation, and routes to TRIPOD+AI before writing the stack profile (CHARMS is not added because it applies only to systematic reviews of prediction models).",
+      "expected_output": "Pre-fills routing answers from the research-question YAML, surfaces them for confirmation, and routes to TRIPOD+AI as primary with REFORMS as the ML-based-science extension before writing the stack profile, recording ai_involvement with a canonical value (CHARMS is not added because it applies only to systematic reviews of prediction models).",
       "files": [],
       "expectations": [
         "Reads analysis/research-question.yaml and surfaces pre-filled design/AI involvement/population values for user confirmation before writing to the stack profile",
-        "Routes to TRIPOD+AI as the primary checklist (prediction model with AI involvement)",
+        "Routes to TRIPOD+AI as the primary checklist (prediction model with AI involvement) and does not make REFORMS the primary; REFORMS, if added, is an extension",
+        "Writes ai_involvement using only a canonical value (none, ai-assisted, ai-primary, or llm-based; here ai-primary), never model-as-study-object or model-as-tool",
         "Does not write the SAP itself",
         "Emits a __CE_CHECKLIST__ line with primary=TRIPOD+AI"
       ]

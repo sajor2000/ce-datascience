@@ -2,16 +2,26 @@
 
 This deterministic decision tree selects a primary reporting guideline and only adds extensions whose scope matches the study attributes. It is self-contained: it emits candidate names, while `ce-code-review` resolves those names against the canonical evidence registry before treating any selection as authoritative.
 
+## AI Involvement Values
+
+`ai_involvement` uses the canonical values shared with `ce-code-review`: `none`, `ai-assisted` (AI as a tool within traditional methods), `ai-primary` (the AI model is the primary analytical approach or the object being evaluated), and `llm-based` (the study uses or evaluates a large language model). An extension's scope must still match; generic AI involvement alone never adds one.
+
 ## Primary Checklist
 
 ```text
 IF design == RCT:
-  primary = CONSORT
-  IF ai_involvement == model-as-study-object: extension += CONSORT-AI
-  IF protocol_stage == true AND ai_involvement == model-as-study-object: protocol = SPIRIT-AI
+  primary = CONSORT  # CONSORT 2025 core
+  IF ai_involvement IN [ai-primary, llm-based] AND the AI is the trial intervention: extension += CONSORT-AI
+  IF protocol_stage == true AND ai_involvement IN [ai-primary, llm-based]: protocol = SPIRIT-AI
   IF cluster_design: extension += CONSORT-CLUSTER
   IF adaptive_design: extension += CONSORT-ADAPTIVE
   IF n_of_1_design: extension += CONSORT-NOF1
+
+ELIF design == target_trial_emulation:  # observational data explicitly emulating a target trial
+  primary = TARGET
+  companion += STROBE (always; record it in reporting_checklist_extensions)
+  IF data_source IN [EHR, claims, registry]: extension += RECORD
+  IF data_source == claims AND pharmacoepidemiology == true: extension += RECORD-PE
 
 ELIF design IN [observational_cohort, observational_case_control, observational_cross_sectional]:
   primary = STROBE
@@ -19,11 +29,12 @@ ELIF design IN [observational_cohort, observational_case_control, observational_
   IF data_source == claims AND pharmacoepidemiology == true: extension += RECORD-PE
   IF mendelian_randomization == true: extension += STROBE-MR
   IF genetic_association == true: extension += STREGA
-  IF target_trial_emulation == true: extension += TARGET
+  IF target_trial_emulation == true: re-route to design == target_trial_emulation (TARGET primary)
   IF RWE_treatment_effect == true: extension += START-RWE
 
 ELIF design == prediction_model:
   primary = TRIPOD+AI when AI/ML is used else TRIPOD
+  IF ai_involvement IN [ai-primary, llm-based]: extension += REFORMS (ML-based science)
   IF systematic_review_of_prediction_models == true: extension += CHARMS as appraisal
   IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically
 
@@ -41,15 +52,21 @@ ELIF design == systematic_review:
   IF protocol_stage == true: note PRISMA-P as unsupported follow-up
 
 ELIF design == qualitative: primary = COREQ
-ELIF design == mixed_methods: primary = GRAMMS with provisional evidence status
+ELIF design == mixed_methods:
+  primary = route the quantitative strand through this tree (GRAMMS is never primary)
+  extension += GRAMMS with provisional evidence status
 ELIF design == animal: primary = ARRIVE
 ELIF design == case_report: primary = CARE
 ELIF design == economic_evaluation: primary = CHEERS
-ELIF design == quality_improvement: primary = SQUIRE
+ELIF design == quality_improvement: primary = SQUIRE  # SQUIRE 2.0
 ELIF design == chatbot_health_advice: primary = CHART
-ELIF design == ml_methods AND clinical_application: primary = REFORMS
+ELIF design == ml_methods:
+  primary = route the underlying design through this tree (TRIPOD+AI for an AI prediction model)
+  extension += REFORMS (ML-based science; REFORMS is never primary)
 ELIF design == pathology_deep_learning: require verified-source override before DEAL
 ELSE: ask the user which supported guideline applies
+
+ALWAYS (any design): IF ai_involvement == llm-based: extension += REFORMS
 ```
 
 ## Selection Rules
@@ -66,7 +83,7 @@ ELSE: ask the user which supported guideline applies
 
 - Mixed-methods studies may combine the applicable quantitative guideline with GRAMMS; label each section by method.
 - A prediction sub-analysis inside an RCT keeps CONSORT as the trial primary and applies TRIPOD/TRIPOD+AI only to the prediction analysis.
-- A target-trial emulation remains observational and uses STROBE underneath TARGET.
+- A target-trial emulation uses TARGET as the primary reporting guideline, with STROBE always applied as its companion and RECORD added for routinely collected EHR, claims, or registry data.
 - Generic AI involvement does not trigger CHART.
 - CLAIM is limited to medical imaging; DEAL and PDSQI-9 require an explicit verified-source override before authoritative use.
 

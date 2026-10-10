@@ -38,7 +38,7 @@ evidence:
   STREGA: {title: STREGA, scope: genetic association reporting, role: extension, primary_citation: "Little et al. STREGA. Genet Epidemiol. 2009.", doi: 10.1002/gepi.20410, pmid: 19278015, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/19278015/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, publisher]}
   STROBE: {title: STROBE statement, scope: observational study reporting, role: primary, primary_citation: "von Elm et al. STROBE statement. Ann Intern Med. 2007.", doi: 10.7326/0003-4819-147-8-200710160-00010, pmid: 17938396, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/17938396/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, equator, publisher]}
   STROBE-MR: {title: STROBE-MR, scope: Mendelian randomization reporting, role: extension, primary_citation: "Skrivankova et al. STROBE-MR statement. JAMA. 2021.", doi: 10.1001/jama.2021.18236, pmid: 34698778, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/34698778/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, publisher]}
-  TARGET: {title: TARGET statement, scope: observational studies emulating a target trial, role: target-trial-guideline, primary_citation: "Cashin et al. TARGET statement. BMJ. 2025.", doi: 10.1136/bmj-2025-087179, pmid: 40903028, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40903028/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, publisher], current_reference: TARGET-2025}
+  TARGET: {title: TARGET statement, scope: observational studies emulating a target trial, role: primary, primary_citation: "Cashin et al. TARGET statement. BMJ. 2025.", doi: 10.1136/bmj-2025-087179, pmid: 40903028, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40903028/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, publisher], current_reference: TARGET-2025}
   TRIPOD: {title: TRIPOD, scope: regression-based clinical prediction model reporting, role: primary, primary_citation: "Moons et al. TRIPOD explanation and elaboration. Ann Intern Med. 2015.", doi: 10.7326/M14-0698, pmid: 25560730, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25560730/, verification_date: 2026-07-24, status: verified-but-superseded, sources: [pubmed, paperclip, equator, publisher], superseded_for: [AI/ML prediction models]}
   TRIPOD+AI: {title: TRIPOD+AI, scope: regression and machine-learning clinical prediction model reporting, role: primary, primary_citation: "Collins et al. TRIPOD+AI statement. BMJ. 2024.", doi: 10.1136/bmj-2023-078378, pmid: 38626948, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/38626948/, verification_date: 2026-07-24, status: verified, sources: [pubmed, paperclip, equator, publisher], supersedes: TRIPOD for AI/ML prediction models}
 guidelines:
@@ -86,7 +86,7 @@ guidelines:
     ai_extension: true
   CONSORT:
     file: consort-checklist.md
-    aliases: [consort-2010]
+    aliases: [consort-2025, consort-2010]  # legacy consort-2010 name resolves to the current CONSORT 2025 core
     primary_for: [rct]
     extension_for: []
     role: primary
@@ -219,9 +219,9 @@ guidelines:
     ai_extension: true
   SQUIRE:
     file: squire-checklist.md
-    aliases: []
-    primary_for: []
-    extension_for: [observational]
+    aliases: [squire-2.0]
+    primary_for: [quality-improvement]
+    extension_for: []
     role: quality-improvement
     ai_extension: false
   STARD:
@@ -268,10 +268,10 @@ guidelines:
     ai_extension: false
   TARGET:
     file: target-checklist.md
-    aliases: []
-    primary_for: []
-    extension_for: [observational]
-    role: target-trial-guideline
+    aliases: [target-trial-emulation]
+    primary_for: [target-trial-emulation]
+    extension_for: []
+    role: primary
     ai_extension: false
   TRIPOD:
     file: tripod-checklist.md

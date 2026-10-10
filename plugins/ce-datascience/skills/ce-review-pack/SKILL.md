@@ -31,7 +31,7 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/validate_signoff_ledger.py" --ledger analysis/signoff/signoff-ledger.json --project-root .
 ```
 
-4. If the ledger is missing or invalid, the validator reports BLOCKED; keep readiness at blocked, never approved. A valid ledger reports READY-WITH-REVIEW, which is still not an approval.
+4. If the ledger is missing or invalid (including a missing or empty top-level `ledger_id` or `study_id`, or a missing `entries` list), the validator reports BLOCKED; keep readiness at blocked, never approved. A valid ledger reports READY-WITH-REVIEW, which is still not an approval.
 
 ## Signoff Principles
 

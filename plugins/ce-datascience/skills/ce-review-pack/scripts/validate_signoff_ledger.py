@@ -9,6 +9,7 @@ import json
 import sys
 from pathlib import Path
 
+REQUIRED_LEDGER_FIELDS = ["ledger_id", "study_id", "entries"]
 REQUIRED_ENTRY_FIELDS = ["entry_id", "reviewer", "artifact", "decision", "timestamp"]
 ALLOWED_DECISIONS = {"approved", "approved-with-conditions", "changes-requested", "rejected"}
 
@@ -42,15 +43,29 @@ def main(argv: list[str]) -> int:
     blockers: list[str] = []
     warnings: list[str] = []
 
+    loaded = False
     if not ledger_path.exists():
         blockers.append(f"Signoff ledger not found: {args.ledger}")
         ledger = {"entries": []}
     else:
         try:
             ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+            loaded = True
         except Exception as exc:
             blockers.append(f"Signoff ledger is not valid JSON: {exc}")
             ledger = {"entries": []}
+
+    if not isinstance(ledger, dict):
+        blockers.append("Signoff ledger must be a JSON object.")
+        ledger = {"entries": []}
+        loaded = False
+
+    if loaded:
+        for field in REQUIRED_LEDGER_FIELDS:
+            if field not in ledger:
+                blockers.append(f"Ledger missing required field '{field}' (see signoff-ledger-schema.yaml).")
+            elif field != "entries" and not str(ledger.get(field) or "").strip():
+                blockers.append(f"Ledger required field '{field}' is empty.")
 
     entries = ledger.get("entries", [])
     if not isinstance(entries, list):

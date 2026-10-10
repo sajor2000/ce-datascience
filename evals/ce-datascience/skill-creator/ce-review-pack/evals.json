@@ -10,6 +10,7 @@
         "Produces a markdown review pack containing the template sections Ready Outputs, Blockers, SAP Deviations, Review Findings Still Open, Requested Signoffs, and Files for PI or Study Lead",
         "Runs or instructs running scripts/validate_signoff_ledger.py against analysis/signoff/signoff-ledger.json",
         "Every ledger entry names a reviewer and uses one of the allowed decisions (approved, approved-with-conditions, changes-requested, rejected)",
+        "The ledger includes non-empty top-level ledger_id and study_id fields, which the schema marks required and the validator blocks on when missing",
         "Does not record any approval on behalf of Priya, Tom, or the PI; pending signoffs remain requested rather than approved",
         "Treats the SAP lock and Table 1 readiness as separate signoff scopes"
       ]

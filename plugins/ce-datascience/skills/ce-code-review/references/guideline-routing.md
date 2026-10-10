@@ -17,8 +17,12 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 | `animal` | ARRIVE 2.0 | `references/arrive-checklist.md` |
 | `health-economic` | CHEERS 2022 | `references/cheers-checklist.md` |
 | `prediction-model` | TRIPOD or TRIPOD+AI, based on AI/ML involvement | `references/tripod-checklist.md` or `references/tripod-ai-checklist.md` |
+| `target-trial-emulation` | TARGET (companion: STROBE, plus RECORD for routinely collected EHR, claims, or registry data) | `references/target-checklist.md` (+ `references/strobe-checklist.md`, `references/record-checklist.md`) |
+| `quality-improvement` | SQUIRE 2.0 | `references/squire-checklist.md` |
 | `exploratory` | _(none required)_ | _(reviewer skips unless user overrides)_ |
 | `other` | _(ask user)_ | _(reviewer asks which guideline to apply)_ |
+
+**Target trial emulation:** an `observational` study whose design or SAP explicitly emulates a target trial routes as `target-trial-emulation`: TARGET is the primary reporting guideline and STROBE is always applied as its companion; add RECORD when the data are routinely collected (EHR, claims, registry). Mixed-methods studies keep the quantitative primary and add GRAMMS as a provisional extension; GRAMMS is never the primary.
 
 **Backward compatibility:** The original values `observational`, `rct`, `exploratory`, and `other` continue to work unchanged. New values extend the enum without breaking existing SAPs.
 
@@ -37,7 +41,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `ai-primary` | pathology deep-learning study | DEAL only with verified-source override | `references/deal-checklist.md` |
 | `ai-primary` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `ai-primary` | EHR-based predictive model | PDSQI-9 is not auto-routed while unverified | `references/pdsqi-checklist.md` |
-| `ai-assisted` | same rules as `ai-primary` | same extensions | _(same files)_ |
+| `ai-assisted` | AI is a tool inside traditional methods, not the intervention or object of study | none auto-added; report the tool's role, version, and validation in Methods (CONSORT-AI, SPIRIT-AI, STARD-AI, and REFORMS apply only to `ai-primary` or `llm-based`) | — |
 | `llm-based` | any study_type | REFORMS | `references/reforms-checklist.md` |
 | `llm-based` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `none` | any | _(no extensions)_ | _(skip AI layer)_ |

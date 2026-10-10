@@ -15,7 +15,7 @@ Every new SAP must include the biostatistics-style tabular SAP contract. The pro
 ```yaml
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
 ai_involvement: none | ai-assisted | ai-primary | llm-based
 reporting_checklist: null
 reporting_checklist_extensions: []
@@ -40,7 +40,7 @@ status: draft | final | amended
 ```markdown
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
 ai_involvement: none
 reporting_checklist: null
 reporting_checklist_extensions: []

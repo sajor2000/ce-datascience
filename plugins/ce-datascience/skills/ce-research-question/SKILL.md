@@ -86,16 +86,17 @@ Keep the query 80% recall, 20% precision — `ce-pubmed` will narrow further wit
 
 This is a hint to `ce-checklist-match`. Map the design to the most likely primary checklist:
 
-| Design | Primary checklist |
-|--------|-------------------|
-| RCT (no AI) | CONSORT |
-| RCT (model-as-study-object) | CONSORT-AI |
-| Observational cohort | STROBE (+ RECORD if EHR / RECORD-PE if claims) |
-| Prediction model | TRIPOD+AI |
-| Diagnostic accuracy | STARD (+ STARD-AI if AI-driven) |
-| Imaging AI | CLAIM |
-| Target trial emulation | TARGET |
-| Systematic review | PRISMA |
+| Design | Primary checklist | Companions / extensions |
+|--------|-------------------|-------------------------|
+| RCT (`ai_involvement: none`) | CONSORT (2025) | -- |
+| RCT (AI intervention; `ai-primary` or `llm-based`) | CONSORT (2025) | CONSORT-AI |
+| Observational cohort | STROBE | RECORD if EHR/claims/registry; RECORD-PE if claims pharmacoepidemiology |
+| Target trial emulation | TARGET | STROBE (always); RECORD if routinely collected EHR/claims/registry data |
+| Prediction model | TRIPOD+AI (TRIPOD if no AI/ML) | REFORMS if `ai-primary` or `llm-based` |
+| Diagnostic accuracy | STARD | STARD-AI if AI index test; CLAIM if imaging AI |
+| Systematic review | PRISMA | PRISMA-DTA / PRISMA-NMA by subtype |
+
+Use the canonical `ai_involvement` values `none`, `ai-assisted`, `ai-primary`, or `llm-based` when recording AI involvement.
 
 The actual routing decision still happens in `ce-checklist-match` — this is just a defaulted suggestion to write into the YAML.
 
@@ -115,9 +116,9 @@ research_question:
     novel:       {score: 3, rationale: "Prior RCTs in mixed ICUs (PMID 30694534); academic-only cohort underexplored"}
     ethical:     {score: 5, rationale: "Observational; no consent burden beyond HIPAA waiver"}
     relevant:    {score: 5, rationale: "Practice change if effect size > 5 percentage points"}
-  suggested_design:    "Retrospective cohort with target-trial emulation framing"
-  suggested_checklist: STROBE
-  suggested_extensions: [RECORD, TARGET]
+  suggested_design:    "Target trial emulation (retrospective EHR cohort)"
+  suggested_checklist: TARGET
+  suggested_extensions: [STROBE, RECORD]   # STROBE is TARGET's companion; RECORD because the data are routinely collected EHR
   suggested_pubmed_query: '("Sepsis"[Mesh]) AND ("Patient Care Bundles"[Mesh] OR "bundle adherence"[Title/Abstract]) AND ("mortality"[Mesh] OR "30-day"[Title/Abstract]) AND ("Cohort Studies"[Mesh])'
   source_ideation: docs/ideation/2026-04-28-ideation-doc.md   # if --ideation-survivor was passed
 ```

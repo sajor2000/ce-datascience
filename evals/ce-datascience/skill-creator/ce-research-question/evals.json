@@ -4,12 +4,12 @@
     {
       "id": 1,
       "prompt": "Idea: does starting a GLP-1 receptor agonist reduce hip fracture risk in older adults with type 2 diabetes? We have Medicare claims 2016-2023 (Parts A/B/D). Harden this into something we can search and plan from.",
-      "expected_output": "Fills PICO (with target-trial-emulation slots), scores FINER with rationales, suggests a design (target trial emulation/cohort), builds a recall-oriented PubMed query, suggests STROBE with RECORD-PE/TARGET, writes analysis/research-question.yaml, and emits the __CE_RESEARCH_QUESTION__ signal.",
+      "expected_output": "Fills PICO (with target-trial-emulation slots), scores FINER with rationales, suggests a design (target trial emulation/cohort), builds a recall-oriented PubMed query, suggests TARGET as the primary checklist with STROBE as companion and RECORD (RECORD-PE for claims pharmacoepidemiology) as extensions, writes analysis/research-question.yaml, and emits the __CE_RESEARCH_QUESTION__ signal.",
       "files": [],
       "expectations": [
         "Writes analysis/research-question.yaml containing pico (population, intervention, comparator, outcome), finer scores 1-5 each with a one-line rationale, suggested_design, suggested_checklist, and suggested_pubmed_query",
         "Elicits or records target-trial-emulation slots (eligibility, treatment strategies, assignment/confounders, follow-up start/end, outcome ascertainment) given the causal claims-data question",
-        "Suggests STROBE as primary checklist with claims-relevant extensions (RECORD-PE and/or TARGET) as a hint, not a final routing decision",
+        "Suggests TARGET as the primary checklist (suggested_checklist: TARGET) with STROBE as its companion and RECORD for the routinely collected claims data (RECORD-PE acceptable for claims pharmacoepidemiology) in suggested_extensions, as a hint, not a final routing decision",
         "Emits a line of the form __CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=<...> checklist=<...> query=<...>",
         "Does not run the PubMed search or write a SAP"
       ]
