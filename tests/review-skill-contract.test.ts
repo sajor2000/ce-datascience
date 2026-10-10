@@ -379,7 +379,8 @@ describe("ce-code-review contract", () => {
     // Validator template exists and is read-only
     expect(validatorTemplate).toContain("independent validator")
     expect(validatorTemplate).toContain("operationally read-only")
-    expect(validatorTemplate).toContain('"validated": true | false')
+    expect(validatorTemplate).toContain('"validated": true,')
+    expect(validatorTemplate).toContain("`validated` is `true` or `false`.")
     expect(validatorTemplate).toMatch(/introduced by THIS diff/i)
     expect(validatorTemplate).toMatch(/handled elsewhere/i)
   })
