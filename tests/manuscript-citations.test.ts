@@ -11,9 +11,13 @@ describe("manuscript citation workflow", () => {
 
     for (const required of [
       "pubmed_search_articles",
+      "search_articles",
       "pubmed_lookup_citation",
+      "lookup_article_by_citation",
       "pubmed_fetch_articles",
+      "get_article_metadata",
       "pubmed_format_citations",
+      "get_full_text_article",
       "Paperclip",
       "citation ledger",
       "Zotero's Word integration",

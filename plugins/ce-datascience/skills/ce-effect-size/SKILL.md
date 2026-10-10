@@ -29,23 +29,33 @@ Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce
 - A methods CSV with at minimum: pmid, year, sample_size, effect_size_reported (and ideally lo / hi 95% CI)
 - The metric is consistent across studies (all OR, or all HR, etc.) -- if mixed, the skill will subset to the modal metric and report on the rest narratively
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** prior pooled estimates and their heterogeneity (published meta-analyses on the same question, found with `pubmed_search_articles` or `search_articles` and a `Meta-Analysis[Publication Type]` filter) to compare against the result here, and the paper behind any row whose effect or CI is ambiguous in the methods CSV (PMC full text via `pubmed_fetch_fulltext` or `get_full_text_article`, or Paperclip `cat`/`grep`).
+
 ## Core workflow
 
 ### Step 0: Context inputs (scan chat first)
 
 If no `<path/to/methods.csv>` was passed, scan the most recent ~50 chat turns for `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<...>`. If found, use that CSV as the input. Print `[method-extract] using methods table from <path> (n=<N>, modal=<modal_method>)`.
 
-If neither an explicit path nor the signal is present, ask the user to load the `ce-method-extract` skill first or pass a CSV path explicitly.
+If neither an explicit path nor the signal is present, ask the user to load the `ce-method-extract` skill first or pass a CSV path explicitly. Never substitute an effect size from memory for a missing table.
 
 ### Step 1: Load and parse
 
-Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns. Drop rows where parsing fails; report count of dropped rows.
+Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns. Drop rows where parsing fails; report count of dropped rows. Where a row's effect, CI, or metric is ambiguous and the paper is lawfully available, read the results section (see Evidence access) rather than guess, and note the row's `evidence_level` (`full_text` or `abstract`) in the included-studies CSV.
 
 ### Step 2: Filter to comparable studies
 
 Filter:
 - `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
-- Sample size present and ≥ 50 (smaller studies dominate noise)
+- Sample size present and ≥ 50. This cutoff is a working assumption of this skill, not a literature-derived threshold; state it in the output and change it when the user or the question calls for a different one
 - Year within last `--years` window if passed
 - Optional: study type filter (e.g., RCTs only)
 
@@ -65,9 +75,11 @@ If N < 3:
 - Highlight the highest-quality study (largest N, most recent, RCT > observational) as the anchor
 - Caveat the user: "single-study or two-study power calc is fragile; consider running with sensitivity sweep"
 
+After pooling, compare the result with any published meta-analysis found under Evidence access (cite its PMID/DOI and the level read). State agreement or disagreement with its pooled estimate and I^2; a large divergence is a flag for the SAP, not a reason to replace the computed value.
+
 ### Step 4: Write the output
 
-`analysis/effect-size/<query>-pooled.md`:
+`analysis/effect-size/<query>-pooled.md` (the numbers below are template placeholders; every value comes from the computation, and the "Prior pooled estimates" line names the PMID/DOI of each comparison or says none was found):
 
 ```
 # Pooled effect-size: <metric> for <outcome> in <population>
@@ -81,6 +93,10 @@ Filtered to: <metric>, sample size >=50, last 10 years -> 9 studies pooled
 I^2 = 42% (moderate heterogeneity)
 tau^2 = 0.04
 
+## Prior pooled estimates
+
+<PMID/DOI of each published meta-analysis compared, its pooled estimate and I^2, and the level read; or "none found for <query> on <date>">
+
 ## Forest plot
 
 See `analysis/effect-size/<query>-pooled-forest.png`
@@ -91,7 +107,7 @@ Use point estimate 0.78 with sensitivity sweep across PI bounds (0.52 to 1.17).
 Power calc anchor: detect HR <= 0.78 with alpha=0.05, power=0.80.
 ```
 
-Also save a CSV: `analysis/effect-size/<query>-included.csv` (which studies, why included).
+Also save a CSV: `analysis/effect-size/<query>-included.csv` (which studies, why included, their PMID/DOI, and `evidence_level`).
 
 ### Step 5: Generate forest plot
 

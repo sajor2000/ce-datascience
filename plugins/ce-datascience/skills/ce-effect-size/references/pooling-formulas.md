@@ -44,7 +44,7 @@ I^2 = max(0, (Q - (k - 1)) / Q) * 100%
 tau^2 = (from REML)
 ```
 
-I^2 interpretation: 25% low, 50% moderate, 75% high (Higgins 2003).
+I^2 interpretation: 25% low, 50% moderate, 75% high (Higgins JPT, Thompson SG, Deeks JJ, Altman DG. Measuring inconsistency in meta-analyses. BMJ 2003;327(7414):557-60. PMID 12958120; PMCID PMC192859; DOI 10.1136/bmj.327.7414.557).
 
 ## Prediction interval
 
@@ -57,6 +57,8 @@ PI = pooled_theta +/- t_{k-2, 0.975} * sqrt(pooled_se^2 + tau^2)
 For ratio metrics, exponentiate. PI is what `ce-power` should use as the sensitivity-sweep bounds; the signal carries it as `pi=lo,hi`. It needs k >= 3 (t has k - 2 df), so emit `pi=NA` when it is not computable and `ce-power` falls back to `ci=`.
 
 ## When NOT to pool
+
+The k and I^2 cutoffs below are working conventions of this skill, not literature-derived thresholds; state them in the output and look up the question-specific guidance (see Evidence access in `SKILL.md`) when a reviewer or the SAP needs a sourced justification.
 
 - k < 3: report narrative range only
 - I^2 > 80%: report pooled estimate but caution; consider subgroup or meta-regression

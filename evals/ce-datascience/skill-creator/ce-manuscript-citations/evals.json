@@ -4,11 +4,12 @@
     {
       "id": 1,
       "prompt": "I have manuscript/drafts/sepsis-lactate-v4.docx going to Critical Care Medicine. The Introduction has 14 claims flagged with [CITE] placeholders (e.g. 'lactate clearance at 6 h predicts 28-day mortality'). Please find supporting papers, verify they actually say what we claim, and give me a Word file with real Zotero citations in Vancouver style. My Zotero group library is 'ICU-outcomes'.",
-      "expected_output": "Resolves candidate sources through PubMed, checks claim support with Paperclip full text where available, writes a citation ledger, and produces a separate field-bearing DOCX master with live Zotero fields while leaving the original DOCX untouched.",
+      "expected_output": "Resolves candidate sources through PubMed MCP (calling by purpose on whichever server is connected), checks claim support with Paperclip full text where available, writes a citation ledger, and produces a separate field-bearing DOCX master with live Zotero fields while leaving the original DOCX untouched.",
       "files": [],
       "expectations": [
         "Copies sepsis-lactate-v4.docx to a new field-bearing master and does not overwrite the original file",
-        "Writes a citation ledger (e.g. manuscript/citations/citation-ledger.json) whose records include claim text, PMID/DOI, evidence level (full_text/abstract/metadata_only/unverified) and a support status of supported/partially_supported/unsupported/unverified",
+        "Writes a citation ledger (e.g. manuscript/citations/citation-ledger.json) whose records include claim text, PMID/DOI, a ledger status of verified/unverified, an evidence label from the shared set (abstract, full_text, figure, trial, regulatory, documentation) only for sources actually read, and a support status of supported/partially_supported/unsupported/unverified",
+        "Resolves sources by purpose with the connected PubMed tools (pubmed_search_articles/pubmed_fetch_articles or search_articles/get_article_metadata) and applies Vancouver style through Zotero, not through pubmed_format_citations or a typed string",
         "Inserts citations as Zotero Word fields and does not type numeric superscripts or a static bibliography as the final representation",
         "Does not promote partially_supported, unsupported, or unverified claims into finished citations without flagging them for author review",
         "Ends with an audit report and the __CE_CITATION_LEDGER__ handoff line including supported, unresolved, and fields_verified counts"
@@ -29,10 +30,10 @@
     {
       "id": 3,
       "prompt": "Reviewer 2 says reference 23 in our JAMA Netw Open submission (manuscript/submission/main.docx) doesn't support the sentence 'SGLT2 inhibitors reduced AKI incidence by 30% in non-diabetic CKD'. Paperclip is down today. Can you audit that citation and the other 40-ish refs while you're at it?",
-      "expected_output": "Audits the existing citations against PubMed metadata/abstracts, labels the full-text limitation because Paperclip is unavailable, and reports which claims are supported, partially supported, or unverified without asserting full-text support.",
+      "expected_output": "Audits the existing citations against PubMed metadata and abstracts (or open PMC full text through the PubMed MCP), labels the Paperclip limitation, and reports which claims are supported, partially supported, or unverified without asserting full-text support for abstract-level reads.",
       "files": [],
       "expectations": [
-        "Labels claims checked without Paperclip as abstract or metadata_only evidence and does not write full-text-supported language for them",
+        "Labels claims checked without Paperclip at the level actually read (abstract, or full_text only when PMC full text was read through pubmed_fetch_fulltext/get_full_text_article), uses no metadata_only label, and does not write full-text-supported language for abstract-level claims",
         "Reports reference 23's support status explicitly (e.g. partially_supported/unsupported/unverified) with an author-review note",
         "Runs a structural field audit reporting static-citation or field-loss findings in addition to any visual render check",
         "Does not modify or write to the Zotero library without an explicit request"

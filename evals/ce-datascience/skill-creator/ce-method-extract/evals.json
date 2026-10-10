@@ -9,7 +9,7 @@
       "expectations": [
         "Prints '[pubmed] using results from analysis/pubmed/early-mobilization-icu-2026-10-01.csv' with the row count",
         "Caps extraction at 25 papers, sorted by year then study type (RCT > prospective cohort > retrospective cohort > case-control > case series)",
-        "Writes analysis/pubmed/<query-slug>-methods.csv with one row per paper and the fields sample_size, primary_outcome, outcome_type, statistical_method, adjustment_set, effect_size_reported, checklist_followed",
+        "Writes analysis/pubmed/<query-slug>-methods.csv with one row per paper and the fields sample_size, primary_outcome, outcome_type, statistical_method, adjustment_set, effect_size_reported, checklist_followed, and evidence_level (full_text or abstract)",
         "Writes analysis/pubmed/<query-slug>-methods-summary.md including modal method per outcome type and effect-size range",
         "Emits '__CE_METHOD_EXTRACT__ csv=<path> n=<count> modal_method=<name>'"
       ]
@@ -29,10 +29,11 @@
     {
       "id": 3,
       "prompt": "Use analysis/pubmed/sglt2-aki-2026-09-15.csv with --full-text-only. Half of these don't have PMC IDs. Also, can you pool the ORs while you're at it and tell me which ones followed STROBE properly?",
-      "expected_output": "Drops rows without pmcid under --full-text-only, extracts from PMC methods/results sections, writes 'not reported' for absent fields, and declines pooling and checklist scoring, routing them to ce-effect-size and ce-checklist-match.",
+      "expected_output": "Drops rows without pmcid under --full-text-only, reads PMC full text through the connected PubMed MCP (pubmed_fetch_fulltext or get_full_text_article) or Paperclip rather than the CSV abstract, records evidence_level per row, writes 'not reported' for absent fields, and declines pooling and checklist scoring, routing them to ce-effect-size and ce-checklist-match.",
       "files": [],
       "expectations": [
         "Drops rows with empty pmcid when --full-text-only is set and reports how many were dropped",
+        "Reads the Methods/Results of each remaining paper from PMC full text (PubMed MCP full-text tool or Paperclip cat/grep) and records evidence_level=full_text for those rows, never full_text for an abstract-only read",
         "Writes 'not reported' for fields the paper does not state rather than inferring values",
         "Does not pool effect sizes and routes pooling to ce-effect-size",
         "Does not score paper quality or adjudicate checklist adherence beyond recording the stated checklist; routes checklist matching to ce-checklist-match"
