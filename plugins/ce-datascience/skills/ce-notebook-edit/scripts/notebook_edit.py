@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import shutil
 import sys
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -62,7 +64,9 @@ def validate_notebook(notebook: dict[str, Any], nbformat: Any | None) -> list[st
     if errors or nbformat is None:
         return errors
     try:
-        nbformat.validate(notebook)
+        # nbformat.validate can repair the dict it is given (for example by adding
+        # missing cell ids), so validate a copy and leave untouched cells unchanged.
+        nbformat.validate(copy.deepcopy(notebook))
     except Exception as exc:  # nbformat raises several schema-specific exceptions
         return [f"nbformat validation failed: {exc}"]
     return []
@@ -78,12 +82,23 @@ def cell_tags(cell: dict[str, Any]) -> list[str]:
     return [tag for tag in tags if isinstance(tag, str)]
 
 
-def make_cell(cell_type: str, source: str, tags: list[str]) -> dict[str, Any]:
+def new_cell_id(notebook: dict[str, Any]) -> str:
+    """Return a cell id unique within the notebook (nbformat 4.5+ requires one per cell)."""
+    taken = {cell.get("id") for cell in notebook.get("cells", []) if isinstance(cell, dict)}
+    while True:
+        candidate = uuid.uuid4().hex[:8]
+        if candidate not in taken:
+            return candidate
+
+
+def make_cell(notebook: dict[str, Any], cell_type: str, source: str, tags: list[str]) -> dict[str, Any]:
     cell: dict[str, Any] = {
         "cell_type": cell_type,
         "metadata": {"tags": tags},
         "source": source,
     }
+    if notebook.get("nbformat_minor", 0) >= 5:
+        cell["id"] = new_cell_id(notebook)
     if cell_type == "code":
         cell["execution_count"] = None
         cell["outputs"] = []
@@ -189,10 +204,10 @@ def main() -> int:
         assert markdown_source is not None
         notebook["cells"].insert(
             insert_index,
-            make_cell("markdown", markdown_source, [f"{new_tags[0]}-documentation"]),
+            make_cell(notebook, "markdown", markdown_source, [f"{new_tags[0]}-documentation"]),
         )
         insert_index += 1
-    notebook["cells"].insert(insert_index, make_cell(args.cell_type, source, new_tags))
+    notebook["cells"].insert(insert_index, make_cell(notebook, args.cell_type, source, new_tags))
 
     post_validation_errors = validate_notebook(notebook, nbformat)
     if post_validation_errors:

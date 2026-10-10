@@ -72,7 +72,12 @@ ratio_metric <- a$metric %in% c("HR", "OR", "RR", "aOR", "aHR", "aRR", "IRR", "S
 if (ratio_metric) {
   dat$te    <- log(dat$effect)
   dat$se_te <- (log(dat$effect_hi) - log(dat$effect_lo)) / (2 * 1.96)
-  sm        <- a$metric  # used by meta for axis labels
+  # meta only back-transforms summary measures it recognises (OR, RR, HR, IRR);
+  # adjusted or study-specific labels must map to one, or the forest plot and
+  # printed summary stay on the log scale.
+  sm <- switch(a$metric,
+               aOR = "OR", aRR = "RR", aHR = "HR", HRR = "HR", SMR = "RR",
+               a$metric)
 } else {
   dat$te    <- dat$effect
   dat$se_te <- (dat$effect_hi - dat$effect_lo) / (2 * 1.96)
@@ -84,6 +89,7 @@ m <- meta::metagen(
   seTE     = dat$se_te,
   studlab  = paste0(dat$first_author, " ", dat$year, " (PMID ", dat$pmid, ")"),
   sm       = sm,
+  title    = a$metric,
   method.tau = "REML",
   prediction = TRUE
 )
