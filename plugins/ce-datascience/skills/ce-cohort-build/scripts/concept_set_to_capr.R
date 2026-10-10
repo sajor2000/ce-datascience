@@ -14,13 +14,14 @@
 #
 # Required: install current CRAN packages with install.packages(c("Capr", "yaml"))
 
+for (pkg in c("yaml", "Capr")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    cat(sprintf("concept_set_to_capr.R: R package '%s' is not installed; run install.packages('%s') and re-run\n", pkg, pkg),
+        file = stderr())
+    quit(status = 1)
+  }
+}
 suppressPackageStartupMessages({
-  if (!requireNamespace("yaml", quietly = TRUE)) {
-    stop("install current CRAN yaml: install.packages('yaml')")
-  }
-  if (!requireNamespace("Capr", quietly = TRUE)) {
-    stop("install current CRAN Capr: install.packages('Capr')")
-  }
   library(yaml)
   library(Capr)
 })

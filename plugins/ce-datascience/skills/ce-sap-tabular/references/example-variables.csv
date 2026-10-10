@@ -5,7 +5,7 @@ Exposure,SAT_delivered_primary,SAT delivered under primary algorithm definition,
 Exposure,SBT_delivered_2min,SBT delivered with 2-minute threshold under primary definition,Time-varying,0/1,File 1,✓,✓,,,,Daily indicator
 Exposure,SAT_prop_final_primary,Proportion of eligible days with SAT under primary definition,Fixed,Numeric 0-1,File 2,,✓,✓,✓,✓,Derived from daily File 1 values
 Outcome,extubation_flag,Extubation occurred during episode,Fixed,0/1,File 2,,✓,✓,,,0 if died or censored before extubation
-Outcome,time_to_extubation,Days from vent start to extubation,Fixed,Integer days,File 2,,✓,,,,Censored at death, discharge, or day 28
+Outcome,time_to_extubation,Days from vent start to extubation,Fixed,Integer days,File 2,,✓,,,,"Censored at death, discharge, or day 28"
 Outcome,VFD_28,Ventilator-free days at 28 days,Fixed,Integer 0-28,File 2,,,✓,,,0 if died; 28 minus ventilator days if survived and extubated
 Outcome,ICU_LOS,ICU length of stay,Fixed,Numeric days,File 2,,,,✓,✓,Primary outcome A5; case-mix adjuster A6
 Patient Characteristic,age,Patient age at admission,Fixed,Integer years,Both,,✓,✓,✓,✓,

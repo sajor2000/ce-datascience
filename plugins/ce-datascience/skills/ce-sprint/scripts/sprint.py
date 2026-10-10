@@ -6,7 +6,7 @@ file is the audit trail.
 
 Subcommands:
     open NAME [--scope SAP-3.1,SAP-3.2] [--reviewer jcr]
-    close NAME
+    close [NAME]            (defaults to the currently open sprint)
     status [--name NAME]
 
 State machine (statuses written to sprint-log.yaml):
@@ -103,8 +103,14 @@ def open_sprint(name: str, scope: list[str], reviewer: str) -> int:
     return 0
 
 
-def close_sprint(name: str) -> int:
+def close_sprint(name: str | None) -> int:
     log = load_log()
+    if name is None:
+        open_sprints = [s for s in log["sprints"] if s.get("status") == "open"]
+        if not open_sprints:
+            print("no sprint is currently open; pass the sprint name explicitly", file=sys.stderr)
+            return 1
+        name = open_sprints[0]["name"]
     sprint = find(log, name)
     if not sprint:
         print(f"no such sprint: {name}", file=sys.stderr); return 1
@@ -157,7 +163,8 @@ def main() -> None:
     o.add_argument("--reviewer", default=os.environ.get("USER", "unknown"))
 
     c = sub.add_parser("close")
-    c.add_argument("name")
+    c.add_argument("name", nargs="?", default=None,
+                   help="sprint to close; defaults to the currently open sprint")
 
     s = sub.add_parser("status")
     s.add_argument("--name", default=None)

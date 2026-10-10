@@ -179,7 +179,13 @@ def main() -> None:
             {"declared_build": args.declared, "files": findings},
             sort_keys=True, allow_unicode=True))
     except ImportError:
-        args.manifest.write_text(repr({"declared": args.declared, "files": findings}))
+        # JSON is valid YAML; keep the manifest machine-readable without PyYAML.
+        import json
+        args.manifest.write_text(json.dumps(
+            {"declared_build": args.declared, "files": findings},
+            sort_keys=True, indent=2, ensure_ascii=False) + "\n")
+        print("audit_build.py: PyYAML not installed; wrote the manifest as JSON "
+              "(run `python3 -m pip install --upgrade pyyaml` for YAML output)", file=sys.stderr)
 
     # Markdown report
     md = [f"# Genome-build audit", "",
@@ -191,7 +197,7 @@ def main() -> None:
         md.extend(f"- {x}" for x in issues)
     else:
         md.append("No build mismatches detected.")
-    args.report.write_text("\n".join(md))
+    args.report.write_text("\n".join(md) + "\n")
 
     print(f"__CE_GENOME_BUILD__ declared={args.declared} files={len(findings)} "
           f"issues={len(issues)} manifest={args.manifest} report={args.report}")

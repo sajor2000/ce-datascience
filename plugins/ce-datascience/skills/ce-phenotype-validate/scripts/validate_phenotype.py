@@ -160,18 +160,37 @@ def main() -> None:
                     help="columns to stratify by if present")
     args = ap.parse_args()
 
+    if not args.chart_csv.is_file():
+        raise SystemExit(f"chart-review CSV not found: {args.chart_csv}")
+
     rows: list[dict] = []
-    with args.chart_csv.open() as fh:
-        for row in csv.DictReader(fh):
+    with args.chart_csv.open(newline="") as fh:
+        reader = csv.DictReader(fh)
+        required = ("subject_id", "chart_label", "algo_label")
+        missing = [c for c in required if c not in (reader.fieldnames or [])]
+        if missing:
+            raise SystemExit(
+                f"{args.chart_csv}: missing required column(s) {', '.join(missing)}; "
+                f"expected header: subject_id,chart_label,algo_label[,sex,age_band,race,site]")
+        # Never echo row contents (subject_id, labels) into errors: PHI rule.
+        for line_no, row in enumerate(reader, start=2):
             try:
-                rows.append({
-                    "subject_id": row["subject_id"],
-                    "chart": int(row["chart_label"]),
-                    "algo":  int(row["algo_label"]),
-                    **{c: row.get(c, "") for c in args.subgroup_cols},
-                })
-            except (KeyError, ValueError) as e:
-                raise SystemExit(f"row {row} invalid: {e}")
+                chart, algo = int(row["chart_label"]), int(row["algo_label"])
+            except ValueError:
+                raise SystemExit(
+                    f"{args.chart_csv} line {line_no}: chart_label and algo_label must be 0 or 1")
+            if chart not in (0, 1) or algo not in (0, 1):
+                raise SystemExit(
+                    f"{args.chart_csv} line {line_no}: chart_label and algo_label must be 0 or 1")
+            rows.append({
+                "subject_id": row["subject_id"],
+                "chart": chart,
+                "algo": algo,
+                **{c: row.get(c, "") for c in args.subgroup_cols},
+            })
+
+    if not rows:
+        raise SystemExit(f"{args.chart_csv}: no data rows; nothing to validate")
 
     overall = compute_metrics(rows)
 

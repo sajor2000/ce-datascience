@@ -146,7 +146,7 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/validate_registry_package.py" --package-dir analysis/prereg/<registry>-<date> --registry <registry>
 ```
 
-If the validator returns `BLOCKED`, stop and fix the package. Do not ask the user to paste incomplete registry text into a live registry.
+The validator writes `registry-validation-report.md` into the package directory and prints `__CE_PREREG_VALIDATE__ package=<path> result=<READY-WITH-REVIEW|BLOCKED> report=<path>` (exit 1 on `BLOCKED`). If the result is `BLOCKED`, stop and fix the package. Do not ask the user to paste incomplete registry text into a live registry.
 
 ### Step 4: Emit signal
 
