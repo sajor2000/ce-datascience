@@ -236,6 +236,19 @@ The current plugin selectively ports useful features from the original compound-
 
 The curated upstream refresh includes portable continuity as `/ce-handoff`. PR monitoring (`ce-babysit-pr`) and maintainer corpus retuning (`ce-retune`) were removed as outside the data-science scope. Deferred upstream-only skills remain intentionally out of scope: Rails, frontend, browser/Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, Proof, simplify-code, strategy, promotion, and polish workflows. The upstream multi-provider cross-model runner and `/ce-pov` remain deferred until CE has a trusted serving-route attestation contract.
 
+### Migration from earlier versions
+
+These commands no longer exist. Installs made with the CLI remove the stale copies on upgrade; marketplace installs drop them when the plugin updates.
+
+| Removed | Use instead |
+|---|---|
+| `/ce-r-review`, `/ce-r-tidyverse`, `/ce-r-targets`, `/ce-r-package-development`, `/ce-r-package-testing`, `/ce-r-cran`, `/ce-r-performance`, `/ce-r-event-studies` | `/ce-rstats` (routes to the same guidance under `references/`) |
+| `/ce-fabric-coding`, `/ce-fabric-kql`, `/ce-fabric-ml`, `/ce-fabric-pipelines`, `/ce-fabric-semantic-models` | `/ce-fabric` |
+| `/ce-retune` | The upstream compound-engineering plugin's retune workflow (maintainer tooling) |
+| `/ce-babysit-pr` | Your agent's own PR watching, or the upstream compound-engineering plugin |
+
+Figure manifests that set `style_profile: jama` still validate; the default profile is now `clinical-standard`.
+
 ## Skills
 
 ### Core Workflow
