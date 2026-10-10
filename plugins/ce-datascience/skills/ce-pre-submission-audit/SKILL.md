@@ -20,9 +20,9 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 | Section | Skill applied | Bar to clear |
 |---|---|---|
 | Methods | `ce-manuscript-section-discipline` | No unsupported red-flag rationale; preserve concise rationale required by the applicable guideline, protocol, regulation, or reproducibility standard |
-| Results | `ce-manuscript-section-discipline` | Zero red-flag phrases; every claim carries its statistic; zero editorializing adverbs |
+| Results | `ce-manuscript-section-discipline` | Zero unsupported red-flag phrases; every claim carries its statistic; zero editorializing adverbs |
 | Abstract — Methods and Results subsections of a structured abstract | `ce-manuscript-section-discipline` | Same bar as body Methods/Results; an interpretive clause in an abstract Results subsection fails the gate |
-| Introduction, Discussion, Abstract background/conclusions, cover letter, grant text | `ce-clinical-research-voice` + `ce-scientific-anti-slop` | Voice self-check passes; zero P0, zero P1 AI-tells |
+| Introduction, Discussion, Abstract background/conclusions, cover letter, grant text | `ce-clinical-research-voice` + `ce-scientific-anti-slop` | Voice self-check passes; zero P0; every P1 AI-tell fixed or flagged for author judgment |
 | Figure legends, table footnotes | `ce-manuscript-section-discipline` | Results rules apply; no interpretive clauses in legends |
 | Whole document | `ce-scientific-anti-slop` | No uncited attribution; no thesaurus-swapped technical terms; em-dash and intensifier discipline held throughout |
 
@@ -30,7 +30,7 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 
 1. Identify section boundaries in the draft (Methods / Results / Discussion / Introduction / Abstract subsections / figure legends and table footnotes / other).
 2. Run the Methods and Results text through the `ce-manuscript-section-discipline` red-flag list. Any unsupported hit is a required fix before delivery — move the content to Discussion or delete it. Preserve rationale that records a required or prespecified basis for a methodological choice; do not delete it merely because it answers "why." Treat rationale naming a reporting guideline, protocol, regulation, causal model, or prespecified evidence base as protected content: if its accuracy is uncertain, flag it for verification rather than silently deleting it or reducing the sentence to the method alone.
-3. Run Discussion, Introduction, and other narrative text through the `ce-clinical-research-voice` self-check and the `ce-scientific-anti-slop` banned-construction list.
+3. Run Discussion, Introduction, and other narrative text through the `ce-clinical-research-voice` self-check and the `ce-scientific-anti-slop` banned-construction list. Then check the whole document, including Methods, Results, legends, and footnotes, for the whole-document `ce-scientific-anti-slop` items: uncited attribution, thesaurus-swapped technical terms, non-definitional em-dashes, and ungrounded intensifiers.
 4. Compile findings into an audit report: section, quoted flagged phrase (short), issue category (interpretation-in-Methods / interpretation-in-Results / uncited-attribution / throat-clearing / vague-declarative / ungrounded-intensifier / em-dash-overuse / thesaurus-swap / other), and the fix applied or recommended.
 5. Apply P0 and Methods/Results fixes directly — do not leave known credibility or section-discipline failures for the author to catch. P1 items get fixed directly when the rewrite is unambiguous; flag for author judgment when a rewrite could change meaning. P2 items are noted, not blocking.
 6. Present the corrected draft together with a short audit summary (counts by category, not a line-by-line transcript, unless the user asks for the full list) so the author can see what was caught and fixed without wading through the whole checklist.

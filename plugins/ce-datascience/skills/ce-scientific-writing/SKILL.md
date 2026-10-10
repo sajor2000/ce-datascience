@@ -29,9 +29,9 @@ For each empirical claim, preserve its population, denominator, unit, time perio
 
 Use `ce-checklist-match` when the reporting guideline is not already established. Use live journal instructions only for a named submission target. A generic biomedical profile is not proof of compliance with a specific journal.
 
-Read [scientific-writing-patterns.md](references/scientific-writing-patterns.md) when drafting or revising prose. Use its PubMed-grounded examples to identify sentence functions and reporting content, not as prose to imitate.
+Read `references/scientific-writing-patterns.md` when drafting or revising prose. Use its PubMed-grounded examples to identify sentence functions and reporting content, not as prose to imitate.
 
-Before opening a manuscript or supporting artifact that may contain patient-level content, check the current conversation for the user's prior confirmation that both the data environment and active model endpoint are compliant for PHI/PII. If confirmation is absent or ambiguous, ask once using the Skill Value interaction rule with "Yes, both are compliant" and "No or unsure." If the answer is no, work only from de-identified excerpts, metadata, or reviewed aggregates.
+Before opening a manuscript or supporting artifact that may contain patient-level content, check `phi_environment.compliant` in the gitignored `.ce-datascience/config.local.yaml` (`true` counts as confirmation; `false` means the no-answer path below), then the current conversation for the user's prior confirmation that both the data environment and active model endpoint are compliant for PHI/PII. If confirmation is absent or ambiguous, ask once using the Skill Value interaction rule with "Yes, both are compliant" and "No or unsure." If the answer is no, work only from de-identified excerpts, metadata, or reviewed aggregates.
 
 Authorization permits necessary editing in the approved environment. Never reproduce PHI/PII or patient-level source details in responses, logs, screenshots, citations, or unrestricted exports. When editing an approved artifact in place, preserve protected source details only when the destination is approved and the detail is scientifically necessary; otherwise use a visible placeholder and flag it for author or privacy review.
 

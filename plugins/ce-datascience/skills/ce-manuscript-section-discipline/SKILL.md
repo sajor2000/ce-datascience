@@ -59,7 +59,7 @@ Legends and footnotes follow Results rules, not Discussion rules — they are th
 1. Draft the Methods or Results section using the rules above.
 2. Re-read sentence by sentence. For each sentence, ask: is this a description of what was done or what was found, and does any rationale state a required or prespecified basis? Flag "so that," "which suggests," editorializing adverbs, and rationale that is neither required nor prespecified.
 3. For every flagged sentence: either move the interpretive clause to the Discussion draft (it usually belongs there and often improves Discussion), or delete it if it adds no factual content.
-4. Re-read the section once more with the red-flag list open. Zero matches is the bar, not "fewer" matches.
+4. Re-read the section once more with the red-flag list open. Zero unsupported matches is the bar, not "fewer" matches; a match that states required or prespecified rationale stays.
 5. Only after this pass is a Methods or Results draft ready to hand to an author. This step is mandatory, not optional, and applies even to sections the user has not explicitly asked you to audit — audit by default whenever you produce or edit Methods/Results text.
 
 For the full pre-delivery gate across the whole manuscript (Methods/Results discipline plus voice plus AI-tell removal), use `ce-pre-submission-audit`.

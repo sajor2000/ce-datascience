@@ -19,9 +19,9 @@ Catalog of AI-writing tells adapted for formal scientific prose, drawn from two 
 
 The source catalogs ban passive voice outright, ban em-dashes outright, and treat any adverb or intensifier as a defect. None of that applies unmodified here:
 
-- **Passive voice**: banned in Discussion/narrative prose (use "we"), required and correct in Methods for procedural steps. Flag passive only outside Methods, or where it's used in Methods to obscure who made an author-level decision that should be attributed to "we."
+- **Passive voice**: banned in Discussion/narrative prose for authorial actions and interpretation (use "we"), required and correct in Methods for procedural steps. Flag passive only outside Methods, or where it's used in Methods to obscure who made an author-level decision that should be attributed to "we."
 - **Em-dashes**: banned generically; here, the em-dash is sanctioned when it embeds a definition ("automation bias — the tendency to..."). Flag any non-definitional em-dash (P1), and flag definitional em-dash pile-up within a paragraph as a density signal (P2) — convert excess uses to parenthetical or appositive form.
-- **Intensifiers** ("significant," "substantial," "robust"): banned generically as filler; here they are correct only when a statistic backs them in the same or adjacent sentence. Flag the ungrounded instance, not the grounded one.
+- **Intensifiers** ("significant," "substantial," "robust"): banned generically as filler; here they are correct only when a statistic backs them in the same sentence or the one before it (in Methods and Results, the same sentence, per `ce-manuscript-section-discipline`). Flag the ungrounded instance, not the grounded one.
 - **Synonym rotation**: generically flagged as thesaurus-abuse; in science, precise technical terms (a named outcome, a named test, a named model) should be repeated verbatim, not varied for style. Flag any place a manuscript swaps a defined technical term for a looser synonym — this is a correctness issue here, not just a style one.
 
 Everything else below applies to manuscript prose largely as in the source catalogs.

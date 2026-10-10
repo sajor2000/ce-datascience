@@ -6,7 +6,7 @@ argument-hint: "[optional: --out-dir manuscript --format quarto]"
 
 # Manuscript Package Builder
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Run the commands below from the user's project root.** The `SKILL_DIR` anchor locates the bundled script; `--project-root` and `--out-dir` stay project-relative.
 
 
 ## Skill Value
@@ -36,7 +36,8 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/build_package_manifest.py" --project-root . --out-dir manuscript --format quarto
 ```
 
-7. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
+7. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-5 to those lists.
+8. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
 
 ## Quarto Path
 
@@ -51,7 +52,7 @@ For Quarto projects, create or update a package manifest that expects:
 - `manuscript/supplement/`
 - `manuscript/checklists/`
 
-For non-Quarto projects, generate the same package manifest and section stubs without forcing a conversion.
+For non-Quarto projects, generate the same package manifest without forcing a conversion; the script writes the `manuscript.qmd` section stub only for `--format quarto`.
 
 ## References
 
