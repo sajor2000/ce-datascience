@@ -73,9 +73,9 @@ Use `references/model-card-template.md`. Sections:
 8. **Ethical considerations** -- subjects, mitigations, risks
 9. **Caveats and recommendations** -- known limitations, recalibration plan, monitoring plan
 
-### Step 3: Compute fairness summary table
+### Step 3: Build the fairness summary table
 
-For each protected attribute in the eval output, compute:
+For each protected attribute in the eval output, report (derive gaps and ratios only from reported values; never rerun the evaluation or recompute from predictions, and treat a missing metric as a Step 1 gap):
 
 - AUC per group + 95% CI
 - Calibration intercept + slope per group

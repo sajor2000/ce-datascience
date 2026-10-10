@@ -54,7 +54,7 @@ When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the 
 | Cox regression | Hsieh + ANOVA-style | `powerSurvEpi::ssizeCT.default` | manual |
 | Cluster RCT | design-effect adjustment | `clusterPower` | manual |
 | Mixed-effects (longitudinal) | Liu/Liang | `longpower` | manual |
-| Prediction model (development) | EPV >= 10 (or Riley criteria) | `pmsampsize::pmsampsize` | manual |
+| Prediction model (development) | Riley criteria (EPV >= 10 alone is too lenient) | `pmsampsize::pmsampsize` | manual |
 | Diagnostic accuracy | exact binomial CI on sens/spec | `MKmisc` or hand-roll | `statsmodels.stats.proportion.proportion_confint` |
 | Equivalence / NI | TOST | `TOSTER::powerTOSTtwo` | `statsmodels` |
 | Multi-arm | Bonferroni-adjusted alpha | as above with α/(k-1) | as above |
@@ -95,7 +95,7 @@ Print one line so `ce-plan` SAP mode can drop the value into SAP-2.5 automatical
 __CE_POWER__ design=<name> total=<n> file=<path-to-summary.md> n_per_arm=<n> with_dropout=<n>
 ```
 
-The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `ce-plan` SAP mode.
+The bundled `scripts/pmsampsize_runner.R` (prediction-model development path) emits the same envelope when `--out` is passed with `design=prediction-model` and `n_per_arm=null`, plus the `epv=<n>` field. Both forms parse against the canonical contract in `ce-plan` SAP mode.
 
 ## What this skill does NOT do
 

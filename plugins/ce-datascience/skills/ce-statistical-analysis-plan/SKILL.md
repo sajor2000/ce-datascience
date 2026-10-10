@@ -90,7 +90,7 @@ Name the likely method and the assumption it rests on, but do not present the ch
 |---|---|
 | Canonical versioned SAP or implementation roadmap | `ce-plan` |
 | Primary model choice and R/Python scaffold | `ce-model-strategy` |
-| `Overview`, `Outputs`, `Master_Variables`, and decision-evidence workbook | `ce-sap-tabular` |
+| `Overview`, `Outputs`, and `Master Variables` workbook | `ce-sap-tabular` |
 | Final Methods prose and section boundaries | `ce-manuscript-section-discipline` |
 | Citation verification and editable Word fields | `ce-manuscript-citations` |
 | Unresolved claim/dataset/schema decisions | This skill |

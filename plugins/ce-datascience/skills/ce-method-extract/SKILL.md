@@ -72,7 +72,7 @@ Be conservative: if the paper does not state a field, write `not reported` rathe
 
 ### Step 4: Write the comparison table
 
-Save to `analysis/pubmed/<query-slug>-methods.csv` with one row per paper. Also write `analysis/pubmed/<query-slug>-methods-summary.md`:
+Save to `analysis/pubmed/<query-slug>-methods.csv` with one row per paper, keeping the input's `pmid`, `year`, and `first_author` columns (`ce-effect-size` needs them). Also write `analysis/pubmed/<query-slug>-methods-summary.md`:
 
 - **Modal method** (most common) per outcome type
 - **Method × year** matrix (is the field shifting?)

@@ -6,7 +6,7 @@ argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-
 
 # PubMed Method Search
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are relative to this skill's directory.** Prefix each script path with that directory (the `SKILL_DIR` anchor below) — the agent's working directory is the user's project, not the skill, and `--out` paths resolve against the project.
 
 
 ## Skill Value
@@ -43,7 +43,7 @@ Before asking the user for a query, scan the most recent ~50 chat turns for `__C
 
 1. Read the YAML at the path (`analysis/research-question.yaml` by default).
 2. Use the `suggested_pubmed_query` field as the default query if no `<query terms>` argument was passed on the command line.
-3. Use `pico.population` and `outcome` to derive a default `--years` window (default 10) and `--study-type` filter (e.g., `cohort` if `suggested_design` starts with "cohort").
+3. Use `pico.population` and `outcome` to derive a default `--years` window (default 10) and `--study-type` filter (e.g., `cohort` if `suggested_design` names a cohort design).
 4. Print one line so the chain is visible:
 
    ```
@@ -64,9 +64,10 @@ python3 "$SKILL_DIR/scripts/pubmed_search.py" \
     --out analysis/pubmed/sepsis-bundle-2025.csv
 ```
 
-The script prints two diagnostic lines to stderr the user should always see:
-- `[query] (sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...` — the actual query NCBI ran after MeSH expansion. Surface this; silent MeSH expansion is the #1 source of "why didn't my paper come up?".
+The script prints three diagnostic lines to stderr the user should always see:
+- `[query] (sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...` — the query string sent to NCBI, with the study-type, date, human, and English filters added.
 - `[hits]  142 matched; fetching 50` — the size of the matched set vs what was retrieved.
+- `[mesh]  ...` — NCBI's `QueryTranslation`, the actual query NCBI ran after MeSH expansion. Surface this; silent MeSH expansion is the #1 source of "why didn't my paper come up?".
 
 ### 2. Write the human summary
 

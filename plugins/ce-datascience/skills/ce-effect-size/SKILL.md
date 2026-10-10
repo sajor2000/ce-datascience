@@ -1,7 +1,7 @@
 ---
 name: ce-effect-size
 description: "Extract, compute, or pool effect-size evidence to ground power, SAP assumptions, and study justification. Use when the user needs effect-size assumptions, pilot estimates, pooled estimates, or literature-derived values."
-argument-hint: "<path/to/methods.csv>, optional: --metric or|hr|rr|md|smd"
+argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 ---
 
 # Effect-Size Anchor for Power Calculations
@@ -22,7 +22,7 @@ Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce
 
 - After `ce-method-extract` has produced `analysis/pubmed/<query>-methods.csv`
 - Before `ce-power` so the effect-size assumption is anchored
-- Manual: `ce-effect-size analysis/pubmed/sepsis-bundle-methods.csv --metric hr`
+- Manual: `ce-effect-size analysis/pubmed/sepsis-bundle-methods.csv --metric HR`
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ Read the methods CSV. Parse the `effect_size_reported` field: extract metric typ
 ### Step 2: Filter to comparable studies
 
 Filter:
-- `metric` matches `--metric` (or modal-metric if not specified)
+- `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
 - Sample size present and ≥ 50 (smaller studies dominate noise)
 - Year within last `--years` window if passed
 - Optional: study type filter (e.g., RCTs only)
@@ -82,7 +82,7 @@ tau^2 = 0.04
 
 ## Forest plot
 
-See `analysis/effect-size/<query>-forest.png`
+See `analysis/effect-size/<query>-pooled-forest.png`
 
 ## For `ce-power`
 

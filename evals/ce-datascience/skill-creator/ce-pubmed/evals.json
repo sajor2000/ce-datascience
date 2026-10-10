@@ -7,7 +7,7 @@
       "expected_output": "Runs the bundled pubmed_search.py (or the connected PubMed MCP path) with cohort filter and 10-year window, surfaces the translated query and hit counts, writes the CSV plus a Markdown summary, and emits the __CE_PUBMED_RESULTS__ handoff.",
       "files": [],
       "expectations": [
-        "Surfaces the actual translated query NCBI ran (the [query] line or QueryTranslation) showing MeSH expansion, and the matched-vs-fetched hit counts",
+        "Surfaces the actual translated query NCBI ran (the [mesh] QueryTranslation line) showing MeSH expansion, and the matched-vs-fetched hit counts",
         "Writes results to analysis/pubmed/sepsis-bundle.csv and a sibling Markdown summary under analysis/pubmed/ with top-10 list, MeSH-term histogram, study-type histogram, and % with PMC full text",
         "Emits or surfaces a __CE_PUBMED_RESULTS__ csv=<path> n=<count> query=<...> pmc_pct=<...> line",
         "Does not claim full-text coverage or extract methods from full text"

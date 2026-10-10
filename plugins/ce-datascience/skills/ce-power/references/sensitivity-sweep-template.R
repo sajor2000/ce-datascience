@@ -35,7 +35,9 @@ sweep <- do.call(rbind, lapply(params$effect_grid, function(d) {
   data.frame(effect_size = d, n_per_arm = ceiling(res$n), n_total = 2 * ceiling(res$n))
 }))
 
-write.csv(sweep, "analysis/power/sweep.csv", row.names = FALSE)
+out_stem <- file.path("analysis/power", paste0(params$design, "-", format(Sys.Date(), "%Y-%m-%d")))
+dir.create(dirname(out_stem), recursive = TRUE, showWarnings = FALSE)
+write.csv(sweep, paste0(out_stem, "-sweep.csv"), row.names = FALSE)
 
 p <- ggplot(sweep, aes(effect_size, n_total)) +
   geom_line() + geom_point() +
@@ -45,4 +47,4 @@ p <- ggplot(sweep, aes(effect_size, n_total)) +
                           params$alpha, params$power_target, params$sided)) +
   theme_minimal()
 
-ggsave("analysis/power/sweep.png", p, width = 7, height = 5)
+ggsave(paste0(out_stem, ".png"), p, width = 7, height = 5)

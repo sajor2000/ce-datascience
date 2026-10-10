@@ -9,8 +9,8 @@
       "expectations": [
         "Reports how many rows failed parsing and how many studies were dropped by the metric and sample_size>=50 filters versus the input N",
         "Pools HRs on the log scale with random-effects REML and reports pooled estimate, 95% CI, 95% prediction interval, I^2, and tau^2",
-        "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-forest.png",
-        "Emits a __CE_EFFECT_SIZE__ line with metric=hr, n_studies, point, ci, i2, and mode=reml",
+        "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-pooled-forest.png",
+        "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, i2, and mode=reml",
         "Does not compute power itself; it hands off to ce-power with a sensitivity range across the prediction interval"
       ]
     },

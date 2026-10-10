@@ -24,7 +24,7 @@ Turns a fuzzy clinical research question into a structured `analysis/research-qu
 - When the user describes a study idea in one sentence and the next step is `ce-pubmed` but the query is too vague
 - Before `ce-checklist-match` if the design is unclear and the routing questions can't be answered cleanly
 - Manual: `ce-research-question "sepsis bundle adherence and 30-day mortality in adult ICU patients"`
-- Triggered also when a user starts the lifecycle but `ce-pubmed` complains the query is too broad (>1000 hits with no MeSH alignment)
+- Triggered also when a user starts the lifecycle but a `ce-pubmed` search comes back too broad (>1000 hits with no MeSH alignment)
 
 ## Prerequisites
 

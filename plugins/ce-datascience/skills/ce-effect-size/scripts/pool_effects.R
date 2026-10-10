@@ -14,8 +14,8 @@
 #     --out analysis/effect-size/sepsis-bundle-pooled.md
 #
 # Input CSV must have at minimum: pmid, year, sample_size, effect (point),
-# effect_lo, effect_hi, metric. Use scripts/parse_effect.py first if these
-# columns are missing -- it parses the free-text effect_size_reported field.
+# effect_lo, effect_hi, metric. If these columns are missing, parse the
+# free-text effect_size_reported field first (see references/effect-parser.md).
 
 suppressPackageStartupMessages({
   for (pkg in c("meta", "ggplot2")) {

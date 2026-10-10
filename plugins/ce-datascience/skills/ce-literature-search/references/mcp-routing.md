@@ -10,13 +10,13 @@ Connected MCP servers make searches faster and more complete, but none is requir
 
 ## Check what is connected
 
-Before choosing a route, list the MCP tools available in this session (in Claude Code, search the deferred tool list, for example `ToolSearch` with `pubmed` or `paperclip`). Server names vary by install; match on the tool's purpose, not an exact prefix. Use fully qualified `Server:tool` names when calling, for example `PubMed:search_articles`.
+Before choosing a route, list the MCP tools available in this session (for example, search the deferred tool list for `pubmed` or `paperclip`). Server names vary by install; match on the tool's purpose, not an exact prefix. Use fully qualified `Server:tool` names when calling, for example `PubMed:search_articles`.
 
 ## Routing table
 
 | Need | Preferred MCP tools | Fallback without MCP | Evidence label |
 |---|---|---|---|
-| Biomedical search, MeSH, PMIDs, abstracts | `PubMed:search_articles`, `PubMed:get_article_metadata` | `ce-pubmed` bundled `scripts/pubmed_search.py` (E-utilities) | `abstract` |
+| Biomedical search, MeSH, PMIDs, abstracts | `PubMed:search_articles`, `PubMed:get_article_metadata` | The `ce-pubmed` skill's bundled E-utilities search script | `abstract` |
 | DOI / PMID / PMCID conversion, citation lookup | `PubMed:convert_article_ids`, `PubMed:lookup_article_by_citation` | E-utilities ID converter via `ce-pubmed` | `metadata` |
 | Related or citing papers for a seed study | `PubMed:find_related_articles` | PubMed "similar articles" through `ce-pubmed` | `abstract` |
 | Lawful open full text (PMC) | `PubMed:get_full_text_article` after `PubMed:get_copyright_status` | User-supplied PDF or institutional access; otherwise report the gap | `full_text` |

@@ -74,7 +74,7 @@ One column per analysis from `01-overview.csv`. Use workbook-friendly IDs such a
 - `✓` if the variable is used in that analysis
 - (blank) if not used
 
-The flag captures any role: predictor, outcome, stratifier, cluster, ID. The `notes` column distinguishes role when needed.
+The flag captures any role: predictor, outcome, stratifier, cluster, ID. The `Notes` column distinguishes role when needed.
 
 ## Notes column
 

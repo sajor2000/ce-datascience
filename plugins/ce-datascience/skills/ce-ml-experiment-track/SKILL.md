@@ -129,7 +129,9 @@ metrics:
   auc_internal: 0.84
   ...
 artifacts:
-  - mlruns/.../model.pkl
+  - name: model.pkl
+    path: mlruns/.../model.pkl
+    sha: ...
 study_id: <id>
 ```
 

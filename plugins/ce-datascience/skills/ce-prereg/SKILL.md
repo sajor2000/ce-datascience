@@ -6,7 +6,7 @@ argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --
 
 # Pre-Registration Generator
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are relative to this skill's directory.** Prefix each script path with that directory (the `SKILL_DIR` anchor below) — the agent's working directory is the user's project, not the skill, and `--package-dir` resolves against the project root.
 
 
 ## Skill Value
@@ -48,7 +48,7 @@ Map the study type to the registry:
 | Animal study | OSF (preclinical preregistration) |
 | Meta-analysis | PROSPERO or OSF |
 
-If `--registry` not passed, infer from `stack_profile.study_type`.
+If no registry argument is passed, infer from `stack_profile.study_type`.
 
 ### Step 2: Map SAP sections → registry fields
 

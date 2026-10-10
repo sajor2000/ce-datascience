@@ -4,6 +4,7 @@ Edit the params block; rest is fixed.
 """
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -43,7 +44,8 @@ for d in params["effect_grid"]:
 sweep = pd.DataFrame(rows)
 out = Path("analysis/power")
 out.mkdir(parents=True, exist_ok=True)
-sweep.to_csv(out / "sweep.csv", index=False)
+stem = f"{params['design']}-{date.today().isoformat()}"
+sweep.to_csv(out / f"{stem}-sweep.csv", index=False)
 
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.plot(sweep["effect_size"], sweep["n_total"], marker="o")
@@ -52,4 +54,4 @@ ax.set_ylabel("Total N")
 ax.set_title("Required N as a function of effect size")
 ax.grid(True, alpha=0.3)
 fig.tight_layout()
-fig.savefig(out / "sweep.png", dpi=144)
+fig.savefig(out / f"{stem}.png", dpi=144)
