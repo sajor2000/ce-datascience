@@ -110,6 +110,10 @@ export const STALE_SKILL_DIRS = [
   "ce-r-review",
   "ce-r-targets",
   "ce-r-tidyverse",
+
+  // Removed as outside the data-science scope
+  "ce-babysit-pr",
+  "ce-retune",
 ]
 
 /** Old agent names (used as generated skill dirs or flat .md files). */
@@ -265,6 +269,10 @@ const LEGACY_PROMPT_CURRENT_SKILL_FOR_FILE: Record<string, string> = {
  * — the exact string is the ownership proof.
  */
 const LEGACY_ONLY_SKILL_DESCRIPTIONS: Record<string, string> = {
+  "ce-babysit-pr":
+    "Monitor one open GitHub PR within a bounded watch or checkpoint and surface actionable CI and review residuals.",
+  "ce-retune":
+    "Measure and improve a CE skill corpus against a declared behavioral benchmark; maintainer use only.",
   "ce-fabric-coding":
     "Write or review Microsoft Fabric Lakehouse, OneLake, Warehouse, Spark, Python-notebook, and Delta-table code. Use for PySpark, Spark SQL, T-SQL, Fabric notebooks, Spark job definitions, OneLake paths, and SQL analytics endpoint questions.",
   "ce-fabric-kql":

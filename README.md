@@ -573,7 +573,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 67 |
+| Skills | 65 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

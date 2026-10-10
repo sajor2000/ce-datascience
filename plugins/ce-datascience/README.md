@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 67 |
+| Skills | 65 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -234,7 +234,7 @@ The current plugin selectively ports useful features from the original compound-
 | Public support | `/ce-release-notes` and `/ce-report-bug` are included so users can answer version-specific questions and file structured bug reports from the public plugin surface. |
 | Target compatibility | Agent sources use current `ce-*.md` filenames; legacy `*.agent.md` parsing remains supported. Codex installs respect `CODEX_HOME`, support native-plugin agent bridge and standalone modes, and preserve manual/other-plugin hooks during managed hook writes. |
 
-The curated upstream refresh includes portable continuity, bounded GitHub PR monitoring, and maintainer corpus retuning as `/ce-handoff`, `/ce-babysit-pr`, and `/ce-retune`. Deferred upstream-only skills remain intentionally out of scope: Rails, frontend, browser/Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, Proof, simplify-code, strategy, promotion, and polish workflows. The upstream multi-provider cross-model runner and `/ce-pov` remain deferred until CE has a trusted serving-route attestation contract.
+The curated upstream refresh includes portable continuity as `/ce-handoff`. PR monitoring (`ce-babysit-pr`) and maintainer corpus retuning (`ce-retune`) were removed as outside the data-science scope. Deferred upstream-only skills remain intentionally out of scope: Rails, frontend, browser/Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, Proof, simplify-code, strategy, promotion, and polish workflows. The upstream multi-provider cross-model runner and `/ce-pov` remain deferred until CE has a trusted serving-route attestation contract.
 
 ## Skills
 
@@ -257,9 +257,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-notebook-standards` | Set the master-notebook or multi-file decision and the documented, small-cell contract for Marimo, Jupyter, R Markdown, and Quarto work |
 | `/ce-notebook-edit` | Safely insert reviewed cells into existing Jupyter notebooks using unique metadata tags, backups, and structural validation |
 | `/ce-debug` | Find correctness or performance root causes with secret-safe evidence, a recorded baseline, and repeated post-fix measurement |
-| `/ce-babysit-pr` | Bounded GitHub PR monitoring that surfaces CI/review residuals and never merges or broadens authority |
 | `/ce-handoff` | Create or resume a portable continuity record with verified state, constraints, and next safe action |
-| `/ce-retune` | Maintainer-only benchmark workflow for measured CE skill-corpus improvements |
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
 | `/ce-sap-tabular` | Generate the biostatistics-style tabular companion to the prose SAP -- Overview, Outputs, Master Variables, and optional long/wide sample sheets that statisticians hand to programmers |
