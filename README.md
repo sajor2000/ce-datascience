@@ -305,6 +305,7 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 ### Run an observational study
 
 ```
+/ce-grill "sepsis bundles and 30-day mortality in ICU, target Critical Care Medicine"
 /ce-research-question "sepsis bundles and 30-day mortality in ICU"
 /ce-pubmed
 /ce-evidence-map
@@ -572,7 +573,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 66 |
+| Skills | 67 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

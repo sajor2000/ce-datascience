@@ -44,6 +44,7 @@ Full biomedical lifecycle — 15 steps. Most common path for EHR, OMOP, CLIF, an
 ### Optional bookends
 
 - `ce-ideate` before step 1 — when the research question is still fuzzy
+- `ce-grill` before step 1 or step 11 — stress-test goal, hypothesis, data, analysis, target journal, and audience one question at a time
 - `ce-prereg` after step 12 — pre-register on OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted
 - `ce-compound` after step 15 — document validated analytical approaches and learnings
 

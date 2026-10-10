@@ -191,7 +191,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 66 |
+| Skills | 67 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -246,6 +246,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 |-------|-------------|
 | `/ce-ideate` | Big-picture ideation: generate and evaluate research ideas, then route into brainstorming |
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, grouped requirements, visual communication, and Markdown/HTML output modes before planning |
+| `/ce-grill` | Stress-test a research project one question at a time (goal, hypothesis, data, proposed analysis, target journal, audience) with a recommended answer for each, saving decisions and ranked risks to `docs/brainstorms/` |
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
 | `/ce-plan` | Create the canonical versioned SAP or technical implementation plan with an implementation-independent objective, Markdown/HTML output modes, and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claims-to-datasets schema, estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
