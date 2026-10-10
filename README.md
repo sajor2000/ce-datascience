@@ -11,6 +11,8 @@ researcher, statistician, clinician, data steward, or ethics review.
 
 [Read the public documentation](https://sajor2000.github.io/ce-datascience/)
 
+[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+
 ## In plain English
 
 If you work with health data, this plugin gives your AI assistant a set of
@@ -75,6 +77,19 @@ use the artifact-specific path below; Bun, Git, GitHub CLI, and Quarto are not
 required for basic use.
 
 ### Claude Code, easiest path
+
+No checkout needed (Claude Code 2.1.275 or later):
+
+```bash
+claude plugin install ce-datascience --marketplace sajor2000/ce-datascience
+claude
+```
+
+Or, inside a running Claude Code session:
+
+```text
+/plugin install ce-datascience --marketplace sajor2000/ce-datascience
+```
 
 macOS, Linux, WSL, or Git Bash:
 

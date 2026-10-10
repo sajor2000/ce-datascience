@@ -10,6 +10,8 @@ Windows.
 
 ![Steps for using CE DataScience setup, workflow, and task-specific slash commands](ce-datascience-skill-commands.png)
 
+[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+
 ## OS Support Matrix
 
 | OS | Recommended shell | Easiest command | Notes |
@@ -46,6 +48,20 @@ This mirrors the original Compound Engineering plugin experience: install once,
 then run setup.
 
 ### Claude Code
+
+No checkout needed (Claude Code 2.1.275 or later): install straight from the
+GitHub marketplace, then start Claude Code.
+
+```bash
+claude plugin install ce-datascience --marketplace sajor2000/ce-datascience
+claude
+```
+
+The same one-step install works inside a running Claude Code session:
+
+```text
+/plugin install ce-datascience --marketplace sajor2000/ce-datascience
+```
 
 macOS, Linux, WSL, or Git Bash:
 
