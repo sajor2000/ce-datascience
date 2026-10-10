@@ -1,7 +1,7 @@
 ---
 name: ce-table1
 description: "Generate a traceable Table 1 baseline-characteristics shell and validation report from the SAP, tabular SAP variables, and style profile. Use when the user asks for Table 1, baseline characteristics, demographic table, or manuscript-ready descriptive cohort table."
-argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama]"
+argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata exposure_var]"
 ---
 
 # Table 1 Generator
@@ -40,10 +40,13 @@ If the variables catalog is missing, ask the user for the baseline variable list
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
-python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama
+python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata <stratification variable>
 ```
 
+Pass the stratification variable the user or SAP names with `--strata` (comma-separated for more than one); the script records it in `table1-spec.json` and the shell headers, and warns when it is absent. Pass `--disclosure-floor <n>` only when the project or DUA declares a floor other than the default (suppress n<11).
+
 3. Review the generated validation report before presenting the table as ready.
+3b. Fill or leave the shell: when the SAP or the user names the analytic dataset, compute the Overall and per-stratum cells from it (median (IQR) for continuous rows, `No. (%)` for categorical rows, a missing-count row for variables with missing values), apply step 4 before writing, and record the dataset path in the validation report. When no analytic dataset is named, deliver the shell with `TBD` cells and state the floor that will apply; never estimate cells from a manuscript or chat description.
 4. **Small-cell suppression (always, not only in CLIF mode):** before presenting or writing any stratified table, suppress or aggregate cells with n below the project's disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter). Suppress complementary cells too when a suppressed value could be recovered by subtraction from totals. A Table 1 stratified by exposure routinely produces small cells — check every stratum, not just the obvious ones.
 5. Table 1 output is aggregate-only: never write patient-level rows to publication, review-pack, or shared directories. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`.
 
@@ -58,7 +61,7 @@ python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/
 
 - Block when no baseline variables are declared (the script exits 1 and writes the blocker to the validation report).
 - Warn when no SAP or outputs catalog is found (the script records these in the validation report).
-- Warn when no stratification variable is declared; the script does not record strata, so check this before presenting the table.
+- Warn when no stratification variable is declared (the script writes this warning when `--strata` is absent and when a named stratum is missing from the catalog).
 - Preserve repo-relative paths in all generated artifacts.
 - Use the configured journal style profile for formatting expectations.
 

@@ -122,6 +122,14 @@ research_question:
     intervention:  "Adherence to 1-hour sepsis bundle (5 elements)"
     comparator:    "Non-adherent or partially adherent (≤ 3 elements)"
     outcome:       "30-day in-hospital mortality"
+  target_trial:          # only when suggested_design is a target trial emulation; slots in references/pico-templates.md
+    eligibility:           "..."
+    treatment_strategies:  "..."
+    assignment_procedure:  "..."
+    follow_up_start:       "..."
+    follow_up_end:         "..."
+    outcome_ascertainment: "..."
+    causal_contrast:       "..."
   finer:
     feasible:    {score: 4, rationale: "EHR data available; n≈8k expected"}
     interesting: {score: 5, rationale: "Active controversy on bundle benefit"}
@@ -131,6 +139,7 @@ research_question:
   suggested_design:    "Target trial emulation (retrospective EHR cohort)"
   suggested_checklist: TARGET
   suggested_extensions: [STROBE, RECORD]   # STROBE is TARGET's companion; RECORD because the data are routinely collected EHR
+  ai_involvement: none                     # none | ai-assisted | ai-primary | llm-based
   suggested_pubmed_query: '("Sepsis"[Mesh]) AND ("Patient Care Bundles"[Mesh] OR "bundle adherence"[Title/Abstract]) AND ("mortality"[Mesh] OR "30-day"[Title/Abstract]) AND ("Cohort Studies"[Mesh])'
   suggested_pubmed_query_hits: 45          # total_count from the pubmed_search_articles / search_articles test run; re-run before relying on it
   query_checked_on: <YYYY-MM-DD>           # date of that test run, resolved at runtime

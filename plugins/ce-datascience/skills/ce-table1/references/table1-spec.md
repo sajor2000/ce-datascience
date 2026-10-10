@@ -9,10 +9,12 @@ The Table 1 shell is a contract between the SAP, analyst, and manuscript package
 | `variable` | Variable name from the SAP variables catalog |
 | `category` | Variable category such as Patient Characteristic or Clinical Characteristic |
 | `description` | Plain-language row label |
-| `type` | Numeric, categorical, binary, date, or text |
+| `type` | The catalog's `Type` value as recorded (ce-plan catalogs use Fixed / Time-varying; the summary form comes from `levels`: Continuous -> median (IQR), 0/1 or listed levels -> No. (%)) |
 | `levels` | Declared levels for categorical variables |
 | `source_catalog` | Repo-relative path to the variables catalog |
 | `style_profile` | Publication style profile used for display rules |
+| `strata` | Stratification variable(s) passed with `--strata` (empty list when none was declared) |
+| `disclosure_floor` | `suppress_below_n` (default 11) applied to every stratified cell |
 
 ## Refusal Conditions
 

@@ -45,6 +45,15 @@ the default server is connected and otherwise say explicitly that
 line in Step 3. The CSV holds abstracts; rows are
 `abstract`-level evidence until a source is read in full.
 
+MCP path mechanics: translate `--years N` into the connector's date filter
+(`date_from` = current year minus N); the connector's `query_translation`
+field is the `[mesh]` line. Fetch metadata in batches of at most 20 PMIDs:
+`get_article_metadata` silently returns at most 20 records per call, and a
+large result may be spooled to a file by the harness instead of shown inline;
+parse that file with a script rather than re-requesting. Before emitting
+`n=`, reconcile the CSV row count against the searched PMID list and fetch any
+PMIDs still missing.
+
 ## Workflow
 
 ### 0. Context inputs (scan chat first)

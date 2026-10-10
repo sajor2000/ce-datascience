@@ -129,6 +129,9 @@ Next step: `ce-method-extract`
   Extract statistical methods from your PubMed results for SAP justification.
 ```
 
+Render each status as `[done]`, `[wip ]` (in progress), or `[    ]` (not
+started), and after each done or in-progress step name the artifact that set it.
+
 Inline language-specific and data-layer notes at the steps where they matter (e.g., step 7 shows "OMOP SQL + concept sets" or "CAPR + SQL" depending on language; step 14 shows "Jupyter .ipynb" or "Marimo .py" or "Quarto .qmd").
 
 If all steps are complete, emit: "All lifecycle steps complete. Load the `ce-compound` skill to document learnings."

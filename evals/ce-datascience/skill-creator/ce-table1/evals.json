@@ -4,10 +4,10 @@
     {
       "id": 1,
       "prompt": "Make Table 1 for the ARDS cohort paper. Variables catalog is analysis/sap-tables/03-variables.csv, SAP at analysis/sap.md, stratify by prone positioning (prone_any yes/no). Target is JAMA, put outputs in analysis/publication/tables.",
-      "expected_output": "Runs the Table 1 generator with the variables catalog and JAMA profile, writes table1-spec.json, table1.csv, table1.md, and table1-validation-report.md, and applies small-cell suppression to every stratum.",
+      "expected_output": "Runs the Table 1 generator with the variables catalog, JAMA profile, and --strata prone_any, writes table1-spec.json, table1.csv, table1.md, and table1-validation-report.md, fills the cells from the SAP-named analytic dataset when one exists, and applies small-cell suppression to every stratum.",
       "files": [],
       "expectations": [
-        "Runs scripts/generate_table1.py with --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama",
+        "Runs scripts/generate_table1.py with --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama and passes the requested stratification with --strata prone_any",
         "Produces table1-spec.json, table1.csv, table1.md, and table1-validation-report.md",
         "Reviews the validation report before presenting the table as ready",
         "Applies small-cell suppression (default n<11) to every stratified cell, including complementary cells recoverable by subtraction",

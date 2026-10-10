@@ -178,9 +178,9 @@ data. Ask blinding state and reporting checklist only when an active study
 workflow requires them.
 
 For an active study without `.ce-datascience/study-metadata.yaml`, offer to
-copy `references/study-metadata-template.yaml` to that path (recommended when
-the SAP's `ai_involvement` is not `none`); planning, review, and SAP tracking
-read it. Uncomment only fields backed by evidence. This shared provenance file
+copy `references/study-metadata-template.yaml` to that path (recommended for
+any study that will have a SAP; required once its `ai_involvement` is not
+`none`); planning, review, and SAP tracking read it. Uncomment only fields backed by evidence. This shared provenance file
 is committed, unlike the machine-local config.
 
 If the local config is not ignored, offer the entry:

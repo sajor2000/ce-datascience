@@ -42,7 +42,7 @@ Use connected MCP servers for literature; never invent a citation, effect size, 
 
 ## Search Contract
 
-Before searching, record:
+Before searching, record in chat (and in `analysis/literature/search-contract.md` when the project keeps analysis artifacts in the repository):
 
 - the question or PICO/PECO elements;
 - databases or source classes searched;
