@@ -123,11 +123,11 @@ completed: <ISO>
 backend: mlflow
 backend_run_id: <mlflow run id>
 params:
-  train_data_sha: ...
-  ...
+  train_data_sha: <sha256 of the training extract>
+  # one key per hyperparameter
 metrics:
   auc_internal: 0.84
-  ...
+  # one key per reported metric
 artifacts:
   - name: model.pkl
     path: mlruns/.../model.pkl

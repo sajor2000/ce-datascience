@@ -61,8 +61,8 @@ Each persona sub-agent writes full JSON (all schema fields) to `/tmp/ce-datascie
       "suggested_fix": "Join on patient_id after selecting the index encounter; assert one row per patient"
     }
   ],
-  "residual_risks": [...],
-  "testing_gaps": [...]
+  "residual_risks": [],
+  "testing_gaps": []
 }
 ```
 

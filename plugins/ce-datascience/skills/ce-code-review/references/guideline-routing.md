@@ -71,7 +71,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | CHEERS | Consolidated Health Economic Evaluation Reporting Standards | 28 | Health economics |
 | CONSORT-AI | CONSORT extension for AI interventions | 14 | AI + RCT |
 | SPIRIT-AI | SPIRIT extension for AI trial protocols | 15 | AI + trial protocol |
-| TRIPOD+AI | TRIPOD extension for AI prediction models | 22 | AI prediction |
+| TRIPOD+AI | TRIPOD extension for AI prediction models | 27 | AI prediction |
 | REFORMS | Reporting Standards for ML in Science | ~20 | ML/computational |
 | CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
 | DEAL | DEep Learning in pAthology | ~16 | DL + pathology |

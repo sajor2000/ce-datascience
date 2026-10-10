@@ -223,7 +223,7 @@ deepened: YYYY-MM-DD  # optional, set when the confidence check substantively st
 
 ## Sources & References
 
-- **Origin document:** [docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md](path)
+- **Origin document:** `docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md`
 - Related code: [path or symbol]
 - Related PRs/issues: #[number]
 - External docs: [url]

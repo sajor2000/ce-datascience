@@ -805,7 +805,7 @@ Always-on reviewers retained from CE: `ce-correctness-reviewer`, `ce-maintainabi
 
 ## Sources & References
 
-- **Origin document:** [docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md](docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md)
+- **Origin document:** [docs/brainstorms/2026-04-27-ce-datascience-fork-requirements.md](../brainstorms/2026-04-27-ce-datascience-fork-requirements.md)
 - Historical file-level audit: 170+ files classified across 53 agents, 37 skills, infrastructure. Current public inventory is 55 agents and 48 skills after the May 2026 upstream sync and publication workflow additions.
 - Institutional learnings: pipeline separation, confidence-anchored scoring, beta skills framework, self-containment rule
 - STROBE Statement: https://www.strobe-statement.org

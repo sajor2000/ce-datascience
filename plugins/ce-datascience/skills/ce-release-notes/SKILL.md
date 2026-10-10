@@ -54,22 +54,26 @@ Parse the JSON. The shape on success is:
 ```json
 {
   "ok": true,
-  "source": "gh" | "anon",
-  "fetched_at": "...",
+  "source": "gh",
+  "fetched_at": "2026-04-17T06:00:00Z",
   "releases": [
-    {"tag": "ce-datascience-v2.67.0", "version": "2.67.0", "name": "...",
-     "published_at": "2026-04-17T05:59:30Z", "url": "...", "body": "...",
+    {"tag": "ce-datascience-v2.67.0", "version": "2.67.0", "name": "ce-datascience 2.67.0",
+     "published_at": "2026-04-17T05:59:30Z", "url": "https://github.com/sajor2000/ce-datascience/releases/tag/ce-datascience-v2.67.0", "body": "release notes markdown",
      "linked_prs": [568, 575]}
   ]
 }
 ```
 
+`source` is `gh` when the GitHub CLI answered and `anon` when the anonymous API did.
+
 The shape on failure is:
 
 ```json
-{"ok": false, "error": {"code": "rate_limit" | "network_outage",
-                         "message": "...", "user_hint": "..."}}
+{"ok": false, "error": {"code": "rate_limit",
+                         "message": "API rate limit exceeded", "user_hint": "Authenticate gh or retry later"}}
 ```
+
+`error.code` is `rate_limit` or `network_outage`.
 
 `source` is recorded for telemetry but **not** surfaced to the user — falling back from `gh` to anonymous is a stability signal, not a user-facing event.
 

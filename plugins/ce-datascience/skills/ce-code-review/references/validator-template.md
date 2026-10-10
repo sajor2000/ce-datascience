@@ -52,10 +52,12 @@ Return ONLY this JSON, no prose:
 
 ```json
 {
-  "validated": true | false,
+  "validated": true,
   "reason": "<one sentence explaining the verdict>"
 }
 ```
+
+`validated` is `true` or `false`.
 
 Examples:
 

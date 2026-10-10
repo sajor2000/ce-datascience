@@ -53,7 +53,7 @@ Parse the eval-output JSON. Expected schema:
   "model_id": "risk-model-v2",
   "training": {
     "n": 12500, "dates": "2018-01 to 2022-12",
-    "source": "EHR site A", "features": [...]
+    "source": "EHR site A", "features": ["age", "sex", "creatinine"]
   },
   "evaluation": {
     "internal": { "auc": 0.84, "auc_ci": [0.82, 0.86], "brier": 0.18, "calibration_intercept": -0.02, "calibration_slope": 1.04 },

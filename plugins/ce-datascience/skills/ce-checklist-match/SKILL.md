@@ -125,7 +125,7 @@ Resolve the repository root with `git rev-parse --show-toplevel` and update `<re
 
 ```yaml
 stack_profile:
-  ...existing fields...
+  # existing fields unchanged
   study_type: cohort_retrospective
   ai_involvement: none                         # none | ai-assisted | ai-primary | llm-based
   reporting_checklist: STROBE                  # canonical primary; non-null string turns on ce-reporting-checklist-reviewer
