@@ -59,12 +59,18 @@
   padding: 1.5rem;
 }
 
-.workflow-image {
+.workflow-image,
+.workflow-video {
   background: #fff;
   border-radius: var(--ifm-card-border-radius);
   display: block;
   margin-top: 2rem;
   max-width: 100%;
+}
+
+.workflow-video {
+  box-shadow: var(--ifm-global-shadow-lw);
+  width: min(100%, 960px);
 }
 
 @media (max-width: 576px) {

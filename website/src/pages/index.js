@@ -62,6 +62,23 @@ export default function Home() {
             />
           </div>
         </section>
+
+        <section className="home-section container">
+          <Heading as="h2">A short workflow overview</Heading>
+          <p className="section-lead">
+            See how CE DataScience carries a research question through explicit
+            design, analysis, review, and reusable documentation.
+          </p>
+          <video
+            className="workflow-video"
+            controls
+            playsInline
+            preload="metadata"
+            aria-label="CE DataScience workflow overview animation">
+            <source src="media/ce-datascience-overview.mp4" type="video/mp4" />
+            Your browser does not support HTML video.
+          </video>
+        </section>
       </main>
     </Layout>
   );

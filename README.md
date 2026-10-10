@@ -11,6 +11,8 @@ researcher, statistician, clinician, data steward, or ethics review.
 
 [Read the public documentation](https://sajor2000.github.io/ce-datascience/)
 
+[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+
 ## In plain English
 
 If you work with health data, this plugin gives your AI assistant a set of

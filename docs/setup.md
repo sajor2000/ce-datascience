@@ -10,6 +10,8 @@ Windows.
 
 ![Steps for using CE DataScience setup, workflow, and task-specific slash commands](ce-datascience-skill-commands.png)
 
+[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+
 ## OS Support Matrix
 
 | OS | Recommended shell | Easiest command | Notes |
