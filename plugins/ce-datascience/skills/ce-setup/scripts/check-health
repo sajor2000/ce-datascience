@@ -150,6 +150,7 @@ if [ "$legacy_codex_tool_map" = "yes" ]; then
   section "Codex instructions"
   warn "Legacy Compound Codex tool map in ${codex_agents_file}"
   detail "Retired pre-native-install block; remove it only after reviewing references/legacy-codex-tool-map.md."
+  detail "Re-running the ce-datascience Codex installer for this CODEX_HOME replaces it with the current CE block."
   issues=$((issues + 1))
 fi
 

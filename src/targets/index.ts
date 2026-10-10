@@ -83,7 +83,7 @@ export const targets: Record<string, TargetHandler> = {
   },
 }
 
-const nativePluginInstallTargets = new Set(["claude", "copilot", "droid", "qwen", "windsurf"])
+const nativePluginInstallTargets = new Set(["claude", "cursor", "copilot", "droid", "qwen", "windsurf"])
 
 export function formatUnknownTargetError(targetName: string): string {
   if (nativePluginInstallTargets.has(targetName)) {

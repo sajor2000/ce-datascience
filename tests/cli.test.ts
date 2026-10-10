@@ -206,7 +206,7 @@ describe("CLI", () => {
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
     const repoRoot = path.join(import.meta.dir, "..")
 
-    for (const target of ["copilot", "droid", "qwen"]) {
+    for (const target of ["cursor", "copilot", "droid", "qwen"]) {
       const proc = Bun.spawn([
         "bun",
         "run",
@@ -1271,8 +1271,12 @@ describe("CLI", () => {
     // spec does not register custom agents, so the Bun converter fills the gap).
     expect(await exists(path.join(codexRoot, "skills"))).toBe(true)
     // AGENTS.md is emitted because --to codex always ensures a root AGENTS.md
-    // exists for Codex's discovery chain.
+    // exists for Codex's discovery chain. It must carry the current CE block,
+    // not the retired Compound block that ce-setup check-health reports.
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
+    const agentsFile = await fs.readFile(path.join(codexRoot, "AGENTS.md"), "utf8")
+    expect(agentsFile).toContain("<!-- BEGIN CE DATASCIENCE CODEX TOOL MAP -->")
+    expect(agentsFile).not.toContain("COMPOUND CODEX TOOL MAP")
   })
 
   test("install --to codex respects CODEX_HOME when --codex-home is omitted", async () => {

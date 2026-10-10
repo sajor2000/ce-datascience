@@ -76,7 +76,21 @@ required for basic use.
 
 ### Claude Code, easiest path
 
-macOS, Linux, WSL, or Git Bash:
+No checkout needed (Claude Code 2.1.275 or later):
+
+```bash
+claude plugin install ce-datascience --marketplace sajor2000/ce-datascience
+claude
+```
+
+Or, inside a running Claude Code session:
+
+```text
+/plugin install ce-datascience --marketplace sajor2000/ce-datascience
+```
+
+From a source checkout, with the optional bare `/ce-*` aliases, on macOS,
+Linux, WSL, or Git Bash:
 
 ```bash
 git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
@@ -491,6 +505,7 @@ Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
 
 | Platform | Easiest command |
 |---|---|
+| Claude Code, no checkout | `claude plugin install ce-datascience --marketplace sajor2000/ce-datascience` then `/ce-datascience:ce-setup` |
 | Claude Code, one-command setup | `bash install.sh claude --aliases` then `/ce-setup` |
 | Claude Code, Windows PowerShell | `.\install.ps1 claude -Aliases` then `/ce-setup` |
 | Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` then `/ce-datascience:ce-setup` |
@@ -509,7 +524,7 @@ Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
 | All generated targets | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
 
 Pi also needs `pi install npm:pi-subagents` first.
-Qwen Code uses its native extension installer; it is not a generated `--to qwen` converter target. `--to all` only writes generated targets detected on the machine and skips native-only plugin ecosystems.
+Qwen Code uses its native extension installer; it is not a generated `--to qwen` converter target. Cursor, Copilot, and Droid are also native plugin ecosystems, not `--to` targets. `--to all` only writes generated targets detected on the machine and skips native-only plugin ecosystems.
 
 For a non-default Codex profile, point both Codex and the installer at the same root:
 
@@ -526,7 +541,7 @@ Inside Codex, run `/plugins`, select this local marketplace, install `ce-datasci
 Codex installs have two supported modes:
 
 - **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex --codex-home "$CODEX_HOME"` to add generated agents to the same profile.
-- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills and managed `.codex/hooks.json` entries. MCP configuration is written only for plugins that actually declare servers; CE DataScience declares none.
+- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills and agents. Managed `.codex/hooks.json` entries and MCP configuration are written only for plugins that actually declare hooks or servers; CE DataScience currently declares neither.
 
 Managed Codex hooks are tagged with plugin metadata so upgrades can replace this plugin's hook entries without deleting manual hooks or hooks owned by another plugin. If an existing `hooks.json` is malformed, the installer backs it up before writing a managed replacement.
 
