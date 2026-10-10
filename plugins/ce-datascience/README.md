@@ -286,7 +286,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-effect-size` | Pool effect-size estimates from prior literature (random-effects REML) into a defensible assumption for `/ce-power` |
 | `/ce-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP |
 | `/ce-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog |
-| `/ce-figure` | Validate publication figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
+| `/ce-figure` | Create publication figures in R (ggplot2) or Python (matplotlib, Jupyter/Marimo) in a journal-neutral clinical figure style, and validate figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
 | `/ce-manuscript-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
 | `/ce-manuscript-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
 | `/ce-scientific-writing` | Draft, revise, or audit evidence-bound scientific manuscripts without imposing one journal's style |

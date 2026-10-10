@@ -3,27 +3,29 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Make Figure 2 for our JAMA Network Open submission: Kaplan-Meier curves for 1-year mortality by early vs delayed anticoagulation, from analysis/outputs/km_data.csv (columns time_days, event, arm). SAP section is SAP-5.2. Use ggplot2 and survminer, number-at-risk table underneath.",
-      "expected_output": "Produces the figure with source code and source data recorded, adds a fig2 entry to the figure manifest with caption, alt text, SAP link, and jama style profile, runs the manifest validator, and visually inspects the export for overlap and legend placement.",
+      "prompt": "Make Figure 2 for our JAMA Network Open submission: Kaplan-Meier curves for 1-year mortality by early vs delayed anticoagulation, from analysis/outputs/km_data.csv (columns time_days, event, arm). SAP section is SAP-5.2. Use ggplot2 in RStudio with a number-at-risk table underneath.",
+      "expected_output": "Renders the figure from the CSV with a saved R script that sources the clinical theme (theme_clinical, Okabe-Ito scale, save_figure at 3.5 or 7 in width, vector PDF), uses ggsurvfit or survminer with a number-at-risk table aligned to the x breaks, censor marks, y axis 'Survival Probability' from 0 and x axis in whole months, adds a fig2 manifest entry with caption, alt text, SAP link, and style_profile set to the jama override, runs the manifest validator, and visually inspects the export for overlap and legend placement.",
       "files": [],
       "expectations": [
-        "Creates or updates analysis/publication/figures/figure-manifest.json with a fig2 entry containing figure_id, sap_section SAP-5.2, source_data, source_code, output_path, caption, alt_text, and style_profile jama",
+        "Applies the clinical-standard figure rules: Arial/Helvetica or documented fallback, no text under 8 pt, open left/bottom axes without gridlines, colorblind-safe palette, legend in clear whitespace, axis titles in 'Quantity, unit' form such as 'Time Since Randomization, mo'",
+        "Includes a number-at-risk table under the x-axis via ggsurvfit add_risktable or survminer risk.table = TRUE, with censor marks and a y axis starting at 0",
+        "Exports a vector PDF at a final column width (3.5, 5, or 7 in) using save_figure or cairo_pdf rather than scaling a large plot down, with the R script and source data recorded",
+        "Creates or updates analysis/publication/figures/figure-manifest.json with a fig2 entry containing figure_id, sap_section SAP-5.2, source_data, source_code, output_path, caption starting with 'Figure 2.', alt_text, and style_profile jama (the journal override), noting that the override inherits clinical-standard",
         "Runs scripts/validate_figure_manifest.py against the manifest with --project-root and reports blockers or warnings",
-        "Applies JAMA style constraints: Arial/Helvetica, minimum 8 pt text, legend outside the data region or in clear whitespace",
-        "Exports a publication format (PDF/vector or high-resolution raster) alongside the source code and data rather than only a native software object",
-        "Visually inspects the exported image for text overlap and legend placement when image viewing is available"
+        "Visually inspects the exported image for text overlap, risk-table alignment, and legend placement when image viewing is available, or states that inspection was not performed"
       ]
     },
     {
       "id": 2,
-      "prompt": "can you QA our figure manifest before we package the manuscript? analysis/publication/figures/figure-manifest.json - I think fig3 might be listed twice and a couple use paths like /Users/me/Desktop/fig4.png",
-      "expected_output": "Runs the validator and reports blocking issues for the duplicate figure ID and absolute paths, plus any missing captions/alt text or unlinked checklist items, without marking figures manuscript-ready until resolved.",
+      "prompt": "In my Marimo notebook (notebooks/subgroups.py) I have a pandas frame of subgroup hazard ratios with columns subgroup, n, hr, lower, upper, p_interaction from analysis/outputs/subgroup_hr.csv. Make a publication forest plot with matplotlib for Figure 3, SAP-6.1, no journal picked yet.",
+      "expected_output": "Adds notebook cells that apply the clinical matplotlib style (apply_clinical_style or the clinical.mplstyle rcParams), draw a forest plot with a log-scaled x axis, a reference line at 1, squares sized by n, text columns for n and HR (95% CI), and p for interaction, return fig from the cell (or mo.mpl.interactive) instead of plt.show, export a vector PDF plus a 300 dpi PNG at 7 in width via save_figure, add a fig3 manifest entry with style_profile clinical-standard, run the validator, and inspect the export.",
       "files": [],
       "expectations": [
-        "Runs validate_figure_manifest.py on the specified manifest",
-        "Reports the duplicate fig3 figure_id as a blocker",
-        "Reports absolute or parent-traversal paths (e.g., /Users/me/Desktop/fig4.png) as blockers",
-        "Distinguishes blockers from warnings (e.g., no linked checklist item, unsupported output format) and does not mark blocked figures manuscript-ready"
+        "Applies apply_clinical_style() or equivalent rcParams (Arial/Helvetica with fallbacks, 8-10 pt text, no top/right spines, pdf.fonttype 42) before plotting",
+        "Draws the forest plot with a log-scaled x axis labelled 'Hazard Ratio (95% CI)', a reference line at 1, markers sized by n or weight, and aligned text columns for n and the estimate with CI",
+        "Exports at final column width (7 in for a forest plot) as vector PDF and/or 300 dpi raster using save_figure, from the saved notebook rather than a screenshot",
+        "Gives a Marimo-specific rendering note: return fig or ax as the cell's last expression or use mo.mpl.interactive(fig), do not rely on plt.show(), and show the exported file with mo.image",
+        "Adds a fig3 entry to analysis/publication/figures/figure-manifest.json with sap_section SAP-6.1, source_data, source_code pointing at the notebook, output_path, caption starting with 'Figure 3.', alt_text, and style_profile clinical-standard, then runs the validator"
       ]
     },
     {

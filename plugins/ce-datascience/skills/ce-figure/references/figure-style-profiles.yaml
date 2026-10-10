@@ -1,0 +1,110 @@
+version: 1
+description: >-
+  Figure style profiles for the ce-figure workflow. `clinical-standard` is the
+  journal-neutral default described in references/figure-style-guide.md. The
+  journal profiles below are overrides: they list only the keys that journal
+  specifies, and every other setting inherits from `clinical-standard`. The
+  `clinical-standard.figures` block is mirrored in the ce-table1 skill's
+  journal-style-profiles.yaml; keep both identical.
+profiles:
+  clinical-standard:
+    label: Clinical publication figure style
+    inherits: null
+    figures:
+      font_family: Arial
+      font_fallbacks:
+        - Helvetica
+        - Liberation Sans
+        - DejaVu Sans
+      min_font_size_pt: 8
+      figure_title_pt: 12
+      figure_title_weight: bold
+      axis_title_pt: 10
+      tick_label_pt: 8
+      legend_text_pt: 8
+      annotation_pt: 8
+      panel_label_pt: 12
+      panel_label_weight: bold
+      panel_label_case: upper
+      widths_in:
+        single_column: 3.5
+        one_and_half_column: 5.0
+        double_column: 7.0
+      max_height_in: 9.0
+      design_at_final_size: true
+      preferred_vector_formats:
+        - PDF
+        - EPS
+        - SVG
+      accepted_raster_formats:
+        - TIFF
+        - PNG
+      raster_dpi: 300
+      line_art_raster_dpi: 600
+      embed_fonts: true
+      background: white
+      transparency_in_eps: false
+      spines:
+        - left
+        - bottom
+      axis_line_width_pt: 0.75
+      tick_direction: out
+      major_gridlines: none
+      minor_gridlines: none
+      count_axes_start_at_zero: true
+      ratio_axes_log_scale: true
+      palette: okabe-ito
+      palette_hex:
+        - "#0072B2"
+        - "#D55E00"
+        - "#009E73"
+        - "#E69F00"
+        - "#CC79A7"
+        - "#56B4E9"
+        - "#000000"
+        - "#F0E442"
+      max_categories: 6
+      grayscale_legible: true
+      three_d: false
+      pie_charts: false
+      legend_frame: false
+      legend_position: outside-or-whitespace
+      in_figure_title: false
+      require_caption: true
+      require_alt_text: true
+      require_source_data: true
+      require_number_at_risk_for_survival: true
+    sources:
+      - https://jamanetwork.com/journals/jama/pages/instructions-for-authors
+      - https://www.equator-network.org/reporting-guidelines/
+  jama:
+    label: JAMA Network journal override
+    inherits: clinical-standard
+    figures:
+      preferred_vector_formats:
+        - PDF
+        - EPS
+        - AI
+        - EMF
+      accepted_raster_formats:
+        - TIFF
+        - JPG
+      line_art_raster_dpi: 600
+      photo_raster_dpi: 350
+      max_panels: 4
+      native_statistical_software_formats_accepted: false
+    sources:
+      - https://jamanetwork.com/journals/jama/pages/instructions-for-authors
+  generic-biomedical:
+    label: Generic biomedical journal override
+    inherits: clinical-standard
+    figures:
+      preferred_vector_formats:
+        - PDF
+        - SVG
+      accepted_raster_formats:
+        - PNG
+        - TIFF
+        - JPG
+    sources:
+      - https://www.equator-network.org/reporting-guidelines/
