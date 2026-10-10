@@ -159,7 +159,9 @@ def save_figure(
         kwargs = {"dpi": dpi, "bbox_inches": "tight", "pad_inches": 0.02, "facecolor": "white", "transparent": False}
         if suffix in {".tif", ".tiff"}:
             kwargs["pil_kwargs"] = {"compression": "tiff_lzw"}
-        fig.savefig(target, **kwargs)
+        # TrueType (Type 42) so PDF/EPS fonts embed and stay editable; text stays text in SVG.
+        with mpl.rc_context({"pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none"}):
+            fig.savefig(target, **kwargs)
         written.append(target)
     return written
 
@@ -267,75 +269,259 @@ def km_with_risk_table(
     return fig, ax, fitters
 
 
+def format_estimate_ci(estimate, lower, upper, digits: int = 2) -> str:
+    """'estimate (lower-upper)' text for forest-plot and table columns; NaN -> ''."""
+    if estimate is None or np.isnan(estimate):
+        return ""
+    return f"{estimate:.{digits}f} ({lower:.{digits}f}-{upper:.{digits}f})"
+
+
+def format_p_value(p) -> str:
+    """P in journal form: 2 decimals without the leading zero, 3 below .01, '<.001', '>.99'; NaN -> ''."""
+    if p is None or np.isnan(p):
+        return ""
+    if p < 0.001:
+        return "<.001"
+    if p >= 0.995:
+        return ">.99"
+    text = f"{p:.3f}" if p < 0.01 else f"{p:.2f}"
+    return text[1:] if text.startswith("0") else text
+
+
+def _text_width_in(strings: Iterable[str], fontsize: float = 8, weight: str = "normal") -> float:
+    """Widest string in inches at `fontsize` (TextPath needs no renderer; multi-line uses the widest line)."""
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.textpath import TextPath
+
+    prop = FontProperties(weight=weight)
+    widest = 0.0
+    for s in strings:
+        for line in str(s).split("\n"):
+            if line:
+                widest = max(widest, TextPath((0, 0), line, size=fontsize, prop=prop).get_extents().width)
+    return widest / 72.0
+
+
+_MEASURE_ABBREV = {
+    "Hazard Ratio": "HR", "Odds Ratio": "OR", "Risk Ratio": "RR", "Relative Risk": "RR",
+    "Incidence Rate Ratio": "IRR", "Rate Ratio": "RR", "Risk Difference": "RD", "Mean Difference": "MD",
+}
+
+
 def forest_plot(
     df,
-    label: str = "label",
     estimate: str = "estimate",
     lower: str = "lower",
     upper: str = "upper",
+    label: str = "label",
+    n: str | None = None,
+    group: str | None = None,
+    pooled: dict | str | None = None,
     weight: str | None = None,
-    heading: str | None = None,
-    text_cols: Sequence[str] = (),
-    text_col_labels: dict | None = None,
-    pooled: dict | None = None,
-    ax: plt.Axes | None = None,
-    xlabel: str = "Hazard Ratio (95% CI)",
-    reference: float = 1.0,
+    p_interaction: str | None = None,
+    x_title: str = "Hazard Ratio (95% CI)",
+    favors: tuple[str, str] | None = ("Favors treatment", "Favors control"),
     log_scale: bool = True,
-    favors: tuple[str, str] | None = None,
+    breaks: Sequence[float] | None = None,
+    digits: int = 2,
+    width_in: float = COLUMN_WIDTHS_IN["double"],
+    height_in: float | None = None,
 ):
-    """Forest plot: log-scaled x, reference line at 1, squares sized by weight, optional pooled diamond.
+    """Publication forest plot (clinical-standard), mirroring forest_plot_clinical() in theme_clinical.R.
 
-    `df` rows are drawn top to bottom in the order given. `heading` names a boolean
-    column marking subgroup heading rows (drawn as bold text only). `text_cols` are
-    columns rendered as right-hand text columns (e.g. "n" and "estimate_ci");
-    `text_col_labels` maps column names to printed headers. `favors` writes
-    "Favors X" / "Favors Y" above the plot on either side of the reference line.
-    Returns (fig, ax).
+    Layout: left text axes (label with bold subgroup headings and indented members,
+    n), the estimate axes (log x by default, solid reference line at the null,
+    squares sized by `weight` or 1/SE^2, diamond for the pooled estimate), right
+    text axes ("estimate (95% CI)", optional P for interaction), and "Favors A /
+    Favors B" labels under the axis above `x_title`. Column arguments are column
+    names in `df`; rows are drawn top to bottom in the order given. `group` names a
+    subgroup column: a bold heading row precedes each run of members and the P for
+    interaction is printed once on it; rows with NaN/"" group get no heading.
+    `pooled` is a dict(label, estimate, lower, upper, n) drawn as a diamond on a
+    separate bottom row, or the name of a boolean column marking that row.
+    `favors=None` drops the favors line. Text columns are sized in inches from the
+    measured text, so pass the final `width_in` here and the same width to
+    save_figure(). Returns (fig, ax) where ax is the estimate axes.
     """
-    n = len(df)
-    if ax is None:
-        _, ax = plt.subplots(figsize=(COLUMN_WIDTHS_IN["double"], 0.28 * n + 1.2))
-    fig = ax.figure
-    y = np.arange(n)[::-1]
-    is_heading = df[heading].astype(bool).to_numpy() if heading else np.zeros(n, dtype=bool)
-    w = df[weight].to_numpy(dtype=float) if weight else np.ones(n)
-    w = np.where(np.isnan(w), np.nanmean(w), w)
-    sizes = 20 + 80 * (w / np.nanmax(w))
-    for i, (yy, row) in enumerate(zip(y, df.itertuples(index=False))):
-        if is_heading[i]:
-            continue
-        est, lo, hi = getattr(row, estimate), getattr(row, lower), getattr(row, upper)
-        ax.plot([lo, hi], [yy, yy], color="black", linewidth=0.75, zorder=2)
-        ax.scatter([est], [yy], s=sizes[i], marker="s", color="black", zorder=3)
-    if pooled:
-        yy = -1
-        ax.fill(
-            [pooled["lower"], pooled["estimate"], pooled["upper"], pooled["estimate"]],
-            [yy, yy + 0.35, yy, yy - 0.35],
-            color="black",
-            zorder=3,
-        )
-        ax.set_ylim(-2, n)
-    style_axis(ax, xlabel=xlabel, log_x=log_scale, reference_x=reference)
-    ax.set_yticks(y)
-    ax.set_yticklabels([("" if is_heading[i] else "   ") + str(v) for i, v in enumerate(df[label])])
-    for tick, is_h in zip(ax.get_yticklabels(), is_heading):
-        if is_h:
-            tick.set_fontweight("bold")
-    ax.tick_params(axis="y", length=0)
-    ax.spines["left"].set_visible(False)
-    headers = text_col_labels or {}
-    for k, col in enumerate(text_cols):
-        xpos = 1.02 + 0.16 * k
-        ax.text(xpos, 1.0, headers.get(col, col), transform=ax.transAxes, fontsize=8, fontweight="bold", ha="left", va="bottom")
-        for yy, val, is_h in zip(y, df[col], is_heading):
-            if not is_h:
-                ax.text(xpos, yy, str(val), transform=ax.get_yaxis_transform(), fontsize=8, ha="left", va="center")
+    import pandas as pd
+
+    def col(name, default=np.nan):
+        if name is None:
+            return [default] * len(df)
+        if name not in df.columns:
+            raise KeyError(f"Column '{name}' not found in df")
+        return list(df[name])
+
+    rows = pd.DataFrame({
+        "label": [str(v) for v in col(label, "")],
+        "est": pd.to_numeric(col(estimate), errors="coerce"),
+        "lo": pd.to_numeric(col(lower), errors="coerce"),
+        "hi": pd.to_numeric(col(upper), errors="coerce"),
+        "n": pd.to_numeric(col(n), errors="coerce"),
+        "w": pd.to_numeric(col(weight), errors="coerce"),
+        "grp": ["" if (v is None or (isinstance(v, float) and np.isnan(v))) else str(v) for v in col(group, "")],
+        "p": pd.to_numeric(col(p_interaction), errors="coerce"),
+    })
+    rows["type"] = "plain"
+    pooled_row = None
+    if isinstance(pooled, str):
+        mask = df[pooled].fillna(False).astype(bool).to_numpy()
+        pooled_row = rows[mask].iloc[:1].copy()
+        rows = rows[~mask].reset_index(drop=True)
+    elif pooled is not None:
+        pooled_row = pd.DataFrame([{
+            "label": pooled.get("label", "Overall"), "est": pooled["estimate"], "lo": pooled["lower"],
+            "hi": pooled["upper"], "n": pooled.get("n", np.nan), "w": np.nan, "grp": "", "p": np.nan,
+        }])
+    # Weight: 1/SE^2 (log scale for ratios) unless a weight column is given.
+    tr = np.log if log_scale else (lambda v: v)
+    if rows["w"].isna().all():
+        rows["w"] = (2 * 1.959964 / (tr(rows["hi"]) - tr(rows["lo"]))) ** 2
+    rows.loc[rows["w"].isna() & rows["est"].notna(), "w"] = rows["w"].mean()
+    # Subgroup headings: one bold row before each run of members.
+    if group is not None:
+        out = []
+        i = 0
+        while i < len(rows):
+            g = rows.at[i, "grp"]
+            if not g:
+                out.append(rows.iloc[[i]])
+                i += 1
+                continue
+            j = i
+            while j < len(rows) and rows.at[j, "grp"] == g:
+                j += 1
+            members = rows.iloc[i:j].copy()
+            head = members.iloc[[0]].copy()
+            head[["est", "lo", "hi", "n", "w"]] = np.nan
+            head["label"] = g
+            pp = members["p"].dropna()
+            head["p"] = pp.iloc[0] if len(pp) else np.nan
+            head["type"] = "heading"
+            members["type"] = "member"
+            members["p"] = np.nan
+            out.extend([head, members])
+            i = j
+        rows = pd.concat(out, ignore_index=True)
+    n_main = len(rows)
+    rows["y"] = np.arange(n_main, 0, -1, dtype=float)
+    if pooled_row is not None:
+        pooled_row = pooled_row.copy()
+        pooled_row["type"] = "pooled"
+        pooled_row["y"] = 0.0  # one empty row above the pooled diamond
+        rows = pd.concat([rows, pooled_row], ignore_index=True)
+    y_head = n_main + 1
+    ylim = (rows["y"].min() - 0.6, y_head + 0.5)
+    rows["est_txt"] = [format_estimate_ci(e, lo, hi, digits) for e, lo, hi in zip(rows["est"], rows["lo"], rows["hi"])]
+    rows["n_txt"] = ["" if np.isnan(v) else f"{int(round(v)):,}" for v in rows["n"]]
+    rows["p_txt"] = [format_p_value(v) for v in rows["p"]]
+    rows["bold"] = rows["type"].isin(["heading", "pooled"])
+    rows["x_lab"] = np.where(rows["type"] == "member", 0.12, 0.02)
+
+    # x scale shared by the axes; symmetric log breaks unless given.
+    ref = 1.0 if log_scale else 0.0
+    finite = pd.concat([rows["lo"], rows["hi"]]).dropna()
+    xr = (min(finite.min(), ref), max(finite.max(), ref))
+    if breaks is None:
+        if log_scale:
+            m = max(1 / xr[0], xr[1], 1.01)
+            if m <= 2:
+                breaks = [0.5, 1, 2]
+            elif m <= 4:
+                breaks = [0.25, 0.5, 1, 2, 4]
+            elif m <= 10:
+                breaks = [0.1, 0.2, 0.5, 1, 2, 5, 10]
+            else:
+                k = int(np.ceil(np.log10(m)))
+                breaks = [10.0 ** e for e in range(-k, k + 1)]
+        else:
+            breaks = list(mpl.ticker.MaxNLocator(nbins=6).tick_values(*xr))
+    xlim = (min(min(breaks), xr[0]), max(max(breaks), xr[1]))
+    if log_scale:
+        pad = (xlim[1] / xlim[0]) ** 0.03
+        xlim = (xlim[0] / pad, xlim[1] * pad)
+    else:
+        pad = (xlim[1] - xlim[0]) * 0.03
+        xlim = (xlim[0] - pad, xlim[1] + pad)
+
+    # Column widths in inches from the measured text.
+    gap = 0.15
+    label_header = "Subgroup" if group is not None else ""
+    has_n = any(rows["n_txt"])
+    left_w = max(max(x + _text_width_in([s]) for x, s in zip(rows["x_lab"], rows["label"])),
+                 _text_width_in([label_header], weight="bold")) + 0.04
+    if has_n:
+        left_w += gap + max(_text_width_in(rows["n_txt"]), _text_width_in(["No."], weight="bold"))
+    measure = x_title.split(" (")[0]
+    est_header = f"{_MEASURE_ABBREV.get(measure, measure)} (95% CI)"
+    est_w = 0.08 + max(_text_width_in(rows["est_txt"], weight="bold"), _text_width_in([est_header], weight="bold"))
+    has_p = any(rows["p_txt"])
+    right_w = est_w + (gap + max(_text_width_in(rows["p_txt"]), _text_width_in(["interaction"], weight="bold")) + 0.02 if has_p else 0.02)
+    fav_lines = max(len(str(f).split("\n")) for f in favors) if favors else 0
+    n_rows = y_head - ylim[0]
+    bottom_in = 0.3 + 0.13 * fav_lines + 0.22  # tick labels + favors + axis title
+    if height_in is None:
+        height_in = round(0.27 * n_rows + bottom_in + 0.1, 2)
+    plot_w = width_in - left_w - right_w - 0.1
+    if plot_w < 0.8:
+        warnings.warn(f"Estimate panel is only {plot_w:.2f} in wide at width_in={width_in}; drop the P column, shorten labels, or use a wider column.", stacklevel=2)
+
+    fig = plt.figure(figsize=(width_in, height_in))
+    gs = fig.add_gridspec(1, 3, width_ratios=[left_w, max(plot_w, 0.5), right_w], wspace=0,
+                          left=0.02 / width_in, right=1 - 0.08 / width_in, top=1 - 0.05 / height_in,
+                          bottom=bottom_in / height_in)
+    ax_l, ax, ax_r = (fig.add_subplot(gs[0, k]) for k in range(3))
+    for a, w in ((ax_l, left_w), (ax_r, right_w)):
+        a.set_axis_off()
+        a.set_xlim(0, w)
+        a.set_ylim(*ylim)
+    txt = dict(fontsize=8, va="center", color="black")
+
+    # Left text axes: label (headings bold, members indented) and n.
+    for r in rows.itertuples(index=False):
+        ax_l.text(r.x_lab, r.y, r.label, ha="left", fontweight="bold" if r.bold else "normal", **txt)
+        if has_n:
+            ax_l.text(left_w - 0.02, r.y, r.n_txt, ha="right", **txt)
+    ax_l.text(0.02, y_head, label_header, ha="left", fontweight="bold", **txt)
+    if has_n:
+        ax_l.text(left_w - 0.02, y_head, "No.", ha="right", fontweight="bold", **txt)
+
+    # Estimate axes.
+    marks = rows[rows["est"].notna() & (rows["type"] != "pooled")]
+    ax.axvline(ref, color="black", linewidth=0.75, zorder=1)
+    ax.hlines(marks["y"], marks["lo"].clip(*xlim), marks["hi"].clip(*xlim), color="black", linewidth=0.75, zorder=2)
+    sizes = 4 + 32 * marks["w"] / marks["w"].max()
+    ax.scatter(marks["est"], marks["y"], s=sizes, marker="s", color="black", linewidths=0, zorder=3)
+    if pooled_row is not None:
+        pr = rows[rows["type"] == "pooled"].iloc[0]
+        ax.fill([pr.lo, pr.est, pr.hi, pr.est], [pr.y, pr.y + 0.32, pr.y, pr.y - 0.32], color="black", zorder=3)
+    if log_scale:
+        ax.set_xscale("log")
+    ax.set_xlim(*xlim)
+    ax.set_xticks(list(breaks))
+    ax.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+    ax.set_ylim(*ylim)
+    ax.set_yticks([])
+    for side in ("left", "top", "right"):
+        ax.spines[side].set_visible(False)
+    ax.tick_params(axis="x", labelsize=8)
     if favors:
         for text, ha, dx in ((favors[0], "right", -4), (favors[1], "left", 4)):
-            ax.annotate(text, (reference, 1.0), xycoords=ax.get_xaxis_transform(), xytext=(dx, 2),
-                        textcoords="offset points", ha=ha, va="bottom", fontsize=8)
+            ax.annotate(text, (ref, 0), xycoords=ax.get_xaxis_transform(), xytext=(dx, -19),
+                        textcoords="offset points", ha=ha, va="top", fontsize=8, linespacing=1.0)
+        ax.set_xlabel(x_title, fontsize=10, labelpad=8 + 11 * fav_lines)
+    else:
+        ax.set_xlabel(x_title, fontsize=10)
+
+    # Right text axes: "estimate (95% CI)" and optional P for interaction.
+    for r in rows.itertuples(index=False):
+        ax_r.text(0.08, r.y, r.est_txt, ha="left", fontweight="bold" if r.bold else "normal", **txt)
+        if has_p:
+            ax_r.text(est_w + gap, r.y, r.p_txt, ha="left", **txt)
+    ax_r.text(0.08, y_head, est_header, ha="left", fontweight="bold", **txt)
+    if has_p:
+        ax_r.text(est_w + gap, y_head, "P for\ninteraction", ha="left", fontweight="bold", linespacing=1.0, **txt)
     return fig, ax
 
 
@@ -461,6 +647,8 @@ __all__ = [
     "calibration_plot",
     "dot_ci_plot",
     "forest_plot",
+    "format_estimate_ci",
+    "format_p_value",
     "km_with_risk_table",
     "roc_plot",
     "save_figure",

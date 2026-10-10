@@ -105,6 +105,237 @@ scale_fill_clinical <- function(...) {
   ggplot2::scale_fill_manual(values = clinical_palette, ...)
 }
 
+# "estimate (lower-upper)" text for forest-plot and table columns; NA -> "".
+format_estimate_ci <- function(estimate, lower, upper, digits = 2) {
+  f <- function(x) formatC(x, format = "f", digits = digits)
+  out <- paste0(f(estimate), " (", f(lower), "-", f(upper), ")")
+  out[is.na(estimate)] <- ""
+  out
+}
+
+# P values in journal form: 2 decimals without the leading zero, 3 decimals
+# below .01, "<.001" below .001, ">.99" at the top; NA -> "".
+format_p_value <- function(p) {
+  out <- ifelse(p < 0.001, "<.001",
+         ifelse(p < 0.01, formatC(p, format = "f", digits = 3),
+         ifelse(p >= 0.995, ">.99", formatC(p, format = "f", digits = 2))))
+  out <- sub("^0", "", out)
+  out[is.na(p)] <- ""
+  out
+}
+
+# Publication forest plot (clinical-standard): text columns for subgroup and n
+# on the left, the estimate panel in the middle (log x by default, solid
+# reference line at the null, squares sized by `weight` or by 1/SE^2, diamond
+# for the pooled estimate), "estimate (95% CI)" and optional P-for-interaction
+# text columns on the right, and "Favors A / Favors B" labels under the axis.
+#
+# Column arguments (estimate, lower, upper, label, n, group, weight,
+# p_interaction) are column names in `data`. Rows are drawn top to bottom in
+# the order given. `group` names a subgroup column: a bold heading row is
+# inserted before each run of members, members are indented, and the P for
+# interaction is printed once on the heading row. Rows with NA/"" group get no
+# heading. `pooled` is either a list(label, estimate, lower, upper, n) drawn
+# as a diamond on a separate bottom row, or the name of a logical column that
+# marks that row inside `data`. `favors = NULL` drops the favors row and puts
+# `x_title` on the axis instead. `breaks` overrides the automatic symmetric
+# log breaks (0.25 ... 4) or the linear breaks. Returns a patchwork object;
+# save with save_figure(); row height 0.25-0.3 in gives ~4 in for 10 rows.
+forest_plot_clinical <- function(data, estimate, lower, upper, label, n = NULL, group = NULL,
+                                 pooled = NULL, weight = NULL, p_interaction = NULL,
+                                 x_title = "Hazard Ratio (95% CI)",
+                                 favors = c("Favors treatment", "Favors control"),
+                                 log_scale = TRUE, breaks = NULL, digits = 2) {
+  if (!requireNamespace("patchwork", quietly = TRUE)) {
+    stop("forest_plot_clinical() needs the patchwork package.", call. = FALSE)
+  }
+  `%||%` <- function(a, b) if (is.null(a)) b else a
+  pick <- function(name, default) {
+    if (is.null(name)) return(rep(default, nrow(data)))
+    if (!name %in% names(data)) stop("Column '", name, "' not found in data.", call. = FALSE)
+    data[[name]]
+  }
+  d <- data.frame(label = as.character(pick(label, NA)), est = as.numeric(pick(estimate, NA)),
+                  lo = as.numeric(pick(lower, NA)), hi = as.numeric(pick(upper, NA)),
+                  n = as.numeric(pick(n, NA)), w = as.numeric(pick(weight, NA)),
+                  grp = as.character(pick(group, NA)), p = as.numeric(pick(p_interaction, NA)),
+                  type = "plain", stringsAsFactors = FALSE)
+  pooled_row <- NULL
+  if (is.character(pooled) && length(pooled) == 1) {
+    is_pooled <- as.logical(pick(pooled, FALSE)) %in% TRUE
+    pooled_row <- d[which(is_pooled)[1], , drop = FALSE]
+    d <- d[!is_pooled, , drop = FALSE]
+  } else if (!is.null(pooled)) {
+    pooled <- as.list(pooled)
+    pooled_row <- data.frame(label = pooled$label %||% "Overall", est = pooled$estimate,
+                             lo = pooled$lower, hi = pooled$upper, n = pooled$n %||% NA_real_,
+                             w = NA_real_, grp = NA_character_, p = NA_real_, type = "pooled",
+                             stringsAsFactors = FALSE)
+  }
+  # Weight: 1/SE^2 (on the log scale for ratios) unless a weight column is given.
+  tr <- if (log_scale) log else identity
+  if (all(is.na(d$w))) d$w <- (2 * stats::qnorm(0.975) / (tr(d$hi) - tr(d$lo)))^2
+  d$w[is.na(d$w) & !is.na(d$est)] <- mean(d$w, na.rm = TRUE)
+  # Subgroup headings: one bold row before each run of members.
+  if (!is.null(group)) {
+    has_grp <- !is.na(d$grp) & nzchar(d$grp)
+    key <- ifelse(has_grp, d$grp, paste0(".row", seq_len(nrow(d))))
+    run <- cumsum(c(TRUE, key[-1] != key[-length(key)]))
+    d <- do.call(rbind, lapply(split(seq_len(nrow(d)), run), function(idx) {
+      if (!has_grp[idx[1]]) return(d[idx, , drop = FALSE])
+      h <- d[idx[1], , drop = FALSE]
+      h$label <- d$grp[idx[1]]
+      h$est <- h$lo <- h$hi <- h$n <- h$w <- NA_real_
+      pp <- d$p[idx]
+      h$p <- if (any(!is.na(pp))) pp[!is.na(pp)][1] else NA_real_
+      h$type <- "heading"
+      m <- d[idx, , drop = FALSE]
+      m$type <- "member"
+      m$p <- NA_real_
+      rbind(h, m)
+    }))
+  }
+  n_main <- nrow(d)
+  d$y <- rev(seq_len(n_main))
+  if (!is.null(pooled_row)) {
+    pooled_row$type <- "pooled"
+    pooled_row$y <- 0  # one empty row above the pooled diamond
+    d <- rbind(d, pooled_row)
+  }
+  y_head <- n_main + 1
+  ylim <- c(min(d$y) - 0.6, y_head + 0.5)
+  d$est_txt <- format_estimate_ci(d$est, d$lo, d$hi, digits)
+  d$n_txt <- ifelse(is.na(d$n), "", format(d$n, big.mark = ",", trim = TRUE))
+  d$p_txt <- format_p_value(d$p)
+  d$face <- ifelse(d$type %in% c("heading", "pooled"), "bold", "plain")
+  d$x_lab <- ifelse(d$type == "member", 0.12, 0.02)
+
+  # x scale shared by the estimate panel and the favors row.
+  ref <- if (log_scale) 1 else 0
+  xr <- range(c(d$lo, d$hi, ref), na.rm = TRUE)
+  if (is.null(breaks)) {
+    if (log_scale) {
+      m <- max(1 / xr[1], xr[2], 1.01)
+      breaks <- if (m <= 2) c(0.5, 1, 2) else if (m <= 4) c(0.25, 0.5, 1, 2, 4) else
+        if (m <= 10) c(0.1, 0.2, 0.5, 1, 2, 5, 10) else 10^seq(-ceiling(log10(m)), ceiling(log10(m)))
+    } else {
+      breaks <- scales::breaks_extended()(xr)
+    }
+  }
+  xlim <- range(c(breaks, xr))
+  fmt <- function(x) format(x, drop0trailing = TRUE, trim = TRUE, scientific = FALSE)
+  x_scale <- function() {
+    if (log_scale) {
+      ggplot2::scale_x_log10(breaks = breaks, limits = xlim, labels = fmt, oob = scales::oob_squish,
+                             expand = ggplot2::expansion(mult = 0.03))
+    } else {
+      ggplot2::scale_x_continuous(breaks = breaks, limits = xlim, labels = fmt, oob = scales::oob_squish,
+                                  expand = ggplot2::expansion(mult = 0.03))
+    }
+  }
+  y_scale <- function() ggplot2::scale_y_continuous(expand = c(0, 0))
+  rows <- function() ggplot2::coord_cartesian(ylim = ylim, clip = "off")
+  base <- theme_clinical()
+  fam <- base$text$family
+  txt <- function(..., size = 8, face = "plain") {
+    ggplot2::annotate("text", ..., size = size / ggplot2::.pt, family = fam, fontface = face)
+  }
+  text_theme <- ggplot2::theme_void(base_family = fam) +
+    ggplot2::theme(plot.margin = ggplot2::margin(0, 0, 0, 0),
+                   plot.background = ggplot2::element_rect(fill = "white", colour = NA))
+  # Width of 8-pt text in inches (systemfonts measures; fallback 0.06 in per character).
+  text_w <- function(x, bold = FALSE) {
+    x <- x[!is.na(x)]
+    if (!length(x)) return(0)
+    if (requireNamespace("systemfonts", quietly = TRUE) && !identical(fam, "sans")) {
+      return(max(systemfonts::string_width(x, family = fam, bold = bold, size = 8, res = 72)) / 72)
+    }
+    max(nchar(x)) * 0.06
+  }
+  gap <- 0.15  # space between text columns, in inches
+
+  # Left text panel: label (headings bold, members indented) and n.
+  label_header <- if (is.null(group)) "" else "Subgroup"
+  has_n <- any(nzchar(d$n_txt))
+  left_w <- max(d$x_lab + text_w(d$label), text_w(label_header, TRUE)) + 0.04 +
+    if (has_n) gap + max(text_w(d$n_txt), text_w("No.", TRUE)) else 0
+  left <- ggplot2::ggplot(d) +
+    ggplot2::geom_text(ggplot2::aes(x = x_lab, y = y, label = label, fontface = face),
+                       hjust = 0, size = 8 / ggplot2::.pt, family = fam) +
+    txt(x = 0.02, y = y_head, label = label_header, hjust = 0, face = "bold")
+  if (has_n) {
+    left <- left +
+      ggplot2::geom_text(ggplot2::aes(x = left_w - 0.02, y = y, label = n_txt),
+                         hjust = 1, size = 8 / ggplot2::.pt, family = fam) +
+      txt(x = left_w - 0.02, y = y_head, label = "No.", hjust = 1, face = "bold")
+  }
+  left <- left + ggplot2::scale_x_continuous(limits = c(0, left_w), expand = c(0, 0)) +
+    y_scale() + rows() + text_theme
+
+  # Estimate panel.
+  marks <- d[!is.na(d$est) & d$type != "pooled", , drop = FALSE]
+  main <- ggplot2::ggplot() +
+    ggplot2::geom_vline(xintercept = ref, linewidth = 0.35) +
+    ggplot2::geom_errorbar(data = marks, ggplot2::aes(xmin = lo, xmax = hi, y = y),
+                           width = 0, linewidth = 0.5) +
+    ggplot2::geom_point(data = marks, ggplot2::aes(x = est, y = y, size = w), shape = 15,
+                        show.legend = FALSE) +
+    ggplot2::scale_size_area(max_size = 3.2)
+  if (!is.null(pooled_row)) {
+    dia <- data.frame(x = c(pooled_row$lo, pooled_row$est, pooled_row$hi, pooled_row$est),
+                      y = pooled_row$y + c(0, 0.32, 0, -0.32))
+    main <- main + ggplot2::geom_polygon(data = dia, ggplot2::aes(x = x, y = y), fill = "black")
+  }
+  main <- main + x_scale() + y_scale() + rows() +
+    ggplot2::labs(x = if (is.null(favors)) x_title else NULL, y = NULL) +
+    base +
+    ggplot2::theme(axis.line.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(), plot.margin = ggplot2::margin(0, 6, 0, 6))
+
+  # Right text panel: "estimate (95% CI)" and optional P for interaction.
+  measure <- sub("\\s*\\(.*$", "", x_title)
+  abbrev <- c("Hazard Ratio" = "HR", "Odds Ratio" = "OR", "Risk Ratio" = "RR", "Relative Risk" = "RR",
+              "Incidence Rate Ratio" = "IRR", "Rate Ratio" = "RR", "Risk Difference" = "RD",
+              "Mean Difference" = "MD")
+  est_header <- paste0(if (measure %in% names(abbrev)) abbrev[[measure]] else measure, " (95% CI)")
+  est_w <- 0.02 + max(text_w(d$est_txt, TRUE), text_w(est_header, TRUE))
+  has_p <- any(nzchar(d$p_txt))
+  right_w <- est_w + if (has_p) gap + max(text_w(d$p_txt), text_w("interaction", TRUE)) + 0.02 else 0.02
+  right <- ggplot2::ggplot(d) +
+    ggplot2::geom_text(ggplot2::aes(x = 0.02, y = y, label = est_txt, fontface = face),
+                       hjust = 0, size = 8 / ggplot2::.pt, family = fam) +
+    txt(x = 0.02, y = y_head, label = est_header, hjust = 0, face = "bold")
+  if (has_p) {
+    right <- right +
+      ggplot2::geom_text(ggplot2::aes(x = est_w + gap, y = y, label = p_txt),
+                         hjust = 0, size = 8 / ggplot2::.pt, family = fam) +
+      txt(x = est_w + gap, y = y_head, label = "P for\ninteraction", hjust = 0, vjust = 0.6,
+          face = "bold", lineheight = 0.85)
+  }
+  right <- right + ggplot2::scale_x_continuous(limits = c(0, right_w), expand = c(0, 0)) +
+    y_scale() + rows() + text_theme
+
+  widths <- grid::unit(c(left_w, 1, right_w), c("in", "null", "in"))
+  if (is.null(favors)) {
+    return(patchwork::wrap_plots(left, main, right, ncol = 3, widths = widths))
+  }
+  # Favors row: labels on either side of the null (top), then the axis title
+  # (bottom). Height grows with multi-line favors labels ("Favors\ncontrol").
+  x_mid <- if (log_scale) 10^mean(log10(xlim)) else mean(xlim)
+  fav_lines <- max(lengths(strsplit(favors, "\n", fixed = TRUE)))
+  fav_h <- 0.36 + 0.12 * (fav_lines - 1)
+  fav <- ggplot2::ggplot() +
+    txt(x = ref, y = 1, label = paste0(favors[1], "  "), hjust = 1, vjust = 1, lineheight = 0.9) +
+    txt(x = ref, y = 1, label = paste0("  ", favors[2]), hjust = 0, vjust = 1, lineheight = 0.9) +
+    txt(x = x_mid, y = 0, label = x_title, size = 10, hjust = 0.5, vjust = 0) +
+    x_scale() + ggplot2::scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+    ggplot2::coord_cartesian(clip = "off") + text_theme +
+    ggplot2::theme(plot.margin = ggplot2::margin(2, 6, 0, 6))
+  patchwork::wrap_plots(left, main, right, patchwork::plot_spacer(), fav, patchwork::plot_spacer(),
+                        ncol = 3, widths = widths,
+                        heights = grid::unit(c(1, fav_h), c("null", "in")))
+}
+
 # Export at final size. PDF uses cairo_pdf (embeds fonts); SVG uses svglite when
 # available; EPS uses cairo_ps (no transparency allowed); PNG/TIFF use ragg when
 # installed, otherwise grDevices. `also` adds review copies (e.g. "png").
@@ -196,24 +427,25 @@ if (FALSE) {
   print(sm)
   dev.off()
 
-  # Forest plot (log x, reference at 1, square sized by n) -------------------
+  # Forest plot (subgroup headings, n, HR (95% CI), P for interaction, diamond) --
   forest_dat <- data.frame(
-    subgroup = c("Overall", "Age <65 y", "Age >=65 y", "Male", "Female", "Diabetes", "No diabetes"),
-    n = c(400, 180, 220, 230, 170, 120, 280))
-  forest_dat$hr <- exp(rnorm(nrow(forest_dat), mean = log(0.8), sd = 0.1))
+    group = rep(c("Age", "Sex", "Diabetes", "eGFR"), each = 2),
+    subgroup = c("<65 y", ">=65 y", "Male", "Female", "Yes", "No", "<60 mL/min", ">=60 mL/min"),
+    n = c(180, 220, 230, 170, 120, 280, 90, 310),
+    p_int = rep(c(0.42, 0.08, 0.61, 0.004), each = 2))
+  forest_dat$hr <- exp(rnorm(nrow(forest_dat), mean = log(0.8), sd = 0.15))
   forest_dat$lower <- exp(log(forest_dat$hr) - 1.96 * 2 / sqrt(forest_dat$n))
   forest_dat$upper <- exp(log(forest_dat$hr) + 1.96 * 2 / sqrt(forest_dat$n))
-  forest_dat$subgroup <- factor(forest_dat$subgroup, levels = rev(forest_dat$subgroup))
-  fp <- ggplot(forest_dat, aes(x = hr, y = subgroup)) +
-    geom_vline(xintercept = 1, linewidth = 0.4) +
-    geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, linewidth = 0.5) +
-    geom_point(aes(size = n), shape = 15, show.legend = FALSE) +
-    scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), limits = c(0.25, 4),
-                  labels = function(x) format(x, drop0trailing = TRUE)) +
-    scale_size_area(max_size = 3) +
-    labs(x = "Hazard Ratio (95% CI)", y = NULL) +
-    theme_clinical() + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank())
-  save_figure(fp, file.path(fig_dir, "fig2-forest.pdf"), width_in = 7, height_in = 3, also = "png")
+  overall <- list(label = "Overall", estimate = 0.80, lower = 0.68, upper = 0.94, n = 400)
+  fp <- forest_plot_clinical(forest_dat, estimate = "hr", lower = "lower", upper = "upper",
+                             label = "subgroup", n = "n", group = "group", p_interaction = "p_int",
+                             pooled = overall, favors = c("Favors intervention", "Favors control"))
+  save_figure(fp, file.path(fig_dir, "fig2-forest.pdf"), width_in = 7, height_in = 4, also = "png")
+  # Single column: drop the P column (or pass favors = NULL) so the panel keeps room
+  fp_narrow <- forest_plot_clinical(forest_dat, estimate = "hr", lower = "lower", upper = "upper",
+                                    label = "subgroup", n = "n", group = "group", pooled = overall,
+                                    favors = c("Favors\nintervention", "Favors\ncontrol"))
+  save_figure(fp_narrow, file.path(fig_dir, "fig2-forest-narrow.pdf"), width_in = 3.5, height_in = 4, also = "png")
 
   # Dot + 95% CI by analysis population (instead of dynamite bars) -----------
   est_dat <- data.frame(

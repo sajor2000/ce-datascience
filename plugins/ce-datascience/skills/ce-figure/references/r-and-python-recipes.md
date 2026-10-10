@@ -90,9 +90,28 @@ save_figure(fig, "analysis/publication/figures/fig1.pdf", width_in=3.5, height_i
 
 ## Forest plot
 
-R: `geom_vline(xintercept = 1)` + `geom_errorbar(aes(xmin = lower, xmax = upper), width = 0)` (horizontal; `geom_errorbarh()` is deprecated in ggplot2 4) + `geom_point(aes(size = n), shape = 15)` + `scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), labels = function(x) format(x, drop0trailing = TRUE))` + `labs(x = "Hazard Ratio (95% CI)")`; add text columns with `geom_text` on a second panel joined by `patchwork` (`p_text | p_plot + plot_layout(widths = c(1, 2))`). The `if (FALSE)` block in `assets/theme_clinical.R` has the full call.
+R (`forest_plot_clinical()` in `assets/theme_clinical.R`; returns a patchwork object):
 
-Python: `forest_plot(df, label="label", estimate="hr", lower="lower", upper="upper", weight="n", heading="is_heading", text_cols=["n", "hr_ci"], pooled={"estimate": .., "lower": .., "upper": ..}, favors=("Favors Intervention", "Favors Control"))`, then `save_figure(fig, "fig2.pdf", width_in=7, height_in=0.28 * len(df) + 1.2)`.
+```r
+overall <- list(label = "Overall", estimate = 0.80, lower = 0.68, upper = 0.94, n = 400)  # from the model output
+fp <- forest_plot_clinical(dat, estimate = "hr", lower = "lower", upper = "upper", label = "subgroup",
+                           n = "n", group = "group", p_interaction = "p_int", pooled = overall,
+                           favors = c("Favors intervention", "Favors control"))
+save_figure(fp, "analysis/publication/figures/fig2.pdf", width_in = 7, height_in = 4, also = "png")
+```
+
+Column arguments are column names; rows draw top to bottom in data order. `group` inserts a bold heading per run of subgroup members (indented) and prints P for interaction once per heading; `pooled` is a list or the name of a logical column and draws a diamond on its own bottom row; squares scale by `weight` or 1/SE^2; x is log with symmetric breaks and a reference line at 1 (`log_scale = FALSE` gives a linear axis with the null at 0); text columns are "No." and "HR (95% CI)" (abbreviation derived from `x_title`). Height: about 0.27 in per row plus 0.9 in. At 3.5 in width drop the P column and use two-line favors (`c("Favors\nintervention", "Favors\ncontrol")`) or `favors = NULL`. Manual fallback without patchwork: `geom_vline(xintercept = 1)` + `geom_errorbar(aes(xmin = lower, xmax = upper), width = 0)` (`geom_errorbarh()` is deprecated in ggplot2 4) + `geom_point(aes(size = n), shape = 15, show.legend = FALSE)` + `scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), labels = function(x) format(x, drop0trailing = TRUE))` + `labs(x = "Hazard Ratio (95% CI)", y = NULL)` + `theme(axis.line.y = element_blank(), axis.ticks.y = element_blank())`, with the estimate text in a `geom_text` panel joined by `patchwork::wrap_plots(widths = ...)`.
+
+Python (`forest_plot()` in `assets/clinical_style.py`; same arguments):
+
+```python
+fig, ax = forest_plot(df, estimate="hr", lower="lower", upper="upper", label="subgroup", n="n",
+                      group="group", p_interaction="p_int", pooled=overall,
+                      favors=("Favors intervention", "Favors control"), width_in=7)
+save_figure(fig, "analysis/publication/figures/fig2.pdf", width_in=7, height_in=fig.get_size_inches()[1], also=["png"])
+```
+
+Text columns are sized in inches from the measured text, so pass the final width to both `forest_plot(width_in=...)` and `save_figure(width_in=...)`; `height_in` defaults to 0.27 in per row plus the axis block. With no `group`, P for interaction prints per row. The function needs only matplotlib and pandas.
 
 ## Dot and CI plot
 
