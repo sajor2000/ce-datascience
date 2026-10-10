@@ -9,9 +9,9 @@ check a dataset, write analysis code, review the results, and prepare a report.
 You stay in control of the scientific decisions. The plugin does not replace a
 researcher, statistician, clinician, data steward, or ethics review.
 
-[Read the public documentation](https://sajor2000.github.io/ce-datascience/)
+[Read the public documentation](https://sajor2000.github.io/ce-datascience/) · [Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
 
-[Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+**65 skills, 55 specialist agents, and 35 reporting checklists** help make each project more explicit, reproducible, and reviewable.
 
 ## In plain English
 
