@@ -13,6 +13,9 @@ const MAX_BODY_LINES = 500
 // Every SKILL.md token loads on each invocation; long lines hide size from a line cap.
 // ~16 KB is about 4,000 tokens. Move conditional or late-sequence detail to references/.
 const MAX_SKILL_BYTES = 16_000
+// References load on demand, but each loaded file stays in context for the rest of the run.
+// ~24 KB is about 6,000 tokens; split larger files along their headings.
+const MAX_REFERENCE_BYTES = 24_000
 const TOC_REQUIRED_OVER_LINES = 100
 const TOC_SEARCH_LINES = 40
 
@@ -95,6 +98,17 @@ describe("skill bodies follow Anthropic progressive-disclosure rules", () => {
     expect(tooLarge).toEqual([])
   })
 
+  test(`reference files stay under ${MAX_REFERENCE_BYTES} bytes`, async () => {
+    const tooLarge: string[] = []
+    for (const skill of skills) {
+      for (const file of await markdownFiles(skill.dir)) {
+        const bytes = (await fs.stat(file)).size
+        if (bytes > MAX_REFERENCE_BYTES) tooLarge.push(`${path.relative(skillsRoot, file)}: ${bytes} bytes`)
+      }
+    }
+    expect(tooLarge).toEqual([])
+  })
+
   test(`reference files over ${TOC_REQUIRED_OVER_LINES} lines open with a table of contents`, async () => {
     const missing: string[] = []
     for (const skill of skills) {
@@ -126,5 +140,45 @@ describe("skill bodies follow Anthropic progressive-disclosure rules", () => {
       /\b(?:as of|before|after|until) (?:(?:January|February|March|April|May|June|July|August|September|October|November|December) )?20\d\d\b/
     const offenders = skills.filter((skill) => pattern.test(skill.body)).map((skill) => skill.name)
     expect(offenders).toEqual([])
+  })
+})
+
+describe("skill cross-references resolve", () => {
+  const pluginRoot = path.join(skillsRoot, "..")
+  // Optional external skills (guarded with "when installed"), the plugin's own name, and a name skills say never to dispatch.
+  const EXTERNAL_NAMES = new Set(["ce-proof", "ce-demo-reel", "ce-datascience", "ce-datascience-plugin", "ce-clif-reviewer"])
+
+  test("backtick references/, assets/, and scripts/ paths exist inside the skill", async () => {
+    const missing: string[] = []
+    for (const skill of skills) {
+      for (const file of [path.join(skill.dir, "SKILL.md"), ...(await markdownFiles(skill.dir))]) {
+        const content = await fs.readFile(file, "utf8")
+        for (const [, rel] of content.matchAll(/`((?:references|assets|scripts)\/[A-Za-z0-9_./-]+)`/g)) {
+          if (/[<*]/.test(rel) || rel.endsWith("/")) continue
+          const exists = await fs.stat(path.join(skill.dir, rel)).then(() => true, () => false)
+          if (!exists) missing.push(`${path.relative(skillsRoot, file)}: ${rel}`)
+        }
+      }
+    }
+    expect(missing).toEqual([])
+  })
+
+  test("backtick ce-* names refer to a shipped skill or agent", async () => {
+    const skillNames = new Set(skills.map((s) => s.name))
+    const agentNames = new Set(
+      (await fs.readdir(path.join(pluginRoot, "agents"))).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)),
+    )
+    const unknown: string[] = []
+    for (const skill of skills) {
+      for (const file of [path.join(skill.dir, "SKILL.md"), ...(await markdownFiles(skill.dir))]) {
+        const content = await fs.readFile(file, "utf8")
+        for (const [, name] of content.matchAll(/`(ce-[a-z0-9-]*[a-z0-9])`/g)) {
+          if (!skillNames.has(name) && !agentNames.has(name) && !EXTERNAL_NAMES.has(name)) {
+            unknown.push(`${path.relative(skillsRoot, file)}: ${name}`)
+          }
+        }
+      }
+    }
+    expect([...new Set(unknown)]).toEqual([])
   })
 })

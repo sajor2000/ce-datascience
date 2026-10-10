@@ -4,12 +4,12 @@
     {
       "id": 1,
       "prompt": "Write the SAP for our retrospective cohort study: adult ICU patients with septic shock (inclusion: norepinephrine >0.1 mcg/kg/min), exposure is vasopressin started within 6h vs later, primary endpoint is 28-day mortality, observational EHR data from 3 sites. The extract is at data/restricted/shock_v1.parquet and ce-data-qa already produced reports/data-qa/shock_v1.md (GO).",
-      "expected_output": "Announces SAP mode, consumes the data-QA report before variable/model sections, writes a versioned draft SAP under docs/plans/ with stable SAP-N.M IDs and explicit estimand/causal assumptions, requires the ce-sap-tabular companion, runs the gap checklist, and presents the post-generation menu.",
+      "expected_output": "Announces SAP mode, consumes the data-QA report before variable/model sections, writes a versioned draft SAP at analysis/sap.md with stable SAP-N.M IDs and explicit estimand/causal assumptions, requires the ce-sap-tabular companion, runs the gap checklist, and presents the post-generation menu.",
       "files": [],
       "expectations": [
         "Announces 'Entering SAP mode' based on study-design keywords",
         "Reads reports/data-qa/shock_v1.md before writing variable, missingness, cohort-size, or model sections",
-        "Writes the SAP to docs/plans/ with sap_version and status frontmatter, keeping status: draft while any estimand, comparator, time-zero, adjustment, or missing-data choice remains unresolved",
+        "Writes the SAP to analysis/sap.md (the default path) with sap_version and status frontmatter, keeping status: draft while any estimand, comparator, time-zero, adjustment, or missing-data choice remains unresolved",
         "Requires the ce-sap-tabular companion (analysis/sap-tables/01-overview.csv, 02-outputs.csv, 03-variables.csv) or records an explicit blocker",
         "Does not set status: final without user acceptance and does not run inferential analyses"
       ]

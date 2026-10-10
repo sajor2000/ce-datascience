@@ -11,7 +11,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 - **Problem it solves:** Execution fails when scope, decisions, dependencies, tests, or SAP assumptions are not explicit before work starts.
 - **Use when:** The user asks to plan a feature, analysis, SAP, study, implementation, or to deepen an existing plan.
-- **Output:** A durable plan or SAP under docs/plans/ with stable requirements and implementation/SAP identifiers.
+- **Output:** A durable plan under docs/plans/ or a versioned SAP (default analysis/sap.md) with stable requirements and implementation/SAP identifiers.
 - **Ask only if:** Only when planning-critical scope, mode, source document, or decision points cannot be inferred from input and repo context.
 - **Do not do:** Do not implement code, run analysis, or treat execution-time unknowns as settled.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
@@ -76,7 +76,7 @@ A plan is ready when an implementer can start confidently without the plan writi
 `OUTPUT_FORMAT` is `md` or `html`, never both. The repository root is pre-resolved at skill load:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Use it as `<repo-root>` if absolute, else run `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool (in a linked worktree without it, try the main checkout from the absolute common Git directory). Read `references/output-mode.md` to resolve CLI `output:` > config `plan_output:` > default `md` (pipeline forces `md`). Then read `references/markdown-rendering.md` (md) or `references/html-rendering.md` (html); both pair with `references/plan-sections.md`.
+Use it as `<repo-root>` if absolute, else run `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool (in a linked worktree without it, try the main checkout from the absolute common Git directory). Read `references/output-mode.md` to resolve CLI `output:` > config `plan_output:` > default `md` (pipeline forces `md`). Then read `references/markdown-rendering.md` (md) or `references/html-rendering.md` plus `references/html-visuals.md` (html); both pair with `references/plan-sections.md`.
 
 ### 0.1 Resume Existing Plan Work When Appropriate
 
@@ -135,7 +135,7 @@ Non-negotiables: stable U-IDs on unit headings (`- U1. **[Name]**`), never renum
 
 ### 5.0 Scoping Synthesis Checkpoint
 
-Before writing, present the scoping synthesis. Read `references/synthesis-summary.md` for what belongs at synthesis altitude versus plan-write output.
+Before writing, present the scoping synthesis. Read `references/synthesis-summary.md` and `references/synthesis-discipline.md` for what belongs at synthesis altitude versus plan-write output.
 
 ### 5.1 Review Before Writing
 

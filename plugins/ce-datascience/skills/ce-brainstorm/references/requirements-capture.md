@@ -24,6 +24,7 @@ The requirements document is for study design definition and scope control. Do *
 
 | Section | Lightweight | Standard / Deep-analysis | Deep-program |
 |---|---|---|---|
+| Summary | Required | Required | Required |
 | Problem Frame | Required | Required | Required |
 | Research Question | Required | Required | Required |
 | Study Design | Omit unless triggered | Required | Required |
@@ -40,7 +41,6 @@ The requirements document is for study design definition and scope control. Do *
 | Key Decisions | Include when material | Include when material | Include when material |
 | Dependencies / Assumptions | Include when material | Include when material | Include when material |
 | Outstanding Questions | Include when material | Include when material | Include when material |
-| Next Steps | Required | Required | Required |
 
 ## Triggered sections — when to include
 
@@ -71,6 +71,12 @@ topic: <kebab-case-topic>
 ---
 
 # <Topic Title>
+
+## Summary
+
+[1-3 lines, forward-looking: what this study proposes. This is the confirmed Phase 2.9 "What we're building" prose.]
+
+---
 
 ## Problem Frame
 
@@ -212,12 +218,6 @@ topic: <kebab-case-topic>
 - [Affects R2][Methodological] [Question answered during planning or data exploration]
 - [Affects R2][Needs research] [Question likely requiring literature review or data profiling during planning]
 
----
-
-## Next Steps
-
-[If `Resolve Before Planning` is empty: `-> `ce-plan`` for structured analysis planning]
-[If `Resolve Before Planning` is not empty: `-> Resume `ce-brainstorm`` to resolve blocking questions before planning]
 ```
 
 ## ID and layout rules

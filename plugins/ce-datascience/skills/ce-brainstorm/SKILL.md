@@ -71,7 +71,7 @@ Precedence:
 
 Only literal-prefix flag tokens (`output:`, `mode:`, `delegate:` where applicable) are stripped; other `<word>:<word>` tokens pass through.
 
-Read `references/markdown-rendering.md` when `md`, or `references/html-rendering.md` when `html`; both pair with `references/brainstorm-sections.md` (same content, different presentation). The choice does not propagate to `ce-plan`, which resolves its own `plan_output`.
+Read `references/markdown-rendering.md` when `md`, or `references/html-rendering.md` plus `references/html-visuals.md` when `html`; both pair with `references/brainstorm-sections.md` (same content, different presentation). The choice does not propagate to `ce-plan`, which resolves its own `plan_output`.
 
 #### 0.1 Resume Existing Work When Appropriate
 
@@ -87,7 +87,7 @@ Ask: **does the task involve designing, analyzing, or architecting a research st
 
 #### 0.2 Assess Whether Brainstorming Is Needed
 
-Requirements are clear when the user gives specific success criteria or endpoints, references a design or prior analysis to follow, describes exact outcomes and populations, and scopes tightly. Then keep it brief: confirm understanding and offer concise next steps; write a short requirements document only when a durable handoff is valuable. Skip Phases 1.1 and 1.2; go to 1.3 or 3.
+Requirements are clear when the user gives specific success criteria or endpoints, references a design or prior analysis to follow, describes exact outcomes and populations, and scopes tightly. Then keep it brief: confirm understanding and offer concise next steps; write a short requirements document only when a durable handoff is valuable. Skip Phases 1.1 and 1.2; go to 1.3 or 2.9.
 
 #### 0.3 Assess Scope
 
@@ -157,7 +157,7 @@ For each approach: 2-3 sentence description, pros and cons, key risks or unknown
 
 ### Phase 2.9: Synthesis Checkpoint
 
-Before writing the requirements document, present and confirm the scope synthesis. Read `references/synthesis-summary.md` for the contract; it is the scope checkpoint doc-write consumes, not a draft of the doc.
+Before writing the requirements document, present and confirm the scope synthesis. Read `references/synthesis-summary.md` and `references/synthesis-discipline.md` for the contract; it is the scope checkpoint doc-write consumes, not a draft of the doc.
 
 ### Phase 3: Capture the Requirements
 

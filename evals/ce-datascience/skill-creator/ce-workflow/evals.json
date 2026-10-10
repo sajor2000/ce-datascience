@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "I'm picking this project back up after a month. It's an OMOP study -- there's analysis/research-question.yaml, analysis/literature/, and analysis/cohort/ has SQL referencing person and observation_period. Python/Jupyter. What should I run next?",
+      "prompt": "I'm picking this project back up after a month. It's an OMOP study -- there's analysis/research-question.yaml, analysis/pubmed/ with a PubMed results CSV, and analysis/cohort/ has SQL referencing person and observation_period. Python/Jupyter. What should I run next?",
       "expected_output": "Auto-detects an observational OMOP study, emits the lifecycle card with done/in-progress/not-started steps based on artifacts, and recommends the next safe skill without running anything.",
       "files": [],
       "expectations": [

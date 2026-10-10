@@ -99,8 +99,10 @@ The agent decides per brainstorm whether each section carries information
 that isn't covered elsewhere. Filling a section with placeholder prose is
 worse than omitting it.
 
-- **Problem Frame** — include when motivation isn't obvious from Summary
-  alone (the *why* needs paragraphs, not a sentence). Backward-looking /
+- **Problem Frame** — required in study requirements documents (see the
+  section matrix in `references/requirements-capture.md`); elsewhere, include
+  when motivation isn't obvious from Summary alone (the *why* needs
+  paragraphs, not a sentence). Backward-looking /
   situational. Does NOT restate the proposal; the remedy lives in Summary.
 
 - **Key Decisions** — include when the brainstorm produced opinionated
@@ -162,7 +164,7 @@ worse than omitting it.
   tempting non-goals worth naming explicitly. When the brainstorm is about
   positioning a product against adjacent ones the team could have built but
   is rejecting, split into "Deferred for later" (eventually but not v1) and
-  "Outside this product's identity" (positioning decision). Otherwise, a
+  "Outside this study's scope" (positioning decision). Otherwise, a
   single list is fine.
 
 - **Dependencies / Assumptions** — include when material upstream
@@ -274,7 +276,8 @@ The format-specific references describe how to render these sections in each
 output format:
 
 - **Markdown rendering:** `references/markdown-rendering.md`
-- **HTML rendering:** `references/html-rendering.md`
+- **HTML rendering:** `references/html-rendering.md` (diagrams, wireframes,
+  and affordance idioms: `references/html-visuals.md`)
 
 This reference (`brainstorm-sections.md`) is about WHAT the brainstorm
 contains; rendering references are about HOW each format presents it. The

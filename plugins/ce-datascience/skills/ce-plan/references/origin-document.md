@@ -10,7 +10,7 @@ Load this when Phase 0.2 found a relevant requirements document (unified artifac
    - Problem frame
    - Actors (A-IDs), Key Flows (F-IDs), and Acceptance Examples (AE-IDs) when present — constraints that implementation units must honor
    - Requirements and success criteria
-   - Scope boundaries (including `Deferred for later` and `Outside this product's identity` subsections when present)
+   - Scope boundaries (including `Deferred for later` and `Outside this study's scope` subsections — or legacy `Outside this product's identity` — when present)
    - Key decisions and rationale
    - Dependencies or assumptions
    - Outstanding questions, preserving whether they are blocking or deferred

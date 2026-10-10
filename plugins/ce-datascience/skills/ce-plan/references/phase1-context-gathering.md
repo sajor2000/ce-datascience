@@ -26,7 +26,7 @@ The rule is strict: **actual columns and QA evidence come before SAP finalizatio
    - `.ce-datascience/data-state.yaml` registered waves
    - `analysis/cohort/` extracts, waterfall files, or concept-set outputs
    - `data/`, `input/`, `extracts/`, `analysis/data/`, Parquet/CSV/Feather files, notebooks with data reads, or query files
-   - existing `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, or `__CE_CLIF__` handoff signals
+   - existing `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_COHORT__`, or `__CE_CLIF__` handoff signals, and `ce-data-qa` reports at `reports/data-qa/<extract_id>.md` (legacy fallback: `analysis/data-qa-report.md`)
 2. If an inspectable tabular dataset, extract, schema, or query result exists, run or load `ce-data-qa` in pre-SAP column profile mode before structuring the SAP. Minimum evidence to carry forward:
    - row count and column count
    - exact column names and observed types

@@ -101,7 +101,7 @@ Condensed path — the trial protocol already defines population, intervention, 
 ### Optional additions
 - `ce-power` before step 3 — if the protocol's sample size needs independent verification
 - `ce-prereg` after step 4 — update ClinicalTrials.gov SAP
-- `ce-compound` after step 7 — document learnings
+- `ce-compound` after step 8 — document learnings
 
 ---
 

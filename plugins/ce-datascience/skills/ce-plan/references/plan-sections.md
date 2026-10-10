@@ -124,7 +124,7 @@ a section with placeholder prose is worse than omitting it.
 
 - **Scope Boundaries** — include when scope is contested, when there are
   tempting non-goals worth naming explicitly, or when "deferred for later"
-  needs distinguishing from "outside the product's identity." Skip when scope
+  needs distinguishing from "outside this study's scope." Skip when scope
   is obvious from Requirements alone.
 
 - **Open Questions** — include when there are genuinely unresolved items that
@@ -250,7 +250,8 @@ The format-specific references describe how to render these sections in each
 output format:
 
 - **Markdown rendering:** `references/markdown-rendering.md`
-- **HTML rendering:** `references/html-rendering.md`
+- **HTML rendering:** `references/html-rendering.md` (diagrams, wireframes,
+  and affordance idioms: `references/html-visuals.md`)
 
 This reference (`plan-sections.md`) is about WHAT the plan contains;
 rendering references are about HOW each format presents it. The plan is

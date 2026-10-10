@@ -19,7 +19,7 @@ Detailed workflow for `ce-plan` when **SAP mode** is active. Linked from `SKILL.
 
 Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP must not finalize variable, missingness, cohort-size, feature, or model sections from assumptions when inspectable data exists.
 
-1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`.
+1. Look for `__CE_DATA_PROFILE__`, `__CE_DATA_QA__`, `__CE_MODEL_STRATEGY__`, `__CE_COHORT__`, and `__CE_CLIF__` signals in chat context and `analysis/`, and for `ce-data-qa` reports at `reports/data-qa/<extract_id>.md` (legacy fallback: `analysis/data-qa-report.md`).
 2. If a data profile or QA report exists, read it before filling SAP-2 through SAP-8. Use exact observed column names/types, candidate grain, key fields, date columns, null rates, duplicate rates, and blockers/warnings.
 3. If a dataset or registered data wave exists but no profile/QA report exists, stop SAP structuring long enough to load the `ce-data-qa` skill in pre-SAP column profile mode. Then resume SAP Phase 3 using its report.
 4. If no inspectable dataset exists yet, keep the SAP in `status: draft`, add `<!-- GAP: missing ce-data-qa column profile; SAP variable/model sections provisional -->`, and list `ce-data-qa` followed by `ce-model-strategy` as required next steps before `ce-sap-tabular`, `ce-sprint`, `ce-work`, coding, or modeling.
@@ -48,19 +48,19 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 
 | Signal | Canonical shape | Emitted by | Feeds SAP section |
 |--------|------------------|------------|-------------------|
-| `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `ce-research-question` | SAP-1 framing, SAP-2.1 hypothesis |
+| `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `ce-research-question` | SAP-1 framing, SAP-1.1 hypothesis |
 | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `ce-pubmed` | SAP-1 background, SAP-2 rationale |
 | `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `ce-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-4 analysis-plan justification |
 | `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
 | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `ce-checklist-match` | SAP frontmatter `reporting_checklist` |
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
-| `__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<int> columns=<int> grain=<string> report=<path>` | `ce-data-qa` pre-SAP mode | SAP-2 variables, SAP-4 data sources, SAP-8 missingness and data-quality prerequisites |
-| `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `ce-data-qa` | SAP-2.4 data quality assertions |
+| `__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<int> columns=<int> grain=<string> report=<path>` | `ce-data-qa` pre-SAP mode | SAP-2 variables and data sources, SAP-8 missingness and data-quality prerequisites, SAP-13 variable catalog |
+| `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `ce-data-qa` | SAP-8 data-quality assertions |
 | `__CE_MODEL_STRATEGY__ memo=<path> code=<path\|none> language=<r\|python\|none> status=<blocked\|provisional\|ready_for_review> primary=<model-id\|none> evidence=<path\|none>` | `ce-model-strategy` | SAP-4 model family, estimand alignment, dependence structure, diagnostics, sensitivities, and decision evidence |
 | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `ce-phenotype-validate` | SAP-2 case-definition validation |
-| `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-2.5 effect-size anchor |
-| `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `ce-power` | SAP-2.5 sample-size result |
-| `__CE_CLIF__ active=<bool> version=<dd-version> strict=<bool> rules=<path>` | `ce-clif` | SAP frontmatter `data_source: CLIF`, SAP-2 layout, SAP-9 dissemination |
+| `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-3.1 MCID and SAP-6 effect-size anchor |
+| `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `ce-power` | SAP-6 sample-size result |
+| `__CE_CLIF__ active=<bool> version=<dd-version> strict=<bool> rules=<path>` | `ce-clif` | SAP frontmatter `data_source: CLIF`, SAP-2 layout, SAP-12 dissemination |
 | `__CE_LANG__ primary=<python\|r\|both\|unknown> secondary=<...\|null> source=<auto\|cached\|manual>` | `ce-language-detect` (via `ce-setup`) | SAP-2 implementation-units split (Python vs R scaffolding choices) |
 
 ## 3. CLIF profile under SAP mode
@@ -70,7 +70,7 @@ When `__CE_CLIF__ active=true` is present:
 - Set the SAP frontmatter field `data_source: CLIF` (with the data dictionary `version` from the signal).
 - Default the implementation-unit sequence to the Project Template workflow (cohort → quality checks → outlier handling → analysis under `code/`).
 - Default `reporting_checklist: STROBE` + `reporting_checklist_extensions: [RECORD]` for observational studies if not already set by `__CE_CHECKLIST__`.
-- Add a SAP-9 dissemination note: "patient-level data does not leave each site; only aggregate results in `output/final_no_phi/` are shared, while `output/intermediate_phi/` remains gitignored and local-only".
+- Add a SAP-12 dissemination note: "patient-level data does not leave each site; only aggregate results in `output/final_no_phi/` are shared, while `output/intermediate_phi/` remains gitignored and local-only".
 - Place protected-path edits (`mCIDE/`, `ddl/`, `outlier-handling/`, `reference_ranges/`, `WORKFLOW.md`) out of scope for any implementation unit unless the user has stated POC sign-off.
 
 ## 4. SAP Phase 4: Write the SAP
@@ -78,7 +78,7 @@ When `__CE_CLIF__ active=true` is present:
 1. Determine the output path: use the user-specified path, or default to `analysis/sap.md` relative to the project root. Create the `analysis/` directory if it does not exist.
 2. Set the YAML frontmatter:
    - `sap_version: 1`
-   - `study_type:` one of `observational`, `rct`, `exploratory`, `other`
+   - `study_type:` one of the values listed in `references/sap-template.md`
    - `date_created:` today's date
    - `date_amended:` leave empty for initial draft
    - `status: draft`
