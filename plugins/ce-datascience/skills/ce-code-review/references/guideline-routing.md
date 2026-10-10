@@ -61,7 +61,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 
 | Abbreviation | Full name | Items | Scope |
 |---|---|---|---|
-| CONSORT | Consolidated Standards of Reporting Trials | 25 | RCTs |
+| CONSORT | Consolidated Standards of Reporting Trials (2025) | 30 | RCTs |
 | STROBE | Strengthening the Reporting of Observational Studies in Epidemiology | 22 | Observational |
 | PRISMA | Preferred Reporting Items for Systematic Reviews and Meta-Analyses | 27 | Systematic reviews |
 | STARD | Standards for Reporting Diagnostic Accuracy | 30 | Diagnostic accuracy |
