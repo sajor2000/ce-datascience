@@ -11,7 +11,8 @@
         "Reports PPV, NPV, sensitivity, specificity, F1, and kappa with Wilson 95% CIs, noting that stratified sampling may bias sensitivity",
         "Writes reports/phenotype-validation/T2DM-<date>.md and a .csv containing only suppressed aggregate counts (no subject_id rows)",
         "Adds a validation block (ppv, ppv_ci, sens, spec, npv, by_subgroup) to analysis/cohort/concept-sets/T2DM.yaml",
-        "Emits '__CE_PHENOTYPE_VALIDATE__ name=T2DM n=<n> ppv=<v> sens=<v> report=<path> yaml=<path>'"
+        "Emits '__CE_PHENOTYPE_VALIDATE__ name=T2DM n=<n> ppv=<v> sens=<v> report=<path> yaml=<path>'",
+        "Any published PPV/sensitivity benchmark used for comparison is cited by PMID with an evidence label, and any assumed or default PPV is marked as an assumption"
       ]
     },
     {

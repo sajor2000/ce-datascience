@@ -8,7 +8,7 @@ concept_set:
   description: Type 2 diabetes mellitus, including descendants, excluding T1DM
   vocabulary: OMOP                # OMOP | ICD10 | ICD9 | CPT | LOINC | SNOMED | mixed
   vocabulary_version: 2024-Q1     # required; pin this
-  source: built-from-ATLAS         # or hand-curated, or PheKB-id, or eMERGE-id
+  source: built-from-ATLAS         # or hand-curated, project-defined, PheKB-id, or eMERGE-id
   primary_concepts:
     - concept_id: 201826
       concept_name: "Type 2 diabetes mellitus"
@@ -23,6 +23,10 @@ concept_set:
     against: chart_review_2024_pilot.csv
     ppv: 0.94
     sensitivity: 0.88
+  literature:                      # optional; the published precedent this set follows, read before citing
+    pmid: <pmid>
+    reported_ppv: <value as published>
+    label: full_text               # abstract | full_text | figure | trial | regulatory | documentation
   provenance:
     author: jcr
     created: 2024-11-15
@@ -35,7 +39,7 @@ concept_set:
 - **Required:** name, vocabulary, vocabulary_version, primary_concepts (at least one)
 - **Strongly recommended:** include_descendants, excluded_concepts
 - **Recommended for publication:** validation block (PPV / sensitivity from chart review or external dataset)
-- **Optional but useful:** provenance (who built it, when, references)
+- **Optional but useful:** provenance (who built it, when, references); literature (PMID-cited published precedent and its reported performance, looked up per SKILL.md Evidence access, never a value from memory)
 
 ## Pitfalls
 

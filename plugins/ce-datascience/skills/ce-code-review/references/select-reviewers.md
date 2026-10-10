@@ -8,6 +8,8 @@
 
 **Blinded EDA:** when SKILL.md blinding-state awareness found `stack_profile.blinding_state: blinded`, never spawn `ce-methods-reviewer` or `ce-multiplicity-reviewer`, even when their triggers match.
 
+**Literature-backed findings:** pass the resolved skill-local path for `references/evidence-access.md` to `ce-methods-reviewer`, `ce-reporting-checklist-reviewer`, `ce-causal-inference-reviewer`, `ce-calibration-reviewer`, and `ce-fairness-reviewer`; a finding that cites a guideline item or methods paper names its PMID/DOI source and evidence label.
+
 **Conditional — spawn when the diff hits the trigger:**
 
 | Agent | Spawn when... |

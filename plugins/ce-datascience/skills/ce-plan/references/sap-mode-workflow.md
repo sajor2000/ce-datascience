@@ -39,6 +39,7 @@ For an observational study or causal claim, record explicit analysis assumptions
 5. Fill every section; if a section is not applicable, write "Not applicable: [reason]" rather than leaving it blank.
 6. Flag incomplete sections with `<!-- GAP: [description] -->` HTML comments (including the upstream-signal gaps from step 2 and the causal/observational guardrail when it applies).
 7. Use precise statistical language -- name specific tests, models, and adjustment methods.
+8. Ground SAP-1 background and SAP-5 methods justification per `references/evidence-access.md`: cite only sources that were read, with PMID/DOI and an evidence label; otherwise write a GAP comment rather than a citation from memory.
 
 When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file=`, or `path=`) as authoritative input for that section. When a signal is absent for a section the SAP needs, write `<!-- GAP: missing /ce-<skill> output; SAP-<N.M> unanchored -->` as a placeholder rather than fabricating content. Tell the user which skills they should run to fill the gaps and offer to re-run `ce-plan deepen` after.
 
@@ -50,13 +51,13 @@ Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forwa
 |--------|------------------|------------|-------------------|
 | `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `ce-research-question` | SAP-1 framing, SAP-1.1 hypothesis |
 | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `ce-pubmed` | SAP-1 background, SAP-2 rationale |
-| `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `ce-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-4 analysis-plan justification |
-| `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `ce-method-extract` | SAP-1 background, SAP-4 analysis-plan justification |
+| `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `ce-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-5 analysis-plan justification |
+| `__CE_METHOD_EXTRACT__ csv=<path> n=<int> modal_method=<string>` | `ce-method-extract` | SAP-1 background, SAP-5 analysis-plan justification |
 | `__CE_CHECKLIST__ primary=<name> extensions=[<comma-or-empty>]` | `ce-checklist-match` | SAP frontmatter `reporting_checklist` |
 | `__CE_COHORT__ name=<string> n=<int> yaml=<path-to-cohort.yaml> waterfall=<path-to-waterfall.csv>` | `ce-cohort-build` | SAP-2 population, SAP-2.2 inclusion/exclusion |
 | `__CE_DATA_PROFILE__ dataset=<path-or-wave> rows=<int> columns=<int> grain=<string> report=<path>` | `ce-data-qa` pre-SAP mode | SAP-2 variables and data sources, SAP-8 missingness and data-quality prerequisites, SAP-13 variable catalog |
 | `__CE_DATA_QA__ wave=<id> pass=<bool> blockers=<int> warns=<int> report=<path>` | `ce-data-qa` | SAP-8 data-quality assertions |
-| `__CE_MODEL_STRATEGY__ memo=<path> code=<path\|none> language=<r\|python\|none> status=<blocked\|provisional\|ready_for_review> primary=<model-id\|none> evidence=<path\|none>` | `ce-model-strategy` | SAP-4 model family, estimand alignment, dependence structure, diagnostics, sensitivities, and decision evidence |
+| `__CE_MODEL_STRATEGY__ memo=<path> code=<path\|none> language=<r\|python\|none> status=<blocked\|provisional\|ready_for_review> primary=<model-id\|none> evidence=<path\|none>` | `ce-model-strategy` | SAP-5 model family, estimand alignment, dependence structure, diagnostics, sensitivities, and decision evidence |
 | `__CE_PHENOTYPE_VALIDATE__ name=<string> n=<int> ppv=<float> sens=<float> yaml=<path> report=<path>` | `ce-phenotype-validate` | SAP-2 case-definition validation |
 | `__CE_EFFECT_SIZE__ metric=<m> n_studies=<int> point=<v\|null> ci=<lo,hi\|null> pi=<lo,hi\|NA> i2=<float\|null> mode=<reml\|narrative>` | `ce-effect-size` | SAP-3.1 MCID and SAP-6 effect-size anchor; `ce-power` sweeps `pi=` when finite, else `ci=` |
 | `__CE_POWER__ design=<string> total=<int> file=<path>` (optional `n_per_arm`, `epv` for prediction-model variant) | `ce-power` | SAP-6 sample-size result |

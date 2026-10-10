@@ -14,7 +14,7 @@ Current core checklist for randomized trials: 30 numbered items (42 rows countin
 
 **Current primary reference:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. BMJ. 2025;389:e081123. doi:10.1136/bmj-2024-081123. PMID: 40228833. PMCID: PMC11995449. Published simultaneously in BMJ, JAMA, Lancet, Nature Medicine, and PLOS Medicine (PLOS Med. 2025;22(4):e1004587. doi:10.1371/journal.pmed.1004587. PMID: 40228477).
 
-**Verified against:** CONSORT 2025 Table 1 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC11995449/ (checked 2026-10-10).
+**Verified against:** CONSORT 2025 Table 1 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC11995449/.
 
 **Explanation and elaboration:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 explanation and elaboration: updated guideline for reporting randomised trials. BMJ. 2025;389:e081124. doi:10.1136/bmj-2024-081124. PMID: 40228832.
 

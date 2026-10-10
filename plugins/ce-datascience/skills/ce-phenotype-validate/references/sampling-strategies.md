@@ -26,17 +26,17 @@ When prevalence is rare (< 10%), this is the right design -- pure random would g
 
 - Two reviewers chart each patient independently → kappa for inter-rater reliability
 - Disagreements → third reviewer or consensus
-- Kappa < 0.70 → re-train reviewers on a subset before continuing
+- Kappa < 0.70 (project default, not a literature cutoff) → re-train reviewers on a subset before continuing
 
 ## Sample-size guidance
 
-For PPV with 95% CI half-width = 0.05 around an expected PPV of 0.90:
+For PPV with 95% CI half-width = 0.05 around a planning PPV of 0.90 (an assumption; replace it with a published benchmark looked up per SKILL.md Evidence access, or a pilot estimate):
 - Required N (algo-positive) ≈ 138 (Wilson)
 
-For Sensitivity with 95% CI half-width = 0.10 around an expected Sens of 0.85:
+For Sensitivity with 95% CI half-width = 0.10 around a planning Sens of 0.85 (same caveat):
 - Required N (chart-positive) ≈ 49
 
-Most validation studies sample 100-300 total to be safe.
+Sampling 100-300 total is this plugin's convention, not a literature-derived requirement.
 
 ## Reporting (RECORD-extension expects)
 

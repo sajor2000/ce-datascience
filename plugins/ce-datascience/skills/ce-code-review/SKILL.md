@@ -6,7 +6,6 @@ argument-hint: "[mode:agent] [blank to review current branch, or provide PR link
 
 # Code Review
 
-
 ## Skill Value
 
 - **Problem it solves:** Data science code review needs correctness, testing, reproducibility, SAP drift, PHI, methods, and platform checks in one pass.
@@ -50,7 +49,7 @@ These hold from Stage 1 on in agent, autofix, report-only, and headless modes; f
 
 ## Quick Review Short-Circuit
 
-Interactive only: when the user asks for a quick, fast, or light review, announce the chosen path (Quick review vs Multi-agent review), then run the harness's built-in code review on any remaining target (Claude Code: `/review [target]`). Without a built-in review, continue here. Programmatic modes never short-circuit or announce.
+Interactive only: when the user asks for a quick, fast, or light review, announce the chosen path (Quick review vs Multi-agent review), then run the harness's built-in code review on any remaining target (Claude Code: `/review [target]`). Without one, continue here. Programmatic modes never short-circuit or announce.
 
 ## Severity Scale
 
@@ -64,6 +63,10 @@ Routing (`autofix_class`, owner) is defined in `references/merge-findings.md`; o
 ## Protected Artifacts
 
 Discard any finding that recommends deleting, removing, or gitignoring these pipeline artifacts: `docs/brainstorms/*`, `docs/plans/*.md`, `docs/solutions/*.md`, and `analysis/model-strategy/*` (including `analysis/model-strategy/*-model-strategy.md` memos and their scaffolds).
+
+## Evidence access
+
+Reviewers citing a guideline item or methods paper read `references/evidence-access.md`. **Look up here:** reporting-guideline statements and methods references reviewers cite.
 
 ## PHI Safety Boundary
 
@@ -93,11 +96,11 @@ metadata, and reviewed aggregates. Stage 5b validators inherit the general-revie
 
 ## How to Run
 
-Run the stages in order, reading each stage's references when entering it.
+Run the stages in order, reading each stage's references on entry.
 
 ### Stage 1: Determine scope
 
-Read `references/scope.md` and follow its path for the invocation (`base:`, PR, branch, or standalone; the last two run `references/resolve-base.sh`). It captures path names privately in `$REVIEW_SCOPE_DIR` without printing them.
+Read `references/scope.md` and follow its path for the invocation (`base:`, PR, branch, or standalone; the last two run `references/resolve-base.sh`). It captures path names privately in `$REVIEW_SCOPE_DIR`, never printing them.
 
 - If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** run `gh pr checkout` or `git checkout <branch>` on the shared checkout; unless already in an isolated checkout/worktree, emit that mode's stop message from `references/scope.md`.
 - Apply the PHI-safe scope preflight before reading any captured path, title, or body; then collect `git diff -U10 $BASE` only for the permitted paths.

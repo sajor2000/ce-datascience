@@ -64,15 +64,15 @@ Do not drop the entire dependence structure merely to make warnings disappear. D
 
 ## Evidence search seeds
 
-Use these as query seeds, not universal authority. Resolve and re-read the relevant claim at runtime:
+Use these as query seeds, not universal authority. Resolve each identifier with the PubMed MCP metadata tool and re-read the relevant claim at runtime before citing it (see SKILL.md Evidence access):
 
 - GLMM practical guidance: PMID `19185386`.
 - Accessible longitudinal LMM analysis: PMID `35521689`.
 - Continuous clustered-outcome GEE versus LMM marginal association: PMID `35838059`.
 - Longitudinal binomial marginal/conditional paradigms: PMID `36919082`.
-- Few grouping levels and singular fits: PMCID `PMC9309037`.
-- Random-slope omission and overconfidence: PMCID `PMC2657178`.
-- Marginal prediction from random-intercept binary models: PMCID `PMC4525751`.
-- Random-intercept/slope power assumptions: PMCID `PMC9156336`.
+- Few grouping levels and singular fits: PMCID `PMC9309037` (PMID `35898418`).
+- Random-slope omission and overconfidence: PMCID `PMC2657178` (PMID `19461866`).
+- Marginal prediction from random-intercept binary models: PMCID `PMC4525751` (PMID `26242875`).
+- Random-intercept/slope power assumptions: PMCID `PMC9156336` (PMID `33581000`).
 
 The memo must distinguish simulation, tutorial, and applied evidence. No single paper supplies a universal random-effects rule.

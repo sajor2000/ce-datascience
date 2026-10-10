@@ -11,7 +11,8 @@
         "Writes CTE-based OMOP SQL to analysis/cohort/sql/<cohort-name>.sql using parameterized concept-set joins against standard tables (person, condition_occurrence, drug_exposure, observation_period)",
         "Writes analysis/cohort/<cohort-name>-waterfall.md and -waterfall.csv and suppresses or merges any step whose lost-N is below the disclosure floor (default n<11)",
         "Writes analysis/cohort/<cohort-name>.yaml with index_event, inclusion, exclusion windows (T1DM any; statin prior_365_days), follow_up, and vocabulary_version",
-        "Prints __CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path> waterfall=<path> with both yaml= and waterfall= keys"
+        "Prints __CE_COHORT__ name=<cohort-name> n=<final-n> yaml=<path> waterfall=<path> with both yaml= and waterfall= keys",
+        "Records each concept set's source as a published algorithm cited by PMID (looked up through the PubMed/Paperclip MCP tools and read before citing) or as project-defined, never a code set asserted from memory"
       ]
     },
     {

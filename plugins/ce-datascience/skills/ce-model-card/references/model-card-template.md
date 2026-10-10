@@ -131,7 +131,7 @@ See section 4.1.
 | Sex=F × Age 65+ × Race=Black | ... | ... | ... |
 | Sex=M × Age 18-44 × Race=White | ... | ... | ... |
 
-(Report at minimum the smallest-N intersection if N >= 30; otherwise note insufficient data.)
+(Report at minimum the smallest-N intersection if N >= 30, a project default rather than a literature cutoff; otherwise note insufficient data.)
 
 ## 8. Ethical considerations
 

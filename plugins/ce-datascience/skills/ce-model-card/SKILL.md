@@ -16,7 +16,7 @@ argument-hint: "<model artifact path>, optional: --eval-output path/to/eval-resu
 - **Do not do:** Do not fabricate performance metrics or approval claims.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Generates a model card following the Mitchell et al. 2019 framework, adapted for clinical/biomedical use. Required by TRIPOD+AI item 16, recommended by FDA for AI/ML-based clinical decision support.
+Generates a model card in the model-card framework introduced by Mitchell and colleagues (a computer-science conference paper outside PubMed; locate it through Paperclip or the publisher before citing it), adapted for clinical/biomedical use, and supports TRIPOD+AI (PMID 38626948) reporting of performance, fairness, and model availability. Look up the exact reporting-item numbers and any regulatory expectation per Evidence access rather than asserting them.
 
 ## When this skill activates
 
@@ -31,6 +31,16 @@ Generates a model card following the Mitchell et al. 2019 framework, adapted for
 - Evaluation results: overall metrics + per-subgroup metrics (sex, race, age, site at minimum)
 - Calibration plot data (prob-binned or smoothed)
 - Training data summary (N, dates, source, features list)
+
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** fairness-metric definitions (demographic parity, equalized odds, calibration by group) and the reporting items the card must satisfy (TRIPOD+AI, PMID 38626948, DOI 10.1136/bmj-2023-078378; model-card and model-reporting literature), cited by PMID or DOI with an evidence label; literature never supplies, adjusts, or recomputes a performance metric, and every number in the card comes from the eval output.
 
 ## Core workflow
 
@@ -83,7 +93,7 @@ For each protected attribute in the eval output, report (derive gaps and ratios 
 - Demographic parity ratio (selection rate group_A / group_B)
 - Equalized odds gap (max TPR difference across groups)
 
-Highlight any AUC gap > 0.05 or calibration intercept |Δ| > 0.10 in the card body, not just in a footnote.
+Highlight any AUC gap > 0.05 or calibration intercept |Δ| > 0.10 in the card body, not just in a footnote. These flags are project defaults, not literature thresholds; if the card claims a benchmark, cite it per Evidence access.
 
 ### Step 4: Write outputs
 

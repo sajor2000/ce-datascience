@@ -2,6 +2,8 @@
 
 The single most damaging silent failure in omics. When batch and condition are aliased, no statistical method recovers the correct signal.
 
+The numeric cutoffs here (r > 0.5, 0.3-0.5, PC1 > 30% variance, > 90% separation) are project defaults, not published thresholds. Cite a source per SKILL.md Evidence access or label them `project default` in the report.
+
 ## Heuristic flags (P0)
 
 1. **Date-of-processing equals condition arm.** All cases processed on day 1, all controls on day 2. Pearson r between date and condition > 0.5.
@@ -31,6 +33,6 @@ The single most damaging silent failure in omics. When batch and condition are a
 
 ## Reporting in the manuscript
 
-The batch-confound assessment should appear in the Methods section:
+The batch-confound assessment should appear in the Methods section (illustrative numbers; report the observed values):
 
 > "We assessed batch-effect confounding by computing the Pearson correlation between batch indicator (sequencing run date) and condition arm; r = 0.18 indicated partial overlap suitable for inclusion of batch as a covariate in the differential-expression model. Sensitivity analyses excluding batch X (N = 8) yielded concordant top-50 differentially expressed genes (Spearman r = 0.94)."

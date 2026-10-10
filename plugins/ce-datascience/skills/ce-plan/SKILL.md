@@ -6,7 +6,6 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 # Create Plan (Dual-Mode: SAP or Implementation)
 
-
 ## Skill Value
 
 - **Problem it solves:** Execution fails when scope, decisions, dependencies, tests, or SAP assumptions are not explicit before work starts.
@@ -22,7 +21,7 @@ argument-hint: "[optional: feature description, study design doc, requirements d
 
 `ce-plan` owns the canonical versioned SAP. For complex clinical, validation, benchmarking, or observational studies, load `ce-statistical-analysis-plan` to develop the claim-to-dataset schema and decision evidence inside that SAP; do not create a second competing plan. Use `ce-model-strategy` after data QA when the primary model, random-effects structure, or implementation path requires a traceable decision. `ce-sap-tabular` owns the workbook companion; manuscript skills own final prose and citations.
 
-**When directly invoked, always plan.** If input is unclear, ask clarifying questions or use the Phase 0.4 bootstrap; never exit the workflow. Anything that depends on changing code and seeing what happens belongs in `ce-work`.
+**When directly invoked, always plan.** If input is unclear, ask or use the Phase 0.4 bootstrap; never exit the workflow. Anything that depends on changing code and seeing what happens belongs in `ce-work`.
 
 When the plan includes new or materially extended Marimo, Jupyter, R Markdown, or Quarto work, load the `ce-notebook-standards` skill and record its topology decision and notebook responsibilities in the plan.
 
@@ -49,6 +48,10 @@ Apply the Skill Value interaction rule to every question below; never silently s
 ### SAP Mode Workflow
 
 When SAP mode is active, Phases 0-2 (resume, source, scope, research, questions) run as normal; then read `references/sap-mode-workflow.md` and follow it in place of Phases 3-5. Read `references/sap-template.md` when that workflow reaches SAP Phase 3 (structure) and `references/sap-gap-checklist.md` at SAP Phase 5 (gap check). For the SAP Phase 5 post-generation menu, load `references/plan-handoff.md` and run 5.3.8 (document review) and 5.4 with the SAP path in place of the plan path.
+
+### Evidence access
+
+Before SAP-1 background or SAP-5 methods, read `references/evidence-access.md` (PubMed/Paperclip MCP tools and rules). **Look up here:** background evidence for SAP-1 and method precedents for SAP-5.
 
 SAP-mode gates that hold regardless of what the reference says:
 - **Data profile before SAP structure (SAP Phase 2.5).** Read the `ce-data-qa` profile/QA report before filling variable, missingness, cohort-size, or model sections. Inspectable data with no profile -> load `ce-data-qa` in pre-SAP column profile mode first. No inspectable data -> keep `status: draft` with a GAP comment. QA blockers -> do not write a final SAP.
@@ -156,11 +159,11 @@ For a current-CE unified requirements artifact (`artifact_contract: ce-unified-p
 **Post-generation menu** — a human checkpoint; never auto-select outside pipeline mode. Ask "Plan ready at `<plan path>`. What would you like to do next?" (actual `.md`/`.html` path; in SAP mode, the SAP path) with:
 1. **load the `ce-work` skill** (recommended) - Begin implementing this plan in the current session
 2. **Create Issue** - Create a tracked issue (GitHub or Linear)
-3. **Open in Proof (web app) — review and comment to iterate with the agent** - show only when the core Compound Engineering `ce-proof` skill is available (ce-datascience does not ship it); otherwise omit it and use the local plan file.
+3. **Open in Proof (web app) — review and comment to iterate with the agent** - show only when the core Compound Engineering `ce-proof` skill is available (ce-datascience does not ship it); otherwise omit it.
 4. **Done for now** - Pause; the plan file is saved and can be resumed later
 
 Route every selection per `references/plan-handoff.md`.
 
-**Completion check:** the skill is not complete until the menu has been presented and the user has selected an action.
+**Completion check:** not complete until the menu is presented and the user selects an action.
 
 **Pipeline mode exception:** skip the menu and return control to the caller after the plan is written, the confidence check has run, and `ce-doc-review` has run in headless mode.

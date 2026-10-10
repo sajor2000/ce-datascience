@@ -70,6 +70,16 @@ Ask the user (or parse from `args`):
 7. **Eligibility window** -- continuous enrollment / observation window (e.g., 180 days prior, 365 days follow-up)
 8. **Wash-out / look-back** -- explicit prior-period requirements
 
+### Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** validated code sets and phenotype algorithms for each criterion (PheKB, eMERGE, OHDSI/OMOP phenotype studies) with their reported PPV and sensitivity, cited by PMID; a concept set without a read, published precedent is `project-defined` and the spec must say so.
+
 ### Step 2: Build concept sets
 
 For each criterion, build a concept set:
@@ -86,7 +96,7 @@ concept_set:
     - { concept_id: 201254, concept_name: "Type 1 diabetes mellitus" }
 ```
 
-Save concept sets to `analysis/cohort/concept-sets/<set-name>.yaml`.
+Save concept sets to `analysis/cohort/concept-sets/<set-name>.yaml`. Set `source:` to the published algorithm the set follows (PheKB/eMERGE/OHDSI identifier plus PMID) or `project-defined`, and record any reported PPV/sensitivity in the optional `literature:` block with its PMID and evidence label (see `references/concept-set-yaml.md`); never copy a literature value into the project's own `validation` block, which `ce-phenotype-validate` fills from chart review.
 
 ### Step 3: Generate cohort SQL
 

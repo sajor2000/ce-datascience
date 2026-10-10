@@ -33,6 +33,16 @@ The omics counterpart to `ce-data-qa`. Sequencing and array data fail in domain-
 - For methylation: `minfi` / `sesame` (R)
 - For RNA-seq: `salmon` or `STAR` outputs (or raw FASTQ)
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** modality-specific QC benchmarks (depth, mapping and duplicate rates, contamination, rRNA and intergenic fractions, detection p-values, FRiP/TSS enrichment, mitochondrial fraction, Ti/Tv) and batch-effect test conventions; every threshold the report applies is either cited by PMID (tool manuals count as `documentation`) or marked `project default`.
+
 ## Core workflow
 
 ### Step 1: Modality detection
@@ -65,7 +75,7 @@ Different modality → different checks. Refuse to proceed if conflicting signal
 
 ### Step 3: Batch-effect screening (no removal)
 
-Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch, grade by the Pearson correlation between the batch indicator and the condition indicator, using the thresholds in `references/batch-confound-rules.md`: above 0.5 is a P0 finding; 0.3-0.5 is a P1 partial confound that can be modeled at a cost in power. For a P0, report:
+Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch, grade by the Pearson correlation between the batch indicator and the condition indicator, using the thresholds in `references/batch-confound-rules.md` (project defaults unless the report cites a benchmark per Evidence access): above 0.5 is a P0 finding; 0.3-0.5 is a P1 partial confound that can be modeled at a cost in power. For a P0, report:
 
 > Batch is confounded with condition. Removing the batch effect (ComBat / RUV / SVA) will also remove condition signal. Re-block the experiment or add explicit batch correction in the model.
 
@@ -78,7 +88,7 @@ For BAM data, run somalier `relate` against the expected pedigree (or against de
 Write `reports/bioinfo-qa/<wave_id>.html` (MultiQC-rendered) and `reports/bioinfo-qa/<wave_id>.md` summary:
 
 1. Modality and N samples
-2. Per-sample pass/warn/fail table
+2. Per-sample pass/warn/fail table, naming each threshold's source (PMID or `project default`)
 3. Batch confound assessment
 4. Sample swap assessment
 5. Aggregate metrics (mean coverage, mean Q score, % aligned, etc.)

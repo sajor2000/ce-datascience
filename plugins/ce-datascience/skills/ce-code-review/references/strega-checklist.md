@@ -11,7 +11,7 @@ Extension of STROBE for observational studies reporting on gene-disease associat
 
 **Primary reference:** Little J, Higgins JP, Ioannidis JP, Moher D, Gagnon F, von Elm E, Khoury MJ, Cohen B, Davey Smith G, Grimshaw J, Scheet P, Gwinn M, Williamson RE, Zou GY, Hutchings K, Johnson CY, Tait V, Wiens M, Golding J, van Duijn C, McLaughlin J, Paterson A, Wells G, Fortier I, Freedman M, Zecevic M, King R, Infante-Rivard C, Stewart A, Birkett N. STrengthening the REporting of Genetic Association Studies (STREGA)--an extension of the STROBE statement. Genet Epidemiol. 2009;33(7):581-598. doi:10.1002/gepi.20410. PMID: 19278015.
 
-**Also published in:** Eur J Epidemiol. 2009;24(1):37-55. PMID: 19082745.
+**Also published in:** Eur J Epidemiol. 2009;24(1):37-55. doi:10.1007/s10654-008-9302-y. PMID: 19189221. PMCID: PMC2764094.
 
 This checklist supplements STROBE. Apply alongside the base STROBE 22-item checklist when reporting genetic association studies (GWAS, candidate gene, or gene-environment interaction).
 

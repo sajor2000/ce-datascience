@@ -63,9 +63,19 @@ Map variables to analyses with a visible `used_by` matrix. Give every analysis a
 
 Choose methods only after the claim, estimand, unit of analysis, and data structure are known. Use `ce-model-strategy` to resolve the primary family, link, dependence structure, diagnostics, fallback triggers, and stack-matched scaffold. Account for clustering, repeated measurements, time at risk, competing risks, missingness, validation reference standards, and any benchmarking hierarchy.
 
-For nontrivial choices, record 1–3 citations in `Decision_Evidence`: primary model family, missing-data strategy, competing-risk handling, multilevel structure, agreement metric, composite outcome, causal adjustment, or benchmarking model. Start with an appropriate methods anchor, expand with OpenAlex when needed, and verify a precise claim from full text only when the decision needs it.
+For nontrivial choices, record 1–3 citations in `Decision_Evidence`: primary model family, missing-data strategy, competing-risk handling, multilevel structure, agreement metric, composite outcome, causal adjustment, or benchmarking model. Find a methods anchor with the Evidence access tools below, read it before citing it, and record PMID/DOI plus the evidence label on the row.
 
-At the first live literature search of a session, check whether Paperclip is available. If it is not, offer setup once and continue with `curl PubMed` if setup is declined or unavailable. Never block SAP work on Paperclip, and do not re-offer it in the same session. Use Paperclip or another full-text tool only when an abstract cannot verify a needed formula, cutoff, eligibility rule, or methods claim.
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** estimand and analysis-method precedents for each `Decision_Evidence` row, plus the missing-data and sensitivity-analysis conventions for the design (RCT, EHR/registry cohort, target-trial emulation, validation, prediction, or benchmarking).
+
+At the first literature lookup of a session, check once which of these servers is connected; never block SAP work on either, do not re-offer setup in the same session, and use the `ce-pubmed` script, not ad hoc HTTP calls, when no PubMed server is connected. Use full text only when an abstract cannot verify a needed formula, cutoff, eligibility rule, or methods claim.
 
 ## Required Guardrails
 

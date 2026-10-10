@@ -11,7 +11,8 @@
         "Adds conditionals justified by the diff, including ce-r-code-reviewer, ce-methods-reviewer, ce-reproducibility-reviewer, and ce-sap-drift-detector (because analysis/sap.md exists)",
         "Findings are grouped by P0-P3 severity in pipe-delimited tables, and findings below confidence anchor 75 are suppressed except P0 at 50+",
         "Includes a Requirements Completeness section against the supplied plan, and ends with a verdict (Ready to merge / Ready with fixes / Not ready)",
-        "Does not commit, push, or create a PR unless the user chooses that in the interactive next-step after fixes were applied"
+        "Does not commit, push, or create a PR unless the user chooses that in the interactive next-step after fixes were applied",
+        "Any finding that cites a reporting-guideline item or methods paper names its PMID/DOI source and evidence label rather than quoting the guideline from memory"
       ]
     },
     {

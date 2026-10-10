@@ -11,7 +11,7 @@
         "Adds to the ce-plan SAP rather than creating a competing SAP",
         "Makes the estimand, treatment strategy, time zero, and assumptions explicit, and marks unresolved choices as blocking finalization",
         "Attaches at least one diagnostic or sensitivity analysis and an explicit missing-data strategy to every primary analysis",
-        "Records at least one method citation in Decision_Evidence for each high-stakes method choice"
+        "Records at least one method citation in Decision_Evidence for each high-stakes method choice, found through the PubMed/Paperclip MCP tools (never curl or memory), read before citing, with PMID/DOI and an evidence label"
       ]
     },
     {
@@ -20,7 +20,7 @@
       "expected_output": "Gives a clearly provisional method recommendation tagged with the unconfirmed unit of analysis and its key assumption, without presenting it as final.",
       "files": [],
       "expectations": [
-        "Prefixes the recommendation with the tag [PROVISIONAL \u2014 unit of analysis not yet confirmed]",
+        "Prefixes the recommendation with the tag [PROVISIONAL — unit of analysis not yet confirmed]",
         "Names the likely method and the assumption it rests on",
         "Does not present the method as final while dataset grain and unit of analysis are unknown",
         "Asks for or lists dataset grain/unit of analysis as a load-bearing gap"

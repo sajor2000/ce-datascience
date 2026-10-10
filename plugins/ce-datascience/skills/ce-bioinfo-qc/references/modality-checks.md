@@ -1,5 +1,7 @@
 # Modality-Specific QC Checks
 
+Every pass/warn/fail value below is a **project default**: a starting point chosen for this plugin, not a literature-derived benchmark. Before a threshold decides GO/NO-GO, either cite a benchmark looked up per SKILL.md Evidence access (PMID and evidence label in the report; tool manuals count as `documentation`) or label the threshold `project default` in the report.
+
 ## WGS / WES (whole-genome / whole-exome)
 
 | Metric | Tool | Pass threshold | Warn | Fail |
