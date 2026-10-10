@@ -149,7 +149,7 @@ work.
 * **session-historian:** cap deep-dives, add keyword filter primitive, tighten dispatch ([#699](https://github.com/EveryInc/compound-engineering-plugin/issues/699)) ([a91270c](https://github.com/sajor2000/ce-datascience/commit/a91270ccd2d5fba3e035275b7af2c4fec3f90b1c))
 * **skills:** replace case statements blocked by permission check ([#701](https://github.com/EveryInc/compound-engineering-plugin/issues/701)) ([5952b20](https://github.com/sajor2000/ce-datascience/commit/5952b20d7f2a056f8d7d8719a2d20b6615aca9e4))
 
-## [3.1.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.0.7...cli-v3.1.0) (2026-04-24)
+## [3.1.0](https://github.com/EveryInc/compound-engineering-plugin/tree/cli-v3.1.0) (2026-04-24)
 
 
 ### Features

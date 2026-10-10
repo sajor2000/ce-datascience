@@ -103,7 +103,7 @@ open release PRs. Do not hand-add entries from feature or documentation work.
 * **planning:** require biostats SAP workbook contracts ([#17](https://github.com/sajor2000/ce-datascience/issues/17)) ([6fc1b88](https://github.com/sajor2000/ce-datascience/commit/6fc1b88b287d6ac78d32356b1900bbd8c0345e72))
 * **skills:** harden production readiness workflows ([#18](https://github.com/sajor2000/ce-datascience/issues/18)) ([3236e61](https://github.com/sajor2000/ce-datascience/commit/3236e617bd3ef00291c3c230bba19b4585799514))
 
-## [3.3.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v0.1.0...ce-datascience-v3.3.0) (2026-06-02)
+## [3.3.0](https://github.com/sajor2000/ce-datascience/releases/tag/ce-datascience-v3.3.0) (2026-06-02)
 
 
 ### Features
@@ -167,7 +167,7 @@ open release PRs. Do not hand-add entries from feature or documentation work.
 * **session-historian:** cap deep-dives, add keyword filter primitive, tighten dispatch ([#699](https://github.com/EveryInc/compound-engineering-plugin/issues/699)) ([a91270c](https://github.com/sajor2000/ce-datascience/commit/a91270ccd2d5fba3e035275b7af2c4fec3f90b1c))
 * **skills:** replace case statements blocked by permission check ([#701](https://github.com/EveryInc/compound-engineering-plugin/issues/701)) ([5952b20](https://github.com/sajor2000/ce-datascience/commit/5952b20d7f2a056f8d7d8719a2d20b6615aca9e4))
 
-## [3.1.0](https://github.com/sajor2000/ce-datascience/compare/ce-datascience-v3.0.7...ce-datascience-v3.1.0) (2026-04-24)
+## [3.1.0](https://github.com/EveryInc/compound-engineering-plugin/tree/compound-engineering-v3.1.0) (2026-04-24)
 
 
 ### Features
