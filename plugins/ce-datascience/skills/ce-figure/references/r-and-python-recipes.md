@@ -30,10 +30,12 @@ cp "$SKILL_DIR/assets/clinical_style.py" analysis/scripts/clinical_style.py
 Then in the figure script or notebook:
 
 ```r
-source("analysis/scripts/theme_clinical.R")
+source("analysis/scripts/theme_clinical.R")  # needs ggplot2 >= 3.5
 library(ggplot2)
 theme_set(theme_clinical())
 ```
+
+The `if (FALSE)` block at the end of `theme_clinical.R` is a runnable version of every R recipe below (survival::lung plus simulated frames, output under `tempdir()`); run it once after `source()` to confirm the installed packages work before adapting a recipe to the project data.
 
 ```python
 import sys; sys.path.insert(0, "analysis/scripts")
@@ -62,8 +64,11 @@ p <- survfit2(Surv(time_mo, event) ~ arm, data = dat) |>
   ggsurvfit(linewidth = 0.75) +
   add_censor_mark(shape = 3, size = 1.5) +
   add_risktable(risktable_stats = "n.risk", stats_label = list(n.risk = "No. at risk"),
-                times = seq(0, 12, 3)) +
-  scale_ggsurvfit(x_scales = list(breaks = seq(0, 12, 3))) +
+                times = seq(0, 12, 3), size = 8 / .pt,
+                theme = theme_risktable_default(axis.text.y.size = 8, plot.title.size = 8)) +
+  # expand keeps the t = 0 count inside the risk table; waiver() gives 0-1 labels, not percent
+  scale_ggsurvfit(x_scales = list(breaks = seq(0, 12, 3), expand = c(0.04, 0)),
+                  y_scales = list(labels = waiver())) +
   scale_color_clinical() +
   labs(x = "Time Since Randomization, mo", y = "Survival Probability") +
   theme_clinical() +
@@ -71,7 +76,7 @@ p <- survfit2(Surv(time_mo, event) ~ arm, data = dat) |>
 save_figure(p, "analysis/publication/figures/fig1.pdf", width_in = 3.5, height_in = 3.6, also = "png")
 ```
 
-R (survminer): `ggsurvplot(fit, data = dat, risk.table = TRUE, risk.table.height = 0.25, break.time.by = 3, censor.shape = "|", palette = clinical_palette[1:2], ggtheme = theme_clinical(), tables.theme = theme_clinical(), fontsize = 3)`, then `ggsave(path, sm, device = cairo_pdf, width = 3.5, height = 3.6)` (the ggsurvplot object saves with its table attached).
+R (survminer): `sm <- ggsurvplot(fit, data = dat, risk.table = TRUE, risk.table.height = 0.2, risk.table.title = "No. at risk", break.time.by = 3, censor.shape = "|", palette = clinical_palette[1:2], ggtheme = theme_clinical(), tables.theme = table_theme, fontsize = 8 / .pt)` where `table_theme` is `theme_clinical()` with the axis line, ticks, x text, and x title blanked and `plot.title` at 8 pt plain (full call in the asset's `if (FALSE)` block). `ggsave()` cannot draw a ggsurvplot object; export with `cairo_pdf(path, width = 3.5, height = 3.6); print(sm); dev.off()`.
 
 Python (lifelines):
 
@@ -85,7 +90,7 @@ save_figure(fig, "analysis/publication/figures/fig1.pdf", width_in=3.5, height_i
 
 ## Forest plot
 
-R: `geom_vline(xintercept = 1)` + `geom_errorbarh(height = 0)` + `geom_point(aes(size = n), shape = 15)` + `scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4))` + `labs(x = "Hazard Ratio (95% CI)")`; add text columns with `geom_text` on a second panel joined by `patchwork` (`p_text | p_plot + plot_layout(widths = c(1, 2))`). The `if (FALSE)` block in `assets/theme_clinical.R` has the full call.
+R: `geom_vline(xintercept = 1)` + `geom_errorbar(aes(xmin = lower, xmax = upper), width = 0)` (horizontal; `geom_errorbarh()` is deprecated in ggplot2 4) + `geom_point(aes(size = n), shape = 15)` + `scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), labels = function(x) format(x, drop0trailing = TRUE))` + `labs(x = "Hazard Ratio (95% CI)")`; add text columns with `geom_text` on a second panel joined by `patchwork` (`p_text | p_plot + plot_layout(widths = c(1, 2))`). The `if (FALSE)` block in `assets/theme_clinical.R` has the full call.
 
 Python: `forest_plot(df, label="label", estimate="hr", lower="lower", upper="upper", weight="n", heading="is_heading", text_cols=["n", "hr_ci"], pooled={"estimate": .., "lower": .., "upper": ..}, favors=("Favors Intervention", "Favors Control"))`, then `save_figure(fig, "fig2.pdf", width_in=7, height_in=0.28 * len(df) + 1.2)`.
 
@@ -121,18 +126,18 @@ Python: `im = ax.imshow(M, cmap="viridis")` (sequential) or `cmap="RdBu_r", vmin
 
 ## ROC and calibration
 
-R: `pROC::roc()` for the curve and `ci.auc()`; draw with `geom_path` + `geom_abline(linetype = "dashed")` + `coord_equal()`; annotate "AUC, 0.81 (95% CI, 0.77-0.85)" at 8 pt. Calibration: bin by `dplyr::ntile(risk, 10)`, plot observed vs predicted with `geom_abline`, add `geom_histogram(aes(risk))` below with `patchwork` heights `c(4, 1)`; print intercept and slope from `glm(outcome ~ qlogis(risk), family = binomial)`.
+R: `pROC::roc()` for the curve and `ci.auc()`; draw with `geom_path` + `geom_abline(linetype = "dashed")` + `coord_equal()`; annotate "AUC, 0.81 (95% CI, 0.77-0.85)" at 8 pt. Calibration: bin into risk deciles (`dplyr::ntile(risk, 10)`, or base `cut()` at `quantile(risk, 0:10 / 10)` as in the asset block), plot observed vs predicted with `geom_abline`, add `geom_histogram(aes(risk))` below with `patchwork` heights `c(4, 1)`; print intercept and slope from `glm(outcome ~ qlogis(risk), family = binomial)`.
 
 Python: `roc_plot(y_true, y_score, label="Model", auc_ci=(0.77, 0.85))`; `calibration_plot(y_true, y_prob, n_bins=10, strategy="quantile", intercept_slope=(0.02, 0.96))`. Both import scikit-learn lazily; compute the AUC CI (bootstrap or DeLong) in the analysis script and pass it in.
 
 ## Flow diagram
 
-R (`consort` package): `out <- consort_plot(data = df, order = c(trialno = "Population", exc = "Excluded", arm = "Randomized", fow1 = "Lost to follow-up", trialno = "Final"), side_box = c("exc", "fow1"), allocation = "arm", labels = c("1" = "Screening", "2" = "Randomization", "4" = "Final analysis"))`, then `plot(out)`; save with `pdf("analysis/publication/figures/fig1.pdf", width = 7, height = 6); plot(out); dev.off()` (cairo_pdf for embedded fonts). Verify the `order` keys against the package help for the installed version.
+R (`consort` package): `out <- consort_plot(data = df, orders = c(trialno = "Population", exc = "Excluded", arm = "Randomized", fow1 = "Lost to follow-up", trialno = "Final"), side_box = c("exc", "fow1"), allocation = "arm", labels = c("1" = "Screening", "2" = "Randomization", "4" = "Final analysis"))`, then `plot(out)`; save with `pdf("analysis/publication/figures/fig1.pdf", width = 7, height = 6); plot(out); dev.off()` (cairo_pdf for embedded fonts). Verify the `orders` keys against the package help for the installed version (checked with consort 1.2.4).
 
 Python (graphviz): `g = graphviz.Digraph(graph_attr={"rankdir": "TB", "fontname": "Arial"}, node_attr={"shape": "box", "fontname": "Arial", "fontsize": "8", "penwidth": "0.75"}, edge_attr={"penwidth": "0.75"})`; `g.node("a", "Assessed for eligibility (n = 1204)")`; `g.edge("a", "b")`; `g.render("analysis/publication/figures/fig1", format="pdf", cleanup=True)`. Counts come from the analysis dataset, never typed by hand.
 
 ## Multi-panel
 
-R: `library(patchwork); (p1 | p2) / p3 + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A") & theme(legend.position = "bottom")`; `save_figure(panel, "fig4.pdf", width_in = 7, height_in = 6)`.
+R: `library(patchwork); (p1 | p2) / p3 + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A") & theme(legend.position = "bottom")`; `save_figure(panel, "fig4.pdf", width_in = 7, height_in = 6)`. `theme_clinical()` places tags in the plot margin (`plot.tag.location = "margin"`) so they never overlap a y-axis title. With ggplot2 >= 4.0 use patchwork >= 1.3; patchwork 1.2 fails on `& theme(...)`.
 
 Python: `fig, axes = plt.subplots(2, 2, figsize=(7, 6), sharey="row"); ...; add_panel_labels(axes); fig.align_labels(); handles, labels = axes[0, 0].get_legend_handles_labels(); fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False); fig.tight_layout(rect=(0, 0.05, 1, 1)); save_figure(fig, "fig4.pdf", width_in=7, height_in=6)`.

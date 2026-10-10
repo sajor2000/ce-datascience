@@ -5,7 +5,7 @@
 # 8 pt tick and legend text, open top/right axes, no gridlines, Okabe-Ito colors,
 # vector export at final column width with embedded fonts.
 #
-# Required: ggplot2 (>= 3.4), systemfonts.
+# Required: ggplot2 (>= 3.5), systemfonts.
 # Optional: ragg (PNG/TIFF), ggsurvfit or survminer (Kaplan-Meier), patchwork
 #           (multi-panel), pROC (ROC), consort (flow diagrams).
 #
@@ -70,7 +70,8 @@ theme_clinical <- function(base_size = 10, base_family = "Arial",
       plot.caption = ggplot2::element_text(size = small, hjust = 0),
       plot.caption.position = "plot",
       plot.tag = ggplot2::element_text(size = 12, face = "bold"),
-      plot.tag.position = c(0, 1),
+      plot.tag.position = "topleft",
+      plot.tag.location = "margin",
       plot.background = ggplot2::element_rect(fill = "white", colour = NA),
       panel.background = ggplot2::element_rect(fill = "white", colour = NA),
       panel.grid.major = ggplot2::element_blank(),
@@ -166,8 +167,11 @@ if (FALSE) {
     ggsurvfit(linewidth = 0.75) +
     add_censor_mark(shape = 3, size = 1.5) +
     add_risktable(risktable_stats = "n.risk", stats_label = list(n.risk = "No. at risk"),
-                  times = seq(0, 30, by = 6)) +
-    scale_ggsurvfit(x_scales = list(breaks = seq(0, 30, by = 6)), y_scales = list()) +
+                  times = seq(0, 30, by = 6), size = 8 / .pt,
+                  theme = theme_risktable_default(axis.text.y.size = 8, plot.title.size = 8)) +
+    # expand leaves room for the t = 0 count; labels = waiver() keeps 0-1, not percent
+    scale_ggsurvfit(x_scales = list(breaks = seq(0, 30, by = 6), expand = c(0.04, 0)),
+                    y_scales = list(labels = waiver())) +
     scale_color_clinical() +
     labs(x = "Time Since Enrollment, mo", y = "Survival Probability") +
     theme_clinical() +
@@ -177,14 +181,20 @@ if (FALSE) {
   # Kaplan-Meier with number-at-risk table (survminer alternative) -----------
   library(survminer)
   km_fit <- survival::survfit(survival::Surv(time_mo, event) ~ group, data = km_dat)
-  sm <- ggsurvplot(km_fit, data = km_dat, risk.table = TRUE, risk.table.height = 0.25,
-                   censor.shape = "|", censor.size = 2, conf.int = FALSE,
-                   break.time.by = 6, xlab = "Time Since Enrollment, mo",
+  table_theme <- theme_clinical() +
+    theme(axis.line = element_blank(), axis.ticks = element_blank(), axis.text.x = element_blank(),
+          axis.title.x = element_blank(), plot.title = element_text(size = 8, face = "plain"))
+  sm <- ggsurvplot(km_fit, data = km_dat, risk.table = TRUE, risk.table.height = 0.2,
+                   risk.table.title = "No. at risk", censor.shape = "|", censor.size = 2,
+                   conf.int = FALSE, break.time.by = 6, xlab = "Time Since Enrollment, mo",
                    ylab = "Survival Probability", legend.title = "",
                    legend.labs = levels(km_dat$group), legend = c(0.15, 0.2),
                    palette = clinical_palette[1:2], ggtheme = theme_clinical(),
-                   tables.theme = theme_clinical(), fontsize = 3)
-  ggsave(file.path(fig_dir, "fig1-km-survminer.pdf"), sm, device = cairo_pdf, width = 3.5, height = 3.6)
+                   tables.theme = table_theme, fontsize = 8 / .pt)
+  # ggsave() cannot draw a ggsurvplot; open the device and print() it instead
+  cairo_pdf(file.path(fig_dir, "fig1-km-survminer.pdf"), width = 3.5, height = 3.6)
+  print(sm)
+  dev.off()
 
   # Forest plot (log x, reference at 1, square sized by n) -------------------
   forest_dat <- data.frame(
@@ -198,7 +208,8 @@ if (FALSE) {
     geom_vline(xintercept = 1, linewidth = 0.4) +
     geom_errorbar(aes(xmin = lower, xmax = upper), width = 0, linewidth = 0.5) +
     geom_point(aes(size = n), shape = 15, show.legend = FALSE) +
-    scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), limits = c(0.25, 4)) +
+    scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4), limits = c(0.25, 4),
+                  labels = function(x) format(x, drop0trailing = TRUE)) +
     scale_size_area(max_size = 3) +
     labs(x = "Hazard Ratio (95% CI)", y = NULL) +
     theme_clinical() + theme(axis.line.y = element_blank(), axis.ticks.y = element_blank())
