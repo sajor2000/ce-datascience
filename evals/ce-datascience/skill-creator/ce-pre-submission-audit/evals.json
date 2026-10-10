@@ -11,7 +11,8 @@
         "Does not leave 'significant' or 'robust' in Results without an attached statistic; where no statistic was supplied it inserts a placeholder or flags it for the author instead of inventing a number",
         "Preserves the rationale sentence tied to TRIPOD+AI item 9 and the prespecified MAR assumption (protected rationale) instead of deleting it, while removing the uncited 'as is well known' attribution",
         "Ends with an audit summary that reports counts by issue category (e.g., interpretation-in-Results, ungrounded-intensifier, uncited-attribution) rather than a line-by-line transcript",
-        "Does not invent citations, AUC values, or calibration statistics"
+        "Does not invent citations, AUC values, or calibration statistics",
+        "Flags the TRIPOD+AI reference as lacking an identifier unless it resolves one through the PubMed MCP (pubmed_fetch_articles/get_article_metadata, pubmed_convert_ids/convert_article_ids, or pubmed_lookup_citation/lookup_article_by_citation), and does not assert the content of TRIPOD+AI item 9 from memory"
       ]
     },
     {

@@ -32,7 +32,7 @@ Everything else below applies to manuscript prose largely as in the source catal
 
 **Meta-commentary** — the manuscript should move, not announce its own structure: "In this section, we will...," "As we'll see...," "The rest of this discussion explores...," "Let me walk you through."
 
-**Uncited attribution** — never permitted in scientific writing regardless of AI-tell status: "studies show," "research suggests," "experts believe," "it is well established that" without a citation. Either cite the specific source or state the claim as this study's own finding.
+**Uncited attribution** — never permitted in scientific writing regardless of AI-tell status: "studies show," "research suggests," "experts believe," "it is well established that" without a citation. Either cite the specific source or state the claim as this study's own finding. A citation supplied to repair this must come from a source that was read and resolves to a PMID or DOI (through `ce-scientific-writing`'s evidence access or `ce-manuscript-citations`); a citation recalled from memory is itself uncited attribution.
 
 **Vague declaratives** — name the specific thing instead of announcing its importance: "The implications are significant" → state which implication; "The reasons are structural" → name the structural reason.
 

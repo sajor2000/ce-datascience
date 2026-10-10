@@ -13,7 +13,7 @@ description: "Apply a precise, clinically detached house style to narrative clin
 - **Ask only if:** The manuscript section or intended scientific register cannot be inferred from the supplied text.
 - **Do not do:** Do not apply interpretive voice rules to Methods or Results, and do not invent evidence or citations.
 
-House style for formal scientific reporting in clinical AI research: precise, methodologically transparent, hedged only where evidence warrants, direct where findings are clear. Every claim traces to data or citation.
+House style for formal scientific reporting in clinical AI research: precise, methodologically transparent, hedged only where evidence warrants, direct where findings are clear. Every claim traces to data or citation. The quoted sentences and statistics in this skill illustrate sentence form only; they are not sourced findings and must not be reused as evidence or citations.
 
 **Scope.** This voice governs narrative prose — Abstract background/conclusions, Introduction, Discussion, cover letters, grant narrative. It does not govern Methods or Results, which are audited separately under `ce-manuscript-section-discipline` and must stay purely factual and procedural. Applying this skill's interpretive latitude (hedging, mechanism, implications) to Methods or Results is itself an error — check which section you're in before applying these rules.
 
@@ -23,7 +23,7 @@ Open sentences with the grammatical subject, then the verb, then qualification: 
 
 Vary sentence length deliberately: short declarative anchors ("Most diagnostic errors arise from judgment-related pitfalls") alongside complex subordinated sentences of 40+ words that specify population, condition, and effect size in a single unit.
 
-Within a paragraph, sequence: (1) the finding or problem, (2) mechanism or context, (3) connection to implications or prior literature.
+Within a paragraph, sequence: (1) the finding or problem, (2) mechanism or context, (3) connection to implications or prior literature. A prior-literature statement carries a citation to a source that was read and resolves to a PMID or DOI; obtain it through `ce-scientific-writing`'s evidence access or `ce-manuscript-citations`, never from memory.
 
 ## Pronouns and Point of View
 

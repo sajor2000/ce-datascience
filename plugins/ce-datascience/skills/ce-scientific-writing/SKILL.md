@@ -35,19 +35,29 @@ Before opening a manuscript or supporting artifact that may contain patient-leve
 
 Authorization permits necessary editing in the approved environment. Never reproduce PHI/PII or patient-level source details in responses, logs, screenshots, citations, or unrestricted exports. When editing an approved artifact in place, preserve protected source details only when the destination is approved and the detail is scientifically necessary; otherwise use a visible placeholder and flag it for author or privacy review.
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** every factual claim in the Introduction and Discussion that is not this study's own result must resolve to a read source with a PMID or DOI; the citation ledger itself comes from `ce-manuscript-citations`.
+
 ## Choose the route
 
 ### Plan or outline
 
 Build a compact claim-evidence outline before drafting. State the research question or objective, the primary estimand or descriptive target, the main answer supported by the results, and the purpose of each section. Under each section, list the evidence it will use and any open loop.
 
-Keep open loops visible as `evidence needed`, `analysis needed`, or `author decision needed`. A thesis in scientific writing is the strongest claim the design and results support, not the most provocative framing.
+Keep open loops visible as `evidence needed`, `analysis needed`, or `author decision needed`. Resolve `evidence needed` through Evidence access when a connector is available; otherwise leave the loop open rather than citing from memory. A thesis in scientific writing is the strongest claim the design and results support, not the most provocative framing.
 
 ### Draft
 
 For a full empirical manuscript, default to this order when the available artifacts permit it: displays and result ledger, Results, Methods, Discussion, Introduction, abstract, then title. Follow another order when the article type, journal, or user's materials require it.
 
-Use `ce-manuscript-section-discipline` for Methods, Results, legends, and table notes. Use `ce-clinical-research-voice` only when its clinical register fits the assignment. Keep citations attached to the claims they support. Do not turn an association into causation, a secondary analysis into a primary finding, or absence of evidence into evidence of no effect.
+Use `ce-manuscript-section-discipline` for Methods, Results, legends, and table notes. Use `ce-clinical-research-voice` only when its clinical register fits the assignment. Keep citations attached to the claims they support; obtain each one through Evidence access, read before citing, and record the level read. Do not turn an association into causation, a secondary analysis into a primary finding, or absence of evidence into evidence of no effect.
 
 ### Revise
 

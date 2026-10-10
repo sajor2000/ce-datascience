@@ -24,7 +24,7 @@
         "Performs a developmental pass stating each section's contribution before line editing",
         "Surfaces alternative explanations, bias, or limits from a skeptical reader's position",
         "Does not inflate claims beyond what the design supports",
-        "Lists missing citations as an unresolved evidence gap (or routes to a literature/citation skill)"
+        "Resolves the requested prior-RCT citations through the PubMed MCP (pubmed_search_articles or search_articles, then pubmed_fetch_articles or get_article_metadata), reads each source before citing it, labels the level read, and keeps PMID/DOI; when no connector is available, lists the citations as an unresolved evidence gap or routes to ce-manuscript-citations rather than citing from memory"
       ]
     },
     {
