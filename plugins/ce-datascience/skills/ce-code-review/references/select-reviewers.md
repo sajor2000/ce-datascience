@@ -1,8 +1,56 @@
 # Stage 3: Select Reviewers
 
+## Roster (authoritative spawn list)
+
+`references/persona-catalog.md` describes each reviewer's focus; this table decides when to spawn.
+
+**Always-on:** `ce-correctness-reviewer`, `ce-testing-reviewer`, `ce-maintainability-reviewer`, `ce-project-standards-reviewer`, `ce-learnings-researcher`. Spawn every review unless the Stage 3c lite-roster gate applies.
+
+**Blinded EDA:** when SKILL.md blinding-state awareness found `stack_profile.blinding_state: blinded`, never spawn `ce-methods-reviewer` or `ce-multiplicity-reviewer`, even when their triggers match.
+
+**Conditional — spawn when the diff hits the trigger:**
+
+| Agent | Spawn when... |
+|-------|---------------|
+| `ce-r-code-reviewer` | `.R` / `.Rmd` / `.qmd` files in diff |
+| `ce-r-pipeline-reviewer` | `.R` / `.Rmd` / `.qmd` files in diff |
+| `ce-python-ds-reviewer` | `.py` / `.ipynb` files with DS imports (pandas, numpy, scipy, sklearn, statsmodels) in diff |
+| `ce-kieran-python-reviewer` | `.py` files in diff |
+| `ce-methods-reviewer` | inferential/model-fitting code, or `analysis/model-strategy/*-model-strategy.md` / its `.R` or `.py` scaffold in diff |
+| `ce-multiplicity-reviewer` | multiple comparisons, subgroup, or repeated-testing code in diff |
+| `ce-reproducibility-reviewer` | analysis scripts, notebooks, or env lock files in diff. Pass the resolved skill-local path for `references/study-metadata-schema.md` so the reviewer can check `.ce-datascience/study-metadata.yaml` completeness. |
+| `ce-sap-drift-detector` | `analysis/sap.md` (or any markdown with `sap_version` frontmatter) exists in project |
+| `ce-data-mapping-reviewer` | codebook, SAP variable list, or `analysis/sap-tables/03-variables.csv` in diff |
+| `ce-phi-leak-reviewer` | data files, codebooks, notebooks, manuscripts, or figure files in diff, OR `stack_profile.data_root` is inside the repo |
+| `ce-targets-pipeline-reviewer` | `_targets.R`, `_targets.yaml`, or `tar_target(` in diff |
+| `ce-quarto-render-reviewer` | `.qmd`, `_quarto.yml`, `_publish.yml`, or `_book/` / `_site/` in diff |
+| `ce-reporting-checklist-reviewer` | `stack_profile.reporting_checklist` set to a non-null string (e.g., `STROBE`, `TRIPOD+AI`) AND a SAP exists. Pass the value, any `stack_profile.reporting_checklist_extensions`, and the resolved skill-local paths for `references/guideline-registry.yaml`, `references/guideline-routing.md`, and the selected checklist files. |
+| `ce-data-leakage-reviewer` | ML training/eval code in diff (sklearn, lightgbm, xgboost, pytorch, tensorflow, keras, lifelines, sksurv, tidymodels) |
+| `ce-fairness-reviewer` | prediction-model code in diff AND data has subgroup variables (sex, race, age band, site, payer) |
+| `ce-calibration-reviewer` | prediction-model evaluation code in diff that produces predicted probabilities |
+| `ce-omop-mapping-reviewer` | OMOP CDM tables, `concept_id` columns, or `analysis/cohort/concept-sets/` in diff |
+| CLIF brief for `ce-project-standards-reviewer` | `__CE_CLIF__ active=true` in chat context OR strong CLIF signals (CLIF_CLAUDE.md at root, or a git remote containing clif-icu, clif-consortium, or Common-Longitudinal-ICU-data-Format — NOT mCIDE/ or WORKFLOW.md alone). Extend the always-on standards reviewer's prompt with CLIF protected-path, Parquet-only, timezone, identifier, category, and patient-row rules. Require matching `version=` + `mcide_version=` before judging category values; flag an absent, mixed, or v2.1-cache-on-v3 family as a blocking review finding and route to the `ce-clif` skill. Do not dispatch a nonexistent `ce-clif-reviewer`. |
+| `ce-administrative-data-reviewer` | claims / billing / payer / administrative healthcare data in diff (Medicare, Medicaid, MarketScan, Optum, OMOP claims-flavor) |
+| `ce-concept-drift-reviewer` | concept sets, ICD/CPT/LOINC/SNOMED code lists in diff AND data spans multiple refresh waves or multiple years |
+| `ce-causal-inference-reviewer` | observational analysis with causal aim in diff (IPTW, matching, MSM, g-computation, DR, IV, RDD, DiD, target-trial emulation) |
+| `ce-bioinfo-pipeline-reviewer` | Snakefile / `*.smk` / `*.nf` / `nextflow.config` / `*.cwl` / Bioconductor pipelines / sample-sheet driven scripts in diff |
+| `ce-omics-batch-reviewer` | omics count / beta matrices in diff AND downstream differential or clustering or ML code |
+| `ce-sprint-audit-reviewer` | dispatched by `ce-sprint close` (not by code review directly) |
+| `ce-security-reviewer` | auth, public endpoints, user input, permissions in diff |
+| `ce-performance-reviewer` | DB queries, loop-heavy data transforms, caching, async, large-data operations in diff |
+| `ce-reliability-reviewer` | error handling, retries, timeouts, background jobs in diff |
+| `ce-adversarial-reviewer` | >=50 changed non-test/non-generated lines, OR data mutations, external APIs, high-risk domains |
+| `ce-previous-comments-reviewer` | reviewing a PR with existing review comments |
+
+The roster right-sizes itself: a small config change triggers 0 conditionals (5 reviewers); a Python analysis with statistical tests might add methods + python-ds + kieran-python + reproducibility (9 reviewers).
+
+## Language-Aware Conditionals
+
+Language-specific reviewers add a distinct, opinionated lens on top of the always-on and cross-cutting personas; they are not generic language checkers. Do not spawn them mechanically from file extensions alone; the trigger is meaningful changed analysis logic, data transformations, or modeling code in that language.
+
 ## Stage 3: Choose the roster
 
-Read the diff and file list from Stage 1. The 4 always-on personas and 1 CE always-on agent are automatic. For each statistical, language-specific, and cross-cutting conditional persona in the SKILL.md Reviewers table and `references/persona-catalog.md`, decide whether the diff warrants it. This is agent judgment, not keyword matching. Apply the SKILL.md blinding-state exclusions before finalizing the roster.
+Read the diff and file list from Stage 1. The 4 always-on personas and 1 CE always-on agent are automatic. For each statistical, language-specific, and cross-cutting conditional persona in the Roster table above, decide whether the diff warrants it. This is agent judgment, not keyword matching. Apply the blinded-EDA exclusions before finalizing the roster.
 
 **File-type awareness for conditional selection:** Instruction-prose files (Markdown skill definitions, JSON schemas, config files) are product code but do not benefit from runtime-focused reviewers. The adversarial reviewer's techniques (race conditions, cascade failures, abuse cases) target executable code behavior. For diffs that only change instruction-prose files, skip adversarial unless the prose describes auth, payment, or data-mutation behavior. Count only executable code lines toward line-count thresholds.
 

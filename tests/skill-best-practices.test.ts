@@ -10,6 +10,9 @@ const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills
 const MAX_NAME_CHARS = 64
 const MAX_DESCRIPTION_CHARS = 1024
 const MAX_BODY_LINES = 500
+// Every SKILL.md token loads on each invocation; long lines hide size from a line cap.
+// ~16 KB is about 4,000 tokens. Move conditional or late-sequence detail to references/.
+const MAX_SKILL_BYTES = 16_000
 const TOC_REQUIRED_OVER_LINES = 100
 const TOC_SEARCH_LINES = 40
 
@@ -81,6 +84,15 @@ describe("skill bodies follow Anthropic progressive-disclosure rules", () => {
       .filter((s) => s.lines >= MAX_BODY_LINES)
       .map((s) => `${s.name}: ${s.lines} lines`)
     expect(tooLong).toEqual([])
+  })
+
+  test(`SKILL.md stays under ${MAX_SKILL_BYTES} bytes`, async () => {
+    const tooLarge: string[] = []
+    for (const skill of skills) {
+      const bytes = (await fs.stat(path.join(skill.dir, "SKILL.md"))).size
+      if (bytes > MAX_SKILL_BYTES) tooLarge.push(`${skill.name}: ${bytes} bytes`)
+    }
+    expect(tooLarge).toEqual([])
   })
 
   test(`reference files over ${TOC_REQUIRED_OVER_LINES} lines open with a table of contents`, async () => {

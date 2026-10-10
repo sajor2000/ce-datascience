@@ -213,6 +213,28 @@ The audit applied Anthropic's [skill-creator](https://github.com/anthropics/skil
 - **Literature MCP routing:** `ce-literature-search/references/mcp-routing.md` now maps each evidence need to the connected MCP tools (PubMed, Paperclip, Context7 or Ref, web search) and to a no-MCP fallback, with a no-PHI-in-queries rule.
 - **Live evaluation not run.** skill-creator's `run_loop.py` makes about 60 `claude -p` calls per skill (20 queries x 3 runs). Run it on the overlap groups above first, and treat the eval sets as a starting point for human review in skill-creator's viewer.
 
+## Skill length audit
+
+Line counts hid the problem: every SKILL.md was under 500 lines, but long lines meant several loaded about 10,000 tokens per invocation. Size is now measured in bytes, and `tests/skill-best-practices.test.ts` caps every SKILL.md at 16,000 bytes (about 4,000 tokens).
+
+| Skill | Bytes before | Bytes after |
+|---|---|---|
+| ce-ideate | 40,880 | 15,808 |
+| ce-work | 40,642 | 15,701 |
+| ce-plan | 40,072 | 15,724 |
+| ce-code-review | 33,884 | 15,751 |
+| ce-compound | 31,609 | 13,891 |
+| ce-compound-refresh | 29,898 | 15,877 |
+| ce-brainstorm | 29,689 | 15,153 |
+| ce-optimize | 26,434 | 15,231 |
+| ce-debug | 23,107 | 15,784 |
+| ce-commit-push-pr | 18,162 | 14,757 |
+| ce-doc-review | 17,131 | 13,674 |
+| ce-sessions | 13,376 | 11,909 |
+| ce-clif | 13,053 | 12,706 |
+
+After the cut, all 66 skills are under 16,000 bytes; the median is 6,648 bytes and the largest is 15,877. Detail moved into directly linked `references/` files; safety gates, Skill Value blocks, routing and output contracts stayed in SKILL.md. `ce-clif` and `ce-doc-review` also stopped `@`-inlining large reference files (about 37 KB and 28 KB) at load time.
+
 ## mattpocock/skills evaluation
 
 [mattpocock/skills](https://github.com/mattpocock/skills) is MIT-licensed (Copyright (c) 2026 Matt Pocock). Adapting ideas needs no notice. Copying a substantial portion requires shipping the MIT notice with that skill, for example in a `CREDITS.md` inside the skill directory.

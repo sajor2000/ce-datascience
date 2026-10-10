@@ -3,7 +3,7 @@
 ## Contents
 
 - Step 1: Build the action sets
-- Step 2: Choose policy by mode (interactive routing question, autofix, agent, report-only, headless)
+- Step 2: Choose policy by mode (interactive routing question, then autofix, agent, report-only, and headless mode rules)
 - Step 3: Apply fixes with one fixer
 - Step 4: Emit artifacts and downstream handoff
 - Step 5: Final next steps
@@ -21,7 +21,7 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 
 ## Step 2: Choose policy by mode
 
-**Interactive mode**
+### Interactive mode rules
 
 - Apply `safe_auto -> review-fixer` findings automatically without asking. These are safe by definition.
 - **Zero-remaining case:** if no `gated_auto` or `manual` findings remain after the `safe_auto` pass, skip the routing question entirely. Emit a one-line completion summary phrased so advisory and pre-existing findings (which are not handled by this flow) are not implied to be cleared. When no advisory or pre-existing findings remain in the report, `All findings resolved — N safe_auto fixes applied.` is accurate. When advisory and/or pre-existing findings do remain, use the qualified form `All actionable findings resolved — N safe_auto fixes applied. (K advisory, J pre-existing findings remain in the report.)`, omitting any zero-count clause. Follow the summary with the existing end-of-review verdict, then proceed to Step 5 per the gating rule there.
@@ -55,34 +55,37 @@ After presenting findings and verdict (Stage 6), route the next steps by mode. R
 
 - The walk-through's completion report, the best-judgment / File-tickets completion report, and the zero-remaining completion summary all follow the unified completion-report structure documented in `references/walkthrough.md`. Use the same structure across every terminal path.
 
-**Autofix mode**
+### Autofix mode rules
 
-- Ask no questions.
-- Apply only the `safe_auto -> review-fixer` queue.
-- Leave `gated_auto`, `manual`, `human`, and `release` items unresolved.
-- Prepare residual work only for unresolved actionable findings whose final owner is `downstream-resolver`.
+- **Skip all user questions.** Never pause for approval or clarification once scope has been established.
+- Apply only the `safe_auto -> review-fixer` queue, re-reviewing in bounded rounds (Step 3). Leave `gated_auto`, `manual`, `human`, and `release` items unresolved.
+- Prepare residual work only for unresolved actionable findings whose final owner is `downstream-resolver`, and write the run artifact (Step 4). Do not file tickets.
+- **Emit a compact Residual Actionable Work summary in the autofix return** as two contiguous sections: applied `safe_auto` fixes first, then residual non-auto findings. List each residual `downstream-resolver` finding with its stable `#` from Stage 5 (never renumber), severity, file:line, title, and autofix_class, and include the run-artifact path. Callers read this summary directly without parsing the artifact. When no residuals exist, state `Residual actionable work: none.` explicitly.
+- Never commit, push, or create a PR.
 
-**Agent mode**
+### Agent mode rules
 
 - Ask no questions and perform no mutations.
 - Skip every fixer, ticket, commit, push, pull-request, and checkout-switch path.
 - Serialize the complete merged finding set and the actionable subset through the SKILL.md JSON output contract, write `review.json`, and stop.
 
-**Report-only mode**
+### Report-only mode rules
 
-- Ask no questions.
+- **Skip all user questions.** Infer intent conservatively if the diff metadata is thin.
 - Do not build a fixer queue.
 - Do not write run artifacts.
-- Stop after Stage 6. Everything remains in the report.
+- Never file tickets, commit, push, or create a PR. Stop after Stage 6; everything remains in the report.
+- `mode:report-only` is the only mode safe to run concurrently with browser testing on the same checkout, and it never switches the shared checkout (`references/scope.md`).
 
-**Headless mode**
+### Headless mode rules
 
-- Ask no questions.
-- Apply only the `safe_auto -> review-fixer` queue in a single pass. Do not enter the bounded re-review loop (Step 3). Spawn one fixer subagent, apply fixes, then proceed directly to Step 4.
-- Leave `gated_auto`, `manual`, `human`, and `release` items unresolved — they appear in the structured text output.
-- Output the headless output envelope (`references/synthesis-and-output.md`) instead of the interactive report.
-- Write a run artifact (Step 4). Do not file tickets or externalize work — the caller owns that.
-- Stop after the structured text output and "Review complete" signal. No commit/push/PR.
+- **Skip all user questions.** Never pause for approval or clarification. Infer intent conservatively from the available branch, PR, diff, and caller context.
+- Apply only the `safe_auto -> review-fixer` queue in a single pass. No bounded re-review rounds: spawn one fixer subagent, apply fixes, then proceed directly to Step 4.
+- Leave `gated_auto`, `manual`, `human`, and `release` items unresolved and return them in the headless output envelope (`references/synthesis-and-output.md`), preserving severity, autofix_class, owner, requires_verification, confidence, pre_existing, and suggested_fix per finding, enriched with detail-tier fields from the per-agent artifacts.
+- Write a run artifact (Step 4) and include its path in the structured output. Do not file tickets or externalize work. The caller owns that.
+- With an explicit PR or branch target, `mode:headless` must run in an isolated checkout/worktree or stop (`references/scope.md`).
+- **Not safe for concurrent use on a shared checkout.** Unlike `mode:report-only`, headless mutates files (applies `safe_auto` fixes). Callers must not run headless concurrently with other mutating operations on the same checkout.
+- End with "Review complete" as the terminal signal after the structured text output. No commit/push/PR.
 
 ## Step 3: Apply fixes with one fixer
 

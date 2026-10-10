@@ -1,6 +1,6 @@
 # Persona Catalog
 
-The `ce-code-review` skill uses this catalog to dispatch reviewers. The skill's own SKILL.md table is the authoritative source for spawn conditions; this file describes what each reviewer focuses on.
+The `ce-code-review` skill uses this catalog to dispatch reviewers. The Roster table in `references/select-reviewers.md` is the authoritative source for spawn conditions; this file describes what each reviewer focuses on.
 
 ## Always-on (every review)
 

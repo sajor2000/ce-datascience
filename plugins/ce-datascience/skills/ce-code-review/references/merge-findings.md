@@ -2,8 +2,25 @@
 
 ## Contents
 
+- Action Routing (autofix_class, owner, and routing rules)
 - Stage 5: Merge findings (validate, dedupe, promote, route, demote, gate, partition, sort)
 - Stage 5b: Validation pass (externalizing modes only)
+
+## Action Routing
+
+Severity answers **urgency**. Routing answers **who acts next** and **whether this skill may mutate the checkout**.
+
+| `autofix_class` | Default owner | Meaning |
+|-----------------|---------------|---------|
+| `safe_auto` | `review-fixer` | Local, deterministic fix suitable for the in-skill fixer when the current mode allows mutation |
+| `gated_auto` | `downstream-resolver` or `human` | Concrete fix exists, but it changes behavior, contracts, permissions, or another sensitive boundary that should not be auto-applied by default |
+| `manual` | `downstream-resolver` or `human` | Actionable work that should be handed off rather than fixed in-skill |
+| `advisory` | `human` or `release` | Report-only output such as learnings, rollout notes, or residual risk |
+
+- **Synthesis owns the final route.** Persona-provided routing metadata is input, not the last word.
+- **Choose the more conservative route on disagreement.** A merged finding may move from `safe_auto` to `gated_auto` or `manual`, but never the other way without stronger evidence.
+- **Only `safe_auto -> review-fixer` enters the in-skill fixer queue automatically.**
+- **`requires_verification: true` means a fix is not complete without targeted tests, a focused re-review, or operational validation.**
 
 ## Stage 5: Merge findings
 
@@ -61,7 +78,8 @@ Demotion is intentionally narrow. The conservative scope (testing/maintainabilit
    - report-only queue: `advisory` findings plus anything owned by `human` or `release`
 9. **Sort.** Order by severity (P0 first) -> anchor (descending) -> file path -> line number.
 10. **Collect coverage data.** Union residual_risks and testing_gaps across reviewers.
-11. **Preserve CE agent artifacts.** Keep the learnings researcher output alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
+11. **Apply blinded-EDA and Protected Artifacts rules.** Add the SKILL.md blinded-EDA P0 finding when it applies, and discard any finding that recommends deleting or gitignoring a SKILL.md Protected Artifact.
+12. **Preserve CE agent artifacts.** Keep the learnings researcher output alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
 
 ## Stage 5b: Validation pass (externalizing modes only)
 

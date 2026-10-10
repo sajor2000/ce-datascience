@@ -1,5 +1,10 @@
 # Stage 6: Synthesize and Present
 
+## Contents
+
+- Output formats: report sections, quality gates, format verification
+- Headless output format, detail enrichment, and formatting rules
+
 ## Output formats
 
 ### Report sections
@@ -22,6 +27,15 @@ In `mode:agent`, skip markdown and emit the SKILL.md JSON output contract; still
 Do not include time estimates.
 
 **Format verification:** Before delivering the report, verify the findings sections use pipe-delimited table rows (`| # | File | Issue | ... |`) not freeform text. If you catch yourself rendering findings as prose blocks separated by horizontal rules or bullet points, stop and reformat into tables.
+
+**Quality gates:** Before delivering, verify each finding:
+
+1. **Actionable.** Rewrite any "consider" / "might want to" / "could be improved" finding without a concrete fix into a specific action.
+2. **Not skimmed.** The surrounding code was actually read: the "bug" is not handled elsewhere in the same function, the "unused import" is not used in a type annotation, the "missing null check" is not guarded by the caller.
+3. **Calibrated.** A style nit is never P0; a SQL injection is never P3. Re-check every severity.
+4. **Accurate lines.** Each cited line number matches the file content; a finding pointing to the wrong line is worse than no finding.
+5. **Protected artifacts respected.** Discard findings that recommend deleting or gitignoring files in `docs/brainstorms/`, `docs/plans/`, `docs/solutions/`, or `analysis/model-strategy/`.
+6. **No linter duplicates.** Do not flag what the project's linter/formatter catches (semicolons, indentation); focus on semantic issues.
 
 ### Headless output format
 
