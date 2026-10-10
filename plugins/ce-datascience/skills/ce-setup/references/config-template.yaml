@@ -2,6 +2,13 @@
 # Copy to .ce-datascience/config.local.yaml in your project root.
 # All settings are optional. Uncomment and edit only what you need.
 
+# --- PHI environment (asked once by ce-work and ce-clif, then remembered) ---
+# Machine-local approval decision; keep this file gitignored so another machine
+# never inherits it. Delete the block or set compliant: false to be asked again.
+# phi_environment:
+#   compliant: true            # true = this data environment AND the active model endpoint are approved for PHI/PII
+#   confirmed_on: 2026-10-10   # date the user answered
+
 # --- Stack profile ---
 # Configure your preferred language, IDE, libraries, and reporting tools.
 # Run /ce-setup to set these interactively.

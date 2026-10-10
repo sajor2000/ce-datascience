@@ -112,7 +112,9 @@ If auto-detection signals are present, activate silently and print the acknowled
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
 Before reading patient-level data, code output, logs, or tracebacks, apply the
-one-time PHI authorization check in `references/clif-rules.md`. If the user has
+one-time PHI authorization check in `references/clif-rules.md`. A saved
+`phi_environment.compliant` in `.ce-datascience/config.local.yaml` counts as the
+user's answer (`true` = confirmed, `false` = no). If the user has
 already confirmed in the current conversation that both the data environment
 and active model endpoint are approved for PHI/PII, proceed without repeating
 the question or warning that PHI cannot be read. If confirmation is absent or
