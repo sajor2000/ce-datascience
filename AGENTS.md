@@ -138,7 +138,7 @@ for the contract, run layout, acceptance policy, and interpretation limits.
 
 ## Agent Style Reference
 
-- Use [`forrestchang/andrej-karpathy-skills`](https://github.com/forrestchang/andrej-karpathy-skills) as an external reference for Karpathy-style agent/skill expectations when auditing or authoring slash-command skills: understand the task before acting, prefer simple and surgical workflows, keep instructions concise, avoid unsupported promises, and verify the real user-facing path. Treat it as guidance, not a dependency or a replacement for this repo's rules.
+- Use [`multica-ai/andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills) as an external reference for Karpathy-style agent/skill expectations when auditing or authoring slash-command skills: understand the task before acting, prefer simple and surgical workflows, keep instructions concise, avoid unsupported promises, and verify the real user-facing path. Treat it as guidance, not a dependency or a replacement for this repo's rules.
 
 ## Commit Conventions
 

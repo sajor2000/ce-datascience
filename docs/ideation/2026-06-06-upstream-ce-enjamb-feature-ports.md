@@ -30,7 +30,7 @@ Public sources only were reviewed; this is not a hands-on product validation.
 - [Enjamb homepage](https://www.enjamb.ai/) frames the product as an agentic
   workspace for literature review, methodology design, data analysis, grants,
   figures, and manuscript drafting.
-- [Enjamb IRE vision](https://www.enjamb.ai/blog/the-integrated-research-environment)
+- [Enjamb](https://www.enjamb.ai/) (the original "integrated research environment" blog post is no longer online)
   emphasizes a unified research workspace with Word, LaTeX, Excel, PowerPoint,
   Python/R compute, reference management, task management, file storage,
   scientific canvas, and traceable integrations.

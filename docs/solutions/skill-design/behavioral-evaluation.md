@@ -138,7 +138,7 @@ This pattern adapts the frozen protocols, objective scoring, synthetic health-da
 hash-based evidence used in
 [`bojieli/ai-agent-book`](https://github.com/bojieli/ai-agent-book), especially its
 [agent-evaluation chapter](https://github.com/bojieli/ai-agent-book/blob/main/chapter6/README.en.md),
-[public-health reporting evaluation](https://github.com/bojieli/ai-agent-book/tree/main/chapter6/public-health-reporting-eval),
+[chapter 6 evaluation write-up](https://github.com/bojieli/ai-agent-book/blob/main/chapter6/README.en.md) (the original public-health-reporting-eval directory is no longer in the repository),
 and [skill experiment protocol](https://github.com/bojieli/ai-agent-book/blob/main/chapter2/agent-skills-ppt/experiment_protocol.json).
 The CE implementation and fixtures are original and use the external repository as conceptual
 grounding only.

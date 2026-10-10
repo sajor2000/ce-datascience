@@ -191,5 +191,5 @@ Some consortium projects use Python for data wrangling and R for statistical mod
 - **clifpy** (official Python client, PyPI: `python3 -m pip install --upgrade clifpy`; uv projects: `uv add clifpy`): https://github.com/Common-Longitudinal-ICU-data-Format/clifpy — examples in `examples/`, docs at https://common-longitudinal-icu-data-format.github.io/clifpy/
 - **CLIF-Project-Template** (canonical R skeleton with `renv.lock`, `code/`, `config/`, `outlier-thresholds/`, `output/`, `utils/`): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Project-Template
 - CLIF-MIMIC pipeline (MIMIC -> CLIF): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-MIMIC
-- CLIF Lighthouse (validation tool): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse
+- CLIF Lighthouse (validation tool, deprecated in favour of CLIF TableOne in v2.1): https://github.com/Common-Longitudinal-ICU-data-Format/CLIF-Lighthouse-Deprecated
 - Consortium contact: clif_consortium@uchicago.edu
