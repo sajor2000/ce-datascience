@@ -44,7 +44,7 @@ In `ce-datascience`, methodology and reporting feedback is first-class. Treat co
 
 After determining mode, read the matching reference and follow it. Each reference is self-contained for that mode's flow:
 
-- **Full Mode** → `references/full-mode.md` (10 steps: fetch, triage, optional cluster analysis, plan, parallel implement, validate, commit/push, reply/resolve, verify, summary)
+- **Full Mode** → `references/full-mode.md` (10 steps: fetch, triage, optional cluster analysis, plan, parallel implement, validate, commit/push, reply/resolve, verify, summary). Step 5 lives in `references/full-mode-implement.md` and step 10 in `references/full-mode-summary.md`; full mode points to each at that step.
 - **Targeted Mode** → `references/targeted-mode.md` (2 steps: extract thread context from URL and check for a pending review, then fix/reply/resolve). Also read steps 6-8 of `references/full-mode.md`, which targeted mode reuses for validate, commit, push, reply, and resolve.
 
 ## Scripts

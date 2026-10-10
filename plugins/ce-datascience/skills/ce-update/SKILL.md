@@ -30,7 +30,7 @@ below handles those cases.
 
 `${CLAUDE_SKILL_DIR}` is a Claude Code-documented substitution that resolves
 at skill-load time. For a marketplace-cached install it looks like
-`~/.claude/plugins/cache/<marketplace>ce-datascience/<version>/skills/ce-update`,
+`~/.claude/plugins/cache/<marketplace>/ce-datascience/<version>/skills/ce-update`,
 so the currently-loaded version is the basename two `dirname` levels up.
 
 The upstream version comes from `plugins/ce-datascience/.claude-plugin/plugin.json`

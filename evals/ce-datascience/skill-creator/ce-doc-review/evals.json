@@ -10,7 +10,7 @@
         "Classifies the document type from content shape (plan) and states it",
         "Announces a reviewer team that always includes ce-coherence-reviewer and ce-feasibility-reviewer",
         "Activates ce-scope-guardian-reviewer (multiple priority tiers, >8 units) and ce-security-lens-reviewer or ce-adversarial-document-reviewer (PHI / new methodology) with a one-line justification each",
-        "Presents findings grouped by tier (safe_auto / gated_auto / manual / FYI) and asks how to handle remaining findings rather than silently applying all edits",
+        "Presents findings grouped by severity with a Tier column and a separate FYI observations subsection, and asks how to handle remaining findings rather than silently applying all edits",
         "Does not run any statistical analysis or implement the plan's units"
       ]
     },

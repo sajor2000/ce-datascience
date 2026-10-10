@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Data Science Environment Setup
 
-> **Script paths are relative to this skill's directory.** Run the commands below from the skill directory (the directory containing this `SKILL.md`), or prefix each script path with that directory — the agent's working directory is the user's project, not the skill.
+> **Script paths are anchored to this skill's directory.** Run each command below from the user's project (the agent's working directory) with `SKILL_DIR` set to the directory containing this `SKILL.md`; do not change into the skill directory, because the script inspects the current repository.
 
 ## Skill Value
 

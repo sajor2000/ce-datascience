@@ -27,7 +27,7 @@ Detected profile
   Storage: Parquet (medium: cohort.parquet)
   Data domain: generic EHR (medium: cohort + encounter fields)
 
-Choose: Continue with this profile | Adjust a field | Full survey
+Choose: Continue with detected profile | Adjust a field | Full survey
 ```
 
 Do not write this evidence block as a required configuration schema. When it is

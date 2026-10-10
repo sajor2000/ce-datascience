@@ -30,9 +30,11 @@ Split the argument string on whitespace. Strip every token that starts with `mod
 
 Version-like inputs (`2.65.0`, `v2.65.0`, `ce-datascience-v2.65.0`) are query strings, not a separate lookup-by-version mode. They flow through query mode like any other text.
 
+If the request asks to check whether the install is current or to update the plugin, do not run any install or update command. Point to the platform's update path (in Claude Code, the `ce-update` skill), then answer any remaining release question.
+
 ## Phase 2 — Fetch Releases (Summary Mode)
 
-Run the helper from the skill directory:
+Run the bundled helper (anchored to the skill directory):
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";

@@ -32,7 +32,7 @@
       "expected_output": "Begins structured collection by asking the bug-category question (one decision-changing question at a time), continuing through component, actual/expected behavior, steps, and errors before formatting the report.",
       "files": [],
       "expectations": [
-        "Asks for the bug category first with options (Agent, Command, Skill, MCP server, Installation, Other) rather than filing an issue immediately",
+        "Asks for the bug category first with at most 4 options (Skill or slash command, Agent, Installation or setup, Other) rather than filing an issue immediately",
         "Asks one question at a time, using the harness question UI when available or numbered choices otherwise",
         "Does not create a GitHub issue until component, actual behavior, expected behavior, and reproduction steps are collected or explicitly marked unknown"
       ]

@@ -8,12 +8,12 @@ Read this reference when Mode Detection (in SKILL.md) routes to **Full Mode** �
 - 2. Triage: Separate New from Pending
 - 3. Cross-Invocation Cluster Analysis (Gated)
 - 4. Plan
-- 5. Implement (PARALLEL)
+- 5. Implement (PARALLEL) (in `references/full-mode-implement.md`)
 - 6. Validate Combined State
 - 7. Commit and Push
 - 8. Reply and Resolve (REST reply from a body file, read-back, pending recheck, resolve)
 - 9. Verify
-- 10. Summary
+- 10. Summary (in `references/full-mode-summary.md`)
 
 ## 1. Fetch Unresolved Threads
 
@@ -130,66 +130,7 @@ If step 3 produced clusters, include them in the task list as cluster items alon
 
 ## 5. Implement (PARALLEL)
 
-Process all three feedback types. Review threads are the primary type; PR comments and review bodies are secondary but should not be ignored.
-
-### Dispatch boundary for previously-resolved threads
-
-Previously-resolved threads (from `cross_invocation.resolved_threads`) participate in clustering and appear in cluster briefs as `<prior-resolutions>` context. They are NEVER individually dispatched — they were already resolved in prior rounds. Only new threads get individual or cluster dispatch.
-
-### Individual dispatch (default)
-
-**For review threads** (`review_threads`): Spawn a `ce-pr-comment-resolver` agent for each new thread that is NOT already assigned to a cluster from step 3. Clustered threads are handled by cluster dispatch below -- do not dispatch them individually.
-
-Each agent receives:
-- The thread ID
-- The file path and location fields: `line`, `originalLine`, `startLine`, `originalStartLine` (any can be null; outdated and file-level threads often have `line == null` and must fall back to `originalLine`)
-- The full comment text (all comments in the thread)
-- The PR number (for context)
-- The feedback type (`review_thread`)
-- The `isOutdated` flag from the thread node (tells the agent the reported line may have drifted)
-
-**For PR comments and review bodies** (`pr_comments`, `review_bodies`): These lack file/line context. Spawn a `ce-pr-comment-resolver` agent for each actionable non-clustered item. The agent receives the comment ID, body text, PR number, and feedback type (`pr_comment` or `review_body`). The agent must identify the relevant files from the comment text and the PR diff.
-
-### Cluster dispatch
-
-For each cluster identified in step 3, dispatch ONE `ce-pr-comment-resolver` agent that receives:
-- The `<cluster-brief>` XML block
-- All thread details for threads in the cluster (IDs, file paths, line numbers, comment text)
-- The PR number
-- The feedback types
-
-The cluster agent reads the broader area before making targeted fixes. It returns one summary per thread it handled (same structure as individual agents), plus a `cluster_assessment` field describing what broader investigation revealed and whether a holistic or individual approach was taken.
-
-### Agent return format
-
-Each agent returns a short summary:
-- **verdict**: `fixed`, `fixed-differently`, `replied`, `not-addressing`, `declined`, or `needs-human`
-- **feedback_id**: the thread ID or comment ID it handled
-- **feedback_type**: `review_thread`, `pr_comment`, or `review_body`
-- **reply_text**: the markdown reply to post (quoting the relevant part of the original feedback)
-- **files_changed**: list of files modified (empty if replied/not-addressing)
-- **reason**: brief explanation of what was done or why it was skipped
-
-Cluster agents additionally return:
-- **cluster_assessment**: what the broader investigation found, whether a holistic or individual approach was taken
-
-Verdict meanings:
-- `fixed` -- code change made as requested
-- `fixed-differently` -- code change made, but with a better approach than suggested
-- `replied` -- no code change needed; answered a question, acknowledged feedback, or explained a design decision
-- `not-addressing` -- feedback is factually wrong about the code; skip with evidence
-- `declined` -- observation may be valid, but implementing the suggested fix would actively make the code worse; reply cites the specific harm
-- `needs-human` -- cannot determine the right action; needs user decision
-
-### Batching and conflict avoidance
-
-**Batching**: Clusters count as 1 dispatch unit regardless of how many threads they contain. If there are 1-4 dispatch units total (clusters + individual items), dispatch all in parallel. For 5+ dispatch units, batch in groups of 4.
-
-**Conflict avoidance**: No two dispatch units that touch the same file should run in parallel. Before dispatching, check for file overlaps across all dispatch units (clusters and individual items). If a cluster's file list overlaps with an individual item's file, or with another cluster's files, serialize those units -- dispatch one, wait for it to complete, then dispatch the next. Non-overlapping units can still run in parallel. Within a single dispatch unit handling multiple threads on the same file, the agent addresses them sequentially.
-
-**Sequential fallback**: Platforms that do not support parallel dispatch should run agents sequentially. Dispatch cluster units first (they are higher-leverage), then individual items.
-
-Fixes can occasionally expand beyond their referenced file (e.g., renaming a method updates callers elsewhere). This is rare but can cause parallel agents to collide. Step 6 (combined validation) catches test breakage; step 9 (verify) catches unresolved threads. If either surfaces inconsistent changes from parallel fixes, re-run the affected agents sequentially.
+Read `references/full-mode-implement.md` and follow it: dispatch boundary for previously-resolved threads, individual and cluster dispatch of `ce-pr-comment-resolver`, the agent return format and verdicts, and batching and conflict avoidance.
 
 ## 6. Validate Combined State
 
@@ -256,7 +197,7 @@ For `needs-human` verdicts, post the reply but do NOT resolve the thread. Leave 
 
 ### Review threads
 
-Select the first unsatisfied condition before acting. A thread with no visible submitted reply runs steps 0-4. A `resolution-pending` thread skips step 1, uses its existing reply's ID in step 2, and runs steps 2-4; do not judge, fix, or post again. A `needs-human` thread stops after step 2 and stays unresolved. Order: steps 0-2 for each thread, step 3 once for the whole pass, then step 4 for each thread to resolve.
+Select the first unsatisfied condition before acting. A thread with no visible submitted reply runs steps 0-4. A `resolution-pending` thread skips step 1, uses its existing reply's ID in step 2, and runs steps 0 and 2-4; do not judge, fix, or post again. A `needs-human` thread stops after step 2 and stays unresolved. Order: steps 0-2 for each thread, step 3 once for the whole pass, then step 4 for each thread to resolve.
 
 0. **Verify the thread ID** before replying. GitHub Enterprise can return inconsistent node IDs for the same thread depending on the query path. Always confirm the ID from `get-pr-comments` resolves to the correct thread using `scripts/get-thread-for-comment` with the comment's numeric URL ID:
 ```bash
@@ -348,58 +289,4 @@ PR comments and review bodies have no resolve mechanism, so they will still appe
 
 ## 10. Summary
 
-Present a concise summary of all work done. Group by verdict, one line per item describing *what was done* not just *where*. This is the primary output the user sees.
-
-Format:
-
-```
-Resolved N of M new items on PR #NUMBER:
-
-Fixed (count): [brief description of each fix]
-Fixed differently (count): [what was changed and why the approach differed]
-Replied (count): [what questions were answered]
-Not addressing (count): [what was skipped and why]
-Declined (count): [what was declined and the harm cited]
-
-Validation: [one line -- e.g., "bun test passed (893/893)" or "bun test passed with pre-existing failure in X noted"; omit when no code changes were committed]
-```
-
-If any clusters were investigated, append a cluster investigation section:
-
-```
-Cluster investigations (count):
-
-1. [theme] in [area]: [cluster_assessment from the agent --
-   what was found, whether a holistic or individual approach was taken]
-```
-
-If any agent returned `needs-human`, append a decisions section. These are rare but high-signal. Each `needs-human` agent returns a `decision_context` field with a structured analysis: what the reviewer said, what the agent investigated, why it needs a decision, concrete options with tradeoffs, and the agent's lean if it has one.
-
-Present the `decision_context` directly -- it's already structured for the user to read and decide quickly:
-
-```
-Needs your input (count):
-
-1. [decision_context from the agent -- includes quoted feedback,
-   investigation findings, why it needs a decision, options with
-   tradeoffs, and the agent's recommendation if any]
-```
-
-The `needs-human` threads already have a natural-sounding acknowledgment reply posted and remain open on the PR.
-
-If there are **pending decisions from a previous run** (threads detected in step 2 as already responded to but still unresolved), surface them after the new work:
-
-```
-Still pending from a previous run (count):
-
-1. [Thread path:line] -- [brief description of what's pending]
-   Previous reply: [link to the existing reply]
-   [Re-present the decision options if the original context is available,
-   or summarize what was asked]
-```
-
-If a blocking question tool is available, use it to ask about all pending decisions (both new `needs-human` and previous-run pending) together. If there are only pending decisions and no new work was done, the summary is just the pending items.
-
-Use the platform's blocking question tool: `AskUserQuestion` in Claude Code (call `ToolSearch` with `select:AskUserQuestion` first if its schema isn't loaded), `request_user_input` in Codex, `ask_user` in Gemini, `ask_user` in Pi (requires the `pi-ask-user` extension). Use it to present the decisions and wait for the user's response. After they decide, process the remaining items: fix the code, compose the reply, post it, and resolve the thread.
-
-Fall back to presenting the decisions in the summary output and waiting in conversation only when no blocking tool exists in the harness or the call errors (e.g., Codex edit modes) — not because a schema load is required. Never silently skip. If the user doesn't respond, the items remain open on the PR for later handling.
+Read `references/full-mode-summary.md` and follow it to present the verdict-grouped summary, cluster investigations, `needs-human` decisions, and pending decisions from a previous run.
