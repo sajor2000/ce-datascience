@@ -1,6 +1,6 @@
 ---
 name: ce-figure
-description: "Validate publication figures against a figure manifest for JAMA-style typography, layout, and traceability, then visually check exported images. Use when the user asks for figure QA, a figure manifest, a JAMA-style plot check, or confirmation that manuscript figures are ready."
+description: "Create publication figures with a traceable figure manifest entry, or validate existing figures and manifests, for JAMA-style typography, layout, and source-data traceability, then visually check exported images. Use when the user asks for a manuscript figure or JAMA-style plot, figure QA, a figure manifest, or confirmation that manuscript figures are ready."
 argument-hint: "[optional: --manifest analysis/publication/figures/figure-manifest.json --project-root .]"
 ---
 
@@ -24,7 +24,7 @@ When the requested figure workflow creates or materially extends a Marimo, Jupyt
 
 ## Workflow
 
-1. Build or locate `analysis/publication/figures/figure-manifest.json`.
+1. Build or locate `analysis/publication/figures/figure-manifest.json`. When creating a figure, render it from existing source data with a saved script or notebook, apply the style profile, export a publication format, and add its manifest entry.
 2. Run:
 
 ```bash

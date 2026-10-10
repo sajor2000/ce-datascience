@@ -36,8 +36,9 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/build_package_manifest.py" --project-root . --out-dir manuscript --format quarto
 ```
 
-7. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-5 to those lists.
+7. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-4 to those lists. For a Word deliverable, also set the optional `word_master` and `citation_ledger` paths from the step 5 `__CE_CITATION_LEDGER__` handoff (`docx=` and `path=`).
 8. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
+9. The script never sets `ready-for-signoff`. The agent sets `readiness: ready-for-signoff` only after step 7, when the script result is `ready-with-review` and the user names the human reviewer who reviewed the readiness report; record that name in `signoff_reviewer`. Never set it from a `blocked` result or without a named reviewer. A rerun resets readiness, so repeat steps 7-9 after any rerun.
 
 ## Quarto Path
 
