@@ -52,7 +52,10 @@ describe("ce-optimize bundled-script anchoring (upstream #1009)", () => {
   })
 
   test("every SKILL_DIR script call sets SKILL_DIR and checks the script exists first", () => {
-    const blocks = bashBlocks(read("SKILL.md")).filter((b) => b.includes('"$SKILL_DIR/scripts/'))
+    // Conditional dispatch paths (e.g. references/codex-dispatch.md) hold some blocks.
+    const blocks = markdownFiles()
+      .flatMap((rel) => bashBlocks(read(rel)))
+      .filter((b) => b.includes('"$SKILL_DIR/scripts/'))
     expect(blocks.length).toBeGreaterThanOrEqual(6)
     for (const block of blocks) {
       expect(block).toContain('SKILL_DIR="<absolute path of the directory containing this SKILL.md>";')

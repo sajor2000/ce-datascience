@@ -25,11 +25,11 @@ Run this only after every degenerate gate passed and `metric.primary.type` is `j
 
 ## Runner-up merges
 
-Run after the batch winner is kept (SKILL.md 3.4 step 3), for up to `max_runner_up_merges_per_batch` runners-up that also improved:
+Run after the batch winner is kept (Phase 3.4 step 3), for up to `max_runner_up_merges_per_batch` runners-up that also improved:
 
 1. Check file-level disjointness with the kept experiment. Two experiments are disjoint only if they modified completely different files; the same file is overlapping even when the lines differ
 2. If disjoint: cherry-pick the runner-up onto the new baseline and re-run the full measurement (including `repeat` aggregation and judge scoring when configured)
-3. If the combined measurement is strictly better than the new best by the same threshold used in 3.4: keep it (outcome `runner_up_kept`, set `merged_with`), then clean up that runner-up's worktree and branch
+3. If the combined measurement is strictly better than the new best by the same threshold used in Phase 3.4: keep it (outcome `runner_up_kept`, set `merged_with`), then clean up that runner-up's worktree and branch
 4. Otherwise: revert the cherry-pick, log "promising alone but neutral or harmful in combination" (outcome `runner_up_reverted`), and clean up its worktree and branch
 5. Stop after the first failed combination
 

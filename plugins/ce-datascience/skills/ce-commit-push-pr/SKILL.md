@@ -22,7 +22,7 @@ Go from working changes to an open pull request, rewrite an existing PR descript
 Pick one path; default to the full workflow.
 
 - **Description-only.** The user wants *just* a PR description, with no commit or push intent ("write a PR description", "describe this PR", or a pasted PR URL/number alone). Skip Step 1's decision tree and Steps 3-5. Gather only the Context needed to resolve the range, then go to Step 6. Pass a pasted PR ref to Step 6 so Pre-A resolves that PR's range. Print the result; apply with `gh pr edit` or `gh pr create` only if the user asks.
-- **Description update.** The user wants to update, refresh, or rewrite an existing PR description, with no mention of committing or pushing. Follow the Description Update workflow. Note any focus the user gives (for example, "add the sensitivity-analysis results") for DU-3.
+- **Description update.** The user wants to update, refresh, or rewrite an existing PR description, with no mention of committing or pushing. Read `references/description-update.md` and follow it, using `references/pr-description-writing.md` at its DU-3 step. Note any focus the user gives (for example, "add the sensitivity-analysis results") for DU-3.
 - **Full workflow.** Otherwise, follow the Full workflow.
 
 ## Context
@@ -59,40 +59,8 @@ BODY_FILE=$(mktemp "${TMPDIR:-/tmp}/ce-pr-body.XXXXXX") && cat >> "$BODY_FILE" <
 __CE_PR_BODY_END__
 ```
 
-- Append with `>>`: `mktemp` already created the file, so a truncating `>` fails under zsh `noclobber` and leaves the body empty.
-- The quoted sentinel keeps `$VAR`, backticks, and any literal `EOF` inside the body from being expanded.
+- Append with `>>`; a truncating `>` fails under zsh `noclobber` and leaves the body empty. Keep the sentinel quoted.
 - Substitute `<TITLE>` verbatim in `gh` commands; if it contains `"`, `` ` ``, `$`, or `\`, escape them or switch to single quotes.
-
----
-
-## Description Update workflow
-
-### DU-1: Confirm intent
-
-Ask: "Update the PR description for this branch?" If declined, stop.
-
-### DU-2: Find the PR
-
-Run `git branch --show-current`, then the PR check from Context.
-
-- Empty branch (detached HEAD): report that there is no branch and stop.
-- Non-zero exit: PR state is unknown. Report it (with the `gh auth status` result) and stop.
-- Exit 0 with `[]`: report that there is no open PR for this branch and stop.
-- Matching entry: note its `url` and continue.
-
-### DU-3: Write and apply the updated description
-
-Read `references/pr-description-writing.md` once now. Run Pre-A in PR mode with the URL from DU-2 (it resolves the commit range, diff, and current body), then Steps A through H. Treat any user focus as steering; it must not override the writing principles or add content the diff does not support.
-
-**Evidence:** the writing reference preserves an existing `## Demo` or `## Screenshots` block by default. Honor a focus that asks to refresh or remove it. If no evidence block exists and one would help the reader, use the core Compound Engineering `ce-demo-reel` skill when it is installed, then re-compose with the captured URL/path spliced in. If `ce-demo-reel` is not available, ask for existing evidence or skip the evidence section; do not pretend ce-datascience ships its own demo-capture skill.
-
-**Compare and confirm.** Explain briefly what the new description covers differently from the old one, confirm any user focus was addressed, and ask before applying. If confirmed, write the body file (see "Writing the PR body file") and run:
-
-```bash
-gh pr edit <PR-URL> --title "<TITLE>" --body-file "$BODY_FILE"
-```
-
-Report the PR URL.
 
 ---
 
@@ -163,7 +131,7 @@ Commit subjects are imperative and name the outcome (what is now possible or fix
    GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
    git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
    ```
-   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. This excludes unrelated entries in the user's real index and preserves later working-tree edits. In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
+   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
 
 ### Step 5: Push
 
@@ -183,18 +151,7 @@ Read `references/pr-description-writing.md` once now and walk it in order (Pre-A
 
 **Resolve the range.** Run Pre-A: current-branch mode by default; PR mode with the matching PR URL from the PR check, or with a PR ref passed in from description-only mode. Use Pre-A's commit list and diff (not Step 1's working-tree diff or `git log -10`) for everything that follows.
 
-**Evidence decision (before composition).** Two short-circuits first:
-
-1. **User asked for evidence** ("ship with a demo", "include a screenshot"): go straight to capture. If capture is impossible (no runnable surface, missing credentials, docs-only diff) or clearly not useful, say so and continue without evidence.
-2. **Authored in this session and clearly non-observable** (internal plumbing, refactor without visible effect, type-level change): skip without asking.
-
-Otherwise, if the branch diff changes observable behavior (UI, CLI output, API behavior with runnable code, generated artifacts such as tables, figures, or rendered reports, workflow output) and evidence is not blocked (unavailable credentials, paid services, deploy-only infrastructure, hardware, data that cannot leave the secure environment), ask: "This PR has observable behavior. Capture evidence for the PR description?"
-
-- **Capture now:** use the core Compound Engineering `ce-demo-reel` skill with a target description inferred from the branch diff when that skill is installed. It returns `Tier`, `Description`, `URL`, and `Path`; exactly one of `URL` or `Path` is real and the other is `"none"`. A public `URL` becomes a `## Demo` section. A local `Path` means the user chose local save: note that a demo was recorded but not embedded. `Tier: skipped`, or both `"none"`, means no evidence. If the skill is unavailable, say demo capture is a core Compound Engineering capability and offer "Use existing evidence" or "Skip".
-- **Use existing evidence:** ask for the URL or markdown embed and splice it in as a `## Demo` section.
-- **Skip:** no evidence section.
-
-Skip without asking when evidence is not possible: docs-only, markdown-only, changelog-only, release metadata, CI/config-only, test-only, or pure internal refactors. Never put PHI, patient-level rows, or small cells in captured evidence.
+**Evidence decision (before composition).** Read `references/evidence-decision.md` and follow it. Capture uses the core Compound Engineering `ce-demo-reel` skill only when installed; do not pretend ce-datascience ships its own demo-capture skill. Never put PHI, patient-level rows, or small cells in captured evidence.
 
 **Compose.** Continue with Steps A through H (classification, evidence, narrative, sizing, writing principles, visuals, title, body with the CE DataScience badge, compression). For an existing PR, Pre-A already read the current body.
 

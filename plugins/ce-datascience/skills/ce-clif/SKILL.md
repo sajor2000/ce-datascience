@@ -6,7 +6,6 @@ argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 
 # CLIF-Safe Profile
 
-
 ## Skill Value
 
 - **Problem it solves:** CLIF projects have consortium-specific invariants that generic EHR analysis workflows can violate.
@@ -16,28 +15,28 @@ argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 - **Do not do:** Do not treat generic OMOP, claims, or EHR projects as CLIF without evidence.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Loads the CLIF (Common Longitudinal ICU data Format) ruleset whenever a session is operating against a CLIF consortium repo or a CLIF-derived project. The goal is simple: when a user is doing CLIF work, the rest of the `ce-*` lifecycle should automatically respect CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
+Loads the CLIF (Common Longitudinal ICU data Format) ruleset for CLIF consortium or CLIF-derived projects so the rest of the `ce-*` lifecycle respects CLIF schema, vocabularies, project layout, and PHI rules instead of treating CLIF like a generic Parquet dataset.
 
 **Core source:** Treat `https://clif-icu.com/` as the authoritative public CLIF source for the data dictionary, mCIDE context, tools, and consortium status. Use GitHub repositories for implementation details only after anchoring the project to the CLIF site and declared data dictionary version.
 
 ## When this skill activates
 
-Auto-activate when **two or more** of the following signals are present (single signals are too generic to distinguish CLIF from other EHR projects):
+Auto-activate on **one strong signal** or **two or more weak signals**:
 
-**Strong signals (any ONE of these alone is sufficient):**
+**Strong signals:**
 - A file named `CLIF_CLAUDE.md` exists at the repo root or `~/CLIF_CLAUDE.md`
 - Git remote URL contains `clif-consortium`, `Common-Longitudinal-ICU-data-Format`, or `clif-icu`
 - The user explicitly says "CLIF", "mCIDE", "clif-icu", or "common longitudinal icu data format"
 - Manual: `ce-clif` (forces activation)
 
-**Weak signals (require 2+ to activate — individually these appear in non-CLIF projects):**
+**Weak signals (require 2+):**
 - A `mCIDE/` directory exists
 - `WORKFLOW.md` exists at the repo root
 - Files named `clif_*.parquet` exist (e.g., `clif_vitals.parquet`, `clif_respiratory_support.parquet`)
 - Code references CLIF-specific table names: `respiratory_support`, `medication_admin_continuous`, `patient_assessments`, `intake_output`
 - `config/config.json` contains a `tables_path` field pointing to parquet files
 
-**NOT activation signals (too generic — appear in OMOP, custom EHR, and non-CLIF projects):**
+**NOT activation signals (too generic):**
 - `patient.parquet` alone (OMOP has `person`, but custom EHR may use `patient`)
 - `hospitalization` alone (generic term)
 - `vitals` or `labs` alone (generic terms)
@@ -95,9 +94,7 @@ When `--off` is passed, emit `__CE_CLIF__ active=false` so downstream skills res
 
 ## Prerequisites
 
-None. The skill is a guardrail layer; it reads context but does not require a stack profile.
-
-Resolve the repository root before reading optional config:
+None; no stack profile is required. Resolve the repository root before reading optional config:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
 Use the resolved absolute path or resolve it at runtime, then read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool. In a linked worktree, fall back to the main checkout when the config is absent.
@@ -154,7 +151,7 @@ clif:
 
 ### Step 4: Emit the signal
 
-Other `ce-*` skills check chat context for `__CE_CLIF__ active=true` and `__CE_LANG__ ...` in their step-0 context scan and switch behavior accordingly. This skill never directly modifies the user's repo — it only loads rules and emits the signal(s).
+Emit the `__CE_CLIF__` line (canonical envelope below) alongside `__CE_LANG__`; downstream `ce-*` skills read both in their step-0 context scan. This skill never modifies the user's repo; it only loads rules and emits signals.
 
 ### Step 5: On protected-path edits
 
@@ -195,14 +192,11 @@ For a new consortium project or an audit of an existing template-derived reposit
 
 ## References
 
-@./references/clif-rules.md — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow)
+Read each file at the step that names it (backtick paths, loaded on demand):
 
-@./references/mcide-vocab.md — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3
-
-@./references/version-families.md — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
-
-@./references/poc-table.md — Mapping from CLIF table / mCIDE subdirectory to its responsible POC (name, email, GitHub handle), used by the protected-path guardrail
-
-@./references/clifpy-recipes.md — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
-
-`references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.
+- `references/clif-rules.md` — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow). Read at Step 2, always.
+- `references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
+- `references/mcide-vocab.md` — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3.
+- `references/poc-table.md` — CLIF table / mCIDE subdirectory to responsible POC (name, email, GitHub handle), for the protected-path guardrail.
+- `references/clifpy-recipes.md` — Python recipes (ClifOrchestrator, SOFA, wide dataset, validation). Load when generating Python CLIF code.
+- `references/r-template-recipes.md` — R recipes (arrow, cohort, QC, meta-analysis, propensity, federated). Load when generating R CLIF code.

@@ -108,7 +108,10 @@ describe("current Compound Engineering workflow compatibility", () => {
       skill("ce-work"),
       skill("ce-compound-refresh"),
       skill("ce-commit"),
-      skill("ce-optimize"),
+      Promise.all([
+        skill("ce-optimize"),
+        readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-optimize/references/codex-dispatch.md"), "utf8"),
+      ]).then((parts) => parts.join("\n")),
       readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-optimize/references/experiment-prompt-template.md"), "utf8"),
     ])
 
