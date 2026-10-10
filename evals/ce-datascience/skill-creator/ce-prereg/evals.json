@@ -9,6 +9,7 @@
       "expectations": [
         "Writes the package directory at analysis/prereg/osf-<date>/ containing form.md and payload.json",
         "Fills each form field from the canonical SAP section IDs (e.g. SAP-1.1, SAP-2.2, SAP-5.1, SAP-6, SAP-8) and takes authors and funding from the user or study metadata rather than SAP frontmatter, asking for any that are missing",
+        "Any prior-evidence, pilot-data, or sample-size-assumption citation in form.md resolves to a PMID or DOI checked through the PubMed MCP, or is listed as missing information rather than invented",
         "Includes sap-snapshot.md or a sap_hash in payload.json, and a registry-validation-report.md produced by scripts/validate_registry_package.py",
         "Places the PRE-REGISTRATION CHECKLIST (SAP locked, data not unblinded, no inferential analysis run, authors agree, funding, IRB) at the top of form.md",
         "Emits a line of the form __CE_PREREG__ registry=osf package=<path> form=<path>/form.md",

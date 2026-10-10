@@ -119,13 +119,13 @@
       "id": "base",
       "alternative": 0.35,
       "standard_deviation": 1,
-      "provenance": "replace with protocol or evidence-map citation"
+      "provenance": "replace with the source: PMID/DOI or protocol section, with the level read (abstract, full_text, trial)"
     },
     {
       "id": "conservative",
       "alternative": 0.25,
       "standard_deviation": 1,
-      "provenance": "replace with lower-bound evidence citation"
+      "provenance": "replace with the lower-bound source: PMID/DOI or protocol section, with the level read"
     }
   ],
   "simulation": null,

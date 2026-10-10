@@ -10,6 +10,7 @@
         "Selects STROBE as primary and RECORD as an extension",
         "Writes stack_profile.reporting_checklist: STROBE (string form, not boolean) and reporting_checklist_extensions: [RECORD] to <repo-root>/.ce-datascience/config.local.yaml resolved via git rev-parse --show-toplevel",
         "Writes analysis/checklists/STROBE.md and analysis/checklists/RECORD.md as fillable checklist tables",
+        "Heads each checklist placeholder with the guideline statement's citation (PMID/DOI) confirmed through the PubMed MCP rather than an invented or unverified reference",
         "Prints exactly one line of the form __CE_CHECKLIST__ primary=STROBE extensions=[RECORD]",
         "Does not re-ask routing questions already answered in the prompt (design, direction, aim, AI involvement)"
       ]

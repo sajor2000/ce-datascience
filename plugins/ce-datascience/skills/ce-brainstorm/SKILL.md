@@ -143,7 +143,7 @@ Follow the Interaction Rules.
 
 ### Phase 2: Explore Study Design Approaches
 
-If multiple plausible directions remain, propose **2-3 concrete study design approaches** from the literature and conversation; otherwise state the recommended direction directly.
+If multiple plausible directions remain, propose **2-3 concrete study design approaches** from the literature and conversation; otherwise state the recommended direction directly. Before presenting them, read `references/evidence-access.md` and run its literature pulse per option (**Look up here:** prior studies per design option, hit count and 2-3 PMIDs, labelled `abstract`, never a systematic search).
 
 Run this comparison only when at least two options are genuinely viable and the choice could materially affect scientific value, feasibility, or interpretability. Do not add agent fan-out for routine clarification; generate the alternatives in the normal collaborative flow.
 

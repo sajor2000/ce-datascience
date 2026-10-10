@@ -2,6 +2,8 @@
 
 22-item checklist for cohort, case-control, and cross-sectional studies. Fill each row as the SAP and manuscript develop.
 
+**Primary reference:** von Elm E, Altman DG, Egger M, et al. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. BMJ. 2007;335(7624):806-8. doi:10.1136/bmj.39335.541782.AD. PMID: 17947786.
+
 | # | Item | Section | Status | Note |
 |---|------|---------|--------|------|
 | 1a | Indicate study design in title or abstract | Title/Abstract | ☐ | |

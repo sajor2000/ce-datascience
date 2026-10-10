@@ -30,9 +30,19 @@ Treat the project as a **decision tree** with six branches. Every decision unloc
 
 Read `references/question-bank.md` for the probes, strong-answer criteria, and red flags for each branch.
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** the facts the interview must never ask the user for: prior studies on the hypothesis, published event rates, validated exposure and outcome definitions (with their PPV or sensitivity), and the target journal's recent similar papers (search with the journal name). Journal author guidelines (scope, article types, limits, required checklists) come from web search, not PubMed.
+
 ## Workflow
 
-1. **Gather facts before asking.** Read whatever exists: `analysis/research-question.yaml`, `docs/brainstorms/`, any SAP (`analysis/sap.md` or a file with `sap_version` frontmatter), `reports/data-qa/` or `analysis/data-qa-report.md`, and `.ce-datascience/config.local.yaml`. Look up journal scope, article types, word limits, and required checklists from the journal's author guidelines with available search tools instead of asking. Use parallel subagents for independent lookups when the platform supports them. Never ask the user for something you can find.
+1. **Gather facts before asking.** Read whatever exists: `analysis/research-question.yaml`, `docs/brainstorms/`, any SAP (`analysis/sap.md` or a file with `sap_version` frontmatter), `reports/data-qa/` or `analysis/data-qa-report.md`, and `.ce-datascience/config.local.yaml`. Look up journal scope, article types, word limits, and required checklists from the journal's author guidelines with available search tools instead of asking. Look up literature facts (prior studies, event rates, validated definitions, the journal's recent similar papers) with the Evidence access tools above, reading each source before citing it. Use parallel subagents for independent lookups when the platform supports them. Never ask the user for something you can find.
 2. **Respect the PHI boundary.** Ask about data by schema, counts, and definitions only. Never ask the user to paste patient-level rows. If `phi_environment.compliant` is not `true`, do not open patient-level files to answer a data question; ask about the aggregate instead.
 3. **Ask the frontier, one question at a time.** Pick the frontier question whose answer would change the most downstream decisions. Ask it with the blocking question UI:
    - one line on why it matters;
@@ -55,6 +65,6 @@ Read `references/question-bank.md` for the probes, strong-answer criteria, and r
 ## Rules
 
 - One question per turn, always with a recommended answer and the reason it is recommended.
-- Decisions belong to the user; facts belong to you. Mark any fact you could not verify as unverified rather than asking the user to guess.
+- Decisions belong to the user; facts belong to you. Cite each verified literature fact by PMID with the level read; mark any fact you could not verify as unverified rather than asking the user to guess (`unverified` is a record status, not an evidence label).
 - Grill the plan, not the person: be direct about weaknesses, and name the specific reviewer objection each one invites.
 - Do not invent effect sizes, sample sizes, journal policies, or citations. Leave the field open and record it as a risk.

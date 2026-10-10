@@ -10,6 +10,7 @@
         "States in one plain-language sentence that it is treating this as a biomedical research question, without printing internal mode labels like repo-grounded or elsewhere-software",
         "Announces the selected reasoning path and the number of agents to be dispatched before grounding",
         "Uses the biomedical frames with PICO decomposition always included, and each surviving candidate carries PICO, equipoise_or_relevance, suggested_checklist, and prior_art_anchor fields",
+        "Each prior_art_anchor comes from a PubMed MCP literature pulse (hit count plus 2-3 PMIDs read at abstract level and labelled abstract), presented as a pulse rather than a systematic search",
         "Shows rejected candidates or traps with a concise reason, from a critic pass separate from generation",
         "Offers a Phase 6 menu whose recommended option is to pick one survivor and load ce-research-question, and does not write a SAP, plan, or code"
       ]

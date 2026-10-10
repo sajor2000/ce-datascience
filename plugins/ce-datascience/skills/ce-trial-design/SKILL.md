@@ -23,11 +23,21 @@ Proceed only for a two-arm group-sequential superiority design with a prespecifi
 
 Stop and name the unsupported scope for platform/multi-arm trials, response-adaptive randomization, enrichment, seamless phase transitions, Bayesian decision rules, sample-size re-estimation, custom combination tests, or unblinded operational execution. Do not silently reduce those requests to a simpler design.
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** prior trials of the comparator, control-arm event rates or standard deviations, and the MCID or alternative-effect source behind each scenario; write the PMID/DOI and the level read into the scenario's `provenance` field, or leave the scenario in `unresolved` rather than assuming a rate.
+
 ## Workflow
 
 ### 1. Establish the design contract
 
-Read `references/design-contract.md` in full. Resolve evidence from the protocol, SAP, `ce-effect-size`, and `ce-power` before asking the user. Write `analysis/trial-design/<design-id>/design-spec.json` from `references/design-spec.example.json` and preserve the endpoint, estimand, effect scale, scenarios, decision rules, and review owner.
+Read `references/design-contract.md` in full. Resolve evidence from the protocol, SAP, `ce-effect-size`, and `ce-power`, then from the Evidence access tools for any scenario assumption still missing, before asking the user. Write `analysis/trial-design/<design-id>/design-spec.json` from `references/design-spec.example.json` and preserve the endpoint, estimand, effect scale, scenarios, decision rules, and review owner.
 
 Completion evidence: every required contract field is explicit, scenario IDs are unique, and unresolved assumptions are marked as unresolved rather than guessed.
 

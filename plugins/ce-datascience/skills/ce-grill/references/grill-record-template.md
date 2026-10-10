@@ -29,6 +29,9 @@ status: shared-understanding-confirmed
 ## Reviewer attack list
 - <the objection a hostile reviewer raises first, and the planned answer>
 
+## Evidence consulted
+- <PMID or DOI, level read (`abstract`, `full_text`, `trial`, ...), the query string, and the date>
+
 ## Unverified facts
 - <any fact that could not be confirmed, with where to check it>
 

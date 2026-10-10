@@ -30,6 +30,16 @@ Turns a fuzzy clinical research question into a structured `analysis/research-qu
 
 - One sentence describing the research question, OR a path to an `ce-ideate` survivor
 
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** the FINER novelty check (search, read the closest prior paper, cite its PMID at the level read) and the suggested PubMed query, which must be test-run with `pubmed_search_articles` or `search_articles` to record its hit count before it is written to the YAML.
+
 ## Core workflow
 
 ### Step 1: Decompose into PICO
@@ -53,7 +63,7 @@ Five 1-5 ratings, each with a one-line rationale:
 
 - **F**easible — cohort size accessible, IRB feasibility, time horizon realistic, data infrastructure exists
 - **I**nteresting — does the field care; is the question alive
-- **N**ovel — is this already answered (link the closest prior paper)
+- **N**ovel — is this already answered (search with the Evidence access tools, read the closest prior paper, cite its PMID, and label the level read; a result-list title is not evidence)
 - **E**thical — equipoise, IRB-able, consent feasible
 - **R**elevant — will the answer change practice
 
@@ -80,7 +90,9 @@ Build the PubMed query string the user will run via `ce-pubmed`. Use MeSH terms 
 - Exposure / intervention as either MeSH (`"Patient Care Bundles"[Mesh]`) or free-text
 - Outcome as either MeSH (`"Mortality"[Mesh]`) or free-text plus a study-type filter
 
-Keep the query 80% recall, 20% precision — `ce-pubmed` will narrow further with `--years` and `--study-type`. Do not ship a query so tight it returns 0 hits.
+Keep the query 80% recall, 20% precision — `ce-pubmed` will narrow further with `--years` and `--study-type`.
+
+Test-run the query before writing it: call `pubmed_search_articles` or `search_articles` with a small `max_results` and record the total hit count and the run date in the YAML. 0 hits means loosen the query; more than ~1000 hits with no MeSH alignment means tighten it. The query carries PICO terms only, never patient-level values. Without a PubMed MCP, run the `ce-pubmed` E-utilities script for the count. This single count check is not the literature search; `ce-pubmed` runs that.
 
 ### Step 5: Suggest a primary reporting checklist
 
@@ -113,13 +125,15 @@ research_question:
   finer:
     feasible:    {score: 4, rationale: "EHR data available; n≈8k expected"}
     interesting: {score: 5, rationale: "Active controversy on bundle benefit"}
-    novel:       {score: 3, rationale: "Prior RCTs in mixed ICUs (PMID 30694534); academic-only cohort underexplored"}
+    novel:       {score: 3, rationale: "Prior RCTs of protocolised early sepsis care (ProCESS, PMID 24635773, read: abstract); bundle adherence in academic-only cohorts underexplored"}
     ethical:     {score: 5, rationale: "Observational; no consent burden beyond HIPAA waiver"}
     relevant:    {score: 5, rationale: "Practice change if effect size > 5 percentage points"}
   suggested_design:    "Target trial emulation (retrospective EHR cohort)"
   suggested_checklist: TARGET
   suggested_extensions: [STROBE, RECORD]   # STROBE is TARGET's companion; RECORD because the data are routinely collected EHR
   suggested_pubmed_query: '("Sepsis"[Mesh]) AND ("Patient Care Bundles"[Mesh] OR "bundle adherence"[Title/Abstract]) AND ("mortality"[Mesh] OR "30-day"[Title/Abstract]) AND ("Cohort Studies"[Mesh])'
+  suggested_pubmed_query_hits: 45          # total_count from the pubmed_search_articles / search_articles test run; re-run before relying on it
+  query_checked_on: <YYYY-MM-DD>           # date of that test run, resolved at runtime
   source_ideation: docs/ideation/2026-04-28-ideation-doc.md   # if --ideation-survivor was passed
 ```
 
@@ -133,7 +147,7 @@ __CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=<...> check
 
 ## What this skill does NOT do
 
-- Does not run the literature search (next: `ce-pubmed`)
+- Does not run the literature search (next: `ce-pubmed`); the single hit-count test of the suggested query is not a literature search
 - Does not match to a checklist (next: `ce-checklist-match`; this skill only suggests)
 - Does not produce a long-form requirements doc (use the `ce-brainstorm` skill for that)
 - Does not write the SAP (use the `ce-plan` skill after the lifecycle has more inputs)

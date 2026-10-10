@@ -1,6 +1,10 @@
 # TRIPOD+AI Checklist (Prediction Models, AI extension)
 
-For prediction-model studies, including ML/AI-based models. The 2024 TRIPOD+AI extension covers items the original TRIPOD did not address (algorithmic fairness, calibration on subgroups, dataset shift, model card).
+For prediction-model studies, including ML/AI-based models. The 2024 TRIPOD+AI statement covers items the original TRIPOD did not address (algorithmic fairness, calibration on subgroups, dataset shift, model card).
+
+**Primary reference:** Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. BMJ. 2024;385:e078378. doi:10.1136/bmj-2023-078378. PMID: 38626948. It is a 27-item checklist that supersedes TRIPOD 2015.
+
+The rows below are a plan-time placeholder grouped by topic; they do not reproduce the published item numbering. Fill the project checklist from the published statement and keep its item numbers.
 
 | # | Section | Item | Status | Note |
 |---|---------|------|--------|------|

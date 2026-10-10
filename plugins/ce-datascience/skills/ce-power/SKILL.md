@@ -31,6 +31,17 @@ Wraps the standard power calculations behind a single command. Produces a script
 - An effect-size assumption (point estimate; ranges acceptable -- the sweep handles uncertainty)
 - For survival: event rate in control arm, follow-up time, anticipated dropout
 - For cluster RCT: ICC estimate, expected cluster size
+- Each numeric input carries its source: `__CE_EFFECT_SIZE__`, a PMID read through the tools below, or an explicit user assumption
+
+## Evidence access
+
+Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+
+- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
+- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
+- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
+- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
+- **Look up here:** effect sizes, control-arm event rates, SDs, and ICCs for the anchor come from `__CE_EFFECT_SIZE__` or from a source searched, read, and cited here with its PMID and level read, never from a default; any numeric default that remains (dropout, ICC, allocation) is written as an assumption to replace.
 
 ## Core workflow
 
@@ -42,7 +53,7 @@ If no `--effect-size` argument was passed, scan the most recent ~50 chat turns f
 - If the sweep interval crosses the null (HR/OR/RR = 1, MD/SMD = 0), required N is unbounded near it: sweep only the side containing `point`, stop short of the null, and state the truncation.
 - If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user load the `ce-effect-size` skill again with more studies.
 
-When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption (or recommend `ce-method-extract` + `ce-effect-size` first).
+When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the user for the effect-size assumption, recommend `ce-method-extract` + `ce-effect-size` first, or look up a comparable prior study with the Evidence access tools, read it, and cite its PMID at the level read. Never substitute a conventional default such as d = 0.5 or a control rate from memory; the same applies to event rates and SDs.
 
 ### Step 1: Pick the formula
 
@@ -79,14 +90,14 @@ Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`. W
 
 ```
 With α = 0.05 (two-sided), power = 0.80, and an assumed effect size of d = 0.40
-(based on N comparable studies extracted via `ce-method-extract`; range 0.28-0.52),
+(based on N comparable studies extracted via `ce-method-extract`, PMIDs ...; range 0.28-0.52),
 a two-sample t-test requires 100 participants per arm (200 total). Allowing for
-15% loss to follow-up, we will enrol 235 participants. A sensitivity analysis
+15% loss to follow-up (assumption; replace with the site's observed rate), we will enrol 235 participants. A sensitivity analysis
 across d = 0.30 to d = 0.50 yields required total N from 128 to 351; we will
 re-evaluate at the 100-enrollee mark via interim conditional power.
 ```
 
-Reference the prior literature explicitly so the assumption is auditable.
+Reference the prior literature explicitly by PMID/DOI with the level read so the assumption is auditable, and label every remaining default (dropout, ICC, allocation) as an assumption.
 
 ### Step 5: Emit signal
 

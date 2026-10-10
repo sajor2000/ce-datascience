@@ -4,7 +4,7 @@ Current CONSORT core for randomized trials: 30 numbered items (42 rows with lett
 
 **Current primary reference:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. BMJ. 2025;389:e081123. doi:10.1136/bmj-2024-081123. PMID: 40228833. Published simultaneously in BMJ, JAMA, Lancet, Nature Medicine, and PLOS Medicine.
 
-**Verified against:** CONSORT 2025 Table 1, https://pmc.ncbi.nlm.nih.gov/articles/PMC11995449/ (checked 2026-10-10).
+**Source table:** CONSORT 2025 Table 1, PMC11995449 (read as `full_text`).
 
 | # | Section | Item | Status | Note |
 |---|---------|------|--------|------|

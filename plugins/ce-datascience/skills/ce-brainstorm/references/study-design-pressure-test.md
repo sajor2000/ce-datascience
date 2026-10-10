@@ -4,7 +4,7 @@ Read this in Phase 1.2 for Standard and Deep scope. It is agent-internal analysi
 
 ## Standard gap lenses
 
-- **Prior evidence gap.** The opening asserts a question or hypothesis without pointing to published studies, pilot data, preliminary analyses, or clinical observations that ground it. Ask what existing evidence supports it and whether pilot data or prior literature exists.
+- **Prior evidence gap.** The opening asserts a question or hypothesis without pointing to published studies, pilot data, preliminary analyses, or clinical observations that ground it. Run the literature pulse in `references/evidence-access.md` first, then ask what existing evidence supports it and whether pilot data exists, naming what the pulse found (PMIDs, `abstract`) so the user supplies only what the literature cannot.
 - **Population specificity gap.** The population is abstract enough that the agent would silently invent who is included. Ask for the specific population: inclusion/exclusion criteria, clinical setting, timeframe.
 - **Equipoise / comparison gap.** The current standard of care or comparison group, equipoise, or what happens if nothing changes is not visible. Ask what the current standard or comparison group is, even if imperfect, and what changes if the study is never done.
 - **Design appropriateness gap.** A particular design is treated as the approach rather than the evidence it should generate, and has not been checked against simpler designs. Ask whether a simpler design (cross-sectional vs. longitudinal, existing data vs. new collection) could answer the question.

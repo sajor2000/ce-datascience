@@ -10,6 +10,7 @@
         "Asks exactly one question per turn rather than stacking several questions in one message",
         "Probes the population specificity and comparison/standard-of-care gaps as open prose questions, not as a multiple-choice menu",
         "When presenting study design approaches, shows all options with pros/cons/risks before stating its recommendation",
+        "Grounds the design comparison in a quick PubMed MCP literature pulse (hit counts and 2-3 PMIDs read at abstract level, labelled abstract) and presents it as a pulse, not a systematic search",
         "Presents a scoping synthesis and waits for confirmation before writing the requirements document",
         "Any written document lands at docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md with repo-relative paths only, and contains no R/Python package choices, SQL, or model specifications"
       ]

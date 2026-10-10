@@ -37,7 +37,7 @@ Rule of thumb: HR 0.75, balanced arms, α 0.05, power 0.80 → ~380 events.
 
 Old rule: 10 events per variable (EPV ≥ 10). Often too lenient.
 
-Riley 2020: minimum sample size for binary outcome (EPV is reported, not a criterion):
+Riley et al. 2020 (BMJ 2020;368:m441, PMID 32188600, doi:10.1136/bmj.m441): minimum sample size for binary outcome (EPV is reported, not a criterion):
 
 ```
 N >= max(

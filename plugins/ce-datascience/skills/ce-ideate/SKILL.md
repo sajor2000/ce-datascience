@@ -20,10 +20,6 @@ argument-hint: "[feature, focus area, or constraint]"
 
 `ce-ideate` answers "What are the strongest ideas worth exploring?"; `ce-brainstorm` answers "What exactly should one chosen idea mean?"; `ce-plan` answers "How should it be built?" This workflow produces a ranked ideation artifact in `docs/ideation/`. It does **not** produce requirements, plans, or code.
 
-## Interaction Method
-
-Follow the Skill Value interaction rule for every question; prefer concise single-select choices when natural options exist.
-
 ## Focus Hint
 
 <focus_hint> #$ARGUMENTS </focus_hint>
@@ -191,6 +187,8 @@ After compact or wide agents return:
 4. Spread across dimensions (workflow, reliability, extensibility, capabilities, knowledge, quality, leverage) when justified.
 
 **Separate critic pass:** the orchestrator, not a generator, critiques the merged list. Score groundedness, novelty, fit, and feasibility; cluster by underlying angle; list attractive-but-unsuitable traps with one concise reason each. In compact mode, explain and deepen only the top 2 non-trap survivors; do not dispatch additional deepening agents. Wide mode may present more survivors but still keeps criticism separate from generation.
+
+Then read `references/evidence-access.md` (PubMed and Paperclip MCP tools, rules) and run its literature pulse per survivor (**Look up here:** prior art, hit count and 2-3 PMIDs, labelled `abstract`, never a systematic search).
 
 **Checkpoint A (V17).** After synthesis, write `<scratch-dir>/raw-candidates.md` with the full list and sub-agent attribution. Best-effort: on write failure, warn and proceed.
 

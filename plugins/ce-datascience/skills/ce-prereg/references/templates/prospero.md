@@ -83,7 +83,7 @@ Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP
 Not in the SAP template; take from the systematic-review protocol.
 
 Databases:
-{{ protocol: databases | default("PubMed, Embase, Cochrane CENTRAL, Web of Science") }}
+{{ protocol: databases }} (list every database the protocol names; there is no default list)
 
 Search dates: from {{ protocol: search start | default("inception") }} to {{ protocol: search end }}.
 

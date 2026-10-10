@@ -10,12 +10,12 @@ library(ggplot2)
 
 params <- list(
   design        = "two-sample-t",
-  effect_point  = 0.40,    # Cohen's d -- supply from /ce-method-extract
+  effect_point  = 0.40,    # example placeholder, not a literature value: replace with the ce-effect-size anchor or a PMID-cited study
   effect_grid   = seq(0.20, 0.60, by = 0.05),
   alpha         = 0.05,
   power_target  = 0.80,
   sided         = "two",
-  dropout       = 0.15
+  dropout       = 0.15     # assumption: replace with the observed loss-to-follow-up rate
 )
 
 point <- pwr.t.test(d = params$effect_point, sig.level = params$alpha,

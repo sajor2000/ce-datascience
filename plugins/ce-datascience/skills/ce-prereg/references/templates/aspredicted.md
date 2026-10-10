@@ -43,7 +43,7 @@ For each outcome: name, measurement instrument, scale / units, time of assessmen
 
 {{ SAP-6: sample size and power }}
 
-(With power analysis output: target N, alpha, power, effect size assumption, citation for the assumption.)
+(With power analysis output: target N, alpha, power, effect size assumption, and the citation for the assumption resolved to a PMID/DOI.)
 
 ## 8. Anything else you would like to pre-register?
 

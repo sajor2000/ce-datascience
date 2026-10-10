@@ -50,7 +50,7 @@ For each primary hypothesis, the registered prediction is:
 Power calculation reference: `analysis/power/<design>-<date>-summary.md`
 
 ### 5.5 Sample size rationale
-{{ SAP-6: assumptions and rationale }}
+{{ SAP-6: assumptions and rationale }} (cite the effect-size or event-rate source by PMID/DOI)
 
 ### 5.6 Stopping rule
 {{ SAP-6: interim or stopping rule | default("None pre-specified -- analysis runs to enrollment target") }}

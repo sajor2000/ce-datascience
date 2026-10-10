@@ -20,7 +20,7 @@ Rationale must name the data source, the cohort-size estimate, and the methods b
 - **2** — Niche audience; answer would interest a small subset of researchers
 - **1** — Question is settled or has been answered repeatedly with consistent results
 
-Rationale must cite at least one current paper, guideline, or controversy.
+Rationale must cite at least one current paper, guideline, or controversy, found and read through the skill's Evidence access tools, with its PMID and the level read (`abstract` or `full_text`).
 
 ## N — Novel (1-5)
 
@@ -30,7 +30,7 @@ Rationale must cite at least one current paper, guideline, or controversy.
 - **2** — Mostly answered; this study would add precision but not direction
 - **1** — Already answered with high-quality evidence; redoing it does not advance the field
 
-Rationale must cite the closest prior paper. If you cannot find one, the novelty score is suspect — re-search the literature before claiming 5.
+Rationale must cite the closest prior paper by PMID after reading it (label the level read). If none is found, the novelty score is suspect — re-run the PubMed search with broader terms before claiming 5, and say that no prior paper was found.
 
 ## E — Ethical (1-5)
 

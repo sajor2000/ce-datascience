@@ -8,6 +8,7 @@
       "files": [],
       "expectations": [
         "Writes analysis/trial-design/<design-id>/design-spec.json with endpoint, estimand, sidedness, alpha, power, information times, and candidates",
+        "Each scenario's provenance names a source (PMID/DOI, protocol, or SAP section) for the HR 0.75 alternative and any control-arm event assumption, or marks the scenario unresolved; no default rate is invented",
         "engine-run.R contains a fail-closed assertion that packageVersion('rpact') exactly matches the pinned version and logs R/package versions",
         "Operating characteristics (power, type I error, max/expected information) are read from rpact output, not recomputed in CE code",
         "Runs scripts/build_frontier.py producing evaluated-results.csv, frontier.csv, receipt.json, and sap-handoff.md",

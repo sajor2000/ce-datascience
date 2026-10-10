@@ -10,6 +10,7 @@
         "Uses pwr::pwr.t.test (two-sample t) and writes analysis/power/<design>-<date>.R with input parameters as a named list",
         "Includes a sensitivity sweep over effect size (covering 0.28-0.52), power, and alpha, saved to analysis/power/<design>-<date>-sweep.csv, plus a plot of N vs effect size",
         "Writes analysis/power/<design>-<date>-summary.md stating alpha, power, effect size source, per-arm and total N, and dropout-inflated enrollment",
+        "Cites the effect-size source (the ce-method-extract output and its PMIDs) in the summary and labels the 15% dropout as an assumption rather than a literature value",
         "Emits '__CE_POWER__ design=<name> total=<n> file=<path> n_per_arm=<n> with_dropout=<n>'"
       ]
     },
@@ -34,7 +35,7 @@
         "Reads the '__CE_EFFECT_SIZE__' line from the chat instead of asking for an effect size, and prints the '[effect-size] anchor from ce-effect-size: point=0.72 ...' line",
         "Uses the pi= bounds (0.41 to 1.26), not the ci= bounds, as the sensitivity-sweep range and states that the prediction interval was used while also reporting the CI (0.58-0.89)",
         "Because the PI crosses OR = 1, sweeps only the side containing the point estimate, stops short of the null, and states the truncation",
-        "Asks only one missing load-bearing input at a time (e.g. control-group event rate) and does not guarantee feasibility",
+        "Asks only one missing load-bearing input at a time (e.g. control-group event rate), or looks it up through the PubMed MCP and cites the PMID; never substitutes a default rate and does not guarantee feasibility",
         "Uses statsmodels (Python) rather than R for the script"
       ]
     }
