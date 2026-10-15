@@ -10,24 +10,31 @@ study_id: string                  # links run to the SAP / project
 
 params:
   train_data_sha: string          # SHA-256 of training data file (first 16 chars OK)
-  test_data_sha: string
+  test_data_sha: string          # final locked model only; null for exploratory runs
   git_sha: string                 # `git rev-parse HEAD` at run start
   random_seed: integer
   split_strategy: group|temporal|random
   model_class: string             # recommended in run-schema.yaml; e.g., "lightgbm.LGBMClassifier"
   hyperparams: map                # model hyperparams as a flat map
   feature_count: integer
+  n_configurations_evaluated: integer  # configurations tried so far in this experiment
 
 metrics:
   n_train: integer
+  n_events_train: integer
+  auc_validation: float           # tuning/CV metric used for model selection
+  auc_validation_scheme: string   # e.g., "grouped 5-fold CV by patient"
+  # Test metrics below: final locked model only, logged once; null otherwise.
+  test_set_unlocked_at: ISO8601
   n_test: integer
-  auc_internal: float
-  auc_internal_ci_lo: float
-  auc_internal_ci_hi: float
+  n_events_test: integer
+  auc_test: float
+  auc_test_ci_lo: float
+  auc_test_ci_hi: float
   auc_external: float             # null if no external set
-  brier_score: float
-  calibration_intercept: float
-  calibration_slope: float
+  brier_test: float
+  calibration_intercept_test: float  # calibration-in-the-large (offset model)
+  calibration_slope_test: float
   subgroup_metrics:                 # recommended in run-schema.yaml
     - subgroup: string            # e.g., "sex_F"
       n: integer

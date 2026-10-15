@@ -40,7 +40,7 @@ Most ML papers in biomedicine are unreproducible because runs are not tracked. B
 | Backend | When to pick |
 |---------|--------------|
 | **mlflow** | Self-hostable, file or DB backend, multi-language (Python + R + Java). Default for most academic settings |
-| **wandb** | SaaS-first, great UI, free for academia, requires network. Pick when sharing with collaborators in real time |
+| **wandb** | SaaS-first, hosted UI, requires network (check the current plan terms for academic use). Pick when sharing with collaborators in real time and no PHI leaves the site |
 | **dvc** | Git-native, versions data + model artifacts together. Pick for dataset-heavy projects with strict reproducibility |
 | **offline** | YAML run logs in a `runs/` folder, no network, no UI. Pick when working on air-gapped or PHI-restricted machines |
 
@@ -57,13 +57,21 @@ import mlflow
 import hashlib
 from pathlib import Path
 
-def init_run(experiment="sepsis-risk", run_name=None):
+def sha256_file(path, chunk=1 << 20):
+    """Stream the file so large extracts are not read into memory at once."""
+    h = hashlib.sha256()
+    with Path(path).open("rb") as fh:
+        for block in iter(lambda: fh.read(chunk), b""):
+            h.update(block)
+    return h.hexdigest()
+
+def init_run(train_path, experiment="sepsis-risk", run_name=None):
+    # train_path comes from the project config, never a hard-coded path
     mlflow.set_tracking_uri("file:./mlruns")  # or http://tracking-server:5000
     mlflow.set_experiment(experiment)
     run = mlflow.start_run(run_name=run_name)
     # Always log data hash
-    train_hash = hashlib.sha256(Path("data/train.parquet").read_bytes()).hexdigest()[:16]
-    mlflow.log_param("train_data_sha", train_hash)
+    mlflow.log_param("train_data_sha", sha256_file(train_path)[:16])
     mlflow.log_param("git_sha", _git_sha())
     mlflow.log_param("study_id", _study_id())
     return run
@@ -77,19 +85,20 @@ Write `analysis/ml/run-schema.yaml` -- the minimum fields every run must log:
 required:
   params:
     - train_data_sha
-    - test_data_sha
     - git_sha
     - study_id
     - random_seed
-    - split_strategy   # group / temporal / random
+    - split_strategy          # group / temporal / random
+    - n_configurations_evaluated  # running count of configurations tried in this experiment
   metrics:
-    - auc_internal
-    - auc_external (if external set exists)
-    - brier_score
-    - calibration_intercept
-    - calibration_slope
+    - auc_validation          # tuning/CV metric used for model selection
+    - auc_validation_scheme   # e.g., grouped 5-fold CV by patient
     - n_train
-    - n_test
+    - n_events_train
+  # Held-out test metrics (test_data_sha, auc_test, brier_test,
+  # calibration_intercept_test, calibration_slope_test, n_test, n_events_test,
+  # auc_external when an external set exists) are logged ONLY for the locked
+  # final model, once; record test_set_unlocked_at.
   artifacts:
     - model.pkl (or equivalent)
     - eval-results.json
@@ -104,7 +113,7 @@ recommended:
     - decision_curve.net_benefit_at_<threshold>
 ```
 
-A run that does not log all required fields → not eligible for manuscript inclusion. This is the discipline.
+A run that does not log all required fields → not eligible for manuscript inclusion. A run that logs test-set metrics before the model is locked is not eligible either: scoring exploratory runs on the test set turns it into a selection set (REFORMS, Kapoor et al., Sci Adv 2024, PMID 38691601). Report `n_configurations_evaluated` with the final model (TRIPOD+AI item 12c, PMID 38626948).
 
 ### Step 4: Write the linkage to the SAP
 
@@ -126,7 +135,7 @@ params:
   train_data_sha: <sha256 of the training extract>
   # one key per hyperparameter
 metrics:
-  auc_internal: 0.84
+  auc_validation: 0.84
   # one key per reported metric
 artifacts:
   - name: model.pkl
