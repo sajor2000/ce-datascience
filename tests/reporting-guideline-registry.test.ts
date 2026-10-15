@@ -176,7 +176,8 @@ describe("reporting guideline registry", () => {
     )
 
     expect(routing).toContain("primary = CONSORT")
-    expect(routing).toContain("primary = TRIPOD+AI when AI/ML is used else TRIPOD")
+    expect(routing).toContain("primary = TRIPOD+AI  # supersedes TRIPOD 2015")
+    expect(routing).not.toContain("else TRIPOD")
     expect(routing).toContain("primary = CHART")
     expect(routing).toContain("do not add PDSQI-9 automatically")
     expect(routing).toContain("require verified-source override before DEAL")
