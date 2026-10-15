@@ -23,7 +23,7 @@ Every pass/warn/fail value below is a **project default**: a starting point chos
 | % rRNA | RSeQC | ≤ 10% | 10-20% | > 20% |
 | % intergenic | Picard | ≤ 10% | 10-15% | > 15% |
 | 5'/3' bias | Picard | ratio 0.7-1.3 | 0.5-0.7 or 1.3-1.5 | < 0.5 or > 1.5 |
-| # detected genes | edgeR filterByExpr | ≥ 12,000 | 8,000-12,000 | < 8,000 |
+| # detected genes per sample (count > 0) | `colSums(counts > 0)` (`edgeR::filterByExpr` filters genes, not samples) | ≥ 12,000 | 8,000-12,000 | < 8,000 |
 | Strand-specificity | RSeQC | matches protocol | mixed | inverted |
 
 ## Methylation array (450k / EPIC)
