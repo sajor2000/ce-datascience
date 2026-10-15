@@ -31,7 +31,8 @@ This skill formalizes the data-QA gate that exists between data extraction and S
 1. A SAP exists at `analysis/sap.md` (or specified via `--sap`) for full SAP-aligned QA. If no SAP exists yet, run pre-SAP column profile mode instead of stopping.
 2. A stack profile exists so `data_root` is known. If none exists, ask the user to run the `ce-setup` command (it is manual-invocation-only and cannot be loaded by the model), or ask them directly for `data_root` and proceed with that answer.
 3. The data extract is recorded in `analysis/data-waves.md` with extract id, location, source, received date, row count when known, and a content hash when available.
-4. If the dataset is a research cohort built from EHR or claims data, load the `ce-cohort-build` skill first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
+4. **Sensitive-data boundary:** Read `phi_environment` from `.ce-datascience/config.local.yaml`. With `compliant: true` or `sensitive_data: false`, proceed without mentioning the boundary. With `compliant: false` or no saved answer (schema-only), never open, print, or grep the source data: write the profiling script, run it only if it prints aggregates (counts, rates, summaries with cells under 11 suppressed), otherwise hand it to the user to run locally, and build the report from that aggregate output.
+5. If the dataset is a research cohort built from EHR or claims data, load the `ce-cohort-build` skill first — the CONSORT waterfall it produces is the starting point for the row-count check in step 3 below. When `__CE_COHORT__` appears in chat context or `analysis/cohort/<name>-waterfall.csv` exists, use it as the expected-N source instead of re-deriving from the SAP.
 
 ## Core Workflow
 

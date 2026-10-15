@@ -1,0 +1,5 @@
+phi_environment:
+  compliant: true
+  confirmed_on: 2026-10-15
+stack_profile:
+  language: python

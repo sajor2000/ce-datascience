@@ -28,6 +28,7 @@ Walks the user through defining a research cohort with vocabulary-pinned concept
 ## Prerequisites
 
 - `stack_profile.data_root` is set (cohort runs against this)
+- **Sensitive-data boundary:** Read `phi_environment` from `.ce-datascience/config.local.yaml`. With `compliant: true` or `sensitive_data: false`, proceed without mentioning the boundary. With `compliant: false` or no saved answer (schema-only), never open, print, or grep the source data: generate the cohort script and read back only the aggregate waterfall counts.
 - For OMOP: vocabulary tables exist (`concept`, `concept_ancestor`, `concept_relationship`)
 - For non-OMOP: a code-list file (CSV or YAML) with `code,vocab,description`
 

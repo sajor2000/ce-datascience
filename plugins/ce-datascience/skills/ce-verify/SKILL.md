@@ -50,6 +50,7 @@ Read the stack profile for language and data paths. Check for:
 - `analysis/power/` — for minimum sample size from power calculation
 - `analysis/signoff/signoff-ledger.json` — for unresolved human signoffs surfaced by `ce-review-pack`
 - `__CE_CLIF__ active=true` in context — for CLIF-specific checks
+- `phi_environment` in the config — with `compliant: true` or `sensitive_data: false`, proceed without mentioning the boundary. With `compliant: false` or no saved answer (schema-only), run every check (including the PHI scan) through scripts that return only file names, column headings, counts, and categories, never rows or matched values.
 
 ### Step 2: Run check catalog
 

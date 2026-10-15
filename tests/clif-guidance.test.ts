@@ -84,18 +84,19 @@ describe("CLIF guidance", () => {
     const combined = [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer].join("\n")
 
     expectContainsAll(rules, [
-      "both the data environment and active model endpoint",
+      "`compliant: true` or `sensitive_data: false`: unrestricted",
+      "never ask, remind, or warn about the boundary again this session",
       "ask once",
-      "Are both this data environment and the active model endpoint compliant for PHI/PII?",
+      "Will this project use sensitive data (PHI, PII, or other restricted records)? If so, is the model endpoint approved for it?",
       "request_user_input",
-      "Do not reproduce PHI in responses",
+      "**Never** share, commit, upload",
       "declared approved restricted data root",
       "approved, local, non-synced",
       "output/intermediate_phi/",
       "output/final_no_phi/",
     ])
     expectContainsAll(clifSkill, [
-      "proceed without repeating",
+      "never raise the boundary again this session",
       "agent, autofix,",
       "report-only, or headless mode",
       "do not ask or wait",

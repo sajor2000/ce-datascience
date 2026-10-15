@@ -112,18 +112,18 @@ If auto-detection signals are present, activate silently and print the acknowled
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
 Before reading patient-level data, code output, logs, or tracebacks, apply the
-one-time PHI authorization check in `references/clif-rules.md`. A saved
-`phi_environment.compliant` in `.ce-datascience/config.local.yaml` counts as the
-user's answer (`true` = confirmed, `false` = no). If the user has
-already confirmed in the current conversation that both the data environment
-and active model endpoint are approved for PHI/PII, proceed without repeating
-the question or warning that PHI cannot be read. If confirmation is absent or
-ambiguous, ask once and wait in interactive mode. In agent, autofix,
+sensitive-data boundary in `references/clif-rules.md`. A saved
+`phi_environment` in `.ce-datascience/config.local.yaml` is the user's answer:
+`compliant: true` or `sensitive_data: false` means unrestricted, so proceed
+silently and never raise the boundary again this session; `compliant: false`
+means schema-only. If nothing is saved and the user has not answered in the
+current conversation, ask once and wait in interactive mode. In agent, autofix,
 report-only, or headless mode, do not ask or wait. Preserve an exact
 `PHI authorization: confirmed` marker supplied by the orchestrator; otherwise
 retain `PHI authorization: not confirmed` and continue only with paths, code,
-schemas, metadata, and reviewed aggregates. Keep response, repository, logging, and
-export protections in force regardless of authorization.
+schemas, metadata, and reviewed aggregates. CLIF's federated rules (no
+patient-level tables leave the site, `n >= 10` floor for shared outputs) apply
+in every mode.
 
 Then ensure `__CE_LANG__` exists:
 
@@ -197,7 +197,7 @@ For a new consortium project or an audit of an existing template-derived reposit
 
 Read each file at the step that names it (backtick paths, loaded on demand):
 
-- `references/clif-rules.md` — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, PHI authorization, template workflow). Read at Step 2, always.
+- `references/clif-rules.md` — Core rules (Parquet, UTC datetimes, mCIDE vocab, project layout, sensitive-data boundary, template workflow). Read at Step 2, always.
 - `references/version-families.md` — Selection and migration contract for CLIF/mCIDE 2.1 and 3.0. Read before selecting a version family or validating v3 categories.
 - `references/mcide-vocab.md` — Cached 2.1 allow-lists plus pointers to authoritative mCIDE CSV sources; never use it for v3.
 - `references/poc-table.md` — CLIF table / mCIDE subdirectory to responsible POC (name, email, GitHub handle), for the protected-path guardrail.
