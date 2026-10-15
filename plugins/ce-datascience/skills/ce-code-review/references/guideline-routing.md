@@ -86,7 +86,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | DECIDE-AI | Early-stage clinical evaluation of AI decision support | 27 (17 AI-specific + 10 generic) | Live clinical AI evaluation |
 | MI-CLAIM | Minimum Information about Clinical AI Modeling | 6 parts | Model documentation |
 | REFORMS | Recommendations for machine-learning-based science | 32 | ML-based science |
-| CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
-| DEAL | DEep Learning in pAthology | ~16 | DL + pathology |
-| CHART | Clinical Healthcare AI Reporting Tool | ~12 | Clinical AI deployment |
-| PDSQI-9 | Prediction model Data Set Quality Indicator | 9 | EHR predictive models |
+| CLAIM | Checklist for AI in Medical Imaging (2024 update) | see file | AI + imaging |
+| DEAL | DEep Learning in pAthology (unverified source) | -- | DL + pathology |
+| CHART | Chatbot Health Advice reporting | 12 (39 subitems) | Chatbot health-advice studies |
+| PDSQI-9 | Local candidate dataset-quality tool (unverified source) | -- | EHR predictive models |
