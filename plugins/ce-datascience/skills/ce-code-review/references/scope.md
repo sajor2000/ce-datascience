@@ -35,13 +35,17 @@ Each shell tool call is its own session, so the trap removes the directory
 when that call ends. Finish base resolution, path capture, and the
 deterministic preflight check (risk boolean, counts, extensions) inside one
 call; in later calls re-derive paths from the printed `BASE:` value instead of
-reading the removed directory.
+reading the removed directory. Every later block that writes under
+`$REVIEW_SCOPE_DIR` starts with a guard that stops the call when the variable
+is unset, so captured paths and PR metadata never land outside the private
+directory (for example at `/paths`).
 
 ## Capture path names
 
 Every path below ends by capturing path names locally for the preflight without printing them, once `BASE` is resolved:
 
 ```bash
+: "${REVIEW_SCOPE_DIR:?private scope dir not set; create it in this same shell call first}"
 SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths"
 mkdir -p "$SCOPE_PATHS_DIR"
 git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed"
@@ -69,6 +73,7 @@ If `mode:agent`, `mode:report-only`, or `mode:headless` is active, do **not** ru
 **Skip-condition pre-check.** Before checkout or scope detection, capture PR state and path metadata locally. Print only the state until the PHI-safe preflight permits reading the other metadata:
 
 ```bash
+: "${REVIEW_SCOPE_DIR:?private scope dir not set; create it in this same shell call first}"
 PR_PREFLIGHT_FILE="$REVIEW_SCOPE_DIR/pr-preflight.json"
 gh pr view <number-or-url> --json state,title,files > "$PR_PREFLIGHT_FILE"
 jq -r '.state' "$PR_PREFLIGHT_FILE"
@@ -99,6 +104,7 @@ gh pr checkout <number-or-url>
 Then fetch PR metadata without reading the PR body yet. Capture the base branch name and the PR base repository identity, not just the branch name. Keep the raw values in the private scope directory; read them only after the preflight permits access, and sanitize title and branch values before printing or placing them in reviewer context:
 
 ```bash
+: "${REVIEW_SCOPE_DIR:?private scope dir not set; create it in this same shell call first}"
 gh pr view <number-or-url> --json title,baseRefName,headRefName,url > "$REVIEW_SCOPE_DIR/pr-details.json"
 ```
 
@@ -125,6 +131,7 @@ if [ -n "$PR_BASE_REF" ]; then BASE=$(git merge-base HEAD "$PR_BASE_REF" 2>/dev/
 ```
 
 ```bash
+: "${REVIEW_SCOPE_DIR:?private scope dir not set; create it in this same shell call first}"
 if [ -n "$BASE" ]; then SCOPE_PATHS_DIR="$REVIEW_SCOPE_DIR/paths" && mkdir -p "$SCOPE_PATHS_DIR" && git diff --name-only -z "$BASE" > "$SCOPE_PATHS_DIR/changed" && git ls-files --others --exclude-standard -z > "$SCOPE_PATHS_DIR/untracked" && echo "BASE:$BASE"; else echo "ERROR: Unable to resolve PR base branch <base> locally. Fetch the base branch and rerun so the review scope stays aligned with the PR."; fi
 ```
 
