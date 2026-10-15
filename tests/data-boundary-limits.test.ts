@@ -4,6 +4,12 @@ import path from "path"
 import { SCHEMA_ONLY, bash, expectAll, git, pluginRoot, project, runGuard } from "./data-boundary-harness"
 
 const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
+const indexer = path.join(pluginRoot, "scripts", "ce-identifier-index")
+function buildIndex(cwd: string, ...args: string[]) {
+  const proc = Bun.spawnSync([indexer, ...args], { cwd })
+  return { code: proc.exitCode, out: proc.stdout.toString() + proc.stderr.toString() }
+}
+const indexPath = (root: string) => path.join(root, ".ce-datascience", "identifier-index.local.json")
 function runSafe(cwd: string, ...cmd: string[]) {
   const proc = Bun.spawnSync([safeRun, "--", ...cmd], { cwd })
   return { code: proc.exitCode, out: proc.stdout.toString() + proc.stderr.toString() }
@@ -151,5 +157,29 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
       ["Grep", { pattern: "Zed", path: ".ce-datascience/runs", output_mode: "content" }],
     ])
     expectAll(root, "allow", [["Bash", bash("ls .ce-datascience/runs")], ["Read", { file_path: ".ce-datascience/config.local.yaml" }]])
+  })
+})
+
+describe("limit 2a: ce-identifier-index stores salted hashes of identifier values", () => {
+  test("indexes identifier columns under data_root, prints counts only, stores no plaintext, and is gitignored", () => {
+    const root = project(SCHEMA_ONLY, { git: "real" })
+    withFile(root, "data/claims.tsv", "claim_number\tmember_id\tdx_code\tfirst_name\tlast_name\nCLM-55501\tMBR-0099\tA41.9\tQuinn\tSamplewright\n")
+    const { code, out } = buildIndex(root)
+    expect(code).toBe(0)
+    expect(out).toMatch(/2 files, 7 identifier columns, \d+ entries/)
+    for (const value of ["patient_name", "Zed", "Testperson", "FAKE0001", "1970", "Quinn", "CLM-55501"]) {
+      expect({ value, printed: out.includes(value) }).toEqual({ value, printed: false })
+    }
+    const index = JSON.parse(readFileSync(indexPath(root), "utf8"))
+    expect(index.hashes).toMatch(/^[0-9a-f]+$/)
+    const raw = JSON.stringify({ ...index, hashes: undefined })
+    expect(index.salt).toMatch(/^[0-9a-f]{32}$/)
+    expect(index.count).toBeGreaterThan(5)
+    for (const value of ["zed", "testperson", "fake0001", "1970", "quinn", "samplewright", "55501", "mbr"]) {
+      expect({ value, stored: raw.toLowerCase().includes(value) }).toEqual({ value, stored: false })
+    }
+    expect(Bun.spawnSync(["git", "check-ignore", "-q", ".ce-datascience/identifier-index.local.json"], { cwd: root }).exitCode).toBe(0)
+    const again = JSON.parse((buildIndex(root), readFileSync(indexPath(root), "utf8")))
+    expect(again.salt).not.toBe(index.salt)
   })
 })
