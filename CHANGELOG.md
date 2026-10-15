@@ -141,7 +141,7 @@ work.
 * **planning:** require biostats SAP workbook contracts ([#17](https://github.com/sajor2000/ce-datascience/issues/17)) ([6fc1b88](https://github.com/sajor2000/ce-datascience/commit/6fc1b88b287d6ac78d32356b1900bbd8c0345e72))
 * **skills:** harden production readiness workflows ([#18](https://github.com/sajor2000/ce-datascience/issues/18)) ([3236e61](https://github.com/sajor2000/ce-datascience/commit/3236e617bd3ef00291c3c230bba19b4585799514))
 
-## [3.3.0](https://github.com/EveryInc/compound-engineering-plugin/compare/cli-v3.2.0...cli-v3.3.0) (2026-06-02)
+## [3.3.0](https://github.com/sajor2000/ce-datascience/releases/tag/cli-v3.3.0) (2026-06-02)
 
 
 ### Features
