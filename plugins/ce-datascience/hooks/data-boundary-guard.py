@@ -40,7 +40,6 @@ import json
 import os
 import re
 import shlex
-import subprocess
 import sys
 
 # One definition of a data file. schema-peek.py embeds an identical list (tested).
@@ -128,6 +127,8 @@ class ConfigError(Exception):
 # ---------------------------------------------------------------- resolve_mode
 
 def _git_common_dir(top):
+    import subprocess  # only linked worktrees need it
+
     try:
         out = subprocess.run(["git", "-C", top, "rev-parse", "--path-format=absolute", "--git-common-dir"],
                              capture_output=True, text=True, timeout=3)
