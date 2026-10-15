@@ -300,6 +300,40 @@ It checks project evidence first and only asks questions that change generated
 config or workflow routing.
 If you installed optional aliases, `/ce-setup` works too.
 
+### Sensitive-data boundary
+
+Before setup looks at any data, `ce-setup` asks one question and saves the
+answer in the gitignored, machine-local `.ce-datascience/config.local.yaml`:
+
+| Answer | Saved as | What happens |
+|---|---|---|
+| **Approved endpoint: full access** (HIPAA-compliant with a BAA, or institution-approved) | `phi_environment: {compliant: true}` | No restrictions. The agent never raises the boundary again. You are responsible for that approval. |
+| **Not approved or unsure: schema-only** (the default when unanswered) | `phi_environment: {compliant: false}` | The agent sees column headings, types, row counts, and % missing, never data values such as names, MRNs, or claim numbers. It writes code; you run it locally; only aggregates with counts under 11 suppressed come back. It cannot inspect example rows, debug value-level parsing or join mismatches by example, read free text, or spot individual entry errors. |
+| **No sensitive data: public or synthetic** | `phi_environment: {sensitive_data: false}` | No restrictions, never raised again. |
+
+**What enforces it.** In Claude Code, a plugin `PreToolUse` hook
+(`hooks/data-boundary-guard.py`) runs only inside projects that have a
+`.ce-datascience/` directory. In schema-only mode it denies `Read`/`Grep` on
+data files (`.csv`, `.tsv`, `.parquet`, `.xlsx`, `.sas7bdat`, `.dta`, `.rds`,
+`.sqlite`, `.jsonl`, and similar, plus anything under the configured
+`data_root`), shell commands that print them (`head`, `cat`, `awk`, `grep`,
+`duckdb`, `jq`, ...), and inline `python -c` / `Rscript -e` code that opens
+them. If no boundary is saved yet, it denies only data-file reads and asks you
+to run `ce-setup`. It allows running analysis scripts and the schema helper
+`scripts/schema-peek.py`, which prints headings, types, counts, and % missing
+and never a cell value.
+
+**Limits.** The hook is defense in depth, not a sandbox: it cannot see what an
+arbitrary script prints, so the skills still return only aggregates in
+schema-only mode. It fails open (with a one-line warning) on its own internal
+errors, such as a malformed config, so a hook bug never blocks unrelated work.
+Enforcement is Claude Code only: Codex and OpenCode installs carry the hook
+entry but it exits immediately there, and Gemini, Kiro, Copilot, and Pi skip
+hooks, so those harnesses rely on the skill instructions alone.
+
+**Changing the answer.** Re-run `ce-setup`, or edit or delete the
+`phi_environment` block in `.ce-datascience/config.local.yaml`.
+
 ### See your workflow
 
 ```text
