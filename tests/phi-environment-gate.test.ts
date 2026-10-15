@@ -13,9 +13,8 @@ export const GATE_CLAUSE =
   "**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: " +
   "true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = " +
   "`schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and " +
-  "aggregates only; never open, print, or paste data values; run scripts that read data through `ce-safe-run -- <command>` (path in the guard's deny " +
-  "message), which shows only the exit code, files written, and a masked stderr tail, and save results as aggregate tables (counts under 11 " +
-  "suppressed) under `output/` or another `phi_environment.aggregate_dirs` entry. Unset, interactive: " +
+  "aggregates only; never open, print, or paste data values; run data-reading scripts as `ce-safe-run -- <command>` (path in the guard's deny " +
+  "message); save results as aggregate tables (counts under 11 suppressed) in `output/` or a `phi_environment.aggregate_dirs` entry. Unset, interactive: " +
   "ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and " +
   "`No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` " +
   "passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only."
