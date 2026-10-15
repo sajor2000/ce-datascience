@@ -73,7 +73,7 @@ Per analysis, expect one or more of:
 |----------|-----------|----------|
 | `A<N>_<sub>_<part>_coefs.csv` | `models/a<N>/` | Fixed-effect estimates (OR / HR / IRR / sHR), 95% CI, SE, z, p-value; key exposures highlighted |
 | `A<N>_<sub>_<part>_re_variance.csv` | `models/a<N>/` | Random-effect variance, SD, ICC; convergence; n clusters contributing |
-| `A<N>_<sub>_<part>_overdispersion.csv` | `models/a<N>/` | Pearson chi-square / df ratio; flag if > 1.5 |
+| `A<N>_<sub>_<part>_overdispersion.csv` | `models/a<N>/` | Pearson chi-square / df ratio (count models only; undefined for 0/1 outcomes); a ratio > 1.5 is a prespecified trigger to compare negative-binomial or quasi-Poisson fits, not a significance test |
 | `A<N>_cumulative_incidence.csv` | `models/a<N>/` | Time-point CIF estimates by group (Fine-Gray, Aalen-Johansen) |
 | `A<N>_sensitivity_coefs.csv` | `models/a<N>/` | Coefficients across sensitivity exposure-definition variants |
 
@@ -106,7 +106,8 @@ Every `*_coefs.csv` should contain at minimum:
 - `cluster_term` -- name of the random-effect term (e.g., `hospital_id`)
 - `variance` -- estimated variance
 - `sd` -- estimated SD
-- `icc` -- intra-class correlation
+- `icc` -- intra-class correlation; for logit-link models report the latent-scale ICC = variance / (variance + pi^2/3)
+- `mor` -- median odds ratio for logit-link models = exp(sqrt(2 * variance) * 0.6745), where 0.6745 is the 75th percentile of the standard normal (Austin & Merlo, Stat Med 2017; PMID 28543517)
 - `model_type` -- `glmer`, `glmmTMB`, fallback flag
 - `convergence_warning` -- 0/1
 - `n_clusters` -- number of clusters contributing
