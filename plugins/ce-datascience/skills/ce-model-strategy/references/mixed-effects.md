@@ -4,7 +4,7 @@ Read this file for paired, repeated, clustered, multilevel, nested, crossed, or 
 
 ## 1. Define the target interpretation
 
-- Use GEE for a population-averaged contrast when sandwich-robust inference fits the missingness assumptions and the number of independent clusters supports it.
+- Use GEE for a population-averaged contrast when dropout is plausibly MCAR given the covariates in the model and the number of independent clusters supports sandwich inference. Standard GEE is not valid under MAR dropout that depends on observed outcomes; then use inverse-probability-weighted GEE or multiple imputation, or prefer a likelihood-based LMM/MMRM, which is valid under MAR (Fitzmaurice, Laird & Ware, *Applied Longitudinal Analysis*, 2nd ed., 2011, missing-data chapters).
 - Do not reject a Gaussian identity-link LMM solely because the target is marginal: its fixed-effect mean contrasts can also represent population-average mean contrasts. Choose LMM versus GEE from the likelihood and missingness assumptions, covariance model, efficiency-versus-robustness goal, and cluster count.
 - Use an LMM/GLMM when the target is conditional on subject/cluster effects, cluster heterogeneity is itself important, shrinkage/prediction is required, or likelihood-based handling under stated missingness assumptions is needed.
 - If a nonlinear mixed model must report a marginal effect, standardize or integrate predictions over the random-effects distribution. Do not set random effects to zero and call the result marginal.
@@ -44,7 +44,7 @@ Irregular observation times weaken discrete equally spaced AR(1) assumptions. Us
 - For Gaussian LMM comparison of fixed effects, use ML when likelihood-ratio comparisons require it; use REML for final variance estimation when appropriate.
 - State denominator degrees-of-freedom or small-sample method when relevant, such as Satterthwaite, Kenward-Roger, cluster bootstrap, or another justified correction.
 - For GLMMs, state integration/approximation and verify optimizer behavior. Sparse binary outcomes can cause separation or weakly identified variance components.
-- For GEE, state working correlation, cluster-robust variance, and small-cluster correction or limitation.
+- For GEE, state working correlation, cluster-robust variance, and small-cluster correction or limitation. With few clusters (roughly fewer than 40-50, a convention), use a bias-corrected sandwich such as Mancl-DeRouen (PMID `11252587`; R `glmtoolbox::glmgee` with `vcov(type = "bias-corrected")`, Python statsmodels GEE `cov_type="bias_reduced"`); `geepack::geeglm` does not provide it.
 - For Bayesian multilevel models, justify priors on coefficients, scales, correlations, and weakly identified variance components; assess convergence and posterior predictive adequacy.
 
 ## 6. Diagnostics and fallback sequence
@@ -74,5 +74,8 @@ Use these as query seeds, not universal authority. Resolve each identifier with 
 - Random-slope omission and overconfidence: PMCID `PMC2657178` (PMID `19461866`).
 - Marginal prediction from random-intercept binary models: PMCID `PMC4525751` (PMID `26242875`).
 - Random-intercept/slope power assumptions: PMCID `PMC9156336` (PMID `33581000`).
+- GEE foundation: Liang & Zeger, Biometrika 1986;73:13-22 (DOI `10.1093/biomet/73.1.13`; not in PubMed, resolve by DOI).
+- Small-sample GEE sandwich: Mancl & DeRouen, Biometrics 2001 (PMID `11252587`).
+- Textbook anchors for biostatistical longitudinal practice: Fitzmaurice, Laird & Ware, *Applied Longitudinal Analysis*, 2nd ed. (2011); Molenberghs & Verbeke, *Models for Discrete Longitudinal Data* (2005); Pinheiro & Bates, *Mixed-Effects Models in S and S-PLUS* (2000).
 
-The memo must distinguish simulation, tutorial, and applied evidence. No single paper supplies a universal random-effects rule.
+The memo must distinguish simulation, tutorial, and applied evidence. Several seeds come from ecology and evolution journals (`19185386`, `19461866`, `35898418`, `33581000`); prefer the biostatistics sources above when the decision concerns missing data, small-sample inference, or clinical longitudinal estimands. No single paper supplies a universal random-effects rule.

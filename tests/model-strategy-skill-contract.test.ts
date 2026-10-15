@@ -43,16 +43,18 @@ describe("ce-model-strategy contract", () => {
 
   test("requires decision-linked PubMed provenance and guarded full text", async () => {
     const skill = await read("SKILL.md")
+    const evidence = await read("references/evidence-access.md")
 
     expect(skill).toContain("`ce-evidence-map`")
-    expect(skill).toContain("PubMed as the required biomedical metadata baseline")
-    expect(skill).toContain("Paperclip as best-effort full-text deepening")
-    expect(skill).toContain("3-10 relevant methods papers")
-    expect(skill).toContain("PMID, PMCID when available, DOI, query/date provenance")
-    expect(skill).toContain("Label support `abstract`")
-    expect(skill).toContain("label it `full_text`")
-    expect(skill).toContain("Paperclip failure does not block")
+    expect(skill).toContain("`references/evidence-access.md`")
     expect(skill).toContain("load `ce-evidence-map` to acquire the evidence")
+    expect(evidence).toContain("PubMed as the required biomedical metadata baseline")
+    expect(evidence).toContain("Paperclip as best-effort full-text deepening")
+    expect(evidence).toContain("3-10 relevant methods papers")
+    expect(evidence).toContain("PMID, PMCID when available, DOI, query/date provenance")
+    expect(evidence).toContain("Label support `abstract`")
+    expect(evidence).toContain("label it `full_text`")
+    expect(evidence).toContain("Paperclip failure does not block")
   })
 
   test("routes mixed models from estimand and design", async () => {
