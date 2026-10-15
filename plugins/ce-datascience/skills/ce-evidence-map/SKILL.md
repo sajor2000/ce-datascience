@@ -27,6 +27,8 @@ When this run needs literature, read `references/evidence-access.md` first; neve
 
 - **Look up here:** every claim in the claim-to-source matrix (cohort definitions, outcomes, model or effect estimates, covariate sets, limitations) and the figures or trial records behind them.
 
+**MCP egress (every mode):** send PubMed, Paperclip, and other MCP or web tools only search terms, MeSH terms, PMIDs, DOIs, and titles, never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services.
+
 ## Prerequisites
 
 - PubMed baseline: Load the `ce-pubmed` skill first or provide a query this skill can pass

@@ -51,6 +51,8 @@ Read the input CSV. If `--full-text-only`, drop rows without `pmcid` and report 
 
 ### Step 2: Read the paper, not only the abstract
 
+**MCP egress (every mode):** send PubMed, Paperclip, and other MCP or web tools only search terms, MeSH terms, PMIDs, DOIs, and titles, never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services.
+
 Full text is the extraction source whenever it is lawfully available; the CSV abstract alone is the last resort. For each paper, in preference order:
 
 1. **PubMed MCP full text.** For rows with a `pmcid`, call `pubmed_fetch_fulltext` (default server), or `get_copyright_status` and then `get_full_text_article` (other connectors), with the PMCID. Read the Methods, Results, and statistical-analysis sections and Table 1. Cite PubMed and include the DOI in the output row.

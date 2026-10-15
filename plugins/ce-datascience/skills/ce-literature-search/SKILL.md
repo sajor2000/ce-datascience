@@ -19,6 +19,8 @@ argument-hint: "[research query, PICO/PECO question, DOI/PMID list, or source re
 
 Choose the narrowest route that satisfies the request. Before calling any search tool, read `references/mcp-routing.md`: it maps each need to the connected MCP tools (PubMed, Paperclip, Context7 or Ref, web search) and to the fallback when none is connected.
 
+**MCP egress (every mode):** send PubMed, Paperclip, and other MCP or web tools only search terms, MeSH terms, PMIDs, DOIs, and titles, never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services.
+
 | Need | Route |
 |---|---|
 | PubMed/MEDLINE search, MeSH expansion, PMIDs, abstracts, or canonical biomedical metadata | Load `ce-pubmed` |

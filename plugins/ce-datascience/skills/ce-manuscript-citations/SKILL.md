@@ -41,6 +41,8 @@ Before any literature lookup, read `references/evidence-access.md` (PubMed and P
 
 ### 1. Resolve candidate sources with PubMed MCP
 
+**MCP egress (every mode):** send PubMed, Paperclip, and other MCP or web tools only search terms, MeSH terms, PMIDs, DOIs, and titles, never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services.
+
 When a connected PubMed MCP server is available, use it rather than guessing or relying on a static web citation. Two servers are common; call by purpose with whichever spelling is connected:
 
 - Search (`pubmed_search_articles` or `search_articles`) for a research question or claim cluster (query built from the claim's PICO terms; no manuscript data values).
@@ -58,7 +60,7 @@ Record PMID, PMCID when present, DOI, title, authors, journal, year, query or lo
 When Paperclip MCP or the authenticated Paperclip CLI is available, use it for full-text verification:
 
 1. Load the Paperclip instructions before issuing commands.
-2. `search` the explicit `pmc` source for the claim or source set, or `lookup` the resolved DOI/PMID/PMCID directly.
+2. `search` the explicit `pmc` source with paper-level claim terms (population, exposure, outcome, design; never manuscript numbers or patient text), or `lookup` the resolved DOI/PMID/PMCID directly.
 3. `cat`, `grep`, or `scan` the relevant paper text and capture line-pinned evidence URLs; use `ask-image` when the claim rests on a figure.
 4. Label each claim's evidence at the level read: `abstract`, `full_text`, `figure`, `trial`, `regulatory`, or `documentation`. A claim whose source was only resolved (identifiers and metadata, nothing read) carries no evidence label and stays `unverified` in the ledger status.
 

@@ -30,6 +30,8 @@ Search PubMed/MEDLINE via NCBI E-utilities and return a structured CSV that down
 
 Before any literature lookup, read `references/evidence-access.md` (PubMed and Paperclip MCP tools, fallbacks, and evidence rules); never invent a citation, effect size, or guideline item.
 
+**MCP egress (every mode):** send PubMed, Paperclip, and other MCP or web tools only search terms, MeSH terms, PMIDs, DOIs, and titles, never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services.
+
 - **Look up here:** the PICO query from `analysis/research-question.yaml`, MeSH expansion (NCBI's `QueryTranslation`), and PMID/PMCID/DOI capture for every CSV row.
 
 When the PubMed MCP path is used instead of the script, write the same CSV
