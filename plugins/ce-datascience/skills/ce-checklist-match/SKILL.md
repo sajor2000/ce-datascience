@@ -76,18 +76,18 @@ Surface these defaults to the user and let them override before writing to stack
 
 If `--interactive` or the study description is too sparse, ask 4-6 questions one at a time:
 
-1. **Design**: RCT / observational cohort / case-control / cross-sectional / qualitative / systematic review / meta-analysis / case report / animal study / economic evaluation / diagnostic accuracy / prediction model
+1. **Design**: RCT / observational cohort / case-control / cross-sectional / qualitative / systematic review / meta-analysis / case report / animal study / economic evaluation / diagnostic accuracy / prediction model / early clinical evaluation of an AI decision-support tool (`early-clinical-ai-evaluation`)
 2. **Direction** (if observational): prospective / retrospective
 3. **Aim**: causal / descriptive / predictive / qualitative-exploratory / mixed
 4. **AI involvement** (canonical `ai_involvement` values shared with `ce-code-review` and `ce-plan`): `none` / `ai-assisted` (AI as a tool within traditional methods, e.g., data cleaning or a classifier in the pipeline) / `ai-primary` (the AI model is the primary analytical approach or the object being evaluated) / `llm-based` (the study uses or evaluates a large language model). Older answers map as: none -> `none`; data-cleaning only -> `ai-assisted`; model-as-tool -> `ai-assisted`; model-as-study-object -> `ai-primary`, or `llm-based` when the model under study is an LLM. Write only the canonical values.
-5. **Pre-registration**: planned / not planned / already done
+5. **Stage and pre-registration**: protocol stage (`protocol_stage: true` routes trials to SPIRIT 2025 and systematic reviews to PRISMA-P) or results stage; pre-registration planned / not planned / already done
 6. **Population**: human / animal / cell / in-silico
 
 If the description already answers some of these, skip those questions. When a target journal is known, look up its author guidelines by web search for a mandated checklist and record the URL; never ask the user to recall it.
 
 ### Step 2: Apply the routing rules
 
-Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional, unverified, or registry-pending status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (TRIPOD 2015 is superseded); SPIRIT 2025 covers RCT protocols; TARGET is standalone for target-trial emulation.
+Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (TRIPOD 2015 is superseded); SPIRIT 2025 covers RCT protocols and PRISMA-P systematic-review protocols; DECIDE-AI covers early clinical AI evaluation; TARGET is standalone for target-trial emulation.
 
 If the answers don't fit a branch, ask a clarifying question rather than guessing.
 
@@ -111,7 +111,7 @@ The string form (`reporting_checklist: STROBE`) is what `ce-code-review` Stage 3
 
 ### Step 4: Drop the checklist into the project
 
-For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. Head it with the guideline statement's citation (PMID/DOI confirmed with the metadata tool) and the version, taken from the matching snippet when one exists (`references/checklist-snippets/CONSORT.md`, `references/checklist-snippets/STROBE.md`, `references/checklist-snippets/TRIPOD-AI.md`; load only the selected guidelines' snippets). For a guideline without a snippet, write the confirmed citation and an empty table to be filled from the published checklist; never invent items. The user (or `ce-work`) fills these as the SAP and analysis develop.
+For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. Head it with the guideline statement's citation (PMID/DOI confirmed with the metadata tool) and the version, taken from the matching snippet when one exists (`references/checklist-snippets/CONSORT.md`, `STROBE.md`, `TRIPOD-AI.md`, and the plan-time placeholders `SPIRIT.md`, `TRIPOD-LLM.md`, `DECIDE-AI.md`, `PRISMA-P.md` in the same folder; load only the selected guidelines' snippets). For a guideline without a snippet, write the confirmed citation and an empty table to be filled from the published checklist; never invent items. The user (or `ce-work`) fills these as the SAP and analysis develop.
 
 ### Step 5: Emit signal for downstream skills
 

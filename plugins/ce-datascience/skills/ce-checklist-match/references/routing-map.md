@@ -21,7 +21,7 @@ This deterministic decision tree selects a primary reporting guideline and only 
 IF design == RCT:
   primary = CONSORT  # CONSORT 2025 core
   IF ai_involvement IN [ai-primary, llm-based] AND the AI is the trial intervention: extension += CONSORT-AI
-  IF protocol_stage == true: protocol = SPIRIT (2025; Chan et al., BMJ 2025, PMID 40294953)  # registry-pending
+  IF protocol_stage == true: protocol = SPIRIT  # SPIRIT 2025 (Chan et al., BMJ 2025, PMID 40294953)
   IF protocol_stage == true AND ai_involvement IN [ai-primary, llm-based]: protocol += SPIRIT-AI (layered on SPIRIT 2025)
   IF cluster_design: extension += CONSORT-CLUSTER
   IF adaptive_design: extension += CONSORT-ADAPTIVE
@@ -44,7 +44,7 @@ ELIF design IN [observational_cohort, observational_case_control, observational_
 
 ELIF design == prediction_model:
   primary = TRIPOD+AI  # supersedes TRIPOD 2015 for regression and ML models alike (Collins et al. 2024, PMID 38626948)
-  IF ai_involvement == llm-based: extension += TRIPOD-LLM (Gallifant et al., Nat Med 2025, PMID 39779929)  # registry-pending
+  IF ai_involvement == llm-based: extension += TRIPOD-LLM  # Gallifant et al., Nat Med 2025, PMID 39779929
   IF ai_involvement IN [ai-primary, llm-based] AND the study makes ML-based science claims: extension += REFORMS
   IF systematic_review_of_prediction_models == true: extension += CHARMS as appraisal
   IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically
@@ -60,7 +60,7 @@ ELIF design == systematic_review:
   IF subtype == network_meta: extension += PRISMA-NMA
   IF subtype == individual_patient_data: extension += PRISMA-IPD
   IF subtype == scoping_review: extension += PRISMA-SCR
-  IF protocol_stage == true: note PRISMA-P as unsupported follow-up
+  IF protocol_stage == true: protocol = PRISMA-P  # PRISMA-P 2015 (Moher et al., Syst Rev 2015, PMID 25554246)
 
 ELIF design == qualitative: primary = COREQ
 ELIF design == mixed_methods:
@@ -71,8 +71,8 @@ ELIF design == case_report: primary = CARE
 ELIF design == economic_evaluation: primary = CHEERS
 ELIF design == quality_improvement: primary = SQUIRE  # SQUIRE 2.0
 ELIF design == chatbot_health_advice: primary = CHART
-ELIF design == early_stage_ai_clinical_evaluation:  # live clinical use of AI decision support, before a comparative trial
-  primary = DECIDE-AI (Vasey et al., Nat Med 2022, PMID 35585198)  # registry-pending
+ELIF design == early-clinical-ai-evaluation:  # live clinical use of AI decision support, before a comparative trial
+  primary = DECIDE-AI  # Vasey et al., Nat Med 2022, PMID 35585198
 ELIF design == ml_methods:
   primary = route the underlying design through this tree (TRIPOD+AI for an AI prediction model)
   extension += REFORMS (ML-based science; REFORMS is never primary)
@@ -83,7 +83,7 @@ ALWAYS (any design): IF ai_involvement == llm-based AND the study is a predictio
 OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat Med 2020, PMID 32908275) or MI-CLAIM-GEN for generative models (Miao et al., Nat Med 2025, PMID 39915678) as a documentation template, never as the primary reporting guideline
 ```
 
-Entries marked `# registry-pending` are current, PubMed-verified guidelines that the `ce-code-review` guideline registry may not list yet. Until it resolves the name, write the checklist placeholder in `analysis/checklists/` with the confirmed citation, tell the user, and keep the name out of `reporting_checklist` / `reporting_checklist_extensions` so the reviewer does not reject it.
+`protocol_stage: true` selects the protocol checklist (SPIRIT 2025 for trials, PRISMA-P for systematic reviews) in place of the results-stage primary; record it as `reporting_checklist` while the protocol is being written and switch to the results-stage primary afterwards.
 
 ## Worked examples
 
