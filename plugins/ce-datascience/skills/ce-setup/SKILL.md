@@ -30,6 +30,18 @@ worktree, fall back to the main checkout when the machine-local file is absent.
 An existing profile is confirmed evidence; retain it unless it conflicts with an
 explicit current request.
 
+### Phase 0a: Sensitive-data boundary (before any data inspection)
+
+Check `phi_environment` in the config just read:
+
+| Saved value | Action |
+|---|---|
+| `compliant: true` or `sensitive_data: false` | Unrestricted. Do not ask or mention the boundary. |
+| `compliant: false` | Schema-only. Do not ask again. |
+| missing or empty | Read `references/sensitive-data-boundary.md`, ask its one question, and save the answer. |
+
+Re-ask only when the user asks to change the boundary or says the model endpoint changed. In schema-only mode, never read data-file contents during the evidence scan below: use file names, and run the schema helper named in that reference for column headings. Completion evidence: `phi_environment` holds `compliant` or `sensitive_data`, or a headless run is proceeding schema-only.
+
 Run the `ce-language-detect` skill or apply its rules and retain its handoff:
 
 ```text
