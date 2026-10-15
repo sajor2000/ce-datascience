@@ -20,7 +20,7 @@ Transparent Reporting of a multivariable prediction model for Individual Prognos
 
 **Companion statement:** Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD): the TRIPOD statement. Ann Intern Med. 2015;162(1):55-63. doi:10.7326/M14-0697. PMID: 25560714.
 
-This checklist applies to regression-based prediction models. For studies using machine learning or AI methods, apply the TRIPOD+AI extension instead. Items marked D apply to model development, V to validation, and D+V to both.
+**Superseded:** TRIPOD 2015 is superseded by TRIPOD+AI (Collins GS, et al. BMJ. 2024;385:e078378. PMID: 38626948) for all prediction-model studies, whether regression or machine learning. Use `tripod-ai-checklist.md` and cite TRIPOD+AI item numbers; use this file only when a journal or legacy protocol explicitly requires TRIPOD 2015 numbering. Items marked D apply to model development, V to validation, and D+V to both.
 
 ---
 
@@ -117,9 +117,9 @@ This checklist applies to regression-based prediction models. For studies using 
 **Description:** Explain how the study size was arrived at. (D+V)
 
 **What to look for in code/outputs:**
-- Sample size justification based on events-per-variable (EPV) rule or simulation
-- Documentation of minimum EPV threshold applied (e.g., 10-20 events per predictor)
-- Power calculations for validation studies
+- Development sample size justified with the Riley et al. criteria (BMJ 2020;368:m441, PMID 32188600; R/Stata `pmsampsize`): shrinkage >= 0.9, optimism in Nagelkerke R-squared <= 0.05, and precise overall risk, counted in candidate predictor parameters (degrees of freedom), not variables
+- Events-per-variable rules of thumb (e.g., 10-20) flagged as insufficient justification on their own
+- Validation sample size justified by the precision of calibration (O/E, calibration slope), C-statistic, and net benefit (Riley et al. Stat Med 2021, PMID 34031906; `pmvalsampsize`), not hypothesis-test power
 - Comments when sample size is limited by available data
 
 ---
@@ -254,7 +254,7 @@ This checklist applies to regression-based prediction models. For studies using 
 
 **What to look for in code/outputs:**
 - Limitation section referencing sample representativeness and generalizability
-- EPV ratio or events-per-predictor calculation reported
+- Sample size relative to the Riley et al. criteria (or events per candidate predictor parameter) reported
 - Missing data mechanism and potential impact discussed
 - Overfitting risk discussed relative to internal validation method used
 

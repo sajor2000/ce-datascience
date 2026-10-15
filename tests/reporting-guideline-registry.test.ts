@@ -126,8 +126,13 @@ describe("reporting guideline registry", () => {
     expect(target).toContain("PMID: 40903028")
   })
 
-  test("follows the published TARGET statement", async () => {
+  test("follows the published TARGET and TRIPOD+AI statements", async () => {
+    const registry = load(await readReference("guideline-registry.yaml")) as Registry & {
+      evidence: Record<string, { superseded_for?: string[]; superseded_by?: string }>
+      guidelines: Record<string, { extension_for: string[]; primary_for: string[] }>
+    }
     const target = await readReference("target-checklist.md")
+    const tripod = await readReference("tripod-checklist.md")
     const routing = await readReference("guideline-routing.md")
 
     // TARGET: 21 items in six sections, standalone (Cashin et al. 2025, Table 2).
@@ -137,6 +142,14 @@ describe("reporting guideline registry", () => {
     expect(target).toContain("standalone")
     expect(target).not.toMatch(/Use alongside STROBE/)
     expect(routing).not.toMatch(/STROBE is always applied/)
+
+    // TRIPOD+AI supersedes TRIPOD 2015 for every prediction model, regression or ML.
+    expect(registry.evidence.TRIPOD.superseded_for).toEqual(["prediction-model"])
+    expect(registry.evidence.TRIPOD.superseded_by).toBe("TRIPOD+AI")
+    expect(registry.guidelines.TRIPOD.extension_for).toEqual([])
+    expect(registry.guidelines["TRIPOD+AI"].primary_for).toEqual(["prediction-model"])
+    expect(tripod).not.toContain("applies to regression-based prediction models")
+    expect(tripod).toContain("pmsampsize")
   })
 
   test("routing is evidence-aware and attribute-specific", async () => {
