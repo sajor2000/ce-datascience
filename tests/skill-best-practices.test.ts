@@ -9,6 +9,8 @@ import { load } from "js-yaml"
 const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
 const MAX_NAME_CHARS = 64
 const MAX_DESCRIPTION_CHARS = 1024
+const MAX_LISTED_DESCRIPTION_CHARS = 300
+const MAX_TOTAL_DESCRIPTION_CHARS = 11_500
 const MAX_BODY_LINES = 500
 // Every SKILL.md token loads on each invocation; long lines hide size from a line cap.
 // ~16 KB is about 4,000 tokens. Move conditional or late-sequence detail to references/.
@@ -76,6 +78,24 @@ describe("skill frontmatter follows Anthropic naming and description rules", () 
       if (/^(I|I'm|You|Use this (skill )?to)\b/.test(description)) problems.push(`${skill.name}: description is not third person`)
       if (!/\bUse when\b/.test(description)) problems.push(`${skill.name}: description lacks a "Use when ..." trigger`)
     }
+    expect(problems).toEqual([])
+  })
+
+  // Claude Code fits the skill listing into a small share of context and drops the
+  // descriptions of rarely used skills first when it overflows, so keep each one short
+  // and front-loaded with a third-person verb ("Runs ...", not "Run ...").
+  test(`descriptions open with a third-person verb, stay under ${MAX_LISTED_DESCRIPTION_CHARS} chars, and fit the listing budget`, () => {
+    const problems: string[] = []
+    let total = 0
+    for (const skill of skills) {
+      const description = String(skill.frontmatter.description ?? "").trim()
+      total += description.length
+      if (description.length > MAX_LISTED_DESCRIPTION_CHARS) {
+        problems.push(`${skill.name}: description is ${description.length} chars`)
+      }
+      if (!/^[A-Z][a-z]+s\b/.test(description)) problems.push(`${skill.name}: description should open with a third-person verb`)
+    }
+    if (total > MAX_TOTAL_DESCRIPTION_CHARS) problems.push(`all skill descriptions total ${total} chars`)
     expect(problems).toEqual([])
   })
 })

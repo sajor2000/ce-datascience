@@ -1,6 +1,6 @@
 ---
 name: ce-fabric
-description: "Microsoft Fabric research and analytics workflows: Lakehouse/OneLake and Warehouse code (PySpark, Spark SQL, T-SQL, Delta), Data Factory pipelines and Dataflows Gen2, Direct Lake semantic models (DAX, RLS/OLS, sempy), Fabric ML (MLflow, batch scoring, AI functions), and Eventhouse/KQL real-time work. Use when a project uses Fabric, OneLake, Fabric notebooks, Warehouses, Data Factory, Power BI Direct Lake, MLflow in Fabric, Eventhouse, or KQL."
+description: "Routes Microsoft Fabric work (OneLake, Lakehouse, Warehouse, PySpark, Data Factory, Direct Lake, Fabric ML, KQL) with research guardrails. Use when a project uses Fabric."
 argument-hint: "[coding|pipelines|semantic-models|ml|kql]"
 ---
 

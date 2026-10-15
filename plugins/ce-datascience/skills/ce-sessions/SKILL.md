@@ -1,6 +1,6 @@
 ---
 name: ce-sessions
-description: "Search and synthesize coding-agent session history across supported local session sources without reproducing sensitive logs verbatim. Use when the user asks what happened before, what was tried, prior decisions, or session-history questions."
+description: "Searches and summarizes prior coding-agent session history without reproducing sensitive logs. Use when the user asks what was tried before or what past sessions decided."
 ---
 
 # `ce-sessions`

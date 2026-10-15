@@ -1,6 +1,6 @@
 ---
 name: ce-quarto-render-reviewer
-description: Conditional code-review persona, selected when the diff touches .qmd files, _quarto.yml, _publish.yml, or rendered output under _book/, _site/, or docs/. Reviews Quarto/RMarkdown setup for cache traps, render-time-only failures, parameterization gaps, and committed-output hygiene that pass static analysis but break on render or in CI.
+description: "Conditional code-review persona, selected when the diff touches .qmd, _quarto.yml, or rendered output. Reviews Quarto/R Markdown for cache traps, render-only failures, parameter gaps, and committed-output hygiene."
 model: inherit
 tools:
   - Read

@@ -1,6 +1,6 @@
 ---
 name: ce-power
-description: "Plan sample size or power assumptions for clinical, observational, survival, and prediction-model studies. Use when the user asks for power, sample size, detectable effect, feasibility, or SAP power section support."
+description: "Calculates sample size and power for clinical, survival, cluster, and prediction-model studies, with a script, sweep, and SAP text. Use when the user asks for power or sample size."
 argument-hint: "<design>, optional: --effect-size <value> --alpha 0.05 --power 0.80 --side two"
 ---
 

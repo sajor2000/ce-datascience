@@ -1,6 +1,6 @@
 ---
 name: ce-pre-submission-audit
-description: "Run the final manuscript handoff gate across Methods/Results discipline, clinical research voice, and scientific anti-slop. Use when any manuscript, abstract, cover letter, or grant-narrative draft is about to be delivered to an author or co-author."
+description: "Runs the final gate on a manuscript, abstract, cover letter, or grant: section discipline, voice, and anti-slop passes. Use when a draft is about to go to co-authors."
 ---
 
 # Pre-Submission Audit

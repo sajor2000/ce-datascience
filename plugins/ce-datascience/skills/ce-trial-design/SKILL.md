@@ -1,6 +1,6 @@
 ---
 name: ce-trial-design
-description: "Build auditable two-arm group-sequential design frontiers from version-pinned rpact or gsDesign results without reimplementing the statistical engine. Use when a statistician needs to compare two-arm group-sequential superiority designs across effect, information-time, spending-rule, or futility scenarios."
+description: "Builds auditable two-arm group-sequential design frontiers from version-pinned rpact or gsDesign output. Use when comparing group-sequential designs across effect or spending scenarios."
 argument-hint: "<endpoint and estimand>, optional: --engine rpact|gsDesign --alpha <value> --power <value>"
 ---
 

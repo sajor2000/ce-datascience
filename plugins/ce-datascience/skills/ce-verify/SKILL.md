@@ -1,6 +1,6 @@
 ---
 name: ce-verify
-description: "Run a lightweight mid-workflow verification gate for sample size, leakage, effect direction, missingness, PHI, figures, and reproducibility. Use when the user finishes an analysis step or wants a quick sanity check before marking work done."
+description: "Runs an analysis-output sanity gate: sample size, leakage, effect direction, missing data, PHI, figures, reproducibility. Use when an analysis step finishes."
 argument-hint: "[optional: path to specific output file or directory to verify]"
 ---
 

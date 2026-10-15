@@ -1,6 +1,6 @@
 ---
 name: ce-phenotype-validate
-description: "Validate a computable phenotype against chart-review reference labels: 2x2 table, sensitivity, specificity, PPV, and NPV with Wilson intervals, plus subgroup and sample-size-aware reporting. Use when the user defines, reviews, or re-validates a clinical phenotype or code-list cohort definition with chart-review data."
+description: "Validates a computable phenotype against chart review: 2x2 table, PPV, NPV, sensitivity, specificity, Wilson intervals. Use when checking a phenotype or code list."
 argument-hint: "<phenotype name>, <chart-review CSV path>, optional --algorithm-output csv"
 ---
 

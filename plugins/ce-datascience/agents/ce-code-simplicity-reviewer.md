@@ -1,6 +1,6 @@
 ---
 name: ce-code-simplicity-reviewer
-description: "Final review pass to ensure code is as simple and minimal as possible. Use after implementation is complete to identify YAGNI violations and simplification opportunities."
+description: "Reviews finished code for YAGNI violations and needless complexity, proposing the simplest working version. Use after implementation, before review."
 model: inherit
 tools: Read, Grep, Glob, Bash
 ---

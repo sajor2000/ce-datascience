@@ -250,6 +250,10 @@ The current plugin selectively ports useful features from the original compound-
 
 The curated upstream refresh includes portable continuity as `/ce-handoff`. PR monitoring (`ce-babysit-pr`) and maintainer corpus retuning (`ce-retune`) were removed as outside the data-science scope. Deferred upstream-only skills remain intentionally out of scope: Rails, frontend, browser/Xcode, Slack command workflows, product-pulse, dogfood, LFG, agent-native architecture/audit, demo-reel, Proof, simplify-code, strategy, promotion, and polish workflows. The upstream multi-provider cross-model runner and `/ce-pov` remain deferred until CE has a trusted serving-route attestation contract.
 
+### Coexisting with compound-engineering
+
+Fifteen skills share names with the upstream compound-engineering plugin (`ce-brainstorm`, `ce-plan`, `ce-work`, `ce-debug`, `ce-code-review`, `ce-doc-review`, `ce-commit`, `ce-commit-push-pr`, `ce-compound`, `ce-compound-refresh`, `ce-ideate`, `ce-optimize`, `ce-resolve-pr-feedback`, `ce-worktree`, `ce-handoff`). Plugin namespacing prevents a slash-command clash, but when both plugins are enabled the model sees two descriptions for requests like "plan this". The ce-datascience descriptions name their data-science scope (SAPs, analysis code, PHI) to help selection. To make routing deterministic, invoke the namespaced command (`/ce-datascience:ce-plan`) or disable the plugin you do not need for the project with `/plugin`. Claude Code's `skillOverrides` setting does not apply to plugin skills.
+
 ### Migration from earlier versions
 
 These commands no longer exist. Installs made with the CLI remove the stale copies on upgrade; marketplace installs drop them when the plugin updates.

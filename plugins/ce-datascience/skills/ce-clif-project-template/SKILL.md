@@ -1,6 +1,6 @@
 ---
 name: ce-clif-project-template
-description: "Initialize or audit a CLIF project against the official CLIF Project Template with version, PHI, and output safeguards. Use when creating a new CLIF analysis repository from the official template or auditing an existing template-derived project."
+description: "Initializes or audits a CLIF analysis repo against the official CLIF Project Template, with PHI and output safeguards. Use when creating or checking a CLIF project repo."
 argument-hint: "[init <empty-directory> | audit [project-directory]] [--version 2.1.0|3.0.0]"
 ---
 

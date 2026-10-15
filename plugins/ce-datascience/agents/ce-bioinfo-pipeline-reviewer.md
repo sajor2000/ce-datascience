@@ -1,6 +1,6 @@
 ---
 name: ce-bioinfo-pipeline-reviewer
-description: Conditional code-review persona, selected when the diff touches Snakemake (Snakefile, *.smk), Nextflow (*.nf, nextflow.config), CWL (*.cwl), Bioconductor pipelines, or sample-sheet driven scripts. Reviews bioinformatics pipelines for environment declaration, container/conda pinning, output checksums, sample-sheet validation, intermediate-file caching traps, and workflow-version traceability.
+description: "Conditional code-review persona, selected when the diff touches Snakemake, Nextflow, CWL, Bioconductor, or sample-sheet pipelines. Reviews environment pinning, checksums, sample-sheet checks, and version traceability."
 model: inherit
 tools:
   - Read

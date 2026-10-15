@@ -1,6 +1,6 @@
 ---
 name: ce-fairness-reviewer
-description: Conditional code-review persona, selected when the diff touches prediction-model code (training, evaluation, deployment) for clinical or biomedical use. Reviews subgroup performance reporting -- sex, race/ethnicity, age, hospital/site, payer, language -- against TRIPOD+AI and FDA AI/ML guidance. Detects missing subgroup analysis, performance gaps, omitted protected attributes, and absence of a fairness mitigation plan.
+description: "Conditional code-review persona, selected when the diff touches clinical prediction-model code. Reviews subgroup performance reporting (sex, race/ethnicity, age, site, payer) and flags gaps, omitted attributes, and missing mitigation."
 model: inherit
 tools:
   - Read

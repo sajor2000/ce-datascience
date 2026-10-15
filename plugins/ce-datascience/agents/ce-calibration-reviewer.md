@@ -1,6 +1,6 @@
 ---
 name: ce-calibration-reviewer
-description: Conditional code-review persona, selected when the diff touches prediction-model evaluation code that produces predicted probabilities (logistic regression, random forest, gradient boosting, neural networks for classification, survival models with predicted survival probabilities). Reviews calibration assessment beyond discrimination -- calibration plot, intercept and slope, Brier score, ICI, decision-curve analysis -- and flags AUC-only reporting or time-misaligned survival discrimination.
+description: "Conditional code-review persona for prediction-model evaluation code that outputs predicted risks (binary or survival). Use when a diff computes or reports discrimination, calibration, Brier score, or decision curves."
 model: inherit
 tools:
   - Read

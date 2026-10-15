@@ -1,6 +1,6 @@
 ---
 name: ce-omics-batch-reviewer
-description: Conditional code-review persona, selected when the diff touches omics-style count or beta matrices (RNA-seq, methylation, microarray, proteomics) and downstream differential / clustering / ML code. Detects batch-condition confounding, blind ComBat / RUV / SVA application without inspection, batch correction that strips the experimental signal, and absent batch-effect screening before differential analysis.
+description: "Conditional code-review persona, selected when the diff touches omics count or beta matrices and downstream analysis. Detects batch-condition confounding, unchecked ComBat/RUV/SVA use, and missing batch screening."
 model: inherit
 tools:
   - Read

@@ -1,6 +1,6 @@
 ---
 name: ce-compound
-description: "Capture validated analytical approaches, decisions, and reusable patterns into durable docs/solutions knowledge. Use when the user wants to document learnings, preserve a validated approach, or compound a data science pattern."
+description: "Records a validated analytical approach, methods decision, or reusable data-science pattern in docs/solutions. Use when the user wants to document or compound a learning."
 ---
 
 # `ce-compound`

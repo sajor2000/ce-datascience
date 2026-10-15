@@ -1,6 +1,6 @@
 ---
 name: ce-manuscript-package
-description: "Assemble manuscript-ready packages from SAP, outputs, tables, figures, reporting checklist, and provenance artifacts. Use when the user needs a journal/manuscript package, submission bundle, or final report handoff."
+description: "Assembles a journal submission package from the SAP, outputs, tables, figures, reporting checklist, and provenance. Use when the user needs a submission bundle."
 argument-hint: "[optional: --out-dir manuscript --format quarto]"
 ---
 

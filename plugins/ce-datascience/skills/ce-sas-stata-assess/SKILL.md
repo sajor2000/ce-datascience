@@ -1,6 +1,6 @@
 ---
 name: ce-sas-stata-assess
-description: "Assess SAS and Stata projects for reproducibility, migration, review, and risk without pretending full native scaffolding exists. Use when the repo contains .sas, .do, .ado, .dta, PROC statements, or Stata commands and the user asks what can be reviewed or ported."
+description: "Assesses SAS and Stata code (.sas, .do, .ado, .dta) for reproducibility, review risk, and porting feasibility. Use when a repo has SAS or Stata work to review or port."
 argument-hint: "[optional: --scan-dir analysis --report analysis/sas-stata-assessment.md]"
 ---
 

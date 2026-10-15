@@ -1,6 +1,6 @@
 ---
 name: ce-data-mapping-reviewer
-description: Conditional code-review persona, selected when the diff touches a codebook, data dictionary, or SAP variable list. Diffs the data-extract column set against the SAP-declared variable list and the codebook, flagging missing variables, name drift, type mismatches, and unmapped columns before any modeling code runs.
+description: "Conditional code-review persona, selected when the diff touches a codebook, data dictionary, or SAP variable list. Flags missing variables, name drift, type mismatches, and unmapped columns before modeling."
 model: inherit
 tools:
   - Read

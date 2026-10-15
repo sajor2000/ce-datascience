@@ -1,6 +1,6 @@
 ---
 name: ce-ml-experiment-track
-description: "Add reproducible ML experiment tracking for datasets, splits, metrics, SAP linkage, and optional tracking backends with a run-log fallback. Use when the user builds or reviews ML experiments, prediction models, validation runs, or tracking setup; model cards belong to ce-model-card."
+description: "Adds reproducible ML experiment tracking (data hashes, splits, metrics, SAP links) with MLflow, W&B, DVC, or an offline log. Use when building or reviewing ML experiments."
 argument-hint: "[--backend mlflow|wandb|dvc|offline, --project name]"
 ---
 

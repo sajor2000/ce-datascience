@@ -1,6 +1,6 @@
 ---
 name: ce-compound-refresh
-description: "Audit existing docs/solutions guidance for drift, then keep, update, consolidate, replace, or mark stale. Use when the user asks to refresh, audit, sweep, consolidate, or clean stale docs/solutions learnings."
+description: "Audits docs/solutions learnings for drift, then keeps, updates, merges, replaces, or marks them stale. Use when the user asks to refresh or clean up docs/solutions."
 ---
 
 # Compound Refresh

@@ -1,6 +1,6 @@
 ---
 name: ce-handoff
-description: "Create or resume a concise, portable continuity record for a CE Data Science task. Use when work must move to another agent or later session without relying on chat history."
+description: "Creates or resumes a portable continuity record for a data-science task, keeping SAP and real-data gates. Use when work moves to another agent or a later session."
 argument-hint: "[create [focus] | resume [path or keywords]]"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ce-scientific-anti-slop
-description: Detect and remove generic AI-writing tells from scientific and clinical manuscript prose. Use when drafting or reviewing any manuscript text and as one pass of ce-pre-submission-audit; preserve passive Methods prose, definitional em-dashes, and statistically backed intensifiers.
+description: "Detects and removes generic AI-writing tells from finished scientific prose, keeping passive Methods voice. Use when the user asks to de-slop wording; drafting goes to ce-scientific-writing."
 ---
 
 # Scientific Anti-Slop Audit

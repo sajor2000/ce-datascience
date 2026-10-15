@@ -1,6 +1,6 @@
 ---
 name: ce-resolve-pr-feedback
-description: "Resolve pull request feedback by triaging review threads, applying valid fixes, validating changes, and replying to reviewers. Use when the user asks to resolve PR feedback, review comments, methodology concerns, or reviewer threads."
+description: "Resolves review feedback on analysis or code PRs, methodology comments included: triages, fixes, validates, replies. Use when the user asks to address PR comments."
 argument-hint: "[PR number, comment URL, or blank for current branch's PR]"
 allowed-tools: Bash(gh *), Bash(git *), Read
 ---

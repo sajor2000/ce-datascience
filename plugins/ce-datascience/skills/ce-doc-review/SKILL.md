@@ -1,6 +1,6 @@
 ---
 name: ce-doc-review
-description: "Review plans, SAPs, manuscripts, requirements, or docs for clarity, completeness, scope control, and review readiness. Use when the user asks to review, strengthen, simplify, or validate a document rather than code."
+description: "Reviews plans, SAPs, protocols, and manuscripts for clarity, completeness, and scope with persona reviewers. Use when the user asks to review a document, not code."
 argument-hint: "[mode:non-interactive|headless] [path/to/document.md]"
 ---
 

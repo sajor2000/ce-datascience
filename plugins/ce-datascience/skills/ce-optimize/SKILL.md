@@ -1,6 +1,6 @@
 ---
 name: ce-optimize
-description: "Run metric-driven prompt, workflow, or implementation optimization loops with sampling, scoring, and bounded iteration. Use when the user wants to optimize a prompt, workflow, model behavior, or scored process."
+description: "Runs bounded, metric-scored experiment loops to improve a model, prompt, or pipeline without touching the test set. Use when a scored metric must improve; broken runs go to ce-debug."
 argument-hint: "[path to optimization spec YAML, or describe the optimization goal]"
 ---
 

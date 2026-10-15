@@ -1,6 +1,6 @@
 ---
 name: ce-manuscript-citations
-description: "Build evidence-traceable manuscript citations from PubMed and Paperclip and deliver a Word document with editable Zotero citation fields. Use when adding, auditing, or repairing citations in a DOCX manuscript, abstract, or submission package."
+description: "Builds evidence-traceable citations from PubMed and Paperclip into a DOCX with editable Zotero fields. Use when adding or repairing citations in a Word manuscript."
 argument-hint: "[path/to/manuscript.docx or citation request] [optional: --style vancouver|apa]"
 ---
 

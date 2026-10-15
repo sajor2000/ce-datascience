@@ -1,6 +1,6 @@
 ---
 name: ce-manuscript-section-discipline
-description: Enforce the factual boundary for Methods, Results, figure legends, and table footnotes in clinical and scientific manuscripts. Use when drafting or auditing these sections; preserve required or prespecified methodological rationale, while moving retrospective interpretation, caveats, and generalizability claims to Discussion.
+description: "Keeps Methods, Results, legends, and table footnotes factual, moving interpretation to Discussion. Use when auditing those sections for interpretation creep; drafting goes to ce-scientific-writing."
 ---
 
 # Manuscript Section Discipline

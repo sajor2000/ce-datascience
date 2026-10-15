@@ -1,6 +1,6 @@
 ---
 name: ce-review-pack
-description: "Create PI-facing review packs and multi-analyst signoff ledgers for study outputs, deviations, tables, figures, and packages. Use when the user needs PI review, statistician signoff, coordinating-center handoff, or approval workflow packaging."
+description: "Creates PI-facing review packs and multi-analyst signoff ledgers for study outputs. Use when the user needs PI review, statistician signoff, or a coordinating-center handoff."
 argument-hint: "[optional: --ledger analysis/signoff/signoff-ledger.json]"
 ---
 
