@@ -318,9 +318,16 @@ def read_config(path):
                 else:
                     in_phi = True
                 continue
+        elif in_phi and stripped.startswith("- ") and isinstance(phi.get("aggregate_dirs"), list):
+            phi["aggregate_dirs"].append(_scalar(stripped[2:]))
+            continue
         elif in_phi and ":" in stripped:
             key, value = stripped.split(":", 1)
-            phi[key.strip()] = value
+            key = key.strip()
+            if key == "aggregate_dirs":
+                inline = value.split(" #", 1)[0].strip()
+                value = [_scalar(v) for v in inline.strip("[]").split(",") if _scalar(v)] if inline else []
+            phi[key] = value
             continue
         match = re.match(r"^data_root:\s*(.*)$", stripped)
         if match:
@@ -382,7 +389,8 @@ def _project_mode(ce_root, main):
             path = os.path.normpath(expanded if os.path.isabs(expanded) else os.path.join(base, expanded))
             data_roots.update({path, os.path.realpath(path)})
     aggregate = set()
-    for rel in AGGREGATE_DIRS:
+    configured = (phi or {}).get("aggregate_dirs")
+    for rel in (configured if isinstance(configured, list) else AGGREGATE_DIRS):
         path = os.path.normpath(os.path.join(ce_root, rel))
         aggregate.update({path, os.path.realpath(path)})
     aggregate = sorted(aggregate)

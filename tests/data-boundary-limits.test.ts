@@ -360,4 +360,19 @@ describe("limit 5: aggregate outputs are readable in schema-only mode when they 
     }
     expectAll(root, "deny", [["Bash", bash("python3 analysis/plot_small.py")]])
   })
+
+  test("phi_environment.aggregate_dirs replaces the defaults, and data_root always wins", () => {
+    for (const list of ["  aggregate_dirs: [tables, data/summary]\n", "  aggregate_dirs:\n    - tables\n    - \"data/summary\"\n"]) {
+      const root = project("phi_environment:\n  mode: schema-only\n" + list + "stack_profile:\n  data_root: data\n")
+      withFile(root, "tables/table1.csv", AGGREGATE_CSV)
+      withFile(root, "output/table1.csv", AGGREGATE_CSV)
+      withFile(root, "data/summary/table1.csv", AGGREGATE_CSV)
+      expectAll(root, "allow", [["Read", { file_path: "tables/table1.csv" }], ["Bash", bash("cat tables/table1.csv")]])
+      expectAll(root, "deny", [
+        ["Read", { file_path: "output/table1.csv" }],
+        ["Read", { file_path: "data/summary/table1.csv" }],
+        ["Bash", bash("cat data/summary/table1.csv")],
+      ])
+    }
+  })
 })
