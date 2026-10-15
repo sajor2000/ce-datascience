@@ -916,8 +916,13 @@ def script_reads_data(path, cwd, mode):
         return True
     if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
         return True  # reads a path held in a variable or argument
-    return any(is_data_path(lit, cwd, mode) and not in_aggregate_dir(lit, cwd, mode)
-               for lit in (a or b for a, b in LITERAL.findall(text)))
+    for literal in (a or b for a, b in LITERAL.findall(text)):
+        if in_aggregate_dir(literal, cwd, mode):
+            if aggregate_file(literal, cwd, mode) and aggregate_problem(_resolve(literal, cwd), mode):
+                return True
+        elif is_data_path(literal, cwd, mode):
+            return True
+    return False
 
 
 AGGREGATE_EXTS = {"csv": ",", "tsv": "\t", "tab": "\t", "md": None}

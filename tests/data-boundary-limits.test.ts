@@ -336,4 +336,28 @@ describe("limit 5: aggregate outputs are readable in schema-only mode when they 
       ["Bash", bash("cat analysis/publication/table1.md")],
     ])
   })
+
+  test("tables that fail a rule are denied with the rule named and no value echoed", () => {
+    const root = project(SCHEMA_ONLY)
+    expect(buildIndex(root).code).toBe(0)
+    withFile(root, "output/small.md", AGGREGATE_MD.replace("12 (6.7)", "7 (3.9)"))
+    withFile(root, "output/small.csv", "group,n\nexposed,120\nunexposed,7\n")
+    withFile(root, "output/ids.csv", "patient_name,n\nall,300\n")
+    withFile(root, "output/indexed.csv", "group,n\nZed Testperson,300\n")
+    withFile(root, "results/long.csv", "group,n\n" + Array.from({ length: 501 }, (_, i) => `g${i},${100 + i}`).join("\n") + "\n")
+    withFile(root, "analysis/plot_small.py", "import pandas as pd\nprint(pd.read_csv('output/small.csv'))\n")
+    const cases: Array<[string, Record<string, unknown>, string]> = [
+      ["Read", { file_path: "output/small.md" }, "small-cell rule"],
+      ["Bash", bash("cat output/small.csv"), "small-cell rule"],
+      ["Bash", bash("head output/ids.csv"), "column heading names an identifier"],
+      ["Read", { file_path: "output/indexed.csv" }, "identifier index"],
+      ["Read", { file_path: "results/long.csv" }, "more than 500 rows"],
+    ]
+    for (const [tool, input, rule] of cases) {
+      const result = runGuard(root, tool, input)
+      expect({ input, decision: result.decision, named: result.reason.includes(rule) }).toEqual({ input, decision: "deny", named: true })
+      for (const value of ["Zed", "Testperson", "3.9", "unexposed,7"]) expect(result.stdout).not.toContain(value)
+    }
+    expectAll(root, "deny", [["Bash", bash("python3 analysis/plot_small.py")]])
+  })
 })
