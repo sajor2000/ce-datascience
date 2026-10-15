@@ -755,6 +755,35 @@ def sed_ok(args, cwd, mode, tainted):
     return not any(token_ref(f, cwd, mode, tainted) for f in files)
 
 
+SCRIPT_CAP = 1 << 20
+LITERAL = re.compile(r"'([^'\n]{1,500})'|\"([^\"\n]{1,500})\"")
+
+
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+
+def script_reads_data(path, cwd, mode):
+    """Static, heuristic: does the script file name a data path? Reads at most 1 MB. Plugin scripts are trusted."""
+    if _under(os.path.realpath(path), [PLUGIN_ROOT]):
+        return False
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read(SCRIPT_CAP)
+    except OSError:
+        return False
+    return any(is_data_path(a or b, cwd, mode) for a, b in LITERAL.findall(text))
+
+
+def script_file(verb, args):
+    """The script file a runner command executes, or None."""
+    if not SCRIPT_RUNNERS.match(verb):
+        return None
+    ops = [t for t in args if not t.startswith("-")]
+    script = ops[0] if ops else ""
+    ext = script.rsplit(".", 1)[-1].lower() if "." in os.path.basename(script) else ""
+    return script if ext in SCRIPT_EXTS else None
+
+
 def judge(cmd, cwd, mode, tainted, written):
     """Classify one unwrapped command. Returns (reason or None, listed_data)."""
     if not cmd:
@@ -776,6 +805,9 @@ def judge(cmd, cwd, mode, tainted, written):
         if refs or text_ref(code, cwd, mode) or lists_dataish_dir(code, cwd, mode):
             return f"inline `{verb}` code that opens data returns its values", False
         return None, False
+    script = script_file(verb, args)
+    if script and script_reads_data(_resolve(script, cwd), cwd, mode):
+        return f"the script `{script}` reads data and can print its values", False
     if not refs:
         return None, False
     if verb in METADATA_VERBS:
