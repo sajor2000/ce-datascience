@@ -180,20 +180,49 @@ denies:
 - `Read`, `NotebookRead`, and content-mode `Grep` on data files. Data files are
   `.csv`, `.tsv`, `.parquet`, `.xlsx`, `.sas7bdat`, `.dta`, `.rds`, `.sqlite`,
   `.jsonl`, and similar, including compressed or backup copies (`.csv.gz`,
-  `.csv.bak`), plus anything under the configured `data_root`. A notebook
-  with saved outputs also counts; clear its outputs first.
+  `.csv.bak`), plus anything under the configured `data_root` and the safe
+  runner's logs. A notebook with saved outputs also counts; clear its outputs
+  first.
 - Any shell command (`Bash`, `Monitor`, `PowerShell`) whose text names a data
   path, an extension glob, or `data_root`, whatever the program, unless it only
-  lists metadata (`ls`, `wc`, `du`, `find`, `git status`/`log`) or runs an
-  existing script file or the schema helper. Inline code (`python -c`,
-  `Rscript -e`, heredocs) that opens data or globs a data directory, writing a
-  script and running it in the same command, copying a data file to a non-data
-  name, and recursive `grep`/`rg` without an `--include`/`-g`/`-t` limited to
-  code are denied too.
+  lists metadata (`ls`, `wc`, `du`, `find`, `git status`/`log`) or runs the
+  schema helper. Inline code (`python -c`, `Rscript -e`, heredocs) that opens
+  data or globs a data directory, writing a script and running it in the same
+  command, copying a data file to a non-data name, and recursive `grep`/`rg`
+  without an `--include`/`-g`/`-t` limited to code are denied too.
+- Running a script file (`python`, `Rscript`, `bash`/`sh`, `quarto render`,
+  `jupyter nbconvert --execute`) whose code names a data path or `data_root`,
+  or calls a reader (`read_csv`, `read_parquet`, `read_excel`, `read_sas`,
+  `read_stata`, `fread`, `readRDS`, `arrow::`, DuckDB, SQLite) on a path held
+  in a variable, unless the command runs through the safe runner. The hook
+  reads the script itself, up to 1 MB. Scripts that do not touch data, or that
+  only read aggregate tables that pass the check below, run as before.
+
+**Safe runner.** `scripts/ce-safe-run -- <command>` runs the command and writes
+its full stdout and stderr to `.ce-datascience/runs/<UTC-timestamp>-<pid>.log`
+(gitignored). It prints only the exit code, the duration, the files created or
+modified under the project (path, size, and row count for tabular files), and
+the last 30 lines of stderr with quoted literals, digit runs of 4 or more,
+emails, phone numbers, SSNs, and identifier-index values masked. Traceback file
+and line frames stay readable. It never prints stdout: open the log yourself.
+The hook's deny message gives the runner's full path. It accepts only the
+plugin's own runner (or a byte-identical copy) and still checks uploads inside
+it.
+
+**Aggregate reads.** `Read`, `cat`, `head`, and `tail` of `.csv`, `.tsv`, and
+`.md` files under the aggregate directories are allowed in schema-only mode
+when the table passes the aggregate check: no identifier-like column headings,
+no cell in the identifier index or shaped like an identifier, no integer count
+from 1 to 10 (the small-cell rule; 0 is fine), and at most 500 rows. Otherwise
+the deny reason names the rule that failed, never the value. The directories
+default to `output`, `results`, `analysis/publication`, and
+`analysis/sap-tables`; set `phi_environment.aggregate_dirs` to change them.
+`data_root` always wins: nothing under it is readable.
 
 The schema helper `scripts/schema-peek.py` prints headings, types, counts, and
 % missing, never a cell value. It prints `col_1..col_n` when a file has no
-header row.
+header row, and `col_<k> [masked header]` for a heading that is itself an
+identifier (an identifier shape, or a value in the identifier index).
 
 #### What MCP tools receive
 
@@ -203,28 +232,43 @@ row text, or data files. This holds in **every mode, including after you
 approve the endpoint**: approving the model endpoint does not cover
 third-party services such as NCBI or Paperclip.
 
-The same hook enforces this for every `mcp__*` call and for shell uploads. It
-denies MCP arguments that contain an SSN, an email address, a US phone number,
-a keyword-anchored record number (MRN, medical record, patient ID, member ID,
-claim number), or a keyword-anchored date of birth. It also denies Paperclip
-upload, import, or share calls that name a local data file, and `curl`, `wget`,
-`scp`, or `rsync` uploads of data files. PMIDs, DOIs, PMCIDs, and ordinary
-research queries pass silently. Limits: the patterns catch common identifier
-shapes, not every possible one (a bare name is not detected), and shell calls
-to NCBI that are not uploads are not scanned. The skills carry the same rule.
+The same hook enforces this for every `mcp__*` call, for shell uploads, and for
+shell calls to NCBI E-utilities (`curl` or `wget` to
+`eutils.ncbi.nlm.nih.gov`, and the `ce-pubmed` search script). It denies
+arguments that contain an SSN, an email address, a US phone number, a
+keyword-anchored record number (MRN, medical record, patient ID, member ID,
+claim number), a keyword-anchored date of birth, or a value in the identifier
+index. It also denies Paperclip upload, import, or share calls that name a
+local data file, and `curl`, `wget`, `scp`, or `rsync` uploads of data files.
+PMIDs, DOIs, PMCIDs, author surnames, and ordinary research queries pass
+silently. The skills carry the same rule.
 
-**Limits.** The hook is defense in depth, not a sandbox. A script file the
-agent writes and later runs can still print values, so in schema-only mode
-the skills write scripts that print aggregates only. Programs it cannot parse
-(deliberate obfuscation) and column names that are themselves sensitive are
-out of scope. Aggregate tables saved as `.csv` count as data files, so print
-them or save them as Markdown. A config problem resolves to schema-only. An
-unexpected internal error blocks only calls that mention a data file or an
-upload; anything else is allowed with a one-line warning, so a hook bug never
-blocks unrelated work. Enforcement is Claude Code only: Codex and OpenCode
-installs carry the hook entry but it exits immediately there, and Gemini,
-Kiro, Copilot, and Pi skip hooks, so those harnesses rely on the skill
-instructions alone.
+**Identifier index.** Whenever `data_root` is set, in every mode, `ce-setup`
+builds and `ce-data-qa` refreshes the identifier index with
+`scripts/ce-identifier-index`. It reads identifier-like columns under
+`data_root` (names; MRN, patient, member, subscriber, and record IDs; claim
+numbers; SSN; date of birth; address; phone; email) and stores only salted
+hashes in `.ce-datascience/identifier-index.local.json`: local, gitignored,
+with a random per-project salt and no plaintext. It prints counts only. Each
+full value is stored, plus first+last name pairs, plus single tokens that
+contain a digit for ID columns only, so a lone surname or common word never
+matches. The hook hashes every one- to three-word run of each argument, denies
+on a match without echoing it, and is silent when no index exists. With a
+200,000-entry index the lookup adds a few milliseconds.
+
+**Limits.** The hook is defense in depth, not a sandbox. Enforcement is Claude
+Code only: Codex and OpenCode installs carry the hook entry but it exits
+immediately there, and Gemini, Kiro, Copilot, and Pi skip hooks, so those
+harnesses rely on the skill instructions alone. The script check is heuristic
+static analysis: a script that builds a data path at run time, or reads data
+through a function the hook does not recognize, can still print values, and
+programs it cannot parse (deliberate obfuscation) are out of scope. Values
+that are not in identifier columns, such as free-text notes, are not indexed,
+and the identifier patterns catch common shapes, not every one. A patient who
+shares a full name with an author you search for blocks that name. A config
+problem resolves to schema-only. An unexpected internal error blocks only
+calls that mention a data file or an upload; anything else is allowed with a
+one-line warning, so a hook bug never blocks unrelated work.
 
 **Changing the answer.** Re-run `ce-setup`, or edit or delete the
 `phi_environment` block in `.ce-datascience/config.local.yaml`.

@@ -19,17 +19,24 @@ schema-only, sensitive_data: false -> no-sensitive-data. Any explicit
 schema-only signal wins a conflict. An unreadable or misspelled value, or no
 saved answer, also resolves to schema-only, with a deny reason that says why.
 
-Egress (every mode except off): MCP tool arguments must not carry identifiers
-(SSN, email, phone, keyword-anchored MRN/patient/member/claim IDs, DOB) or data
-files, and Bash must not upload data files (curl/wget/scp/rsync and similar).
-An endpoint approval does not cover third-party services.
+Egress (every mode except off): MCP tool arguments and Bash calls to NCBI
+E-utilities (curl/wget to eutils.ncbi.nlm.nih.gov, the ce-pubmed script) must
+not carry identifiers (SSN, email, phone, keyword-anchored MRN/patient/member/
+claim IDs, DOB, or a value in the project's hashed identifier index), MCP tools
+must not receive data files, and Bash must not upload data files. An endpoint
+approval does not cover third-party services.
 
-Schema-only access: Read/Grep/NotebookRead on data files, Bash/Monitor/
-PowerShell commands whose text references a data path (any program except a
-metadata allowlist), inline interpreter code that opens data, and recursive
-content searches are denied. Running an existing script file is allowed.
-Limits: a script file can still print values; obfuscation the parser cannot
-see is out of scope; this is defense in depth, not a sandbox.
+Schema-only access: Read/Grep/NotebookRead on data files (including data_root
+and ce-safe-run logs), Bash/Monitor/PowerShell commands whose text references
+a data path (any program except a metadata allowlist), inline interpreter code
+that opens data, and recursive content searches are denied. Script files run
+by python/Rscript/bash/sh/quarto render/jupyter nbconvert --execute are read
+statically (1 MB cap) and denied when they name a data path or call a reader
+on a variable path, unless the command runs through the plugin's ce-safe-run.
+Tables under phi_environment.aggregate_dirs are readable when they pass the
+aggregate check (no identifier headers or indexed cells, no counts 1-10, at
+most 500 rows). Limits: the script check is heuristic; obfuscation the parser
+cannot see is out of scope; this is defense in depth, not a sandbox.
 
 Fail mode: config problems resolve to schema-only. An unexpected internal error
 denies only calls that mention a data-like path or an upload; anything else is

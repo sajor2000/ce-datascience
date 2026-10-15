@@ -13,7 +13,9 @@ export const GATE_CLAUSE =
   "**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: " +
   "true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = " +
   "`schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and " +
-  "aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: " +
+  "aggregates only; never open, print, or paste data values; run scripts that read data through `ce-safe-run -- <command>` (path in the guard's deny " +
+  "message), which shows only the exit code, files written, and a masked stderr tail, and save results as aggregate tables (counts under 11 " +
+  "suppressed) under `output/` or another `phi_environment.aggregate_dirs` entry. Unset, interactive: " +
   "ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and " +
   "`No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` " +
   "passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only."
@@ -136,5 +138,54 @@ describe("MCP egress: literature tools never receive sensitive data", () => {
     const content = await read("ce-manuscript-citations/SKILL.md")
     expect(content).not.toContain("`search` the explicit `pmc` source for the claim or source set")
     expect(content).toContain("paper-level claim terms")
+  })
+})
+
+describe("closed limits: safe runner, identifier index, and aggregate reads in skills and docs", () => {
+  const scripts = path.join(pluginRoot, "scripts")
+  test("ce-setup and ce-data-qa run a skill-local ce-identifier-index copy identical to the plugin's", async () => {
+    const canonical = await readFile(path.join(scripts, "ce-identifier-index"), "utf8")
+    for (const skill of ["ce-setup", "ce-data-qa"]) {
+      expect(await read(`${skill}/scripts/ce-identifier-index`)).toBe(canonical)
+    }
+    const setup = await read("ce-setup/references/sensitive-data-boundary.md")
+    expect(setup).toContain('"$SKILL_DIR/scripts/ce-identifier-index"')
+    expect(setup).toContain("whenever `data_root` is set, in every mode")
+    expect(await read("ce-setup/SKILL.md")).toContain("build or refresh the identifier index")
+    const qa = await read("ce-data-qa/SKILL.md")
+    expect(qa).toContain('"$SKILL_DIR/scripts/ce-identifier-index"')
+    expect(qa).toContain("refresh the identifier index")
+  })
+
+  test("ce-work, ce-verify, and ce-rstats route data-touching scripts through ce-safe-run in schema-only mode", async () => {
+    for (const rel of ["ce-work/references/phi-environment.md", "ce-verify/SKILL.md", "ce-rstats/SKILL.md"]) {
+      const content = await read(rel)
+      expect({ rel, safeRun: content.includes("ce-safe-run -- ") }).toEqual({ rel, safeRun: true })
+    }
+    const work = await read("ce-work/references/phi-environment.md")
+    expect(work).not.toContain("the guard treats `.csv` outputs as data files")
+    expect(work).toContain("aggregate check")
+  })
+
+  const section = async (file: string) => {
+    const text = await readFile(path.join(process.cwd(), file), "utf8")
+    const start = text.search(/^#+ Sensitive-data boundary$/m)
+    const end = text.indexOf("**Changing the answer.**", start)
+    if (start < 0 || end < 0) throw new Error(`no boundary section in ${file}`)
+    return text.slice(start, end).replace(/^#+ /gm, "")
+  }
+  test("the three setup docs carry the same boundary section describing the closed limits", async () => {
+    const [root, plugin, setup] = await Promise.all(["README.md", "plugins/ce-datascience/README.md", "docs/setup.md"].map(section))
+    expect(plugin).toBe(root)
+    expect(setup).toBe(root)
+    const prose = root.replace(/\s+/g, " ")
+    for (const phrase of ["ce-safe-run", "identifier index", "salted hashes", "gitignored", "phi_environment.aggregate_dirs",
+      "small-cell rule", "eutils.ncbi.nlm.nih.gov", "[masked header]", "free-text notes", "heuristic", "Claude Code only"]) {
+      expect({ phrase, present: prose.includes(phrase) }).toEqual({ phrase, present: true })
+    }
+    for (const stale of ["a bare name is not detected", "Aggregate tables saved as `.csv` count as data files",
+      "shell calls to NCBI that are not uploads are not scanned", "column names that are themselves sensitive"]) {
+      expect({ stale, present: prose.includes(stale) }).toEqual({ stale, present: false })
+    }
   })
 })

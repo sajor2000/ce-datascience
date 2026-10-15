@@ -313,7 +313,8 @@ describe("one definition of identifier normalization and hashing", () => {
   }
   test("the hook, the indexer, and every schema-peek copy share the block byte for byte", () => {
     const canonical = block(guard)
-    for (const file of [indexer, safeRun, helper, ...["ce-setup", "ce-work"].map((s) => path.join(pluginRoot, "skills", s, "scripts", "schema-peek.py"))]) {
+    const skillCopies = [["ce-setup", "schema-peek.py"], ["ce-work", "schema-peek.py"], ["ce-setup", "ce-identifier-index"], ["ce-data-qa", "ce-identifier-index"]]
+    for (const file of [indexer, safeRun, helper, ...skillCopies.map(([s, f]) => path.join(pluginRoot, "skills", s, "scripts", f))]) {
       expect({ file, same: block(file) === canonical }).toEqual({ file, same: true })
     }
   })
