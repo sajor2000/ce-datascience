@@ -118,6 +118,8 @@ RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
 UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
 UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
                 "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
+NCBI_HOST = "eutils.ncbi.nlm.nih.gov"
+PUBMED_SCRIPT = "pubmed_search.py"
 FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
 
 
@@ -1021,7 +1023,7 @@ def bash_violations(command, cwd, mode, depth=0):
                 _, cmd = unwrap(cmd[cmd.index("--") + 1:])
                 if not cmd:
                     continue
-            egress = egress or upload_violation(cmd, cur, mode)
+            egress = egress or upload_violation(cmd, cur, mode) or ncbi_violation(cmd, mode)
             if mode["mode"] != "schema-only" or safe:
                 continue
             verb = program(cmd[0])
@@ -1050,22 +1052,49 @@ def _strings(value, key=""):
             yield from _strings(v, key)
 
 
+def identifier_reason(text, mode, key=""):
+    """Why a string sent to a third party carries an identifier, or None. Never includes the match."""
+    text = DOI_OR_PMC.sub(" ", text)
+    for label, pattern in IDENTIFIER_PATTERNS:
+        if label == "an email address" and key in RECIPIENT_KEYS:
+            continue
+        if pattern.search(text):
+            return f"an argument contains {label}"
+    index = load_index(mode)
+    if index and index_hit(text, index):
+        return "an argument matches a value in the project's identifier index"
+    return None
+
+
 def mcp_violation(tool, tool_input, cwd, mode):
     uploadish = bool(UPLOADISH_TOOL.search(tool.split("__")[-1]))
     for key, value in _strings(tool_input):
         if key in EXEMPT_KEYS:
             continue
-        text = DOI_OR_PMC.sub(" ", value)
-        for label, pattern in IDENTIFIER_PATTERNS:
-            if label == "an email address" and key in RECIPIENT_KEYS:
-                continue
-            if pattern.search(text):
-                return f"an argument contains {label}"
-        index = load_index(mode)
-        if index and index_hit(text, index):
-            return "an argument matches a value in the project's identifier index"
+        reason = identifier_reason(value, mode, key)
+        if reason:
+            return reason
         if uploadish and not value.startswith(("/clipboard", "http://", "https://")) and is_data_path(value.strip(), cwd, mode):
             return "the tool would send a local data file"
+    return None
+
+
+def ncbi_violation(cmd, mode):
+    """curl/wget to NCBI E-utilities, or the ce-pubmed script: same identifier checks as MCP arguments."""
+    verb, args = program(cmd[0]), cmd[1:]
+    if verb in ("curl", "wget", "http", "https", "xh"):
+        if not any(NCBI_HOST in t for t in args):
+            return None
+    elif not any(os.path.basename(t) == PUBMED_SCRIPT for t in cmd[:3]):
+        return None
+    from urllib.parse import unquote_plus  # only NCBI calls need it
+
+    for token in args:
+        if os.path.basename(token) == PUBMED_SCRIPT:
+            continue
+        reason = identifier_reason(unquote_plus(token), mode)
+        if reason:
+            return f"an NCBI E-utilities query: {reason[len('an argument '):]}" if reason.startswith("an argument ") else reason
     return None
 
 

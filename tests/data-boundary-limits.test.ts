@@ -251,3 +251,28 @@ describe("limit 2b: identifier index checks on MCP arguments (every mode)", () =
     expectAll(root, "allow", [["mcp__paperclip__search", { query: "Zed Testperson sepsis" }], ...NORMAL_QUERIES])
   })
 })
+
+describe("limit 3: NCBI E-utilities calls from Bash get the MCP checks (every mode)", () => {
+  const pubmedScript = path.join(pluginRoot, "skills", "ce-pubmed", "scripts", "pubmed_search.py")
+  const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term="
+  test("identifier patterns and index hits in curl, wget, and the ce-pubmed script are denied", () => {
+    for (const config of [SCHEMA_ONLY, APPROVED]) {
+      const root = project(config)
+      expect(buildIndex(root).code).toBe(0)
+      const denied = verdicts(root, [
+        ["Bash", bash(`curl -s '${eutils}zed+testperson+sepsis'`)],
+        ["Bash", bash(`curl -s "${eutils}Testperson%2C%20Zed"`)],
+        ["Bash", bash(`wget -qO- '${eutils}MRN+00123456'`)],
+        ["Bash", bash(`curl -s '${eutils.replace("&term=", "")}' --data-urlencode 'term=123-45-6789'`)],
+        ["Bash", bash(`uv run --with biopython python3 ${pubmedScript} "zed testperson outcomes" --max 20`)],
+        ["Bash", bash(`python3 ${pubmedScript} "sepsis FAKE0001" --out analysis/pubmed/x.csv`)],
+      ])
+      for (const v of denied) expect({ ...v, config }).toEqual({ tool: v.tool, input: v.input, decision: "deny", kind: "egress", config })
+      expectAll(root, "allow", [
+        ["Bash", bash(`curl -s '${eutils}sepsis+bundle+Hernan[au]'`)],
+        ["Bash", bash(`curl -s 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=31978945,32109013'`)],
+        ["Bash", bash(`uv run --with biopython python3 ${pubmedScript} "sepsis bundle compliance ICU" --years 10 --out analysis/pubmed/s.csv`)],
+      ])
+    }
+  })
+})
