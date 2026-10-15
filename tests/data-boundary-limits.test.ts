@@ -318,3 +318,22 @@ describe("one definition of identifier normalization and hashing", () => {
     }
   })
 })
+
+const AGGREGATE_MD = "| Characteristic | Exposed (n=120) | Unexposed (n=180) |\n|---|---|---|\n| Age, mean (SD) | 61.2 (11.0) | 59.8 (12.1) |\n" +
+  "| Female, n (%) | 64 (53.3) | 90 (50.0) |\n| Died, n (%) | 0 (0.0) | 12 (6.7) |\n"
+
+describe("limit 5: aggregate outputs are readable in schema-only mode when they pass the aggregate check", () => {
+  test("Read, cat, and head of a passing table1.csv/tsv/md under an aggregate dir are allowed", () => {
+    const root = project(SCHEMA_ONLY)
+    withFile(root, "output/table1.csv", AGGREGATE_CSV)
+    withFile(root, "results/table1.tsv", AGGREGATE_CSV.replaceAll(",", "\t"))
+    withFile(root, "analysis/publication/table1.md", AGGREGATE_MD)
+    expectAll(root, "allow", [
+      ["Read", { file_path: "output/table1.csv" }],
+      ["Bash", bash("cat output/table1.csv")],
+      ["Bash", bash("head -n 20 results/table1.tsv")],
+      ["Read", { file_path: "analysis/publication/table1.md" }],
+      ["Bash", bash("cat analysis/publication/table1.md")],
+    ])
+  })
+})

@@ -28,9 +28,6 @@ import subprocess
 import sys
 
 # --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
-import hashlib  # noqa: E402
-import unicodedata  # noqa: E402
-
 HASH_WIDTH = 16
 # Identifier shapes. Keyword-anchored where digits alone are ambiguous.
 IDENTIFIER_PATTERNS = (
@@ -46,14 +43,40 @@ IDENTIFIER_PATTERNS = (
         r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
 )
 
+# Identifier-like column headings, by kind.
+HEADER_KINDS = (
+    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
+    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
+    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
+    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
+    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
+    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
+                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
+                      r"|claim_?(?:id|num|number|no|nbr))$")),
+    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
+    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
+)
+
+
+def header_kind(name):
+    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+    for kind, pattern in HEADER_KINDS:
+        if pattern.match(key):
+            return kind
+    return None
+
 
 def id_tokens(text):
     """Lowercase, fold accents, and split into alphanumeric tokens."""
+    import unicodedata  # lazy: only identifier checks need it
+
     folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
     return re.findall(r"[^\W_]+", folded.lower())
 
 
 def id_hash(salt, entry):
+    import hashlib  # lazy: only identifier checks need it
+
     return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
 
 
@@ -100,28 +123,6 @@ INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
 CONFIG_REL = os.path.join(".ce-datascience", "config.local.yaml")
 DELIMITED = {".csv": ",", ".tsv": "\t", ".tab": "\t", ".psv": "|"}
 ARROW = (".parquet", ".feather", ".arrow")
-HEADER_KINDS = (
-    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
-    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
-    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
-    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
-    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
-    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
-                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
-                      r"|claim_?(?:id|num|number|no|nbr))$")),
-    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
-    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
-)
-
-
-def header_kind(name):
-    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
-    for kind, pattern in HEADER_KINDS:
-        if pattern.match(key):
-            return kind
-    return None
-
-
 def entries_for(kind, value):
     tokens = id_tokens(value)
     if not tokens:

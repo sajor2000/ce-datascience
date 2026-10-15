@@ -111,9 +111,6 @@ FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~
 
 
 # --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
-import hashlib  # noqa: E402
-import unicodedata  # noqa: E402
-
 HASH_WIDTH = 16
 # Identifier shapes. Keyword-anchored where digits alone are ambiguous.
 IDENTIFIER_PATTERNS = (
@@ -129,14 +126,40 @@ IDENTIFIER_PATTERNS = (
         r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
 )
 
+# Identifier-like column headings, by kind.
+HEADER_KINDS = (
+    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
+    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
+    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
+    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
+    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
+    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
+                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
+                      r"|claim_?(?:id|num|number|no|nbr))$")),
+    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
+    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
+)
+
+
+def header_kind(name):
+    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+    for kind, pattern in HEADER_KINDS:
+        if pattern.match(key):
+            return kind
+    return None
+
 
 def id_tokens(text):
     """Lowercase, fold accents, and split into alphanumeric tokens."""
+    import unicodedata  # lazy: only identifier checks need it
+
     folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
     return re.findall(r"[^\W_]+", folded.lower())
 
 
 def id_hash(salt, entry):
+    import hashlib  # lazy: only identifier checks need it
+
     return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
 
 
@@ -897,6 +920,65 @@ def script_reads_data(path, cwd, mode):
                for lit in (a or b for a, b in LITERAL.findall(text)))
 
 
+AGGREGATE_EXTS = {"csv": ",", "tsv": "\t", "tab": "\t", "md": None}
+AGGREGATE_MAX_ROWS = 500
+AGGREGATE_CAP = 2 << 20
+AGG_READERS = {"cat", "head", "tail", "less", "more", "bat", "column", "csvlook"}
+COUNT_CELL = re.compile(r"^(\d+)(?:\s*\([^()]*\)|\s*/\s*\d+)?\s*%?$")
+
+
+def aggregate_file(raw, cwd, mode):
+    """An existing .csv/.tsv/.md under an aggregate directory (and outside data_root)."""
+    ext = raw.rsplit(".", 1)[-1].lower() if "." in os.path.basename(raw) else ""
+    return ext in AGGREGATE_EXTS and in_aggregate_dir(raw, cwd, mode) and os.path.isfile(_resolve(raw, cwd))
+
+
+def _table_rows(path):
+    import csv  # only aggregate reads need it
+
+    with open(path, encoding="utf-8-sig", errors="replace", newline="") as fh:
+        text = fh.read(AGGREGATE_CAP + 1)
+    if len(text) > AGGREGATE_CAP:
+        return None
+    delimiter = AGGREGATE_EXTS[path.rsplit(".", 1)[-1].lower()]
+    if delimiter:
+        rows = [r for r in csv.reader(text.splitlines(), delimiter=delimiter) if any(c.strip() for c in r)]
+        return [(True, rows[0])] + [(False, r) for r in rows[1:]] if rows else []
+    out, in_table = [], False
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            in_table = False
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if all(re.match(r"^:?-{3,}:?$", c) for c in cells if c):
+            continue
+        out.append((not in_table, cells))
+        in_table = True
+    return out
+
+
+def aggregate_problem(path, mode):
+    """Which aggregate rule a table fails, or None. Never includes a value."""
+    rows = _table_rows(path)
+    if rows is None or sum(1 for header, _ in rows if not header) > AGGREGATE_MAX_ROWS:
+        return f"it has more than {AGGREGATE_MAX_ROWS} rows"
+    index = load_index(mode)
+    for header, cells in rows:
+        for cell in cells:
+            if header and any(pattern.match(re.sub(r"[^a-z0-9]+", "_", cell.lower()).strip("_"))
+                              for _, pattern in HEADER_KINDS):
+                return "a column heading names an identifier"
+            if any(pattern.search(cell) for _, pattern in IDENTIFIER_PATTERNS):
+                return "a cell looks like an identifier"
+            if index and index_hit(cell, index):
+                return "a cell matches the project's identifier index"
+            count = None if header else COUNT_CELL.match(cell)
+            if count and 1 <= int(count.group(1)) <= 10:
+                return "a count from 1 to 10 breaks the small-cell rule"
+    return None
+
+
 def in_aggregate_dir(raw, cwd, mode):
     """A path under a configured aggregate directory and outside data_root (data_root always wins)."""
     path = _resolve(raw, cwd)
@@ -942,6 +1024,15 @@ def judge(cmd, cwd, mode, tainted, written):
         if refs or text_ref(code, cwd, mode) or lists_dataish_dir(code, cwd, mode):
             return f"inline `{verb}` code that opens data returns its values", False
         return None, False
+    if verb in AGG_READERS:
+        ops = operands(args)
+        tables = [t for t in ops if aggregate_file(t, cwd, mode)]
+        for table in tables:
+            problem = aggregate_problem(_resolve(table, cwd), mode)
+            if problem:
+                return f"`{table}` is not an aggregate table: {problem}", False
+        if tables and not any(token_ref(t, cwd, mode, tainted) for t in ops if t not in tables):
+            return None, False
     script = script_file(verb, args)
     if script and script_reads_data(_resolve(script, cwd), cwd, mode):
         return f"the script `{script}` reads data and can print its values", False
@@ -1124,7 +1215,10 @@ def classify(call, mode):
     if tool in ("Read", "NotebookRead"):
         path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         resolved = _resolve(path, cwd) if path else ""
-        if resolved.lower().endswith(".ipynb") and os.path.exists(resolved) and notebook_has_outputs(resolved):
+        if path and aggregate_file(path, cwd, mode):
+            problem = aggregate_problem(resolved, mode)
+            reason = f"`{path}` is not an aggregate table: {problem}" if problem else None
+        elif resolved.lower().endswith(".ipynb") and os.path.exists(resolved) and notebook_has_outputs(resolved):
             reason = ("the notebook has saved outputs that may hold data values; clear them first with "
                       "`jupyter nbconvert --clear-output --inplace <notebook>`")
         elif is_data_path(path, cwd, mode):
