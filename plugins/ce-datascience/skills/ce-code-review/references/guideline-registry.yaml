@@ -18,19 +18,23 @@ evidence:
   CONSORT-CLUSTER: {title: CONSORT cluster extension, scope: cluster randomized trial reporting, role: extension, primary_citation: "Campbell et al. CONSORT 2010 statement: extension to cluster randomised trials. BMJ. 2012.", doi: 10.1136/bmj.e5661, pmid: 22951546, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/22951546/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   CONSORT-NOF1: {title: CENT 2015 statement, scope: N-of-1 trial reporting, role: extension, primary_citation: "Vohra et al. CONSORT extension for reporting N-of-1 trials. J Clin Epidemiol. 2015.", doi: 10.1016/j.jclinepi.2015.05.004, pmid: 26272792, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26272792/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   COREQ: {title: COREQ, scope: qualitative interviews and focus groups, role: primary, primary_citation: "Tong et al. COREQ: a 32-item checklist. Int J Qual Health Care. 2007.", doi: 10.1093/intqhc/mzm042, pmid: 17872937, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/17872937/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher]}
+  DECIDE-AI: {title: DECIDE-AI, scope: early-stage live clinical evaluation of AI decision-support systems, role: reporting-guideline, primary_citation: "Vasey et al. Reporting guideline for the early-stage clinical evaluation of decision support systems driven by artificial intelligence: DECIDE-AI. Nat Med. 2022.", doi: 10.1038/s41591-022-01772-9, pmid: 35585198, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/35585198/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher], note: "Simultaneous BMJ publication PMID 35584845, PMC9116198 (full text read)"}
   DEAL: {title: DEAL candidate checklist, scope: deep learning in pathology, role: domain-extension, primary_citation: null, doi: null, pmid: null, pmcid: null, authoritative_url: null, verification_date: 2026-10-10, status: unverified, sources: [pubmed, paperclip, publisher]}
   GRAMMS: {title: GRAMMS-related mixed-methods guidance, scope: mixed-methods health services research, role: mixed-methods-guideline, primary_citation: "O'Cathain et al. The quality of mixed methods studies in health services research. J Health Serv Res Policy. 2008.", doi: 10.1258/jhsrp.2007.007074, pmid: 18416914, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/18416914/, verification_date: 2026-10-10, status: provisional, sources: [pubmed, paperclip, publisher]}
+  MI-CLAIM: {title: MI-CLAIM checklist, scope: minimum documentation for clinical AI modeling, role: template, primary_citation: "Norgeot et al. Minimum information about clinical artificial intelligence modeling: the MI-CLAIM checklist. Nat Med. 2020.", doi: 10.1038/s41591-020-1041-y, pmid: 32908275, pmcid: PMC7538196, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/32908275/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher]}
   PDSQI-9: {title: PDSQI-9 candidate tool, scope: prediction-model dataset quality, role: data-quality-tool, primary_citation: null, doi: null, pmid: null, pmcid: null, authoritative_url: null, verification_date: 2026-10-10, status: unverified, note: "In PubMed the acronym PDSQI-9 denotes the Provider Documentation Summarization Quality Instrument (for example PMID 41193667), not a dataset-quality tool; this local candidate has no primary source", sources: [pubmed, paperclip]}
   PRISMA: {title: PRISMA 2020, scope: systematic review reporting, role: primary, primary_citation: "Page et al. The PRISMA 2020 statement. BMJ. 2021.", doi: 10.1136/bmj.n71, pmid: 33782057, pmcid: PMC8005924, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/33782057/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher], current_reference: PRISMA-2020}
   PRISMA-DTA: {title: PRISMA-DTA, scope: diagnostic test accuracy systematic reviews, role: extension, primary_citation: "McInnes et al. PRISMA-DTA statement. JAMA. 2018.", doi: 10.1001/jama.2017.19163, pmid: 29362800, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/29362800/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   PRISMA-IPD: {title: PRISMA-IPD, scope: individual participant data systematic reviews, role: extension, primary_citation: "Stewart et al. PRISMA-IPD statement. JAMA. 2015.", doi: 10.1001/jama.2015.3656, pmid: 25919529, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25919529/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   PRISMA-NMA: {title: PRISMA-NMA, scope: network meta-analysis reporting, role: extension, primary_citation: "Hutton et al. PRISMA extension for network meta-analyses. Ann Intern Med. 2015.", doi: 10.7326/M14-2385, pmid: 26030634, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26030634/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
+  PRISMA-P: {title: PRISMA-P 2015, scope: systematic review and meta-analysis protocol reporting, role: protocol, primary_citation: "Moher et al. PRISMA-P 2015 statement. Syst Rev. 2015.", doi: 10.1186/2046-4053-4-1, pmid: 25554246, pmcid: PMC4320440, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25554246/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher]}
   PRISMA-SCR: {title: PRISMA-ScR, scope: scoping review reporting, role: extension, primary_citation: "Tricco et al. PRISMA-ScR. Ann Intern Med. 2018.", doi: 10.7326/M18-0850, pmid: 30178033, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/30178033/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   QUADAS-2: {title: QUADAS-2, scope: diagnostic accuracy study quality assessment, role: appraisal, primary_citation: "Whiting et al. QUADAS-2. Ann Intern Med. 2011.", doi: 10.7326/0003-4819-155-8-201110180-00009, pmid: 22007046, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/22007046/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   RECORD: {title: RECORD statement, scope: routinely collected health data reporting, role: extension, primary_citation: "Benchimol et al. The RECORD statement. PLoS Med. 2015.", doi: 10.1371/journal.pmed.1001885, pmid: 26440803, pmcid: PMC4595218, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26440803/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   RECORD-PE: {title: RECORD-PE, scope: pharmacoepidemiology using routinely collected data, role: extension, primary_citation: "Langan et al. RECORD-PE. BMJ. 2018.", doi: 10.1136/bmj.k3532, pmid: 30429167, pmcid: PMC6234471, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/30429167/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   REFORMS: {title: REFORMS, scope: machine-learning-based science, role: ML-science-guideline, primary_citation: "Kapoor et al. REFORMS. Sci Adv. 2024.", doi: 10.1126/sciadv.adk3452, pmid: 38691601, pmcid: PMC11092361, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/38691601/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
-  SPIRIT-AI: {title: SPIRIT-AI extension, scope: clinical trial protocol reporting for AI interventions, role: protocol, primary_citation: "Cruz Rivera et al. SPIRIT-AI extension. Lancet Digit Health. 2020.", doi: 10.1016/S2589-7500(20)30219-3, pmid: 33328049, pmcid: PMC8212701, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/33328049/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
+  SPIRIT: {title: SPIRIT 2025 statement, scope: randomized trial protocol reporting, role: protocol, primary_citation: "Chan et al. SPIRIT 2025 statement: updated guideline for protocols of randomised trials. BMJ. 2025.", doi: 10.1136/bmj-2024-081477, pmid: 40294953, pmcid: PMC12035670, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40294953/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher], current_reference: SPIRIT-2025}
+  SPIRIT-AI: {title: SPIRIT-AI extension, scope: clinical trial protocol reporting for AI interventions, role: protocol, note: "Written against SPIRIT 2013; apply with the SPIRIT 2025 core", primary_citation: "Cruz Rivera et al. SPIRIT-AI extension. Lancet Digit Health. 2020.", doi: 10.1016/S2589-7500(20)30219-3, pmid: 33328049, pmcid: PMC8212701, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/33328049/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   SQUIRE: {title: SQUIRE 2.0, scope: quality-improvement reporting, role: quality-improvement, primary_citation: "Ogrinc et al. SQUIRE 2.0. BMJ Qual Saf. 2016.", doi: 10.1136/bmjqs-2015-004411, pmid: 26369893, pmcid: PMC5256233, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26369893/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   STARD: {title: STARD 2015, scope: diagnostic accuracy reporting, role: primary, primary_citation: "Bossuyt et al. STARD 2015. BMJ. 2015.", doi: 10.1136/bmj.h5527, pmid: 26511519, pmcid: PMC4623764, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26511519/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher]}
   STARD-AI: {title: STARD-AI, scope: AI diagnostic accuracy reporting, role: extension, primary_citation: "Sounderajah et al. The STARD-AI reporting guideline. Nat Med. 2025.", doi: 10.1038/s41591-025-03953-8, pmid: 40954311, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40954311/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher], current_reference: STARD-AI-2025}
@@ -39,8 +43,9 @@ evidence:
   STROBE: {title: STROBE statement, scope: observational study reporting, role: primary, primary_citation: "von Elm et al. STROBE statement. Ann Intern Med. 2007.", doi: 10.7326/0003-4819-147-8-200710160-00010, pmid: 17938396, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/17938396/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher]}
   STROBE-MR: {title: STROBE-MR, scope: Mendelian randomization reporting, role: extension, primary_citation: "Skrivankova et al. STROBE-MR statement. JAMA. 2021.", doi: 10.1001/jama.2021.18236, pmid: 34698778, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/34698778/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   TARGET: {title: TARGET statement, scope: observational studies emulating a target trial, role: primary, primary_citation: "Cashin et al. TARGET statement. BMJ. 2025.", doi: 10.1136/bmj-2025-087179, pmid: 40903028, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40903028/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher], current_reference: TARGET-2025}
-  TRIPOD: {title: TRIPOD, scope: regression-based clinical prediction model reporting, role: primary, primary_citation: "Moons et al. TRIPOD explanation and elaboration. Ann Intern Med. 2015.", doi: 10.7326/M14-0698, pmid: 25560730, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25560730/, verification_date: 2026-10-10, status: verified-but-superseded, sources: [pubmed, paperclip, equator, publisher], superseded_for: [AI/ML prediction models]}
-  TRIPOD+AI: {title: TRIPOD+AI, scope: regression and machine-learning clinical prediction model reporting, role: primary, primary_citation: "Collins et al. TRIPOD+AI statement. BMJ. 2024.", doi: 10.1136/bmj-2023-078378, pmid: 38626948, pmcid: PMC11019967, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/38626948/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher], supersedes: TRIPOD for AI/ML prediction models}
+  TRIPOD: {title: TRIPOD, scope: regression-based clinical prediction model reporting, role: primary, primary_citation: "Moons et al. TRIPOD explanation and elaboration. Ann Intern Med. 2015.", doi: 10.7326/M14-0698, pmid: 25560730, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25560730/, verification_date: 2026-10-10, status: verified-but-superseded, sources: [pubmed, paperclip, equator, publisher], superseded_for: [prediction-model], superseded_by: TRIPOD+AI}
+  TRIPOD+AI: {title: TRIPOD+AI, scope: regression and machine-learning clinical prediction model reporting, role: primary, primary_citation: "Collins et al. TRIPOD+AI statement. BMJ. 2024.", doi: 10.1136/bmj-2023-078378, pmid: 38626948, pmcid: PMC11019967, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/38626948/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher], supersedes: TRIPOD 2015 for all prediction-model studies (regression or machine learning)}
+  TRIPOD-LLM: {title: TRIPOD-LLM, scope: studies developing, fine-tuning, or evaluating large language models, role: extension, primary_citation: "Gallifant et al. The TRIPOD-LLM reporting guideline for studies using large language models. Nat Med. 2025.", doi: 10.1038/s41591-024-03425-5, pmid: 39779929, pmcid: PMC12104976, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/39779929/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher]}
 guidelines:
   ARRIVE:
     file: arrive-checklist.md
@@ -126,6 +131,13 @@ guidelines:
     extension_for: []
     role: primary
     ai_extension: false
+  DECIDE-AI:
+    file: decide-ai-checklist.md
+    aliases: [decide-ai]
+    primary_for: [early-clinical-ai-evaluation]
+    extension_for: []
+    role: reporting-guideline
+    ai_extension: true
   DEAL:
     file: deal-checklist.md
     aliases: []
@@ -140,6 +152,13 @@ guidelines:
     extension_for: [qualitative]
     role: mixed-methods-guideline
     ai_extension: false
+  MI-CLAIM:
+    file: mi-claim-checklist.md
+    aliases: [mi-claim]
+    primary_for: []
+    extension_for: [prediction-model, diagnostic-accuracy]
+    role: template
+    ai_extension: true
   PDSQI-9:
     file: pdsqi-checklist.md
     aliases: [pdsqi]
@@ -174,6 +193,13 @@ guidelines:
     primary_for: []
     extension_for: [systematic-review]
     role: extension
+    ai_extension: false
+  PRISMA-P:
+    file: prisma-p-checklist.md
+    aliases: [prisma-p-2015]
+    primary_for: []
+    extension_for: [systematic-review]
+    role: protocol
     ai_extension: false
   PRISMA-SCR:
     file: prisma-scr-checklist.md
@@ -210,6 +236,13 @@ guidelines:
     extension_for: [prediction-model, rct, observational, diagnostic-accuracy]
     role: ML-science-guideline
     ai_extension: true
+  SPIRIT:
+    file: spirit-checklist.md
+    aliases: [spirit-2025, spirit-2013]  # legacy spirit-2013 name resolves to the current SPIRIT 2025 core
+    primary_for: []
+    extension_for: [rct]
+    role: protocol
+    ai_extension: false
   SPIRIT-AI:
     file: spirit-ai-checklist.md
     aliases: []
@@ -275,9 +308,9 @@ guidelines:
     ai_extension: false
   TRIPOD:
     file: tripod-checklist.md
-    aliases: []
+    aliases: [tripod-2015]  # legacy audits only; TRIPOD+AI supersedes it for all prediction models
     primary_for: []
-    extension_for: [prediction-model]
+    extension_for: []
     role: primary
     ai_extension: false
   TRIPOD+AI:
@@ -286,4 +319,11 @@ guidelines:
     primary_for: [prediction-model]
     extension_for: []
     role: primary
+    ai_extension: false  # covers regression and machine-learning models alike
+  TRIPOD-LLM:
+    file: tripod-llm-checklist.md
+    aliases: [tripod-llm]
+    primary_for: []
+    extension_for: [prediction-model]
+    role: extension
     ai_extension: true

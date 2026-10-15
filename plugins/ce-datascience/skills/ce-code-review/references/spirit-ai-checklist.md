@@ -11,11 +11,11 @@
 
 AI EXTENSION checklist for reporting clinical trial protocols that evaluate interventions with an artificial intelligence component.
 
-**Base guideline:** SPIRIT 2013
+**Base guideline:** SPIRIT 2025 (Chan AW, et al. BMJ. 2025;389:e081477. PMID: 40294953; `spirit-checklist.md`). SPIRIT-AI (2020) was written against SPIRIT 2013; apply its AI items alongside the current SPIRIT 2025 core and cite 2025 numbers for core items.
 
 **Primary reference:** Cruz Rivera S, Liu X, Chan AW, Denniston AK, Calvert MJ; SPIRIT-AI and CONSORT-AI Working Group. Guidelines for clinical trial protocols for interventions involving artificial intelligence: the SPIRIT-AI extension. Lancet Digit Health. 2020;2(10):e549-e560. doi:10.1016/S2589-7500(20)30219-3. PMID: 33328049.
 
-This checklist supplements SPIRIT 2013. Apply both checklists together.
+This checklist supplements the SPIRIT 2025 core checklist. Apply both together.
 
 ---
 
@@ -145,7 +145,7 @@ This checklist supplements SPIRIT 2013. Apply both checklists together.
 - Statistical analysis plan sections specific to AI performance evaluation
 - Pre-specified performance metrics (AUC, sensitivity, specificity, calibration)
 - Subgroup analysis plan for demographic and clinical subgroups
-- Fairness metric specifications (equalized odds, demographic parity, predictive parity)
+- Fairness criterion named and justified (e.g., within-group calibration, equalized odds, predictive parity); when outcome prevalence differs between groups these criteria cannot all hold at once, so the plan should state which one matches the clinical harm
 
 ### Item 12 -- Comparison strategy
 

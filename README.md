@@ -11,7 +11,7 @@ researcher, statistician, clinician, data steward, or ethics review.
 
 [Read the public documentation](https://sajor2000.github.io/ce-datascience/) · [Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
 
-**65 skills, 55 specialist agents, and 35 reporting checklists** help make each project more explicit, reproducible, and reviewable.
+**65 skills, 55 specialist agents, and 40 reporting checklists** help make each project more explicit, reproducible, and reviewable.
 
 ## In plain English
 
@@ -484,18 +484,19 @@ remain external. When the core Compound Engineering plugin is also installed,
 ce-datascience handoffs can use those skills with a visible fallback; they are
 not packaged as ce-datascience slash skills.
 
-## Reviews against 35 reporting checklists
+## Reviews against 40 reporting checklists
 
 The checklist registry records publication evidence, current versus legacy versions, and methodological roles. Reporting guidelines, appraisal tools, planning templates, and unresolved candidates are not treated as interchangeable routes; unresolved entries remain explicitly labeled rather than being presented as authoritative.
 
 | Study type | Primary | Extensions |
 |---|---|---|
 | Observational cohort | STROBE | RECORD, RECORD-PE, STROBE-MR, STREGA |
-| Randomized trial | CONSORT | CONSORT-AI, SPIRIT-AI, Cluster, Adaptive, N-of-1 |
-| Prediction model | TRIPOD, TRIPOD+AI | CHARMS |
+| Randomized trial | CONSORT (SPIRIT 2025 for protocols) | CONSORT-AI, SPIRIT-AI, Cluster, Adaptive, N-of-1 |
+| Prediction model | TRIPOD+AI (supersedes TRIPOD 2015) | TRIPOD-LLM, CHARMS, MI-CLAIM |
 | Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 |
-| Systematic review | PRISMA | DTA, NMA, IPD, ScR |
-| Target trial emulation | TARGET | |
+| Systematic review | PRISMA (PRISMA-P for protocols) | DTA, NMA, IPD, ScR |
+| Target trial emulation | TARGET (standalone) | |
+| Early live clinical evaluation of AI | DECIDE-AI | |
 | Other | SQUIRE, GRAMMS, STaRT-RWE, ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL, PDSQI, REFORMS | |
 
 ---

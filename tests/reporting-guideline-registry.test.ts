@@ -41,14 +41,14 @@ async function readReference(name: string): Promise<string> {
 }
 
 describe("reporting guideline registry", () => {
-  test("keeps the 35-entry registry and checklist files in parity", async () => {
+  test("keeps the 40-entry registry and checklist files in parity", async () => {
     const raw = await readReference("guideline-registry.yaml")
     const registry = load(raw) as Registry
     const files = (await fs.readdir(referencesRoot))
       .filter((file) => file.endsWith("-checklist.md"))
       .sort()
 
-    expect(Object.keys(registry.guidelines)).toHaveLength(35)
+    expect(Object.keys(registry.guidelines)).toHaveLength(40)
     expect(Object.keys(registry.evidence).sort()).toEqual(Object.keys(registry.guidelines).sort())
     expect(Object.values(registry.guidelines).map((entry) => entry.file).sort()).toEqual(files)
   })
@@ -124,6 +124,41 @@ describe("reporting guideline registry", () => {
     expect(prisma).toContain("PMID: 33782057")
     expect(stardAi).toContain("PMID: 40954311")
     expect(target).toContain("PMID: 40903028")
+  })
+
+  test("follows the published TARGET, TRIPOD+AI, and SPIRIT 2025 statements", async () => {
+    const registry = load(await readReference("guideline-registry.yaml")) as Registry & {
+      evidence: Record<string, { superseded_for?: string[]; superseded_by?: string }>
+      guidelines: Record<string, { extension_for: string[]; primary_for: string[] }>
+    }
+    const target = await readReference("target-checklist.md")
+    const tripod = await readReference("tripod-checklist.md")
+    const spiritAi = await readReference("spirit-ai-checklist.md")
+    const routing = await readReference("guideline-routing.md")
+
+    // TARGET: 21 items in six sections, standalone (Cashin et al. 2025, Table 2).
+    const targetItems = [...target.matchAll(/^### TARGET (\d+)/gm)].map((match) => Number(match[1]))
+    expect(targetItems).toEqual(Array.from({ length: 21 }, (_, i) => i + 1))
+    expect(target).toContain("Transparent")
+    expect(target).toContain("standalone")
+    expect(target).not.toMatch(/Use alongside STROBE/)
+    expect(routing).not.toMatch(/STROBE is always applied/)
+
+    // TRIPOD+AI supersedes TRIPOD 2015 for every prediction model, regression or ML.
+    expect(registry.evidence.TRIPOD.superseded_for).toEqual(["prediction-model"])
+    expect(registry.evidence.TRIPOD.superseded_by).toBe("TRIPOD+AI")
+    expect(registry.guidelines.TRIPOD.extension_for).toEqual([])
+    expect(registry.guidelines["TRIPOD+AI"].primary_for).toEqual(["prediction-model"])
+    expect(tripod).not.toContain("applies to regression-based prediction models")
+    expect(tripod).toContain("pmsampsize")
+
+    // Protocol-stage and AI guidelines added from verified primary sources.
+    for (const [name, pmid] of [["SPIRIT", 40294953], ["TRIPOD-LLM", 39779929], ["DECIDE-AI", 35585198], ["MI-CLAIM", 32908275], ["PRISMA-P", 25554246]] as const) {
+      expect(registry.evidence[name].pmid, name).toBe(pmid)
+      expect(await readReference(registry.guidelines[name].file), name).toContain(`PMID: ${pmid}`)
+    }
+    expect(spiritAi).toContain("SPIRIT 2025")
+    expect(spiritAi).not.toMatch(/supplements SPIRIT 2013/)
   })
 
   test("routing is evidence-aware and attribute-specific", async () => {
