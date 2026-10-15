@@ -108,4 +108,21 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
     expect(out).toMatch(/modified src\/load\.py  \d+ bytes/)
     expect(out).not.toMatch(/(created|modified)\s+\.ce-datascience/)
   })
+
+  test("prints a masked stderr tail that keeps traceback structure", () => {
+    const root = withFile(project(SCHEMA_ONLY), "analysis/boom.py",
+      "import sys\nfor i in range(40):\n    print(f'noise {i}', file=sys.stderr)\n" +
+      "print('contact zed.t@example.com or (312) 555-0142, ssn 123-45-6789, id 00123456', file=sys.stderr)\n" +
+      "rows = {'Zed Testperson': 1}\nrows['Yan Testperson']\n")
+    const { code, out } = runSafe(root, "python3", "analysis/boom.py")
+    expect(code).toBe(1)
+    const tail = out.slice(out.indexOf("stderr (last 30 lines, masked):"))
+    expect(tail).toContain('File "')
+    expect(tail).toContain("analysis/boom.py\", line 6, in <module>")
+    expect(tail).toContain("KeyError: '…'")
+    expect(tail).not.toContain("noise 0")
+    for (const value of ["Testperson", "zed.t@example.com", "555-0142", "123-45-6789", "00123456"]) {
+      expect({ value, leaked: out.includes(value) }).toEqual({ value, leaked: false })
+    }
+  })
 })

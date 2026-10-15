@@ -5,12 +5,15 @@ Usage: ce-safe-run -- <command> [args...]
 
 Full stdout and stderr go to .ce-datascience/runs/<UTC-timestamp>-<pid>.log in
 the project (gitignored). The terminal gets only the exit code, the duration,
-the log path, and the files created or modified under the project (path, size,
-and row count for tabular files). Stdout is never printed. The exit code is the
+the log path, the files created or modified under the project (path, size,
+and row count for tabular files), and the last 30 lines of stderr with quoted
+literals, digit runs of 4 or more, emails, phones, and SSNs masked. Traceback
+file/line frames stay readable. Stdout is never printed. The exit code is the
 command's.
 """
 
 import os
+import re
 import subprocess
 import sys
 import time
@@ -20,6 +23,16 @@ SKIP_DIRS = {".git", ".ce-datascience", "node_modules", ".venv", "venv", "__pyca
 TABULAR = (".csv", ".tsv", ".psv", ".tab")
 MAX_FILES = 20000
 MAX_LISTED = 50
+TAIL_LINES = 30
+FRAME = re.compile(r'^(\s*File "[^"\n]+", line \d+(?:, in [\w<>.]+)?)(.*)$')
+MASKS = (
+    (re.compile(r"'[^'\n]*'"), "'…'"),
+    (re.compile(r'"[^"\n]*"'), '"…"'),
+    (re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}"), "[email]"),
+    (re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)"), "[ssn]"),
+    (re.compile(r"(?:\+?1[-. ]?)?(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?!\d)"), "[phone]"),
+    (re.compile(r"\d{4,}"), "####"),
+)
 
 
 def project_root(start):
@@ -77,6 +90,21 @@ def changes(before, after, root):
     return lines
 
 
+def mask(text):
+    for pattern, replacement in MASKS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+def masked_tail(err):
+    lines = err.decode("utf-8", errors="replace").splitlines()[-TAIL_LINES:]
+    out = []
+    for line in lines:
+        frame = FRAME.match(line)
+        out.append(frame.group(1) + mask(frame.group(2)) if frame else mask(line))
+    return out
+
+
 def main(argv):
     if "--" not in argv or argv.index("--") == len(argv) - 1:
         print(__doc__.strip())
@@ -106,6 +134,11 @@ def main(argv):
         print(line)
     if len(changed) > MAX_LISTED:
         print(f"  ... and {len(changed) - MAX_LISTED} more")
+    tail = masked_tail(err)
+    if tail:
+        print(f"stderr (last {TAIL_LINES} lines, masked):")
+        for line in tail:
+            print("  " + line)
     return code
 
 
