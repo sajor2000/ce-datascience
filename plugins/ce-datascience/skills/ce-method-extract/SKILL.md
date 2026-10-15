@@ -97,6 +97,8 @@ Save to `analysis/pubmed/<query-slug>-methods.csv` with one row per paper, keepi
 
 `__CE_METHOD_EXTRACT__ csv=<path> n=<count> modal_method=<name>`
 
+Completion check before emitting: every row has `pmid` or `doi`, `design`, and `evidence_level`; no field is filled by inference (`not reported` instead); the summary's `full_text` percentage matches the CSV.
+
 The modal method is reported as context for `ce-model-strategy`, which selects the analytic method from the estimand, outcome, and data structure; method frequency is never the selection criterion. The comparison table (PMIDs, DOIs, per-row `design` and `evidence_level`) is the citation for that context.
 
 ## What this skill does NOT do

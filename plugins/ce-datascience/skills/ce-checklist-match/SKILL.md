@@ -123,6 +123,8 @@ __CE_CHECKLIST__ primary=STROBE extensions=[RECORD]
 
 The bracket-list form mirrors how `ce-plan` parses signals in its SAP-Phase 3 step 2 lookup table.
 
+Completion check: the signal, `stack_profile.reporting_checklist`, and the `analysis/checklists/` files name the same guidelines, and every placeholder carries a citation confirmed by PMID or DOI; fix any mismatch before finishing.
+
 ## What this skill does NOT do
 
 - Does not validate against the checklist (dispatch the `ce-reporting-checklist-reviewer` agent at review time)

@@ -149,6 +149,10 @@ __CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n>
 Downstream skills can use this artifact to avoid repeating literature search and
 to distinguish abstract-only evidence from full-text-verified evidence.
 
+Completion check before emitting: every claim in the matrix cites at least one
+source ID and one evidence label, `full_text_pct` and `claims` match the
+artifact, and no subject-level data appears in it.
+
 ## Failure handling
 
 | Condition | Response |
