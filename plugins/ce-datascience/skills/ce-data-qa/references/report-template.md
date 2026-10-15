@@ -77,7 +77,7 @@ Source population: <N>
 
 | QA-id | Variable | Detail |
 |-------|----------|--------|
-| QA-11 | (overall) | Missingness pattern: monotone. Implies LOCF or MNAR-aware imputation. |
+| QA-11 | (overall) | Missingness pattern: monotone. Implies a likelihood-based model or MI under an assumed MAR mechanism, plus MNAR sensitivity analysis; not LOCF. |
 
 ## Distribution snapshots
 
