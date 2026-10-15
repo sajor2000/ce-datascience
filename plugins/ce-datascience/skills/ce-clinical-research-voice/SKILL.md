@@ -35,7 +35,7 @@ Never use "I." Address readers or future researchers as implied subjects ("Futur
 
 Use em-dashes to embed a definition mid-sentence: "automation bias — the tendency to over-rely on automated output." Definitional embedding is the sanctioned use in this house style. Non-definitional em-dashes (for suspense, rhythm, or as a comma substitute) are a tell — rewrite them with commas, semicolons, or parentheticals. High em-dash density is itself a detector signal even when each use is definitional; if a paragraph accumulates several, convert all but the most load-bearing definition to parenthetical or appositive form.
 
-Use commas and semicolons to link closely related independent clauses. Avoid ellipses. Use parentheticals for statistics: "(95% CI, −18.9 to −9.1; P<0.0001)."
+Use commas and semicolons to link closely related independent clauses. Avoid ellipses. Use parentheticals for statistics: "(95% CI, −18.9 to −9.1; P<.001)." Format P values to the target journal's convention (leading zero, decimal places, and the lowest reported bound, commonly P<.001 or P<0.001); do not report P<0.0001 unless the journal allows it.
 
 Rhetorical questions are permitted only to frame an evidence gap — "Are AI-trained physicians exercising voluntary consultation vulnerable to automation bias when LLM recommendations contain errors?" — and must be followed immediately by the methodological response. Never leave one dangling.
 
@@ -43,7 +43,7 @@ Rhetorical questions are permitted only to frame an evidence gap — "Are AI-tra
 
 Prefer precise technical nouns over informal approximations: "hallucinate," "automation bias," "intraclass correlation coefficient," "intention-to-treat," "clinical vignettes."
 
-Calibrate verbs to strength of evidence: "demonstrate" for strong evidence, "indicate"/"reveal" for direct findings, "suggest" for exploratory findings. Use "substantial," "significant," and "robust" only with statistical backing behind them — never as rhetorical intensifiers. Apply hedging phrases to subgroup and secondary analyses specifically: "should be regarded as hypothesis-generating rather than conclusive."
+Calibrate verbs to strength of evidence: "demonstrate" for strong evidence, "indicate"/"reveal" for direct findings, "suggest" for exploratory findings. Reserve "significant" for the result of a prespecified hypothesis test, reported with its estimate and confidence interval; never use it as a synonym for "large" or "important." Use "substantial" only alongside an effect size and interval, and "robust" only when named sensitivity analyses agree (ASA statement on P values, Am Stat 2016;70:129-33, principles 3 and 5). Apply hedging phrases to subgroup and secondary analyses specifically: "should be regarded as hypothesis-generating rather than conclusive."
 
 Draw analogies from clinical practice and cognitive psychology where they clarify mechanism: "illness scripts," "cognitive offloading," "anchoring," "fluency-induced heuristic processing." Analogy is for the Discussion's mechanistic explanation, not for Methods or Results.
 
@@ -57,7 +57,7 @@ When findings challenge assumptions, say so directly and follow immediately with
 
 - Subject-verb-qualification order maintained? No throat-clearing lead-in.
 - Every "demonstrate/indicate/suggest/reveal" matched to the actual strength of the evidence behind it?
-- Every "substantial/significant/robust" backed by a statistic in the same sentence or the one before it?
+- Every "significant" tied to a prespecified test with its estimate and CI; every "substantial" to an effect size and interval; every "robust" to named sensitivity analyses?
 - "We" used for interpretation and authorial choices; passive reserved for apparatus-level procedure?
 - Em-dashes used only to embed definitions? Non-definitional em-dashes rewritten; density kept low even when uses are definitional?
 - Any rhetorical question immediately answered methodologically?
