@@ -276,7 +276,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-grill` | Stress-test a research project one question at a time (goal, hypothesis, data, proposed analysis, target journal, audience) with a recommended answer for each, saving decisions and ranked risks to `docs/brainstorms/` |
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
 | `/ce-plan` | Create the canonical versioned SAP or technical implementation plan with an implementation-independent objective, Markdown/HTML output modes, and format-preserving resume |
-| `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claims-to-datasets schema, estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
+| `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claim-to-dataset schema, ICH E9(R1) estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
 | `/ce-model-strategy` | Choose, evidence-ground, and scaffold the primary statistical model—including mixed/random effects, causal, prediction, Bayesian, survival, and meta-analysis branches—in the detected R or Python stack |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
 | `/ce-adversarial-review` | Independent adversarial code or plan review with quick/auto/deep, a read-only Claude Code/Codex peer pass, bounded evidence-based rebuttal, and explicit local-only or unresolved coverage when a peer cannot validate |

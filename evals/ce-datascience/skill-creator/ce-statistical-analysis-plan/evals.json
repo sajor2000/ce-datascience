@@ -9,7 +9,8 @@
       "expectations": [
         "Creates linked objects Study, Dataset, Claim, Variable, Analysis, Diagnostic, Output, and Decision_Evidence before rendering prose",
         "Adds to the ce-plan SAP rather than creating a competing SAP",
-        "Makes the estimand, treatment strategy, time zero, and assumptions explicit, and marks unresolved choices as blocking finalization",
+        "States each claim's estimand with all five ICH E9(R1) attributes (treatment, population, variable with time point, each intercurrent event with its strategy, population-level summary), specifies the target-trial protocol with time zero at eligibility plus strategy assignment in every arm, and marks unresolved choices as blocking finalization",
+        "Labels any per-protocol or alternative-population analysis as supplementary (different estimand) rather than as a sensitivity analysis of the primary estimand",
         "Attaches at least one diagnostic or sensitivity analysis and an explicit missing-data strategy to every primary analysis",
         "Records at least one method citation in Decision_Evidence for each high-stakes method choice, found through the PubMed/Paperclip MCP tools (never curl or memory), read before citing, with PMID/DOI and an evidence label"
       ]
