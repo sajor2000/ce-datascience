@@ -282,7 +282,8 @@ def _project_mode(ce_root, main):
     else:
         phi, data_root, error = None, None, None
     mode, why, detail = mode_from_config(phi, error)
-    data_roots = set()
+    runs = os.path.join(ce_root, ".ce-datascience", "runs")  # ce-safe-run logs hold raw output
+    data_roots = {runs, os.path.realpath(runs)}
     if data_root:
         expanded = os.path.expanduser(data_root)
         bases = [ce_root] + ([main] if main else [])

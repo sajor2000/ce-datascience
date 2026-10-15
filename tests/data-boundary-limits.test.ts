@@ -140,4 +140,16 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
     runSafe(covered, "true")
     expect(readFileSync(path.join(covered, ".gitignore"), "utf8")).toBe(".ce-datascience/\n")
   })
+
+  test("run logs are data in schema-only mode: Read, cat, tail, and grep are denied", () => {
+    const root = project(SCHEMA_ONLY)
+    withFile(root, ".ce-datascience/runs/20261015T000000Z-1.log", "Zed Testperson\n")
+    expectAll(root, "deny", [
+      ["Read", { file_path: ".ce-datascience/runs/20261015T000000Z-1.log" }],
+      ["Bash", bash("cat .ce-datascience/runs/20261015T000000Z-1.log")],
+      ["Bash", bash("tail -n 5 .ce-datascience/runs/*.log")],
+      ["Grep", { pattern: "Zed", path: ".ce-datascience/runs", output_mode: "content" }],
+    ])
+    expectAll(root, "allow", [["Bash", bash("ls .ce-datascience/runs")], ["Read", { file_path: ".ce-datascience/config.local.yaml" }]])
+  })
 })
