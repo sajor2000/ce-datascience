@@ -82,6 +82,19 @@ describe("scientific skills share one evidence-access contract", () => {
     expect(problems).toEqual([])
   })
 
+  test("skills that keep the generic block in references/evidence-access.md point to it and use fully qualified MCP names", async () => {
+    const problems: string[] = []
+    for (const name of ["ce-statistical-analysis-plan", "ce-prereg", "ce-research-question", "ce-cohort-build"]) {
+      const skill = await fs.readFile(path.join(skillsRoot, name, "SKILL.md"), "utf8")
+      const ref = await fs.readFile(path.join(skillsRoot, name, "references", "evidence-access.md"), "utf8")
+      if (!skill.includes("`references/evidence-access.md`")) problems.push(`${name}: SKILL.md does not point to references/evidence-access.md`)
+      if (/- \*\*PubMed MCP\*\*/.test(skill)) problems.push(`${name}: SKILL.md still inlines the generic PubMed bullet`)
+      if (!ref.includes("`mcp__pubmed-mcp-server__pubmed_search_articles`")) problems.push(`${name}: reference lacks a fully qualified PubMed tool name`)
+      if (!ref.includes("`mcp__paperclip__search`")) problems.push(`${name}: reference lacks the fully qualified Paperclip tool names`)
+    }
+    expect(problems).toEqual([])
+  })
+
   test("skills do not carry dated verification stamps for citations", async () => {
     const offenders: string[] = []
     const stamp = /\bverified on (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, 20\d\d\b/i
