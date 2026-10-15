@@ -43,7 +43,7 @@ Apply the Skill Value interaction rule to every question below; never silently s
 
 **Implementation mode** — all other inputs; uses Phases 0-5 below.
 
-**Detection** (Phase 0, before Phase 1): 2+ keywords → announce "Entering SAP mode"; otherwise "Entering implementation mode". The user may override ("use SAP mode" / "use implementation mode") at any point; confirm if detection seems wrong.
+**Detection** (Phase 0, before Phase 1): 2+ keywords → announce "Entering SAP mode"; otherwise "Entering implementation mode". The user may override ("use SAP mode" / "use implementation mode") at any point; confirm if detection seems wrong. When detection fires on an input that names code files, tests, or a repo feature (for example "randomized" and "cohort" in a request to refactor a cohort-builder module), ask which mode to use before proceeding.
 
 ### SAP Mode Workflow
 

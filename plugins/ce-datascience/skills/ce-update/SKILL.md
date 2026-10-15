@@ -33,11 +33,8 @@ at skill-load time. For a marketplace-cached install it looks like
 `~/.claude/plugins/cache/<marketplace>/ce-datascience/<version>/skills/ce-update`,
 so the currently-loaded version is the basename two `dirname` levels up.
 
-The upstream version comes from `plugins/ce-datascience/.claude-plugin/plugin.json`
-on `main` rather than the latest GitHub release tag, because the marketplace
-installs plugin contents from `main` HEAD. Comparing against release tags
-false-positives whenever `main` is ahead of the last tag (the normal state
-between releases).
+Compare against `plugins/ce-datascience/.claude-plugin/plugin.json` on `main`
+HEAD, not release tags; the marketplace installs from `main`.
 
 **Skill directory:**
 !`echo "${CLAUDE_SKILL_DIR}"`
@@ -93,9 +90,5 @@ Then stop.
 > ```
 > Then restart Claude Code to apply."
 
-The `claude plugin update` command ships with Claude Code itself and updates
-installed plugins to their latest version; it replaces earlier manual cache
-sweep / marketplace-refresh workarounds. The marketplace name is derived from
-the skill path rather than hardcoded because this plugin is distributed under
-multiple marketplace names (for example, `ce-datascience-plugin` for
-public installs per the README, or other names for internal/team marketplaces).
+Derive `{marketplace-name}` from the skill path; never hardcode it, because the
+plugin ships under more than one marketplace name.
