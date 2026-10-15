@@ -70,7 +70,7 @@ For QA-only requests (existing figures or manifest), start at step 6 and apply s
       "caption": "Figure 1. Kaplan-Meier Estimates of 90-Day Mortality by Treatment Group. Shaded areas indicate 95% CIs. HR indicates hazard ratio.",
       "alt_text": "Two Kaplan-Meier curves of survival probability over 90 days by treatment group; the intervention curve stays above control, 90-day survival 78% vs 71%.",
       "style_profile": "clinical-standard",
-      "checklist_items": ["CONSORT-17a"]
+      "checklist_items": ["CONSORT-26"]
     }
   ]
 }

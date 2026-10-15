@@ -603,11 +603,17 @@ def calibration_plot(
     strategy: str = "quantile",
     intercept_slope: tuple[float, float] | None = None,
     histogram: bool = True,
+    smoother: str | None = None,
 ):
     """Calibration curve with diagonal reference and a histogram of predicted risk underneath.
 
-    Uses sklearn.calibration.calibration_curve. Pass `intercept_slope` (from a
-    logistic recalibration model) to print calibration intercept and slope.
+    Uses sklearn.calibration.calibration_curve for the binned points. Pass
+    `intercept_slope` as (calibration-in-the-large from an offset-only logistic
+    model `outcome ~ 1 + offset(logit(risk))`, calibration slope from the
+    logistic recalibration model `outcome ~ logit(risk)`); the intercept of the
+    joint recalibration model is not calibration-in-the-large.
+    `smoother="lowess"` overlays a flexible calibration curve (needs statsmodels);
+    prefer it over decile bins, which are arbitrary (Van Calster 2019, PMID 31842878).
     """
     from sklearn.calibration import calibration_curve
 
@@ -619,12 +625,23 @@ def calibration_plot(
         fig, ax_h = ax.figure, None
     prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=n_bins, strategy=strategy)
     ax.plot([0, 1], [0, 1], color="gray", linewidth=0.75, linestyle="--", zorder=0)
-    ax.plot(prob_pred, prob_true, marker="o", color=CLINICAL_PALETTE[0], label=label)
+    if smoother == "lowess":
+        try:
+            from statsmodels.nonparametric.smoothers_lowess import lowess
+        except ImportError as exc:
+            raise ImportError("smoother='lowess' needs statsmodels; install it in the project environment or use smoother=None") from exc
+        fit = lowess(np.asarray(y_true, dtype=float), np.asarray(y_prob, dtype=float), frac=2 / 3, return_sorted=True)
+        ax.plot(fit[:, 0], fit[:, 1], color=CLINICAL_PALETTE[0], label=f"{label} (LOWESS)")
+        ax.plot(prob_pred, prob_true, marker="o", linestyle="none", color=CLINICAL_PALETTE[0], alpha=0.6, label="Risk-group means")
+    elif smoother is None:
+        ax.plot(prob_pred, prob_true, marker="o", color=CLINICAL_PALETTE[0], label=label)
+    else:
+        raise ValueError("smoother must be None or 'lowess'")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_ylabel("Observed Proportion")
     if intercept_slope is not None:
-        ax.text(0.02, 0.96, f"Intercept, {intercept_slope[0]:.2f}; slope, {intercept_slope[1]:.2f}", transform=ax.transAxes, ha="left", va="top", fontsize=8)
+        ax.text(0.02, 0.96, f"Calibration-in-the-large, {intercept_slope[0]:.2f}; slope, {intercept_slope[1]:.2f}", transform=ax.transAxes, ha="left", va="top", fontsize=8)
     ax.legend(loc="lower right", frameon=False)
     if ax_h is not None and histogram:
         ax_h.hist(np.asarray(y_prob), bins=20, range=(0, 1), color="gray")
