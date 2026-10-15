@@ -103,7 +103,7 @@ project files. Resolve data domain from Phase 0 signals or saved inference
 convert an unknown language to `both`; show `unknown` and recommend setup only
 when the selected lifecycle needs a language-specific artifact.
 
-Emit the lifecycle card:
+Emit the lifecycle card (an example rendering for Path 1; take the steps from `references/lifecycle-paths.md`):
 
 ```
 ## Workflow: Observational Study (OMOP)
