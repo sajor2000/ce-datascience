@@ -30,6 +30,8 @@ Before SAP Phase 3, inspect the available dataset columns and QA status. The SAP
 
 For an observational study or causal claim, record explicit analysis assumptions: estimand, causal assumptions, unit/grain, key fields, time zero, and success criteria. Treat unresolved choices about the target population, exposure/intervention, comparator, outcome, follow-up horizon, confounder adjustment, or missing-data approach as blockers when they would change the estimand or interpretation. Ask the analyst to resolve the choice or document an approved assumption; keep `status: draft` and do not finalize while a methodological choice remains unresolved.
 
+For an RCT, or any causal claim, fill SAP-1.4 with the ICH E9(R1) estimand: population, treatment conditions, endpoint with time point, each anticipated intercurrent event with its strategy, and population-level summary. An analysis set such as ITT is not an estimand; an unresolved intercurrent-event strategy blocks finalization like any other estimand choice.
+
 ## 1. SAP Phase 3: Structure the SAP
 
 1. Read the SAP template from `references/sap-template.md`.

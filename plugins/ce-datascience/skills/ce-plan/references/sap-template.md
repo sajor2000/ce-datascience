@@ -15,8 +15,9 @@ Every new SAP must include the biostatistics-style tabular SAP contract. The pro
 ```yaml
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | early-clinical-ai-evaluation | exploratory | other
 ai_involvement: none | ai-assisted | ai-primary | llm-based
+protocol_stage: false
 reporting_checklist: null
 reporting_checklist_extensions: []
 # Legacy compatibility only; prefer the reporting_checklist fields above.
@@ -29,6 +30,8 @@ status: draft | final | amended
 
 - `sap_version` starts at `1` and increments on substantive amendments (not typo fixes)
 - `study_type` must be one of the values shown; pick the closest fit. The original four values (`observational`, `rct`, `exploratory`, `other`) remain valid
+- `protocol_stage` is optional (default `false`). Set `true` when the SAP accompanies a protocol: trial protocols route to SPIRIT 2025, systematic-review protocols to PRISMA-P
+- `early-clinical-ai-evaluation` covers early-stage clinical evaluation of AI decision-support systems and routes to DECIDE-AI
 - `ai_involvement` is optional. Set it when the study uses AI/ML methods: `ai-assisted` for AI as a tool within traditional methods, `ai-primary` for AI as the primary analytical approach, `llm-based` for studies using large language models. Defaults to `none` when omitted
 - `reporting_checklist` and `reporting_checklist_extensions` mirror the canonical stack-profile fields when the SAP needs a portable per-study copy
 - `guidelines_selected` is legacy compatibility. When canonical fields are absent and it is set, it specifies exactly which reporting guidelines apply (e.g., `[CONSORT, CONSORT-AI]`). When all fields are empty or omitted, guidelines are auto-selected from `study_type` and `ai_involvement` via the routing map
@@ -40,8 +43,9 @@ status: draft | final | amended
 ```markdown
 ---
 sap_version: 1
-study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | exploratory | other
+study_type: observational | rct | systematic-review | diagnostic-accuracy | case-report | qualitative | animal | health-economic | prediction-model | target-trial-emulation | quality-improvement | early-clinical-ai-evaluation | exploratory | other
 ai_involvement: none
+protocol_stage: false
 reporting_checklist: null
 reporting_checklist_extensions: []
 guidelines_selected: []
@@ -65,6 +69,10 @@ status: draft | final | amended
 ### SAP-1.3: Exploratory Objectives
 
 [List exploratory analyses. Mark clearly as hypothesis-generating, not confirmatory.]
+
+### SAP-1.4: Estimand(s)
+
+[For each primary and key secondary objective, state the estimand per ICH E9(R1): (1) population, (2) treatment condition(s) being compared, (3) endpoint/variable with time point, (4) each anticipated intercurrent event (e.g., treatment discontinuation, rescue medication, treatment switching, death before outcome assessment) with its strategy (treatment policy, hypothetical, composite variable, while on treatment, principal stratum), and (5) population-level summary (e.g., risk difference, marginal or conditional odds ratio, hazard ratio, RMST difference). Flag hypothetical and principal-stratum strategies as resting on untestable assumptions. For observational causal questions, state the target-trial causal contrast (intention-to-treat or per-protocol analogue) and time zero. Analysis sets in SAP-4 support the estimand; they do not replace it.]
 
 ---
 
@@ -108,11 +116,11 @@ status: draft | final | amended
 
 ### SAP-4.1: Primary Analysis Population
 
-[Define the primary analysis population (e.g., intention-to-treat, per-protocol, as-treated). Specify how subjects are assigned to the analysis population.]
+[Define the primary analysis set (e.g., full analysis set / intention-to-treat) that supports the SAP-1.4 estimand. Specify how subjects are assigned to it. An analysis set is not an estimand.]
 
-### SAP-4.2: Sensitivity Populations
+### SAP-4.2: Additional Analysis Sets
 
-[Define alternative analysis populations used in sensitivity analyses (e.g., complete-case, per-protocol if primary is ITT).]
+[Define any additional analysis sets (e.g., per-protocol, as-treated, complete-case). State whether each supports a sensitivity analysis (same estimand, different assumptions) or a supplementary analysis (different estimand, e.g., a per-protocol effect).]
 
 ---
 
@@ -120,7 +128,7 @@ status: draft | final | amended
 
 ### SAP-5.1: Primary Analysis
 
-[Specify the statistical model, estimation method, and inference approach for the primary endpoint. Include covariates, effect measure (OR, HR, RR, mean difference), confidence interval method, and significance threshold.]
+[Specify the statistical model, estimation method, and inference approach for the primary estimand (SAP-1.4). Include covariates, effect measure (OR, HR, RR, mean difference), whether the effect is conditional or marginal, confidence interval method, confidence level, sidedness, and significance threshold. For randomized trials, prespecify baseline-only prognostic covariates and include the randomization stratification factors; for a marginal effect from a nonlinear model, name the standardization/g-computation estimator and its bootstrap or robust variance (FDA 2023 covariate-adjustment guidance).]
 
 ### SAP-5.2: Secondary Analyses
 
@@ -130,11 +138,23 @@ status: draft | final | amended
 
 [List pre-specified subgroups with justification. State whether subgroup analyses are exploratory or confirmatory. Specify the interaction test used.]
 
+### SAP-5.4: Interim Analyses and Stopping Guidance (RCT)
+
+[Number and timing of interim analyses, information fraction, alpha-spending function, futility rules, who sees unblinded data, and the timing of the final analysis relative to database lock and unblinding. "Not applicable: no interim analysis" if none. Not applicable for non-randomized designs.]
+
+### SAP-5.5: Protocol Deviations and Adherence (RCT)
+
+[Definition of important protocol deviations, how adherence is measured, and how each deviation or adherence event maps to an intercurrent-event strategy in SAP-1.4. Not applicable for non-randomized designs.]
+
+### SAP-5.6: Harms and Software (RCT)
+
+[How adverse events and other harms are summarized (populations, coding dictionary, grading), and the statistical software and versions used for the analysis.]
+
 ---
 
 ## SAP-6: Sample Size and Power
 
-[State the target sample size, the assumptions behind the power calculation (effect size, variance, alpha, power, dropout rate), and the software or formula used. For retrospective studies using existing data, state the available sample size and the minimum detectable effect at 80% power.]
+[State the target sample size, the assumptions behind the power calculation (effect size, variance, alpha, power, dropout rate), and the software or formula used. For retrospective studies using existing data, state the available sample size and the minimum detectable effect at 80% power. For prediction-model development, justify N with the Riley et al. criteria (BMJ 2020;368:m441; R `pmsampsize`), not events-per-variable alone. For descriptive, agreement, or accuracy studies, justify N by the target confidence-interval width. Never report post-hoc power computed from the observed effect (Hoenig & Heisey, Am Stat 2001).]
 
 ---
 
@@ -152,7 +172,7 @@ status: draft | final | amended
 
 ## SAP-9: Sensitivity Analyses
 
-[List each planned sensitivity analysis with its purpose and how it differs from the primary analysis. Common categories: alternative populations, alternative outcome definitions, alternative missing data approaches, alternative model specifications, and robustness checks for key assumptions.]
+[List each planned sensitivity analysis: it targets the same estimand as SAP-5.1 under a different assumption (e.g., MNAR delta-adjusted or tipping-point imputation, alternative model specification, alternative handling of an intercurrent event within the same strategy). Change one assumption at a time. List supplementary analyses (different populations, outcome definitions, or estimands, such as a per-protocol set) separately and label them supplementary; agreement between a per-protocol and a treatment-policy result does not demonstrate robustness (ICH E9(R1) A.5.2-A.5.3; Morris, Kahan & White 2014).]
 
 ---
 
@@ -201,4 +221,5 @@ When filling in this template from a study design brainstorm:
 4. Use precise statistical language -- name specific tests, models, and adjustment methods rather than vague descriptions like "appropriate statistical methods"
 5. Cross-reference between sections using SAP-N.M identifiers (e.g., "using the population defined in SAP-4.1")
 6. Keep the document self-contained -- a statistician should be able to execute the analysis plan without referring to the brainstorm document
-7. SAP-11 (Reproducibility Metadata) is optional for traditional statistical analyses but strongly recommended when `ai_involvement` is not `none`. At minimum, reference the study metadata file path; detailed provenance fields live in `.ce-datascience/study-metadata.yaml`
+7. For RCTs, fill SAP-1.4 and SAP-5.4 to SAP-5.6, then cross-check the SAP against the Gamble et al. 2017 minimum content (55 items; JAMA 2017;318:2337-43, PMID 29260229) and confirm the trial protocol follows SPIRIT 2025 (34 items; BMJ 2025;389:e081477, PMID 40294953). Record the SAP's relationship to the protocol (protocol version) and the SAP author and version history in the document header.
+8. SAP-11 (Reproducibility Metadata) is optional for traditional statistical analyses but strongly recommended when `ai_involvement` is not `none`. At minimum, reference the study metadata file path; detailed provenance fields live in `.ce-datascience/study-metadata.yaml`
