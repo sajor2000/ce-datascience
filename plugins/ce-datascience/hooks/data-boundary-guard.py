@@ -757,6 +757,11 @@ def sed_ok(args, cwd, mode, tainted):
 
 SCRIPT_CAP = 1 << 20
 LITERAL = re.compile(r"'([^'\n]{1,500})'|\"([^\"\n]{1,500})\"")
+# Read calls (pandas, polars, pyarrow, readr, haven, readxl, data.table, base R, arrow, duckdb, sqlite).
+READ_CALL = re.compile(
+    r"(?:\b(?:read_(?:csv|tsv|table|delim|fwf|parquet|feather|ipc|excel|xlsx|xls|sas|stata|dta|spss|sav|xpt|json|rds|orc)"
+    r"|read\.(?:csv2?|table|delim2?|dta|xport)|scan_(?:csv|parquet|ipc)|fread|vroom|readRDS|open_dataset|ParquetFile"
+    r"|dbConnect)|\barrow::\w+|\bduckdb(?:\.|::)\w+|\bsqlite3?(?:\.|::)\w+)\s*\(\s*([^)\s]?)")
 
 
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -771,6 +776,8 @@ def script_reads_data(path, cwd, mode):
             text = fh.read(SCRIPT_CAP)
     except OSError:
         return False
+    if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
+        return True  # reads a path held in a variable or argument
     return any(is_data_path(a or b, cwd, mode) for a, b in LITERAL.findall(text))
 
 
