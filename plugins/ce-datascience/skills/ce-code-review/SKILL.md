@@ -86,7 +86,9 @@ When no PHI risk is present, continue normally without asking.
 
 **Safe display metadata.** After preflight, set `SAFE_BRANCH` and other display metadata to their raw values only when each value is established as PHI-free. Otherwise use an opaque label such as `[redacted-phi-risk-branch]`. All prompts, reports, and persistent run artifacts use the safe values; raw metadata never leaves `$REVIEW_SCOPE_DIR`.
 
-**Reviewer access.** When `ce-phi-leak-reviewer` is selected, pass the PHI authorization marker resolved during Stage 1. With `PHI authorization: not confirmed`, general reviewers and Stage 5b validators see only preflight-approved paths and PHI-free orchestrator context, and their prompts forbid broad checkout reads (`git diff`, `git show`, `git blame`, `git log`, `gh pr view`); `ce-phi-leak-reviewer` is limited to paths, code, schemas, metadata, and reviewed aggregates. With `PHI authorization: confirmed`, no reviewer has content limits.
+**Reviewer access.** Pass `ce-phi-leak-reviewer` the marker from Stage 1. With `PHI authorization: confirmed`, no reviewer has content limits. Without it: General
+reviewer sub-agents may inspect only the preflight-approved paths and PHI-free orchestrator context, and their prompts must prohibit broad
+checkout-reading commands (`git diff`, `git show`, `git blame`, `git log`, `gh pr view`); `ce-phi-leak-reviewer` gets paths, code, schemas, metadata, and reviewed aggregates; Stage 5b validators inherit these limits.
 
 ## How to Run
 

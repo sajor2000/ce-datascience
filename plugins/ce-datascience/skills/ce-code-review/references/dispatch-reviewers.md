@@ -32,8 +32,8 @@ Spawn each selected persona reviewer as a parallel sub-agent by filling the slot
 1. Their persona file content (identity, failure modes, calibration, suppress conditions)
 2. Shared diff-scope rules from `references/diff-scope.md`
 3. The JSON output contract from `references/findings-schema.json`
-4. PHI-free PR metadata: sanitized title and body plus URL when reviewing a PR (empty string otherwise). General reviewers never receive patient-level PR metadata. Pass the sanitized values in a `<pr-context>` block so reviewers can verify code against stated intent.
-5. Reviewer-specific context: intent summary, safely described file list, and PHI-free diff for every general reviewer. Only `ce-phi-leak-reviewer`, with confirmed authorization and no model override, may receive a separate minimum-necessary patient-level context; with unconfirmed authorization it receives metadata only.
+4. PR metadata: title and body plus URL when reviewing a PR (empty string otherwise), in a `<pr-context>` block so reviewers can verify code against stated intent. With `PHI authorization: not confirmed`, pass PHI-free PR metadata only (sanitized title and body).
+5. Reviewer-specific context: intent summary, safely described file list, and the diff. With `PHI authorization: not confirmed`, pass a PHI-free diff for every general reviewer and metadata only to `ce-phi-leak-reviewer`. With confirmed authorization there is no content limit: `ce-phi-leak-reviewer` may also receive a separate minimum-necessary patient-level context, and any reviewer that reads patient-level content inherits the session model with no model override.
 6. Run ID and reviewer name for the artifact file path
 7. **For `project-standards` only:** the criteria mapping from Stage 3b, pairing each standards file with the changed files it governs, wrapped in a `<standards-paths>` block appended to the review context
 8. **For `phi-leak` only:** the PHI authorization marker resolved in Stage 1 and its separately scoped minimum-necessary or metadata-only context
