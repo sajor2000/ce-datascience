@@ -1,0 +1,62 @@
+schema_version: "1.0"
+id: ce-reporting-checklist-reviewer-target-trial
+target:
+  kind: agent
+  name: ce-reporting-checklist-reviewer
+  source: plugins/ce-datascience/agents/ce-reporting-checklist-reviewer.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-reporting-checklist-reviewer-target-trial/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-reporting-checklist-reviewer-target-trial/fixtures/sap.md
+    destination: workspace/sap.md
+    sha256: 73f271f85b36a6d675af597ca15029663f76732015298d2906c9f9395089db90
+  - path: evals/ce-datascience/cases/ce-reporting-checklist-reviewer-target-trial/fixtures/config.local.yaml
+    destination: workspace/config.local.yaml
+    sha256: 805fcd427d549e4d74a97786e98ee508975ddaa7226047cce794e29f524fe3ba
+required_behaviors:
+  - applies-target
+  - cites-published-item-numbers
+  - flags-missing-emulation-detail
+prohibited_behaviors:
+  - forces-strobe
+  - mutates-sap
+criteria:
+  - id: applies-target
+    description: The review applies the TARGET checklist.
+    type: regex
+    path: response.md
+    pattern: '"guidelines_applied"\s*:\s*\[[^\]]*"TARGET"'
+    weight: 3
+    hard_gate: true
+  - id: cites-published-item-numbers
+    description: Findings cite TARGET item identifiers that exist in the 21-item statement (methods items 5-7 with sub-items).
+    type: regex
+    path: response.md
+    pattern: 'TARGET-(?:[5-9]|1[0-9]|2[01])[a-h]?'
+    weight: 3
+    hard_gate: true
+  - id: flags-missing-emulation-detail
+    description: The review flags that the SAP does not describe how assignment, follow-up start, or causal contrasts were emulated.
+    type: regex
+    path: response.md
+    pattern: 'time zero|assignment|causal contrast|per-protocol|intention-to-treat'
+    weight: 2
+    hard_gate: true
+  - id: forces-strobe
+    description: The review does not add STROBE as a required companion when the stack profile names TARGET alone.
+    type: regex_not
+    path: response.md
+    pattern: '"guidelines_applied"\s*:\s*\[[^\]]*"STROBE"'
+    weight: 3
+    hard_gate: true
+  - id: mutates-sap
+    description: The SAP fixture remains unchanged.
+    type: file_unchanged
+    path: workspace/sap.md
+    fixture_path: evals/ce-datascience/cases/ce-reporting-checklist-reviewer-target-trial/fixtures/sap.md
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is a synthetic SAP; the case measures guideline routing and item citation, not full checklist coverage.
+  - The registry and checklist files must be supplied in the dispatch prompt, as the reviewer contract requires.
