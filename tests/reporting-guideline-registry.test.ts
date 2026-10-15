@@ -41,14 +41,14 @@ async function readReference(name: string): Promise<string> {
 }
 
 describe("reporting guideline registry", () => {
-  test("keeps the 37-entry registry and checklist files in parity", async () => {
+  test("keeps the 40-entry registry and checklist files in parity", async () => {
     const raw = await readReference("guideline-registry.yaml")
     const registry = load(raw) as Registry
     const files = (await fs.readdir(referencesRoot))
       .filter((file) => file.endsWith("-checklist.md"))
       .sort()
 
-    expect(Object.keys(registry.guidelines)).toHaveLength(37)
+    expect(Object.keys(registry.guidelines)).toHaveLength(40)
     expect(Object.keys(registry.evidence).sort()).toEqual(Object.keys(registry.guidelines).sort())
     expect(Object.values(registry.guidelines).map((entry) => entry.file).sort()).toEqual(files)
   })
@@ -153,7 +153,7 @@ describe("reporting guideline registry", () => {
     expect(tripod).toContain("pmsampsize")
 
     // Protocol-stage and AI guidelines added from verified primary sources.
-    for (const [name, pmid] of [["SPIRIT", 40294953], ["PRISMA-P", 25554246]] as const) {
+    for (const [name, pmid] of [["SPIRIT", 40294953], ["TRIPOD-LLM", 39779929], ["DECIDE-AI", 35585198], ["MI-CLAIM", 32908275], ["PRISMA-P", 25554246]] as const) {
       expect(registry.evidence[name].pmid, name).toBe(pmid)
       expect(await readReference(registry.guidelines[name].file), name).toContain(`PMID: ${pmid}`)
     }

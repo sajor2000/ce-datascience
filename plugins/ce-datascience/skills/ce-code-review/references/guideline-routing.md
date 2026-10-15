@@ -19,6 +19,7 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 | `prediction-model` | TRIPOD+AI (regression or machine learning; TRIPOD 2015 is superseded) | `references/tripod-ai-checklist.md` |
 | `target-trial-emulation` | TARGET (standalone) | `references/target-checklist.md` |
 | `quality-improvement` | SQUIRE 2.0 | `references/squire-checklist.md` |
+| `early-clinical-ai-evaluation` | DECIDE-AI (early, small-scale live clinical evaluation of an AI decision-support system) | `references/decide-ai-checklist.md` |
 | `exploratory` | _(none required)_ | _(reviewer skips unless user overrides)_ |
 | `other` | _(ask user)_ | _(reviewer asks which guideline to apply)_ |
 
@@ -39,14 +40,16 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `ai-primary` | `study_type: rct` | CONSORT-AI | `references/consort-ai-checklist.md` |
 | `ai-primary` | `study_type: rct` (protocol stage) | SPIRIT-AI, layered on the SPIRIT 2025 core | `references/spirit-ai-checklist.md` (+ `references/spirit-checklist.md`) |
 | `ai-primary` | `study_type: prediction-model` | TRIPOD+AI (already primary) | _(no additional file)_ |
-| `ai-primary` | `study_type: prediction-model` | REFORMS | `references/reforms-checklist.md` |
+| `ai-primary` | `study_type: prediction-model` | REFORMS, only when the study makes ML-based scientific claims beyond reporting a clinical model | `references/reforms-checklist.md` |
+| `ai-primary` | clinical AI model documentation requested (model card, supplement) | MI-CLAIM (documentation template, not a reporting guideline) | `references/mi-claim-checklist.md` |
 | `ai-primary` | `study_type: diagnostic-accuracy` | STARD-AI | `references/stard-ai-checklist.md` |
 | `ai-primary` | medical imaging study (`diagnostic-accuracy` or `prediction-model`) | CLAIM | `references/claim-checklist.md` |
 | `ai-primary` | pathology deep-learning study | DEAL only with verified-source override | `references/deal-checklist.md` |
 | `ai-primary` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `ai-primary` | EHR-based predictive model | PDSQI-9 is not auto-routed while unverified | `references/pdsqi-checklist.md` |
-| `ai-assisted` | AI is a tool inside traditional methods, not the intervention or object of study | none auto-added; report the tool's role, version, and validation in Methods (CONSORT-AI, SPIRIT-AI, STARD-AI, and REFORMS apply only to `ai-primary` or `llm-based`) | — |
-| `llm-based` | any study_type | REFORMS | `references/reforms-checklist.md` |
+| `ai-assisted` | AI is a tool inside traditional methods, not the intervention or object of study | none auto-added; report the tool's role, version, and validation in Methods (CONSORT-AI, SPIRIT-AI, STARD-AI, TRIPOD-LLM, and REFORMS apply only to `ai-primary` or `llm-based`) | — |
+| `llm-based` | `study_type: prediction-model`, or an LLM developed, fine-tuned, or evaluated on a task | TRIPOD-LLM (with TRIPOD+AI as primary for prediction models) | `references/tripod-llm-checklist.md` |
+| `llm-based` | ML-based scientific claims (not chatbot-advice or trial designs) | REFORMS | `references/reforms-checklist.md` |
 | `llm-based` | chatbot health-advice study | CHART | `references/chart-checklist.md` |
 | `none` | any | _(no extensions)_ | _(skip AI layer)_ |
 
@@ -79,7 +82,10 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | CONSORT-AI | CONSORT extension for AI interventions | 14 | AI + RCT |
 | SPIRIT-AI | SPIRIT extension for AI trial protocols (written against SPIRIT 2013) | 15 | AI + trial protocol |
 | TRIPOD+AI | Prediction-model reporting, regression or ML (supersedes TRIPOD 2015) | 27 | Any prediction model |
-| REFORMS | Reporting Standards for ML in Science | ~20 | ML/computational |
+| TRIPOD-LLM | TRIPOD+AI extension for large language models | 19 (50 subitems) | LLM studies |
+| DECIDE-AI | Early-stage clinical evaluation of AI decision support | 27 (17 AI-specific + 10 generic) | Live clinical AI evaluation |
+| MI-CLAIM | Minimum Information about Clinical AI Modeling | 6 parts | Model documentation |
+| REFORMS | Recommendations for machine-learning-based science | 32 | ML-based science |
 | CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
 | DEAL | DEep Learning in pAthology | ~16 | DL + pathology |
 | CHART | Clinical Healthcare AI Reporting Tool | ~12 | Clinical AI deployment |
