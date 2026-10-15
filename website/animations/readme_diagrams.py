@@ -72,7 +72,7 @@ class ResearchWorkflow(ReadmeDiagram):
         self.camera.background_color = BACKGROUND
         header = self.heading(
             "From research question to reviewable evidence",
-            "65 skills • 55 specialist agents • 35 reporting checklists",
+            "65 skills • 55 specialist agents • 40 reporting checklists",
         )
         steps = (
             ("Frame", "question + estimand", BLUE),
