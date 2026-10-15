@@ -175,6 +175,15 @@ decision time and horizon, a case/control definition, censoring-aware
 time-dependent AUC with confidence intervals, and calibration at the matching
 horizon. A generic binary AUC or Harrell C-index does not answer that question.
 
+Statistical methods were audited against primary sources: ICH E9(R1)
+estimands in the SAP path, corrected power, non-inferiority, two-proportion,
+and `pmsampsize` methods, REML with Hartung-Knapp pooling and a k-1 df
+prediction interval, non-binding futility type I error, design-aware Table 1
+(SMD column, no RCT baseline p-values), verification-bias reweighting for
+phenotype validation, and TRIPOD+AI routing for every prediction model. The
+skill and agent tables below describe the current behavior; the root README's
+"Statistical correctness" section summarizes it.
+
 Connection skills can hand setup a verified database default by emitting
 `__CE_CONNECTION__ name=<name> type=<postgres|sqlite|duckdb|other> database=<db> auth=<auth> status=verified`.
 For database-backed projects, `data_root` stays optional and is used only for
@@ -279,7 +288,7 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-brainstorm` | Interactive study design exploration with PICO/PECO probes, grouped requirements, visual communication, and Markdown/HTML output modes before planning |
 | `/ce-grill` | Stress-test a research project one question at a time (goal, hypothesis, data, proposed analysis, target journal, audience) with a recommended answer for each, saving decisions and ranked risks to `docs/brainstorms/` |
 | `/ce-research-question` | Harden a fuzzy study idea into structured PICO + FINER + PubMed query at `analysis/research-question.yaml` |
-| `/ce-plan` | Create the canonical versioned SAP or technical implementation plan with an implementation-independent objective, Markdown/HTML output modes, and format-preserving resume |
+| `/ce-plan` | Create the canonical versioned SAP or technical implementation plan with an implementation-independent objective, ICH E9(R1) estimands (SAP-1.4) and RCT minimum content in SAP mode, Markdown/HTML output modes, and format-preserving resume |
 | `/ce-statistical-analysis-plan` | Deepen complex clinical or observational SAPs with a claim-to-dataset schema, ICH E9(R1) estimands, diagnostics, and decision evidence without creating a competing plan or workbook |
 | `/ce-model-strategy` | Choose, evidence-ground, and scaffold the primary statistical model—including mixed/random effects, causal, prediction, Bayesian, survival, and meta-analysis branches—in the detected R or Python stack |
 | `/ce-code-review` | Statistical and methodological review with confidence-calibrated integrity/causal findings, reporting checklist compliance, and blinding-state awareness (auto-detected from stack profile) |
@@ -292,8 +301,8 @@ The compound engineering loop adapted for data science: hypothesize, design stud
 | `/ce-compound` | Document validated analytical approaches, statistical decisions, and domain methods (with deterministic dedup fingerprints across studies) |
 | `/ce-compound-refresh` | Refresh stale learnings and decide whether to keep, update, replace, or archive |
 | `/ce-sap-tabular` | Generate the biostatistics-style tabular companion to the prose SAP -- Overview, Outputs, Master Variables, and optional long/wide sample sheets that statisticians hand to programmers |
-| `/ce-data-qa` | Data QA gate for row counts, joins, keys, types, missingness, and stack-specific integrity risks; emits GO/WARN/NO-GO, a missingness catalog, and PI sign-off block. Runs between data extraction and modeling |
-| `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data, PHI, figure quality, and reproducibility between analysis steps |
+| `/ce-data-qa` | Data QA gate for row counts, joins, keys, types, missingness, and stack-specific integrity risks; emits GO/WARN/NO-GO, a missingness catalog, and PI sign-off block. Recommends principled missing-data methods (no mean imputation or LOCF) and does not claim MNAR is detectable from the data. Runs between data extraction and modeling |
+| `/ce-verify` | Mid-workflow analysis verification gate -- checks sample size, data leakage, effect direction, missing data (judged by assumed mechanism, not a percentage cutoff), PHI, figure quality, and reproducibility between analysis steps |
 | `/ce-sprint` | Open or close an auditable sprint with declared scope (subset of SAP sections), planned outputs, and a named human reviewer. Closing dispatches `ce-sprint-audit-reviewer` |
 
 The planning scopes are deliberate: start with `/ce-plan`; add
@@ -308,16 +317,16 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-pubmed` | PubMed/MEDLINE search via NCBI E-utilities with MeSH expansion and structured result tables |
+| `/ce-pubmed` | PubMed/MEDLINE search via NCBI E-utilities with MeSH expansion and structured result tables; by default keeps not-yet-indexed and non-English records (`--english-only` opts in to a language limit) |
 | `/ce-evidence-map` | Build a source-backed evidence map from PubMed, with optional Paperclip full-text, grep, map, SQL, and figure deepening when available |
-| `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification |
-| `/ce-checklist-match` | Pick the right reporting checklist (CONSORT / STROBE / TRIPOD+AI / etc.) at PLAN time, before SAP drafting |
-| `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes; produces an R or Python script and a SAP-ready paragraph |
-| `/ce-trial-design` | Build an auditable feasible/Pareto frontier for two-arm group-sequential designs from version-pinned `rpact` or `gsDesign` results, with a provenance receipt and SAP handoff |
-| `/ce-effect-size` | Pool effect-size estimates from prior literature (random-effects REML) into a defensible assumption for `/ce-power` |
-| `/ce-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP |
-| `/ce-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog |
-| `/ce-figure` | Create publication figures in R (ggplot2) or Python (matplotlib, Jupyter/Marimo) in a journal-neutral clinical figure style, and validate figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
+| `/ce-method-extract` | Extract structured statistical methods from a PubMed result set into a comparison table for SAP justification, without treating the most common method or raw published effects as SAP and power defaults |
+| `/ce-checklist-match` | Pick the right reporting checklist at PLAN time, before SAP drafting: TRIPOD+AI for every prediction model, standalone TARGET for target trial emulation, SPIRIT 2025 and PRISMA-P for protocols, and DECIDE-AI or TRIPOD-LLM for early clinical AI and LLM studies |
+| `/ce-power` | Compute sample size with sensitivity sweep across plausible effect sizes (two-sample, two-proportion, non-inferiority at one-sided 0.025, survival, cluster, and Riley-criteria `pmsampsize` for prediction models); produces an R or Python script and a SAP-ready paragraph |
+| `/ce-trial-design` | Build an auditable feasible/Pareto frontier for two-arm group-sequential designs from version-pinned `rpact` or `gsDesign` results (type I error under non-binding futility computed ignoring the futility bound), with a provenance receipt and SAP handoff |
+| `/ce-effect-size` | Pool effect-size estimates from prior literature (random-effects REML with a Hartung-Knapp CI and a k-1 df prediction interval) into a defensible assumption for `/ce-power` |
+| `/ce-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP; its validator blocks a draft SAP, unblinded data, and a PROSPERO registration at or past data extraction |
+| `/ce-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog; `--design rct\|observational\|descriptive` sets the comparison columns (SMD column for observational comparisons, no baseline p-values for randomized trials) |
+| `/ce-figure` | Create publication figures in R (ggplot2) or Python (matplotlib, Jupyter/Marimo) in a journal-neutral clinical figure style (calibration-in-the-large via an offset model, cumulative incidence under competing risks), and validate figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
 | `/ce-manuscript-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
 | `/ce-manuscript-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
 | `/ce-scientific-writing` | Draft, revise, or audit evidence-bound scientific manuscripts without imposing one journal's style |
@@ -326,30 +335,30 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/ce-scientific-anti-slop` | Detect and remove generic AI-writing tells from scientific and clinical manuscript prose |
 | `/ce-pre-submission-audit` | Run the combined voice, section-discipline, and anti-slop gate before manuscript handoff |
 | `/ce-review-pack` | Create PI-facing review packs and validate named signoff ledgers for manuscript, registry, sprint, and data-lock approvals |
-| `/ce-model-card` | Generate a Mitchell-style model card for a clinical prediction model, with overall + subgroup performance and ethical considerations |
+| `/ce-model-card` | Generate a Mitchell-style model card for a clinical prediction model, with overall + subgroup performance (CIs, event counts, validation type), equalized odds kept distinct from equal opportunity, and ethical considerations |
 
 ### EHR & Administrative Data
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; asks once whether the data environment and model endpoint are PHI/PII-compliant, keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; asks once whether the data environment and model endpoint are PHI/PII-compliant, keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off; IPTW examples use stabilized weights with balance checks |
 | `/ce-clif-project-template` | Initialize or audit a CLIF project against the official Project Template, with explicit version selection, site-local configuration, and aggregate-only final-output safeguards |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
-| `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
+| `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup, reweighting sensitivity and specificity for verification bias under algorithm-stratified sampling |
 
 ### Bioinformatics
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-bioinfo-qc` | Sequencing / omics data QA gate: FastQC / MultiQC / sample swap detection / batch-effect screen for FASTQ, BAM, count matrices, methylation arrays |
+| `/ce-bioinfo-qc` | Sequencing / omics data QA gate: FastQC / MultiQC / sample swap detection / batch-effect and batch-condition confound screen for FASTQ, BAM, count matrices, methylation arrays |
 | `/ce-genome-build` | Pin the genome build (GRCh37 / GRCh38 / T2T) and annotation version (GENCODE / Ensembl); audit every output for build consistency |
 
 ### ML / AI
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema |
-| `/ce-optimize` | Run metric-driven optimization with isolated experiment directories, recorded baselines, cross-validation awareness, and leakage guards |
+| `/ce-ml-experiment-track` | Wire up ML experiment tracking (mlflow / wandb / dvc / offline-YAML); generate boilerplate, configure backend, define required-log schema, and keep the test set out of model selection |
+| `/ce-optimize` | Run metric-driven optimization with isolated experiment directories, recorded baselines, cross-validation awareness, leakage guards, and a flag on selection-biased CV scores |
 
 ### Microsoft Fabric & Marimo
 
@@ -391,7 +400,7 @@ guardrails.
 | Skill | Description |
 |-------|-------------|
 | `ce-doc-review` | Review documents using parallel persona agents for role-specific feedback |
-| `/ce-sas-stata-assess` | Inventory SAS/Stata analysis files and model procedures for review or bounded migration without claiming first-class scaffolding support |
+| `/ce-sas-stata-assess` | Inventory SAS/Stata analysis files and model procedures for review or bounded migration without claiming first-class scaffolding support; flags cross-software default differences |
 
 ### Literature & Evidence
 
@@ -433,35 +442,35 @@ Agents are specialized subagents invoked by skills.
 
 | Agent | Description |
 |-------|-------------|
-| `ce-methods-reviewer` | Statistical test selection and assumption verification |
-| `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting |
+| `ce-methods-reviewer` | Statistical test selection and assumption verification, preferring model diagnostics over normality pre-tests |
+| `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting; co-primary endpoints that must all succeed need no alpha correction |
 | `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
-| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 40 guidelines — auto-routes by study type, layers AI extensions, writes append-only compliance report (opt-in) |
-| `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
+| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 40 guidelines — auto-routes by study type, resolves superseded and protocol-stage guidelines (TRIPOD 2015 -> TRIPOD+AI, SPIRIT 2025, PRISMA-P), layers AI extensions, writes append-only compliance report (opt-in) |
+| `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code, including estimand, missing-data, and inference-method drift; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
 | `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output after a one-time PHI/PII environment and endpoint confirmation |
-| `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file deps, format hints, branching drift, seed leaks |
+| `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file deps, format hints, branch-count drift, disabled automatic seeding, superseded launchers |
 | `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness — committed output, cache traps, params drift, bibliography paths, accessibility |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |
 | `ce-r-pipeline-reviewer` | R analysis pipeline correctness — dplyr logic errors, ggplot2 accessibility, survival analysis, mixed model convergence |
 | `ce-python-ds-reviewer` | Python DS quality — pandas, vectorization, sklearn, data leakage |
 | `ce-kieran-python-reviewer` | General Python code review with strict conventions |
-| `ce-causal-inference-reviewer` | Causal-inference correctness — DAG specification, confounder set, time-zero alignment, positivity, estimand, sensitivity analyses for IPTW / matching / MSM / g-computation / DR / IV / RDD / DiD / target-trial emulation |
+| `ce-causal-inference-reviewer` | Causal-inference correctness — DAG specification (including M-bias), confounder set, time-zero alignment, positivity, estimand, sensitivity analyses for IPTW / matching / MSM / g-computation / DR / IV / RDD / DiD (staggered-adoption diagnostics) / target-trial emulation |
 
 ### ML / AI Review
 
 | Agent | Description |
 |-------|-------------|
-| `ce-data-leakage-reviewer` | Target leakage, train-test contamination, look-ahead bias in time-series, normalization fit on test set, subject-in-both-splits |
-| `ce-fairness-reviewer` | Subgroup performance auditing (sex / race / age / hospital / payer / language) for clinical prediction models, against TRIPOD+AI and FDA AI/ML guidance |
-| `ce-calibration-reviewer` | Calibration plot, intercept and slope, Brier, ICI, decision-curve analysis, and censoring-aware time-dependent AUC for dynamic survival decisions -- catches the AUC-only TRIPOD+AI gap |
+| `ce-data-leakage-reviewer` | Target leakage, train-test contamination, look-ahead bias in time-series, normalization fit on test set, subject-in-both-splits; a random split is not leakage by itself |
+| `ce-fairness-reviewer` | Subgroup performance auditing (sex / race / age / hospital / payer / language) for clinical prediction models, against TRIPOD+AI and FDA AI/ML guidance; requires a justified fairness criterion |
+| `ce-calibration-reviewer` | Calibration hierarchy (calibration-in-the-large, slope, flexible calibration curve), Brier, ICI, decision-curve analysis, and censoring-aware time-dependent AUC for dynamic survival decisions -- catches the AUC-only TRIPOD+AI gap |
 
 ### EHR & Administrative Data Review
 
 | Agent | Description |
 |-------|-------------|
-| `ce-omop-mapping-reviewer` | OMOP CDM correctness -- vocabulary version pinning, valid_start/valid_end honoring, descendant inclusion, era vs occurrence, observation_period |
-| `ce-administrative-data-reviewer` | Claims-data idiosyncrasies -- continuous enrollment, look-back, claims truncation, payer mix, NDC-to-RxNorm, claims-vs-clinical disconnect |
+| `ce-omop-mapping-reviewer` | OMOP CDM correctness -- vocabulary version pinning, valid_start/valid_end honoring, descendant inclusion, standard vs source concepts, era vs occurrence, observation_period |
+| `ce-administrative-data-reviewer` | Claims-data idiosyncrasies -- baseline enrollment and look-back, disenrollment as censoring, claims truncation, payer mix, NDC-to-RxNorm, claims-vs-clinical disconnect |
 | `ce-concept-drift-reviewer` | Vocabulary drift across time -- ICD-9-to-10 transition, CPT yearly updates, SNOMED concept_id deprecation, vocab refresh drift |
 
 ### Bioinformatics Review
@@ -469,7 +478,7 @@ Agents are specialized subagents invoked by skills.
 | Agent | Description |
 |-------|-------------|
 | `ce-bioinfo-pipeline-reviewer` | Snakemake / Nextflow / CWL / Bioconductor pipelines -- env pinning, reference pinning, sample-sheet validation, output checksums, caching traps, version traceability |
-| `ce-omics-batch-reviewer` | Batch-condition confound detection in differential expression / methylation / proteomics; flags blind ComBat / RUV / SVA application |
+| `ce-omics-batch-reviewer` | Batch-condition confound detection in differential expression / methylation / proteomics; flags blind ComBat / RUV / SVA application, ComBat without the biological covariates in `mod`, and `removeBatchEffect` output used for inference |
 
 ### Workflow
 
