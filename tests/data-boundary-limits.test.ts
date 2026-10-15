@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test"
-import { mkdirSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { SCHEMA_ONLY, bash, expectAll, project } from "./data-boundary-harness"
+import { SCHEMA_ONLY, bash, expectAll, pluginRoot, project } from "./data-boundary-harness"
+
+const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
+function runSafe(cwd: string, ...cmd: string[]) {
+  const proc = Bun.spawnSync([safeRun, "--", ...cmd], { cwd })
+  return { code: proc.exitCode, out: proc.stdout.toString() + proc.stderr.toString() }
+}
 
 function withFile(root: string, rel: string, content: string) {
   mkdirSync(path.dirname(path.join(root, rel)), { recursive: true })
@@ -54,5 +60,24 @@ describe("limit 1a: agent-written scripts that read data (schema-only)", () => {
       "import pandas as pd, matplotlib.pyplot as plt\nt = pd.read_csv('output/table1.csv')\nt.plot.bar(x='group')\nplt.savefig('output/fig1.png')\n")
     withFile(root, "analysis/hello.R", "x <- c(1, 2, 3)\nprint(mean(x))\n")
     expectAll(root, "allow", [["Bash", bash("python3 analysis/plot.py")], ["Bash", bash("Rscript analysis/hello.R")]])
+  })
+})
+
+describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
+  test("runs the command, logs stdout and stderr locally, and prints only the exit code and log path", () => {
+    const root = withFile(project(SCHEMA_ONLY), "analysis/leak.py",
+      "import sys\nprint('Zed Testperson FAKE0001')\nprint('to stderr', file=sys.stderr)\nsys.exit(3)\n")
+    const { code, out } = runSafe(root, "python3", "analysis/leak.py")
+    expect(code).toBe(3)
+    expect(out).toContain("exit code: 3")
+    expect(out).not.toContain("Zed Testperson")
+    expect(out).not.toContain("FAKE0001")
+    const logs = readdirSync(path.join(root, ".ce-datascience", "runs"))
+    expect(logs).toHaveLength(1)
+    expect(logs[0]).toMatch(/^\d{8}T\d{6}Z-\d+\.log$/)
+    expect(out).toContain(`.ce-datascience/runs/${logs[0]}`)
+    const log = readFileSync(path.join(root, ".ce-datascience", "runs", logs[0]), "utf8")
+    expect(log).toContain("Zed Testperson FAKE0001")
+    expect(log).toContain("to stderr")
   })
 })

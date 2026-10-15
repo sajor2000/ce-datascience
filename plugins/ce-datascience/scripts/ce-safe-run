@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Run a command that may print data values, without showing its output.
+
+Usage: ce-safe-run -- <command> [args...]
+
+Full stdout and stderr go to .ce-datascience/runs/<UTC-timestamp>-<pid>.log in
+the project (gitignored). The terminal gets only the exit code, the duration,
+and the log path. Stdout is never printed. The exit code is the command's.
+"""
+
+import os
+import subprocess
+import sys
+import time
+
+
+def project_root(start):
+    probe = os.path.abspath(start)
+    while True:
+        if os.path.isdir(os.path.join(probe, ".ce-datascience")) or os.path.exists(os.path.join(probe, ".git")):
+            return probe
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            return os.path.abspath(start)
+        probe = parent
+
+
+def main(argv):
+    if "--" not in argv or argv.index("--") == len(argv) - 1:
+        print(__doc__.strip())
+        return 2
+    cmd = argv[argv.index("--") + 1:]
+    root = project_root(os.getcwd())
+    runs = os.path.join(root, ".ce-datascience", "runs")
+    os.makedirs(runs, exist_ok=True)
+    name = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + f"-{os.getpid()}.log"
+    log_path = os.path.join(runs, name)
+    start = time.monotonic()
+    try:
+        proc = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True)
+        code, out, err = proc.returncode, proc.stdout, proc.stderr
+    except OSError as exc:
+        code, out, err = 127, b"", f"ce-safe-run: could not start the command ({type(exc).__name__})\n".encode()
+    duration = time.monotonic() - start
+    fd = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(b"== command ==\n" + " ".join(cmd).encode() + b"\n== stdout ==\n" + out + b"\n== stderr ==\n" + err)
+    print(f"ce-safe-run: exit code: {code}, duration: {duration:.1f}s")
+    print(f"Full stdout and stderr (not shown): {os.path.relpath(log_path, root)}")
+    return code
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
