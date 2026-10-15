@@ -3,8 +3,11 @@
 # Wraps `meta::metagen` with conventions appropriate for clinical effect-size pooling:
 #   - Log-transform ratio metrics (HR / OR / RR), pool on log scale, exponentiate
 #   - REML for tau^2 (less biased than DerSimonian-Laird for small k)
-#   - Report point estimate + 95% CI + 95% prediction interval (PI is the bound a
-#     NEW study's effect would fall in; better suited for /ce-power sweeps than CI)
+#   - Hartung-Knapp-Sidik-Jonkman CI (t, k-1 df) when tau^2 > 0, Wald z when
+#     tau^2 = 0 (Cochrane Handbook v6.5, section 10.10.4.4)
+#   - 95% prediction interval on t with k-1 df (method.predict = "V"; Cochrane
+#     Handbook v6.5, section 10.10.4.3). Every method is pinned explicitly
+#     because meta's defaults changed across versions.
 #   - Forest plot saved as PNG
 #
 # Usage:
@@ -12,7 +15,7 @@
 #     --in analysis/effect-size/sepsis-bundle-parsed.csv \
 #     --metric HR \
 #     --out analysis/effect-size/sepsis-bundle-pooled.md \
-#     [--min-n 50]
+#     [--min-n 0]
 #
 # Input CSV must have at minimum: pmid, year, first_author, sample_size,
 # metric, effect (point), effect_lo, effect_hi. The ce-method-extract table
@@ -22,7 +25,8 @@
 # Filters applied here, each count printed: metric equals --metric exactly
 # (normalise aHR -> HR before calling); point and CI present and, for ratio
 # metrics, positive, with effect_lo <= effect <= effect_hi; sample_size >=
-# --min-n (default 50, the skill's working cutoff, not a literature value).
+# --min-n (default 0 = no size filter; inverse-variance weights already
+# down-weight small studies, so a size cutoff is a sensitivity analysis only).
 
 for (pkg in c("meta", "ggplot2")) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -59,7 +63,7 @@ if (length(missing) > 0) {
 dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
 
 # Step 2 filters, each count reported so the summary can state what was dropped.
-min_n    <- as.numeric(if (is.null(a$`min-n`)) 50 else a$`min-n`)
+min_n    <- as.numeric(if (is.null(a$`min-n`)) 0 else a$`min-n`)
 n_input  <- nrow(dat)
 is_ratio <- a$metric %in% c("HR", "OR", "RR", "aOR", "aHR", "aRR", "IRR", "SMR", "HRR")
 
@@ -76,8 +80,10 @@ ok_n <- !is.na(dat$sample_size) & dat$sample_size >= min_n
 n_small_drop <- sum(!ok_n)
 dat <- dat[ok_n, , drop = FALSE]
 
-cat(sprintf("Input rows: %d; dropped %d (metric != %s), %d (missing, non-positive, or inconsistent point/CI), %d (sample_size < %g); %d studies enter pooling.\n",
-            n_input, n_metric_drop, a$metric, n_ci_drop, n_small_drop, min_n, nrow(dat)))
+cat(sprintf("Input rows: %d; dropped %d (metric != %s), %d (missing, non-positive, or inconsistent point/CI), %s; %d studies enter pooling.\n",
+            n_input, n_metric_drop, a$metric, n_ci_drop,
+            if (min_n > 0) sprintf("%d (sample_size < %g)", n_small_drop, min_n) else "no size filter",
+            nrow(dat)))
 
 if (nrow(dat) < 3) {
   cat(sprintf("Only %d studies with metric=%s and complete CI; pooling not meaningful.\n",
@@ -91,7 +97,9 @@ if (nrow(dat) < 3) {
     )
   } else {
     pt_min <- min(dat$effect); pt_med <- median(dat$effect); pt_max <- max(dat$effect)
-    best   <- dat[order(-dat$sample_size, -dat$year)[1], ]
+    # Anchor: RCTs first when study_type is present, then largest N, then most recent.
+    is_rct <- if ("study_type" %in% names(dat)) grepl("rct|random", tolower(dat$study_type)) else rep(FALSE, nrow(dat))
+    best   <- dat[order(-is_rct, -dat$sample_size, -dat$year)[1], ]
     out_md <- c(
       sprintf("# Effect-size narrative (k = %d, %s)", nrow(dat), a$metric),
       sprintf("Range: %.2f to %.2f (median %.2f)", pt_min, pt_max, pt_med),
@@ -125,15 +133,30 @@ if (ratio_metric) {
   sm        <- a$metric  # MD or SMD
 }
 
-m <- meta::metagen(
-  TE       = dat$te,
-  seTE     = dat$se_te,
-  studlab  = paste0(dat$first_author, " ", dat$year, " (PMID ", dat$pmid, ")"),
-  sm       = sm,
-  title    = a$metric,
-  method.tau = "REML",
-  prediction = TRUE
-)
+fit_re <- function(ci_method) {
+  meta::metagen(
+    TE       = dat$te,
+    seTE     = dat$se_te,
+    studlab  = paste0(dat$first_author, " ", dat$year, " (PMID ", dat$pmid, ")"),
+    sm       = sm,
+    title    = a$metric,
+    common   = FALSE,
+    random   = TRUE,
+    method.tau       = "REML",
+    method.random.ci = ci_method,   # "HK" = Hartung-Knapp-Sidik-Jonkman, t with k-1 df
+    prediction       = TRUE,
+    method.predict   = "V"          # t with k-1 df (Veroniki 2019; Cochrane Handbook v6.5)
+  )
+}
+# Cochrane Handbook v6.5 section 10.10.4.4: HKSJ when tau^2 > 0 and k > 2; HKSJ
+# can be too narrow when tau^2 is estimated as 0, so use the Wald interval then.
+m <- fit_re("HK")
+ci_label <- "Hartung-Knapp-Sidik-Jonkman (t, k-1 df)"
+if (m$tau2 <= 0) {
+  m <- fit_re("classic")
+  ci_label <- "Wald z (tau^2 estimated as 0)"
+}
+meta_version <- as.character(utils::packageVersion("meta"))
 
 if (ratio_metric) {
   pooled <- exp(m$TE.random); ci_lo <- exp(m$lower.random); ci_hi <- exp(m$upper.random)
@@ -168,7 +191,9 @@ out_md <- c(
   sprintf("# Pooled effect-size: %s", a$metric),
   "",
   sprintf("Source: %s (k = %d studies after filtering)", a$`in`, nrow(dat)),
-  sprintf("Method: random-effects meta-analysis, REML for tau^2, prediction interval reported"),
+  sprintf("Method: random-effects meta-analysis (meta %s): REML tau^2; 95%% CI %s; 95%% PI t with k-1 df",
+          meta_version, ci_label),
+  if (min_n > 0) sprintf("Size filter: sample_size >= %g (sensitivity analysis; report the unfiltered estimate alongside)", min_n) else "Size filter: none",
   "",
   sprintf("Pooled %s = %.2f (95%% CI %.2f-%.2f; 95%% PI %s)",
           a$metric, pooled, ci_lo, ci_hi, pi_txt),

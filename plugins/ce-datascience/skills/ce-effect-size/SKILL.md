@@ -16,7 +16,7 @@ argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 - **Do not do:** Do not overstate causal interpretation or replace formal meta-analysis when one is required.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce-power` (which needs a single number to plug in). Without this skill, analysts pick the most favorable prior estimate and over-power; with it, they get a defensible pooled estimate with explicit uncertainty.
+Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce-power` (which needs a single number to plug in).
 
 ## When this skill activates
 
@@ -31,13 +31,9 @@ Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before the first literature lookup (PubMed and Paperclip MCP tool names, fallbacks, and evidence rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
-- **Look up here:** prior pooled estimates and their heterogeneity (published meta-analyses on the same question, found with `pubmed_search_articles` or `search_articles` and a `Meta-Analysis[Publication Type]` filter) to compare against the result here, and the paper behind any row whose effect or CI is ambiguous in the methods CSV (PMC full text via `pubmed_fetch_fulltext` or `get_full_text_article`, or Paperclip `cat`/`grep`).
+- **Look up here:** prior pooled estimates and their heterogeneity (published meta-analyses on the same question, found with `mcp__pubmed-mcp-server__pubmed_search_articles` (or the connector's `search_articles`) and a `Meta-Analysis[Publication Type]` filter) to compare against the result here, and the paper behind any row whose effect or CI is ambiguous in the methods CSV (PMC full text via `mcp__pubmed-mcp-server__pubmed_fetch_fulltext` or the connector's `get_full_text_article`, or `mcp__paperclip__cat`/`mcp__paperclip__grep`).
 
 ## Core workflow
 
@@ -49,13 +45,13 @@ If neither an explicit path nor the signal is present, ask the user to load the 
 
 ### Step 1: Load and parse
 
-Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns, normalise adjusted labels (`aHR` -> `HR`), and write `analysis/effect-size/<query>-parsed.csv` plus the parsing script next to it (the parsed-CSV contract is in that reference; `scripts/pool_effects.R` reads the parsed CSV, not the raw methods table). Drop rows where parsing fails; report count of dropped rows. Where a row's effect, CI, or metric is ambiguous and the paper is lawfully available, read the results section (see Evidence access) rather than guess, and note the row's `evidence_level` (`full_text` or `abstract`) in the included-studies CSV.
+Read the methods CSV. Parse the `effect_size_reported` field: extract metric type (OR/HR/RR/MD/SMD), point, lo, hi. Use `references/effect-parser.md` patterns, normalise adjusted labels (`aHR` -> `HR`) while keeping the `adjusted` flag (adjusted and unadjusted OR/HR are not interchangeable; see that reference), and write `analysis/effect-size/<query>-parsed.csv` plus the parsing script next to it (the parsed-CSV contract is in that reference; `scripts/pool_effects.R` reads the parsed CSV, not the raw methods table). Drop rows where parsing fails; report count of dropped rows. Where a row's effect, CI, or metric is ambiguous and the paper is lawfully available, read the results section (see Evidence access) rather than guess, and note the row's `evidence_level` (`full_text` or `abstract`) in the included-studies CSV.
 
 ### Step 2: Filter to comparable studies
 
 Filter:
 - `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
-- Sample size present and ≥ 50 (`--min-n`, default 50, applied by `scripts/pool_effects.R`, which prints every count it drops). This cutoff is a working assumption of this skill, not a literature-derived threshold; state it in the output and change it when the user or the question calls for a different one
+- No sample-size cutoff by default: inverse-variance weights already down-weight small studies. Pass `--min-n <n>` to `scripts/pool_effects.R` only as a sensitivity analysis, and then report the unfiltered estimate alongside it
 - Year within last `--years` window if passed
 - Optional: study type filter (e.g., RCTs only)
 
@@ -63,7 +59,7 @@ Report N studies in the meta-analysis vs N in the input.
 
 ### Step 3: Pool
 
-Run the bundled script on the parsed CSV from Step 1 (columns `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi`; it exits with a one-line message naming any missing column, so the raw methods table will not work). It applies the Step 2 metric, CI, and `--min-n` filters, prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, and the Step 6 signal:
+Run the bundled script on the parsed CSV from Step 1 (columns `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi`; it exits with a one-line message naming any missing column, so the raw methods table will not work). It applies the Step 2 metric and CI filters (plus `--min-n` when passed), prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, and the Step 6 signal:
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
@@ -73,15 +69,18 @@ Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-pa
 Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
 
 If N ≥ 3:
-- For OR / HR / RR: log-transform → random-effects REML (use R `meta::metagen` or Python `pymeta`-style direct computation)
+- For OR / HR / RR: log-transform → random-effects REML
 - For MD: random-effects REML on the raw scale
 - For SMD: Hedges g + REML
-- Report: pooled estimate, 95% CI, 95% prediction interval (PI), I^2 heterogeneity, tau^2
+- The script pins the CI method (Hartung-Knapp-Sidik-Jonkman when tau^2 > 0, Wald when tau^2 = 0) and the prediction interval (t, k-1 df) rather than trusting `meta` defaults; `references/pooling-formulas.md` explains each choice
+- Report: pooled estimate, 95% CI (with its method), 95% prediction interval (PI), I^2 heterogeneity, tau^2, and the `meta` version
 - If `meta` returns no finite PI bounds, say so and report the CI as the fallback sweep range
+- If both adjusted and unadjusted OR/HR rows are present, also pool each kind separately and report which one matches the planned trial's estimand
+- If R is unavailable, stop and report it rather than hand-coding REML; `statsmodels.stats.meta_analysis.combine_effects(..., method_re="iterated", use_t=True)` is acceptable only when labelled as Paule-Mandel
 
 If N < 3:
 - Report narrative range (min, median, max) -- DO NOT pool
-- Highlight the highest-quality study (largest N, most recent, RCT > observational) as the anchor
+- Highlight the anchor study the script picks: an RCT first when `study_type` is present, then the largest N, then the most recent
 - Caveat the user: "single-study or two-study power calc is fragile; consider running with sensitivity sweep"
 
 After pooling, compare the result with any published meta-analysis found under Evidence access (cite its PMID/DOI and the level read). State agreement or disagreement with its pooled estimate and I^2; a large divergence is a flag for the SAP, not a reason to replace the computed value.
@@ -94,12 +93,12 @@ After pooling, compare the result with any published meta-analysis found under E
 # Pooled effect-size: <metric> for <outcome> in <population>
 
 Source: 14 studies extracted via `ce-pubmed` and `ce-method-extract` on <date>
-Filtered to: <metric>, sample size >=50, last 10 years -> 9 studies pooled
+Filtered to: <metric>, complete CI, last 10 years -> 9 studies pooled
 
 ## Pooled estimate
 
-<metric> = 0.78 (95% CI 0.65-0.93; 95% PI 0.52-1.17)
-I^2 = 42% (moderate heterogeneity)
+<metric> = 0.78 (95% CI 0.65-0.93, Hartung-Knapp; 95% PI 0.52-1.17)
+I^2 = 42% (may represent moderate heterogeneity; read with tau and the PI)
 tau^2 = 0.04
 
 ## Prior pooled estimates
@@ -113,7 +112,10 @@ See `analysis/effect-size/<query>-pooled-forest.png`
 ## For `ce-power`
 
 Use point estimate 0.78 with sensitivity sweep across PI bounds (0.52 to 1.17).
-Power calc anchor: detect HR <= 0.78 with alpha=0.05, power=0.80.
+The pooled estimate is an upper bound on a realistic target (published effects are
+selected); choose the target difference as clinically important and realistic
+(DELTA2, Cook et al. BMJ 2018;363:k3750, PMID 30560792). For a two-proportion
+calculation, convert with a cited control risk (references/effect-parser.md).
 ```
 
 Also save a CSV: `analysis/effect-size/<query>-included.csv` (which studies, why included, their PMID/DOI, and `evidence_level`). `ce-power` reads this file for the PMIDs it cites in SAP-6, since the signal line carries numbers only.
