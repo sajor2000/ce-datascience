@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { SCHEMA_ONLY, bash, expectAll, pluginRoot, project, runGuard } from "./data-boundary-harness"
+import { SCHEMA_ONLY, bash, expectAll, git, pluginRoot, project, runGuard } from "./data-boundary-harness"
 
 const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
 function runSafe(cwd: string, ...cmd: string[]) {
@@ -124,5 +124,20 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
     for (const value of ["Testperson", "zed.t@example.com", "555-0142", "123-45-6789", "00123456"]) {
       expect({ value, leaked: out.includes(value) }).toEqual({ value, leaked: false })
     }
+  })
+
+  test("the run log directory is gitignored, and an existing ignore rule is not duplicated", () => {
+    const root = project(SCHEMA_ONLY, { git: "real" })
+    writeFileSync(path.join(root, ".gitignore"), "node_modules/\n")
+    runSafe(root, "true")
+    runSafe(root, "true")
+    const ignore = readFileSync(path.join(root, ".gitignore"), "utf8")
+    expect(ignore.split("\n").filter((l) => l === ".ce-datascience/runs/")).toHaveLength(1)
+    expect(ignore).toStartWith("node_modules/\n")
+    expect(Bun.spawnSync(["git", "check-ignore", "-q", ".ce-datascience/runs/x.log"], { cwd: root }).exitCode).toBe(0)
+    const covered = project(SCHEMA_ONLY, { git: "real" })
+    writeFileSync(path.join(covered, ".gitignore"), ".ce-datascience/\n")
+    runSafe(covered, "true")
+    expect(readFileSync(path.join(covered, ".gitignore"), "utf8")).toBe(".ce-datascience/\n")
   })
 })
