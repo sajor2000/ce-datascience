@@ -359,42 +359,40 @@ vitals_2021 <- ds |>
 
 ## 9b. Propensity score and causal inference patterns
 
-CLIF studies commonly use IPTW with stabilized weights for observational causal inference:
+Statistical recipes are starting points: route the design to `ce-model-strategy`, and confirm the installed WeightIt/cobalt/survival API before use (checked against WeightIt 1.x, which renamed `method = "ps"` to `"glm"`).
+
+CLIF studies commonly use IPTW for observational causal inference. Check balance and overlap before fitting the outcome model:
 
 ```r
 library(WeightIt)
-library(survey)
+library(cobalt)
 library(survival)
 
 # IPTW — exclude SOFA if its components are already covariates
 w <- weightit(
   treatment ~ age + sex + bmi + charlson + apache,
   data = cohort,
-  method = "ps",
-  estimand = "ATE"
+  method = "glm",
+  estimand = "ATE",
+  stabilize = TRUE           # stabilized weights; WeightIt's default is unstabilized
 )
+summary(w)                   # weight range and effective sample size
+bal.tab(w, stats = c("m", "v"), thresholds = c(m = 0.1))  # SMD after weighting (0.1 is a convention)
 
-# Stabilized weights reduce variance
-cohort$sw <- w$weights
-
-# Weighted outcome model
-design <- svydesign(ids = ~1, weights = ~sw, data = cohort)
-fit <- svyglm(outcome ~ treatment, design = design, family = binomial())
+# Weighted outcome model; M-estimation SEs account for estimating the propensity score
+fit <- glm_weightit(outcome ~ treatment, data = cohort, weightit = w, family = binomial())
 ```
 
-For competing risks (common in ICU — death competes with discharge):
+For competing risks (common in ICU — death competes with discharge). `cmprsk::crr()` has no weights argument, so it cannot fit an IPTW-weighted Fine-Gray model; use `survival::finegray()` with weighted `coxph()`:
 
 ```r
-library(cmprsk)
-library(survminer)
-
-# Fine-Gray model with IPTW weights
-fg <- crr(
-  ftime = cohort$time_to_event,
-  fstatus = cohort$event_type,  # 1=event, 2=competing, 0=censor
-  cov1 = model.matrix(~ treatment + age + sex, data = cohort)[, -1],
-  failcode = 1
-)
+cohort$ipw <- w$weights
+cohort$id  <- seq_len(nrow(cohort))
+# event_type: 0 = censored, 1 = event of interest, 2 = competing event
+fg_data <- finegray(Surv(time_to_event, factor(event_type, 0:2)) ~ ., data = cohort, etype = "1")
+fg <- coxph(Surv(fgstart, fgstop, fgstatus) ~ treatment, data = fg_data,
+            weights = fgwt * ipw, cluster = id)
+# The robust SE treats the weights as fixed; bootstrap the whole weighting + model for final inference.
 ```
 
 Variables with fewer than 2 unique values at a site should be excluded from propensity models dynamically:
@@ -426,39 +424,44 @@ pooled <- rbindlist(site_data)
 
 ### 10b. Random-effects meta-analysis
 
+Federated analyses usually pool fewer than 15 sites, where Wald-type random-effects CIs under-cover; use REML for tau^2 with Knapp-Hartung (HKSJ) intervals (IntHout et al., BMC Med Res Methodol 2014, PMID 24548571), and report the prediction interval.
+
 ```r
 library(metafor)
 library(meta)
 
-# Pool site-level estimates — REML is the consortium standard
-fit <- rma(yi = log_estimate, sei = se_estimate, method = "REML", data = pooled)
+# Pool site-level estimates — REML tau^2 with Knapp-Hartung (HKSJ) CIs
+fit <- rma(yi = log_estimate, sei = se_estimate, method = "REML", test = "knha", data = pooled)
+predict(fit, transf = exp)   # pooled OR with CI and 95% prediction interval
 
-# Forest plot
+# Forest plot with matching settings (same pooled estimate and CI as `fit`)
 forest_obj <- metagen(
   TE = log_estimate, seTE = se_estimate,
   studlab = site, data = pooled,
   sm = "OR", backtransf = TRUE,
-  common = FALSE, random = TRUE
+  common = FALSE, random = TRUE,
+  method.tau = "REML", method.random.ci = "HK", prediction = TRUE
 )
 forest(forest_obj)
 ```
 
-### 10c. Bayesian hierarchical complement
+### 10c. Bayesian meta-analysis of the same estimand
 
-Some CLIF studies run a Bayesian model alongside the frequentist meta-analysis for robustness:
+A Bayesian robustness check must pool the same site-level log effects as 10b, not event proportions:
 
 ```r
 library(brms)
 
 fit_bayes <- brm(
-  outcome | trials(n) ~ 1 + (1 | site),
+  log_estimate | se(se_estimate) ~ 1 + (1 | site),
   data = pooled,
-  family = binomial(),
-  prior = c(prior(normal(0, 2), class = Intercept),
-            prior(cauchy(0, 1), class = sd)),
+  prior = c(prior(normal(0, 1), class = Intercept),
+            prior(normal(0, 0.5), class = sd)),
   chains = 4, iter = 4000, warmup = 2000
 )
 ```
+
+Report sensitivity of the pooled effect and tau to the `sd` prior; with few sites the heterogeneity prior dominates.
 
 ### 10d. Figure conventions
 

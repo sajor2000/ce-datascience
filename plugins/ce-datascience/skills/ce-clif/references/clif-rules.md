@@ -118,7 +118,7 @@ To override: include `POC: @<github-handle> approved` (or `--poc-approved`) in t
 - Ship the analysis script via PR; each site runs it locally and returns aggregate results.
 - Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `renv.lock` (R) or `uv.lock` / `pyproject.toml` (Python) with project-controlled versions.
 - **Two aggregation patterns exist in the consortium:**
-  - **Meta-analytic pooling:** each site runs the full analysis and submits summary CSVs; a central aggregation script pools with `metafor::rma(method="REML")`.
+  - **Meta-analytic pooling:** each site runs the full analysis and submits summary CSVs; a central aggregation script pools with `metafor::rma(method = "REML", test = "knha")` (Knapp-Hartung CIs for few sites).
   - **Federated coefficient pooling:** for low-prevalence outcomes where site-level models fail — sites submit local model coefficients, a lead site pools them into global intercepts, sites apply the global model locally. Use when outcome is too rare for site-level propensity scoring.
 - Site output files follow `{SITE_ID}_{descriptor}.{ext}` naming. The site identifier is always the prefix.
 - Aggregation code lives in a separate repository from the analysis code — the split is enforced at the repo boundary.
