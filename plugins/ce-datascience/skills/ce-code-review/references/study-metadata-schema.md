@@ -143,7 +143,7 @@ Documents the statistical decision rules pre-specified in the SAP.
 statistical_rules:
   alpha: <significance threshold, e.g., 0.05>
   power: <target power, e.g., 0.80>
-  multiplicity_method: bonferroni | holm | hochberg | fdr | none
+  multiplicity_method: bonferroni | holm | hochberg | fdr | fixed-sequence | gatekeeping | graphical | dunnett | alpha-spending | co-primary | none
   one_sided_or_two: one | two
   notes: <free text>
 ```
