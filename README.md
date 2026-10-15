@@ -367,6 +367,36 @@ diagnostics, outputs, and decision evidence:
 /ce-statistical-analysis-plan
 ```
 
+### Statistical correctness
+
+The statistical methods behind the skills and reviewers were audited against
+primary sources. What that means in practice:
+
+- **Estimands first.** SAPs from `/ce-plan` and `/ce-statistical-analysis-plan`
+  state ICH E9(R1) estimands (population, treatment, endpoint, intercurrent
+  events, summary measure), and `ce-sap-drift-detector` flags estimand,
+  missing-data, and inference drift in code.
+- **Sample size and pooling.** `/ce-power` covers two-proportion,
+  non-inferiority (one-sided 0.025), survival, cluster, and Riley-criteria
+  `pmsampsize` designs. `/ce-effect-size` pools with REML, a Hartung-Knapp CI,
+  and a k-1 df prediction interval. `/ce-trial-design` computes type I error
+  under non-binding futility without the futility bound.
+- **Tables and registration.** `/ce-table1 --design rct|observational|descriptive`
+  adds an SMD column for observational comparisons and never shows baseline
+  p-values for randomized trials. `/ce-prereg` blocks a draft SAP, unblinded
+  data, and late PROSPERO registration.
+- **Reporting routes.** All prediction models route to TRIPOD+AI (TRIPOD 2015
+  is superseded), target trial emulation to the standalone 21-item TARGET
+  checklist, and protocols to SPIRIT 2025 or PRISMA-P.
+- **Reviewers.** Calibration, causal-inference, multiplicity, fairness,
+  data-leakage, and methods reviewers follow current guidance (for example,
+  the calibration hierarchy, M-bias, co-primary endpoints needing no alpha
+  correction, and random splits not being leakage by themselves).
+- **Data and validation.** `/ce-phenotype-validate` reweights sensitivity and
+  specificity for verification bias under algorithm-stratified chart review;
+  `/ce-data-qa` drops mean imputation and LOCF advice; `/ce-pubmed` keeps
+  unindexed and non-English records by default.
+
 ### Prepare a manuscript for handoff
 
 ```text
@@ -593,7 +623,7 @@ bun run package:corporate
 |---|---|
 | Skills | 65 |
 | Agents | 55 |
-| Reporting checklists | 35 |
+| Reporting checklists | 40 |
 
 [See every skill and agent](plugins/ce-datascience/README.md)
 
