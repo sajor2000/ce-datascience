@@ -54,7 +54,7 @@ Do not use a zero tolerance to imply mathematical equality for simulated estimat
 | `engine_version` | Matches the pinned package version exactly |
 | `analyses` | Positive integer number of planned analyses |
 | `achieved_power` | Engine-derived probability in `[0, 1]` |
-| `type1_error` | Engine-derived probability in `[0, 1]` on the declared overall-alpha scale |
+| `type1_error` | Engine-derived overall probability of crossing any efficacy bound under the null, on the declared overall-alpha scale. When futility is non-binding, compute it with the futility bounds ignored; when binding, with futility applied, and record which in `engine_arguments` (see `references/engine-adapters.md` for the accessor) |
 | `max_information` | Positive engine-derived maximum information, events, or sample size on one declared unit |
 | `expected_information_null` | Positive engine-derived expectation under the null on the same unit |
 | `expected_information_alt` | Positive engine-derived expectation under the scenario alternative on the same unit |
@@ -63,7 +63,7 @@ Do not use a zero tolerance to imply mathematical equality for simulated estimat
 
 The design spec must name the information unit (`participants`, `events`, or a documented information scale). Never compare candidates whose columns use different units.
 
-Do not substitute nominal alpha, requested power, maximum sample size, or hand-calculated averages for the engine-derived values. Preserve extra engine diagnostics in separate files because the normalized table is intentionally narrow.
+Do not substitute nominal alpha, requested power, maximum sample size, or hand-calculated averages for the engine-derived values. Read `achieved_power` from the engine's power function at the rounded integer sample size or event count actually planned. Preserve extra engine diagnostics in separate files because the normalized table is intentionally narrow.
 
 ## Feasibility and Pareto rule
 
@@ -77,6 +77,10 @@ type1_error <= target.alpha + target.type1_error_tolerance
 For a simulated run, the supported `conservative_bounds` decision rule replaces the two point estimates in that comparison with `power_lower_bound` and `type1_error_upper_bound`. Missing bounds fail closed. Exact runs retain the point-estimate rule and require both bound cells to be empty.
 
 Within each scenario, a feasible row is Pareto-efficient when no other feasible row is no worse on all three information objectives and strictly better on at least one. The script does not combine scenarios, weight objectives, rank clinical desirability, or choose a winner.
+
+## Robustness across scenarios
+
+When each scenario re-solves for N, `achieved_power >= target.power` holds by construction and says nothing about robustness. To show what a design sized under one scenario delivers under another, declare an extra candidate in the other scenario whose `engine_arguments` fix the maximum sample size or events (for example `maxNumberOfSubjects` from the base row) and evaluate it with the engine's power function (`getPower*()` or `gsProbability()`). Such a row may legitimately be infeasible; keep it.
 
 ## Required retained artifacts
 

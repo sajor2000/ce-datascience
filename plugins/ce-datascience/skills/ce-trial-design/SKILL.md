@@ -21,23 +21,21 @@ This skill owns the auditable workflow around the calculation. `rpact` or `gsDes
 
 Proceed only for a two-arm group-sequential superiority design with a prespecified endpoint and estimand. The external engine may analyze continuous, binary, or time-to-event endpoints only when its documented function supports the requested assumptions.
 
-Stop and name the unsupported scope for platform/multi-arm trials, response-adaptive randomization, enrichment, seamless phase transitions, Bayesian decision rules, sample-size re-estimation, custom combination tests, or unblinded operational execution. Do not silently reduce those requests to a simpler design.
+Stop and name the unsupported scope for platform/multi-arm trials, response-adaptive randomization, enrichment, seamless phase transitions, Bayesian decision rules, sample-size re-estimation, custom combination tests, or unblinded operational execution. Do not silently reduce those requests to a simpler design. For Bayesian decision rules, also state that FDA's January 2026 draft guidance *Use of Bayesian Methodology in Clinical Trials of Drug and Biological Products* expects simulated operating characteristics, and stop.
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before the first literature lookup (PubMed and Paperclip MCP tool names, fallbacks, and evidence rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** prior trials of the comparator, control-arm event rates or standard deviations, and the MCID or alternative-effect source behind each scenario; write the PMID/DOI and the level read into the scenario's `provenance` field, or leave the scenario in `unresolved` rather than assuming a rate.
 
 ## Workflow
 
 ### 1. Establish the design contract
 
-Read `references/design-contract.md` in full. Resolve evidence from the protocol, SAP, `ce-effect-size`, and `ce-power`, then from the Evidence access tools for any scenario assumption still missing, before asking the user. Write `analysis/trial-design/<design-id>/design-spec.json` from `references/design-spec.example.json` and preserve the endpoint, estimand, effect scale, scenarios, decision rules, and review owner.
+Read `references/design-contract.md` in full. Resolve evidence from the protocol, SAP, `ce-effect-size`, and `ce-power`, then from the Evidence access tools for any scenario assumption still missing, before asking the user. Write `analysis/trial-design/<design-id>/design-spec.json` from `references/design-spec.example.json` (read it now) and preserve the endpoint, estimand, effect scale, scenarios, decision rules, and review owner.
+
+When every scenario re-solves for N, meeting the power target is automatic. Add the robustness candidates described in `references/design-contract.md` (N fixed from the base scenario, power evaluated under each other scenario) unless the user declines.
 
 Completion evidence: every required contract field is explicit, scenario IDs are unique, and unresolved assumptions are marked as unresolved rather than guessed.
 
@@ -51,9 +49,9 @@ Completion evidence: the engine script contains a fail-closed version assertion 
 
 ### 3. Run the external engine
 
-Author a project-local R script at `analysis/trial-design/<design-id>/engine-run.R`. Use only documented engine functions named in `references/engine-adapters.md`. Run every declared scenario and candidate through the same pinned engine and write one normalized row per result to `engine-results.csv` using the exact column contract in `references/design-contract.md`.
+Author a project-local R script at `analysis/trial-design/<design-id>/engine-run.R`, starting from `references/engine-run.example.R` (rpact, continuous endpoint) and adapting it for the endpoint. Use only documented engine functions named in `references/engine-adapters.md`. Run every declared scenario and candidate through the same pinned engine and write one normalized row per result to `engine-results.csv` using the exact column contract in `references/design-contract.md`.
 
-Values for achieved power, type I error, maximum information, and expected information must be read from engine results. Never reconstruct, approximate, or back-fill them in CE code. If the engine does not provide a required value for the chosen design, stop and report the missing operating characteristic.
+Values for achieved power, type I error, maximum information, and expected information must be read from engine results, using the accessors in `references/engine-adapters.md`. With non-binding futility, type I error is computed ignoring the futility bound; the null-scenario rejection probability with futility applied understates it. Never reconstruct, approximate, or back-fill them in CE code. If the engine does not provide a required value for the chosen design, stop and report the missing operating characteristic.
 
 Capture stdout/stderr in `engine-run.log`, save `sessionInfo()` output, and have the same R process write `runtime-provenance.json` using the contract in `references/engine-adapters.md`. If simulation is used, record the algorithm, iteration count, seed, Monte Carlo uncertainty, and failure count. Do not treat a simulated point estimate as proof that an error-rate constraint is satisfied when its Monte Carlo interval crosses the declared limit.
 
@@ -83,7 +81,7 @@ Completion evidence: `evaluated-results.csv`, `frontier.csv`, `receipt.json`, an
 
 Present the full feasible frontier. Do not select one candidate unless the user supplies the clinical, operational, and statistical preference rule. Require a named qualified statistician to review the exact spec, engine script, operating characteristics, stopping rules, multiplicity/error control, and SAP language.
 
-The SAP handoff must preserve endpoint and estimand, sidedness, alpha, target power, information times, efficacy/futility rules and binding status, engine/version, scenario assumptions, simulation controls when used, selected candidate rationale, and review status. Route adaptive-trial reporting checks to the existing CONSORT Adaptive coverage during review.
+The SAP handoff must preserve endpoint and estimand, sidedness, alpha, target power, information times, efficacy/futility rules and binding status, engine/version, scenario assumptions, simulation controls when used, selected candidate rationale, and review status. Check reporting against CONSORT 2025 (Hopewell et al., BMJ 2025;389:e081123, PMID 40228833) plus the ACE adaptive extension (Dimairo et al., BMJ 2020;369:m115, PMID 32554564; built on CONSORT 2010, so map its items to the 2025 numbering), and the protocol against SPIRIT 2025 (Chan et al., BMJ 2025;389:e081477, PMID 40294953). Cite FDA *Adaptive Designs for Clinical Trials of Drugs and Biologics* (final, November 2019) and ICH E9(R1) for the estimand as regulatory context; cite ICH E20 (adaptive designs) only after confirming its current Step on ich.org, and label it a draft until it reaches Step 4.
 
 Completion evidence: the handoff distinguishes engine-derived quantities, CE-derived feasibility/frontier labels, unresolved clinical or operational choices, and the named human review gate.
 
@@ -105,8 +103,14 @@ Use aggregate design assumptions and operating characteristics. Do not place pat
 
 @./references/design-contract.md
 
-`references/engine-adapters.md`
+`references/engine-adapters.md` (read in Step 2 before writing `engine-run.R`)
 
-@./references/design-spec.example.json
+`references/engine-run.example.R` (starting point for Step 3)
+
+`references/design-spec.example.json` (template for Step 1)
+
+`references/evidence-access.md`
+
+Example normalized output, generated by `references/engine-run.example.R` with rpact 4.4.0 from the example spec (an illustration of the format, never a magnitude anchor for another design):
 
 @./references/engine-results.example.csv

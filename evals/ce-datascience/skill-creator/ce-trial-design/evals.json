@@ -12,7 +12,8 @@
         "engine-run.R contains a fail-closed assertion that packageVersion('rpact') exactly matches the pinned version and logs R/package versions",
         "Operating characteristics (power, type I error, max/expected information) are read from rpact output, not recomputed in CE code",
         "Runs scripts/build_frontier.py producing evaluated-results.csv, frontier.csv, receipt.json, and sap-handoff.md",
-        "Does not select a single design without a user-supplied preference rule and emits __CE_TRIAL_DESIGN__ with status review-pending when no named statistician review is recorded"
+        "Does not select a single design without a user-supplied preference rule and emits __CE_TRIAL_DESIGN__ with status review-pending when no named statistician review is recorded",
+        "For non-binding futility candidates, type1_error is the engine's efficacy-boundary alpha computed ignoring the futility bound (e.g. rpact design$alphaSpent[kMax]), not the null rejection probability with futility applied"
       ]
     },
     {

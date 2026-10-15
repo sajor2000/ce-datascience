@@ -1,5 +1,12 @@
 # External-engine adapter guidance
 
+## Contents
+
+- rpact (functions, version assertion, accessor table)
+- gsDesign (functions, version assertion, non-binding type I error)
+- Adapter failure rules
+- Runtime provenance contract
+
 Use the current official documentation for the selected engine. Record the documentation URL and access date in the project-local engine script or README.
 
 ## rpact
@@ -25,7 +32,17 @@ if (!identical(observed_version, expected_version)) {
 }
 ```
 
-Map operating characteristics from the returned rpact object. Do not infer field meanings from column position or console formatting. Confirm each accessor against the official documentation for the pinned version.
+Map operating characteristics from the returned rpact object. Do not infer field meanings from column position or console formatting. Confirm each accessor against the official documentation for the pinned version. Accessors verified against rpact 4.4.0:
+
+| Normalized column | rpact accessor |
+|---|---|
+| `type1_error` | `design$alphaSpent[design$kMax]` (the efficacy boundaries' total alpha; computed ignoring futility when `bindingFutility = FALSE`) |
+| `achieved_power` | `getPower*(design, ..., maxNumberOfSubjects = <rounded N>)$overallReject` at the integer N actually planned, not the sample-size object's nominal power |
+| `max_information` | `getSampleSize*()$maxNumberOfSubjects` (or `$maxNumberOfEvents`) rounded up to whole subjects for the allocation |
+| `expected_information_alt` | `getPower*(...)$expectedNumberOfSubjects` at the alternative and the rounded N |
+| `expected_information_null` | `getPower*(...)$expectedNumberOfSubjects` with the alternative set to the null value, at the rounded N |
+
+Do not use `getPower*(..., alternative = <null>)$overallReject` as the type I error when futility is non-binding: it applies the futility bound and understates alpha (0.0228 instead of 0.025 for the example's O'Brien-Fleming-type design). `references/engine-run.example.R` implements this table for a continuous endpoint and generated `references/engine-results.example.csv`.
 
 ## gsDesign
 
@@ -55,6 +72,14 @@ if (!identical(observed_version, expected_version)) {
 
 Use documented crossing probabilities and expected sample-size/information output. Do not derive type I error from printed boundary values or relabel a fixed-design input as an achieved group-sequential operating characteristic.
 
+Type I error under non-binding futility (`test.type = 4` or `6`) is computed IGNORING the futility bound (verified against gsDesign 3.11.0):
+
+- `sum(gsProbability(k = x$k, theta = 0, n.I = x$n.I, a = rep(-20, x$k), b = x$upper$bound)$upper$prob)`; `sum(x$falseposnb)` gives the same value
+- do not use `sum(x$upper$prob[, 1])`, which includes the futility bound and understates alpha (0.0228 vs 0.025 for a 3-look Lan-DeMets O'Brien-Fleming design)
+- expected sample size or events: `x$en` (one value per `x$theta`, null first); power at the planned N: `sum(x$upper$prob[, 2])` from the same object or `gsProbability()` at the rounded N
+
+For binding futility (`test.type = 3` or `5`), the crossing probability with the futility bound applied is correct, and the SAP must state that futility is binding.
+
 ## Adapter failure rules
 
 Stop rather than normalize when:
@@ -78,7 +103,7 @@ The same R process that reads `design-spec.json` and writes `engine-results.csv`
 {
   "schema_version": 1,
   "engine": "rpact",
-  "engine_version": "4.3.0",
+  "engine_version": "4.4.0",
   "r_version": "R version 4.x.y",
   "completed": true,
   "spec_md5": "32 lowercase hexadecimal characters",
