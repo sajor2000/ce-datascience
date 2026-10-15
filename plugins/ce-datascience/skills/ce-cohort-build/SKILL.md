@@ -38,7 +38,7 @@ Walks the user through defining a research cohort with vocabulary-pinned concept
 Before eliciting cohort criteria, scan the most recent ~50 chat turns for `__CE_RESEARCH_QUESTION__ yaml=<path>`. If found, read the YAML and use it as the seed:
 
 - `pico.population` → starting point for inclusion criteria (the user can refine, but the population is already framed)
-- `pico.intervention_or_exposure` → starting point for the index event / exposure concept set
+- `pico.intervention` (or `pico.exposure` for observational templates) → starting point for the index event / exposure concept set
 - `pico.comparator` → seed for the comparator concept set when comparator is non-null
 - `pico.outcome` → seed for the outcome concept set used in follow-up
 - `suggested_design` → if it starts with "target trial", surface the target_trial.* slots as additional inputs
@@ -63,21 +63,18 @@ Ask the user (or parse from `args`):
 
 1. **Name and purpose** -- one sentence, becomes `cohort_name` and `cohort_purpose`
 2. **Vocabulary** -- omop / icd10 / icd9 / cpt / loinc / snomed / mixed
-3. **Vocabulary version** -- "OMOP v5.4 vocab 2024-Q1", "ICD-10-CM 2024", "SNOMED CT 2024-03-01". This MUST be pinned; vocabulary drift is the #1 cause of irreproducible cohorts
+3. **Vocabulary version** -- "OMOP v5.4 vocab 2024-Q1", "ICD-10-CM 2024", "SNOMED CT 2024-03-01". This MUST be pinned; vocabulary drift is a common cause of irreproducible cohorts
 4. **Index event** -- the moment time-zero is defined (first diagnosis date, first prescription date, hospital admission, randomization)
 5. **Inclusion criteria** -- positive criteria (must have)
 6. **Exclusion criteria** -- negative criteria (must not have); each with a window (e.g., "no statin in prior 365 days")
 7. **Eligibility window** -- continuous enrollment / observation window (e.g., 180 days prior, 365 days follow-up)
 8. **Wash-out / look-back** -- explicit prior-period requirements
+9. **Comparator** -- for a comparative claim, an active comparator of new users of an alternative with the same wash-out and enrollment rules, or sequential trial emulation for initiators versus non-initiators (Lund, Richardson & Stürmer, Curr Epidemiol Rep 2015, PMID 26954351); `none` only for descriptive cohorts
 
 ### Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before any literature lookup (PubMed and Paperclip MCP tools, fallbacks, and rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** validated code sets and phenotype algorithms for each criterion (PheKB, eMERGE, OHDSI/OMOP phenotype studies) with their reported PPV and sensitivity, cited by PMID; a concept set without a read, published precedent is `project-defined` and the spec must say so.
 
 ### Step 2: Build concept sets
@@ -111,14 +108,15 @@ Save the SQL to `analysis/cohort/sql/<cohort-name>.sql` with comments referencin
 Run the SQL (or print it for the analyst to run) and capture the cascade:
 
 ```
-Persons in source                        : N0
-  + meets inclusion criterion 1           : N1 (lost N0 - N1)
-  + meets inclusion criterion 2           : N2 (lost N1 - N2)
-  - excludes exclusion criterion 1        : N3 (lost N2 - N3)
-  - excludes exclusion criterion 2        : N4 (lost N3 - N4)
-  + has continuous enrollment             : N5 (lost N4 - N5)
-  + has index event in study window       : N6 (final cohort)
+Persons in source                            : N0
+  + has qualifying index event in window      : N1 (lost N0 - N1)
+  + meets inclusion criteria at index         : N2 (lost N1 - N2)
+  + continuous observation before index       : N3 (lost N2 - N3)
+  - exclusion criterion 1 (window rel. index) : N4 (lost N3 - N4)
+  - exclusion criterion 2                     : N5 (final cohort)
 ```
+
+Assign the index date first: look-back exclusions and enrollment are defined relative to it. Each count is cumulative (persons remaining after every earlier step). All eligibility criteria must be assessable at time zero; never require post-index information such as a second fill or minimum follow-up.
 
 Save as `analysis/cohort/<cohort-name>-waterfall.md` and `analysis/cohort/<cohort-name>-waterfall.csv`. This is the CONSORT-style figure for the manuscript.
 
@@ -144,6 +142,10 @@ inclusion:
 exclusion:
   - { concept_set: T1DM, window: any }
   - { concept_set: statin_use, window: prior_365_days }
+comparator:
+  design: active_comparator_new_user   # or: sequential_trial_emulation / none (descriptive)
+  concept_set: <comparator_initiation>
+  same_washout_and_enrollment_rules: true
 follow_up:
   start: index_date
   end: index_date + 365 days OR earliest_of(death, lost_to_followup, study_end)
@@ -152,7 +154,7 @@ final_n: <from waterfall>
 
 ### Step 6: Compound learning hook
 
-If the cohort waterfall loses > 50% at any single step, suggest `ce-compound` to capture the dropout pattern -- this is where cohort definitions go wrong silently.
+If the cohort waterfall loses more than half the remaining persons at any single step (a heuristic; use the project's threshold if it sets one), suggest `ce-compound` to capture the dropout pattern -- this is where cohort definitions go wrong silently.
 
 ## What this skill does NOT do
 

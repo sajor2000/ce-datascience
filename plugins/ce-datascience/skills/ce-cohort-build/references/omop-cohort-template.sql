@@ -37,5 +37,7 @@ FROM continuous_enroll ce
 WHERE ce.person_id NOT IN (SELECT person_id FROM exclusions)
 ORDER BY ce.person_id;
 
--- Waterfall capture: run each CTE alone with COUNT(DISTINCT person_id)
+-- Waterfall capture: count persons remaining after each successive filter
+-- (cumulative), not each CTE in isolation; the exclusions CTE alone counts
+-- people excluded, not people remaining. Use COUNT(DISTINCT person_id)
 -- and write the result to analysis/cohort/<cohort>-waterfall.csv
