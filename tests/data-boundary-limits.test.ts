@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { APPROVED, SCHEMA_ONLY, bash, expectAll, guard, pluginRoot, project, runGuard, verdicts } from "./data-boundary-harness"
+import { APPROVED, SCHEMA_ONLY, bash, expectAll, guard, helper, pluginRoot, project, runGuard, verdicts } from "./data-boundary-harness"
 
 const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
 const indexer = path.join(pluginRoot, "scripts", "ce-identifier-index")
@@ -273,6 +273,38 @@ describe("limit 3: NCBI E-utilities calls from Bash get the MCP checks (every mo
         ["Bash", bash(`curl -s 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=31978945,32109013'`)],
         ["Bash", bash(`uv run --with biopython python3 ${pubmedScript} "sepsis bundle compliance ICU" --years 10 --out analysis/pubmed/s.csv`)],
       ])
+    }
+  })
+})
+
+describe("limit 4: schema-peek masks headers that are themselves identifiers", () => {
+  test("a header in the identifier index or shaped like an identifier prints as col_<k> [masked header]", () => {
+    const root = project(SCHEMA_ONLY)
+    expect(buildIndex(root).code).toBe(0)
+    const rows = Array.from({ length: 12 }, (_, i) => `R${i},${i % 3},${i % 2},${i % 4},${40 + i}`).join("\n")
+    withFile(root, "data/wide.csv", `record_id,Zed Testperson,zed.t@example.com,MRN 00123456,age\n${rows}\n`)
+    const proc = Bun.spawnSync(["python3", helper, "data/wide.csv"], { cwd: root })
+    const out = proc.stdout.toString()
+    expect(out).toContain("| record_id |")
+    expect(out).toContain("| age |")
+    expect(out).toContain("| col_2 [masked header] |")
+    expect(out).toContain("| col_3 [masked header] |")
+    expect(out).toContain("| col_4 [masked header] |")
+    for (const value of ["Zed", "Testperson", "zed.t@example.com", "00123456"]) expect({ value, leaked: out.includes(value) }).toEqual({ value, leaked: false })
+  })
+})
+
+describe("one definition of identifier normalization and hashing", () => {
+  const block = (file: string) => {
+    const text = readFileSync(file, "utf8")
+    const match = text.match(/# --- identifier index: [\s\S]*?# --- end identifier index ---/)
+    if (!match) throw new Error(`no shared identifier block in ${file}`)
+    return match[0]
+  }
+  test("the hook, the indexer, and every schema-peek copy share the block byte for byte", () => {
+    const canonical = block(guard)
+    for (const file of [indexer, helper, ...["ce-setup", "ce-work"].map((s) => path.join(pluginRoot, "skills", s, "scripts", "schema-peek.py"))]) {
+      expect({ file, same: block(file) === canonical }).toEqual({ file, same: true })
     }
   })
 })

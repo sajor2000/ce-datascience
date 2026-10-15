@@ -99,7 +99,23 @@ RUN_WRAPPERS = {"uv": "run", "poetry": "run", "pipenv": "run", "pixi": "run", "c
 SEPARATORS = {";", "&", "&&", "||", "|", "|&", "(", ")", ";;"}
 REDIRECTS = {"<", ">", ">>", "<>", ">|", "&>", "&>>", ">&", "<&"}
 
-# Egress: identifier patterns for MCP arguments. Keyword-anchored where digits alone are ambiguous.
+DOI_OR_PMC = re.compile(r"\b10\.\d{4,9}/\S+|\bPMC\d+\b", re.IGNORECASE)
+EXEMPT_KEYS = {"pmid", "pmids", "pmcid", "pmcids", "doi", "dois", "id", "ids", "upload_id"}
+RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
+UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
+UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
+                "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
+NCBI_HOST = "eutils.ncbi.nlm.nih.gov"
+PUBMED_SCRIPT = "pubmed_search.py"
+FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
+
+
+# --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
+import hashlib  # noqa: E402
+import unicodedata  # noqa: E402
+
+HASH_WIDTH = 16
+# Identifier shapes. Keyword-anchored where digits alone are ambiguous.
 IDENTIFIER_PATTERNS = (
     ("an SSN", re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")),
     ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
@@ -112,22 +128,6 @@ IDENTIFIER_PATTERNS = (
         r"\b(?:dob|d\.o\.b\.?|date[\s_-]*of[\s_-]*birth|birth[\s_-]*date)\b[\s:=#-]{0,4}"
         r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
 )
-DOI_OR_PMC = re.compile(r"\b10\.\d{4,9}/\S+|\bPMC\d+\b", re.IGNORECASE)
-EXEMPT_KEYS = {"pmid", "pmids", "pmcid", "pmcids", "doi", "dois", "id", "ids", "upload_id"}
-RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
-UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
-UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
-                "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
-NCBI_HOST = "eutils.ncbi.nlm.nih.gov"
-PUBMED_SCRIPT = "pubmed_search.py"
-FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
-
-
-# --- identifier index: normalize and hash (keep identical across plugin scripts; tested) ---
-import hashlib
-import unicodedata
-
-HASH_WIDTH = 16
 
 
 def id_tokens(text):
@@ -138,24 +138,16 @@ def id_tokens(text):
 
 def id_hash(salt, entry):
     return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
-# --- end identifier index ---
-
-INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
 
 
-def load_index(mode):
-    """The project's identifier index (salt, width, sorted hash blob), loaded once and only when needed."""
-    if "_index" not in mode:
-        mode["_index"] = None
-        for path in mode.get("index_paths", []):
-            try:
-                with open(path, encoding="utf-8") as fh:
-                    data = json.load(fh)
-                mode["_index"] = (data["salt"], int(data["width"]), data["hashes"])
-                break
-            except (OSError, ValueError, KeyError, TypeError):
-                continue
-    return mode["_index"]
+def read_index(path):
+    """(salt, width, sorted hash blob) from an index file, or None."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data["salt"], int(data["width"]), data["hashes"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
 
 
 def _indexed(index, entry):
@@ -185,6 +177,16 @@ def index_hit(text, index):
                 continue
             grams.add(" ".join(gram))
     return any(_indexed(index, gram) for gram in grams)
+# --- end identifier index ---
+
+INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
+
+
+def load_index(mode):
+    """The project's identifier index, loaded once and only for calls that need it."""
+    if "_index" not in mode:
+        mode["_index"] = next((i for i in map(read_index, mode.get("index_paths", [])) if i), None)
+    return mode["_index"]
 
 
 class ConfigError(Exception):

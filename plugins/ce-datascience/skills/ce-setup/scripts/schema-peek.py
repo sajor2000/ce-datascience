@@ -9,9 +9,11 @@ distinct value. Small cells are suppressed: a row count under 11 shows as
 "<11", and when a column's non-null or missing count is under 11 neither exact
 count is shown, so one cannot be recovered from the other by subtraction.
 
-If the first row looks like data (numbers, dates, ID-like or identifier-like
-values, duplicate names, or a value repeated in its own column), headings are
-printed as col_1..col_n with the reason.
+If the first row looks like data (numbers, dates, ID-like values, duplicate
+names, or a value repeated in its own column), headings are printed as
+col_1..col_n with the reason. A single heading that is itself an identifier
+(SSN, email, phone, MRN/ID, or date-of-birth shape, or a value in the
+project's identifier index) is printed as col_<k> [masked header].
 
 Supports CSV/TSV/PSV (optionally .gz) with the standard library; Parquet,
 Feather, and Arrow via pyarrow; and the XLSX header row via openpyxl. Plain
@@ -20,6 +22,7 @@ text and other types are refused. Errors print only the exception type.
 
 import csv
 import gzip
+import json
 import os
 import re
 import sys
@@ -32,6 +35,76 @@ DATA_EXTS = (
     "pickle", "npy", "npz", "h5", "hdf5", "sqlite", "sqlite3", "db", "duckdb",
     "jsonl", "ndjson",
 )
+# --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
+import hashlib  # noqa: E402
+import unicodedata  # noqa: E402
+
+HASH_WIDTH = 16
+# Identifier shapes. Keyword-anchored where digits alone are ambiguous.
+IDENTIFIER_PATTERNS = (
+    ("an SSN", re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")),
+    ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
+    ("a phone number", re.compile(r"(?<![\d/.])(?:\+?1[-. ]?)?(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?![\d/])")),
+    ("a record identifier", re.compile(
+        r"\b(?:mrn|medical[\s_-]*record(?:[\s_-]*(?:number|num|no|#))?|patient[\s_-]*(?:id|identifier|number|no)|"
+        r"member[\s_-]*(?:id|number|no)|subscriber[\s_-]*id|claim[\s_-]*(?:number|num|no|id|#)|encounter[\s_-]*id)"
+        r"[\s:=#._-]{0,4}[A-Za-z]{0,6}\d{4,}", re.IGNORECASE)),
+    ("a date of birth", re.compile(
+        r"\b(?:dob|d\.o\.b\.?|date[\s_-]*of[\s_-]*birth|birth[\s_-]*date)\b[\s:=#-]{0,4}"
+        r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
+)
+
+
+def id_tokens(text):
+    """Lowercase, fold accents, and split into alphanumeric tokens."""
+    folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return re.findall(r"[^\W_]+", folded.lower())
+
+
+def id_hash(salt, entry):
+    return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
+
+
+def read_index(path):
+    """(salt, width, sorted hash blob) from an index file, or None."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data["salt"], int(data["width"]), data["hashes"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def _indexed(index, entry):
+    salt, width, blob = index
+    key = id_hash(salt, entry)[:width]
+    lo, hi = 0, len(blob) // width
+    while lo < hi:
+        mid = (lo + hi) // 2
+        probe = blob[mid * width:(mid + 1) * width]
+        if probe == key:
+            return True
+        if probe < key:
+            lo = mid + 1
+        else:
+            hi = mid
+    return False
+
+
+def index_hit(text, index):
+    """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    tokens = id_tokens(text)
+    grams = {" ".join(tokens)} if len(tokens) > 3 else set()
+    for size in (1, 2, 3):
+        for start in range(len(tokens) - size + 1):
+            gram = tokens[start:start + size]
+            if size == 1 and (len(gram[0]) < 4 or not any(ch.isdigit() for ch in gram[0])):
+                continue
+            grams.add(" ".join(gram))
+    return any(_indexed(index, gram) for gram in grams)
+# --- end identifier index ---
+
+INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
 THRESHOLD = 11
 MISSING = {"", "na", "n/a", "nan", "null", "none", ".", "nat", "#n/a"}
 INT_RE = re.compile(r"^[+-]?\d+$")
@@ -40,7 +113,6 @@ DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+
                      r"|\d{1,2}/\d{1,2}/\d{2,4})$")
 BOOL_VALUES = {"true", "false", "t", "f", "yes", "no"}
 ID_LIKE = re.compile(r"^[A-Za-z]{0,6}[-_]?\d{3,}$")
-IDENTIFIER_LIKE = re.compile(r"@|\d{3}-\d{2}-\d{4}|\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}")
 HEADER_SCAN_ROWS = 1000
 
 
@@ -76,8 +148,6 @@ def header_problem(names, later_values=None):
             return "a first-row cell is a number or date"
         if ID_LIKE.match(name):
             return "a first-row cell looks like an ID"
-        if IDENTIFIER_LIKE.search(name):
-            return "a first-row cell looks like an identifier"
     present = [n.lower() for n in cleaned if n]
     if len(present) != len(set(present)):
         return "the first row has duplicate names"
@@ -88,8 +158,33 @@ def header_problem(names, later_values=None):
     return None
 
 
+def find_index(path):
+    """The nearest identifier index above the file or the working directory, or None."""
+    for start in (os.path.dirname(os.path.abspath(path)), os.getcwd()):
+        probe = start
+        while True:
+            index = read_index(os.path.join(probe, INDEX_REL))
+            if index:
+                return index
+            parent = os.path.dirname(probe)
+            if parent == probe:
+                break
+            probe = parent
+    return None
+
+
+def shown_name(k, name, index):
+    """A heading, or col_<k> [masked header] when the heading is itself an identifier."""
+    text = str(name)
+    if any(pattern.search(text) for _, pattern in IDENTIFIER_PATTERNS) or (index and index_hit(text, index)):
+        return f"col_{k} [masked header]"
+    return text
+
+
 def render(path, rows, columns, note=None):
     """columns: list of (name, type, non_null or None)."""
+    index = find_index(path.split(" [", 1)[0])
+    columns = [(shown_name(k, name, index), t, n) for k, (name, t, n) in enumerate(columns, 1)]
     print(f"## {os.path.basename(path)}")
     shown_rows = "unknown" if rows is None else (f"<{THRESHOLD}" if small(rows) else str(rows))
     print(f"Rows: {shown_rows}")
