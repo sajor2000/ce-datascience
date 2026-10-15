@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { APPROVED, SCHEMA_ONLY, bash, expectAll, pluginRoot, project, runGuard, verdicts } from "./data-boundary-harness"
+import { APPROVED, SCHEMA_ONLY, bash, expectAll, guard, pluginRoot, project, runGuard, verdicts } from "./data-boundary-harness"
 
 const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
 const indexer = path.join(pluginRoot, "scripts", "ce-identifier-index")
@@ -216,6 +216,34 @@ describe("limit 2b: identifier index checks on MCP arguments (every mode)", () =
       expect(message.reason).toContain("identifier index")
       for (const value of ["Zed", "Testperson", "zed testperson"]) expect(message.stdout).not.toContain(value)
     }
+  })
+
+  test("a 200k-entry index keeps the decision under 100 ms and adds under 30 ms end to end", () => {
+    const root = project(APPROVED)
+    const make = "import json, secrets, hashlib, sys\n" +
+      "hs = sorted({hashlib.sha256(secrets.token_bytes(8)).hexdigest()[:16] for _ in range(200000)})\n" +
+      "json.dump({'version': 1, 'salt': secrets.token_hex(16), 'width': 16, 'count': len(hs), 'hashes': ''.join(hs)}, open(sys.argv[1], 'w'))"
+    expect(Bun.spawnSync(["python3", "-c", make, indexPath(root)]).exitCode).toBe(0)
+    const query = { query: "propensity score overlap weighting ICU delirium sepsis bundle 2015 to 2025 mortality Hernan" }
+    const timing = "import importlib.util, json, sys, time\n" +
+      "t = time.perf_counter()\nspec = importlib.util.spec_from_file_location('guard', sys.argv[1])\n" +
+      "g = importlib.util.module_from_spec(spec); spec.loader.exec_module(g)\ncall = json.loads(sys.argv[2])\n" +
+      "result = g.classify(call, g.resolve_mode(call))\nprint(json.dumps({'ms': (time.perf_counter() - t) * 1000, 'result': result}))"
+    const payload = JSON.stringify({ cwd: root, tool_name: "mcp__paperclip__search", tool_input: query })
+    const inProcess = JSON.parse(Bun.spawnSync(["python3", "-I", "-S", "-c", timing, guard, payload]).stdout.toString())
+    expect(inProcess.result).toBeNull()
+    expect(inProcess.ms).toBeLessThan(100)
+    const median = (cwd: string) => {
+      const runs = Array.from({ length: 5 }, () => {
+        const start = performance.now()
+        runGuard(cwd, "mcp__paperclip__search", query)
+        return performance.now() - start
+      }).sort((a, b) => a - b)
+      return runs[2]
+    }
+    const bare = project(APPROVED)
+    median(bare)
+    expect(median(root) - median(bare)).toBeLessThan(30)
   })
 
   test("without an index the check is silent", () => {
