@@ -34,10 +34,11 @@ If a sentence in Methods or Results answers "so what" or "does this hold up," it
 ## Results section rules
 
 - Report findings with the statistics that support them: point estimates, confidence intervals, p-values, sample sizes, exactly where the finding is stated.
-- No adjectival amplifiers that aren't tied to a statistic in the same sentence. "Significant," "substantial," "robust" are permitted only immediately alongside their supporting statistic; strip them everywhere else.
+- No adjectival amplifiers that aren't tied to a statistic in the same sentence. "Significant" is reserved for prespecified hypothesis tests and always appears with the estimate, CI, and exact P value; "substantial" and "robust" must be tied to a stated estimate or sensitivity analysis; strip them everywhere else.
 - No explanatory clauses about why a result occurred. "X decreased, likely because Y" — the "likely because Y" is interpretation and moves to Discussion; Results states only that X decreased, by how much, with what precision.
 - No editorializing adverbs or framing words: "notably," "importantly," "interestingly," "unsurprisingly," "as expected," "unfortunately." These editorialize a finding rather than report it, even when true.
-- Statistical hedges about the finding itself are factual and stay: "did not reach statistical significance," "the interaction term was not significant (P=0.34)." These describe what the analysis showed, not why — they are not interpretation.
+- Factual statements of uncertainty stay: report the estimate, its confidence interval, and the exact P value ("the difference was 1.2 points (95% CI, -0.4 to 2.8; P = .14)"; "the interaction P value was .34, and subgroup estimates were [x] and [y]"). Do not write "did not reach significance," "trend toward significance," or "no difference" for a non-significant result; a P value above the threshold is not evidence of no effect or no interaction (ASA statement on P values, Am Stat 2016, DOI 10.1080/00031305.2016.1154108).
+- Worked example: "The intervention significantly reduced mortality (P=.03)" → "Mortality was 18% vs 24% (risk difference, -6 percentage points; 95% CI, -11 to -1; P = .03)."
 
 ## Red-flag phrase list (Methods and Results)
 

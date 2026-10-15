@@ -35,6 +35,7 @@ The reporting guidelines define minimum content, not a universal manuscript orde
 - Define each primary outcome by measurement variable, analysis metric, aggregation method, and time point when applicable.
 - Begin Results with the analyzed denominator or study flow. Then report estimates with uncertainty and group-specific absolute quantities when relevant.
 - Keep Results factual. Put mechanisms, implications, alternative explanations, and generalizability in Discussion.
+- Lead with the estimate and its CI; report exact P values (P < .001 as the floor); never use P > .05 to claim equivalence or absence of effect; reserve "significant" for prespecified tests (ASA statement on P values, Am Stat 2016, DOI 10.1080/00031305.2016.1154108).
 - Align the conclusion with the design, estimand, analyzed population, uncertainty, harms, and limitations.
 
 ### Randomized trials
@@ -97,7 +98,9 @@ Structure for study flow:
 
 Structure for a comparative result:
 
-> [Outcome] occurred in [n/N (%)] in [group A] and [n/N (%)] in [group B] ([effect estimate], [confidence interval]).
+> [Outcome] occurred in [n/N (%)] in [group A] and [n/N (%)] in [group B] ([absolute difference], [confidence interval]; [relative effect], [confidence interval]).
+
+For binary outcomes, CONSORT 2025 item 26 asks for both absolute and relative effect sizes.
 
 Structure for an observational estimate:
 
@@ -107,7 +110,9 @@ Name the exposure contrast and effect-measure scale exactly. Do not translate a 
 
 Structure for a synthesis:
 
-> Across [k] studies including [N] participants, [exposure or intervention] was associated with [outcome] ([summary estimate], [confidence interval], [heterogeneity measure]).
+> Across [k] studies including [N] participants, [exposure or intervention] was associated with [outcome] ([summary estimate], [confidence interval]; [prediction interval] when random effects; [heterogeneity measure]).
+
+For random-effects syntheses, the prediction interval shows the range of effects across settings (Cochrane Handbook, chapter 10).
 
 PROCOAG reports the screened, eligible, randomized, and analyzed counts before its primary estimate, then reports the group values, absolute difference, confidence interval, and P value. Its conclusion also retains the unfavorable harm finding. This order prevents a favorable narrative from outrunning the complete result.
 
