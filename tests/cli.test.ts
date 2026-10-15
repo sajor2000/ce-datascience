@@ -3,6 +3,10 @@ import { promises as fs } from "fs"
 import path from "path"
 import os from "os"
 
+// These tests spawn the CLI and clone or install a full plugin tree; under
+// full-suite load they can exceed bun's 5 s default.
+const SLOW_TEST_TIMEOUT_MS = 60_000
+
 async function exists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath)
@@ -1417,7 +1421,7 @@ describe("CLI", () => {
     // Should succeed by fetching from GitHub, NOT failing on the local shadow directory
     expect(stdout).toContain("Installed ce-datascience")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
-  })
+  }, SLOW_TEST_TIMEOUT_MS)
 
   test("install --branch clones a specific branch for non-Claude targets", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-branch-install-"))
@@ -1479,7 +1483,7 @@ describe("CLI", () => {
 
     expect(stdout).toContain("Installed ce-datascience")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
-  })
+  }, SLOW_TEST_TIMEOUT_MS)
 
   test("convert writes OpenCode output", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-convert-"))

@@ -3,6 +3,10 @@ import { promises as fs } from "fs"
 import os from "os"
 import path from "path"
 
+// These tests spawn the CLI and clone or install a full plugin tree; under
+// full-suite load they can exceed bun's 5 s default.
+const SLOW_TEST_TIMEOUT_MS = 60_000
+
 const repoRoot = path.join(import.meta.dir, "..")
 const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
 
@@ -166,7 +170,7 @@ describe("corporate install artifacts", () => {
 
     expect(await exists(path.join(commandsDir, "ce-setup.md"))).toBe(false)
     expect(await fs.readFile(path.join(commandsDir, "ce-plan.md"), "utf8")).toBe("user-owned command\n")
-  })
+  }, SLOW_TEST_TIMEOUT_MS)
 
   test("packaging stages offline Claude, alias, and Codex artifacts without dev/cache files", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-corporate-package-"))
