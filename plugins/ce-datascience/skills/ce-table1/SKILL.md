@@ -1,7 +1,7 @@
 ---
 name: ce-table1
 description: "Generate a traceable Table 1 baseline-characteristics shell and validation report from the SAP, tabular SAP variables, and style profile. Use when the user asks for Table 1, baseline characteristics, demographic table, or manuscript-ready descriptive cohort table."
-argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata exposure_var]"
+argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata exposure_var --design rct|observational|descriptive]"
 ---
 
 # Table 1 Generator
@@ -18,7 +18,7 @@ argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --ou
 - **Do not do:** Do not invent variables, cohorts, or patient-level output.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Create a publication-ready Table 1 shell from declared study artifacts. This skill does not compute statistics from raw data unless the user supplies an explicit analysis dataset and asks for that implementation; the default is a traceable table specification and shell that the analyst can verify.
+Create a publication-ready Table 1 shell from declared study artifacts. The script builds the specification and shell only; it never reads patient data. Filling cells (step 3b) is agent work under this specification, done only when the SAP or user names the analytic dataset.
 
 When the requested Table 1 workflow creates or materially extends a Marimo, Jupyter, R Markdown, or Quarto notebook, load the `ce-notebook-standards` skill before creating cells or chunks.
 
@@ -29,7 +29,8 @@ Prefer these project-local files:
 - `analysis/sap.md`
 - `analysis/sap-tables/03-variables.csv`
 - `analysis/sap-tables/02-outputs.csv`
-- `references/journal-style-profiles.yaml` (bundled with this skill) for journal style profiles.
+
+Bundled: `references/journal-style-profiles.yaml` holds the journal style profiles; the script blocks an unknown `--style-profile`.
 
 If the variables catalog is missing, ask the user for the baseline variable list. Do not invent variables from a vague manuscript request.
 
@@ -40,13 +41,16 @@ If the variables catalog is missing, ask the user for the baseline variable list
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
-python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata <stratification variable>
+python3 "$SKILL_DIR/scripts/generate_table1.py" --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata <stratification variable> --design <rct|observational|descriptive>
 ```
+
+Baseline rows are fixed variables measured at or before time zero. The script skips `Time-varying` rows (with a warning naming them; add a `*_baseline` variable instead) and never lists the exposure category, which is the stratifier.
 
 Pass the stratification variable the user or SAP names with `--strata` (comma-separated for more than one); the script records it in `table1-spec.json` and the shell headers, and warns when it is absent. Pass `--disclosure-floor <n>` only when the project or DUA declares a floor other than the default (suppress n<11).
 
 3. Review the generated validation report before presenting the table as ready.
-3b. Fill or leave the shell: when the SAP or the user names the analytic dataset, compute the Overall and per-stratum cells from it (median (IQR) for continuous rows, `No. (%)` for categorical rows, a missing-count row for variables with missing values), apply step 4 before writing, and record the dataset path in the validation report. When no analytic dataset is named, deliver the shell with `TBD` cells and state the floor that will apply; never estimate cells from a manuscript or chat description.
+3a. Comparison columns follow `--design`. For randomized trials, never add p-values or tests of baseline difference (CONSORT 2025 item 25: any baseline difference after proper randomization is due to chance). For observational comparisons, the script adds an absolute standardized difference column instead of p-values (|SMD| > 0.10 flags meaningful imbalance by convention; Austin, Stat Med 2009, PMID 19757444). After matching or weighting, present the matched or weighted table and SMDs beside the crude ones.
+3b. Fill or leave the shell: when the SAP or the user names the analytic dataset, compute the Overall and per-stratum cells from it (mean (SD) for approximately symmetric continuous rows and median (IQR) for skewed ones, as declared in the variables catalog or SAP and never both silently; `No. (%)` for categorical rows; a missing-count row for variables with missing values), apply step 4 before writing, and record the dataset path in the validation report. When no analytic dataset is named, deliver the shell with `TBD` cells and state the floor that will apply; never estimate cells from a manuscript or chat description.
 4. **Small-cell suppression (always, not only in CLIF mode):** before presenting or writing any stratified table, suppress or aggregate cells with n below the project's disclosure floor (default n<11 unless the project declares its own floor, for example the CLIF consortium floor of n>=10, or a site or DUA rule is stricter). Suppress complementary cells too when a suppressed value could be recovered by subtraction from totals. A Table 1 stratified by exposure routinely produces small cells — check every stratum, not just the obvious ones.
 5. Table 1 output is aggregate-only: never write patient-level rows to publication, review-pack, or shared directories. If CLIF mode is active, write the aggregate-only output to `output/final_no_phi/`.
 

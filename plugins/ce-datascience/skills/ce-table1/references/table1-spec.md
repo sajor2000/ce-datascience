@@ -9,17 +9,20 @@ The Table 1 shell is a contract between the SAP, analyst, and manuscript package
 | `variable` | Variable name from the SAP variables catalog |
 | `category` | Variable category such as Patient Characteristic or Clinical Characteristic |
 | `description` | Plain-language row label |
-| `type` | The catalog's `Type` value as recorded (ce-plan catalogs use Fixed / Time-varying; the summary form comes from `levels`: Continuous -> median (IQR), 0/1 or listed levels -> No. (%)) |
+| `type` | The catalog's `Type` value as recorded (ce-plan catalogs use Fixed / Time-varying; Time-varying rows are excluded). Summary form: continuous rows use mean (SD) when approximately symmetric and median (IQR) when skewed, as declared in the catalog or SAP; 0/1 or listed levels use No. (%) |
 | `levels` | Declared levels for categorical variables |
 | `source_catalog` | Repo-relative path to the variables catalog |
 | `style_profile` | Publication style profile used for display rules |
 | `strata` | Stratification variable(s) passed with `--strata` (empty list when none was declared) |
+| `design` | `rct`, `observational`, or `descriptive` from `--design` (null when undeclared) |
+| `comparison_column` | `abs_smd` for stratified observational tables; null otherwise (randomized trials never get baseline tests) |
 | `disclosure_floor` | `suppress_below_n` (default 11) applied to every stratified cell |
 
 ## Refusal Conditions
 
 - The variables catalog is not available (ask the user for the baseline variable list).
-- The variables catalog has no baseline, patient, clinical, demographic, exposure, or cohort-characteristic rows.
+- The variables catalog has no fixed baseline, patient, clinical, demographic, or cohort-characteristic rows (exposure and time-varying rows never count).
+- The `--style-profile` is not defined in `references/journal-style-profiles.yaml`.
 - Requested output paths would be absolute or traverse outside the project.
 
 ## Disclosure Constraint (all data sources)
