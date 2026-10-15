@@ -37,7 +37,7 @@ Map each SAP section to analysis code using three strategies (in priority order)
 
 Report these categories of drift:
 
-- **Missing pre-specified analyses** -- SAP section with no corresponding code file or code block. Every SAP section that specifies an analysis should have a traceable implementation. Severity: P1 for primary endpoints, P2 for secondary endpoints, P3 for exploratory analyses.
+- **Missing pre-specified analyses** -- SAP section with no corresponding code file or code block. Every SAP section that specifies an analysis should have a traceable implementation. Severity: P0 for primary endpoints, P1 for secondary endpoints, P2 for exploratory analyses.
 
 - **Extra analyses not in SAP** -- Analysis code files or sections with no mapping to any SAP section. These are potential post-hoc additions. Severity: P2 (they may be legitimate but must be documented as post-hoc). Code files that are clearly infrastructure (data loading, utilities, configuration) are excluded from this check.
 
@@ -55,11 +55,17 @@ Semantic detection compares SAP prose against code behavior to identify substant
 
 - **Method substitutions** -- SAP specifies logistic regression but code uses Cox proportional hazards; SAP specifies ANCOVA but code uses mixed models; SAP specifies a non-parametric test but code uses a parametric test. Not every substitution is wrong -- flag the discrepancy and let the human assess.
 
+- **Estimand / intercurrent-event drift** -- The SAP estimand (SAP-1.4) states a treatment-policy strategy but code censors or drops follow-up at discontinuation, rescue medication, or switching (which targets a hypothetical or while-on-treatment estimand), or the reverse; composite components or the outcome time point in code differ from the SAP.
+
+- **Missing-data handling drift** -- The SAP specifies multiple imputation, MMRM or another likelihood method under MAR, or a delta-adjusted or tipping-point sensitivity analysis, but code fits models on raw data with default row deletion (R `lm()`/`glm()` drop incomplete rows under the factory-fresh `na.action = na.omit`; pandas `dropna()` before fitting), pools imputations without Rubin's rules, or uses a different number of imputations or imputation model than the SAP. Confidence 75 when the deletion is visible in code.
+
+- **Inference-rule drift** -- Alpha, sidedness, the multiplicity procedure (e.g., Holm versus none, a changed hierarchical testing order), or the conditional versus marginal summary (e.g., adjusted OR in code where the SAP specifies a standardized risk difference) differ from the SAP.
+
 - **Variable set changes** -- Covariates in the adjusted model differ from those listed in the SAP; stratification factors in code do not match the SAP; subgroup variables added or removed.
 
 - **Blinding state violations** -- When `.ce-datascience/config.local.yaml` declares `blinding_state: blinded` (or the SAP's blinding section indicates ongoing blinding), flag any code that performs inferential analysis using the blinded grouping variable: regression with `treatment` or `arm` as a predictor, t-tests / Wilcoxon / chi-square stratified by the assignment variable, survival models with arm as a covariate, p-values reported in tables that compare arms. Descriptive statistics by arm are acceptable only if the labels are masked (e.g., `Group A` / `Group B` rather than `placebo` / `drug`). Confidence 100 when blinded state is declared and code shows arm-stratified inferential output.
 
-- **SAP amendment without log entry** -- The SAP version line bumped (e.g., 1.0 → 1.1) but `analysis/sap-amendments.md` has no corresponding entry, or the entry is missing a `### Prior text` block. Without the prior text, no one can verify what changed. Flag every version bump that is not paired with a log entry containing both `### Prior text` and `### Replacement text`. Confidence 100.
+- **SAP amendment without log entry** -- The SAP version bumped (e.g., `sap_version` 1 → 2) but `analysis/sap-amendments.md` has no corresponding entry, or the entry is missing a `### Prior text` block. Without the prior text, no one can verify what changed. Flag every version bump that is not paired with a log entry containing both `### Prior text` and `### Replacement text`. Confidence 100.
 
 - **Primary endpoint changed AFTER data lock** -- The amendment log shows a change to a primary outcome (anything in SAP-3.1 / "Primary endpoint" / endpoint hierarchy), and `.ce-datascience/data-state.yaml` shows the analysis wave was `locked` BEFORE the amendment timestamp. This is the canonical "HARK after the fact" pattern. The paper claim of pre-specified primary endpoint becomes false. Confidence 100 if timestamps confirm the order.
 
@@ -67,6 +73,7 @@ Semantic detection compares SAP prose against code behavior to identify substant
 
 **Semantic Confidence Rules:**
 - Findings below confidence 50 are suppressed -- do not report them
+- Cap semantic findings at confidence 75 unless the contradiction is explicit in both the SAP (or amendment log and data-state file) and the code, as in the blinding, amendment-log, and post-lock checks above
 - All semantic findings must include `"drift_type": "semantic"` and a note that the finding is best-effort
 - When the SAP prose is ambiguous, note the ambiguity in the evidence rather than asserting a definitive mismatch
 
@@ -125,4 +132,4 @@ Severity mapping:
 - **Code quality or style** -- Variable naming, code organization, and performance optimization are outside scope.
 - **Legitimate protocol amendments** -- When a documented amendment changes the analysis plan and the code matches the amendment, there is no drift. Check for amendment documentation before flagging.
 - **Infrastructure code** -- Data loading, environment setup, utility functions, and visualization helpers are not analyses and should not be flagged as "extra analyses not in SAP."
-- **Defensible method upgrades** -- When code uses a strictly more general method that subsumes the SAP-specified method (e.g., mixed model that reduces to ANCOVA when there is no clustering), note it in `residual_risks` rather than flagging it as drift.
+- **Defensible method upgrades** -- When code uses a strictly more general method that yields the same estimand under the same missing-data assumption (e.g., adding robust standard errors), note it in `residual_risks` rather than flagging it as drift. Changes that alter missing-data handling or the estimand are semantic drift: replacing a final-visit ANCOVA with an MMRM that uses all post-baseline visits under MAR changes how dropouts are handled and needs a SAP amendment.
