@@ -24,7 +24,7 @@ Turns a fuzzy clinical research question into a structured `analysis/research-qu
 - When the user describes a study idea in one sentence and the next step is `ce-pubmed` but the query is too vague
 - Before `ce-checklist-match` if the design is unclear and the routing questions can't be answered cleanly
 - Manual: `ce-research-question "sepsis bundle adherence and 30-day mortality in adult ICU patients"`
-- Triggered also when a user starts the lifecycle but a `ce-pubmed` search comes back too broad (>1000 hits with no MeSH alignment)
+- Triggered also when a user starts the lifecycle but a `ce-pubmed` search comes back too broad (the hit-count rule in the suggested-query step)
 
 ## Prerequisites
 
@@ -32,12 +32,8 @@ Turns a fuzzy clinical research question into a structured `analysis/research-qu
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before any literature lookup (PubMed and Paperclip MCP tools, fallbacks, and rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** the FINER novelty check (search, read the closest prior paper, cite its PMID at the level read) and the suggested PubMed query, which must be test-run with `pubmed_search_articles` or `search_articles` to record its hit count before it is written to the YAML.
 
 ## Core workflow
@@ -50,12 +46,12 @@ Ask the user one question at a time (or extract from the survivor) until the fou
 |------|------------|---------|
 | **P**opulation | Inclusion criteria, setting, demographic constraints | "Adult ICU patients (≥ 18) with sepsis-3 criteria, 2018-2023, US academic medical centers" |
 | **I**ntervention or **E**xposure | What is being tested or compared | "Adherence to 1-hour sepsis bundle (lactate, blood cultures, antibiotics, fluids, vasopressors)" |
-| **C**omparator | What is the alternative | "Non-adherent or partially adherent (≤ 3 of 5 elements)" |
+| **C**omparator | What is the alternative | "Not fully adherent (fewer than 5 of 5 elements completed within 1 hour of sepsis time zero)" |
 | **O**utcome | What is being measured, with timing | "30-day in-hospital mortality" |
 
 For descriptive or prediction studies, the comparator slot may be `null` — record that explicitly so downstream skills know the design is not comparative.
 
-For target-trial-emulation candidates, additionally elicit: eligibility criteria, treatment strategies (full specification, not just exposure label), assignment procedure (and confounders that need adjustment), follow-up start/end, outcome ascertainment.
+For target-trial-emulation candidates, additionally elicit: eligibility criteria (assessable at time zero), treatment strategies (full specification, exhaustive so every eligible person fits one arm), assignment procedure (and confounders that need adjustment), follow-up start/end with time zero at eligibility plus strategy assignment in every arm, any grace period, outcome ascertainment, causal contrast, and analysis plan (Hernán & Robins, Am J Epidemiol 2016, PMID 26994063). For a trial, elicit what happens when patients stop, switch, receive rescue therapy, or die before the outcome, so the SAP can state an ICH E9(R1) estimand.
 
 ### Step 2: Score on FINER
 
@@ -103,10 +99,13 @@ This is a hint to `ce-checklist-match`. Map the design to the most likely primar
 | RCT (`ai_involvement: none`) | CONSORT (2025) | -- |
 | RCT (AI intervention; `ai-primary` or `llm-based`) | CONSORT (2025) | CONSORT-AI |
 | Observational cohort | STROBE | RECORD if EHR/claims/registry; RECORD-PE if claims pharmacoepidemiology |
-| Target trial emulation | TARGET | STROBE (always); RECORD if routinely collected EHR/claims/registry data |
-| Prediction model | TRIPOD+AI (TRIPOD if no AI/ML) | REFORMS if `ai-primary` or `llm-based` |
+| Target trial emulation | TARGET (standalone) | RECORD if routinely collected EHR/claims/registry data |
+| Prediction model (regression or ML) | TRIPOD+AI | TRIPOD-Cluster if clustered/multisite data; REFORMS if `ai-primary` or `llm-based` |
 | Diagnostic accuracy | STARD | STARD-AI if AI index test; CLAIM if imaging AI |
 | Systematic review | PRISMA | PRISMA-DTA / PRISMA-NMA by subtype |
+| Early clinical evaluation of an AI decision-support system (`early-clinical-ai-evaluation`) | DECIDE-AI | -- |
+
+When the next deliverable is a protocol rather than a results paper, set `protocol_stage: true`: trial protocols route to SPIRIT 2025 (plus SPIRIT-AI for AI interventions) and systematic-review protocols to PRISMA-P.
 
 Use the canonical `ai_involvement` values `none`, `ai-assisted`, `ai-primary`, or `llm-based` when recording AI involvement.
 
@@ -120,7 +119,7 @@ research_question:
   pico:
     population:    "Adult ICU patients (≥18) with sepsis-3, 2018-2023, US academic medical centers"
     intervention:  "Adherence to 1-hour sepsis bundle (5 elements)"
-    comparator:    "Non-adherent or partially adherent (≤ 3 elements)"
+    comparator:    "Not fully adherent (< 5 of 5 elements within 1 hour of sepsis time zero)"
     outcome:       "30-day in-hospital mortality"
   target_trial:          # only when suggested_design is a target trial emulation; slots in references/pico-templates.md
     eligibility:           "..."
@@ -129,7 +128,9 @@ research_question:
     follow_up_start:       "..."
     follow_up_end:         "..."
     outcome_ascertainment: "..."
+    grace_period:          "..."
     causal_contrast:       "..."
+    analysis_plan:         "..."
   finer:
     feasible:    {score: 4, rationale: "EHR data available; n≈8k expected"}
     interesting: {score: 5, rationale: "Active controversy on bundle benefit"}
@@ -138,8 +139,9 @@ research_question:
     relevant:    {score: 5, rationale: "Practice change if effect size > 5 percentage points"}
   suggested_design:    "Target trial emulation (retrospective EHR cohort)"
   suggested_checklist: TARGET
-  suggested_extensions: [STROBE, RECORD]   # STROBE is TARGET's companion; RECORD because the data are routinely collected EHR
+  suggested_extensions: [RECORD]           # TARGET is standalone; RECORD because the data are routinely collected EHR
   ai_involvement: none                     # none | ai-assisted | ai-primary | llm-based
+  protocol_stage: false                    # true when the next deliverable is a protocol (SPIRIT 2025 / PRISMA-P)
   suggested_pubmed_query: '("Sepsis"[Mesh]) AND ("Patient Care Bundles"[Mesh] OR "bundle adherence"[Title/Abstract]) AND ("mortality"[Mesh] OR "30-day"[Title/Abstract]) AND ("Cohort Studies"[Mesh])'
   suggested_pubmed_query_hits: 45          # total_count from the pubmed_search_articles / search_articles test run; re-run before relying on it
   query_checked_on: <YYYY-MM-DD>           # date of that test run, resolved at runtime
