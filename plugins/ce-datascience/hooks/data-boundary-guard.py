@@ -775,6 +775,21 @@ READ_CALL = re.compile(
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
+SAFE_RUNNER = os.path.join(PLUGIN_ROOT, "scripts", "ce-safe-run")
+
+
+def is_safe_runner(token, cwd):
+    """The plugin's own ce-safe-run (same file or byte-identical copy), never a look-alike."""
+    path = os.path.realpath(_resolve(os.path.expandvars(token), cwd))
+    if path == os.path.realpath(SAFE_RUNNER):
+        return True
+    try:
+        with open(path, "rb") as a, open(SAFE_RUNNER, "rb") as b:
+            return a.read(1 << 16) == b.read(1 << 16)
+    except OSError:
+        return False
+
+
 _SCANNING = set()
 
 
@@ -931,8 +946,14 @@ def bash_violations(command, cwd, mode, depth=0):
                     tainted.add(name)
             if not cmd:
                 continue
+            safe = False
+            if program(cmd[0]) == "ce-safe-run" and "--" in cmd:
+                safe = is_safe_runner(cmd[0], cur)
+                _, cmd = unwrap(cmd[cmd.index("--") + 1:])
+                if not cmd:
+                    continue
             egress = egress or upload_violation(cmd, cur, mode)
-            if mode["mode"] != "schema-only":
+            if mode["mode"] != "schema-only" or safe:
                 continue
             verb = program(cmd[0])
             if listed and verb in EXEC_CONSUMERS:
@@ -1045,7 +1066,8 @@ def deny_message(result, mode, helper):
                 "approved, schema-only, or no-sensitive-data, or re-run ce-setup.")
     return ("ce-datascience schema-only mode: the model endpoint is not approved for this project's sensitive "
             f"data ({reason}). Inspect structure with `python3 \"{helper}\" <file>` (headings, types, counts, "
-            "% missing only), or write a script that prints aggregates only and run it. If the endpoint is "
+            f"% missing only). Run scripts that read data through `{SAFE_RUNNER} -- <command>`: it keeps their "
+            "output in a local log and prints only the exit code, files written, and a masked stderr tail. If the endpoint is "
             "approved, re-run ce-setup or set phi_environment.mode in .ce-datascience/config.local.yaml.")
 
 
