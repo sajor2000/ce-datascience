@@ -1,0 +1,17 @@
+{
+  "description": "ce-datascience sensitive-data boundary: in schema-only projects, keep data-file values out of the model context.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'g=\"${CLAUDE_PLUGIN_ROOT:-}/hooks/data-boundary-guard.py\"; [ -f \"$g\" ] || exit 0; command -v python3 >/dev/null 2>&1 || { echo \"ce-datascience: python3 not found; data-boundary guard inactive\" >&2; exit 0; }; exec python3 \"$g\"'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

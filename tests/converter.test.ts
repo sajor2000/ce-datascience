@@ -26,7 +26,10 @@ describe("convertClaudeToOpenCode", () => {
     expect(bundle.agents.length).toBeGreaterThan(0)
     expect(bundle.skillDirs.length).toBeGreaterThan(0)
     expect(bundle.commandFiles).toHaveLength(0)
-    expect(bundle.plugins).toHaveLength(0)
+    // The Claude-only data-boundary hook converts to an OpenCode handler that exits 0
+    // because CLAUDE_PLUGIN_ROOT and the guard script are absent outside Claude Code.
+    expect(bundle.plugins.map((plugin) => plugin.name)).toEqual(["converted-hooks.ts"])
+    expect(bundle.plugins[0].content).toContain('[ -f "$g" ] || exit 0')
     expect(bundle.config.tools).toBeUndefined()
 
     const parsedAgents = bundle.agents.map((agent) => parseFrontmatter(agent.content))
