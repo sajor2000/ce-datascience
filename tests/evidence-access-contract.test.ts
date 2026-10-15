@@ -105,4 +105,32 @@ describe("scientific skills share one evidence-access contract", () => {
     }
     expect(offenders).toEqual([])
   })
+  // Skills whose generic block now lives in a skill-local references/evidence-access.md.
+  // Add a skill here when its block is moved and its MCP names are fully qualified.
+  const MOVED_SKILLS = [
+    "ce-model-strategy", "ce-model-card", "ce-phenotype-validate", "ce-checklist-match",
+    "ce-pre-submission-audit", "ce-method-extract", "ce-bioinfo-qc", "ce-evidence-map",
+    "ce-scientific-writing",
+  ]
+
+  test("moved evidence blocks stay skill-local with fully qualified MCP names", async () => {
+    const problems: string[] = []
+    for (const name of MOVED_SKILLS) {
+      const entry = { name }
+      const skillMd = await fs.readFile(path.join(skillsRoot, name, "SKILL.md"), "utf8")
+      if (!skillMd.includes("`references/evidence-access.md`")) problems.push(`${name}: SKILL.md lacks the pointer`)
+      const ref = await fs
+        .readFile(path.join(skillsRoot, entry.name, "references", "evidence-access.md"), "utf8")
+        .catch(() => "")
+      if (!ref) problems.push(`${entry.name}: points to references/evidence-access.md but the file is missing`)
+      else {
+        if (!ref.includes("mcp__pubmed-mcp-server__pubmed_search_articles"))
+          problems.push(`${entry.name}: evidence-access.md lacks the fully qualified PubMed tool name`)
+        if (/mcp__PubMed__/.test(ref)) problems.push(`${entry.name}: evidence-access.md uses the wrong mcp__PubMed__ prefix`)
+        if (/`ce-pubmed` skill's bundled/.test(ref)) problems.push(`${entry.name}: reaches into ce-pubmed's bundled script`)
+      }
+      if (!/\*\*Look up here:\*\*/.test(skillMd)) problems.push(`${entry.name}: SKILL.md lost its Look up here line`)
+    }
+    expect(problems).toEqual([])
+  })
 })
