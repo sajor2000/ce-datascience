@@ -30,6 +30,23 @@ describe("limit 1a: agent-written scripts that read data (schema-only)", () => {
     ])
   })
 
+  test("shell scripts, Quarto documents, and executed notebooks are scanned the same way", () => {
+    const root = project(SCHEMA_ONLY)
+    withFile(root, "analysis/dump.sh", "#!/bin/sh\ncat data/cohort.csv\n")
+    withFile(root, "report.qmd", "---\ntitle: x\n---\n```{python}\nimport pandas as pd\npd.read_parquet('data/c.parquet')\n```\n")
+    withFile(root, "notebooks/run.ipynb", JSON.stringify({
+      cells: [{ cell_type: "code", source: ["import pandas as pd\n", "pd.read_csv(\"data/cohort.csv\")"], outputs: [] }],
+      metadata: {}, nbformat: 4, nbformat_minor: 5,
+    }))
+    expectAll(root, "deny", [
+      ["Bash", bash("bash analysis/dump.sh")],
+      ["Bash", bash("sh analysis/dump.sh")],
+      ["Bash", bash("quarto render report.qmd")],
+      ["Bash", bash("jupyter nbconvert --to html --execute notebooks/run.ipynb")],
+    ])
+    expectAll(root, "allow", [["Bash", bash("quarto render")], ["Bash", bash("jupyter nbconvert --to html notebooks/clean.ipynb")]])
+  })
+
   test("a script that only plots from an aggregate CSV runs without the safe runner", () => {
     const root = project(SCHEMA_ONLY)
     withFile(root, "output/table1.csv", AGGREGATE_CSV)

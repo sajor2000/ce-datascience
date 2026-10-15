@@ -775,6 +775,9 @@ READ_CALL = re.compile(
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
+_SCANNING = set()
+
+
 def script_reads_data(path, cwd, mode):
     """Static, heuristic: does the script file name a data path? Reads at most 1 MB. Plugin scripts are trusted."""
     if _under(os.path.realpath(path), [PLUGIN_ROOT]):
@@ -784,6 +787,22 @@ def script_reads_data(path, cwd, mode):
             text = fh.read(SCRIPT_CAP)
     except OSError:
         return False
+    ext = path.rsplit(".", 1)[-1].lower()
+    if ext == "ipynb":
+        try:
+            cells = json.loads(text).get("cells", [])
+            text = "\n".join("".join(c.get("source", "")) for c in cells if isinstance(c, dict))
+        except (ValueError, AttributeError, TypeError):
+            return True  # cannot verify
+    if ext in ("sh", "bash", "zsh") and path not in _SCANNING and len(_SCANNING) < 8:
+        _SCANNING.add(path)
+        try:
+            if bash_violations(text, cwd, mode, 1)[1]:
+                return True
+        finally:
+            _SCANNING.discard(path)
+    if lists_dataish_dir(text, cwd, mode):
+        return True
     if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
         return True  # reads a path held in a variable or argument
     return any(is_data_path(lit, cwd, mode) and not in_aggregate_dir(lit, cwd, mode)
@@ -799,10 +818,16 @@ def in_aggregate_dir(raw, cwd, mode):
 
 
 def script_file(verb, args):
-    """The script file a runner command executes, or None."""
+    """The script, Quarto document, or executed notebook a command runs, or None."""
+    ops = [t for t in args if not t.startswith("-")]
+    if verb == "quarto":
+        return ops[1] if ops[:1] == ["render"] and len(ops) > 1 else None
+    if verb == "jupyter":
+        if ops[:1] == ["nbconvert"] and "--execute" in args:
+            return next((t for t in ops[1:] if t.lower().endswith(".ipynb")), None)
+        return None
     if not SCRIPT_RUNNERS.match(verb):
         return None
-    ops = [t for t in args if not t.startswith("-")]
     script = ops[0] if ops else ""
     ext = script.rsplit(".", 1)[-1].lower() if "." in os.path.basename(script) else ""
     return script if ext in SCRIPT_EXTS else None
