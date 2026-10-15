@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { SCHEMA_ONLY, bash, expectAll, git, pluginRoot, project, runGuard } from "./data-boundary-harness"
+import { APPROVED, SCHEMA_ONLY, bash, expectAll, pluginRoot, project, runGuard, verdicts } from "./data-boundary-harness"
 
 const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
 const indexer = path.join(pluginRoot, "scripts", "ce-identifier-index")
@@ -181,5 +181,45 @@ describe("limit 2a: ce-identifier-index stores salted hashes of identifier value
     expect(Bun.spawnSync(["git", "check-ignore", "-q", ".ce-datascience/identifier-index.local.json"], { cwd: root }).exitCode).toBe(0)
     const again = JSON.parse((buildIndex(root), readFileSync(indexPath(root), "utf8")))
     expect(again.salt).not.toBe(index.salt)
+  })
+})
+
+// Queries that must keep working with an index present: topics, author surnames, PMIDs, DOIs.
+const NORMAL_QUERIES: Array<[string, Record<string, unknown>]> = [
+  ["mcp__pubmed-mcp-server__pubmed_search_articles", { query: "sepsis bundle mortality cohort", author: "Hernan MA" }],
+  ["mcp__pubmed-mcp-server__pubmed_search_articles", { query: "target trial emulation Hernan Robins" }],
+  ["mcp__pubmed-mcp-server__pubmed_search_articles", { query: "Testperson syndrome case series" }],
+  ["mcp__pubmed-mcp-server__pubmed_fetch_articles", { pmids: ["31978945", "32109013"] }],
+  ["mcp__pubmed-mcp-server__pubmed_convert_ids", { ids: ["10.1056/NEJMoa2034577", "PMC7092803"] }],
+  ["mcp__paperclip__lookup", { doi: "10.1001/jama.2023.12345" }],
+  ["mcp__paperclip__search", { query: "Zed regression in ICU outcomes 1970 to 2020" }],
+]
+
+describe("limit 2b: identifier index checks on MCP arguments (every mode)", () => {
+  test("a synthetic patient's full name or ID is denied; normal queries pass; the reason never echoes the match", () => {
+    for (const config of [SCHEMA_ONLY, APPROVED]) {
+      const root = project(config)
+      withFile(root, "data/claims.tsv", "claim_number\tmember_id\nCLM-55501\tMBR-0099\n")
+      expect(buildIndex(root).code).toBe(0)
+      expectAll(root, "allow", NORMAL_QUERIES)
+      const denied = verdicts(root, [
+        ["mcp__pubmed-mcp-server__pubmed_search_articles", { query: "sepsis outcomes zed testperson" }],
+        ["mcp__paperclip__search", { query: "Testperson, Zed readmission" }],
+        ["mcp__paperclip__search", { query: "Zed   TESTPERSON" }],
+        ["mcp__notion__notion-create-pages", { pages: [{ content: "follow up on fake0002" }] }],
+        ["mcp__paperclip__search", { query: "claim CLM-55501 denial" }],
+        ["mcp__paperclip__search", { query: "member 0099 history" }],
+      ])
+      for (const v of denied) expect({ ...v, config }).toEqual({ tool: v.tool, input: v.input, decision: "deny", kind: "egress", config })
+      const message = runGuard(root, "mcp__paperclip__search", { query: "Zed Testperson sepsis" })
+      expect(message.decision).toBe("deny")
+      expect(message.reason).toContain("identifier index")
+      for (const value of ["Zed", "Testperson", "zed testperson"]) expect(message.stdout).not.toContain(value)
+    }
+  })
+
+  test("without an index the check is silent", () => {
+    const root = project(SCHEMA_ONLY)
+    expectAll(root, "allow", [["mcp__paperclip__search", { query: "Zed Testperson sepsis" }], ...NORMAL_QUERIES])
   })
 })

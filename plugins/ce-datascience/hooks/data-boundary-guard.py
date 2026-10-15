@@ -121,6 +121,70 @@ UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "
 FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
 
 
+# --- identifier index: normalize and hash (keep identical across plugin scripts; tested) ---
+import hashlib
+import unicodedata
+
+HASH_WIDTH = 16
+
+
+def id_tokens(text):
+    """Lowercase, fold accents, and split into alphanumeric tokens."""
+    folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return re.findall(r"[^\W_]+", folded.lower())
+
+
+def id_hash(salt, entry):
+    return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
+# --- end identifier index ---
+
+INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
+
+
+def load_index(mode):
+    """The project's identifier index (salt, width, sorted hash blob), loaded once and only when needed."""
+    if "_index" not in mode:
+        mode["_index"] = None
+        for path in mode.get("index_paths", []):
+            try:
+                with open(path, encoding="utf-8") as fh:
+                    data = json.load(fh)
+                mode["_index"] = (data["salt"], int(data["width"]), data["hashes"])
+                break
+            except (OSError, ValueError, KeyError, TypeError):
+                continue
+    return mode["_index"]
+
+
+def _indexed(index, entry):
+    salt, width, blob = index
+    key = id_hash(salt, entry)[:width]
+    lo, hi = 0, len(blob) // width
+    while lo < hi:
+        mid = (lo + hi) // 2
+        probe = blob[mid * width:(mid + 1) * width]
+        if probe == key:
+            return True
+        if probe < key:
+            lo = mid + 1
+        else:
+            hi = mid
+    return False
+
+
+def index_hit(text, index):
+    """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    tokens = id_tokens(text)
+    grams = {" ".join(tokens)} if len(tokens) > 3 else set()
+    for size in (1, 2, 3):
+        for start in range(len(tokens) - size + 1):
+            gram = tokens[start:start + size]
+            if size == 1 and (len(gram[0]) < 4 or not any(ch.isdigit() for ch in gram[0])):
+                continue
+            grams.add(" ".join(gram))
+    return any(_indexed(index, gram) for gram in grams)
+
+
 class ConfigError(Exception):
     pass
 
@@ -295,8 +359,9 @@ def _project_mode(ce_root, main):
         path = os.path.normpath(os.path.join(ce_root, rel))
         aggregate.update({path, os.path.realpath(path)})
     aggregate = sorted(aggregate)
+    index_paths = [os.path.join(base, INDEX_REL) for base in [ce_root] + ([main] if main else [])]
     return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots),
-            "aggregate_dirs": aggregate}
+            "aggregate_dirs": aggregate, "index_paths": index_paths}
 
 
 RANK = {"off": 0, "approved": 1, "no-sensitive-data": 1, "schema-only": 2}
@@ -322,7 +387,7 @@ def _anchors(context):
 def resolve_mode(context):
     """Resolve the boundary for a tool call from cwd and the paths it targets. Strictest project wins."""
     cwd, anchors = _anchors(context)
-    cache, best, data_roots, roots, aggregate = {}, None, set(), [], set()
+    cache, best, data_roots, roots, aggregate, index_paths = {}, None, set(), [], set(), []
     for anchor in anchors:
         found = _locate(anchor, cache)
         if not found:
@@ -330,12 +395,15 @@ def resolve_mode(context):
         project = _project_mode(*found)
         data_roots.update(project["data_roots"])
         aggregate.update(project["aggregate_dirs"])
+        index_paths.extend(p for p in project["index_paths"] if p not in index_paths)
         roots.extend(r for r in project["roots"] if r not in roots)
         if best is None or RANK[project["mode"]] > RANK[best["mode"]]:
             best = project
     if best is None:
-        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "aggregate_dirs": [], "cwd": cwd}
-    return dict(best, roots=roots, data_roots=sorted(data_roots), aggregate_dirs=sorted(aggregate), cwd=cwd)
+        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "aggregate_dirs": [],
+                "index_paths": [], "cwd": cwd}
+    return dict(best, roots=roots, data_roots=sorted(data_roots), aggregate_dirs=sorted(aggregate),
+                index_paths=index_paths, cwd=cwd)
 
 
 # ------------------------------------------------------------------- data refs
@@ -993,6 +1061,9 @@ def mcp_violation(tool, tool_input, cwd, mode):
                 continue
             if pattern.search(text):
                 return f"an argument contains {label}"
+        index = load_index(mode)
+        if index and index_hit(text, index):
+            return "an argument matches a value in the project's identifier index"
         if uploadish and not value.startswith(("/clipboard", "http://", "https://")) and is_data_path(value.strip(), cwd, mode):
             return "the tool would send a local data file"
     return None
