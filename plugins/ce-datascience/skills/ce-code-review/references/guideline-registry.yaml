@@ -25,12 +25,14 @@ evidence:
   PRISMA-DTA: {title: PRISMA-DTA, scope: diagnostic test accuracy systematic reviews, role: extension, primary_citation: "McInnes et al. PRISMA-DTA statement. JAMA. 2018.", doi: 10.1001/jama.2017.19163, pmid: 29362800, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/29362800/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   PRISMA-IPD: {title: PRISMA-IPD, scope: individual participant data systematic reviews, role: extension, primary_citation: "Stewart et al. PRISMA-IPD statement. JAMA. 2015.", doi: 10.1001/jama.2015.3656, pmid: 25919529, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25919529/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   PRISMA-NMA: {title: PRISMA-NMA, scope: network meta-analysis reporting, role: extension, primary_citation: "Hutton et al. PRISMA extension for network meta-analyses. Ann Intern Med. 2015.", doi: 10.7326/M14-2385, pmid: 26030634, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26030634/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
+  PRISMA-P: {title: PRISMA-P 2015, scope: systematic review and meta-analysis protocol reporting, role: protocol, primary_citation: "Moher et al. PRISMA-P 2015 statement. Syst Rev. 2015.", doi: 10.1186/2046-4053-4-1, pmid: 25554246, pmcid: PMC4320440, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/25554246/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher]}
   PRISMA-SCR: {title: PRISMA-ScR, scope: scoping review reporting, role: extension, primary_citation: "Tricco et al. PRISMA-ScR. Ann Intern Med. 2018.", doi: 10.7326/M18-0850, pmid: 30178033, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/30178033/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   QUADAS-2: {title: QUADAS-2, scope: diagnostic accuracy study quality assessment, role: appraisal, primary_citation: "Whiting et al. QUADAS-2. Ann Intern Med. 2011.", doi: 10.7326/0003-4819-155-8-201110180-00009, pmid: 22007046, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/22007046/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   RECORD: {title: RECORD statement, scope: routinely collected health data reporting, role: extension, primary_citation: "Benchimol et al. The RECORD statement. PLoS Med. 2015.", doi: 10.1371/journal.pmed.1001885, pmid: 26440803, pmcid: PMC4595218, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26440803/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   RECORD-PE: {title: RECORD-PE, scope: pharmacoepidemiology using routinely collected data, role: extension, primary_citation: "Langan et al. RECORD-PE. BMJ. 2018.", doi: 10.1136/bmj.k3532, pmid: 30429167, pmcid: PMC6234471, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/30429167/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   REFORMS: {title: REFORMS, scope: machine-learning-based science, role: ML-science-guideline, primary_citation: "Kapoor et al. REFORMS. Sci Adv. 2024.", doi: 10.1126/sciadv.adk3452, pmid: 38691601, pmcid: PMC11092361, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/38691601/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
-  SPIRIT-AI: {title: SPIRIT-AI extension, scope: clinical trial protocol reporting for AI interventions, role: protocol, primary_citation: "Cruz Rivera et al. SPIRIT-AI extension. Lancet Digit Health. 2020.", doi: 10.1016/S2589-7500(20)30219-3, pmid: 33328049, pmcid: PMC8212701, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/33328049/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
+  SPIRIT: {title: SPIRIT 2025 statement, scope: randomized trial protocol reporting, role: protocol, primary_citation: "Chan et al. SPIRIT 2025 statement: updated guideline for protocols of randomised trials. BMJ. 2025.", doi: 10.1136/bmj-2024-081477, pmid: 40294953, pmcid: PMC12035670, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40294953/, verification_date: 2026-10-10, status: verified, sources: [pubmed, publisher], current_reference: SPIRIT-2025}
+  SPIRIT-AI: {title: SPIRIT-AI extension, scope: clinical trial protocol reporting for AI interventions, role: protocol, note: "Written against SPIRIT 2013; apply with the SPIRIT 2025 core", primary_citation: "Cruz Rivera et al. SPIRIT-AI extension. Lancet Digit Health. 2020.", doi: 10.1016/S2589-7500(20)30219-3, pmid: 33328049, pmcid: PMC8212701, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/33328049/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   SQUIRE: {title: SQUIRE 2.0, scope: quality-improvement reporting, role: quality-improvement, primary_citation: "Ogrinc et al. SQUIRE 2.0. BMJ Qual Saf. 2016.", doi: 10.1136/bmjqs-2015-004411, pmid: 26369893, pmcid: PMC5256233, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26369893/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher]}
   STARD: {title: STARD 2015, scope: diagnostic accuracy reporting, role: primary, primary_citation: "Bossuyt et al. STARD 2015. BMJ. 2015.", doi: 10.1136/bmj.h5527, pmid: 26511519, pmcid: PMC4623764, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/26511519/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, equator, publisher]}
   STARD-AI: {title: STARD-AI, scope: AI diagnostic accuracy reporting, role: extension, primary_citation: "Sounderajah et al. The STARD-AI reporting guideline. Nat Med. 2025.", doi: 10.1038/s41591-025-03953-8, pmid: 40954311, pmcid: null, authoritative_url: https://pubmed.ncbi.nlm.nih.gov/40954311/, verification_date: 2026-10-10, status: verified, sources: [pubmed, paperclip, publisher], current_reference: STARD-AI-2025}
@@ -175,6 +177,13 @@ guidelines:
     extension_for: [systematic-review]
     role: extension
     ai_extension: false
+  PRISMA-P:
+    file: prisma-p-checklist.md
+    aliases: [prisma-p-2015]
+    primary_for: []
+    extension_for: [systematic-review]
+    role: protocol
+    ai_extension: false
   PRISMA-SCR:
     file: prisma-scr-checklist.md
     aliases: [prisma-scoping]
@@ -210,6 +219,13 @@ guidelines:
     extension_for: [prediction-model, rct, observational, diagnostic-accuracy]
     role: ML-science-guideline
     ai_extension: true
+  SPIRIT:
+    file: spirit-checklist.md
+    aliases: [spirit-2025, spirit-2013]  # legacy spirit-2013 name resolves to the current SPIRIT 2025 core
+    primary_for: []
+    extension_for: [rct]
+    role: protocol
+    ai_extension: false
   SPIRIT-AI:
     file: spirit-ai-checklist.md
     aliases: []
