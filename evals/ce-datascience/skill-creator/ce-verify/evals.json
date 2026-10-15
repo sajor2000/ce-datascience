@@ -8,7 +8,8 @@
       "files": [],
       "expectations": [
         "Cross-references the analysis N against analysis/data-qa-report.md (N=8,234) using the 10%/25% thresholds",
-        "Compares the observed effect direction with the hypothesis in analysis/research-question.yaml and WARNs on mismatch",
+        "Compares the observed effect direction with the hypothesis in analysis/research-question.yaml and, on mismatch, checks the exposure reference level and outcome coding before WARNing",
+        "Judges missing data by the stated mechanism and SAP-consistent handling, not by a percent-missing pass/fail threshold",
         "Skips the leakage scan if no train/test split exists",
         "Emits a numbered Verification Report with PASS/WARN/FAIL lines and a summary count",
         "Emits '__CE_VERIFY__ pass=<n> warn=<n> fail=<n> blocking=<true|false>' with blocking=true if any FAIL"

@@ -63,7 +63,7 @@ Execute each applicable check from `references/check-catalog.md`. Skip checks th
  1. [PASS] Sample size: N=8,234 matches cohort definition (data-qa reported N=8,234)
  2. [PASS] No data leakage signals detected
  3. [WARN] Effect direction: OR=0.72 (protective) — hypothesis predicted harmful exposure
- 4. [PASS] Missing data: max 3.2% (BMI), within SAP threshold of 5%
+ 4. [PASS] Missing data: BMI 3.2% missing (MAR assumed), MI m=20 with outcome in imputation model, matches SAP-8
  5. [PASS] No PHI detected in output/
  6. [WARN] Figure analysis/figures/fig1.png: legend overlaps data region
  7. [PASS] Seeds set, renv.lock present
