@@ -112,26 +112,13 @@ Commit subjects are imperative and name the outcome (what is now possible or fix
 2. **Data, PHI, and large-output check.** Review every file named for a commit. Leave out, and report as left out: patient-level or raw data files (`.csv`, `.tsv`, `.parquet`, `.feather`, `.rds`, `.RData`, `.sas7bdat`, `.dta`, `.sav`, `.xlsx`, and similar) unless clearly synthetic fixtures or aggregate outputs the repo already tracks; anything that may hold PHI or identifiers, credentials, or `.env` files; large or regenerable outputs (model objects, caches, untracked rendered reports, files over roughly 50 MB). Never `git add -f` an ignored path. If the user explicitly asks to commit such a file, confirm it is synthetic or de-identified first.
 3. **Group.** If files clearly split into separate logical changes, make separate commits (2-3 max). Group at the file level only (no `git add -p`). When ambiguous, make one commit.
 4. **Re-read the branch.** Run `git branch --show-current` immediately before committing. If it is empty, the default branch, or not the branch resolved above, stop and re-resolve per Step 1.
-5. **Commit.** Commit each named group through a temporary index so the user's real index remains untouched until success. Copy a named file's existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Avoid `git add -A`, `git add .`, shell interpolation, and pathspec commits. Write the message to a file outside the repository with the file-write tool:
+5. **Commit.** Commit each named group through a temporary index so the user's real index remains untouched until success. Copy a named file's existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Avoid `git add -A`, `git add .`, shell interpolation, and pathspec commits. Write the message to a file outside the repository with the file-write tool, then run the bundled script once per group:
    ```bash
-   group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
-   group_index="$group_index_dir/index"
-   GIT_INDEX_FILE="$group_index" git read-tree HEAD || exit $?
-   for group_path in "file1" "file2" "file3"; do
-     if git diff --cached --quiet -- "$group_path"; then
-       GIT_INDEX_FILE="$group_index" git add -- "$group_path" || exit $?
-     else
-       diff_status=$?
-       test "$diff_status" -eq 1 || exit "$diff_status"
-       group_patch="$group_index_dir/staged.patch"
-       git diff --cached --binary -- "$group_path" > "$group_patch" || exit $?
-       GIT_INDEX_FILE="$group_index" git apply --cached --binary "$group_patch" || exit $?
-     fi
-   done
-   GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
-   git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
+   SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+   if [ ! -f "$SKILL_DIR/scripts/commit-group.sh" ]; then echo "ce-commit-push-pr: scripts/commit-group.sh not found under SKILL_DIR=$SKILL_DIR" >&2; exit 1; fi;
+   bash "$SKILL_DIR/scripts/commit-group.sh" <message-file> file1 file2 file3
    ```
-   Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow. Run the commands in order, stop immediately if any command fails, and run the final restore only after the commit succeeds. In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
+   The script copies each file's staged snapshot when present (otherwise its working-tree content), commits the temporary index with `git commit -F`, then aligns only the committed paths in the real index with the new `HEAD`. It handles unborn repos and exits non-zero, leaving the real index untouched, if any step fails; stop and report the error.
 
 ### Step 5: Push
 
