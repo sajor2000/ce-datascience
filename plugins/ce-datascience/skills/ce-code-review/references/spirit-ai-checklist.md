@@ -145,7 +145,7 @@ This checklist supplements the SPIRIT 2025 core checklist. Apply both together.
 - Statistical analysis plan sections specific to AI performance evaluation
 - Pre-specified performance metrics (AUC, sensitivity, specificity, calibration)
 - Subgroup analysis plan for demographic and clinical subgroups
-- Fairness metric specifications (equalized odds, demographic parity, predictive parity)
+- Fairness criterion named and justified (e.g., within-group calibration, equalized odds, predictive parity); when outcome prevalence differs between groups these criteria cannot all hold at once, so the plan should state which one matches the clinical harm
 
 ### Item 12 -- Comparison strategy
 
