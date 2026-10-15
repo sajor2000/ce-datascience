@@ -50,7 +50,10 @@ describe("reporting guideline registry", () => {
     expect(rootReadme).toContain(`${count} reporting checklists`)
     expect(pluginReadme).toContain(`${count} standards`)
     expect(pluginReadme).toContain(`${count} guidelines`)
-    // The reviewer description is owned separately; its body must not hard-code a stale count.
+    // The reviewer description names the registry, not a count that goes stale.
+    expect(reviewer).toMatch(/^description:.*guideline registry/m)
+    expect(reviewer).not.toMatch(/^description:.*\d+ guidelines/m)
+    // The reviewer body must not hard-code a stale count either.
     for (const match of reviewerBody.matchAll(/(\d+) guidelines/g)) expect(Number(match[1])).toBe(count)
     expect(routingMap).toContain("guideline-registry.yaml")
     expect(routingMap).not.toMatch(/\b35 supported\b/)
