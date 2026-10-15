@@ -37,13 +37,23 @@ try:
     from Bio import Entrez
 except ImportError:
     sys.exit(
-        "biopython is required: python3 -m pip install --upgrade biopython\n"
-        "(provides Bio.Entrez with auto rate-limit + retry)"
+        "biopython is required. Run with: uv run --with biopython python3 pubmed_search.py ...\n"
+        "or install biopython in the project's environment (provides Bio.Entrez)"
     )
 
 
+# Discovery filters, not validated systematic-review filters. "rct" is
+# high-precision (indexed publication type only); "rct-sensitive" is the
+# Cochrane Highly Sensitive Search Strategy, sensitivity-maximizing 2008
+# revision, PubMed format (Cochrane Handbook ch. 4, Box 4.4.a), lines #1-#8.
+# "prediction" and "diagnostic" are high-precision, low-sensitivity MeSH
+# conjunctions; reviews should use a validated filter (e.g., Geersing 2012,
+# PMID 22393453) instead.
 STUDY_TYPE_FILTERS = {
     "rct":          '("Randomized Controlled Trial"[Publication Type])',
+    "rct-sensitive": ('(randomized controlled trial[pt] OR controlled clinical trial[pt] '
+                      'OR randomized[tiab] OR placebo[tiab] OR drug therapy[sh] '
+                      'OR randomly[tiab] OR trial[tiab] OR groups[tiab])'),
     "cohort":       '("Cohort Studies"[MeSH Terms])',
     "case-control": '("Case-Control Studies"[MeSH Terms])',
     "cross-sectional": '("Cross-Sectional Studies"[MeSH Terms])',
@@ -53,7 +63,13 @@ STUDY_TYPE_FILTERS = {
 }
 
 
-def build_query(term: str, years: int | None, study_type: str | None) -> str:
+# Cochrane double negative (Box 4.4.a, #10-#11): drops animal-only records but
+# keeps records not yet MeSH-indexed, unlike humans[MeSH Terms].
+HUMAN_FILTER = "NOT (animals[mh] NOT humans[mh])"
+
+
+def build_query(term: str, years: int | None, study_type: str | None,
+                english_only: bool = False) -> str:
     parts = [f"({term})"]
     if study_type:
         f = STUDY_TYPE_FILTERS.get(study_type)
@@ -63,8 +79,9 @@ def build_query(term: str, years: int | None, study_type: str | None) -> str:
         parts.append(f)
     if years:
         parts.append(f'("last {years} years"[PDat])')
-    parts.append("humans[MeSH Terms] AND English[lang]")
-    return " AND ".join(parts)
+    if english_only:
+        parts.append("English[lang]")
+    return f"({' AND '.join(parts)}) {HUMAN_FILTER}"
 
 
 def first_text(elt, default: str = "") -> str:
@@ -128,12 +145,12 @@ def parse_record(rec: dict) -> dict:
 
 
 def search(term: str, years: int | None, study_type: str | None,
-           max_results: int, email: str) -> list[dict]:
+           max_results: int, email: str, english_only: bool = False) -> list[dict]:
     Entrez.email = email
     if api_key := os.environ.get("NCBI_API_KEY"):
         Entrez.api_key = api_key
 
-    query = build_query(term, years, study_type)
+    query = build_query(term, years, study_type, english_only)
     print(f"[query] {query}", file=sys.stderr)
 
     with Entrez.esearch(db="pubmed", term=query, retmax=max_results,
@@ -184,6 +201,8 @@ def main() -> None:
     p.add_argument("--study-type", choices=sorted(STUDY_TYPE_FILTERS),
                    default=None)
     p.add_argument("--max", type=int, default=50, dest="max_results")
+    p.add_argument("--english-only", action="store_true",
+                   help="add English[lang]; off by default to avoid language bias")
     p.add_argument("--out", type=Path, required=True,
                    help="output CSV path; parent dirs created")
     p.add_argument("--email", default=os.environ.get("NCBI_EMAIL", "anonymous@example.com"),
@@ -191,7 +210,7 @@ def main() -> None:
     args = p.parse_args()
 
     rows = search(args.query, args.years, args.study_type,
-                  args.max_results, args.email)
+                  args.max_results, args.email, args.english_only)
     write_csv(rows, args.out)
     pmc_pct = sum(1 for r in rows if r["pmcid"]) / max(1, len(rows)) * 100
     print(f"__CE_PUBMED_RESULTS__ csv={args.out} n={len(rows)} "

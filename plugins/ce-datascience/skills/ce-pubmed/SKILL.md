@@ -1,7 +1,7 @@
 ---
 name: ce-pubmed
 description: "Searches PubMed/MEDLINE via E-utilities with MeSH-aware queries into a PMID and abstract CSV. Use when the user explicitly wants PubMed or PMIDs; broad asks go to ce-literature-search."
-argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-control|prediction|review --max 50"
+argument-hint: "<query terms>, optional: --years 5 --study-type rct|rct-sensitive|cohort|case-control|prediction|review --max 50 --english-only"
 ---
 
 # PubMed Method Search
@@ -22,18 +22,14 @@ Search PubMed/MEDLINE via NCBI E-utilities and return a structured CSV that down
 
 ## Prerequisites
 
-- Python with current Biopython: `python3 -m pip install --upgrade biopython`
+- Python with Biopython: run the script with `uv run --with biopython python3 ...`, or install Biopython in the project's environment; never into a shared system interpreter
 - Optional but recommended: `export NCBI_API_KEY=<key>` (lifts rate limit from 3 → 10 req/sec)
 - Optional: `export NCBI_EMAIL=<your-email>` (NCBI courtesy)
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Before any literature lookup, read `references/evidence-access.md` (PubMed and Paperclip MCP tools, fallbacks, and evidence rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script (`scripts/pubmed_search.py`, Step 1 below); without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** the PICO query from `analysis/research-question.yaml`, MeSH expansion (NCBI's `QueryTranslation`), and PMID/PMCID/DOI capture for every CSV row.
 
 When the PubMed MCP path is used instead of the script, write the same CSV
@@ -73,7 +69,7 @@ If `__CE_RESEARCH_QUESTION__` is not present and no `<query terms>` are passed, 
 
 ### 1. Run the bundled script
 
-The `scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries. Prefer it over hand-rolling `requests` because Entrez already implements the rate-limit + retry logic that hand-rolled code routinely gets wrong.
+`scripts/pubmed_search.py` wraps biopython.Entrez and handles MeSH expansion, batched retrieval, rate limits, and retries; use it instead of hand-rolled HTTP calls.
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
@@ -84,15 +80,20 @@ python3 "$SKILL_DIR/scripts/pubmed_search.py" \
 ```
 
 The script prints three diagnostic lines to stderr the user should always see:
-- `[query] (sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...` — the query string sent to NCBI, with the study-type, date, human, and English filters added.
+- `[query] ((sepsis bundle ...) AND ("Cohort Studies"[MeSH Terms]) AND ...) NOT (animals[mh] NOT humans[mh])` — the query string sent to NCBI, with the study-type, date, and human filters added (and `English[lang]` only with `--english-only`).
 - `[hits]  142 matched; fetching 50` — the size of the matched set vs what was retrieved.
-- `[mesh]  ...` — NCBI's `QueryTranslation`, the actual query NCBI ran after MeSH expansion. Surface this; silent MeSH expansion is the #1 source of "why didn't my paper come up?".
+- `[mesh]  ...` — NCBI's `QueryTranslation`, the actual query NCBI ran after MeSH expansion. Always surface it.
+
+Filters are discovery aids, not validated systematic-review filters:
+- The human limit is the Cochrane double negative (`NOT (animals[mh] NOT humans[mh])`, Cochrane Handbook ch. 4, Box 4.4.a), so records not yet MeSH-indexed survive.
+- No language limit is applied unless `--english-only` is passed (Cochrane Handbook §4.4: language restrictions risk language bias).
+- `--study-type rct` is high-precision (indexed publication type only, misses unindexed trials); `rct-sensitive` is the Cochrane Highly Sensitive Search Strategy (Box 4.4.a). `prediction` and `diagnostic` are high-precision, low-sensitivity MeSH filters; for a review, use a validated filter such as Geersing et al. 2012 (PLoS One, PMID 22393453) and name it in the search record.
 
 ### 2. Write the human summary
 
 After the CSV exists, write a sibling Markdown summary at `analysis/pubmed/<query-slug>-<YYYYMMDD>.md` with:
 
-1. **Top-10 by recency × journal heuristic** — newest hit from the highest-tier journal in the result set wins. The heuristic doesn't have to be perfect; it gives the user a hand-pickable list.
+1. **Top-10 shortlist** — the most recent and most relevant study designs for the question; journal prestige is not a quality signal. Label it a hand-pickable list, not a ranking of evidence quality.
 2. **MeSH-term histogram** — top 15 MeSH terms across results. Reveals what the literature actually indexes this topic as, not what the user typed.
 3. **Study-type histogram** — RCTs vs cohorts vs reviews. Tells the user whether the prior literature is observational or interventional.
 4. **% with PMC full-text** — proportion of rows with non-empty `pmcid`. This is the upper bound on what `ce-method-extract` can do with full text.
