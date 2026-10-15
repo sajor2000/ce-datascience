@@ -1,58 +1,78 @@
 # Sensitive-Data Boundary Gate
 
-The `ce-setup` skill normally records the boundary. Reuse the saved answer; ask only when nothing is saved.
+The `ce-setup` skill normally records the boundary. Apply this gate before opening data files or patient-level outputs.
 
-## 1. Read the saved answer
+## Gate
 
-Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool and look for:
+**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only. In agent, autofix, report-only, or headless mode, retain `PHI authorization: not confirmed` for sub-agents; with `approved` or `no-sensitive-data`, pass `PHI authorization: confirmed`.
 
-```yaml
-phi_environment:
-  compliant: true          # true = endpoint approved; false = schema-only
-  # sensitive_data: false  # public or synthetic data only
-  confirmed_on: 2026-10-10 # date the user answered
+<!-- ask-and-save:start -->
+## Ask once and save
+
+Ask exactly one question with the platform's blocking question tool (`AskUserQuestion` in Claude Code, loaded first with `ToolSearch` and `select:AskUserQuestion` when its schema is not loaded; `request_user_input` in Codex; `ask_user` in Gemini and Pi). If no blocking tool exists or the call errors, show the three options as a numbered list and wait.
+
+- Stem: "Will this project use sensitive data (PHI, PII, or other restricted records)? If so, is the model endpoint the agent runs on approved for it, for example HIPAA-compliant under a BAA or approved by your institution?"
+- Options, in this order:
+  1. `Approved endpoint: full access` - the endpoint is approved for this project's sensitive data.
+  2. `Not approved or unsure: schema-only` - the data is sensitive and the endpoint is not approved, or the user does not know.
+  3. `No sensitive data: public or synthetic` - nothing in the project is restricted.
+
+| Answer | Write to `phi_environment` | Show the user |
+|---|---|---|
+| `Approved endpoint: full access` | `mode: approved`, `confirmed_on: <today>` | One line: `Saved: approved endpoint, no data restrictions. Confirming that approval (BAA or institutional sign-off) is your responsibility.` Never mention the boundary again. |
+| `Not approved or unsure: schema-only` | `mode: schema-only`, `confirmed_on: <today>` | The schema-only explainer below, once. |
+| `No sensitive data: public or synthetic` | `mode: no-sensitive-data`, `confirmed_on: <today>` | One line: `Saved: no sensitive data, no restrictions.` Never mention the boundary again. |
+
+Resolve `<today>` at runtime, then save:
+
+1. Run `git check-ignore -q .ce-datascience/config.local.yaml`. Exit 0 means ignored. Outside a git repository, skip to step 3.
+2. If it is not ignored, add `.ce-datascience/*.local.yaml` to `.gitignore` and say so in the confirmation line.
+3. Merge the block into `.ce-datascience/config.local.yaml`, creating the file if needed. Keep every other key, and drop any legacy `compliant` or `sensitive_data` key from the block so it cannot conflict with `mode`. Never write data values, identifiers, or credentials to the config.
+
+In headless or non-interactive runs, do not ask or save. Work in schema-only mode for the run.
+
+### Schema-only explainer (show once after that answer)
+
+```text
+Schema-only mode is on. The model endpoint is not approved for this data, so no
+data values (names, MRNs, claim numbers, dates, notes, or any other cell) go to
+the agent.
+
+The agent CAN see:  column headings, column types, row counts, % missing, and
+                    aggregate results your own runs produce.
+The agent CANNOT:   look at example rows; debug value-level parsing, recoding,
+                    or join mismatches by example; read free text or notes;
+                    spot individual data-entry errors.
+
+How work proceeds:  the agent writes the code; scripts print only aggregates,
+                    with counts under 11 suppressed. For structure, the agent
+                    runs the schema helper, which prints headings, types,
+                    counts, and % missing only.
+
+In Claude Code a guard hook blocks tool calls that would read data files. It
+cannot see what a script prints, so keep scripts aggregate-only.
+To change this later, re-run the ce-setup skill or edit phi_environment.mode
+in .ce-datascience/config.local.yaml.
 ```
+<!-- ask-and-save:end -->
 
-| Saved value | Action |
-|---|---|
-| `compliant: true` or `sensitive_data: false` | Unrestricted. Proceed silently: no reminder, banner, or question about the boundary for the rest of the session. Pass `PHI authorization: confirmed` to sub-agents that take the marker. |
-| `compliant: false` | Schema-only mode (section 4). State it in one line the first time it changes what the agent does, then not again. |
-| missing, empty, or unreadable | Go to step 2. |
-
-Ask again, and overwrite the saved value, only when the user says the model endpoint or data has changed, or asks to reset it.
-
-## 2. Ask once (interactive mode only)
-
-Ask exactly one question with the platform's blocking question tool (`AskUserQuestion` in Claude Code, loaded with `ToolSearch` `select:AskUserQuestion` when needed; `request_user_input` in Codex; `ask_user` in Gemini and Pi). If no blocking tool exists or the call errors, show the options as a numbered list and wait.
-
-- Question: "Will this project use sensitive data (PHI, PII, or other restricted records)? If so, is the model endpoint approved for it?"
-- Options: `Approved endpoint: full access`, `Not approved or unsure: schema-only`, `No sensitive data: public or synthetic`
-
-Map them to `compliant: true`, `compliant: false`, and `sensitive_data: false`. For `Approved endpoint: full access`, add one line that confirming the approval is the user's responsibility, then never raise it again.
-
-In agent, autofix, report-only, or headless mode, do not ask, wait, or write the config. Use `PHI authorization: not confirmed` and work in schema-only mode.
-
-## 3. Save the answer
-
-1. Check that the config file is gitignored: `git check-ignore -q .ce-datascience/config.local.yaml`. Exit 0 means ignored.
-2. If it is ignored (or the project is not a git repository), merge the `phi_environment` block into `.ce-datascience/config.local.yaml`, creating the directory and file if needed. Keep every other key unchanged. Set `confirmed_on` to today's date, resolved at runtime.
-3. If it is not ignored, do not save. A committed answer would let another machine inherit an approval it never made. Use the answer for this session only and tell the user to add `.ce-datascience/*.local.yaml` to `.gitignore` (or run the `ce-setup` skill) so it can be remembered.
-4. Confirm in one line, for example: `Saved: schema-only mode (.ce-datascience/config.local.yaml). Re-run ce-setup or edit phi_environment to change it.`
-
-## 4. Schema-only mode
+## Schema-only mode
 
 - Never read, grep, print, or paste data-file contents (names, MRNs, claim numbers, dates, notes, or any cell value) into the conversation. Use file names and column headings only.
-- For structure, run the bundled schema helper. It prints headings, inferred types, row count, non-null count, and % missing, never a value, and suppresses counts below 11:
-
-  ```bash
-  SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
-  python3 "$SKILL_DIR/scripts/schema-peek.py" <data-file>
-  ```
-
-- Write analysis code for the user to run locally. Scripts the agent runs must print only aggregates (counts, rates, model estimates) with cells under 11 suppressed, never rows, `head()`, examples, or distinct values.
+- Write analysis code as script files. Scripts the agent runs must print only aggregates (counts, rates, model estimates) with cells under 11 suppressed, never rows, `head()`, examples, or distinct values. Print aggregate tables or save them as Markdown; the guard treats `.csv` outputs as data files.
 - When a task needs value-level inspection (debugging a parse, a recode, or a join mismatch by example), say so, and give the user a script to run and summarize instead.
-- In Claude Code, a guard hook denies tool calls that would read data files. It cannot see what a script prints, so these rules still apply.
+
+## Schema helper
+
+`scripts/schema-peek.py` in this skill's directory prints headings, inferred types, row count, non-null counts, and % missing for CSV/TSV (Parquet/Feather with pyarrow, XLSX header with openpyxl). It never prints a cell value, prints `col_1..col_n` when the first row looks like data, and suppresses counts below 11. Check that the file exists, then run it with the first interpreter found among `python3`, then `python`, then `py`:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/schema-peek.py" <data-file>
+```
+
+If no Python interpreter exists, ask the user to paste only the header row, and state that types and counts are unknown.
 
 ## Always
 
-The config records a decision only; never write data values, identifiers, or credentials to it. In every mode, never commit or persist patient-level data to Git, issues, or public exports. This is a repository rule, not an endpoint rule, and needs no prompt.
+In every mode, never commit patient-level data to Git, issues, or public exports.

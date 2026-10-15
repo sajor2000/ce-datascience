@@ -26,7 +26,7 @@ describe("manuscript editing contracts", () => {
     expect(scientificWriting).toContain("Scientific validity, source traceability, and statistical meaning control the prose")
     expect(scientificWriting).toContain("A thesis in scientific writing is the strongest claim the design and results support")
     expect(scientificWriting).toContain("Do not manufacture controversy")
-    expect(scientificWriting).toContain("`compliant: true` or `sensitive_data: false` means unrestricted")
+    expect(scientificWriting).toContain("In `schema-only`, work only from de-identified excerpts, metadata, or reviewed aggregates.")
     expect(scientificWriting).toContain("never commit or publish PHI/PII or patient-level source details")
     expect(writingPatterns).toContain("PMID [40228832]")
     expect(writingPatterns).toContain("PMID [17941715]")

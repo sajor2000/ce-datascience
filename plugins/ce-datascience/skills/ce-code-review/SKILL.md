@@ -77,25 +77,16 @@ These rules govern every stage, sub-agent prompt, and artifact.
 1. **Classify the context** from already-available signals: the stack profile and CLIF signals (`__CE_CLIF__ active=true` in chat context, `CLIF_CLAUDE.md` at the root, or a git remote containing clif-icu, clif-consortium, or Common-Longitudinal-ICU-data-Format). Clinical, health-data, case-report, CLIF, or otherwise uncertain contexts are PHI-risk before path discovery.
 2. **Capture paths privately.** For a clearly non-clinical context, write changed and untracked path names under `$REVIEW_SCOPE_DIR` (`references/scope.md`) without echoing them. Never print a raw basename before this decision because a filename can itself contain an identifier.
 3. **Run a deterministic risk check** that returns only a risk boolean, counts, and extensions. Treat data files, codebooks, notebooks, manuscripts, figures, clinical notes, imaging, patient/MRN/case-like names, and any unclassified text file in a PHI-risk repository as PHI-risk. If local classification cannot establish a clearly non-PHI scope, treat it as PHI-risk.
-4. **Resolve the authorization marker** when PHI risk is present. A saved `phi_environment` (`.ce-datascience/config.local.yaml`) decides it without asking: `compliant: true` or `sensitive_data: false` is confirmed; `compliant: false` is not. Otherwise reuse a PHI/PII confirmation from this conversation, or in interactive mode ask once (Skill Value interaction rule) and wait. In agent, autofix, report-only, or headless mode, do not ask; unresolved stays not confirmed. Record exactly `PHI authorization: confirmed` or `PHI authorization: not confirmed`.
+4. **Resolve the authorization marker** when PHI risk is present. **Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only. Record exactly `PHI authorization: confirmed` for `approved` or `no-sensitive-data`, and `PHI authorization: not confirmed` for `schema-only`.
 
-- With confirmed authorization, the orchestrator may inspect PHI-risk content through the active endpoint but never places patient-level content in general reviewer prompts or artifacts. Route only the minimum necessary PHI-risk content to `ce-phi-leak-reviewer`, which must inherit the active session model with no model override; give other reviewers code, schemas, metadata, reviewed aggregates, and PHI-free context.
-- Without confirmed authorization, do not run a broad content diff or open PHI-risk files. Limit scope to path names, metadata, and files explicitly established as code, schemas, or reviewed aggregates. Report excluded content as a coverage gap rather than treating it as clean.
-- Regardless of authorization, never reproduce identifiers in prompts, findings, artifacts, logs, screenshots, or responses.
+- With confirmed authorization, reviewers have no content limits; any reviewer that reads PHI-risk content must inherit the active session model with no model override.
+- Without it, do not run a broad content diff or open PHI-risk files; scope to path names, metadata, and files established as code, schemas, or reviewed aggregates, and report excluded content as a coverage gap.
 
 When no PHI risk is present, continue normally without asking.
 
 **Safe display metadata.** After preflight, set `SAFE_BRANCH` and other display metadata to their raw values only when each value is established as PHI-free. Otherwise use an opaque label such as `[redacted-phi-risk-branch]`. All prompts, reports, and persistent run artifacts use the safe values; raw metadata never leaves `$REVIEW_SCOPE_DIR`.
 
-**Reviewer access.** When `ce-phi-leak-reviewer` is selected, pass the PHI authorization marker resolved during Stage 1. Never pass patient-level content to any other reviewer. General
-reviewer sub-agents may inspect only the preflight-approved paths and PHI-free
-context supplied by the orchestrator. Their prompts must prohibit broad
-checkout-reading commands such as `git diff`, `git show`, `git blame`,
-`git log`, and `gh pr view` in PHI-risk reviews. Only
-`ce-phi-leak-reviewer`, after `PHI authorization: confirmed`, may receive the
-minimum necessary patient-level context or read patient-level paths directly;
-with authorization not confirmed, it is limited to paths, code, schemas,
-metadata, and reviewed aggregates. Stage 5b validators inherit the general-reviewer limits.
+**Reviewer access.** When `ce-phi-leak-reviewer` is selected, pass the PHI authorization marker resolved during Stage 1. With `PHI authorization: not confirmed`, general reviewers and Stage 5b validators see only preflight-approved paths and PHI-free orchestrator context, and their prompts forbid broad checkout reads (`git diff`, `git show`, `git blame`, `git log`, `gh pr view`); `ce-phi-leak-reviewer` is limited to paths, code, schemas, metadata, and reviewed aggregates. With `PHI authorization: confirmed`, no reviewer has content limits.
 
 ## How to Run
 

@@ -32,15 +32,9 @@ explicit current request.
 
 ### Phase 0a: Sensitive-data boundary (before any data inspection)
 
-Check `phi_environment` in the config just read:
+**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only.
 
-| Saved value | Action |
-|---|---|
-| `compliant: true` or `sensitive_data: false` | Unrestricted. Do not ask or mention the boundary. |
-| `compliant: false` | Schema-only. Do not ask again. |
-| missing or empty | Read `references/sensitive-data-boundary.md`, ask its one question, and save the answer. |
-
-Re-ask only when the user asks to change the boundary or says the model endpoint changed. In schema-only mode, never read data-file contents during the evidence scan below: use file names, and run the schema helper named in that reference for column headings. Completion evidence: `phi_environment` holds `compliant` or `sensitive_data`, or a headless run is proceeding schema-only.
+When the mode is unset in an interactive run, or the user asks to change the boundary or says the model endpoint changed, read `references/sensitive-data-boundary.md` and follow it; it adds the schema-only explainer. In schema-only mode, never read data-file contents during the evidence scan below: use file names, and run the schema helper named in that reference for column headings. Completion evidence: `phi_environment.mode` is saved, or a headless run is proceeding schema-only.
 
 Run the `ce-language-detect` skill or apply its rules and retain its handoff:
 

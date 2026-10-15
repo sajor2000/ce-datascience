@@ -11,7 +11,7 @@
 - 7. Install and source policy
 
 Use these current `clifpy` patterns with synthetic/demo data, or with real CLIF
-data when the saved sensitive-data boundary is `phi_environment.compliant: true`
+data when the saved sensitive-data boundary `phi_environment.mode` is `approved`
 (schema-only projects run these recipes locally and return aggregates). Source: `https://clif-icu.com/`, the
 current `clifpy` user guide, and `Common-Longitudinal-ICU-data-Format/clifpy`.
 Recheck its API before upgrading an existing locked project.

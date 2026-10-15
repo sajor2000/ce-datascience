@@ -40,7 +40,8 @@ python3 "$SKILL_DIR/scripts/assess_sas_stata.py" --project-root . --scan-dir ana
 
 - Do not generate new SAS/Stata project scaffolds automatically.
 - Do not claim statistical equivalence after a port without paired output comparison.
-- Do not read or commit `.dta`, `.sas7bdat`, or other patient-level files unless the project explicitly permits access and PHI handling is clear.
+- Never commit `.dta`, `.sas7bdat`, or other patient-level files to Git.
+- **Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only.
 
 ## References
 

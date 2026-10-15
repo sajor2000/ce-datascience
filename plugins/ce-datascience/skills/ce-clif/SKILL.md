@@ -112,16 +112,7 @@ If auto-detection signals are present, activate silently and print the acknowled
 Load `references/clif-rules.md` (always), `references/mcide-vocab.md` (when the session touches `_category` columns or vocabulary checks), and `references/poc-table.md` (when an edit or PR is proposed against a protected path).
 
 Before reading patient-level data, code output, logs, or tracebacks, apply the
-sensitive-data boundary in `references/clif-rules.md`. A saved
-`phi_environment` in `.ce-datascience/config.local.yaml` is the user's answer:
-`compliant: true` or `sensitive_data: false` means unrestricted, so proceed
-silently and never raise the boundary again this session; `compliant: false`
-means schema-only. If nothing is saved and the user has not answered in the
-current conversation, ask once and wait in interactive mode. In agent, autofix,
-report-only, or headless mode, do not ask or wait. Preserve an exact
-`PHI authorization: confirmed` marker supplied by the orchestrator; otherwise
-retain `PHI authorization: not confirmed` and continue only with paths, code,
-schemas, metadata, and reviewed aggregates. CLIF's federated rules (no
+sensitive-data boundary in `references/clif-rules.md`. CLIF's federated rules (no
 patient-level tables leave the site, `n >= 10` floor for shared outputs) apply
 in every mode.
 

@@ -9,7 +9,7 @@ prompt_path: evals/ce-datascience/cases/ce-work-approved-boundary-no-nag/prompt.
 fixtures:
   - path: evals/ce-datascience/cases/ce-work-approved-boundary-no-nag/fixtures/config.local.yaml
     destination: workspace/.ce-datascience/config.local.yaml
-    sha256: ca6717e5d8979b61b23c9a205a330508eff8f8f12ffec1e673a68a56e0e5479a
+    sha256: af895ab26241e64667a839f07aa1c56d636c01df6337239938b8dc7d125066a5
   - path: evals/ce-datascience/cases/ce-work-approved-boundary-no-nag/fixtures/synthetic-cohort.csv
     destination: workspace/data/synthetic-cohort.csv
     sha256: 0b0f5bfd54fd86505df58c7459a51f606c577dff98ec1433ac4bc7234abf3c51
