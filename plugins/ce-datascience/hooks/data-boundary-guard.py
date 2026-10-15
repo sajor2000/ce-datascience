@@ -74,6 +74,7 @@ CODE_TYPES = {
 }
 SCRIPT_EXTS = {"py", "r", "sh", "bash", "zsh", "jl", "qmd", "rmd", "js", "mjs", "ts", "rb", "pl", "php", "lua", "do", "sas"}
 MODES = ("approved", "schema-only", "no-sensitive-data")
+AGGREGATE_DIRS = ("output", "results", "analysis/publication", "analysis/sap-tables")
 CONFIG_REL = os.path.join(".ce-datascience", "config.local.yaml")
 
 METADATA_VERBS = {
@@ -288,7 +289,13 @@ def _project_mode(ce_root, main):
         for base in bases:
             path = os.path.normpath(expanded if os.path.isabs(expanded) else os.path.join(base, expanded))
             data_roots.update({path, os.path.realpath(path)})
-    return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots)}
+    aggregate = set()
+    for rel in AGGREGATE_DIRS:
+        path = os.path.normpath(os.path.join(ce_root, rel))
+        aggregate.update({path, os.path.realpath(path)})
+    aggregate = sorted(aggregate)
+    return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots),
+            "aggregate_dirs": aggregate}
 
 
 RANK = {"off": 0, "approved": 1, "no-sensitive-data": 1, "schema-only": 2}
@@ -314,19 +321,20 @@ def _anchors(context):
 def resolve_mode(context):
     """Resolve the boundary for a tool call from cwd and the paths it targets. Strictest project wins."""
     cwd, anchors = _anchors(context)
-    cache, best, data_roots, roots = {}, None, set(), []
+    cache, best, data_roots, roots, aggregate = {}, None, set(), [], set()
     for anchor in anchors:
         found = _locate(anchor, cache)
         if not found:
             continue
         project = _project_mode(*found)
         data_roots.update(project["data_roots"])
+        aggregate.update(project["aggregate_dirs"])
         roots.extend(r for r in project["roots"] if r not in roots)
         if best is None or RANK[project["mode"]] > RANK[best["mode"]]:
             best = project
     if best is None:
-        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "cwd": cwd}
-    return dict(best, roots=roots, data_roots=sorted(data_roots), cwd=cwd)
+        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "aggregate_dirs": [], "cwd": cwd}
+    return dict(best, roots=roots, data_roots=sorted(data_roots), aggregate_dirs=sorted(aggregate), cwd=cwd)
 
 
 # ------------------------------------------------------------------- data refs
@@ -778,7 +786,16 @@ def script_reads_data(path, cwd, mode):
         return False
     if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
         return True  # reads a path held in a variable or argument
-    return any(is_data_path(a or b, cwd, mode) for a, b in LITERAL.findall(text))
+    return any(is_data_path(lit, cwd, mode) and not in_aggregate_dir(lit, cwd, mode)
+               for lit in (a or b for a, b in LITERAL.findall(text)))
+
+
+def in_aggregate_dir(raw, cwd, mode):
+    """A path under a configured aggregate directory and outside data_root (data_root always wins)."""
+    path = _resolve(raw, cwd)
+    real = os.path.realpath(path)
+    return (_under(path, mode.get("aggregate_dirs", [])) and _under(real, mode.get("aggregate_dirs", []))
+            and not _under(path, mode["data_roots"]) and not _under(real, mode["data_roots"]))
 
 
 def script_file(verb, args):
