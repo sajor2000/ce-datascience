@@ -35,12 +35,8 @@ Wraps the standard power calculations behind a single command. Produces a script
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before the first literature lookup (PubMed and Paperclip MCP tool names, fallbacks, and evidence rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** effect sizes, control-arm event rates, SDs, and ICCs for the anchor come from `__CE_EFFECT_SIZE__` or from a source searched, read, and cited here with its PMID and level read, never from a default; any numeric default that remains (dropout, ICC, allocation) is written as an assumption to replace.
 
 ## Core workflow
@@ -61,16 +57,19 @@ When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the 
 | Design | Formula | R | Python |
 |--------|---------|---|--------|
 | Two-sample t (continuous) | Cohen's d | `pwr::pwr.t.test` | `statsmodels.stats.power.TTestIndPower` |
+| ANCOVA on a baseline covariate | t-test N × (1 - ρ²) | `pwr::pwr.t.test`, then deflate | as t-test, then deflate |
 | Two-proportion (binary) | Chi-square / arcsine | `pwr::pwr.2p.test` | `statsmodels.stats.power.NormalIndPower` |
 | Paired t / pre-post | within-subject d | `pwr::pwr.t.test(type="paired")` | `statsmodels.stats.power.TTestPower` |
-| Log-rank (survival) | Schoenfeld | `gsDesign::nEvents` or hand-roll | `lifelines.statistics.logrank_test` (post-hoc only) -- use formula directly |
-| Cox regression | Hsieh + ANOVA-style | `powerSurvEpi::ssizeCT.default` | manual |
-| Cluster RCT | design-effect adjustment | `clusterPower` | manual |
+| Log-rank (survival) | Schoenfeld events (then events -> N) | `gsDesign::nEvents(hr, alpha = 0.025, beta = 0.2, sided = 1)` (defaults are one-sided 0.025, power 0.90); `gsDesign::nSurv` for N with accrual and dropout | `lifelines.statistics.sample_size_necessary_under_cph` / `power_under_cph` |
+| Cox regression, non-binary covariate | Hsieh-Lavori (events / (1 - R²)) | `powerSurvEpi::ssizeEpiCont.default` | manual (formula in cheatsheet) |
+| Cluster RCT (parallel) | design effect, unequal-size correction | `clusterPower` | manual (formula in cheatsheet) |
+| Stepped-wedge cluster RCT | Hussey-Hughes | `swCRTdesign::swPwr` | manual |
 | Mixed-effects (longitudinal) | Liu/Liang | `longpower` | manual |
 | Prediction model (development) | Riley criteria (EPV >= 10 alone is too lenient) | `pmsampsize::pmsampsize` | manual |
 | Diagnostic accuracy | exact binomial CI on sens/spec | `MKmisc` or hand-roll | `statsmodels.stats.proportion.proportion_confint` |
-| Equivalence / NI | TOST | `TOSTER::powerTOSTtwo` | `statsmodels` |
-| Multi-arm | Bonferroni-adjusted alpha | as above with α/(k-1) | as above |
+| Non-inferiority | one one-sided test against margin M, one-sided α = 0.025 | `pwr::pwr.t.test(d = (M + true_diff)/sd, sig.level = 0.025, alternative = "greater")` | `TTestIndPower(..., alternative="larger")` |
+| Equivalence | TOST, one-sided α = 0.025 at each margin | `TOSTER::power_t_TOST` (replaces deprecated `powerTOSTtwo`) | manual (formula in cheatsheet); statsmodels `ttost_ind` analyses but has no TOST power solver |
+| Multi-arm vs shared control | Bonferroni α/(k-1) (conservative) or Dunnett | as above with α/(k-1); simulation for Dunnett | as above |
 
 ### Step 2: Generate the script
 
@@ -85,6 +84,8 @@ Write to `analysis/power/<design>-<date>.R` or `.py`. Include:
 
 Execute the script (or print it for manual run). Capture stdout to `analysis/power/<design>-<date>.log`. Save the sweep table to `analysis/power/<design>-<date>-sweep.csv` and the plot to `<design>-<date>.png`.
 
+Completion check: recompute the point estimate with the closed-form formula in `references/formula-cheatsheet.md`. Script and formula must agree within 2% (t vs z); otherwise stop and report the discrepancy. Round every N up (`ceiling`) at each step: per arm, then total, then dropout inflation.
+
 ### Step 4: Write the SAP-6 paragraph
 
 Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`. When the anchor came from `ce-effect-size`, name the interval swept (PI or CI) and report the other one:
@@ -93,12 +94,12 @@ Generate a 1-paragraph summary at `analysis/power/<design>-<date>-summary.md`. W
 With α = 0.05 (two-sided), power = 0.80, and an assumed effect size of d = 0.40
 (based on N comparable studies extracted via `ce-method-extract`, PMIDs ...; range 0.28-0.52),
 a two-sample t-test requires 100 participants per arm (200 total). Allowing for
-15% loss to follow-up (assumption; replace with the site's observed rate), we will enrol 235 participants. A sensitivity analysis
-across d = 0.30 to d = 0.50 yields required total N from 128 to 351; we will
-re-evaluate at the 100-enrollee mark via interim conditional power.
+15% loss to follow-up (assumption; replace with the site's observed rate), we will enrol 236 participants. A sensitivity analysis
+across d = 0.30 to d = 0.50 yields required total N from 128 to 352 before attrition.
+No interim efficacy or sample-size re-estimation analysis is planned.
 ```
 
-Reference the prior literature explicitly by PMID/DOI with the level read so the assumption is auditable, and label every remaining default (dropout, ICC, allocation) as an assumption.
+Reference the prior literature explicitly by PMID/DOI with the level read so the assumption is auditable, and label every remaining default (dropout, ICC, allocation) as an assumption. Choose the target difference as both clinically important and realistic (DELTA2 guidance, Cook et al. BMJ 2018;363:k3750, PMID 30560792); a pooled literature estimate is an upper bound on a realistic target because published effects are selected. Do not promise an interim look or sample-size re-estimation: any adaptation needs a prespecified, type-I-error-controlling design (route to `ce-trial-design` for two-arm group-sequential designs).
 
 ### Step 5: Emit signal
 
@@ -115,7 +116,7 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 Rscript "$SKILL_DIR/scripts/pmsampsize_runner.R" --type b --csrsquared 0.15 --parameters 30 --prevalence 0.18 --out analysis/power/prediction-model-sample-size.md
 ```
 
-The sweep templates inlined above are starting points: copy one to `analysis/power/`, edit `params`, and run it from the project root (the R template installs `pwr`/`ggplot2` if missing; the Python one needs `matplotlib numpy pandas statsmodels`).
+The sweep templates listed under References are starting points: copy one to `analysis/power/`, edit `params`, and run it from the project root. Neither installs anything: the R template stops if `pwr` or `ggplot2` is missing, and the Python one stops if `matplotlib numpy pandas statsmodels` are missing. Install only with the user's approval.
 
 ## What this skill does NOT do
 
@@ -129,6 +130,4 @@ The sweep templates inlined above are starting points: copy one to `analysis/pow
 
 @./references/formula-cheatsheet.md
 
-@./references/sensitivity-sweep-template.R
-
-@./references/sensitivity-sweep-template.py
+Sweep templates (copy, edit `params`, run from the project root): `references/sensitivity-sweep-template.R`, `references/sensitivity-sweep-template.py`.

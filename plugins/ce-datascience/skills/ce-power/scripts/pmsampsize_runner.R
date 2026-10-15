@@ -1,11 +1,14 @@
 #!/usr/bin/env Rscript
-# Riley 2018 four-criterion sample-size calculation for prediction-model development.
+# Riley et al. minimum sample size for prediction-model development: three
+# criteria for binary/time-to-event outcomes, four for continuous outcomes.
 #
 # Why pmsampsize (Riley et al. BMJ 2020): the EPV >= 10 rule is too lenient for
-# most clinical prediction models. Riley's four-criterion framework (small
-# overfitting via shrinkage >= 0.9; small optimism in R^2; precise outcome
-# proportion / mean estimate; precise residual SD for continuous) is the current
-# standard and is implemented in the pmsampsize R package.
+# most clinical prediction models. Binary and time-to-event models use three
+# criteria (Stat Med 2019;38:1276-96, PMID 30357870): global shrinkage >= 0.9,
+# optimism in Nagelkerke R^2 <= 0.05, and precise overall risk or rate.
+# Continuous models use four (Stat Med 2019;38:1262-75, PMID 30347470): the
+# same two overfitting criteria plus precise residual SD and precise mean
+# (intercept). The pmsampsize R package implements both.
 #
 # Binary and time-to-event outcomes take the Cox-Snell R^2 (--csrsquared), or
 # Nagelkerke's R^2 (--nagrsquared), or for binary only the C-statistic
@@ -27,8 +30,8 @@
 #   Rscript pmsampsize_runner.R --type c --rsquared 0.40 --parameters 20 \
 #     --intercept 0 --sd 1
 #
-# Riley, R.D., Snell, K.I.E., Ensor, J. et al. Minimum sample size for developing
-# a multivariable prediction model. BMJ 368:m441 (2020).
+# Riley, R.D., Ensor, J., Snell, K.I.E. et al. Calculating the sample size required
+# for developing a clinical prediction model. BMJ 368:m441 (2020).
 
 if (!requireNamespace("pmsampsize", quietly = TRUE)) {
   cat("pmsampsize_runner.R: R package 'pmsampsize' is not installed; run install.packages('pmsampsize') and re-run\n",
@@ -114,12 +117,16 @@ if (a$type == "b") {
 }
 
 # Render a SAP-6-ready (Sample Size and Power) paragraph.
+crit <- if (a$type == "c") {
+  "four criteria (shrinkage >= target + optimism in R^2 <= 0.05 + precise residual SD + precise mean/intercept)"
+} else {
+  "three criteria (shrinkage >= target + optimism in Nagelkerke R^2 <= 0.05 + precise overall outcome risk/rate)"
+}
 md <- c(
   "# Sample size for prediction-model development",
   "",
-  "Method: Riley et al. 2020 four-criterion minimum sample size",
-  "        (small overfitting + small optimism + precise outcome + precise residual)",
-  "Tool:   pmsampsize R package",
+  sprintf("Method: Riley et al. minimum sample size, %s", crit),
+  sprintf("Tool:   pmsampsize R package %s", as.character(utils::packageVersion("pmsampsize"))),
   "",
   sprintf("Inputs: type=%s, %s=%.3f, candidate predictors=%d, shrinkage target=%.2f",
           a$type, names(fit)[1], fit[[1]], params, shrinkage),
@@ -129,9 +136,13 @@ md <- c(
   capture.output(print(res)),
   "",
   "## Reference",
-  "Riley, R.D. et al. Minimum sample size for developing a multivariable",
-  "prediction model. BMJ 368:m441 (2020).",
-  "https://www.bmj.com/content/368/bmj.m441"
+  "Riley, R.D. et al. Calculating the sample size required for developing a",
+  "clinical prediction model. BMJ 368:m441 (2020). PMID 32188600.",
+  if (a$type == "c") {
+    "Riley, R.D. et al. Minimum sample size ... Part I - continuous outcomes. Stat Med 38:1262-75 (2019). PMID 30347470."
+  } else {
+    "Riley, R.D. et al. Minimum sample size ... Part II - binary and time-to-event outcomes. Stat Med 38:1276-96 (2019). PMID 30357870."
+  }
 )
 
 # pmsampsize names the per-parameter ratio EPV (older), EPP (binary/survival,

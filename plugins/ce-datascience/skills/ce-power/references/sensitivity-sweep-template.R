@@ -1,9 +1,12 @@
 # Sensitivity sweep template -- two-sample t example
 # Edit the params block; rest is fixed.
 
-cran_repo <- "https://cloud.r-project.org"
-if (!requireNamespace("pwr", quietly = TRUE)) install.packages("pwr", repos = cran_repo)
-if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2", repos = cran_repo)
+# Never install from a template: a silent install.packages() can break a locked renv.
+for (pkg in c("pwr", "ggplot2")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(sprintf("R package '%s' is not installed; run install.packages('%s') with the user's approval, then re-run", pkg, pkg))
+  }
+}
 
 library(pwr)
 library(ggplot2)
