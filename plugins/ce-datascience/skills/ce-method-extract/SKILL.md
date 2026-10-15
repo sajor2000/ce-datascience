@@ -22,7 +22,7 @@ Reads a PubMed result CSV and produces a structured methods-comparison table for
 
 - After `ce-pubmed` has produced `analysis/pubmed/<query>-<date>.csv`
 - During `ce-plan` SAP drafting when method choice needs justification
-- Before `ce-power` when you need a prior effect-size estimate
+- Before `ce-power` when you need literature context for the target difference (published effects are typically inflated by publication bias and small-study effects; `ce-power` should justify the target difference as important and/or realistic per DELTA2, Cook et al., BMJ 2018, PMID 30560792)
 
 ## Prerequisites
 
@@ -31,12 +31,8 @@ Reads a PubMed result CSV and produces a structured methods-comparison table for
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+When this run needs literature, read `references/evidence-access.md` first; never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** the full text of each included paper (Methods, Results, statistical-analysis sections, and Table 1) for methods extraction; the CSV abstract is the source only when no lawful full text exists.
 
 ## Core workflow
@@ -51,7 +47,7 @@ Print: `[pubmed] using results from <path> (n=<N>)`. If neither an explicit path
 
 ### Step 1: Load and prioritize
 
-Read the input CSV. If `--full-text-only`, drop rows without `pmcid` and report how many were dropped. Sort by year (descending), then by study-type relevance (RCT > prospective cohort > retrospective cohort > case-control > case series). Cap at `--max` (default 25).
+Read the input CSV. If `--full-text-only`, drop rows without `pmcid` and report how many were dropped. Sort by year (descending), then by design (RCT > prospective cohort > retrospective cohort > case-control > case series; a project ordering for reading priority, not an evidence grade). Cap at `--max` (default 25).
 
 ### Step 2: Read the paper, not only the abstract
 
@@ -79,7 +75,9 @@ For each paper, populate:
 | `software` | R + package name, SAS, Stata, Python+statsmodels/sklearn, etc. |
 | `multiplicity_control` | Bonferroni / FDR / hierarchical / none |
 | `effect_size_reported` | OR, HR, RR, mean diff, with 95% CI |
-| `checklist_followed` | CONSORT / STROBE / TRIPOD / PRISMA / none stated |
+| `design` | RCT / prospective cohort / retrospective cohort / case-control / cross-sectional / simulation / methods guidance |
+| `bias_flags` | stated or obvious: selection, confounding, small n, single site, outcome-reporting; `none noted` otherwise (not a formal risk-of-bias assessment) |
+| `checklist_followed` | CONSORT / STROBE / TRIPOD / TRIPOD+AI / PRISMA / none stated |
 | `evidence_level` | `full_text` or `abstract`, from Step 2 |
 
 Be conservative: if the paper does not state a field, write `not reported` rather than infer. Fields such as `adjustment_set`, `software`, and `multiplicity_control` are rarely in an abstract; on an `abstract` row expect `not reported` rather than a guess.
@@ -91,7 +89,7 @@ Save to `analysis/pubmed/<query-slug>-methods.csv` with one row per paper, keepi
 - **Modal method** (most common) per outcome type
 - **Method × year** matrix (is the field shifting?)
 - **Software × method** matrix (what to install)
-- **Effect-size range** (min / median / max) for each commonly-reported metric
+- **Effect-size range** (min / median / max) for each commonly-reported metric, with a note that published estimates are likely inflated and should not be used unadjusted as the power target
 - **% of papers stating a checklist** (low % is itself informative)
 - **% of rows at `full_text`** versus `abstract`, so the SAP states how much of the justification rests on abstracts
 
@@ -99,12 +97,12 @@ Save to `analysis/pubmed/<query-slug>-methods.csv` with one row per paper, keepi
 
 `__CE_METHOD_EXTRACT__ csv=<path> n=<count> modal_method=<name>`
 
-The modal method becomes the default suggestion for the SAP's analytic method, with the comparison table (PMIDs, DOIs, and per-row `evidence_level`) as the citation.
+The modal method is reported as context for `ce-model-strategy`, which selects the analytic method from the estimand, outcome, and data structure; method frequency is never the selection criterion. The comparison table (PMIDs, DOIs, per-row `design` and `evidence_level`) is the citation for that context.
 
 ## What this skill does NOT do
 
 - Does not download PDFs or use unauthorized mirrors (full text via open PMC or a connected Paperclip service only)
-- Does not score paper quality (use a reporting-checklist tool for that, not a method-extractor)
+- Does not perform formal risk-of-bias or quality appraisal (it records design and obvious bias flags only)
 - Does not pool effect sizes (use the `ce-effect-size` skill)
 - Does not match the study to a checklist (use the `ce-checklist-match` skill)
 
