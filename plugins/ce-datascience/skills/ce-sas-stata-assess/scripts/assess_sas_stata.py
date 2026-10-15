@@ -13,6 +13,14 @@ SAS_PATTERNS = {
     "proc_phreg": re.compile(r"\bproc\s+phreg\b", re.I),
     "proc_mixed": re.compile(r"\bproc\s+mixed\b", re.I),
     "proc_glimmix": re.compile(r"\bproc\s+glimmix\b", re.I),
+    "proc_genmod": re.compile(r"\bproc\s+genmod\b", re.I),
+    "proc_glm": re.compile(r"\bproc\s+glm\b", re.I),
+    "proc_reg": re.compile(r"\bproc\s+reg\b", re.I),
+    "proc_freq": re.compile(r"\bproc\s+freq\b", re.I),
+    "proc_lifetest": re.compile(r"\bproc\s+lifetest\b", re.I),
+    "proc_mi": re.compile(r"\bproc\s+(mi|mianalyze)\b", re.I),
+    "proc_survey": re.compile(r"\bproc\s+survey\w+", re.I),
+    "proc_univariate": re.compile(r"\bproc\s+univariate\b", re.I),
     "proc_sql": re.compile(r"\bproc\s+sql\b", re.I),
     "data_step": re.compile(r"^\s*data\s+\w+", re.I | re.M),
     "libname": re.compile(r"\blibname\b", re.I),
@@ -24,10 +32,31 @@ STATA_PATTERNS = {
     "stcox": re.compile(r"^\s*stcox\b", re.I | re.M),
     "regress": re.compile(r"^\s*(regress|reg)\b", re.I | re.M),
     "xtreg": re.compile(r"^\s*xtreg\b", re.I | re.M),
+    "mixed": re.compile(r"^\s*(mixed|me(logit|probit|cloglog|ologit|oprobit|poisson|nbreg|glm|streg|intreg|tobit|qrprobit))\b", re.I | re.M),
+    "glm": re.compile(r"^\s*(glm|poisson|nbreg)\b", re.I | re.M),
+    "svy": re.compile(r"^\s*svy\b", re.I | re.M),
+    "teffects": re.compile(r"^\s*teffects\b", re.I | re.M),
+    "stcrreg": re.compile(r"^\s*stcrreg\b", re.I | re.M),
+    "margins": re.compile(r"^\s*margins\b", re.I | re.M),
+    "vce_cluster": re.compile(r"\bvce\(\s*cl(uster)?\b", re.I),
     "mi": re.compile(r"^\s*mi\s+", re.I | re.M),
     "global_macro": re.compile(r"^\s*global\s+", re.I | re.M),
     "putexcel": re.compile(r"^\s*putexcel\b", re.I | re.M),
     "esttab": re.compile(r"^\s*(esttab|outreg2)\b", re.I | re.M),
+}
+
+# Defaults that differ across SAS, Stata, and R; align them before comparing a port.
+PORTING_NOTES = {
+    "proc_phreg": "Cox ties: SAS PROC PHREG defaults to TIES=BRESLOW; R survival::coxph defaults to Efron.",
+    "stcox": "Cox ties: Stata stcox defaults to Breslow; R survival::coxph defaults to Efron.",
+    "proc_logistic": "PROC LOGISTIC models the response with Ordered Value 1 (Y=0 for a 0/1 outcome) unless EVENT= or DESCENDING is set, and CLASS defaults to PARAM=EFFECT; signs and contrasts differ from R/Stata defaults.",
+    "proc_genmod": "SAS CLASS reference level defaults to the last level (REF=LAST); R uses the first factor level.",
+    "proc_glm": "SAS CLASS reference level defaults to the last level; R uses the first factor level.",
+    "proc_mixed": "PROC MIXED reports denominator df (DDFM=); lme4 reports none. Use lmerTest (Satterthwaite) or pbkrtest (Kenward-Roger) to match DDFM=SATTERTH or KR.",
+    "proc_glimmix": "PROC GLIMMIX estimation method and DDFM= defaults differ from lme4::glmer (Laplace); align method and df before comparing.",
+    "mixed": "Stata mixed/me* default estimation, covariance structure, and df differ from lme4; align them and use lmerTest/pbkrtest for df.",
+    "vce_cluster": "Stata vce(cluster) applies a small-sample factor including G/(G-1); match it (for example sandwich::vcovCL type HC1) before comparing SEs.",
+    "proc_univariate": "Percentiles: SAS PCTLDEF=5 by default; R quantile() defaults to type 7.",
 }
 
 IGNORE_DIRS = {".git", "node_modules", "dist", "build", ".venv", "renv", "__pycache__"}
@@ -120,6 +149,9 @@ def main() -> int:
     report_lines.extend(
         [f"- `{name}`: {rel_list(root, paths)}" for name, paths in stata_hits.items()] or ["- None"]
     )
+    notes = [PORTING_NOTES[name] for name in list(sas_hits) + list(stata_hits) if name in PORTING_NOTES]
+    report_lines.extend(["", "## Defaults to align before comparing a port"])
+    report_lines.extend([f"- {note}" for note in dict.fromkeys(notes)] or ["- None detected"])
     report_lines.extend([
         "",
         "## Recommendation",
