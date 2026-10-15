@@ -126,6 +126,19 @@ describe("reporting guideline registry", () => {
     expect(target).toContain("PMID: 40903028")
   })
 
+  test("follows the published TARGET statement", async () => {
+    const target = await readReference("target-checklist.md")
+    const routing = await readReference("guideline-routing.md")
+
+    // TARGET: 21 items in six sections, standalone (Cashin et al. 2025, Table 2).
+    const targetItems = [...target.matchAll(/^### TARGET (\d+)/gm)].map((match) => Number(match[1]))
+    expect(targetItems).toEqual(Array.from({ length: 21 }, (_, i) => i + 1))
+    expect(target).toContain("Transparent")
+    expect(target).toContain("standalone")
+    expect(target).not.toMatch(/Use alongside STROBE/)
+    expect(routing).not.toMatch(/STROBE is always applied/)
+  })
+
   test("routing is evidence-aware and attribute-specific", async () => {
     const routing = await fs.readFile(
       path.join(

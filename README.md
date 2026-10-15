@@ -495,7 +495,7 @@ The checklist registry records publication evidence, current versus legacy versi
 | Prediction model | TRIPOD, TRIPOD+AI | CHARMS |
 | Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 |
 | Systematic review | PRISMA | DTA, NMA, IPD, ScR |
-| Target trial emulation | TARGET | |
+| Target trial emulation | TARGET (standalone) | |
 | Other | SQUIRE, GRAMMS, STaRT-RWE, ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL, PDSQI, REFORMS | |
 
 ---
