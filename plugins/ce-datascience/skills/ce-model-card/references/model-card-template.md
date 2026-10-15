@@ -58,42 +58,47 @@ Performance is reported overall and stratified by all factors above.
 
 ## 4. Metrics
 
-### 4.1 Performance overall (internal validation)
+### 4.1 Performance overall ({{ eval.internal.validation_type }}: apparent | bootstrap optimism-corrected | held-out split | internal-external)
+
+N = {{ eval.internal.n }}; events = {{ eval.internal.n_events }} (prevalence {{ eval.internal.prevalence }})
 
 | Metric | Value | 95% CI |
 |--------|-------|--------|
-| AUC | {{ eval.internal.auc }} | {{ eval.internal.auc_ci }} |
-| Brier score | {{ eval.internal.brier }} | -- |
-| Calibration intercept | {{ eval.internal.calibration_intercept }} | -- |
-| Calibration slope | {{ eval.internal.calibration_slope }} | -- |
-| Sensitivity (at threshold {{ threshold }}) | {{ eval.internal.sens }} | {{ eval.internal.sens_ci }} |
-| Specificity (at threshold {{ threshold }}) | {{ eval.internal.spec }} | {{ eval.internal.spec_ci }} |
+| C-statistic (AUC) | {{ eval.internal.auc }} | {{ eval.internal.auc_ci }} |
+| Brier score | {{ eval.internal.brier }} | {{ eval.internal.brier_ci }} |
+| Calibration intercept (calibration-in-the-large) | {{ eval.internal.calibration_intercept }} | {{ eval.internal.calibration_intercept_ci }} |
+| Calibration slope | {{ eval.internal.calibration_slope }} | {{ eval.internal.calibration_slope_ci }} |
+| Sensitivity (at threshold {{ eval.internal.threshold }}) | {{ eval.internal.sens }} | {{ eval.internal.sens_ci }} |
+| Specificity (at threshold {{ eval.internal.threshold }}) | {{ eval.internal.spec }} | {{ eval.internal.spec_ci }} |
 | PPV | {{ eval.internal.ppv }} | {{ eval.internal.ppv_ci }} |
 | NPV | {{ eval.internal.npv }} | {{ eval.internal.npv_ci }} |
 
 ### 4.2 Performance by subgroup
 
-| Subgroup | N | AUC | Calibration intercept | Sens | Spec |
-|----------|---|-----|------------------------|------|------|
-| Sex = F | ... | ... | ... | ... | ... |
-| Sex = M | ... | ... | ... | ... | ... |
-| Age 18-44 | ... | ... | ... | ... | ... |
-| Age 45-64 | ... | ... | ... | ... | ... |
-| Age 65+ | ... | ... | ... | ... | ... |
-| Race = ... | ... | ... | ... | ... | ... |
-| Site = A | ... | ... | ... | ... | ... |
+| Subgroup | N | Events | AUC | AUC 95% CI | Calibration intercept | Calibration slope | TPR | FPR |
+|----------|---|--------|-----|------------|------------------------|-------------------|-----|-----|
+| Sex = F | ... | ... | ... | ... | ... | ... | ... | ... |
+| Sex = M | ... | ... | ... | ... | ... | ... | ... | ... |
+| Age 18-44 | ... | ... | ... | ... | ... | ... | ... | ... |
+| Age 45-64 | ... | ... | ... | ... | ... | ... | ... | ... |
+| Age 65+ | ... | ... | ... | ... | ... | ... | ... | ... |
+| Race = ... | ... | ... | ... | ... | ... | ... | ... | ... |
+| Site = A | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ### 4.3 External validation
 
-| Metric | Value | Site / cohort |
-|--------|-------|---------------|
-| AUC | {{ eval.external.auc }} | {{ eval.external.cohort }} |
-| Calibration intercept | {{ eval.external.cal_int }} | -- |
+N = {{ eval.external.n }}; events = {{ eval.external.n_events }}; cohort = {{ eval.external.cohort }}
+
+| Metric | Value | 95% CI |
+|--------|-------|--------|
+| C-statistic (AUC) | {{ eval.external.auc }} | {{ eval.external.auc_ci }} |
+| Calibration intercept (calibration-in-the-large) | {{ eval.external.calibration_intercept }} | {{ eval.external.calibration_intercept_ci }} |
+| Calibration slope | {{ eval.external.calibration_slope }} | {{ eval.external.calibration_slope_ci }} |
 | ... | ... | ... |
 
 ### 4.4 Decision-curve analysis
 
-Net benefit at thresholds {{ thresholds }} -- see Figure {{ fig_id }}.
+Net benefit at thresholds {{ thresholds }} compared with treat-all and treat-none -- see Figure {{ fig_id }}.
 
 ## 5. Evaluation data
 
