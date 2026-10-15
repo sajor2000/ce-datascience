@@ -126,7 +126,10 @@ describe("ce-datascience skill portability", () => {
   })
 
   test("evidence map keeps Paperclip optional and guarded", async () => {
-    const evidenceMap = await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "SKILL.md"), "utf8")
+    const evidenceMap = [
+      await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "SKILL.md"), "utf8"),
+      await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "references", "paperclip-deepening.md"), "utf8"),
+    ].join("\n")
     const sapMode = await fs.readFile(path.join(skillsRoot, "ce-plan", "references", "sap-mode-workflow.md"), "utf8")
 
     expect(evidenceMap).toContain("command -v paperclip && paperclip config")
