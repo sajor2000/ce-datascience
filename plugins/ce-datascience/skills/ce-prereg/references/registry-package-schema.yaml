@@ -15,6 +15,10 @@ payload:
     - sap_version
     - generated_at
     - fields
+  recommended_fields:
+    - sap_status        # final | amended; draft blocks
+    - blinding_state    # blinded | not_applicable; unblinded blocks
+    - sap_hash
 registries:
   clinicaltrials:
     required_payload_fields:
@@ -36,6 +40,8 @@ registries:
       - participants
       - outcomes
       - synthesis_plan
+    recommended_payload_fields:
+      - review_stage    # preliminary searches | piloting selection | formal screening; extraction or later blocks
   aspredicted:
     required_payload_fields:
       - research_question
