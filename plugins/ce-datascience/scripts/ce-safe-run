@@ -5,13 +5,21 @@ Usage: ce-safe-run -- <command> [args...]
 
 Full stdout and stderr go to .ce-datascience/runs/<UTC-timestamp>-<pid>.log in
 the project (gitignored). The terminal gets only the exit code, the duration,
-and the log path. Stdout is never printed. The exit code is the command's.
+the log path, and the files created or modified under the project (path, size,
+and row count for tabular files). Stdout is never printed. The exit code is the
+command's.
 """
 
 import os
 import subprocess
 import sys
 import time
+
+SKIP_DIRS = {".git", ".ce-datascience", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache",
+             ".pytest_cache", ".ruff_cache", ".quarto", "renv", ".Rproj.user"}
+TABULAR = (".csv", ".tsv", ".psv", ".tab")
+MAX_FILES = 20000
+MAX_LISTED = 50
 
 
 def project_root(start):
@@ -25,6 +33,50 @@ def project_root(start):
         probe = parent
 
 
+def snapshot(root):
+    """{relative path: (mtime_ns, size)} for project files, skipping tool and VCS directories."""
+    files = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        for name in filenames:
+            full = os.path.join(dirpath, name)
+            try:
+                st = os.stat(full)
+            except OSError:
+                continue
+            files[os.path.relpath(full, root)] = (st.st_mtime_ns, st.st_size)
+            if len(files) >= MAX_FILES:
+                return files
+    return files
+
+
+def row_count(path):
+    lower = path.lower()
+    try:
+        if lower.endswith(TABULAR):
+            with open(path, "rb") as fh:
+                lines = sum(1 for line in fh if line.strip())
+            return max(lines - 1, 0)
+        if lower.endswith(".parquet"):
+            import pyarrow.parquet as pq
+            return pq.ParquetFile(path).metadata.num_rows
+    except Exception:  # row counts are best effort
+        return None
+    return None
+
+
+def changes(before, after, root):
+    lines = []
+    for rel in sorted(after):
+        if before.get(rel) == after[rel]:
+            continue
+        kind = "created " if rel not in before else "modified"
+        rows = row_count(os.path.join(root, rel))
+        line = f"  {kind} {rel}  {after[rel][1]} bytes"
+        lines.append(line + (f"  {rows} rows" if rows is not None else ""))
+    return lines
+
+
 def main(argv):
     if "--" not in argv or argv.index("--") == len(argv) - 1:
         print(__doc__.strip())
@@ -35,6 +87,7 @@ def main(argv):
     os.makedirs(runs, exist_ok=True)
     name = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + f"-{os.getpid()}.log"
     log_path = os.path.join(runs, name)
+    before = snapshot(root)
     start = time.monotonic()
     try:
         proc = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True)
@@ -47,6 +100,12 @@ def main(argv):
         fh.write(b"== command ==\n" + " ".join(cmd).encode() + b"\n== stdout ==\n" + out + b"\n== stderr ==\n" + err)
     print(f"ce-safe-run: exit code: {code}, duration: {duration:.1f}s")
     print(f"Full stdout and stderr (not shown): {os.path.relpath(log_path, root)}")
+    changed = changes(before, snapshot(root), root)
+    print("Files created or modified:" if changed else "Files created or modified: none")
+    for line in changed[:MAX_LISTED]:
+        print(line)
+    if len(changed) > MAX_LISTED:
+        print(f"  ... and {len(changed) - MAX_LISTED} more")
     return code
 
 

@@ -95,4 +95,17 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
     expect(log).toContain("Zed Testperson FAKE0001")
     expect(log).toContain("to stderr")
   })
+
+  test("lists files created or modified under the project, with size and row count for tables", () => {
+    const root = withFile(project(SCHEMA_ONLY), "analysis/t1.py",
+      "import csv\nwith open('output/table1.csv', 'w', newline='') as f:\n    w = csv.writer(f)\n    w.writerow(['group', 'n'])\n" +
+      "    w.writerows([['a', 120], ['b', 180]])\nopen('src/load.py', 'a').write('# touched\\n')\n")
+    mkdirSync(path.join(root, "output"))
+    const { code, out } = runSafe(root, "python3", "analysis/t1.py")
+    expect(code).toBe(0)
+    const size = readFileSync(path.join(root, "output", "table1.csv")).length
+    expect(out).toContain(`created  output/table1.csv  ${size} bytes  2 rows`)
+    expect(out).toMatch(/modified src\/load\.py  \d+ bytes/)
+    expect(out).not.toMatch(/(created|modified)\s+\.ce-datascience/)
+  })
 })
