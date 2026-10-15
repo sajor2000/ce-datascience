@@ -147,6 +147,17 @@ describe("limit 1b: ce-safe-run keeps script output out of the context", () => {
     expect(readFileSync(path.join(covered, ".gitignore"), "utf8")).toBe(".ce-datascience/\n")
   })
 
+  test("masks identifier-index hits in the stderr tail and in reported file names", () => {
+    const root = withFile(project(SCHEMA_ONLY), "analysis/r_style.py",
+      "import sys\nopen('output_zed_testperson.txt', 'w').write('x')\n" +
+      "print('Error in lookup: Zed Testperson not found; record FAKE0002 skipped; Testperson alone is fine', file=sys.stderr)\n")
+    expect(buildIndex(root).code).toBe(0)
+    const { out } = runSafe(root, "python3", "analysis/r_style.py")
+    expect(out).toContain("Error in lookup: [masked] not found; record [masked] skipped; Testperson alone is fine")
+    expect(out).toMatch(/created  output_\[masked\]\.txt  1 bytes/)
+    expect(out).not.toContain("zed")
+  })
+
   test("run logs are data in schema-only mode: Read, cat, tail, and grep are denied", () => {
     const root = project(SCHEMA_ONLY)
     withFile(root, ".ce-datascience/runs/20261015T000000Z-1.log", "Zed Testperson\n")
@@ -233,17 +244,16 @@ describe("limit 2b: identifier index checks on MCP arguments (every mode)", () =
     const inProcess = JSON.parse(Bun.spawnSync(["python3", "-I", "-S", "-c", timing, guard, payload]).stdout.toString())
     expect(inProcess.result).toBeNull()
     expect(inProcess.ms).toBeLessThan(100)
-    const median = (cwd: string) => {
-      const runs = Array.from({ length: 5 }, () => {
-        const start = performance.now()
-        runGuard(cwd, "mcp__paperclip__search", query)
-        return performance.now() - start
-      }).sort((a, b) => a - b)
-      return runs[2]
+    const timed = (cwd: string) => {
+      const start = performance.now()
+      runGuard(cwd, "mcp__paperclip__search", query)
+      return performance.now() - start
     }
     const bare = project(APPROVED)
-    median(bare)
-    expect(median(root) - median(bare)).toBeLessThan(30)
+    timed(bare)
+    // Paired, interleaved runs so machine load hits both sides alike.
+    const deltas = Array.from({ length: 7 }, () => timed(root) - timed(bare)).sort((a, b) => a - b)
+    expect(deltas[3]).toBeLessThan(30)
   })
 
   test("without an index the check is silent", () => {
@@ -303,7 +313,7 @@ describe("one definition of identifier normalization and hashing", () => {
   }
   test("the hook, the indexer, and every schema-peek copy share the block byte for byte", () => {
     const canonical = block(guard)
-    for (const file of [indexer, helper, ...["ce-setup", "ce-work"].map((s) => path.join(pluginRoot, "skills", s, "scripts", "schema-peek.py"))]) {
+    for (const file of [indexer, safeRun, helper, ...["ce-setup", "ce-work"].map((s) => path.join(pluginRoot, "skills", s, "scripts", "schema-peek.py"))]) {
       expect({ file, same: block(file) === canonical }).toEqual({ file, same: true })
     }
   })
