@@ -1,3 +1,7 @@
+# Source-document rule: reporting-guideline source documents (PDFs, Word files, supplements, articles)
+# stay local and are never committed. Encode each as references/<name>-checklist.md with official item IDs
+# and a source and licence header; copy verbatim only from CC BY or CC0 sources, otherwise paraphrase.
+# Record the verification (source, date, status) in this registry.
 version: 1
 description: Machine-readable source of truth for ce-datascience reporting guideline coverage.
 verification:
