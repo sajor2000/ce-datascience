@@ -13,7 +13,11 @@ Structured tool for assessing the quality and applicability of primary diagnosti
 
 **Primary reference:** Whiting PF, Rutjes AWS, Westwood ME, et al; QUADAS-2 Group. QUADAS-2: a revised tool for the quality assessment of diagnostic accuracy studies. Ann Intern Med. 2011;155(8):529-536. doi:10.7326/0003-4819-155-8-201110180-00009. PMID: 22007046.
 
-QUADAS-2 is applied study-by-study during data extraction for a systematic review of diagnostic accuracy. Each of the four domains is assessed for (1) risk of bias and (2) applicability concerns (where applicable). Signaling questions guide the risk of bias judgment. This checklist describes each domain, its signaling questions, and what to look for in analysis code and outputs when evaluating compliance during a code or analytic review.
+**Status:** Superseded. QUADAS-3 (Whiting PF, Tomlinson E, Rutjes AWS, et al. QUADAS-3: A Revised Tool for the Quality Assessment of Diagnostic Test Accuracy Studies. Ann Intern Med. 2026;179(4):548-555. doi:10.7326/ANNALS-25-02104. PMID: 41698208) is the current version recommended by the QUADAS group (https://www.bristol.ac.uk/population-health-sciences/projects/quadas/quadas-3/). Use this QUADAS-2 file only for reviews whose protocol pre-specified QUADAS-2. QUADAS is a risk-of-bias appraisal tool, not an EQUATOR reporting guideline.
+
+**Source and licence:** Domains and signalling questions follow the official QUADAS-2 form (https://www.bristol.ac.uk/media-library/sites/quadas/migrated/documents/quadas2.pdf, checked on 2026-10-15). The form and the Annals article carry no open licence, so the signalling questions and domain descriptions are faithful paraphrases that keep the meaning of each official question. Use the official form for verbatim wording. The "What to look for" cues are added by this plugin.
+
+QUADAS-2 is applied study-by-study during data extraction for a systematic review of diagnostic accuracy. Each of the four domains is assessed for (1) risk of bias and (2) applicability concerns (where applicable). Signaling questions guide the risk of bias judgment. The tool is applied in 4 phases: summarize the review question; tailor the tool and produce review-specific guidance; construct a flow diagram for the primary study; and judge bias and applicability. This checklist describes each domain, its signaling questions, and what to look for in analysis code and outputs when evaluating compliance during a code or analytic review.
 
 ---
 
@@ -23,10 +27,10 @@ QUADAS-2 is applied study-by-study during data extraction for a systematic revie
 
 **Description:** Assess whether the selection of patients was likely to introduce bias. Key concerns are case-control design (which artificially inflates spectrum by selecting known cases and known controls) and inappropriate exclusions that restrict the spectrum of disease or conditions seen in practice.
 
-Signaling questions:
-- Was a consecutive or random sample of patients enrolled?
-- Was a case-control design avoided?
-- Did the study avoid inappropriate exclusions?
+Signaling questions (paraphrased):
+- Were patients enrolled as a consecutive or random sample?
+- Did the study avoid a case-control design?
+- Were inappropriate exclusions avoided?
 
 **What to look for in code/outputs:**
 - Data extraction fields recording enrollment method (consecutive, random, convenience, case-control) populated for each study
@@ -53,9 +57,9 @@ Signaling questions:
 
 **Description:** Assess whether the conduct or interpretation of the index test (the test being evaluated) could have introduced bias. Key concerns are failure to pre-specify the positivity threshold and knowledge of the reference standard result when interpreting the index test.
 
-Signaling questions:
-- Were the index test results interpreted without knowledge of the results of the reference standard?
-- If a threshold was used, was it pre-specified?
+Signaling questions (paraphrased):
+- Were index test results interpreted blind to the reference standard results?
+- Where a threshold was used, was it specified in advance?
 
 **What to look for in code/outputs:**
 - Data extraction fields recording whether index test interpretation was blinded to reference standard results
@@ -82,9 +86,9 @@ Signaling questions:
 
 **Description:** Assess whether the reference standard is likely to correctly classify the target condition and whether knowledge of the index test result influenced the reference standard interpretation.
 
-Signaling questions:
-- Is the reference standard likely to correctly classify the target condition?
-- Were the reference standard results interpreted without knowledge of the results of the index test?
+Signaling questions (paraphrased):
+- Is the reference standard likely to classify the target condition correctly?
+- Were reference standard results interpreted blind to the index test results?
 
 **What to look for in code/outputs:**
 - Data extraction fields recording the reference standard used in each study and an assessment of its accuracy for classifying the target condition
@@ -111,23 +115,25 @@ Signaling questions:
 
 **Description:** Assess whether the time interval between the index test and reference standard was appropriate (short enough that disease status could not change), whether all patients received the same reference standard, and whether all enrolled patients were included in the analysis.
 
-Signaling questions:
-- Was there an appropriate interval between the index test and reference standard?
-- Did all patients receive a reference standard?
-- Did patients receive the same reference standard?
-- Were all patients included in the analysis?
+Signaling questions (paraphrased):
+- Was the interval between index test and reference standard appropriate?
+- Did every patient receive a reference standard?
+- Did all patients receive the same reference standard?
+- Was every patient included in the analysis?
 
 **What to look for in code/outputs:**
 - Data extraction fields recording the interval between index test and reference standard for each study
 - Code flagging studies with prolonged intervals where disease progression or resolution between tests is plausible
 - Partial verification identified: studies where only a subset of patients (typically index-positive patients) received the reference standard flagged and coded
 - Differential verification identified: studies where different reference standards were applied to different patient subgroups coded as high risk
-- Proportion of enrolled patients included in the final analysis extracted and studies with >10-15% exclusion from the analysis flagged
+- Proportion of enrolled patients included in the final analysis extracted, with the review-specific threshold for concern pre-specified when tailoring the tool (QUADAS-2 sets no numeric threshold)
 - Risk of bias judgment coded as low, high, or unclear with all four signaling question responses recorded
 
 ---
 
 ## Presentation and Summary
+
+\* Plugin review cue, not a QUADAS-2 domain or signalling question.
 
 ### Risk of Bias Summary Table*
 
