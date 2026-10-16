@@ -30,7 +30,7 @@ Full biomedical lifecycle — 15 steps. Most common path for EHR, OMOP, CLIF, an
 | 3 | `ce-method-extract` | Extract stats methods from literature | — | — | — |
 | 4 | `ce-checklist-match` | Select reporting checklist | STROBE | STROBE | STROBE |
 | 5 | `ce-effect-size` | Pool effect sizes from literature | Python script | Python script | R script |
-| 6 | `ce-power` | Sample size + sensitivity sweep | Python script | Python script | R script (`pmsampsize`) |
+| 6 | `ce-power` | Sample size + sensitivity sweep | Python script | Python script | R script |
 | 7 | `ce-cohort-build` | Define study cohort | OMOP SQL + JSON | OMOP SQL + JSON | CAPR + SQL |
 | 8 | `ce-data-qa` | Column profile + data quality gate (GO/NO-GO) before SAP | pandas checks | polars checks | tidyverse checks |
 | 9 | `ce-phenotype-validate` | Chart-review gold standard | Python script | Python script | R script |
@@ -45,7 +45,7 @@ Full biomedical lifecycle — 15 steps. Most common path for EHR, OMOP, CLIF, an
 
 - `ce-ideate` before step 1 — when the research question is still fuzzy
 - `ce-grill` before step 1 or step 11 — stress-test goal, hypothesis, data, analysis, target journal, and audience one question at a time
-- `ce-prereg` after step 12 — pre-register on OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted
+- `ce-prereg` before step 8 when possible (register before data access); otherwise after step 12, declaring "Registration prior to analysis of the data" and what the QA examined — pre-register on OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted
 - `ce-compound` after step 15 — document validated analytical approaches and learnings
 
 ### Data-layer overlays
@@ -78,7 +78,7 @@ When writing the SAP at step 11, these sections and reviewers are emphasized:
 | Causal / treatment effect | Estimand, PS/IPTW/matching, sensitivity analyses | `ce-causal-inference-reviewer` |
 | Descriptive (population characterization) | Table 1 spec, missingness handling, standardized differences | `ce-methods-reviewer` |
 | Diagnostic accuracy | STARD elements: index test, reference standard, blinding | `ce-methods-reviewer` |
-| Time-to-event / survival | KM curves, log-rank, Cox PH assumption checks | `ce-methods-reviewer` |
+| Time-to-event / survival | KM or Aalen-Johansen cumulative incidence (competing risks), Cox PH assumption checks, RMST when hazards are non-proportional | `ce-methods-reviewer` |
 | Federated / multi-site | Site as random effect, heterogeneity, harmonization | `ce-omop-mapping-reviewer` or `ce-clif` |
 
 ---
@@ -91,8 +91,8 @@ Condensed path — the trial protocol already defines population, intervention, 
 |---|---|---|---|
 | 1 | `ce-data-qa` | Trial data column profile + QA gate | Required before SAP finalization when any extract exists |
 | 2 | `ce-model-strategy` | Resolve primary model and dependence structure | Remains provisional while blinded inputs or data structure are unresolved |
-| 3 | `ce-checklist-match` | Select checklist | CONSORT (or CONSORT-AI if model-as-intervention, SPIRIT-AI if protocol) |
-| 4 | `ce-plan` (SAP mode) | Write CONSORT SAP | ITT/PP populations, imputation, stratification, safety endpoints |
+| 3 | `ce-checklist-match` | Select checklist | CONSORT 2025 (+ CONSORT-AI if AI intervention); protocol: SPIRIT 2025 (+ SPIRIT-AI) |
+| 4 | `ce-plan` (SAP mode) | Write CONSORT SAP | Estimands (ICH E9(R1): intercurrent events and strategies), analysis sets, missing-data and sensitivity analyses, prespecified covariate adjustment incl. stratification factors (FDA 2023), multiplicity, interim analyses, safety endpoints; check against Gamble et al. 2017 |
 | 5 | `ce-sap-tabular` | Required biostatistics tabular SAP workbook | — |
 | 6 | `ce-sprint` | Open sprint | — |
 | 7 | `ce-work` | Execute analysis | Language per stack profile |
@@ -113,8 +113,8 @@ Includes ML-specific skills for experiment tracking, model cards, and fairness r
 |---|---|---|---|
 | 1 | `ce-research-question` | PICO with prediction framing | Comparator slot may be `null` |
 | 2 | `ce-pubmed` | Literature search | Prior models, feature sets, calibration benchmarks |
-| 3 | `ce-checklist-match` | Select checklist | Routes to TRIPOD+AI (or CLAIM if imaging) |
-| 4 | `ce-cohort-build` | Define cohort | Dev/val/test split boundaries defined here |
+| 3 | `ce-checklist-match` | Select checklist | Routes to TRIPOD+AI (+ CLAIM if imaging) |
+| 4 | `ce-cohort-build` | Define cohort | Internal-validation strategy defined here (bootstrap optimism correction or internal-external cross-validation by site/period; no random split sample unless n is very large; Collins et al., BMJ 2024, PMID 38191193) |
 | 5 | `ce-data-qa` | Column profile + data quality gate before SAP/modeling | — |
 | 6 | `ce-model-strategy` | Select baseline/candidate models and validation strategy | Calibration, leakage boundary, stack-matched scaffold |
 | 7 | `ce-plan` (SAP mode) | Prediction SAP | Calibration plan, fairness subgroups, TRIPOD+AI sections |
@@ -124,6 +124,7 @@ Includes ML-specific skills for experiment tracking, model cards, and fairness r
 | 11 | `ce-code-review` | Review | Auto-dispatches `ce-data-leakage-reviewer`, `ce-fairness-reviewer`, `ce-calibration-reviewer` |
 
 ### Optional additions
+- `ce-power` before step 4 — minimum sample size for model development by the Riley et al. criteria (R `pmsampsize`)
 - `ce-effect-size` before step 6 — pool discrimination/calibration from prior literature
 - `ce-compound` after step 11 — document learnings
 

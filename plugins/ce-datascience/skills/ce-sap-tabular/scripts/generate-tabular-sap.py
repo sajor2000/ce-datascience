@@ -9,13 +9,19 @@ Where <input_dir> contains the three core biostatistics SAP sheets:
 sample sheets, 04-file1-long-sample.csv and 05-file2-wide-sample.csv, are
 included when present.
 
-If openpyxl is not installed, the script exits 0 with a notice; the CSVs alone
-are still a valid output.
+Before rendering, the script validates the CSVs and exits 1 (writing nothing)
+on blocking violations: an overview analysis without an `A<N>` column in
+03-variables.csv, an `A<N>_` output naming an analysis absent from the
+overview, or a MODEL OUTPUTS row whose file name is not `A<N>_*.csv`.
+
+If openpyxl is not installed, the script exits 0 with a notice after
+validation; the CSVs alone are still a valid output.
 """
 
 from __future__ import annotations
 
 import csv
+import re
 import sys
 from pathlib import Path
 
@@ -40,6 +46,9 @@ SECTION_FILL = {
 }
 
 DEFAULT_SECTION_FILL = "D9E1F2"
+
+ANALYSIS_ID = re.compile(r"^\s*A?(\d+)\b")
+ANALYSIS_FILE = re.compile(r"^A(\d+)_\S+\.csv$")
 
 
 def read_csv(path: Path, *, required: bool) -> list[list[str]]:
@@ -69,6 +78,44 @@ def section_fill(section: str) -> str:
     return DEFAULT_SECTION_FILL
 
 
+def validate(input_dir: Path) -> list[str]:
+    """Return blocking violations across the three core CSVs."""
+    overview = read_csv(input_dir / "01-overview.csv", required=True)
+    outputs = read_csv(input_dir / "02-outputs.csv", required=True)
+    variables = read_csv(input_dir / "03-variables.csv", required=True)
+    blockers: list[str] = []
+
+    analysis_ids: set[str] = set()
+    for row in overview[1:]:
+        if not row or not row[0].strip():
+            continue
+        match = ANALYSIS_ID.match(row[0])
+        if match:
+            analysis_ids.add(match.group(1))
+        else:
+            blockers.append(f"01-overview.csv: cannot read an analysis number from {row[0]!r}")
+
+    flag_cols = {m.group(1) for col in (variables[0] if variables else []) if (m := re.fullmatch(r"A(\d+)", col.strip()))}
+    for aid in sorted(analysis_ids - flag_cols, key=int):
+        blockers.append(f"03-variables.csv: no A{aid} flag column for overview analysis {aid}")
+
+    header_len = len(outputs[0]) if outputs else 0
+    section = ""
+    for row in outputs[1:]:
+        if is_banner_row(row, header_len):
+            section = row[0].strip().upper()
+            continue
+        name = row[0].strip() if row else ""
+        if not name:
+            continue
+        match = ANALYSIS_FILE.match(name)
+        if match and match.group(1) not in analysis_ids:
+            blockers.append(f"02-outputs.csv: {name} references analysis A{match.group(1)}, absent from 01-overview.csv")
+        elif not match and (name.startswith("A") and name[1:2].isdigit() or section.startswith("MODEL OUTPUTS")):
+            blockers.append(f"02-outputs.csv: analysis-level output {name!r} must follow the A<N>_*.csv pattern")
+    return blockers
+
+
 def main(argv: list[str]) -> int:
     if len(argv) < 4:
         print("usage: generate-tabular-sap.py <slug> <input_dir> <output_xlsx>", file=sys.stderr)
@@ -78,6 +125,14 @@ def main(argv: list[str]) -> int:
     input_dir = Path(argv[2])
     output_xlsx = Path(argv[3])
 
+    blockers = validate(input_dir)
+    if blockers:
+        print("SAP tables BLOCKED; workbook not written:", file=sys.stderr)
+        for blocker in blockers:
+            print(f"  - {blocker}", file=sys.stderr)
+        return 1
+    print("SAP tables validation: no blocking violations")
+
     try:
         from openpyxl import Workbook
         from openpyxl.styles import Alignment, Font, PatternFill
@@ -85,7 +140,7 @@ def main(argv: list[str]) -> int:
     except Exception as e:
         print(
             f"openpyxl not installed ({e}); skipping .xlsx generation. "
-            "Run `python3 -m pip install --upgrade openpyxl` to enable.",
+            "Install openpyxl in the project environment (e.g., `uv add openpyxl`) to enable.",
             file=sys.stderr,
         )
         return 0
@@ -185,7 +240,8 @@ def main(argv: list[str]) -> int:
         # Freeze header
         ws.freeze_panes = ws["A4"]
 
-        # Set column widths
+        # Set column widths: narrow ID/category columns, wide free-text columns
+        # (question, contents, interpretation) so wrapped text stays readable.
         widths = {1: 18, 2: 16, 3: 24, 4: 24, 5: 50, 6: 40, 7: 50}
         for col_idx, width in widths.items():
             if col_idx <= len(header):

@@ -103,4 +103,37 @@ describe("ce-sap-tabular biostatistics workbook", () => {
     expect(skill).toContain("Format / Values")
     expect(skill).toContain("optional synthetic file-shape sample sheets")
   })
+  test("refuses to render when the tables break the analysis-ID contract", async () => {
+    const temp = await mkdtemp(path.join(os.tmpdir(), "ce-sap-tabular-block-"))
+    await writeFile(
+      path.join(temp, "01-overview.csv"),
+      [
+        "Analysis,Claim,Unit of Analysis,Data File(s),Analysis Question,Primary Method,Secondary Methods,Site Script",
+        "3 - Time to Extubation,Construct validity,Ventilator-day,File 1,Q,Discrete-time logistic,Cox,analysis_03.py",
+      ].join("\n"),
+      "utf8",
+    )
+    await writeFile(
+      path.join(temp, "02-outputs.csv"),
+      [
+        "Output File (SITE_ID_ prefix added automatically),Subfolder,Dataset / Cohort Scope,Script Section,Contents,Role at Coordinating Center,Interpretation",
+        "MODEL OUTPUTS | analysis_03.py,,,,,,",
+        "A9_dt_primary_coefs.csv,models/a9/,df_dt,Analysis 9,OR,Pool,OR > 1",
+        "dt_primary_coefs.csv,models/a3/,df_dt,Analysis 3,OR,Pool,OR > 1",
+      ].join("\n"),
+      "utf8",
+    )
+    await writeFile(
+      path.join(temp, "03-variables.csv"),
+      ["Category,Variable,Description,Type,Format / Values,File,A2,Notes", "ID,hospital_id,Hospital,Fixed,Categorical,Both,✓,"].join("\n"),
+      "utf8",
+    )
+    const proc = Bun.spawn(["python3", script, "demo", temp, path.join(temp, "out.xlsx")], { stdout: "pipe", stderr: "pipe" })
+    const [exitCode, stderr] = await Promise.all([proc.exited, new Response(proc.stderr).text()])
+    expect(exitCode).toBe(1)
+    expect(stderr).toContain("no A3 flag column")
+    expect(stderr).toContain("A9_dt_primary_coefs.csv references analysis A9")
+    expect(stderr).toContain("'dt_primary_coefs.csv' must follow the A<N>_*.csv pattern")
+    expect(await Bun.file(path.join(temp, "out.xlsx")).exists()).toBe(false)
+  })
 })

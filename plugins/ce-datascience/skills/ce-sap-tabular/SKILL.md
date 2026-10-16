@@ -28,8 +28,9 @@ The prose SAP narrates methods; this skill generates the **executable inventory*
 ## Prerequisites
 
 - `analysis/sap.md` exists (the prose SAP) -- the tabular companion seeds from it
+- The study's `study_type` (from the SAP frontmatter, including `early-clinical-ai-evaluation`) and `protocol_stage` flag are known, so the Overview reflects the right design
 - The user can articulate, for each analysis: claim type, unit of analysis, data file(s), primary method, secondary methods, 1-line research question, and expected site script
-- Optional but encouraged: `python3 -m pip show openpyxl` succeeds, so the skill can also emit a single `.xlsx` workbook (the format the stats team actually opens)
+- Optional but encouraged: `openpyxl` is installed in the project environment (e.g., `uv add openpyxl`), so the skill can also emit a single `.xlsx` workbook (the format the stats team actually opens)
 
 ## Core Workflow
 
@@ -111,7 +112,7 @@ A 3-10 row example of the wide-format (one row per patient or per hospitalizatio
 
 ### Step 4: Generate the workbook
 
-Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/generate-tabular-sap.py" <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs and clearing Step 5's blocking checks. The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
+Set `SKILL_DIR="<absolute path of the directory containing this SKILL.md>";` (the shell starts in the project root, not the skill directory), then run `python3 "$SKILL_DIR/scripts/generate-tabular-sap.py" <slug> analysis/sap-tables analysis/sap-tables/<slug>-tabular-sap.xlsx` after creating the CSVs. It validates the CSVs first and refuses on blocking violations (Step 5). The script writes `analysis/sap-tables/<slug>-tabular-sap.xlsx` with each CSV as a separate sheet, freezes header rows, sets column widths, applies bold to header rows, and color-codes the section header rows in `02-outputs.csv` (SETUP / DIAGNOSTICS, TABLE, MODEL, FIGURE, SUBGROUP / SENSITIVITY). Optional file sample sheets are rendered only when their CSVs exist.
 
 If `openpyxl` is not installed, the script exits 0 with a message; the CSVs alone are a valid output.
 
@@ -124,7 +125,7 @@ Run a cross-reference check:
 - Every variable in `03-variables.csv` flagged as used by an analysis must appear in the corresponding analysis's covariate list in the prose SAP (warn, don't block)
 - Analysis-level file names in `02-outputs.csv` must follow the `A<N>_*.csv` pattern (block on violation); diagnostics and general tables may omit the `A<N>_` prefix
 
-Print a validation summary; refuse to write the .xlsx workbook if blocking violations remain.
+The Step 4 script enforces the three blocking checks (missing `A<N>` flag column, output naming an unknown analysis, `MODEL OUTPUTS` file not matching `A<N>_*.csv`): it prints each blocker and exits 1 without writing the workbook. Run the prose-SAP cross-reference and the covariate-list warning yourself, and fix every blocker before re-running.
 
 ### Step 6: Cross-link from the prose SAP
 

@@ -10,19 +10,25 @@ pico:
   intervention:  "<full specification of the intervention arm — drug + dose + route + duration, or device + protocol, or behavior + measurement>"
   comparator:    "<full specification of the comparator arm — placebo / standard of care / active comparator with same level of detail>"
   outcome:       "<primary outcome with timing>; <secondary outcomes if relevant>"
+intercurrent_events:   # post-baseline events that change the outcome's meaning; the SAP turns these into an ICH E9(R1) estimand
+  - event:    "<treatment discontinuation / rescue medication / switching / death before the outcome time point>"
+    strategy: "<treatment policy / hypothetical / composite / while on treatment / principal stratum, or 'undecided'>"
+summary_measure: "<risk difference / risk ratio / odds ratio / hazard ratio / mean difference>"
 ```
 
 For target-trial emulation, additionally fill these slots so `ce-cohort-build` can later instantiate them:
 
 ```yaml
 target_trial:
-  eligibility:           "<criteria at time-zero>"
+  eligibility:           "<criteria assessable at time zero only; no post-index information>"
   treatment_strategies:  "<arm A> vs <arm B>, fully specified"
   assignment_procedure:  "<how exposure was assigned in the data>; <known confounders>"
-  follow_up_start:       "<time-zero anchor — exposure date, randomization date, etc.>"
+  follow_up_start:       "<time zero = when eligibility is met AND a treatment strategy is assigned, by the same rule in every arm>"
   follow_up_end:         "<event, censor at study end, lost-to-followup>"
   outcome_ascertainment: "<source — claims, chart, registry — and adjudication if any>"
-  causal_contrast:       "<intent-to-treat / per-protocol / both>"
+  grace_period:          "<length and how it is emulated, e.g., clone-censor-weight; none if strategies start at time zero>"
+  causal_contrast:       "<observational analogue of intention-to-treat / per-protocol (artificial censoring at deviation + inverse-probability weighting) / both>"
+  analysis_plan:         "<adjustment set, weighting or g-method, censoring handling>"
 ```
 
 ## Observational cohort (non-causal / descriptive)
