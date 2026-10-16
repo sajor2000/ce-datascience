@@ -78,31 +78,15 @@ Write the message:
   - Good: `fix(cohort): exclude encounters after the index discharge`
 - **Body:** only when motivation or trade-offs are not obvious from the subject; separate it with a blank line.
 
-For each commit group, isolate the named files in a temporary index so the user's real index remains untouched until the commit succeeds. Never use `git add -A` or `git add .`. For each named file, copy its existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Write the complete message to a file outside the repository with the file-write tool, then commit the temporary index without pathspecs:
+For each commit group, isolate the named files in a temporary index so the user's real index remains untouched until the commit succeeds. Never use `git add -A` or `git add .`. For each named file, copy its existing staged snapshot when present; otherwise add its working-tree content only to the temporary index. Write the complete message to a file outside the repository with the file-write tool, then run the bundled script once per group:
 
 ```bash
-group_index_dir=$(mktemp -d -t ce-commit-index-XXXXXX) || exit $?
-group_index="$group_index_dir/index"
-GIT_INDEX_FILE="$group_index" git read-tree HEAD || exit $?
-for group_path in "file1" "file2" "file3"; do
-  if git diff --cached --quiet -- "$group_path"; then
-    GIT_INDEX_FILE="$group_index" git add -- "$group_path" || exit $?
-  else
-    diff_status=$?
-    test "$diff_status" -eq 1 || exit "$diff_status"
-    group_patch="$group_index_dir/staged.patch"
-    git diff --cached --binary -- "$group_path" > "$group_patch" || exit $?
-    GIT_INDEX_FILE="$group_index" git apply --cached --binary "$group_patch" || exit $?
-  fi
-done
-GIT_INDEX_FILE="$group_index" git commit -F <message-file> || exit $?
-git restore --staged --source=HEAD -- file1 file2 file3 || exit $?
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+if [ ! -f "$SKILL_DIR/scripts/commit-group.sh" ]; then echo "ce-commit: scripts/commit-group.sh not found under SKILL_DIR=$SKILL_DIR" >&2; exit 1; fi;
+bash "$SKILL_DIR/scripts/commit-group.sh" <message-file> file1 file2 file3
 ```
 
-- Run the commands in order and stop immediately if any command fails. Run the final restore only after the temporary-index commit succeeds; it aligns only the committed paths in the real index with the new `HEAD`.
-- Exit status 1 from the conditional `git diff --quiet` means the file has a staged snapshot, which is copied into the temporary index; any other inspection failure stops the workflow.
-- In an unborn repo, replace `git read-tree HEAD` with `GIT_INDEX_FILE="$group_index" git read-tree --empty || exit $?`.
-- `-F` passes `$`, quotes, backticks, and multi-line bodies literally under any shell.
+The script copies each file's staged snapshot when present (otherwise its working-tree content), commits the temporary index with `git commit -F`, then aligns only the committed paths in the real index with the new `HEAD`. It handles unborn repos and exits non-zero, leaving the real index untouched, if any step fails; stop and report the error. `-F` passes `$`, quotes, backticks, and multi-line bodies literally.
 
 ### Step 7: Confirm
 

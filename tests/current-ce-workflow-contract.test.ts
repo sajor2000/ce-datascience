@@ -9,6 +9,11 @@ async function skill(name: string): Promise<string> {
   )
 }
 
+async function skillWithScript(name: string): Promise<string> {
+  const script = await readFile(path.join(process.cwd(), "plugins/ce-datascience/skills", name, "scripts/commit-group.sh"), "utf8")
+  return `${await skill(name)}\n${script}`
+}
+
 describe("current Compound Engineering workflow compatibility", () => {
   test("September refresh docs report the tracked plugin inventory", async () => {
     const docs = await Promise.all([
@@ -107,7 +112,7 @@ describe("current Compound Engineering workflow compatibility", () => {
     const [work, refresh, commit, optimize, optimizePrompt] = await Promise.all([
       skill("ce-work"),
       skill("ce-compound-refresh"),
-      skill("ce-commit"),
+      skillWithScript("ce-commit"),
       Promise.all([
         skill("ce-optimize"),
         readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-optimize/references/codex-dispatch.md"), "utf8"),
@@ -120,12 +125,14 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git read-tree HEAD/)
     expect(commit).toMatch(/real index remains untouched until the commit succeeds/i)
     expect(commit).toMatch(/copy its existing staged snapshot when present.*otherwise add its working-tree content only to the temporary index/i)
-    expect(commit).toMatch(/for group_path in "file1" "file2" "file3"/)
+    expect(commit).toMatch(/for group_path in "\$@"/)
     expect(commit).toMatch(/git diff --cached --quiet -- "\$group_path".*GIT_INDEX_FILE="\$group_index" git add -- "\$group_path"/s)
-    expect(commit).toMatch(/test "\$diff_status" -eq 1 \|\| exit "\$diff_status"/)
+    expect(commit).toMatch(/if \[ "\$diff_status" -ne 1 \]; then.*exit "\$diff_status"/s)
     expect(commit).toMatch(/git diff --cached --binary -- "\$group_path" > "\$group_patch".*GIT_INDEX_FILE="\$group_index" git apply --cached --binary "\$group_patch"/s)
-    expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F <message-file>/)
-    expect(commit).toMatch(/stop immediately if any command fails.*final restore only after.*commit succeeds/is)
+    expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F "\$message_file"/)
+    expect(commit).toMatch(/bash "\$SKILL_DIR\/scripts\/commit-group\.sh" <message-file> file1 file2 file3/)
+    expect(commit).toMatch(/exits non-zero, leaving the real index untouched, if any step fails/i)
+    expect(commit).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F "\$message_file" \|\| exit \$\?\ngit restore --staged --source=HEAD -- "\$@"/)
     expect(commit).not.toMatch(/git commit -F <message-file> --/)
     expect(commit).not.toMatch(/git commit -m "\$\(cat/)
     expect(optimize).toMatch(/Active coding task.*platform subagent primitive/s)
@@ -148,7 +155,7 @@ describe("current Compound Engineering workflow compatibility", () => {
       readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/plan-template.md"), "utf8"),
       readFile(path.join(process.cwd(), "plugins/ce-datascience/skills/ce-plan/references/synthesis-summary.md"), "utf8"),
       skill("ce-debug"),
-      skill("ce-commit-push-pr"),
+      skillWithScript("ce-commit-push-pr"),
     ])
 
     expect(work).toMatch(/semantic dependencies.*serialize/i)
@@ -187,12 +194,14 @@ describe("current Compound Engineering workflow compatibility", () => {
     expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git read-tree HEAD/)
     expect(commitPushPr).toMatch(/real index remains untouched until success/i)
     expect(commitPushPr).toMatch(/existing staged snapshot when present.*otherwise add its working-tree content only to the temporary index/i)
-    expect(commitPushPr).toMatch(/for group_path in "file1" "file2" "file3"/)
+    expect(commitPushPr).toMatch(/for group_path in "\$@"/)
     expect(commitPushPr).toMatch(/git diff --cached --quiet -- "\$group_path".*GIT_INDEX_FILE="\$group_index" git add -- "\$group_path"/s)
-    expect(commitPushPr).toMatch(/test "\$diff_status" -eq 1 \|\| exit "\$diff_status"/)
+    expect(commitPushPr).toMatch(/if \[ "\$diff_status" -ne 1 \]; then.*exit "\$diff_status"/s)
     expect(commitPushPr).toMatch(/git diff --cached --binary -- "\$group_path" > "\$group_patch".*GIT_INDEX_FILE="\$group_index" git apply --cached --binary "\$group_patch"/s)
-    expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F <message-file>/)
-    expect(commitPushPr).toMatch(/stop immediately if any command fails.*final restore only after.*commit succeeds/is)
+    expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F "\$message_file"/)
+    expect(commitPushPr).toMatch(/bash "\$SKILL_DIR\/scripts\/commit-group\.sh" <message-file> file1 file2 file3/)
+    expect(commitPushPr).toMatch(/exits non-zero, leaving the real index untouched, if any step fails/i)
+    expect(commitPushPr).toMatch(/GIT_INDEX_FILE="\$group_index" git commit -F "\$message_file" \|\| exit \$\?\ngit restore --staged --source=HEAD -- "\$@"/)
     expect(commitPushPr).not.toMatch(/git commit -F <message-file> --/)
     expect(commitPushPr).not.toMatch(/git commit -m "\$\(cat/)
   })

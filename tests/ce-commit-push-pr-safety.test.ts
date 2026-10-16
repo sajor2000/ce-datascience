@@ -43,14 +43,14 @@ describe("ce-commit and ce-commit-push-pr gather context at runtime", () => {
       expect(skill).toContain("| `git rev-parse --abbrev-ref origin/HEAD` |")
       expect(skill).toMatch(/Non-zero exit \/ empty output means/)
       expect(skill).toMatch(/Unborn repo/)
-      expect(skill).toMatch(/git read-tree --empty/)
+      expect(skill).toMatch(/handles unborn repos/)
     })
   }
 
   test("ce-commit re-reads the branch right before committing", async () => {
     const skill = await read("ce-commit/SKILL.md")
     const reRead = skill.indexOf("Re-run `git branch --show-current` immediately before committing")
-    const commit = skill.indexOf('GIT_INDEX_FILE="$group_index" git commit -F')
+    const commit = skill.indexOf('scripts/commit-group.sh" <message-file>')
     expect(reRead).toBeGreaterThan(0)
     expect(reRead).toBeLessThan(commit)
   })
