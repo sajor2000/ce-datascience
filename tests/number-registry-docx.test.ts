@@ -64,9 +64,11 @@ function project() {
   writeFileSync(path.join(root, "analysis", "model.py"), `import sys
 sys.path.insert(0, ${JSON.stringify(scriptsDir)})
 from method_numbers import register_number
-register_number("primary.hr", 0.781, kind="estimate", ci=(0.664, 0.918), sources=["data/synthetic.csv"], sap_output="T2")
-register_number("cohort.n", 1412, kind="n", sources=["data/synthetic.csv"], sap_output="F1")
+register_number("primary.hr", 0.781, kind="estimate", ci=(0.664, 0.918), sources=["data/synthetic.csv"], sap_output="T2", update=True)
+register_number("cohort.n", 1412, kind="n", sources=["data/synthetic.csv"], sap_output="F1", update=True)
 `)
+  mkdirSync(path.join(root, "analysis/sap-tables"), { recursive: true })
+  writeFileSync(path.join(root, "analysis/sap-tables/02-outputs.csv"), "Output File\nT2\nF1\n")
   git(root, "add", "-A")
   git(root, "commit", "-qm", "synthetic")
   const result = run(root, ["python3", "analysis/model.py"])
@@ -183,7 +185,43 @@ describe("DOCX render without placeholders", () => {
     docx(path.join(root, "manuscript", "plain.docx"), p(r("No numbers to lock.")))
     const result = run(root, ["python3", cli, "render", "manuscript/plain.docx", "--out", "manuscript/out.docx"])
     expect(result.code).toBe(1)
-    expect(result.out).toContain("manuscript/plain.docx: nothing to render")
+    expect(result.out).toContain("nothing to check")
     expect(() => readFileSync(path.join(root, "manuscript", "out.docx"))).toThrow()
   })
+})
+
+describe("Word coverage across document parts", () => {
+  test("checks and renders header numbers and rejects arbitrary numeric fields", () => {
+    const root = project()
+    const file = path.join(root, "manuscript/parts.docx")
+    docx(file, p(r("HR {{num:primary.hr}}")), p(field("MERGEFIELD Unregistered", "9999")))
+    let result = run(root, ["python3", cli, "check", "manuscript/parts.docx"])
+    expect(result.code).toBe(1)
+    docx(file, p(r("HR {{num:primary.hr}}")))
+    expect(run(root, ["python3", "-c", `import zipfile,sys
+with zipfile.ZipFile(sys.argv[1], 'a') as z:
+ z.writestr('word/header1.xml', '<w:hdr ${NS}>${p(r("N = 1412"))}</w:hdr>')`, file]).code).toBe(0)
+    result = run(root, ["python3", cli, "check", "manuscript/parts.docx"])
+    expect(result.code).toBe(1)
+    expect(result.out).toContain("header1:p1")
+    docx(file, p(r("HR {{num:primary.hr}}")))
+    expect(run(root, ["python3", "-c", `import zipfile,sys
+with zipfile.ZipFile(sys.argv[1], 'a') as z:
+ z.writestr('word/header1.xml', '<w:hdr ${NS}>${p(r("N = {{num:cohort.n}}"))}</w:hdr>')`, file]).code).toBe(0)
+    expect(run(root, ["python3", cli, "render", "manuscript/parts.docx", "--out", "manuscript/out.docx"]).code).toBe(0)
+    expect(run(root, ["python3", cli, "check", "manuscript/out.docx"]).code).toBe(0)
+  })
+})
+
+test("preserves a Zotero bibliography field spanning multiple paragraphs", () => {
+  const root = project()
+  const start = '<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText> ADDIN ZOTERO_BIBL </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+  const end = '<w:r><w:fldChar w:fldCharType="end"/></w:r>'
+  docx(path.join(root, "manuscript/bibl.docx"), p(r("HR {{num:primary.hr}}")), p(start, r("1. Synthetic reference 2020.")), p(r("2. Synthetic reference 2021."), end))
+  expect(run(root, ["python3", cli, "check", "manuscript/bibl.docx"]).code).toBe(0)
+  expect(run(root, ["python3", cli, "render", "manuscript/bibl.docx", "--out", "manuscript/out.docx"]).code).toBe(0)
+  const xml = documentXml(path.join(root, "manuscript/out.docx"))
+  expect(xml).toContain("ADDIN ZOTERO_BIBL")
+  expect(xml).toContain("Synthetic reference 2020.")
+  expect(run(root, ["python3", cli, "check", "manuscript/out.docx"]).code).toBe(0)
 })

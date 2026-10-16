@@ -37,6 +37,8 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/build_package_manifest.py" --project-root . --out-dir manuscript --format quarto
 ```
 
+The builder independently runs the number gate and records its status in the manifest. It defaults to the project-local `analysis/numbers/method_numbers.py` installed by `method-numbers`; if that helper is absent, pass `--number-gate` with the absolute script path obtained by loading that skill. Use repeated `--number-input` arguments for an explicitly scoped set of manuscript/table files. Missing tooling, no reportable occurrences or a failing gate produces blocked readiness, even when all publication artifacts exist.
+
 8. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-4 to those lists. For a Word deliverable, also set the optional `word_master` and `citation_ledger` paths from the step 5 `__CE_CITATION_LEDGER__` handoff (`docx=` and `path=`).
 9. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
 10. The script never sets `ready-for-signoff`. The agent sets `readiness: ready-for-signoff` only after step 8, when the script result is `ready-with-review`, the step 6 number gate printed `PASS`, and the user names the human reviewer who reviewed the readiness report; record that name in `signoff_reviewer`. Never set it from a `blocked` result or without a named reviewer. A rerun resets readiness, so repeat steps 6-10 after any rerun.

@@ -9,12 +9,14 @@
 # Each entry records the value, its journal-style text, the source files and their
 # SHA-256, the producing script with its SHA-256 and git commit, the SAP output ID,
 # and a timestamp. Aggregates only: counts from 1 to 10 are stored suppressed,
-# without their value. Base R (>= 4.5 for tools::sha256sum) plus jsonlite.
+# without their value. R plus jsonlite; SHA-256 uses tools::sha256sum on R 4.5+
+# or the platform sha256sum/shasum utility on older R.
 
 method_numbers_registry <- file.path("analysis", "numbers", "registry.json")
 method_numbers_kinds <- c("count", "n", "percent", "estimate", "ci", "p")
 method_numbers_styles <- c("jama", "generic-biomedical")
 method_numbers_small_cell <- 11
+.ce_pending <- new.env(parent = emptyenv())
 
 .ce_git <- function(...) {
   out <- suppressWarnings(tryCatch(system2("git", c(...), stdout = TRUE, stderr = FALSE),
@@ -38,7 +40,17 @@ method_numbers_small_cell <- 11
   ok("ls-files", "--error-unmatch", "--", rel) && ok("diff", "--quiet", "HEAD", "--", rel)
 }
 
-.ce_sha256 <- function(path) unname(as.character(tools::sha256sum(path)))
+.ce_sha256 <- function(path) {
+  if ("sha256sum" %in% getNamespaceExports("tools"))
+    return(unname(as.character(tools::sha256sum(path))))
+  # Older R installations can use the platform's SHA-256 utility without another R package.
+  command <- if (nzchar(Sys.which("sha256sum"))) "sha256sum" else "shasum"
+  args <- if (command == "shasum") c("-a", "256", shQuote(path)) else shQuote(path)
+  out <- suppressWarnings(system2(command, args, stdout = TRUE, stderr = FALSE))
+  if (!is.null(attr(out, "status")) || length(out) != 1 || !grepl("^[a-fA-F0-9]{64}", out))
+    stop("SHA-256 hashing unavailable")
+  tolower(substr(out, 1, 64))
+}
 
 .ce_calling_script <- function() {
   arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
@@ -81,17 +93,33 @@ format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL
 .ce_finite <- function(x) is.numeric(x) && length(x) == 1 && is.finite(x)
 
 .ce_entry <- function(root, script, id, value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama",
-                      sources = character(), sap_output = NULL, table = NULL, sd = NULL, iqr = NULL) {
+                      sources = character(), sap_output = NULL, table = NULL, sd = NULL, iqr = NULL, disclosure_floor = 11) {
   if (!kind %in% method_numbers_kinds) stop("unknown kind; expected one of ", paste(method_numbers_kinds, collapse = ", "))
   if (!all(vapply(c(list(value), as.list(ci), as.list(iqr), as.list(sd)), .ce_finite, logical(1))))
     stop(id, ": the registry holds finite numeric aggregates only")
-  suppressed <- kind %in% c("count", "n") && value >= 1 && value < method_numbers_small_cell
+  if (!.ce_finite(disclosure_floor) || disclosure_floor != floor(disclosure_floor)) stop("invalid disclosure floor")
+  minimum <- max(method_numbers_small_cell, disclosure_floor)
+  count <- kind %in% c("count", "n")
+  if (count && (value < 0 || value != floor(value))) stop("counts must be nonnegative integers")
+  if (!is.null(denominator) && (!.ce_finite(denominator) || denominator <= 0 || denominator != floor(denominator)))
+    stop("denominator must be a positive integer")
+  if (count && !is.null(denominator) && value > denominator) stop("count exceeds denominator")
+  if ((kind == "p" && (value < 0 || value > 1)) || (kind == "percent" && (value < 0 || value > 100)))
+    stop("invalid probability or percentage")
+  if (kind == "percent" && is.null(denominator)) stop("percent requires its supporting denominator")
+  supporting <- if (count) value else if (kind == "percent") value * denominator / 100 else NULL
+  suppressed <- !is.null(supporting) && ((supporting > 0 && supporting < minimum) ||
+    (!is.null(denominator) && denominator - supporting > 0 && denominator - supporting < minimum))
+  marker <- if (count && value < minimum) paste0("<", minimum) else "Suppressed"
   entry <- list(
     id = id,
     value = if (suppressed) NULL else value,
     kind = kind,
-    text = if (suppressed) paste0("<", method_numbers_small_cell) else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
+    text = if (suppressed) marker else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
     suppressed = suppressed,
+    disclosure_floor = minimum,
+    format = if (suppressed) NULL else list(ci = ci, digits = digits, denominator = denominator,
+                                          style = style, sd = sd, iqr = iqr),
     sources = lapply(sources, function(s) list(path = .ce_rel(root, s), sha256 = .ce_sha256(file.path(root, s)))),
     script = if (is.null(script)) NULL else
       list(path = .ce_rel(root, script), sha256 = .ce_sha256(script), commit = .ce_git("-C", root, "rev-parse", "HEAD"),
@@ -103,11 +131,48 @@ format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL
   entry
 }
 
-.ce_write <- function(root, registry, entries) {
+.ce_suppress_related <- function(entries) {
+  candidates <- Filter(function(e) e$kind %in% c("count", "n", "percent"), entries)
+  hidden <- character()
+  for (left in candidates) for (right in candidates) {
+    related <- (!is.null(left$table) && identical(left$table, right$table)) ||
+      (!is.null(left$sap_output) && identical(left$sap_output, right$sap_output) && identical(left$sources, right$sources))
+    minimum <- max(11, left$disclosure_floor, right$disclosure_floor)
+    close <- left$kind %in% c("count", "n") && right$kind %in% c("count", "n") &&
+      !is.null(left$value) && !is.null(right$value) && abs(left$value - right$value) > 0 && abs(left$value - right$value) < minimum
+    if (left$id != right$id && related && (left$suppressed || right$suppressed || close))
+      hidden <- c(hidden, left$id, right$id)
+  }
+  for (id in unique(hidden)) {
+    # Keep JSON null fields: assigning NULL with $ would remove the keys.
+    entries[[id]]["value"] <- list(NULL)
+    entries[[id]]$text <- "Suppressed"
+    entries[[id]]$suppressed <- TRUE
+    entries[[id]]["format"] <- list(NULL)
+  }
+  entries
+}
+
+.ce_write <- function(root, registry, entries, update = FALSE) {
   path <- file.path(root, registry)
   data <- if (file.exists(path)) jsonlite::read_json(path, simplifyVector = FALSE) else list(version = 1, entries = list())
   if (!length(data$entries)) data$entries <- structure(list(), names = character())
-  for (entry in entries) data$entries[[entry$id]] <- entry
+  pending <- .ce_pending[[path]]
+  if (is.null(pending)) pending <- list()
+  for (entry in entries) {
+    old <- if (!is.null(pending[[entry$id]])) pending[[entry$id]] else data$entries[[entry$id]]
+    if (!is.null(old) && !update) {
+      current <- entry
+      old$timestamp <- NULL
+      current$timestamp <- NULL
+      if (!isTRUE(all.equal(old, current, check.attributes = FALSE)))
+        stop("conflicting registry ID; rerun intentionally with update=TRUE")
+    }
+    pending[[entry$id]] <- entry
+  }
+  .ce_pending[[path]] <- pending
+  for (id in names(pending)) data$entries[[id]] <- pending[[id]]
+  data$entries <- .ce_suppress_related(data$entries)
   data$entries <- data$entries[order(names(data$entries))]
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   tmp <- paste0(path, ".", Sys.getpid(), ".tmp")
@@ -118,17 +183,17 @@ format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL
 
 register_number <- function(id, value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama",
                             sources = character(), sap_output = NULL, script = NULL, registry = method_numbers_registry,
-                            sd = NULL, iqr = NULL) {
+                            sd = NULL, iqr = NULL, disclosure_floor = 11, update = FALSE) {
   root <- .ce_root()
   if (is.null(script)) script <- .ce_calling_script()
   if (!is.null(script)) script <- normalizePath(script, mustWork = TRUE)
-  entry <- .ce_entry(root, script, id, value, kind, ci, digits, denominator, style, sources, sap_output, sd = sd, iqr = iqr)
-  .ce_write(root, registry, list(entry))
+  entry <- .ce_entry(root, script, id, value, kind, ci, digits, denominator, style, sources, sap_output, sd = sd, iqr = iqr, disclosure_floor = disclosure_floor)
+  .ce_write(root, registry, list(entry), update)
   invisible(entry)
 }
 
 register_table <- function(table_id, cells, style = "jama", sources = character(), sap_output = NULL,
-                           script = NULL, registry = method_numbers_registry) {
+                           script = NULL, registry = method_numbers_registry, disclosure_floor = 11, update = FALSE) {
   root <- .ce_root()
   if (is.null(script)) script <- .ce_calling_script()
   if (!is.null(script)) script <- normalizePath(script, mustWork = TRUE)
@@ -136,8 +201,8 @@ register_table <- function(table_id, cells, style = "jama", sources = character(
     spec <- cells[[cell]]
     if (is.null(spec$style)) spec$style <- style
     do.call(.ce_entry, c(list(root = root, script = script, id = paste0(table_id, ".", cell)), spec,
-                         list(sources = sources, sap_output = sap_output, table = table_id)))
+                         list(sources = sources, sap_output = sap_output, table = table_id, disclosure_floor = disclosure_floor)))
   })
-  .ce_write(root, registry, entries)
+  .ce_write(root, registry, entries, update)
   invisible(vapply(entries, function(e) e$id, character(1)))
 }
