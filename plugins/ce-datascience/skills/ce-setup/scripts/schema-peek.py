@@ -189,6 +189,35 @@ def merge_type(current, new):
     return "string"
 
 
+def name_shaped(text):
+    """Two or three capitalised words of letters (and ' - or an initial), as in a personal name."""
+    words = str(text).strip().split(" ")
+    if not 2 <= len(words) <= 3:
+        return False
+    for word in words:
+        if len(word) == 2 and word[0].isupper() and word[1] == ".":
+            continue
+        if len(word) < 2 or not word[0].isupper() or word.isupper() or not all(c.isalpha() or c in "'-" for c in word):
+            return False
+    return True
+
+
+def name_headers(names, later_values=None):
+    """Indexes of first-row cells that may be personal names: name-shaped over a column of names, or no values.
+
+    A name-shaped heading over other values ("Age Group" over 40-49) is kept. Residual: a first row of
+    free text or of names in another shape (lower case, "Smith, John", one word) is not caught here.
+    """
+    masked = set()
+    for index, name in enumerate(names):
+        if name is None or not name_shaped(name):
+            continue
+        values = later_values[index] if later_values and index < len(later_values) else set()
+        if not values or 2 * sum(1 for v in values if name_shaped(v)) >= len(values):
+            masked.add(index)
+    return masked
+
+
 def header_problem(names, later_values=None):
     """Return why the first row looks like data, or None when it looks like headings."""
     cleaned = [str(n).strip() if n is not None else "" for n in names]
@@ -204,7 +233,18 @@ def header_problem(names, later_values=None):
         for index, name in enumerate(cleaned):
             if name and name in later_values[index]:
                 return "a first-row cell repeats as a value in its column"
+    present = [i for i, n in enumerate(cleaned) if n]
+    if present and set(present) <= name_headers(cleaned, later_values):
+        return "every first-row cell looks like a personal name"
     return None
+
+
+NAME_NOTE = "Headings shaped like a personal name, over a column of names, are masked."
+
+
+def mask_name_headers(names, later_values=None):
+    masked = name_headers(names, later_values)
+    return [f"col_{i + 1} [masked header]" if i in masked else n for i, n in enumerate(names)], bool(masked)
 
 
 def find_index(path):
@@ -300,7 +340,8 @@ def peek_delimited(path, delimiter, max_rows):
                 types[index] = merge_type(types[index], value_type)
         names = [f"col_{i + 1}" for i in range(width)]
     else:
-        names = first
+        names, masked = mask_name_headers(first, seen)
+        note = NAME_NOTE if masked else None
     if truncated:
         note = (note + " " if note else "") + f"Only the first {max_rows} data rows were scanned."
     render(path, rows, [(name, types[i] or "empty", non_null[i]) for i, name in enumerate(names)], note)
@@ -362,8 +403,8 @@ def peek_xlsx(path):
             note = f"XLSX: no header detected ({problem}); approximate row count only."
             rows += 1
         else:
-            names = [str(h) if h is not None else "(blank)" for h in header]
-            note = "XLSX: header row and approximate row count only."
+            names, masked = mask_name_headers([str(h) if h is not None else "(blank)" for h in header])
+            note = "XLSX: header row and approximate row count only." + (" " + NAME_NOTE if masked else "")
         render(f"{path} [{sheet.title}]", rows, [(n, "not inferred", None) for n in names], note=note)
     book.close()
 

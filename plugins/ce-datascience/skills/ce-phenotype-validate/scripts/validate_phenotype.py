@@ -2,7 +2,7 @@
 
 Reads a merged chart-review CSV (columns: subject_id, chart_label, algo_label,
 plus optional sex / age_band / race / site) and emits:
-  - 2x2 confusion matrix (small cells suppressed at the disclosure floor)
+  - 2x2 confusion matrix (suppressed at the disclosure floor, see below)
   - PPV and NPV with Wilson 95% CIs
   - Sensitivity and specificity, estimated according to the sampling design
   - Per-subgroup metrics
@@ -136,19 +136,33 @@ def fmt_ci(ci: tuple[float, float] | None) -> str:
     return "--" if ci is None else f"({ci[0]:.2f}, {ci[1]:.2f})"
 
 
+def has_small_cell(m: dict, floor: int) -> bool:
+    """True when any 2x2 cell is 1..floor-1. Zero is publishable (CMS cell size
+    suppression policy); a count derivable from reported values is not."""
+    return any(0 < m.get(k, 0) < floor for k in ("tp", "fp", "fn", "tn"))
+
+
 def suppressed_cells(m: dict, floor: int) -> dict[str, str]:
-    """Cell counts as strings; if any cell is below the floor, all four are
-    suppressed (in a 2x2 with known margins one small cell is recoverable from
-    any of its row or column partners)."""
+    """Cell counts as strings. If any cell is below the floor, all four read
+    "suppressed" so the small one is not singled out. Callers must also withhold
+    n and every derived metric: n with PPV, NPV, Se, Sp, or a Wilson CI width
+    reconstructs the table."""
     keys = ("tp", "fp", "fn", "tn")
-    if any(0 < m[k] < floor for k in keys):
-        return {k: f"<{floor}" if 0 < m[k] < floor else "suppressed" for k in keys}
+    if has_small_cell(m, floor):
+        return {k: "suppressed" for k in keys}
     return {k: str(m[k]) for k in keys}
+
+
+WITHHELD_NOTE = ("A confusion-matrix cell is below the disclosure floor, so n, the cells, "
+                 "and every derived metric are withheld: n with PPV/NPV/Se/Sp or a CI "
+                 "recovers the small cell. Merge categories or enlarge the sample, or "
+                 "re-run with the project's declared floor if it is lower.")
 
 
 def render_markdown(name: str, overall: dict, subgroups: dict[str, dict[str, dict]],
                     design: str, floor: int, weights: tuple[float, float] | None) -> str:
     cells = suppressed_cells(overall, floor)
+    withheld = has_small_cell(overall, floor)
     se_note = overall["se_sp_method"]
     if overall["sens"] is None and design != "srs":
         se_note = ("not estimable (algo-stratified sample; supply "
@@ -157,7 +171,7 @@ def render_markdown(name: str, overall: dict, subgroups: dict[str, dict[str, dic
         f"# Phenotype validation: {name}",
         "",
         f"Date: {date.today().isoformat()}",
-        f"N matched: {overall['n']}",
+        f"N matched: {'suppressed' if withheld else overall['n']}",
         f"Sampling design: {design}",
         f"Sensitivity/specificity: {se_note}",
         f"Disclosure floor: n<{floor} cells suppressed",
@@ -169,6 +183,10 @@ def render_markdown(name: str, overall: dict, subgroups: dict[str, dict[str, dic
         f"| Algo positive | {cells['tp']:>14} | {cells['fp']:>14} |",
         f"| Algo negative | {cells['fn']:>14} | {cells['tn']:>14} |",
         "",
+    ]
+    if withheld:
+        return "\n".join(lines + [WITHHELD_NOTE, ""])
+    lines += [
         "## Performance overall",
         "",
         "| Metric | Estimate | 95% CI |",
@@ -186,9 +204,6 @@ def render_markdown(name: str, overall: dict, subgroups: dict[str, dict[str, dic
     if overall.get("zero_cell_correction"):
         lines += ["A zero cell made the logit undefined; 0.5 was added to each cell "
                   "for the weighted CIs only.", ""]
-    if any(c != str(overall[k]) for k, c in cells.items()):
-        lines += ["Proportions above derive from a table with suppressed cells; confirm "
-                  "the project disclosure policy before external release.", ""]
 
     for axis, groups in subgroups.items():
         lines.append(f"## Performance by {axis}")
@@ -215,6 +230,9 @@ def write_csv(path: Path, overall: dict, subgroups: dict[str, dict[str, dict]],
         w.writerow(["level", "group", "n", "tp", "fp", "fn", "tn",
                     "ppv", "npv", "sens", "spec"])
         cells = suppressed_cells(overall, floor)
+        if has_small_cell(overall, floor):
+            w.writerow(["overall", "all", "suppressed", *cells.values(), *["suppressed"] * 4])
+            return
         w.writerow(["overall", "all", overall["n"], cells["tp"], cells["fp"],
                     cells["fn"], cells["tn"], fmt(overall["ppv"], 4),
                     fmt(overall["npv"], 4), fmt(overall["sens"], 4),
@@ -228,8 +246,13 @@ def write_csv(path: Path, overall: dict, subgroups: dict[str, dict[str, dict]],
 
 
 def yaml_block_for_concept_set(overall: dict, subgroups: dict[str, dict[str, dict]],
-                               design: str) -> str:
+                               design: str, floor: int) -> str:
     """Emit a YAML fragment to paste into the concept-set provenance file."""
+    if has_small_cell(overall, floor):
+        return ("validation:\n"
+                f"  date: {date.today().isoformat()}\n"
+                f"  sampling_design: {design}\n"
+                f"  suppressed: true  # a 2x2 cell is below the disclosure floor of {floor}\n")
     def ci(key: str) -> str:
         v = overall.get(key)
         return f"[{v[0]:.2f}, {v[1]:.2f}]" if v else "null"
@@ -278,7 +301,8 @@ def main() -> None:
     ap.add_argument("--n-algo-neg-pop", type=int,
                     help="algorithm-negative count in the full cohort (enables weighted Se/Sp)")
     ap.add_argument("--disclosure-floor", type=int, default=11,
-                    help="suppress cells and drop subgroups below this count (default 11)")
+                    help="suppress tables with a cell below this count and drop subgroup "
+                         "axes with a small group or cell (default 11)")
     ap.add_argument("--subgroup-cols", nargs="*", default=["sex", "age_band", "race", "site"],
                     help="columns to stratify by if present")
     args = ap.parse_args()
@@ -334,16 +358,19 @@ def main() -> None:
 
     subgroups: dict[str, dict[str, dict]] = {}
     for axis in args.subgroup_cols:
-        present = [r for r in rows if r.get(axis)]
-        if not present:
+        if not any(r.get(axis) for r in rows):
             continue
+        # Missing values form their own group: shown groups plus the overall
+        # table would otherwise recover it by subtraction.
         by_value: dict[str, list[dict]] = defaultdict(list)
-        for r in present:
-            by_value[r[axis]].append(r)
-        kept = {v: compute_metrics(rs, args.design, weights) for v, rs in by_value.items()
-                if len(rs) >= args.disclosure_floor}
-        if kept:
-            subgroups[axis] = kept
+        for r in rows:
+            by_value[r.get(axis) or "(missing)"].append(r)
+        groups = {v: compute_metrics(rs, args.design, weights) for v, rs in by_value.items()}
+        # Drop the whole axis if any group is small: one dropped group is
+        # recoverable as overall minus the groups shown.
+        if all(m["n"] >= args.disclosure_floor and not has_small_cell(m, args.disclosure_floor)
+               for m in groups.values()):
+            subgroups[axis] = groups
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(render_markdown(args.name, overall, subgroups, args.design,
@@ -351,10 +378,12 @@ def main() -> None:
     csv_path = args.out.with_suffix(".csv")
     write_csv(csv_path, overall, subgroups, args.disclosure_floor)
     yaml_path = args.out.with_suffix(".yaml")
-    yaml_path.write_text(yaml_block_for_concept_set(overall, subgroups, args.design))
+    yaml_path.write_text(yaml_block_for_concept_set(overall, subgroups, args.design,
+                                                    args.disclosure_floor))
 
     print(f"__CE_PHENOTYPE_VALIDATE__ name={args.name} n={overall['n']} "
-          f"design={args.design} ppv={fmt(overall['ppv'])} npv={fmt(overall['npv'])} "
+          f"design={args.design} suppressed={'yes' if has_small_cell(overall, args.disclosure_floor) else 'no'} "
+          f"ppv={fmt(overall['ppv'])} npv={fmt(overall['npv'])} "
           f"sens={fmt(overall['sens'])} spec={fmt(overall['spec'])} "
           f"report={args.out} csv={csv_path} yaml={yaml_path}")
 

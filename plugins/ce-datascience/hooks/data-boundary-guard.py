@@ -24,8 +24,9 @@ Egress (every mode except off): MCP tool arguments and Bash HTTP requests
 ce-pubmed script, also inside sh -c or eval) must not carry identifiers (SSN,
 email, phone, keyword-anchored MRN/patient/member/claim IDs, DOB, or a value
 in the project's hashed identifier index), MCP tools must not receive data
-files, and Bash must not upload data files. An endpoint approval does not
-cover third-party services.
+files, and Bash must not upload data files (as arguments, or through a pipe or
+`<` redirect into curl/wget/nc/ncat/socat/openssl/ftp/ssh and similar). An
+endpoint approval does not cover third-party services.
 
 Schema-only access: Read/Grep/NotebookRead and Edit/MultiEdit/NotebookEdit
 (they return a snippet) on data files (including data_root and ce-safe-run
@@ -118,6 +119,8 @@ RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
 UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
 UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
                 "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
+# Tools that send their stdin over the network: data piped or redirected into them is an upload.
+NETWORK_VERBS = UPLOAD_VERBS | {"socat", "openssl", "telnet", "ssh", "netcat"}
 NCBI_HOST = "eutils.ncbi.nlm.nih.gov"
 PUBMED_SCRIPT = "pubmed_search.py"
 FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
@@ -767,6 +770,32 @@ def _remote(token):
     return bool(re.match(r"^(?:[\w.-]+@)?[\w.-]+:(?!//)", token)) or bool(re.match(r"^(?:s3|gs|az|rsync|sftp|ftp)://", token))
 
 
+def input_refs(seg, cwd, mode, tainted):
+    """True when a segment reads a data file: any data reference except the target of an output redirect."""
+    skip = False
+    for token in seg:
+        if skip:
+            skip = False
+            continue
+        if token in (">", ">>", ">|", "&>", "&>>"):
+            skip = True
+            continue
+        if token_ref(token, cwd, mode, tainted):
+            return True
+    return False
+
+
+def stdin_upload(seg, cmd, piped, cwd, mode, tainted):
+    """A network tool whose stdin is a data file (`< file`) or a pipe fed by a command that read one."""
+    if not cmd or program(cmd[0]) not in NETWORK_VERBS:
+        return None
+    redirected = any(t == "<" and i + 1 < len(seg) and token_ref(seg[i + 1], cwd, mode, tainted)
+                     for i, t in enumerate(seg))
+    if redirected or piped:
+        return f"`{program(cmd[0])}` would send a data file from its standard input"
+    return None
+
+
 def upload_violation(cmd, cwd, mode):
     verb = program(cmd[0])
     args = cmd[1:]
@@ -1223,9 +1252,11 @@ def bash_violations(command, cwd, mode, depth=0):
                 access = access or "writing a script that opens data and running it in one command returns its values"
     tainted, cur = set(), cwd
     for pipeline in pipelines:
-        listed = False
+        listed = piped = False
         for seg in pipeline:
             assignments, cmd = unwrap(seg)
+            egress = egress or stdin_upload(seg, cmd, piped, cur, mode, tainted)
+            piped = piped or input_refs(seg, cur, mode, tainted)
             for assignment in assignments:
                 name, value = assignment.split("=", 1)
                 if token_ref(value, cur, mode, tainted):
