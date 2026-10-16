@@ -2,6 +2,15 @@
 
 Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the supported checklist files, their evidence status, and their methodological roles.
 
+## Contents
+
+- Primary Guidelines
+- AI Extension Layer
+- Trial Design Extension Layer
+- Observational Extension Layer
+- Extension Selection Rules
+- Guideline Metadata
+
 ## Primary Guidelines
 
 Each `study_type` maps to exactly one primary guideline. When `study_type` is absent or unrecognized, the reviewer asks the user rather than guessing.
