@@ -4,7 +4,7 @@
     "should_trigger": true
   },
   {
-    "query": "run ce-update -- is my ce-datascience plugin out of date in Claude Code?",
+    "query": "run ce-update -- is my ce-datascience install out of date in Codex?",
     "should_trigger": true
   },
   {
@@ -12,7 +12,7 @@
     "should_trigger": true
   },
   {
-    "query": "Use the ce-update skill to tell me whether I need to run claude plugin update for ce-datascience",
+    "query": "Use the ce-update skill to tell me the command that updates ce-datascience in OpenCode",
     "should_trigger": true
   },
   {

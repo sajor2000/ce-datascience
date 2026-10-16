@@ -163,3 +163,30 @@ esac
     rmSync(mockDir, { recursive: true, force: true })
   }
 }
+
+describe("ce-update covers every supported harness", () => {
+  const frontmatter = SKILL_BODY.split("---")[1]
+
+  test("ships to every target, not only Claude Code", () => {
+    expect(frontmatter).not.toMatch(/ce_platforms/)
+  })
+
+  test("gives the exact update command for each harness", () => {
+    for (const command of [
+      "claude plugin update ce-datascience@{marketplace-name}",
+      "codex plugin marketplace upgrade ce-datascience-plugin",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to codex",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to opencode",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to pi",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to gemini",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to kiro",
+      "qwen extensions update ce-datascience",
+    ]) {
+      expect(SKILL_BODY).toContain(command)
+    }
+  })
+
+  test("says updates keep the user's own skills", () => {
+    expect(SKILL_BODY).toMatch(/your own skills/i)
+  })
+})
