@@ -14,7 +14,8 @@ try:
     from statsmodels.stats.power import TTestIndPower
 except ImportError as exc:  # pragma: no cover - environment-dependent
     raise SystemExit(
-        f"missing dependency ({exc.name}): python3 -m pip install matplotlib numpy pandas statsmodels"
+        f"missing dependency ({exc.name}): install matplotlib numpy pandas statsmodels into the project environment "
+        "(with the user's approval), then re-run"
     ) from exc
 
 params = {

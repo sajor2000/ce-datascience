@@ -4,15 +4,16 @@
     {
       "id": 1,
       "prompt": "I have analysis/pubmed/sepsis-bundle-methods.csv from method extraction - 14 studies with pmid, year, sample_size, effect_size_reported (mostly hazard ratios like 'HR 0.81 (0.70-0.94)', a few ORs). I need a defensible HR for 90-day mortality to plug into the power calc. --metric hr",
-      "expected_output": "Parses and filters to HR studies with n>=50, pools on the log scale with random-effects REML when at least 3 remain, writes the pooled summary, included-studies CSV, and forest plot, and emits the __CE_EFFECT_SIZE__ envelope for ce-power.",
+      "expected_output": "Parses and filters to HR studies with a complete CI (no sample-size cutoff by default), pools on the log scale with random-effects REML and a Hartung-Knapp CI when at least 3 remain, writes the pooled summary, included-studies CSV, and forest plot, and emits the __CE_EFFECT_SIZE__ envelope for ce-power.",
       "files": [],
       "expectations": [
-        "Reports how many rows failed parsing and how many studies were dropped by the metric and sample_size>=50 filters versus the input N",
+        "Reports how many rows failed parsing and how many studies were dropped by the metric and CI filters versus the input N, and does not drop studies by sample size unless the user asks for it as a sensitivity analysis",
         "Saves the parsing step in the project (analysis/effect-size/sepsis-bundle-parse.R or .py plus sepsis-bundle-parsed.csv, with aHR normalised to HR) and runs the bundled pool_effects.R on the parsed CSV, not on the raw methods table",
-        "Pools HRs on the log scale with random-effects REML and reports pooled estimate, 95% CI, 95% prediction interval, I^2, and tau^2",
+        "Pools HRs on the log scale with random-effects REML and reports pooled estimate, 95% CI with its method (Hartung-Knapp-Sidik-Jonkman when tau^2 > 0), 95% prediction interval (t, k-1 df), I^2, and tau^2",
         "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-pooled-forest.png",
         "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, pi (the 95% prediction interval bounds, or pi=NA if not computable), i2, and mode=reml",
-        "Does not compute power itself; it hands off to ce-power with a sensitivity range across the prediction interval"
+        "Does not compute power itself; it hands off to ce-power with a sensitivity range across the prediction interval",
+        "If both adjusted (aHR) and unadjusted HRs are present, also pools each kind separately and says which one matches the planned trial's estimand"
       ]
     },
     {

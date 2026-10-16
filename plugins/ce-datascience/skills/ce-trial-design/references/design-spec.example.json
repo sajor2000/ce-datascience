@@ -3,7 +3,7 @@
   "design_id": "example-two-arm-gsd",
   "engine": {
     "name": "rpact",
-    "version": "4.3.0"
+    "version": "4.4.0"
   },
   "endpoint": {
     "type": "continuous",
@@ -34,8 +34,8 @@
       "id": "of-3-look",
       "parameters": {
         "information_rates": [0.5, 0.75, 1.0],
-        "efficacy_rule": "O'Brien-Fleming alpha spending",
-        "futility_rule": "O'Brien-Fleming beta spending",
+        "efficacy_rule": "Lan-DeMets O'Brien-Fleming-type alpha spending (rpact asOF)",
+        "futility_rule": "O'Brien-Fleming-type beta spending (rpact bsOF), non-binding",
         "futility_binding": false,
         "engine_arguments": {
           "kMax": 3,
@@ -55,8 +55,8 @@
       "id": "pocock-3-look",
       "parameters": {
         "information_rates": [0.5, 0.75, 1.0],
-        "efficacy_rule": "Pocock alpha spending",
-        "futility_rule": "O'Brien-Fleming beta spending",
+        "efficacy_rule": "Lan-DeMets Pocock-type alpha spending (rpact asP)",
+        "futility_rule": "O'Brien-Fleming-type beta spending (rpact bsOF), non-binding",
         "futility_binding": false,
         "engine_arguments": {
           "kMax": 3,
@@ -76,8 +76,8 @@
       "id": "of-3-look",
       "parameters": {
         "information_rates": [0.5, 0.75, 1.0],
-        "efficacy_rule": "O'Brien-Fleming alpha spending",
-        "futility_rule": "O'Brien-Fleming beta spending",
+        "efficacy_rule": "Lan-DeMets O'Brien-Fleming-type alpha spending (rpact asOF)",
+        "futility_rule": "O'Brien-Fleming-type beta spending (rpact bsOF), non-binding",
         "futility_binding": false,
         "engine_arguments": {
           "kMax": 3,
@@ -97,8 +97,8 @@
       "id": "pocock-3-look",
       "parameters": {
         "information_rates": [0.5, 0.75, 1.0],
-        "efficacy_rule": "Pocock alpha spending",
-        "futility_rule": "O'Brien-Fleming beta spending",
+        "efficacy_rule": "Lan-DeMets Pocock-type alpha spending (rpact asP)",
+        "futility_rule": "O'Brien-Fleming-type beta spending (rpact bsOF), non-binding",
         "futility_binding": false,
         "engine_arguments": {
           "kMax": 3,
