@@ -32,7 +32,7 @@ You are the conditional reviewer for sequencing and omics pipelines (Snakemake /
 
 - A workflow that consumes `samples.csv` / `samples.tsv` / `units.tsv` without a schema check (column names, required values, ID uniqueness)
 - A sample sheet with mixed FASTQ paths -- some absolute, some relative; some single-end, some paired-end without a flag
-- Sample IDs that contain shell metacharacters (`-`, ` `, `.`) -- tools downstream may misparse
+- Sample IDs containing spaces or shell metacharacters (`*`, `?`, `$`, `;`, quotes), or characters that make Snakemake wildcards ambiguous (`_` or `.` used as wildcard delimiters) without `wildcard_constraints` -- tools downstream may misparse
 
 ### 4. Output checksums / provenance not captured
 

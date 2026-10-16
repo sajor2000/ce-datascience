@@ -45,7 +45,7 @@ OMOP enforces domain alignment in `concept.domain_id`; the SQL must match.
 ### 5. valid_start/valid_end ignored
 
 - Using a concept that was deprecated (`valid_end_date < CURRENT_DATE`)
-- Using a concept that was added after the study window (`valid_start_date > study_start`)
+- Concept set built from a vocabulary release whose `valid_start_date`/`valid_end_date` window does not cover the source codes used in the study period (check via the source-to-standard mapping), not from `valid_start_date` of the standard concept alone: vocabulary validity is not clinical occurrence, and historic records are remapped with the current vocabulary
 - Not filtering `concept` rows on `invalid_reason IS NULL` when the data refresh updated the concept table
 
 ### 6. Era tables vs occurrence tables confused
@@ -78,7 +78,7 @@ OMOP enforces domain alignment in `concept.domain_id`; the SQL must match.
 
 5-anchor scale, threshold ≥ 75.
 
-**Anchor 100** -- certain: `vocabulary_version: latest` in a YAML, or SQL that joins on `condition_source_value` instead of `condition_concept_id`, or a concept set without `include_descendants` for a top-level SNOMED hierarchy.
+**Anchor 100** -- certain: `vocabulary_version: latest` in a YAML, or SQL that string-matches `*_source_value` free text instead of using `*_concept_id` or `*_source_concept_id` (code-specific phenotypes may legitimately use `*_source_concept_id`), or a concept set without `include_descendants` for a top-level SNOMED hierarchy.
 
 **Anchor 75** -- confident: deprecated concept_id used (lookup against `concept` table; `valid_end_date` is in past), domain mismatch in JOIN, missing `observation_period` filter for an incidence calculation.
 

@@ -23,24 +23,25 @@ You are the conditional reviewer for batch-effect handling in omics studies. Bat
 
 ### 2. Batch confounded with condition (P0)
 
-- All cases processed on day 1, all controls on day 2 → Pearson r between processing date and condition > 0.5
+- Condition fully aliased with batch (every batch contains a single condition, e.g., all cases processed on day 1 and all controls on day 2; the design matrix `~ batch + condition` is rank-deficient) → P0: no correction or covariate adjustment can separate them
+- Partial confounding (condition imbalanced across batches; report Cramér's V for batch x condition, which handles multi-level batch factors) → model batch in the DE design and flag reduced power; any numeric cutoff is a project default, not a published threshold
 - Sex unbalanced across condition arms → if sex is not a study variable, batch correction will mask sex differences
 - Plate / lane separates by condition → plate-level effects equal condition-level effects
 
-This MUST be flagged before any downstream analysis. If found, no batch correction can fix it; the analysis must be re-blocked or the limitation must be acknowledged.
+This MUST be flagged before any downstream analysis. Under full aliasing no batch correction can fix it; the analysis must be re-blocked, restricted to within-batch contrasts, or the limitation acknowledged. Under partial confounding, batch belongs in the model, and power is reduced.
 
 ### 3. Blind batch correction
 
 - `ComBat()` / `ComBat_seq()` / `removeBatchEffect()` / `RUVSeq` / `sva` called WITHOUT first showing PCA before/after
 - Correction applied to the full dataset rather than within a model formula (loses the design awareness)
-- Batch correction applied AND condition included as a "covariate" in the same step → double-counted; biased
-- Surrogate-variable analysis (sva) where the surrogate variable correlates > 0.5 with condition → SVA stripped the biology
+- `ComBat()` called with `mod = NULL` (or `ComBat_seq()` with `group = NULL`) when condition differs across batches → correction removes biological signal; passing condition through `mod`/`group` is the documented way to protect it (sva reference manual). Conversely, when condition IS passed via `mod`/`group` and groups are unbalanced across batches, downstream tests on the corrected matrix overstate confidence (Nygaard et al., Biostatistics 2016, PMID 26272994): for differential analysis, prefer batch as a term in the DE design (`~ batch + condition` in DESeq2/edgeR/limma) over a corrected matrix
+- Surrogate-variable analysis (sva) where a surrogate variable is strongly associated with condition (|r| > 0.5 is a project default) → SVA may have absorbed biology; check that `mod` contained condition and `mod0` did not
 
 ### 4. Wrong correction method for the data type
 
 - ComBat (parametric Bayes for log-counts or arrays) applied to raw integer counts → use ComBat_seq instead
-- removeBatchEffect (limma) on raw counts → use voom + removeBatchEffect, or use it only for visualization
-- RUVSeq with too few control genes (< 50) → unstable correction
+- `removeBatchEffect()` output used as input to differential testing → limma documents it as "not intended to be used prior to linear modelling"; include batch in the design matrix instead and use `removeBatchEffect()` (on log-CPM/vst values) only for PCA, clustering, and heatmaps
+- RUVSeq with too few control genes (< 50, a project default) → unstable correction
 - SVA with `n.sv` set arbitrarily high → over-correction
 
 ### 5. Batch correction without re-validation
@@ -66,9 +67,9 @@ This MUST be flagged before any downstream analysis. If found, no batch correcti
 
 5-anchor scale, threshold ≥ 75.
 
-**Anchor 100** — certain: differential expression script with no PCA chunk and no batch in the model formula; ComBat called on full data without before/after PCA.
+**Anchor 100** — certain: condition fully aliased with batch (rank-deficient `~ batch + condition`); differential expression script with no PCA chunk and no batch in the model formula; `removeBatchEffect()` output passed to a DE test.
 
-**Anchor 75** — confident: batch correction applied but Pearson correlation between batch indicator and condition is > 0.5 (visible in coldata); sample sheet has batch with N=1 cells; correction method mismatched to data type.
+**Anchor 75** — confident: batch correction applied although batch and condition are strongly associated in coldata (Cramér's V > 0.5, a project default, not a published threshold); sample sheet has batch with N=1 cells; correction method mismatched to data type.
 
 **Anchor 50** — plausible: PCA shows partial batch separation; depends on whether the design is balanced enough. Surface for analyst to decide.
 

@@ -76,7 +76,7 @@ and wait. Never silently choose a family.
 
 > Which CLIF and mCIDE version family should this project use?
 >
-> 1. CLIF 2.1 + mCIDE 2.1 — current released structured dictionary.
+> 1. CLIF 2.1 + mCIDE 2.1 — the 2.1 structured-dictionary release family (confirm the current release at https://clif-icu.com/).
 > 2. CLIF 3.0 + mCIDE 3.0 — multimodal release family; use only when the project explicitly targets it.
 
 Reject an undeclared mixed pair such as CLIF 3.0 with mCIDE 2.1. Record a

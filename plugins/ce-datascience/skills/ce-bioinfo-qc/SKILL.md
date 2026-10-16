@@ -35,12 +35,8 @@ The omics counterpart to `ce-data-qa`. Sequencing and array data fail in domain-
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+When this run needs literature, read `references/evidence-access.md` first; never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** modality-specific QC benchmarks (depth, mapping and duplicate rates, contamination, rRNA and intergenic fractions, detection p-values, FRiP/TSS enrichment, mitochondrial fraction, Ti/Tv) and batch-effect test conventions; every threshold the report applies is either cited by PMID (tool manuals count as `documentation`) or marked `project default`.
 
 ## Core workflow
@@ -67,17 +63,17 @@ Different modality → different checks. Refuse to proceed if conflicting signal
 | BAM (RNA-seq) | RSeQC / Picard CollectRnaSeqMetrics | strand specificity, intronic/intergenic % |
 | BAM (any) | somalier extract + relate | sample swap detection (genotype concordance to expected sex / pedigree) |
 | BAM (any) | Picard CrosscheckFingerprints | sample swap via fingerprint VCF if available |
-| Counts matrix | edgeR / DESeq2 PCA | sample clustering vs declared condition / batch |
-| Counts matrix | RUVSeq / sva / ComBat-Seq | batch-effect candidate detection (DOES NOT remove; just flags) |
+| Counts matrix | DESeq2 `vst()`/`rlog()` or edgeR `cpm(log = TRUE)`, then PCA (not raw counts) | sample clustering vs declared condition / batch |
+| Counts matrix | `sva::num.sv` / `svaseq`, `RUVSeq::RUVg` diagnostics | surrogate-variable / unwanted-variation detection (report only; correction is a downstream choice) |
 | Methylation IDAT | minfi qcReport | bisulfite conversion efficiency, detection p-value |
 | Methylation array | sesame | sex-prediction discordance |
 | VCF | bcftools stats | Ti/Tv ratio, het/hom ratio, novel variant fraction |
 
 ### Step 3: Batch-effect screening (no removal)
 
-Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch, grade by the Pearson correlation between the batch indicator and the condition indicator, using the thresholds in `references/batch-confound-rules.md` (project defaults unless the report cites a benchmark per Evidence access): above 0.5 is a P0 finding; 0.3-0.5 is a P1 partial confound that can be modeled at a cost in power. For a P0, report:
+Run PCA on the count or beta matrix. Color points by `batch` (date / lane / plate / center) and `condition` (the experimental variable). If the first 2 PCs separate by batch AND condition is not orthogonal to batch, first check full aliasing with a rank check of the `~ batch + condition` design matrix, then grade the association by Cramér's V between batch and condition (equivalent to |phi| for two-level factors; Pearson r on indicators is undefined for multi-level batches), using the thresholds in `references/batch-confound-rules.md` (project defaults unless the report cites a benchmark per Evidence access): full aliasing or V above 0.5 is a P0 finding; 0.3-0.5 is a P1 partial confound that can be modeled at a cost in power. For a P0, report:
 
-> Batch is confounded with condition. Removing the batch effect (ComBat / RUV / SVA) will also remove condition signal. Re-block the experiment or add explicit batch correction in the model.
+> Batch is confounded with condition. If every batch contains a single condition (full aliasing), no correction or model term can separate batch from biology: re-block the experiment or restrict to within-batch contrasts. If confounding is partial, model batch as a term in the differential-analysis design (`~ batch + condition`) rather than analysing a batch-corrected matrix.
 
 ### Step 4: Sample swap screening
 
@@ -97,6 +93,8 @@ Write `reports/bioinfo-qa/<wave_id>.html` (MultiQC-rendered) and `reports/bioinf
 ### Step 6: Emit GO/NO-GO
 
 `__CE_BIOINFO_QC_PASS__` or `__CE_BIOINFO_QC_FAIL__ wave=<id> blockers=<count>`
+
+Completion check: every fail row names its threshold source (PMID or `project default`); a missing tool is reported as "check not run", never as pass.
 
 ## What this skill does NOT do
 

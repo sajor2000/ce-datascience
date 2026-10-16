@@ -19,22 +19,22 @@ You are the conditional reviewer for claims and administrative healthcare data. 
 
 Claims data: a member is observable only while enrolled with the payer.
 
-- Cohort SQL that doesn't restrict to continuous enrollment for the look-back AND follow-up windows
+- Cohort SQL that doesn't require continuous enrollment through the look-back (baseline) window before index
 - `observation_period` (OMOP) or equivalent (`enrollment_period` in claims) not used
-- "We followed patients for 1 year" without enrollment-truncation handling → bias toward stable enrollees
+- "We followed patients for 1 year" implemented by requiring enrollment through the year (conditions on the future → immortal-time/selection bias) instead of censoring at disenrollment
 
-Required: explicit continuous-enrollment criterion of N days prior + entire follow-up.
+Required: an explicit continuous-enrollment criterion for the N-day baseline (look-back) window before index; during follow-up, censor at disenrollment rather than requiring enrollment as an eligibility condition (Ramachandran et al., J Manag Care Spec Pharm 2025, PMID 41296315), and consider IPCW if disenrollment may be informative.
 
 ### 2. Look-back window not declared or too short
 
-- Wash-out / look-back window is < 6 months for incident-user identification → mixed prevalent/incident users
+- Wash-out / look-back window shorter than the project's declared convention (commonly 6-12 months; state the source) for incident-user identification → mixed prevalent/incident users
 - Wash-out implemented as "no prior code" without a window → infinite look-back into pre-data period (unobservable)
 - Look-back window for covariate ascertainment shorter than for exposure → asymmetric bias
 
 ### 3. Claims truncation at coverage end
 
 - Follow-up extended past last enrolled date → "missing" outcome is actually unobservable
-- Survival analysis without administrative censoring at loss-of-coverage → immortal-time
+- Survival analysis without censoring at loss-of-coverage → unobserved post-disenrollment events counted as event-free (outcome under-ascertainment)
 - Attribution of zero events when patient simply left coverage
 
 ### 4. Payer-mix bias not addressed

@@ -25,27 +25,25 @@ You are the conditional reviewer for `targets` (the R reproducibility framework)
 
 - **`tar_load()` after running** -- the pipeline has `tar_target(x, ...)` and a separate analysis script that does `tar_load(x); analyze(x)`. The analyze step is OUTSIDE the graph, so its output is not cached and not validated. Either bring `analyze(x)` into the pipeline or document the script as scratch / interactive use only.
 
-- **`tar_make()` and `tar_make_future()` in the same pipeline call** -- one of them is leftover from debugging. Pick a launcher and stick with it; mixing causes duplicate computation when the pipeline is re-entered.
+- **Mixed or superseded launchers** -- `tar_make()` and `tar_make_future()`/`tar_make_clustermq()` both used in one project, or new code adopting `tar_make_future()`, which the targets reference marks "Superseded". Prefer `tar_make()` with a crew controller (`tar_option_set(controller = ...)`).
 
-- **Branching without `pattern = ` documentation** -- `tar_target(by_site, fit_model(data), pattern = map(data))` works but only if `data` is itself a branched target. Flag any `pattern = map(...)` whose mapped target is not branched (the run will silently produce a single branch).
+- **Branching over an unintended object** -- `pattern = map(x)` iterates over the elements of `x` (slices of a vector, list, or data frame) or over the branches of a branched `x`; mapping over a non-branched target is valid and creates one branch per element. Flag a `map()` over a data frame or list whose slicing does not match the intended unit (for example, row-wise branches when the analysis unit is site).
 
-- **Static branching count drift** -- `tar_target(sites, c("A", "B", "C"))` then `tar_target(by_site, ..., pattern = map(sites))` produces 3 branches. If the SAP analysis was run with 5 sites earlier and someone trimmed `sites` to 3, the historical branches stay in `_targets/objects/` but are no longer referenced. Flag any change that reduces a branching target's length without an explicit `tar_destroy(orphan)` clean-up.
+- **Branch-count drift** -- `tar_target(sites, c("A", "B", "C"))` then `tar_target(by_site, ..., pattern = map(sites))` produces 3 branches. If the SAP analysis was run with 5 sites earlier and someone trimmed `sites` to 3, the historical branches stay in `_targets/objects/` but are no longer referenced. Flag any change that reduces a branching target's length without an explicit `tar_prune()` clean-up (`tar_destroy()` deletes the whole store).
 
-- **`set.seed()` outside `tar_option_set()`** -- per-target seeds set inside the target body produce non-reproducible runs because the seed is consumed at run time, not invalidation time. Use `tar_option_set(seed = ...)` or `tar_target(..., seed = N)`.
+- **Automatic seeding disabled** -- `tar_option_set(seed = NA)` turns off the per-target seeds, so stochastic targets are not reproducible and are never up to date unless `cue = tar_cue(seed = FALSE)`. By default targets derives a deterministic seed from `tar_option_get("seed")` and the target name. `set.seed()` inside a command is reproducible but overrides the per-target seed; flag it only when it gives several targets the same random stream.
 
 - **Side effects in target functions** -- a target that writes to `data/processed/` outside its declared `format = "file"` output is invisible to the graph. The next `tar_make()` does not know to re-run because nothing in the graph consumed the side effect.
 
-- **`tar_resources(memory = ...)` mismatched to data size** -- a target that returns 5GB without raising the memory option will fail on a fresh worker silently (the failure looks like a timeout). Flag known-large targets without explicit memory tuning.
-
-- **`_targets.R` config drift from `_targets.yaml`** -- `tar_option_set(packages = ...)` declares packages but `_targets.yaml` has different `packages` listed. The yaml wins for `tar_make_future()` workers, the R config wins for `tar_make()`. Reconcile.
+- **Memory strategy mismatched to object size** -- large targets kept with `memory = "persistent"` on constrained workers; set `memory = "transient"` and `garbage_collection = TRUE` (arguments of `tar_target()`/`tar_option_set()`, not of `tar_resources()`), and request worker RAM through the crew or scheduler controller.
 
 ## Confidence calibration
 
 Use the 5-anchor confidence scale. The reporting threshold is confidence >= 75. targets violations are mechanically verifiable from the graph and the function bodies.
 
-**Anchor 100** -- certain: a `read_csv("path/to/file.csv")` literal inside a non-`format="file"` target body, `ggsave()` followed by no `format = "file"` return, `set.seed()` literal inside a target body. The mechanical pattern is in the diff.
+**Anchor 100** -- certain: a `read_csv("path/to/file.csv")` literal inside a non-`format="file"` target body, `ggsave()` followed by no `format = "file"` return, `tar_option_set(seed = NA)`. The mechanical pattern is in the diff.
 
-**Anchor 75** -- confident: a target body references a global variable that is not in the target list, a `pattern = map(x)` whose `x` target is not itself branched, a tibble > 100k rows returned without a format hint. Observable from `tar_manifest()` plus a quick body inspection.
+**Anchor 75** -- confident: a target body references a global variable that is not in the target list, a `map()` over a data frame whose slicing does not match the analysis unit, a tibble > 100k rows returned without a format hint. Observable from `tar_manifest()` plus a quick body inspection.
 
 **Anchor 50** -- more likely than not: a target return value might be large (analyst hint required); side-effect writes might be intentional (some pipelines deliberately drop to disk for downstream non-targets tools). Do not report at this confidence.
 
