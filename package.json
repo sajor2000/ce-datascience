@@ -27,7 +27,8 @@
     "eval:validate": "bun run scripts/evals/validate.ts",
     "eval:score": "bun run scripts/evals/score.ts",
     "docs:guideline-sources": "bun run scripts/docs/guideline-sources.ts",
-    "legacy:fingerprints": "bun run scripts/maintenance/description-fingerprints.ts"
+    "legacy:fingerprints": "bun run scripts/maintenance/description-fingerprints.ts",
+    "rebrand": "bun run scripts/rebrand/rename.ts"
   },
   "dependencies": {
     "citty": "^0.1.6",

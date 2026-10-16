@@ -20,6 +20,7 @@ import { fileURLToPath } from "url"
 import { parseFrontmatter } from "./frontmatter"
 import shippedDescriptionFingerprints from "../data/shipped-description-fingerprints.json"
 
+// rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 /** Old skill directory names that no longer exist after the v3 rename. */
 export const STALE_SKILL_DIRS = [
   // ce: -> ce-. Some targets sanitized these to ce-*; others left raw colon
@@ -346,6 +347,7 @@ const LEGACY_ONLY_AGENT_DESCRIPTIONS: Record<string, string> = {
   "lint":
     "Use this agent when you need to run linting and code quality checks on Ruby and ERB files. Run before pushing to origin.",
 }
+// rebrand:keep-end
 
 type LegacyFingerprints = {
   skills: Map<string, string>
@@ -355,6 +357,7 @@ type LegacyFingerprints = {
 
 let legacyFingerprintsPromise: Promise<LegacyFingerprints> | null = null
 
+// rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 function currentSkillNameForLegacy(legacyName: string): string {
   if (legacyName === "ce:review" || legacyName === "workflows:review" || legacyName === "workflows-review") {
     return "ce-code-review"
@@ -389,6 +392,7 @@ function currentSkillNameForLegacy(legacyName: string): string {
       return legacyName.startsWith("ce-") ? legacyName : `ce-${legacyName}`
   }
 }
+// rebrand:keep-end
 
 async function pathExists(targetPath: string): Promise<boolean> {
   try {
@@ -456,9 +460,11 @@ async function readDescription(filePath: string): Promise<string | null> {
   }
 }
 
+// rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 function normalizeLegacyWorkflowReferences(value: string): string {
   return value.replace(/\bce:([a-z0-9-]+)\b/g, "ce-$1")
 }
+// rebrand:keep-end
 
 function descriptionsMatch(
   actualDescription: string | null | undefined,
@@ -530,12 +536,14 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
 
 let knownDescriptionsPromise: Promise<Set<string>> | null = null
 
+// rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 function normalizeDescriptionFingerprint(value: string): string {
   return normalizeLegacyWorkflowReferences(value)
     .replace(/[/$](ce-[a-z0-9-]+)/g, "$1")
     .replace(/\s+/g, " ")
     .trim()
 }
+// rebrand:keep-end
 
 /**
  * Short hash of a normalized description. `src/data/shipped-description-fingerprints.json`
@@ -628,6 +636,7 @@ export function noticeKeptUserArtifact(targetPath: string): void {
   console.warn(`Kept ${targetPath}: it has the name of an old ce-datascience file but ce-datascience did not create it.`)
 }
 
+// rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 function promptSkillNamesForLegacy(fileName: string): string[] {
   switch (fileName) {
     case "ce-review.md":
@@ -643,6 +652,7 @@ function promptSkillNamesForLegacy(fileName: string): string[] {
     }
   }
 }
+// rebrand:keep-end
 
 async function isLegacyPluginOwned(
   targetPath: string,

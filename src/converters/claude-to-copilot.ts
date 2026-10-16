@@ -123,6 +123,7 @@ export function transformContentForCopilot(body: string): string {
     return `/${normalized}`
   })
 
+  // rebrand:keep-start -- legacy ce-* semantics (see scripts/rebrand)
   // 3. Replace plugin colon-namespaced command references (e.g. ce:plan → ce-plan, ce:* → ce-*)
   // Scoped to `ce:` prefix which is the ce-datascience plugin namespace.
   // The lookbehind ensures we only match at word boundaries or after common delimiters,
@@ -130,6 +131,7 @@ export function transformContentForCopilot(body: string): string {
   // Note: / is intentionally excluded — slash commands are already handled in step 2.
   // Captures colons in the name segment so multi-colon refs like ce:work:beta → ce-work-beta.
   result = result.replace(/(?<=^|[\s,.()`'"])ce:([a-z*][a-z0-9_*:-]*)/gim, (_, name: string) => `ce-${name.replace(/:/g, "-")}`)
+  // rebrand:keep-end
 
   // 4. Rewrite .claude/ paths to .github/ and ~/.claude/ to ~/.copilot/
   result = result

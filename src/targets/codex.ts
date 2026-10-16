@@ -378,6 +378,7 @@ async function cleanupLegacyAgentSkillDirs(
   const legacySkillNames = new Set<string>()
   for (const agent of bundle.agents ?? []) {
     legacySkillNames.add(sanitizePathName(agent.name))
+    // rebrand:keep-start -- legacy ce-* semantics (see scripts/rebrand)
     // Cross-layout cleanup for plugins with nested agent directories: if the
     // Codex-built agent name contains an embedded `-ce-` (e.g. `review-ce-foo`
     // for `agents/review/ce-foo.md`), the same logical agent may have
@@ -390,6 +391,7 @@ async function cleanupLegacyAgentSkillDirs(
       const finalSegment = agent.name.split("-ce-").pop()
       if (finalSegment) legacySkillNames.add(`ce-${sanitizePathName(finalSegment)}`)
     }
+    // rebrand:keep-end
   }
   for (const name of getLegacyCodexArtifacts({
     pluginName,

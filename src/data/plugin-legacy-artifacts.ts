@@ -16,6 +16,7 @@ type LegacyPluginArtifacts = {
 }
 
 export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifacts> = {
+  // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
   "compound-engineering": {
     // Historical CE artifacts derived from git history. Keep these explicit so
     // cleanup can remove stale flat installs without touching unrelated skills.
@@ -467,6 +468,7 @@ export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifa
       "xcode-test",
     ],
   },
+  // rebrand:keep-end
 }
 
 export type LegacyTargetArtifacts = {
@@ -821,12 +823,14 @@ function addLegacySkillVariants(
     skills.add(sanitized)
   }
 
+  // rebrand:keep-start -- legacy ce-* semantics (see scripts/rebrand)
   // Deliberately does NOT synthesize a `ce-<name>` variant. Probing a
   // name the plugin never actually wrote would sweep an unrelated user skill
   // at a flat path (e.g. ~/.codex/skills/ce-demo-reel/) into legacy-backup.
   // When a component genuinely shipped `ce-`-prefixed, add that exact spelling
   // to EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN as its own entry — several already are.
   // Enforced by tests/plugin-legacy-artifacts.test.ts.
+  // rebrand:keep-end
 
   // Codex historically accepted raw colon directory names on macOS
   // (for example ~/.codex/skills/ce:plan). Other targets generally sanitized
