@@ -756,10 +756,21 @@ async function isLegacyKiroPrompt(
   return isLegacyKiroAgentConfig(siblingConfigPath, expectedDescription)
 }
 
-async function removeIfExists(targetPath: string): Promise<boolean> {
+/**
+ * Remove a fingerprint-matched legacy artifact. With `backupDir` (the target's
+ * managed directory) it is moved to `<backupDir>/legacy-backup/` instead, so
+ * any file a user added inside an old plugin skill directory survives.
+ */
+async function removeIfExists(targetPath: string, backupDir?: string, kind = "items"): Promise<boolean> {
   try {
     const stat = await fs.stat(targetPath)
-    if (stat.isDirectory()) {
+    if (backupDir) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+      const backupPath = path.join(backupDir, "legacy-backup", timestamp, kind, path.basename(targetPath))
+      await fs.mkdir(path.dirname(backupPath), { recursive: true })
+      await fs.rename(targetPath, backupPath)
+      console.warn(`Moved legacy ${kind.replace(/s$/, "")} artifact to ${backupPath}`)
+    } else if (stat.isDirectory()) {
       await fs.rm(targetPath, { recursive: true })
     } else {
       await fs.unlink(targetPath)
@@ -775,13 +786,18 @@ async function removeIfExists(targetPath: string): Promise<boolean> {
  * Remove stale skill directories from a target's skills root.
  * Call before writing new skills.
  */
-export async function cleanupStaleSkillDirs(skillsRoot: string): Promise<number> {
+export async function cleanupStaleSkillDirs(skillsRoot: string, backupDir?: string): Promise<number> {
   const { skills } = await loadLegacyFingerprints()
   let removed = 0
   for (const name of STALE_SKILL_DIRS) {
     const targetPath = path.join(skillsRoot, name)
-    if (!(await isLegacyPluginOwned(targetPath, skills.get(name), null))) continue
-    if (await removeIfExists(targetPath)) removed++
+    if (!(await isLegacyPluginOwned(targetPath, skills.get(name), null))) {
+      if (backupDir && (await pathExists(targetPath)) && !(await isKnownPluginArtifact(targetPath))) {
+        noticeKeptUserArtifact(targetPath)
+      }
+      continue
+    }
+    if (await removeIfExists(targetPath, backupDir, "skills")) removed++
   }
   return removed
 }
@@ -795,6 +811,7 @@ export async function cleanupStaleAgents(
   dir: string,
   extension: string | null,
   namePrefix = "",
+  backupDir?: string,
 ): Promise<number> {
   const { agents } = await loadLegacyFingerprints()
   let removed = 0
@@ -803,7 +820,7 @@ export async function cleanupStaleAgents(
       ? path.join(dir, `${namePrefix}${name}${extension}`)
       : path.join(dir, `${namePrefix}${name}`)
     if (!(await isLegacyPluginOwned(target, agents.get(name), extension))) continue
-    if (await removeIfExists(target)) removed++
+    if (await removeIfExists(target, backupDir, "agents")) removed++
   }
   return removed
 }
@@ -820,13 +837,13 @@ export async function cleanupStaleAgents(
  * shared `~/.codex/prompts/` directory when both plugins happen to use the
  * `ce-*` namespace.
  */
-export async function cleanupStalePrompts(promptsDir: string): Promise<number> {
+export async function cleanupStalePrompts(promptsDir: string, backupDir?: string): Promise<number> {
   const { prompts } = await loadLegacyFingerprints()
   let removed = 0
   for (const file of STALE_PROMPT_FILES) {
     const targetPath = path.join(promptsDir, file)
     if (!(await isLegacyPromptWrapper(targetPath, prompts.get(file)))) continue
-    if (await removeIfExists(targetPath)) removed++
+    if (await removeIfExists(targetPath, backupDir, "prompts")) removed++
   }
   return removed
 }

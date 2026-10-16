@@ -36,7 +36,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   const ownership = pluginName ? await InstallOwnership.open(paths.geminiDir, paths.managedDir, pluginName) : null
   const writer = ownership ?? directWriter
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
 
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {

@@ -36,9 +36,9 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   const writer = ownership ?? directWriter
 
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
-  await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md")
-  await cleanupStaleAgents(paths.agentsDir, ".json")
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
+  await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md", "", pluginName ? paths.managedDir : undefined)
+  await cleanupStaleAgents(paths.agentsDir, ".json", "", pluginName ? paths.managedDir : undefined)
 
   // Write agents
   if (bundle.agents.length > 0) {

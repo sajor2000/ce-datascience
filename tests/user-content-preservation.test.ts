@@ -353,3 +353,23 @@ describe("cleanup command never removes user-created content", () => {
     expect(await fs.readFile(userAgent, "utf8")).toBe(USER_AGENT)
   })
 })
+
+describe("stale-name cleanup keeps user files found inside a plugin-owned directory", () => {
+  test("a stale plugin skill directory is moved to a backup, not deleted", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-stale-dir-"))
+    const openCodeRoot = path.join(root, "opencode")
+    const staleDir = path.join(openCodeRoot, "skills", "git-commit")
+    // git-commit was renamed to ce-commit; an old install carries its description.
+    const ceCommit = await fs.readFile(path.join(import.meta.dir, "..", "plugins", "ce-datascience", "skills", "ce-commit", "SKILL.md"), "utf8")
+    const description = ceCommit.match(/^description: (.*)$/m)![1]
+    await writeFile(path.join(staleDir, "SKILL.md"), `---\nname: git-commit\ndescription: ${description}\n---\n\nOld plugin skill.\n`)
+    await writeFile(path.join(staleDir, "my-notes.md"), "my notes")
+
+    await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
+
+    expect(await exists(staleDir)).toBe(false)
+    const saved = (await findFiles(path.join(openCodeRoot, "ce-datascience"))).filter((file) => file.endsWith("my-notes.md"))
+    expect(saved).toHaveLength(1)
+    expect(await fs.readFile(saved[0], "utf8")).toBe("my notes")
+  })
+})

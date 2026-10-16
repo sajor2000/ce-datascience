@@ -82,7 +82,7 @@ export async function writeCodexBundle(
     ...(bundle.externallyManagedSkillNames ?? []).map((name) => sanitizePathName(name)),
   ]))
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(skillsRoot)
+  await cleanupStaleSkillDirs(skillsRoot, pluginName ? path.join(codexRoot, pluginName) : undefined)
   await cleanupRemovedSkills(ownership, skillsRoot, manifest, currentSkills)
   // Skills installed by Codex's native plugin flow are not rewritten here;
   // keep their ledger records so finish() does not sweep them.

@@ -90,7 +90,7 @@ export async function writeOpenCodeBundle(
     : null
   const writer = ownership ?? directWriter
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(openCodePaths.skillsDir)
+  await cleanupStaleSkillDirs(openCodePaths.skillsDir, pluginName ? openCodePaths.managedDir : undefined)
   await cleanupRemovedManagedEntries(ownership, openCodePaths.agentsDir, manifest, "agents", currentAgents)
   await cleanupRemovedManagedEntries(ownership, openCodePaths.commandDir, manifest, "commands", currentCommands)
   await cleanupRemovedManagedEntries(ownership, openCodePaths.pluginsDir, manifest, "plugins", currentPlugins)

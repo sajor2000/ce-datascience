@@ -88,9 +88,9 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
   const claim = (targetPath: string, manifestListed: boolean) =>
     ownership ? ownership.claim(targetPath, manifestListed) : Promise.resolve(true)
 
-  await cleanupStaleAgents(paths.skillsDir, null)
+  await cleanupStaleAgents(paths.skillsDir, null, "", pluginName ? paths.managedDir : undefined)
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
   await cleanupRemovedPrompts(ownership, paths.promptsDir, manifest, currentPrompts)
   await cleanupRemovedSkills(ownership, paths.skillsDir, manifest, currentSkills)
   await cleanupRemovedAgents(ownership, paths.agentsDir, manifest, currentAgents)
