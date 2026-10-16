@@ -12,7 +12,7 @@ Evidence labels are the same set `ce-evidence-map` uses: `abstract`, `full_text`
 
 ## Check what is connected
 
-Before choosing a route, list the MCP tools available in this session (for example, search the deferred tool list for `pubmed` or `paperclip`). Two PubMed servers are common and their tool names differ: the plugin's documented default `@cyanheads/pubmed-mcp-server` (`pubmed_*` tools) and other connectors (`search_articles`, `get_article_metadata`, ...). Call by purpose and use whichever spelling is connected. Tool names below are bare; the harness adds its own server prefix (`mcp__PubMed__search_articles` in Claude Code, `PubMed:search_articles` elsewhere).
+Before choosing a route, list the MCP tools available in this session (for example, search the deferred tool list for `pubmed` or `paperclip`). Two PubMed servers are common and their tool names differ: the plugin's documented default `@cyanheads/pubmed-mcp-server` (`pubmed_*` tools) and other connectors (`search_articles`, `get_article_metadata`, ...). Call by purpose and use whichever spelling is connected. Tool names below are bare; the harness adds its own server prefix (with the documented default server in Claude Code, `mcp__pubmed-mcp-server__pubmed_search_articles`; match whatever prefix the connected server uses).
 
 ## Routing table
 

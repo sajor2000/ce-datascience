@@ -8,7 +8,7 @@
       "files": [],
       "expectations": [
         "Writes analysis/genome-build/manifest.yaml containing build, fasta_md5, contig style, annotation name/version/md5, declared_at, and declared_by",
-        "Computes md5s and counts from the supplied files rather than copying the illustrative Ensembl 111 / GENCODE 44 example values",
+        "Computes md5s and counts from the supplied files rather than copying the illustrative GENCODE 44 example values",
         "Records contig naming style (chr1 vs 1) from the FASTA",
         "Does not download references, re-align, or call variants"
       ]

@@ -37,6 +37,12 @@ Each check runs independently. Skip checks that don't apply to the current analy
 - Temporal splits honor time ordering (no future data in training set)
 - Subject-level splits: same patient/subject not in both train and test
 - No target encoding or frequency encoding computed on full dataset before splitting
+- Feature selection, univariable screening, and oversampling (e.g., SMOTE) happen only after the split, inside training folds
+- Hyperparameters and decision thresholds are chosen without touching the test set
+- No duplicate or near-duplicate encounters across splits; repeated encounters are grouped by patient
+- Every predictor is available at the prediction time point (no post-index codes, discharge diagnoses, or future labs)
+
+Leakage taxonomy: Kapoor & Narayanan, Patterns 2023 (PMID 37720327).
 
 **Pass:** No leakage signals detected.
 **Warn:** Ambiguous pattern found (e.g., scaling code exists but split location is unclear).
@@ -51,23 +57,26 @@ Each check runs independently. Skip checks that don't apply to the current analy
 **Source:** `analysis/research-question.yaml` — `pico.outcome` and the study hypothesis.
 
 **Pass:** Effect direction matches hypothesis, or study is descriptive (no directional hypothesis).
-**Warn:** Effect direction is opposite to hypothesis — not necessarily wrong (null findings are valid), but requires acknowledgment.
+**Warn:** Estimated direction is opposite to the hypothesis. First verify the exposure reference level, outcome event coding (e.g., Cox `event` 1 = event), and effect-measure orientation (e.g., OR for exposed vs unexposed) in the code; if coding is correct, report the reversal as a finding, not a defect. A CI spanning the null is an imprecise result, not a reversal.
 **Fail:** N/A — a reversed effect is never a structural error, only a scientific finding.
 
 **When to skip:** No `analysis/research-question.yaml` exists, or the study is purely descriptive.
 
 ## 4. Missing Data Audit
 
-**What:** Are key variables missing at acceptable rates? Does the imputation strategy match the SAP?
+**What:** Is missingness reported, and is its handling valid under a stated mechanism and consistent with the SAP?
 
 **Checks:**
-- Missingness rate per key variable (exposure, outcome, primary covariates)
-- Imputation method matches SAP specification (e.g., SAP says "multiple imputation with m=20" — verify)
-- Complete-case analysis is documented if used (and SAP allows it)
+- Missingness per key variable (exposure, outcome, primary covariates), reported for context
+- Assumed mechanism (MCAR, MAR, MNAR) stated, and the handling method matches the SAP (e.g., SAP says "multiple imputation with m=20" — verify)
+- With multiple imputation: the imputation model includes the outcome and all analysis-model variables, and m is at least the percentage of incomplete cases (White, Royston & Wood, Stat Med 2011, PMID 21225900)
+- Complete-case analysis is justified (MCAR, or missingness depending only on covariates) and allowed by the SAP
 
-**Pass:** All key variables below threshold (default 5%, or SAP-specified threshold). Imputation method matches SAP.
-**Warn:** One or more key variables between threshold and 20%. Or imputation method differs from SAP.
-**Fail:** Key variable missing >20%, or outcome variable has missingness not addressed in SAP.
+**Pass:** Missingness is reported; the mechanism is stated; handling matches the SAP; MI (if used) meets the checks above.
+**Warn:** Imputation method or m differs from the SAP; complete-case analysis is used without a stated justification; no MNAR sensitivity analysis (e.g., delta adjustment) is planned for a missing outcome.
+**Fail:** Missing outcome or exposure data with no handling stated in the SAP, or MI that omits the outcome from the imputation model.
+
+Never pass or fail on percent missing alone: bias depends on the mechanism and the method, not the proportion (Madley-Dowd et al., J Clin Epidemiol 2019, PMID 30878639).
 
 ## 5. PHI Scan
 
@@ -87,14 +96,13 @@ Each check runs independently. Skip checks that don't apply to the current analy
 
 ## 6. Figure Quality
 
-**What:** Do generated figures meet JAMA style requirements?
+**What:** Do generated figures meet the project's style profile (`ce-figure`; target-journal rules only when a journal is declared)?
 
 **Checks:**
-- Font: Arial (or Helvetica), minimum 8pt for ALL text
+- All text legible at final print size (default minimum 8pt unless the profile says otherwise)
 - No text overlap: titles, legends, footnotes, axis labels, annotations don't collide
-- Legends don't block data: placed outside the plot area
-- Axis labels: sentence case, JAMA format
-- Title: 10-12pt bold, axis labels: 9-10pt, tick labels: 8-9pt, annotations: 8pt minimum
+- Legends don't obscure data
+- Axes labelled, with units
 
 **Pass:** All figures meet style requirements.
 **Warn:** Minor issue detected (e.g., one label at 7pt, or legend partially overlapping non-critical area).
@@ -111,9 +119,9 @@ If `analysis/publication/figures/figure-manifest.json` exists, validate it with 
 **What:** Can this analysis be reproduced from the code and data?
 
 **Checks:**
-- Random seeds set in analysis scripts (`set.seed()`, `np.random.seed()`, `random_state=`)
+- Random seeds set and recorded in output metadata: R `set.seed()` (parallel R: `RNGkind("L'Ecuyer-CMRG")` or `future.seed = TRUE`); Python `np.random.default_rng(seed)` (preferred over legacy `np.random.seed()`) and `random_state=`
 - Package versions locked: `renv.lock` (R) or `requirements.txt` / `pyproject.toml` / `conda.lock` (Python)
-- Data path references are absolute or config-driven (not hardcoded relative paths that break on other machines)
+- Data paths are project-root-relative (e.g., `here::here()`, `pathlib` relative to the repo root) or read from config; no hardcoded absolute or user-specific paths
 - No interactive/manual steps required (all steps scriptable)
 
 **Pass:** Seeds set, package versions locked, data paths configurable.

@@ -10,7 +10,7 @@ Each build has fixed primary chromosome lengths. A few diagnostic ones:
 |--------|---------------|---------------|------------------|
 | chr1 | 249,250,621 | 248,956,422 | 248,387,328 |
 | chr8 | 146,364,022 | 145,138,636 | 146,259,331 |
-| chrM | 16,571 | 16,569 | 16,569 |
+| chrM / MT | 16,571 (hg19 chrM); 16,569 (b37/GRCh37 MT, rCRS) | 16,569 | 16,569 |
 
 In `samtools view -H file.bam`:
 
@@ -32,16 +32,15 @@ Same build, different naming. Tools that expect one and get the other silently p
 ## From annotation files
 
 GENCODE (human):
-- v19 → GRCh37
-- v44, v45, v46 → GRCh38
+- v19, and any `vNNlift37` file (e.g., `gencode.v44lift37`) → GRCh37
+- v20+ without `lift37` → GRCh38
 
-Ensembl release → build:
-- 75 (final GRCh37 release) and lower → GRCh37
-- 76+ → GRCh38
+Ensembl release → build: read the assembly token in the file name (`GRCh37` or `GRCh38`), not the release number. Releases 76+ default to GRCh38, but the GRCh37 archive (grch37.ensembl.org) ships later-numbered files such as `Homo_sapiens.GRCh37.87.gtf.gz`.
 
 Filename hints:
 - `gencode.v44.annotation.gtf.gz` → GENCODE 44 → GRCh38
 - `Homo_sapiens.GRCh38.111.gtf.gz` → Ensembl 111 → GRCh38
+- `Homo_sapiens.GRCh37.87.gtf.gz` → Ensembl 87 GRCh37 archive → GRCh37
 
 ## From RNA-seq counts files
 
@@ -63,7 +62,7 @@ If neither present: infer from `##contig` lengths.
 ## Mismatch examples (real)
 
 1. BAM with `@SQ SN:chr1 LN:248956422` (GRCh38) fed to a variant annotator pre-loaded with GRCh37 cache → all annotations wrong; published as ground truth.
-2. RNA-seq counts using GENCODE v44 (GRCh38) merged with public TCGA counts (GENCODE v22; older GRCh38 patch with different gene_id versions) → silent gene-by-gene mismatch; differential expression nonsense.
+2. RNA-seq counts using GENCODE v44 (GRCh38) merged with public TCGA/GDC counts (GENCODE v22 through GDC Data Release 31, v36 from DR32) → different gene sets and gene_id versions → silent gene-by-gene mismatch; differential expression nonsense.
 3. ATAC-seq peaks called against `chr1` style; downstream motif analysis tool expects `1` style → empty motif hits, reported as biological signal.
 
 These are common enough that the audit step needs to flag them automatically.

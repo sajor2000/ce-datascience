@@ -8,6 +8,7 @@ Subcommands:
     open NAME [--scope SAP-3.1,SAP-3.2] [--reviewer jcr]
     close [NAME]            (defaults to the currently open sprint)
     status [--name NAME]
+    signoff NAME --by REVIEWER
 
 State machine (statuses written to sprint-log.yaml):
     open                   -> `open NAME` writes status=open and captures git HEAD
@@ -16,7 +17,9 @@ State machine (statuses written to sprint-log.yaml):
                               ce-sprint-audit-reviewer verdict
     closed_pending_signoff -> set by the skill when the audit passes; a failing
                               audit sets the sprint back to open
-    signed_off             -> recorded after the named human reviewer signs off
+    signed_off             -> `signoff NAME --by REVIEWER` after the named human
+                              reviewer signs off; refuses unless the sprint is
+                              closed_pending_signoff and REVIEWER matches
 """
 from __future__ import annotations
 
@@ -31,7 +34,8 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    sys.exit("PyYAML is required: python3 -m pip install --upgrade pyyaml")
+    sys.exit("PyYAML is required: run with `uv run --with pyyaml python3 sprint.py ...` "
+             "or install pyyaml in the project environment")
 
 
 def repo_root() -> Path:
@@ -144,6 +148,27 @@ def close_sprint(name: str | None) -> int:
     return 0
 
 
+def signoff_sprint(name: str, by: str) -> int:
+    log = load_log()
+    sprint = find(log, name)
+    if not sprint:
+        print(f"no such sprint: {name}", file=sys.stderr); return 1
+    if sprint.get("status") != "closed_pending_signoff":
+        print(f"sprint '{name}' is {sprint.get('status')}, not closed_pending_signoff; "
+              f"sign-off needs a passing audit first", file=sys.stderr)
+        return 1
+    if by != sprint.get("reviewer"):
+        print(f"sign-off must come from the named reviewer "
+              f"'{sprint.get('reviewer')}', not '{by}'", file=sys.stderr)
+        return 1
+    sprint["status"]        = "signed_off"
+    sprint["signed_off_by"] = by
+    sprint["signed_off_at"] = now_iso()
+    save_log(log)
+    print(f"__CE_SPRINT__ action=signoff name={name} reviewer={by} status=signed_off")
+    return 0
+
+
 def status_sprint(name: str | None) -> int:
     log = load_log()
     sprints = [find(log, name)] if name else log["sprints"]
@@ -169,12 +194,18 @@ def main() -> None:
     s = sub.add_parser("status")
     s.add_argument("--name", default=None)
 
+    g = sub.add_parser("signoff")
+    g.add_argument("name")
+    g.add_argument("--by", required=True, help="the sprint's named human reviewer")
+
     args = ap.parse_args()
     if args.cmd == "open":
         scope = [x.strip() for x in args.scope.split(",") if x.strip()]
         sys.exit(open_sprint(args.name, scope, args.reviewer))
     elif args.cmd == "close":
         sys.exit(close_sprint(args.name))
+    elif args.cmd == "signoff":
+        sys.exit(signoff_sprint(args.name, args.by))
     else:
         sys.exit(status_sprint(args.name))
 

@@ -17,8 +17,8 @@ argument-hint: "[path to optimization spec YAML, or describe the optimization go
 
 ## Data Science Guardrails
 
-1. **Cross-validation awareness.** Never optimize on the test set. Every iteration evaluates via cross-validation on the training set (or a held-out validation split); the test set is scored once, for the final locked result, in Phase 4.
-2. **Data leakage guard.** Before measuring each experiment, verify features do not use the outcome, normalization/encoding/imputation is fit on training data only, and temporal ordering holds for time-series splits. On a leakage signal, abort with a FAIL verdict (log `degenerate` with the reason) instead of recording the metric.
+1. **Cross-validation awareness.** Never optimize on the test set. Every iteration evaluates via cross-validation on the training set (or a held-out validation split); the test set is scored once, for the final locked result, in Phase 4. The best CV score after many iterations is optimistic by selection (Cawley & Talbot, JMLR 2010): report the held-out test score as the estimate, use nested CV or a fresh split when the test set is small or absent, and on small data compare candidates by paired per-fold differences.
+2. **Data leakage guard.** Before measuring each experiment, verify features do not use the outcome; normalization, encoding, imputation, feature selection, and oversampling (e.g., SMOTE) are fit inside training folds only; thresholds never see the test set; one patient's encounters stay in one fold; predictors exist at prediction time; and temporal ordering holds for time-series splits (Kapoor & Narayanan, Patterns 2023, PMID 37720327). On a leakage signal, abort with a FAIL verdict (log `degenerate` with the reason) instead of recording the metric.
 3. **Experiment tracking integration.** When `ce-ml-experiment-track` is configured (mlflow, wandb, dvc, or offline-YAML), log each iteration there (hypothesis, hyperparameters changed, metrics, kept/reverted).
 4. **SAP alignment check.** If a SAP exists (default `analysis/sap.md`, or any markdown file with `sap_version` in frontmatter), confirm the optimization target aligns with its primary endpoint. If it differs, warn before starting and require explicit user confirmation.
 5. **Reproducibility seeds.** Record every random seed that affects the metric (CV split, model initialization, resampling, judge `sample_seed`) in the spec; hold them fixed across baseline and experiments.
@@ -118,7 +118,7 @@ if [ ! -f "$SKILL_DIR/scripts/experiment-worktree.sh" ]; then echo "ce-optimize:
 bash "$SKILL_DIR/scripts/experiment-worktree.sh" count
 ```
 
-If count + `execution.max_concurrent` would exceed 12, warn and suggest cleanup or a lower `max_concurrent`. Do not block.
+If count + `execution.max_concurrent` would exceed 12 (a default disk-pressure cap, not a hard limit), warn and suggest cleanup or a lower `max_concurrent`. Do not block.
 
 ### 1.6 Write Baseline to Disk (CP-1)
 
@@ -137,7 +137,7 @@ Present with the platform's blocking question tool: baseline gates, diagnostics,
 
 ## Phase 2: Hypothesis Generation
 
-After approval, read `references/hypothesis-generation.md` and follow it: generate 10-30 hypotheses (dropping any that need the outcome, test-set data, or future information), pre-approve new dependencies with the blocking question tool, and write the backlog (CP-2).
+After approval, read `references/hypothesis-generation.md` and follow it: generate a backlog of hypotheses (default 10-30; scale to the search space and budget, dropping any that need the outcome, test-set data, or future information), pre-approve new dependencies with the blocking question tool, and write the backlog (CP-2).
 
 ## Phase 3: Optimization Loop
 

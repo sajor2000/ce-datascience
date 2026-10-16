@@ -130,3 +130,18 @@ describe("ce-code-review content fixes", () => {
     expect(skill.indexOf("PHI-safe scope preflight")).toBeLessThan(skill.indexOf("git diff -U10"))
   })
 })
+
+describe("ce-code-review private scope directory", () => {
+  test("every block that uses $REVIEW_SCOPE_DIR without creating it fails closed when it is unset", async () => {
+    const offenders: string[] = []
+    for (const rel of ["scope.md", "intent-and-plan.md"]) {
+      const text = await readFile(path.join(referencesDir, rel), "utf8")
+      for (const block of text.matchAll(/```(?:bash)?\n([\s\S]*?)```/g)) {
+        const body = block[1]
+        if (!body.includes("$REVIEW_SCOPE_DIR") || body.includes("mktemp")) continue
+        if (!body.startsWith(': "${REVIEW_SCOPE_DIR:?')) offenders.push(`${rel}: ${body.split("\n")[0]}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+})

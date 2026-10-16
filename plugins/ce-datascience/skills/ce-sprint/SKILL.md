@@ -1,7 +1,7 @@
 ---
 name: ce-sprint
 description: "Opens, closes, and reports scoped analysis sprints with a named reviewer, planned SAP outputs, and data-lock checks. Use when the user opens, closes, or checks a sprint."
-argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
+argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-5.1,SAP-5.2"
 ---
 
 # Sprint Cadence with Human Audit Gates
@@ -22,7 +22,7 @@ Wraps `ce-work` in bounded sprints with explicit entry/exit criteria and human r
 
 - Before starting analysis work that needs human sign-off (most academic / regulated work)
 - After `ce-plan` SAP and `ce-sap-tabular` are done and the SAP is locked
-- Manual: `ce-sprint start sprint-02 reviewer=jcr scope=SAP-3.3,SAP-3.4`
+- Manual: `ce-sprint start sprint-02 reviewer=jcr scope=SAP-5.1,SAP-5.2`
 - Closing a sprint: `ce-sprint close`
 
 ## Prerequisites
@@ -37,7 +37,7 @@ Wraps `ce-work` in bounded sprints with explicit entry/exit criteria and human r
 
 1. Check that no other sprint is currently `open` in `analysis/sprint-log.yaml` (the canonical top-level audit-trail file written by `scripts/sprint.py`). Refuse to open a second concurrent sprint -- one in flight at a time. Use `ce-sprint close` first.
 
-2. Resolve the scope. The user passes `scope=SAP-3.1,SAP-3.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `Script Section` or legacy `analysis_section` matches. Ignore section banner rows where only the first cell is populated.
+2. Resolve the scope. The user passes `scope=SAP-5.1,SAP-5.2` (SAP section ids) or `scope=table:T1,T2` (table ids from sap-tables). Resolve to a list of rows from `02-outputs.csv` whose `Script Section` or legacy `analysis_section` matches. Ignore section banner rows where only the first cell is populated.
 
 3. Resolve the reviewer. The user passes `reviewer=<name>` or, if absent, prompt for one. The named human is the person who will sign the sprint summary. Their name lands in `sprint-log.yaml` -- this is the audit-trail anchor.
 
@@ -55,16 +55,16 @@ Wraps `ce-work` in bounded sprints with explicit entry/exit criteria and human r
 sprints:
   - name: sprint-02
     status: open
-    scope: [SAP-3.3, SAP-3.4]
+    scope: [SAP-5.1, SAP-5.2]
     reviewer: jcr
     opened_at: 2025-04-28T09:00:00Z
     commit_open: <sha>
     outputs_planned:
-      - { id: T3, output_file: table-mortality-by-arm.csv, subfolder: tables/, sap_section: SAP-3.3 }
-      - { id: F2, output_file: km-curve-overall.png, subfolder: figures/, sap_section: SAP-3.4 }
+      - { id: T3, output_file: table-mortality-by-arm.csv, subfolder: tables/, sap_section: SAP-5.1 }
+      - { id: F2, output_file: km-curve-overall.png, subfolder: figures/, sap_section: SAP-5.2 }
     outputs_actual: []
     entry_criteria:
-      sap_version: 1.2
+      sap_version: 2
       data_wave_id: wave_2025_03_15
       prior_sprint: sprint-01 (signed off 2025-04-20)
 ```
@@ -126,7 +126,7 @@ Status flow in `analysis/sprint-log.yaml`: `open` -> `pending_review` (script, a
 
 Reviewer: <name>
 Opened: ... Closed: ...
-Scope: SAP-3.3, SAP-3.4
+Scope: SAP-5.1, SAP-5.2
 
 ## Outputs produced
 | ID | File | Hash | Status |
@@ -155,7 +155,7 @@ audit_reviewer_findings: { P0: 0, P1: 1, P2: 0 }
 
 6. Print `__CE_SPRINT_CLOSED__ name=<name> findings_p0=<n> awaiting_signoff=true` and prompt the user to share the summary with the reviewer. For manuscript-facing projects, suggest `ce-review-pack` to build the PI-facing package and validate the signoff ledger.
 
-7. After the named reviewer signs off, record it in `sprint-log.yaml`: set `status: signed_off` and add `signed_off_by` and `signed_off_at`. The bundled script has no sign-off subcommand; edit the YAML and confirm the change with the user.
+7. After the named reviewer signs off, record it with `python3 "$SKILL_DIR/scripts/sprint.py" signoff <name> --by <reviewer>` (same `SKILL_DIR` anchor as step 1). The script refuses unless the sprint is `closed_pending_signoff` and `<reviewer>` is the sprint's named reviewer, then writes `status: signed_off`, `signed_off_by`, and `signed_off_at`. Never hand-edit these fields; confirm the `__CE_SPRINT__ action=signoff` line with the user.
 
 ### `ce-sprint status`
 

@@ -18,7 +18,8 @@ Use Publication Type, not free-text:
 
 | Study type | Filter |
 |------------|--------|
-| RCT | `("Randomized Controlled Trial"[Publication Type])` |
+| RCT (high precision) | `("Randomized Controlled Trial"[Publication Type])` |
+| RCT (high sensitivity) | Cochrane HSSS, Cochrane Handbook ch. 4 Box 4.4.a (`--study-type rct-sensitive`) |
 | Cohort study | `("Cohort Studies"[MeSH Terms])` |
 | Case-control | `("Case-Control Studies"[MeSH Terms])` |
 | Cross-sectional | `("Cross-Sectional Studies"[MeSH Terms])` |
@@ -30,8 +31,8 @@ Use Publication Type, not free-text:
 ## Date and language filters
 
 - `AND ("last 5 years"[PDat])`
-- `AND English[lang]`
-- `AND humans[MeSH Terms]` -- exclude pure animal studies
+- `AND English[lang]` -- opt-in only (`--english-only`); language limits risk language bias (Cochrane Handbook §4.4)
+- `NOT (animals[mh] NOT humans[mh])` -- excludes animal-only records while keeping records not yet MeSH-indexed; `AND humans[MeSH Terms]` drops in-process and ahead-of-print records
 
 ## What NOT to filter on
 

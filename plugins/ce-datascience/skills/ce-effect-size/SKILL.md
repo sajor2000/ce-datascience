@@ -1,6 +1,6 @@
 ---
 name: ce-effect-size
-description: "Extracts, converts, and pools (random-effects meta-analysis) published effect sizes into a cited anchor and sweep range. Use when power or a SAP needs an effect-size assumption."
+description: "Extracts and pools literature effect sizes (random-effects meta-analysis, REML with Hartung-Knapp) into a cited anchor and sweep range. Use when the user wants to pool studies, or power or a SAP needs an effect-size assumption."
 argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 ---
 

@@ -22,7 +22,7 @@ def _log(**kw):
     with open(LOG, "a") as fh: fh.write(json.dumps(kw) + "\\n")
 
 def esearch(**kw):
-    _log(call="esearch", retmax=kw.get("retmax"))
+    _log(call="esearch", retmax=kw.get("retmax"), term=kw.get("term"))
     return _H({"Count": str(COUNT), "WebEnv": "W", "QueryKey": "1", "IdList": []})
 
 def efetch(**kw):
@@ -54,6 +54,36 @@ describe("ce-pubmed search", () => {
       expect(rows).toHaveLength(1 + 7)
       const fetches = (await readFile(log, "utf8")).trim().split("\n").map((l) => JSON.parse(l)).filter((c) => c.call === "efetch")
       expect(fetches.reduce((sum, c) => sum + c.retmax, 0)).toBe(7)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  test("keeps unindexed records and applies no language limit unless asked", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "pubmed-filter-"))
+    try {
+      await mkdir(path.join(root, "Bio"))
+      await writeFile(path.join(root, "Bio", "__init__.py"), "")
+      await writeFile(path.join(root, "Bio", "Entrez.py"), STUB)
+      const terms: string[] = []
+      for (const extra of [[], ["--english-only"]]) {
+        const log = path.join(root, `calls-${extra.length}.jsonl`)
+        const proc = Bun.spawn(["python3", script, "sepsis", "--max", "1", "--study-type", "rct-sensitive", "--out", path.join(root, "out.csv"), ...extra], {
+          env: { ...process.env, PYTHONPATH: root, ENTREZ_STUB_LOG: log },
+          stdout: "pipe",
+          stderr: "pipe",
+        })
+        expect(await proc.exited).toBe(0)
+        const search = (await readFile(log, "utf8")).trim().split("\n").map((l) => JSON.parse(l)).find((c) => c.call === "esearch")
+        terms.push(search.term)
+      }
+      for (const term of terms) {
+        expect(term).toEndWith("NOT (animals[mh] NOT humans[mh])")
+        expect(term).not.toContain("humans[MeSH Terms]")
+        expect(term).toContain("randomized[tiab]")
+      }
+      expect(terms[0]).not.toContain("English[lang]")
+      expect(terms[1]).toContain("English[lang]")
     } finally {
       await rm(root, { recursive: true, force: true })
     }

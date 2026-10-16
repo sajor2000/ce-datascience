@@ -14,7 +14,7 @@ description: "Creates an isolated git worktree for a new branch or an existing b
 - **Do not do:** Do not nest worktrees, force duplicate branch checkouts, or silently fall back to the current checkout.
 - **Interaction:** Check isolation first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Ensure the current work happens in an isolated workspace, without disturbing the user's main checkout. Most coding harnesses now create a worktree by default at session start, so the common case is that **isolation already exists** — detect that first and do not create a redundant one.
+Ensure the current work happens in an isolated workspace, without disturbing the user's main checkout. Many harnesses create a worktree at session start, so **check for existing isolation first** and do not create a redundant one.
 
 Order of operations: **detect existing isolation -> prefer a native worktree tool -> fall back to plain git.** Never create a worktree the harness cannot see.
 

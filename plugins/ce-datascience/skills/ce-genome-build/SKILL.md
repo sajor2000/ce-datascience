@@ -37,24 +37,24 @@ Pins the reference genome and annotation versions used in a bioinformatics study
 
 Hash the reference FASTA, parse its first contig name, look up the build:
 
-The values below are an illustrative example (Ensembl release 111 / GENCODE 44); resolve the current release, URLs, md5s, and counts for the build you actually declare rather than copying these.
+The values below are an illustrative example (GENCODE 44, equivalent to Ensembl release 110); resolve the current release, URLs, md5s, and counts for the build you actually declare rather than copying these.
 
 ```yaml
 genome_build:
   build: GRCh38
   patch: GRCh38.p14
-  source: https://ftp.ensembl.org/pub/release-111/fasta/homo_sapiens/dna/
+  source: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh38.primary_assembly.genome.fa.gz
   fasta_md5: <md5 of unzipped FASTA>
   contigs:
-    primary: ["chr1", "chr2", ..., "chrX", "chrY", "chrM"]
-    alt_count: 261
+    primary: ["chr1", "chr2", ..., "chrX", "chrY", "chrM"]   # GENCODE/UCSC naming; Ensembl FASTAs use 1..22, X, Y, MT
+    alt_count: 0   # primary_assembly FASTA; the full GRCh38 assembly adds 261 ALT loci
   annotation:
     name: GENCODE
     version: 44
     source_url: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.annotation.gtf.gz
     md5: <md5>
-    gene_count: 60660
-    transcript_count: 251514
+    gene_count: 62700
+    transcript_count: 252835   # GENCODE 44 statistics page
 declared_at: <ISO8601>
 declared_by: <user>
 ```
@@ -63,7 +63,7 @@ Write to `analysis/genome-build/manifest.yaml`. Commit this; it is the build-tru
 
 ### Step 2: Audit mode (--check)
 
-Walk the project for build artifacts:
+Walk the project for build artifacts. When a build or naming is not declared in a header, infer it with `references/build-detection-rules.md` (contig lengths, naming, annotation file names).
 
 | Artifact | Inspect | Expect |
 |----------|---------|--------|
@@ -113,4 +113,4 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/audit_build.py" <project-dir> --declared GRCh38 --manifest analysis/genome-build/audit-findings.yaml --report analysis/genome-build/audit-report.md
 ```
 
-@./references/build-detection-rules.md
+`references/build-detection-rules.md` — build inference rules used in Step 2.

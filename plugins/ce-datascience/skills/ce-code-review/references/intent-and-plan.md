@@ -13,6 +13,7 @@ private scope directory. After the preflight permits it, print only sanitized
 values:
 
 ```bash
+: "${REVIEW_SCOPE_DIR:?private scope dir not set; create it in this same shell call first}"
 git rev-parse --abbrev-ref HEAD > "$REVIEW_SCOPE_DIR/branch"
 git log --oneline ${BASE}..HEAD > "$REVIEW_SCOPE_DIR/commits"
 ```
