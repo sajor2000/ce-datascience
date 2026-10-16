@@ -9,6 +9,7 @@ param(
   [string]$Scope = "user",
 
   [switch]$Aliases,
+  [switch]$NoAutoUpdate,
   [string]$CodexHome = "",
   [string]$AgentsHome = "",
   [switch]$DryRun,
@@ -20,6 +21,7 @@ $ErrorActionPreference = "Stop"
 $PluginName = "ce-datascience"
 $script:BackupStamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ")
 $MarketplaceName = "ce-datascience-plugin"
+$GitHubRepo = "sajor2000/ce-datascience"
 $AliasMarker = "<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "
 $ManagedStart = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
 $ManagedEnd = "# END CE DataScience plugin MCP"
@@ -33,7 +35,10 @@ Usage:
   .\install.ps1 doctor
 
 Options:
-  -Source PATH       Repo root, unpacked offline package, plugin folder, or plugin ZIP
+  -Source PATH       Repo root, unpacked offline package, plugin folder, or plugin ZIP.
+                     Without it, Claude and Codex install from the GitHub
+                     marketplace so updates reach you.
+  -NoAutoUpdate      Claude: do not turn on background auto-update
   -Scope VALUE       Claude marketplace/alias scope: user, project, or local
   -Aliases           Also install safe bare /ce-* Claude aliases
   -CodexHome PATH    Codex profile root (default: CODEX_HOME or ~/.codex)
@@ -50,6 +55,9 @@ if ($Help -or [string]::IsNullOrWhiteSpace($Target)) {
 }
 
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Without -Source, Claude and Codex install from the GitHub marketplace so
+# updates reach the user; an explicit -Source keeps a local marketplace.
+$SourceExplicit = -not [string]::IsNullOrWhiteSpace($Source)
 if ([string]::IsNullOrWhiteSpace($Source)) {
   $Source = $ScriptRoot
 }
@@ -296,9 +304,79 @@ function Remove-CodexMcpConfig {
   Set-Content -Path $configPath -Value $content.TrimEnd() -Encoding UTF8
 }
 
+function Show-ClaudeUpdateHelp {
+  Write-Output "Update later with:"
+  Write-Output "  claude plugin update $PluginName@$MarketplaceName"
+  Write-Output "Or turn on automatic updates: run /plugin in Claude Code, open Marketplaces,"
+  Write-Output "select $MarketplaceName, and choose Enable auto-update."
+}
+
+# Set autoUpdate on this marketplace's extraKnownMarketplaces entry, the
+# documented per-marketplace switch (third-party marketplaces default to off).
+# Never rewrites a settings file it cannot parse.
+function Enable-ClaudeAutoUpdate {
+  $configDir = if ($env:CLAUDE_CONFIG_DIR) { $env:CLAUDE_CONFIG_DIR } else { Join-Path $HOME ".claude" }
+  $settingsPath = switch ($Scope) {
+    "project" { Join-Path (Get-Location) ".claude\settings.json" }
+    "local" { Join-Path (Get-Location) ".claude\settings.local.json" }
+    default { Join-Path $configDir "settings.json" }
+  }
+  if ($DryRun) {
+    Write-Output "[dry-run] set extraKnownMarketplaces.$MarketplaceName.autoUpdate=true in $settingsPath"
+    return
+  }
+  $data = [pscustomobject]@{}
+  if (Test-Path $settingsPath) {
+    try {
+      $data = Get-Content $settingsPath -Raw | ConvertFrom-Json
+    } catch {
+      Write-Output "Could not update $settingsPath (it is not valid JSON), so it was left unchanged."
+      Show-ClaudeUpdateHelp
+      return
+    }
+    Copy-Item $settingsPath "$settingsPath.bak.$script:BackupStamp"
+  } else {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $settingsPath) | Out-Null
+  }
+  if (-not ($data.PSObject.Properties.Name -contains "extraKnownMarketplaces")) {
+    Set-JsonProperty $data "extraKnownMarketplaces" ([pscustomobject]@{})
+  }
+  $markets = $data.extraKnownMarketplaces
+  if (-not ($markets.PSObject.Properties.Name -contains $MarketplaceName)) {
+    Set-JsonProperty $markets $MarketplaceName ([pscustomobject]@{ source = [pscustomobject]@{ source = "github"; repo = $GitHubRepo } })
+  }
+  Set-JsonProperty $markets.$MarketplaceName "autoUpdate" $true
+  # Write UTF-8 without a BOM; Windows PowerShell 5 adds one with -Encoding UTF8.
+  [System.IO.File]::WriteAllText($settingsPath, ($data | ConvertTo-Json -Depth 20), (New-Object System.Text.UTF8Encoding $false))
+  Write-Output "Auto-update is on: Claude Code refreshes $MarketplaceName in the background"
+  Write-Output "and tells you to run /reload-plugins when a new version lands."
+  Write-Output "Turn it off in /plugin > Marketplaces, or re-run with -NoAutoUpdate."
+}
+
 function Install-Claude {
   $repoMarketplace = Join-Path $Source ".claude-plugin\marketplace.json"
   $repoPlugin = Join-Path $Source "plugins\$PluginName"
+  if ((-not $SourceExplicit) -and (Test-Path $repoMarketplace)) {
+    Assert-Command "claude"
+    $fromGitHub = $true
+    try {
+      Invoke-Step "claude" @("plugin", "marketplace", "add", $GitHubRepo, "--scope", $Scope)
+    } catch {
+      Write-Output "Could not reach the GitHub marketplace; using the local checkout instead."
+      Write-Output "Updates then come from: git pull in $Source"
+      Invoke-Step "claude" @("plugin", "marketplace", "add", $Source, "--scope", $Scope)
+      $fromGitHub = $false
+    }
+    Invoke-Step "claude" @("plugin", "install", "$PluginName@$MarketplaceName", "--scope", $Scope)
+    if ($Aliases) { Install-ClaudeAliases $repoPlugin }
+    Write-Output ""
+    Write-Output "Claude install complete."
+    if ($fromGitHub -and -not $NoAutoUpdate) { Enable-ClaudeAutoUpdate } elseif ($fromGitHub) { Show-ClaudeUpdateHelp }
+    Write-Output "Start Claude Code in a project and run:"
+    if ($Aliases) { Write-Output "  /ce-setup" } else { Write-Output "  /$PluginName:ce-setup" }
+    return
+  }
+
   if ((Test-Path $repoMarketplace) -and (Test-Path $repoPlugin)) {
     Assert-Command "claude"
     Invoke-Step "claude" @("plugin", "marketplace", "add", $Source, "--scope", $Scope)
@@ -377,7 +455,19 @@ function Install-Codex {
 
   if ((Test-Path (Join-Path $Source ".agents\plugins\marketplace.json")) -and (Test-Path (Join-Path $Source "plugins\$PluginName"))) {
     Assert-Command "codex"
-    Invoke-Step "codex" @("plugin", "marketplace", "add", $Source)
+    $codexMarketplace = $Source
+    if (-not $SourceExplicit) {
+      # A Git marketplace is what `codex plugin marketplace upgrade` refreshes.
+      try {
+        Invoke-Step "codex" @("plugin", "marketplace", "add", $GitHubRepo)
+        $codexMarketplace = $GitHubRepo
+      } catch {
+        Write-Output "Could not reach the GitHub marketplace; using the local checkout instead."
+        Invoke-Step "codex" @("plugin", "marketplace", "add", $Source)
+      }
+    } else {
+      Invoke-Step "codex" @("plugin", "marketplace", "add", $Source)
+    }
     if (Test-CommandAvailable "bun") {
       if ($DryRun) {
         Write-Output "[dry-run] cd `"$Source`" && bun run src/index.ts install ./plugins/$PluginName --to codex --codex-home `"$CodexHome`""
@@ -396,6 +486,16 @@ function Install-Codex {
     Write-Output ""
     Write-Output "Codex install prepared."
     Write-Output "Restart Codex, open /plugins, install CE DataScience, then start a new thread."
+    Write-Output ""
+    if ($codexMarketplace -eq $GitHubRepo) {
+      Write-Output "Codex does not update plugins on its own. To update later, run:"
+      Write-Output "  codex plugin marketplace upgrade $MarketplaceName"
+    } else {
+      Write-Output "This marketplace is the local checkout. To update later: git pull in $Source,"
+      Write-Output "then re-run this installer."
+    }
+    Write-Output "Refresh the generated agents too with:"
+    Write-Output "  bunx ce-datascience-plugin@latest install $PluginName --to codex --codex-home `"$CodexHome`""
     return
   }
 

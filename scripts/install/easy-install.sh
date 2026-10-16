@@ -5,6 +5,7 @@ set -euo pipefail
 
 PLUGIN_NAME="ce-datascience"
 MARKETPLACE_NAME="ce-datascience-plugin"
+GITHUB_REPO="sajor2000/ce-datascience"
 
 target=""
 source_root=""
@@ -13,6 +14,8 @@ aliases="no"
 codex_home="${CODEX_HOME:-$HOME/.codex}"
 agents_home="${AGENTS_HOME:-$HOME/.agents}"
 dry_run="no"
+auto_update="yes"
+source_explicit="no"
 
 usage() {
   cat <<'USAGE'
@@ -25,7 +28,10 @@ Usage:
 
 Options:
   --target claude|codex  Agent platform to configure
-  --source PATH          Repo root, unpacked offline package, plugin folder, or plugin ZIP
+  --source PATH          Repo root, unpacked offline package, plugin folder, or plugin ZIP.
+                         Without it, Claude and Codex install from the GitHub
+                         marketplace so updates reach you.
+  --no-auto-update       Claude: do not turn on background auto-update
   --scope user|project   Claude marketplace/alias scope (default: user)
   --aliases              Also install safe bare /ce-* Claude aliases
   --codex-home PATH      Codex profile root (default: $CODEX_HOME or ~/.codex)
@@ -55,7 +61,12 @@ while [ "$#" -gt 0 ]; do
     --source)
       [ "$#" -ge 2 ] || { echo "Missing value for --source" >&2; exit 2; }
       source_root="$2"
+      source_explicit="yes"
       shift 2
+      ;;
+    --no-auto-update)
+      auto_update="no"
+      shift
       ;;
     --scope)
       [ "$#" -ge 2 ] || { echo "Missing value for --scope" >&2; exit 2; }
@@ -195,7 +206,117 @@ install_claude_aliases() {
     --scope "$scope"
 }
 
+claude_settings_path() {
+  if [ "$scope" = "project" ]; then
+    printf '%s/.claude/settings.json\n' "$PWD"
+  elif [ "$scope" = "local" ]; then
+    printf '%s/.claude/settings.local.json\n' "$PWD"
+  else
+    printf '%s/settings.json\n' "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+  fi
+}
+
+find_python() {
+  local candidate
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+print_claude_update_help() {
+  echo "Update later with:"
+  echo "  claude plugin update $PLUGIN_NAME@$MARKETPLACE_NAME"
+  echo "Or turn on automatic updates: run /plugin in Claude Code, open Marketplaces,"
+  echo "select $MARKETPLACE_NAME, and choose Enable auto-update."
+}
+
+# Set autoUpdate on this marketplace's extraKnownMarketplaces entry, the
+# documented per-marketplace switch (third-party marketplaces default to off).
+# Never rewrites a settings file it cannot parse.
+enable_claude_auto_update() {
+  local settings_path python_bin
+  settings_path="$(claude_settings_path)"
+  if [ "$dry_run" = "yes" ]; then
+    echo "[dry-run] set extraKnownMarketplaces.$MARKETPLACE_NAME.autoUpdate=true in $settings_path"
+    return
+  fi
+  if ! python_bin="$(find_python)"; then
+    echo "Python not found, so auto-update was not turned on."
+    print_claude_update_help
+    return
+  fi
+  if "$python_bin" - "$settings_path" "$MARKETPLACE_NAME" "$GITHUB_REPO" <<'PY'
+import json, os, shutil, sys, time
+path, name, repo = sys.argv[1:4]
+data = {}
+if os.path.exists(path):
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        sys.exit(3)
+    if not isinstance(data, dict):
+        sys.exit(3)
+    shutil.copy2(path, path + ".bak." + time.strftime("%Y%m%dT%H%M%S"))
+markets = data.setdefault("extraKnownMarketplaces", {})
+if not isinstance(markets, dict):
+    sys.exit(3)
+entry = markets.setdefault(name, {})
+if not isinstance(entry, dict):
+    sys.exit(3)
+entry.setdefault("source", {"source": "github", "repo": repo})
+entry["autoUpdate"] = True
+os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+tmp = path + ".tmp"
+with open(tmp, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, indent=2)
+    handle.write("\n")
+os.replace(tmp, path)
+PY
+  then
+    echo "Auto-update is on: Claude Code refreshes $MARKETPLACE_NAME in the background"
+    echo "and tells you to run /reload-plugins when a new version lands."
+    echo "Turn it off in /plugin > Marketplaces, or re-run with --no-auto-update."
+  else
+    echo "Could not update $settings_path (it is not valid JSON), so it was left unchanged."
+    print_claude_update_help
+  fi
+}
+
 install_claude() {
+  if [ "$source_explicit" = "no" ] && [ -f "$source_root/.claude-plugin/marketplace.json" ]; then
+    # Default: the GitHub marketplace, so Claude Code can deliver updates.
+    # A local checkout marketplace loads in place and only changes on git pull.
+    require_command claude
+    local from_github="yes"
+    if ! run_or_echo claude plugin marketplace add "$GITHUB_REPO" --scope "$scope"; then
+      echo "Could not reach the GitHub marketplace; using the local checkout instead."
+      echo "Updates then come from: git pull in $source_root"
+      run_or_echo claude plugin marketplace add "$source_root" --scope "$scope"
+      from_github="no"
+    fi
+    run_or_echo claude plugin install "$PLUGIN_NAME@$MARKETPLACE_NAME" --scope "$scope"
+    install_claude_aliases "$source_root/plugins/$PLUGIN_NAME"
+    echo ""
+    echo "Claude install complete."
+    if [ "$from_github" = "yes" ] && [ "$auto_update" = "yes" ]; then
+      enable_claude_auto_update
+    elif [ "$from_github" = "yes" ]; then
+      print_claude_update_help
+    fi
+    echo "Start Claude Code in a project and run:"
+    if [ "$aliases" = "yes" ]; then
+      echo "  /ce-setup"
+    else
+      echo "  /$PLUGIN_NAME:ce-setup"
+    fi
+    return
+  fi
+
   if [ -f "$source_root/.claude-plugin/marketplace.json" ] && [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
     require_command claude
     run_or_echo claude plugin marketplace add "$source_root" --scope "$scope"
@@ -203,6 +324,7 @@ install_claude() {
     install_claude_aliases "$source_root/plugins/$PLUGIN_NAME"
     echo ""
     echo "Claude install complete."
+    echo "This marketplace is the local checkout: update with git pull in $source_root."
     echo "Start Claude Code in a project and run:"
     if [ "$aliases" = "yes" ]; then
       echo "  /ce-setup"
@@ -244,7 +366,18 @@ install_codex() {
 
   if [ -f "$source_root/.agents/plugins/marketplace.json" ] && [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
     require_command codex
-    run_or_echo codex plugin marketplace add "$source_root"
+    local codex_marketplace="$source_root"
+    if [ "$source_explicit" = "no" ]; then
+      # A Git marketplace is what `codex plugin marketplace upgrade` refreshes.
+      codex_marketplace="$GITHUB_REPO"
+      if ! run_or_echo codex plugin marketplace add "$GITHUB_REPO"; then
+        echo "Could not reach the GitHub marketplace; using the local checkout instead."
+        codex_marketplace="$source_root"
+        run_or_echo codex plugin marketplace add "$source_root"
+      fi
+    else
+      run_or_echo codex plugin marketplace add "$source_root"
+    fi
     if command -v bun >/dev/null 2>&1; then
       if [ "$dry_run" = "yes" ]; then
         echo "[dry-run] cd \"$source_root\" && bun run src/index.ts install ./plugins/$PLUGIN_NAME --to codex --codex-home \"$codex_home\""
@@ -258,6 +391,16 @@ install_codex() {
     echo ""
     echo "Codex install prepared."
     echo "Restart Codex, open /plugins, install CE DataScience, then start a new thread."
+    echo ""
+    if [ "$codex_marketplace" = "$GITHUB_REPO" ]; then
+      echo "Codex does not update plugins on its own. To update later, run:"
+      echo "  codex plugin marketplace upgrade $MARKETPLACE_NAME"
+    else
+      echo "This marketplace is the local checkout. To update later: git pull in $source_root,"
+      echo "then re-run this installer."
+    fi
+    echo "Refresh the generated agents too with:"
+    echo "  bunx ce-datascience-plugin@latest install $PLUGIN_NAME --to codex --codex-home \"$codex_home\""
     return
   fi
 
