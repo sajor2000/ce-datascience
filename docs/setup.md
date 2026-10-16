@@ -88,7 +88,9 @@ Then open the target project and run:
 /ce-datascience:ce-setup
 ```
 
-The helper registers the local Claude marketplace and installs the plugin. The
+The helper adds the GitHub marketplace, installs the plugin, and turns on
+auto-update (see [Keep CE DataScience updated](#keep-ce-datascience-updated)).
+Pass `--source .` to use the checkout as a local marketplace instead. The
 namespaced command is the reliable default. `--aliases` is optional and adds
 safe local bare `/ce-*` demo commands.
 
@@ -136,14 +138,78 @@ is recommended for the compact setup confirmation.
 
 | Target | Installer action | Required finish |
 |---|---|---|
-| Claude Code | Registers this checkout as a local marketplace, installs `ce-datascience`, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
-| Codex | Registers the local marketplace and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
+| Claude Code | Adds the GitHub marketplace (or this checkout with `--source`), installs `ce-datascience`, turns on auto-update, and optionally creates managed bare `/ce-*` aliases | Restart Claude Code, open the project or study directory, then run `/ce-datascience:ce-setup` or the optional `/ce-setup` alias |
+| Codex | Adds the GitHub marketplace (or this checkout with `--source`) so `codex plugin marketplace upgrade` works and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **CE DataScience**, restart again, then start a new task in the target project |
 | Pi | Writes generated CE skills and agents under the selected Pi home, plus a managed block in that root's `AGENTS.md` | Install `pi-subagents`, restart Pi, open the target project, then invoke `ce-setup` |
 
 The installer does not configure every research project globally. The
 `ce-setup` skill creates project-local configuration after the plugin is loaded.
 Run setup again when a different project uses a different language, IDE, data
 layer, or reporting workflow.
+
+### Keep CE DataScience updated
+
+How a new version reaches you depends on the agent.
+
+| Agent | Automatic? | Update by hand |
+|---|---|---|
+| Claude Code | Yes, once auto-update is on for the `ce-datascience-plugin` marketplace. `bash install.sh claude` and `.\install.ps1 claude` turn it on (add `--no-auto-update` or `-NoAutoUpdate` to skip). After a one-line `claude plugin install ... --marketplace sajor2000/ce-datascience`, turn it on yourself: run `/plugin`, open **Marketplaces**, select `ce-datascience-plugin`, and choose **Enable auto-update**. | `claude plugin update ce-datascience@ce-datascience-plugin`, then `/reload-plugins` |
+| Codex | No. Codex has no documented automatic plugin update. | `codex plugin marketplace upgrade ce-datascience-plugin`, then restart Codex. Refresh the generated agents with `bunx ce-datascience-plugin@latest install ce-datascience --to codex` |
+| OpenCode, Pi, Gemini CLI, Kiro | No. These use generated files. | `bunx ce-datascience-plugin@latest install ce-datascience --to opencode` (or `--to pi`, `--to gemini`, `--to kiro`; add `--output <workspace>` for a project install) |
+| Qwen Code | No. | `qwen extensions update ce-datascience` |
+| Local checkout or offline package | No. | `git pull` in the checkout (or unpack the new package), then re-run the installer |
+
+With auto-update on, Claude Code checks in the background a few minutes after
+your first message and shows `Plugin updated ... Run /reload-plugins to apply`.
+Your current session keeps the version it started with. A marketplace added
+from a local folder never auto-updates, because Claude Code loads that folder
+in place; that is why the installers now add the GitHub marketplace unless you
+pass `--source`. Setting `DISABLE_AUTOUPDATER=1`, `DISABLE_UPDATES=1`, or
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` turns the background update off
+unless you also set `FORCE_AUTOUPDATE_PLUGINS=1`.
+
+Not sure which command applies? Run the `ce-update` skill (`/ce-update` in
+Claude Code). It prints the exact command for the agent you are in.
+
+### Your own skills are safe
+
+Updates never delete or overwrite skills, agents, prompts, or commands you
+created.
+
+- Generated installs (Codex agents, OpenCode, Pi, Gemini CLI, Kiro) record
+  every file they write, with a content hash, in
+  `<agent folder>/ce-datascience/owned-files.json`. An update deletes only
+  unchanged files on that list.
+- Files from an install made before ownership tracking are not on the list.
+  The installer treats one as the plugin's only when its install record or its
+  exact description shows ce-datascience wrote it, and then moves it to
+  `<agent folder>/ce-datascience/backups/` or `legacy-backup/` instead of
+  deleting it. This includes Codex's retired `~/.codex/ce-datascience/skills`
+  folder.
+- If you edited a file the plugin installed, the update copies your version to
+  `<agent folder>/ce-datascience/backups/<time>/` before replacing it.
+- A file the plugin did not write is left alone, even when it has the name of
+  an old ce-datascience skill such as `setup` or `skill-creator`. The installer
+  prints one line saying it kept the file.
+- Claude Code keeps the plugin in its own plugin cache under `~/.claude/plugins/`,
+  replaces that copy on every update, and deletes old versions later, so never
+  keep your own files there.
+
+Keep your own skills here:
+
+| Agent | For you, in every project | For one project |
+|---|---|---|
+| Claude Code | `~/.claude/skills/<name>/SKILL.md` | `.claude/skills/<name>/SKILL.md` |
+| Codex | `~/.agents/skills/<name>/SKILL.md` | `.agents/skills/<name>/SKILL.md` |
+| OpenCode | `~/.config/opencode/skills/<name>/SKILL.md` | `.opencode/skills/<name>/SKILL.md` |
+| Pi | `~/.pi/agent/skills/<name>/SKILL.md` | `.pi/skills/<name>/SKILL.md` |
+| Gemini CLI | `~/.gemini/skills/<name>/SKILL.md` | `.gemini/skills/<name>/SKILL.md` |
+| Kiro | Not covered here | `.kiro/skills/<name>/SKILL.md` |
+| Qwen Code | `~/.qwen/skills/<name>/SKILL.md` | `.qwen/skills/<name>/SKILL.md` |
+
+Do not start your own skill names with `ce-`. That prefix belongs to the
+plugin; if a name is already taken by your own skill, the installer skips the
+plugin's version and tells you.
 
 ### What setup asks
 
@@ -823,6 +889,9 @@ authenticated, that workflow may contact Paperclip. Use `/ce-pubmed` alone when
 Paperclip network access is not permitted.
 
 ## 9. Update An Existing Checkout
+
+This section is for contributors working from a clone. For the per-agent update
+commands, see [Keep CE DataScience updated](#keep-ce-datascience-updated).
 
 ```bash
 cd "$CE_DS_REPO"

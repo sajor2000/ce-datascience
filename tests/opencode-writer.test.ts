@@ -6,6 +6,7 @@ import { writeOpenCodeBundle } from "../src/targets/opencode"
 import type { OpenCodeBundle } from "../src/types/opencode"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { convertClaudeToOpenCode } from "../src/converters/claude-to-opencode"
+import { legacyMd } from "./legacy-fixtures"
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -453,12 +454,12 @@ describe("writeOpenCodeBundle", () => {
     const outputRoot = path.join(tempRoot, ".opencode")
 
     await fs.mkdir(path.join(outputRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy removed skill")
+    await fs.writeFile(path.join(outputRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy removed skill"))
     await fs.mkdir(path.join(outputRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "agents", "bug-reproduction-validator.md"), "legacy removed agent")
+    await fs.writeFile(path.join(outputRoot, "agents", "bug-reproduction-validator.md"), legacyMd("legacy removed agent"))
     await fs.mkdir(path.join(outputRoot, "commands"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "commands", "reproduce-bug.md"), "legacy removed command")
-    await fs.writeFile(path.join(outputRoot, "commands", "report-bug.md"), "legacy deleted command")
+    await fs.writeFile(path.join(outputRoot, "commands", "reproduce-bug.md"), legacyMd("legacy removed command"))
+    await fs.writeFile(path.join(outputRoot, "commands", "report-bug.md"), legacyMd("legacy deleted command"))
 
     const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToOpenCode(plugin, {
@@ -514,6 +515,12 @@ describe("writeOpenCodeBundle", () => {
       path.join(outputRoot, "skills", "stale-tutor-skill", "SKILL.md"),
       "stale",
     )
+    // The manifest entry is the ownership signal here, so plain content is
+    // realistic. Guard against seeding the wrong paths, which would make the
+    // removal assertions below pass vacuously.
+    for (const seeded of ["agents/stale-tutor-agent.md", "commands/stale-tutor-cmd.md", "skills/stale-tutor-skill/SKILL.md"]) {
+      expect(await exists(path.join(outputRoot, seeded))).toBe(true)
+    }
 
     // Reinstall coding-tutor with a new, non-overlapping set of artifacts.
     await writeOpenCodeBundle(outputRoot, {

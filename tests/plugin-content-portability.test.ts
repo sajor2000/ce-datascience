@@ -47,9 +47,10 @@ describe("ce-datascience skill portability", () => {
     expect(offenders).toEqual([])
   })
 
-  test("Claude-only cache maintenance skill is platform-filtered", async () => {
+  test("ce-update ships to every harness and routes non-Claude sessions past the Claude-only checks", async () => {
     const updateSkill = await fs.readFile(path.join(skillsRoot, "ce-update", "SKILL.md"), "utf8")
-    expect(updateSkill).toContain("ce_platforms: [claude]")
+    expect(updateSkill).not.toContain("ce_platforms:")
+    expect(updateSkill).toContain("if empty or unresolved, this is another harness; go to section 3")
   })
 
   test("skill and agent content uses canonical reporting checklist config", async () => {
