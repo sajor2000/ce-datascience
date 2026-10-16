@@ -178,8 +178,14 @@ created.
 
 - Generated installs (Codex agents, OpenCode, Pi, Gemini CLI, Kiro) record
   every file they write, with a content hash, in
-  `<agent folder>/ce-datascience/owned-files.json`. An update changes or
-  removes only files on that list.
+  `<agent folder>/ce-datascience/owned-files.json`. An update deletes only
+  unchanged files on that list.
+- Files from an install made before ownership tracking are not on the list.
+  The installer treats one as the plugin's only when its install record or its
+  exact description shows ce-datascience wrote it, and then moves it to
+  `<agent folder>/ce-datascience/backups/` or `legacy-backup/` instead of
+  deleting it. This includes Codex's retired `~/.codex/ce-datascience/skills`
+  folder.
 - If you edited a file the plugin installed, the update copies your version to
   `<agent folder>/ce-datascience/backups/<time>/` before replacing it.
 - A file the plugin did not write is left alone, even when it has the name of
@@ -199,6 +205,7 @@ Keep your own skills here:
 | Pi | `~/.pi/agent/skills/<name>/SKILL.md` | `.pi/skills/<name>/SKILL.md` |
 | Gemini CLI | `~/.gemini/skills/<name>/SKILL.md` | `.gemini/skills/<name>/SKILL.md` |
 | Kiro | Not covered here | `.kiro/skills/<name>/SKILL.md` |
+| Qwen Code | `~/.qwen/skills/<name>/SKILL.md` | `.qwen/skills/<name>/SKILL.md` |
 
 Do not start your own skill names with `ce-`. That prefix belongs to the
 plugin; if a name is already taken by your own skill, the installer skips the

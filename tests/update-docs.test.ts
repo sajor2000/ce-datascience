@@ -20,6 +20,11 @@ describe("update model and user-skill safety are documented in every install doc
         "~/.claude/skills",
         ".claude/skills",
         "~/.agents/skills",
+        "~/.qwen/skills",
+        ".qwen/skills",
+        // Legacy cleanup acts outside owned-files.json, so the docs must say
+        // it only moves those files to a backup.
+        "Files from an install made before ownership tracking",
       ]) {
         expect(content).toContain(required)
       }
@@ -29,6 +34,7 @@ describe("update model and user-skill safety are documented in every install doc
   test("the plugin's contributor guide separates plugin skills from personal skills", async () => {
     const guide = await fs.readFile(path.join(repoRoot, "plugins/ce-datascience/AGENTS.md"), "utf8")
     expect(guide).toContain("~/.claude/skills")
+    expect(guide).toContain("~/.qwen/skills")
     expect(guide).toMatch(/never put it inside an installed copy of the plugin/i)
   })
 })
