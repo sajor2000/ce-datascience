@@ -27,7 +27,7 @@ describe("reporting guideline registry", () => {
       .filter((file) => file.endsWith("-checklist.md"))
       .sort()
 
-    expect(Object.keys(entries)).toHaveLength(35)
+    expect(Object.keys(entries)).toHaveLength(37)
     expect(registeredFiles).toEqual(checklistFiles)
 
     for (const [name, entry] of Object.entries(entries)) {
@@ -44,9 +44,15 @@ describe("reporting guideline registry", () => {
     const reviewer = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "agents", "ce-reporting-checklist-reviewer.md"), "utf8")
     const routingMap = await fs.readFile(path.join(checklistRoot, "guideline-routing.md"), "utf8")
 
-    expect(rootReadme).toContain("35 reporting checklists")
-    expect(pluginReadme).toContain("35 standards")
-    expect(reviewer).toContain("35 guidelines")
+    const count = Object.keys((load(await fs.readFile(registryPath, "utf8")) as GuidelineRegistry).guidelines).length
+    const reviewerBody = reviewer.replace(/^---[\s\S]*?\n---\n/, "")
+
+    expect(rootReadme).toContain(`${count} reporting checklists`)
+    expect(pluginReadme).toContain(`${count} standards`)
+    expect(pluginReadme).toContain(`${count} guidelines`)
+    // The reviewer description is owned separately; its body must not hard-code a stale count.
+    for (const match of reviewerBody.matchAll(/(\d+) guidelines/g)) expect(Number(match[1])).toBe(count)
     expect(routingMap).toContain("guideline-registry.yaml")
+    expect(routingMap).not.toMatch(/\b35 supported\b/)
   })
 })

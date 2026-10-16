@@ -1,6 +1,6 @@
 # Reporting Guideline Routing Map
 
-Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the 35 supported checklist files, their evidence status, and their methodological roles.
+Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the supported checklist files, their evidence status, and their methodological roles.
 
 ## Primary Guidelines
 
@@ -26,6 +26,8 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 
 **Prediction models:** TRIPOD+AI supersedes TRIPOD 2015 for every prediction-model study, regression or machine learning (Collins et al. 2024, PMID 38626948). Load `references/tripod-checklist.md` only when the user explicitly asks for a legacy TRIPOD 2015 audit (alias `tripod-2015`).
 
+**Protocol stage:** a trial protocol or pre-results SAP uses SPIRIT 2025 (`references/spirit-checklist.md`; PMID 40294953) instead of CONSORT; a systematic review protocol uses PRISMA-P 2015 (`references/prisma-p-checklist.md`; PMID 25554246) instead of PRISMA 2020.
+
 **Backward compatibility:** The original values `observational`, `rct`, `exploratory`, and `other` continue to work unchanged. New values extend the enum without breaking existing SAPs.
 
 ## AI Extension Layer
@@ -35,7 +37,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `ai_involvement` | Condition | Extension guideline | Checklist file |
 |---|---|---|---|
 | `ai-primary` | `study_type: rct` | CONSORT-AI | `references/consort-ai-checklist.md` |
-| `ai-primary` | `study_type: rct` (protocol stage) | SPIRIT-AI | `references/spirit-ai-checklist.md` |
+| `ai-primary` | `study_type: rct` (protocol stage) | SPIRIT-AI, layered on the SPIRIT 2025 core | `references/spirit-ai-checklist.md` (+ `references/spirit-checklist.md`) |
 | `ai-primary` | `study_type: prediction-model` | TRIPOD+AI (already primary) | _(no additional file)_ |
 | `ai-primary` | `study_type: prediction-model` | REFORMS | `references/reforms-checklist.md` |
 | `ai-primary` | `study_type: diagnostic-accuracy` | STARD-AI | `references/stard-ai-checklist.md` |
@@ -64,6 +66,8 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | Abbreviation | Full name | Items | Scope |
 |---|---|---|---|
 | CONSORT | Consolidated Standards of Reporting Trials (2025) | 30 | RCTs |
+| SPIRIT | Standard Protocol Items: Recommendations for Interventional Trials (2025) | 34 | Trial protocols |
+| PRISMA-P | PRISMA for systematic review Protocols (2015) | 17 | Systematic review protocols |
 | TARGET | Transparent Reporting of Observational Studies Emulating a Target Trial (2025) | 21 | Target trial emulation |
 | STROBE | Strengthening the Reporting of Observational Studies in Epidemiology | 22 | Observational |
 | PRISMA | Preferred Reporting Items for Systematic Reviews and Meta-Analyses | 27 | Systematic reviews |
@@ -73,7 +77,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | ARRIVE | Animal Research: Reporting of In Vivo Experiments | 21 | Animal research |
 | CHEERS | Consolidated Health Economic Evaluation Reporting Standards | 28 | Health economics |
 | CONSORT-AI | CONSORT extension for AI interventions | 14 | AI + RCT |
-| SPIRIT-AI | SPIRIT extension for AI trial protocols | 15 | AI + trial protocol |
+| SPIRIT-AI | SPIRIT extension for AI trial protocols (written against SPIRIT 2013) | 15 | AI + trial protocol |
 | TRIPOD+AI | Prediction-model reporting, regression or ML (supersedes TRIPOD 2015) | 27 | Any prediction model |
 | REFORMS | Reporting Standards for ML in Science | ~20 | ML/computational |
 | CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
