@@ -112,8 +112,9 @@ See `analysis/effect-size/<query>-pooled-forest.png`
 ## For `ce-power`
 
 Use point estimate 0.78 with sensitivity sweep across PI bounds (0.52 to 1.17).
-The pooled estimate is an upper bound on a realistic target (published effects are
-selected); choose the target difference as clinically important and realistic
+Published effects are selected, so the pooled estimate may overstate the benefit
+(for a protective HR, the true HR is likely closer to 1). Choose a target HR that
+reflects a clinically important and realistic benefit
 (DELTA2, Cook et al. BMJ 2018;363:k3750, PMID 30560792). For a two-proportion
 calculation, convert with a cited control risk (references/effect-parser.md).
 ```
