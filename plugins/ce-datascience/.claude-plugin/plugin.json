@@ -18,5 +18,7 @@
     "quarto",
     "reporting-checklists",
     "knowledge-management"
-  ]
+  ],
+  "homepage": "https://sajor2000.github.io/ce-datascience/",
+  "repository": "https://github.com/sajor2000/ce-datascience"
 }
