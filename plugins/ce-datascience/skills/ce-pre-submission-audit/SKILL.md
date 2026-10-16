@@ -12,6 +12,7 @@ description: "Run the final manuscript handoff gate across Methods/Results disci
 - **Output:** A corrected draft plus a concise section-by-severity audit summary.
 - **Ask only if:** Section boundaries or the intended handoff scope cannot be identified from the draft.
 - **Do not do:** Do not present known P0 or section-discipline failures as finished work, and do not invent citations or claims.
+- **Interaction:** Check the draft and conversation first. Ask one decision-changing question at a time using the current harness's blocking question UI; if unavailable, present numbered choices and wait.
 
 A single gate that runs before any manuscript text leaves your hands, combining `ce-manuscript-section-discipline`, `ce-clinical-research-voice`, and `ce-scientific-anti-slop`. This is not optional polish — run it silently before presenting any drafted or edited manuscript section, and report the results rather than presenting a self-certified-clean draft without having checked.
 
@@ -29,12 +30,8 @@ A single gate that runs before any manuscript text leaves your hands, combining 
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+When this run needs literature, read `references/evidence-access.md` first; never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** spot-check that cited claims are supported by their source at the labelled level and that no citation lacks a PMID, PMCID, or DOI; route full reference repair to `ce-manuscript-citations`.
 
 ## Procedure
@@ -53,7 +50,7 @@ A draft does not go to an author with any of the following still present, regard
 
 - Any unsupported hedge, caveat, or interpretive clause inside Methods or Results, except factual statistical statements that report what the analysis showed and concise rationale required to document a prespecified methodological choice under the applicable reporting standard, protocol, regulation, or reproducibility requirement.
 - Any uncited "studies show" / "research suggests" / "experts believe."
-- Any statistical intensifier ("significant," "substantial," "robust") without its statistic attached.
+- Any statistical intensifier ("significant," "substantial," "robust") without its statistic attached, and any threshold language for a non-significant result ("did not reach significance," "trend toward significance," "no difference") instead of the estimate, CI, and exact P value.
 - Any citation that lacks a PMID, PMCID, or DOI, or any spot-checked citation whose source does not support the claim at the labelled level, left unflagged.
 
-Speed pressure from the user is not a reason to skip this gate — a fast draft with these three failures intact is not actually faster once the author has to catch them.
+Speed pressure from the user is not a reason to skip this gate — a fast draft with these failures intact is not actually faster once the author has to catch them.
