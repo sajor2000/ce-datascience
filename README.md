@@ -11,7 +11,7 @@ researcher, statistician, clinician, data steward, or ethics review.
 
 [Read the public documentation](https://sajor2000.github.io/ce-datascience/) · [Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
 
-**65 skills, 55 specialist agents, and 39 reporting checklists** help make each project more explicit, reproducible, and reviewable.
+**66 skills, 55 specialist agents, and 39 reporting checklists** help make each project more explicit, reproducible, and reviewable.
 
 ## In plain English
 
@@ -741,7 +741,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 65 |
+| Skills | 66 |
 | Agents | 55 |
 | Reporting checklists | 39 |
 
