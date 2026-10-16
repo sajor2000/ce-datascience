@@ -31,6 +31,8 @@ TARGET (TrAnsparent ReportinG of observational studies Emulating a Target trial)
 **Primary reference:** Cashin AG, Hansford HJ, Hernán MA, et al. Transparent reporting of observational studies emulating a target trial: the TARGET statement. BMJ. 2025;390:e087179. doi:10.1136/bmj-2025-087179. PMID: 40903028.
 **Related reference:** Simultaneous publication in JAMA. 2025;334(12):1084-1093. doi:10.1001/jama.2025.13350. PMID: 40899949. PMCID: PMC13084563.
 
+**Source and licence:** Item text is quoted verbatim, without alteration, from the official TARGET checklist (https://target-guideline.org/files/TARGET_checklist_editable_2025.docx; listed on EQUATOR at https://www.equator-network.org/reporting-guidelines/22462/), which is distributed under CC BY-ND 4.0. Only the layout (one heading per item, sub-items as bullets) differs from the original table.
+
 TARGET is intended as a standalone reporting guideline for observational studies of interventions that explicitly emulate a target trial. Do not require STROBE as a companion; add RECORD (routinely collected data) or STROBE only when the journal or data source requires them.
 
 ---
@@ -39,7 +41,10 @@ TARGET is intended as a standalone reporting guideline for observational studies
 
 ### TARGET 1 -- Abstract
 
-**Description:** (a) Identify that the study attempts to emulate a target trial using observational data; state the study objectives and briefly summarize the specified target trial. (b) Report the data sources used for emulation. (c) Summarize key assumptions, statistical methods, findings and conclusions.
+**Description:**
+- **1a** Identify that the study attempts to emulate a target trial using observational data. State the study objectives and briefly summarize the specified target trial.
+- **1b** Report the data sources used for emulation.
+- **1c** Summarize key assumptions, statistical methods, findings and conclusions.
 
 **What to look for in code/outputs:**
 - Abstract names the design as a target trial emulation and the data source(s)
@@ -70,7 +75,7 @@ TARGET is intended as a standalone reporting guideline for observational studies
 
 ### TARGET 5 -- Data sources
 
-**Description:** Cite the data sources contributing to the analyses and for each one describe the original purpose, type, geographic locations, setting and time period. If relevant, describe how the data were linked or pooled.
+**Description:** Cite the data sources contributing to the analyses and for each one describe the following: original purpose, type, the geographic locations, setting and time-period. If relevant, describe how the data were linked or pooled.
 
 **What to look for in code/outputs:**
 - Data extraction scripts identify each source, its version/extract date, and the study period
@@ -78,15 +83,15 @@ TARGET is intended as a standalone reporting guideline for observational studies
 
 ### TARGET 6 -- Target trial specification
 
-**Description:** Specify the components of the target trial protocol that would answer the causal question:
-- **6a Eligibility criteria** -- describe the eligibility criteria.
-- **6b Treatment strategies** -- describe the treatment strategies that would be compared.
-- **6c Assignment procedures** -- report that eligible individuals would be randomly assigned to treatment strategies and may be aware of their treatment allocation.
-- **6d Follow-up** -- clarify that follow-up would start at the time of assignment to the treatment strategies; specify when follow-up would end.
-- **6e Outcomes** -- describe the outcomes.
-- **6f Causal contrasts** -- describe the causal contrasts of interest, including effect measures.
-- **6g Identifying assumptions** -- describe the assumptions that would be made to identify each causal estimand, and the variables, if any, related to these assumptions.
-- **6h Data analysis plan** -- for each causal estimand, describe the data analysis procedures and any associated statistical modelling assumptions, including approaches for handling missing data.
+**Description:** Specify the components of the target trial protocol that would answer the causal question.
+- **6a Eligibility criteria** -- Describe the eligibility criteria.
+- **6b Treatment strategies** -- Describe the treatment strategies that would be compared.
+- **6c Assignment procedures** -- Report that eligible individuals would be randomly assigned to treatment strategies and may be aware of their treatment allocation.
+- **6d Follow-up** -- Clarify that follow-up would start at time of assignment to the treatment strategies. Specify when follow-up would end.
+- **6e Outcomes** -- Describe the outcomes.
+- **6f Causal contrasts** -- Describe the causal contrasts of interest, including effect measures.
+- **6g Identifying assumptions** -- Describe assumptions that would be made to identify each causal estimand. Describe the variables, if any, related to these assumptions.
+- **6h Data analysis plan** -- For each causal estimand, describe the data analysis procedures and any associated statistical modelling assumptions, including approaches for handling missing data.
 
 **What to look for in code/outputs:**
 - A protocol table or SAP section that specifies the hypothetical trial before the emulation
@@ -95,15 +100,17 @@ TARGET is intended as a standalone reporting guideline for observational studies
 
 ### TARGET 7 -- Target trial emulation
 
-**Description:** Describe how each component of the target trial protocol was emulated with the observational data, including how all variables were measured or ascertained:
-- **7a** how the eligibility criteria were operationalized with the data.
-- **7b** how the treatment strategies were operationalized with the data.
-- **7c** how assignment to treatment strategies was operationalized with the data.
-- **7d** that follow-up starts at the time individuals were assigned to the treatment strategies, and how the end of follow-up was operationalized.
-- **7e** how the outcomes were operationalized with the data.
-- **7f** how the causal contrasts were operationalized, including effect measures.
-- **7g.i** for each causal estimand, the assumptions made to identify it, including assumptions regarding baseline confounding due to lack of randomization; **7g.ii** how the variables related to these assumptions were operationalized.
-- **7h.i** for each causal estimand, the data analysis procedures and statistical modelling assumptions, including approaches for handling missing data; **7h.ii** any additional analyses conducted to assess the sensitivity of the results to the choice of operationalizations, assumptions and analysis.
+**Description:** Describe how the components of the target trial protocol were emulated with the observational data, including how all variables were measured or ascertained.
+- **7a Eligibility criteria** -- Describe how the eligibility criteria were operationalized with the data.
+- **7b Treatment strategies** -- Describe how the treatment strategies were operationalized with the data.
+- **7c Assignment procedures** -- Describe how assignment to treatment strategies was operationalized with the data.
+- **7d Follow-up** -- Clarify that follow-up starts at the time individuals were assigned to the treatment strategies. Describe how the end of follow-up was operationalized with the data.
+- **7e Outcomes** -- Describe how the outcomes were operationalized with the data.
+- **7f Causal contrasts** -- Describe how the causal contrasts were operationalized with the data, including effect measures.
+- **7g.i Identifying assumptions** -- For each causal estimand, describe assumptions made to identify it, including assumptions regarding baseline confounding due to lack of randomization.
+- **7g.ii** -- Describe how the variables related to these assumptions were operationalized with the data.
+- **7h.i Data analysis plan** -- For each causal estimand, describe the data analysis procedures and any associated statistical modelling assumptions, including approaches for handling missing data.
+- **7h.ii** -- For each causal estimand, describe any additional analyses conducted to assess the sensitivity of the results to the choice of operationalizations, assumptions and analysis.
 
 **What to look for in code/outputs:**
 - Eligibility filters in code match the specified criteria; differences from the target trial are documented (7a)
