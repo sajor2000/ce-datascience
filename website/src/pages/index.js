@@ -137,7 +137,7 @@ export default function Home() {
             Built for three kinds of study
           </Heading>
           <p className="ms-section__lead">
-            65 skills in total. These are the ones each kind of study reaches for first.
+            66 skills in total. These are the ones each kind of study reaches for first.
           </p>
           <div className="ms-audiences">
             {AUDIENCES.map(({title, lead, commands}) => (

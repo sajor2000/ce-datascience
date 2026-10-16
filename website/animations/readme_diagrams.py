@@ -26,7 +26,7 @@ class ResearchWorkflow(Scene):
         self.camera.background_color = PAPER
         header = heading(
             "From research question to reviewable evidence",
-            "65 skills across six phases. method-workflow recommends the next safe step.",
+            "66 skills across six phases. method-workflow recommends the next safe step.",
             mark=True,
         ).to_edge(UP, buff=0.32)
         columns = skill_map()
