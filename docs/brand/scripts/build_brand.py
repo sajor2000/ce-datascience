@@ -49,6 +49,17 @@ LOOP = (
     ("Review", "/method-review"),
     ("Compound", "/method-compound"),
 )
+PLUGIN = Path(__file__).resolve().parents[3] / "plugins" / "methodsmith"
+
+
+def inventory():
+    """Counts shown on the social card, read from the plugin so they stay true."""
+    skills = len(list((PLUGIN / "skills").glob("*/SKILL.md")))
+    agents = len(list((PLUGIN / "agents").rglob("*.md")))
+    checklists = len(list((PLUGIN / "skills" / "method-review" / "references").glob("*-checklist.md")))
+    return skills, agents, checklists
+
+
 TAGLINE = "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper."
 SIGNOFF = "Every study compounds."
 
@@ -252,11 +263,15 @@ def social_card():
     body.append(text(SANS, "and meta-analysis, from question to paper.", 30, 84, 292, NIGHT_MUTED))
     body.append(text(SANS_MEDIUM, SIGNOFF, 30, 84, 338, EMBER_GLOW))
     body.append(loop_strip(176, W - 176, 420, "dark", NIGHT, label_size=15, cmd_size=17))
-    facts = "65 skills  ·  55 specialist reviewers  ·  39 EQUATOR checklists  ·  PHI guard"
+    skills, agents, checklists = inventory()
+    facts = f"{skills} skills  ·  {agents} specialist reviewers  ·  {checklists} EQUATOR checklists  ·  PHI guard"
     body.append(f'<line x1="84" y1="560" x2="{W - 84}" y2="560" stroke="{NIGHT_RULE}" stroke-width="1.5"/>')
     body.append(text(SANS, facts, 19, 84, 598, NIGHT_MUTED))
     body.append(text(MONO, "github.com/sajor2000/methodsmith", 18, W - 84, 598, NIGHT_TEXT, anchor="end"))
-    desc = "Methodsmith: plan, work, review, compound. 65 skills, 55 reviewers, 39 EQUATOR checklists, PHI guard."
+    desc = (
+        f"Methodsmith: plan, work, review, compound. {skills} skills, {agents} reviewers, "
+        f"{checklists} EQUATOR checklists, PHI guard."
+    )
     return svg(W, H, "".join(body), "Methodsmith", desc, background=NIGHT)
 
 
