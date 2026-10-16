@@ -2,6 +2,7 @@ import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Heading from '@theme/Heading';
 import Layout from '@theme/Layout';
+import packageWorkflow from '../../../docs/methodsmith-package-workflow.png';
 import skillMap from '../../../docs/workflow-diagram.png';
 
 const LOOP = [
@@ -57,6 +58,7 @@ const TRUST = [
 export default function Home() {
   const demo = useBaseUrl('/brand/demo.svg');
   const video = useBaseUrl('/media/methodsmith-overview.mp4');
+  const poster = useBaseUrl('/media/methodsmith-overview-poster.jpg');
   return (
     <Layout
       title="Rigorous methods, from question to paper"
@@ -187,11 +189,27 @@ export default function Home() {
             />
           </figure>
           <figure className="ms-figure">
-            <video controls playsInline preload="metadata" width="960" aria-label="Methodsmith workflow overview animation">
+            <video controls playsInline preload="metadata" width="960" poster={poster} aria-label="Methodsmith workflow overview animation">
               <source src={video} type="video/mp4" />
               Your browser does not support HTML video.
             </video>
             <figcaption>A 20-second overview of the workflow, without sound.</figcaption>
+          </figure>
+        </section>
+
+        <section className="ms-section container" aria-labelledby="start">
+          <Heading as="h2" id="start">
+            Install once, set up each project
+          </Heading>
+          <p className="ms-section__lead">
+            Claude Code, Codex and Pi are supported, with a locked-down route for
+            managed laptops. The <Link to="/docs/setup">setup guide</Link> covers each one.
+          </p>
+          <figure className="ms-figure">
+            <img
+              src={packageWorkflow}
+              alt="Methodsmith package workflow: choose a route, install, run method-setup once per project, let method-workflow recommend the next skill, and deliver reviewable artifacts"
+            />
           </figure>
         </section>
 
