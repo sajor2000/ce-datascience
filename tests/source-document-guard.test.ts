@@ -43,6 +43,15 @@ describe("source-document guard", () => {
     ).toEqual([])
   })
 
+  test("checklist skills never tell users to commit guideline source documents", async () => {
+    for (const file of [
+      "plugins/ce-datascience/agents/ce-reporting-checklist-reviewer.md",
+      "plugins/ce-datascience/skills/ce-checklist-match/SKILL.md",
+    ]) {
+      expect(await Bun.file(file).text(), file).toContain("Never commit a reporting-guideline source document")
+    }
+  })
+
   test("no source documents are tracked in this repository", () => {
     const tracked = execFileSync("git", ["ls-files", "-z", "--", "plugins", "evals"], { encoding: "utf8" })
       .split("\0")

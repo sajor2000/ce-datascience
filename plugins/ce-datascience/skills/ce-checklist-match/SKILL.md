@@ -131,6 +131,7 @@ Completion check: the signal, `stack_profile.reporting_checklist`, and the `anal
 - Does not write the SAP (use the `ce-plan` skill)
 - Does not pre-register (use the `ce-prereg` skill)
 - Does not explain WHY a checklist was missed -- just which one applies; the validating reviewer handles compliance scoring
+- Never commit a reporting-guideline source document (statement PDF, supplement, Word checklist), and never tell the user to; cite it by DOI, PMID, or URL and keep any local copy out of version control.
 
 ## References
 
