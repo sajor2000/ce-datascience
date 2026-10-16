@@ -15,8 +15,10 @@ frame-shaped line is masked like the rest. File names are masked against the
 index too. Stdout is never printed. The exit code is the
 command's. Files the run created or modified (except raster images) are listed in
 .ce-datascience/runs/outputs.txt, and the boundary guard treats them as data: the
-run read data, so what it wrote may hold values. Writes outside the project are not
-tracked.
+run read data, so what it wrote may hold values. Writes outside the project, or
+under .git and dependency trees (node_modules, venvs, renv, caches), are not
+tracked. In schema-only mode the guard requires ce-safe-run to run as its own
+command, so nothing in the same call reads a file before it is recorded.
 """
 
 import json
@@ -144,8 +146,8 @@ def index_hit(text, index):
     return any(_indexed(index, gram) for gram in grams)
 # --- end identifier index ---
 
-SKIP_DIRS = {".git", ".ce-datascience", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache",
-             ".pytest_cache", ".ruff_cache", ".quarto", "renv", ".Rproj.user"}
+SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+             "renv"}  # VCS and dependency trees; .ce-datascience is walked except runs/ (data already)
 TABULAR = (".csv", ".tsv", ".psv", ".tab")
 RASTER = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 MAX_FILES = 20000
@@ -199,7 +201,8 @@ def snapshot(root):
     """{relative path: (mtime_ns, size)} for project files, skipping tool and VCS directories."""
     files = {}
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS
+                       and not (d == "runs" and os.path.basename(dirpath) == ".ce-datascience")]
         for name in filenames:
             full = os.path.join(dirpath, name)
             try:

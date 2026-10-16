@@ -241,3 +241,45 @@ describe("#87: ce-safe-run trusts a traceback frame only when it names a real fi
     expect(out).toContain("ValueError")
   })
 })
+
+describe("#87 re-review: ce-safe-run runs alone, and its writes under .ce-datascience are tracked (schema-only)", () => {
+  test("another command that reads files in the same Bash call as ce-safe-run is denied", () => {
+    const root = project(SCHEMA_ONLY)
+    const writer = `${safeRun} -- python3 -c "open('leak.txt','w').write(open('data/cohort.csv').read())"`
+    expectAll(root, "deny", [
+      ["Bash", bash(`${writer} && cat leak.txt`)],
+      ["Bash", bash(`${writer}; head output/report.md`)],
+      ["Bash", bash(`${writer} && python3 -c "print(open('leak.txt').read())"`)],
+    ])
+    expectAll(root, "allow", [
+      ["Bash", bash(writer)],
+      ["Bash", bash(`cd analysis && ${safeRun} -- python3 run.py && echo done`)],
+      ["Bash", bash(`${safeRun} -- python3 run.py | tail -n 5`)],
+      ["Bash", bash(`${safeRun} -- python3 run.py; ls output`)],
+    ])
+  })
+
+  test("files a run writes under .ce-datascience (outside runs/) are data afterwards", () => {
+    const root = project(SCHEMA_ONLY)
+    const ran = Bun.spawnSync([safeRun, "--", "python3", "-c", "open('.ce-datascience/leak.txt','w').write(open('data/cohort.csv').read())"], { cwd: root })
+    expect(ran.exitCode).toBe(0)
+    expectAll(root, "deny", [["Read", { file_path: ".ce-datascience/leak.txt" }], ["Bash", bash("cat .ce-datascience/leak.txt")]])
+  })
+})
+
+describe("#87 re-review: only the caller's own contact headers may carry an email (every mode)", () => {
+  test("a patient email in a custom header or referer is denied; -u, From:, and User-Agent pass", () => {
+    const root = project(APPROVED)
+    for (const v of verdicts(root, [
+      ["Bash", bash("curl -s -H 'X-Patient-Email: zed.t@example.com' https://api.example.org/v1")],
+      ["Bash", bash("curl -s --header='X-Note: zed.t@example.com' https://api.example.org/v1")],
+      ["Bash", bash("curl -s -e 'https://x.org/?u=zed.t@example.com' https://api.example.org/v1")],
+    ])) expect({ input: v.input, decision: v.decision, kind: v.kind }).toEqual({ input: v.input, decision: "deny", kind: "egress" })
+    expectAll(root, "allow", [
+      ["Bash", bash("curl -s -u me@example.org:token https://api.example.org/v1")],
+      ["Bash", bash("curl -s -H 'From: me@example.org' https://api.example.org/v1")],
+      ["Bash", bash("curl -s -A 'ce-tool/1.0 (mailto:me@example.org)' https://api.crossref.org/works?query=sepsis")],
+      ["Bash", bash("curl -s -H 'User-Agent: ce-tool/1.0 (mailto:me@example.org)' https://api.crossref.org/works?query=sepsis")],
+    ])
+  })
+})

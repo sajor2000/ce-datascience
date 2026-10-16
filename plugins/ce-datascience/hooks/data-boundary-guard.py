@@ -1167,6 +1167,14 @@ def judge(cmd, cwd, mode, tainted, written):
     return f"`{verb}` on a data file prints its values", False
 
 
+def safe_companion(cmd):
+    """A command that may share a Bash call with ce-safe-run: metadata only, or a reader of the pipe (no files)."""
+    verb = program(cmd[0])
+    if verb in METADATA_VERBS or verb in ("echo", "printf", "true", "false", ":"):
+        return True
+    return verb in AGG_READERS | GREP_VERBS and all(t.isdigit() for t in operands(cmd[1:])[1 if verb in GREP_VERBS else 0:])
+
+
 def shell_code(cmd):
     """The code string run by `sh|bash|zsh|dash|ksh -c CODE` or `eval CODE...`, else None."""
     verb = program(cmd[0])
@@ -1193,6 +1201,11 @@ def bash_violations(command, cwd, mode, depth=0):
     commands = [unwrap(seg) for pipeline in pipelines for seg in pipeline]
     runs_code = any(rest and (INTERPRETERS.match(program(rest[0])) or SCRIPT_RUNNERS.match(program(rest[0])))
                     for _, rest in commands)
+    if mode["mode"] == "schema-only" and any(rest and program(rest[0]) == "ce-safe-run" and is_plugin_script(rest[0], cwd)
+                                             for _, rest in commands):
+        if not all(not rest or program(rest[0]) == "ce-safe-run" or safe_companion(rest) for _, rest in commands):
+            access = access or ("run ce-safe-run as its own command: other commands in the same call can read what the "
+                                "run writes before it is recorded as data")
     written = set()
     for index, token in enumerate(tokens[:-1]):
         if token in (">", ">>", ">|"):
@@ -1290,8 +1303,17 @@ def mcp_violation(tool, tool_input, cwd, mode):
 
 
 HTTP_CLIENTS = {"curl", "wget", "http", "https", "xh"}
-# Option values that carry the caller's own account, not query data: an email there is not a patient's.
-OWN_ACCOUNT_OPTS = {"-u", "--user", "-H", "--header", "-A", "--user-agent", "-e", "--referer"}
+# Where an HTTP request carries the caller's own contact by convention: credentials, the From header
+# (RFC 9110: the human user's email), and the User-Agent (polite-pool "mailto:"). An email there is not a patient's.
+OWN_CONTACT_OPTS = {"-u", "--user", "-A", "--user-agent"}
+OWN_CONTACT_HEADERS = ("from:", "user-agent:")
+
+
+def own_contact(prev, token):
+    if prev in OWN_CONTACT_OPTS or token.split("=", 1)[0] in OWN_CONTACT_OPTS:
+        return True
+    value = token.split("=", 1)[1] if token.startswith("--header=") else token if prev in ("-H", "--header") else ""
+    return value.strip().lower().startswith(OWN_CONTACT_HEADERS)
 
 
 def ncbi_violation(cmd, mode):
@@ -1306,8 +1328,7 @@ def ncbi_violation(cmd, mode):
     for index, token in enumerate(args):
         if os.path.basename(token) == PUBMED_SCRIPT:
             continue
-        own = verb in HTTP_CLIENTS and index > 0 and (args[index - 1] in OWN_ACCOUNT_OPTS
-                                                       or token.split("=", 1)[0] in OWN_ACCOUNT_OPTS)
+        own = verb in HTTP_CLIENTS and own_contact(args[index - 1] if index else "", token)
         reason = identifier_reason(unquote_plus(token), mode, "email" if own else "")
         if reason:
             return f"{where}: {reason[len('an argument '):]}" if reason.startswith("an argument ") else reason
