@@ -228,6 +228,13 @@ grep -E '^description:' skills/*/SKILL.md
 
 ## Adding Components
 
+This section is for contributing a skill to the plugin's source repository.
+To make a skill for yourself, put it in your agent's own skills folder
+(`~/.claude/skills/<name>/` or the project's `.claude/skills/<name>/` for
+Claude Code; `~/.agents/skills/` or `.agents/skills/` for Codex;
+`~/.qwen/skills/` or `.qwen/skills/` for Qwen Code).
+Never put it inside an installed copy of the plugin; updates replace that copy.
+
 - **New skill:** Create `skills/<name>/SKILL.md` with required YAML frontmatter (`name`, `description`). Reference files go in `skills/<name>/references/`. Add the skill to the appropriate category table in `README.md` and update the skill count.
 - **New agent:** Create `agents/ce-<name>.md` with frontmatter (the `ce-` prefix is required). Add the agent to the appropriate topical section of `README.md` (Review, Document Review, Research, Design, Workflow, Docs) and update the agent count.
 

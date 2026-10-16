@@ -1,5 +1,5 @@
 import path from "path"
-import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, directWriter, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJsonSecure } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import { transformContentForGemini } from "../converters/claude-to-gemini"
@@ -7,15 +7,15 @@ import type { GeminiBundle } from "../types/gemini"
 import { getLegacyGeminiArtifacts } from "../data/plugin-legacy-artifacts"
 import {
   archiveLegacyInstallManifestIfOwned,
-  cleanupCurrentManagedDirectory,
-  cleanupRemovedManagedDirectories,
-  cleanupRemovedManagedFiles,
+  claimManagedUnit,
+  cleanupRemovedManagedEntries,
   moveLegacyArtifactToBackup,
   readManagedInstallManifestWithLegacyFallback,
   resolveManagedSegment,
   sanitizeManagedPluginName,
   writeManagedInstallManifest,
 } from "./managed-artifacts"
+import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle): Promise<void> {
@@ -33,16 +33,18 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   const currentCommands = bundle.commands.map((command) => `${command.name}.toml`)
 
   await ensureDir(paths.geminiDir)
+  const ownership = pluginName ? await InstallOwnership.open(paths.geminiDir, paths.managedDir, pluginName) : null
+  const writer = ownership ?? directWriter
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
 
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
       const skillName = sanitizePathName(skill.name)
       assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
-      await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
-      await writeText(path.join(targetDir, "SKILL.md"), skill.content + "\n")
+      if (!(await claimManagedUnit(ownership, targetDir, manifest, "skills", skillName))) continue
+      await writer.writeFile(path.join(targetDir, "SKILL.md"), skill.content + "\n")
     }
   }
 
@@ -51,8 +53,8 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
       const skillName = sanitizePathName(skill.name)
       assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(paths.skillsDir, skillName)
-      await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
-      await copySkillDir(skill.sourceDir, targetDir, transformContentForGemini)
+      if (!(await claimManagedUnit(ownership, targetDir, manifest, "skills", skillName))) continue
+      await copySkillDir(skill.sourceDir, targetDir, transformContentForGemini, false, writer)
       if (skill.disableModelInvocation) {
         await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
       }
@@ -63,7 +65,9 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
     for (const agent of agents) {
       assertSafeArtifactName(sanitizePathName(agent.name), "agent")
       const agentFile = `${sanitizePathName(agent.name)}.md`
-      await writeText(path.join(paths.agentsDir, agentFile), agent.content + "\n")
+      const agentPath = path.join(paths.agentsDir, agentFile)
+      if (!(await claimManagedUnit(ownership, agentPath, manifest, "agents", agentFile))) continue
+      await writer.writeFile(agentPath, agent.content + "\n")
     }
   }
 
@@ -73,7 +77,8 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
         assertSafeArtifactName(segment, "command")
       }
       const dest = path.join(paths.commandsDir, ...command.name.split("/")) + ".toml"
-      await writeText(dest, command.content + "\n")
+      if (!(await claimManagedUnit(ownership, dest, manifest, "commands", `${command.name}.toml`))) continue
+      await writer.writeFile(dest, command.content + "\n")
     }
   }
 
@@ -82,9 +87,9 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
   // ordering does not change the end state — but deferring the deletes means a
   // mid-write failure leaves the previously-installed tree intact rather than a
   // half-updated managed directory with the old artifacts already gone.
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(paths.commandsDir, manifest, "commands", currentCommands)
+  await cleanupRemovedManagedEntries(ownership, paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedEntries(ownership, paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedEntries(ownership, paths.commandsDir, manifest, "commands", currentCommands)
 
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir)
   if (mcpServers && Object.keys(mcpServers).length > 0) {
@@ -119,6 +124,7 @@ export async function writeGeminiBundle(outputRoot: string, bundle: GeminiBundle
     await archiveLegacyInstallManifestIfOwned(paths.managedDir, pluginName)
     await cleanupKnownLegacyGeminiArtifacts(paths, bundle)
   }
+  await ownership?.finish()
 }
 
 function resolveGeminiPaths(outputRoot: string, pluginName?: string) {

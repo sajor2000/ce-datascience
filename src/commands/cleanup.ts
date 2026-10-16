@@ -288,9 +288,10 @@ async function cleanupCodex(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>
     // it swept into `ce-datascience/legacy-backup/` on every cleanup run.
     // Mirror the body + frontmatter check used by `cleanupStalePrompts` so
     // install-time and standalone cleanup paths treat ownership identically.
-    // "unknown" (no fingerprint on record) falls through so fully-retired
-    // historical wrappers still get cleaned up. Manifest-driven migration
-    // below is already safe because it only touches files CE recorded writing.
+    // "unknown" (no prompt fingerprint on record) falls through to
+    // `moveIfExists`, which still requires a shipped description before moving.
+    // Manifest-driven migration below passes ownershipProven because it only
+    // touches files CE recorded writing.
     const promptPath = path.join(codexRoot, "prompts", promptFile)
     const ownership = await classifyCodexLegacyPromptOwnership(promptPath)
     if (ownership === "foreign") continue
@@ -315,11 +316,12 @@ async function cleanupCodex(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>
         path.join(codexRoot, "skills", plugin.manifest.name),
         skillName,
         "Codex",
+        true,
       )
     }
     for (const promptFile of installedManifest.prompts) {
       if (currentPrompts.has(promptFile)) continue
-      moved += await moveIfExists(managedDir, "prompts", path.join(codexRoot, "prompts"), promptFile, "Codex")
+      moved += await moveIfExists(managedDir, "prompts", path.join(codexRoot, "prompts"), promptFile, "Codex", true)
     }
     for (const agentFile of installedManifest.agents) {
       if (currentAgents.has(agentFile)) continue
@@ -329,6 +331,7 @@ async function cleanupCodex(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>
         path.join(codexRoot, "agents", plugin.manifest.name),
         agentFile,
         "Codex",
+        true,
       )
     }
   }
@@ -391,8 +394,7 @@ async function moveIfSymlinkManaged(
   if (!isSafeManagedPath(artifactRoot, relativePath)) return 0
   const artifactPath = path.join(artifactRoot, ...relativePath.split("/"))
   if (!(await isManagedCodexAgentsSymlink(artifactPath, managedRoots))) return 0
-  await moveLegacyArtifactToBackup(managedDir, kind, artifactRoot, relativePath, label)
-  return 1
+  return (await moveLegacyArtifactToBackup(managedDir, kind, artifactRoot, relativePath, label, true)) ? 1 : 0
 }
 
 async function cleanupOpenCode(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>, opencodeRoot: string): Promise<CleanupResult> {
@@ -578,6 +580,7 @@ async function cleanupQwen(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>,
       path.join(qwenRoot, "extensions"),
       plugin.manifest.name,
       "Qwen",
+      true,
     )
   }
 
@@ -626,6 +629,7 @@ async function moveIfExists(
   artifactRoot: string,
   relativePath: string,
   label: string,
+  ownershipProven = false,
 ): Promise<number> {
   // Defense in depth: relativePath comes from either the historical legacy
   // allow-list (safe by construction) or an install-manifest entry that
@@ -635,8 +639,7 @@ async function moveIfExists(
   if (!isSafeManagedPath(artifactRoot, relativePath)) return 0
   const artifactPath = path.join(artifactRoot, ...relativePath.split("/"))
   if (!(await pathExists(artifactPath))) return 0
-  await moveLegacyArtifactToBackup(managedDir, kind, artifactRoot, relativePath, label)
-  return 1
+  return (await moveLegacyArtifactToBackup(managedDir, kind, artifactRoot, relativePath, label, ownershipProven)) ? 1 : 0
 }
 
 function resolveCleanupTargets(targetArg: string): CleanupTarget[] {

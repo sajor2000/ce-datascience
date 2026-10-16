@@ -163,3 +163,39 @@ esac
     rmSync(mockDir, { recursive: true, force: true })
   }
 }
+
+describe("ce-update covers every supported harness", () => {
+  const frontmatter = SKILL_BODY.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? ""
+
+  test("ships to every target, not only Claude Code", () => {
+    expect(frontmatter).not.toMatch(/ce_platforms/)
+  })
+
+  test("gives the exact update command for each harness", () => {
+    for (const command of [
+      "claude plugin update ce-datascience@{marketplace-name}",
+      "codex plugin marketplace upgrade ce-datascience-plugin",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to codex",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to opencode",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to pi",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to gemini",
+      "bunx ce-datascience-plugin@latest install ce-datascience --to kiro",
+      "qwen extensions update ce-datascience",
+    ]) {
+      expect(SKILL_BODY).toContain(command)
+    }
+  })
+
+  test("checks for a non-marketplace load before the fetch-failure branch, which falls back to /plugin", () => {
+    const logic = SKILL_BODY.slice(SKILL_BODY.indexOf("### Claude Code decision logic"))
+    const notMarketplace = logic.indexOf("If **Currently loaded version** contains `__CE_UPDATE_NOT_MARKETPLACE__`")
+    const fetchFailed = logic.indexOf("If **Latest upstream version** contains `__CE_UPDATE_VERSION_FAILED__`")
+    expect(notMarketplace).toBeGreaterThan(-1)
+    expect(fetchFailed).toBeGreaterThan(notMarketplace)
+    expect(logic.slice(fetchFailed, fetchFailed + 600)).toContain("**Marketplaces**")
+  })
+
+  test("says updates keep the user's own skills", () => {
+    expect(SKILL_BODY).toMatch(/your own skills/i)
+  })
+})
