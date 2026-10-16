@@ -41,6 +41,7 @@ EMBER_GLOW = "#E57A50"
 SERIF = ("SourceSerif4.ttf", (("wght", 600), ("opsz", 60)))
 SANS = ("IBMPlexSans.ttf", (("wght", 400), ("wdth", 100)))
 SANS_MEDIUM = ("IBMPlexSans.ttf", (("wght", 500), ("wdth", 100)))
+SANS_SEMI = ("IBMPlexSans.ttf", (("wght", 600), ("wdth", 100)))
 MONO = ("IBMPlexMono-Medium.ttf", None)
 
 LOOP = (
@@ -339,6 +340,149 @@ def write(name, content):
     print(f"wrote {path}")
 
 
+# --- human-in-the-loop swimlane --------------------------------------------
+# Two lanes: the scientist decides, Methodsmith drafts, runs, checks and
+# records. Built to the diagram-design rules: orthogonal connectors only,
+# masked labels set beside their strokes, arrows drawn before boxes, ember on
+# two elements (the approval gate and the return line).
+
+LANE_NODES = {
+    "you": [
+        ("Frame the question", "PICO, hypothesis, estimand"),
+        ("Approve the plan", "nothing runs before this"),
+        ("Judge the findings", "accept, fix or reject"),
+        ("Sign off the result", "you own every number"),
+    ],
+    "agent": [
+        ("Draft the SAP", "/method-plan"),
+        ("Run the analysis", "/method-work"),
+        ("Review every step", "/method-review"),
+        ("Record the lessons", "/method-compound"),
+    ],
+}
+
+
+def human_loop(theme):
+    W, H = 1200, 560
+    if theme == "light":
+        bg, fg, muted, rule, card, accent, accent_text, ink_box, ink_text = (
+            PAPER, INK, MUTED, RULE, "#FFFFFF", EMBER, EMBER_DEEP, INK, PAPER)
+    else:
+        bg, fg, muted, rule, card, accent, accent_text, ink_box, ink_text = (
+            NIGHT, NIGHT_TEXT, NIGHT_MUTED, NIGHT_RULE, NIGHT_SURFACE, EMBER_GLOW, EMBER_GLOW,
+            NIGHT_TEXT, NIGHT)
+    cols = [350, 586, 822, 1058]
+    nw, nh = 188, 68
+    y_you, y_agent = 128, 296  # node tops
+    out = []
+    defs = (
+        "<defs>"
+        f'<marker id="hl-a-{theme}" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+        f'<polygon points="0 0, 9 3.5, 0 7" fill="{muted}"/></marker>'
+        f'<marker id="hl-e-{theme}" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">'
+        f'<polygon points="0 0, 9 3.5, 0 7" fill="{accent}"/></marker>'
+        "</defs>"
+    )
+    # Lane bands, dividers and labels.
+    out.append(f'<line x1="40" y1="100" x2="{W - 40}" y2="100" stroke="{rule}" stroke-width="1.5"/>')
+    out.append(f'<line x1="40" y1="268" x2="{W - 40}" y2="268" stroke="{rule}" stroke-width="1"/>')
+    out.append(f'<line x1="40" y1="436" x2="{W - 40}" y2="436" stroke="{rule}" stroke-width="1.5"/>')
+    out.append(f'<line x1="232" y1="100" x2="232" y2="436" stroke="{rule}" stroke-width="1"/>')
+    out.append(text(SANS_SEMI, "YOU, THE SCIENTIST", 13, 56, 170, fg, tracking=0.1))
+    out.append(text(SANS, "decide", 15, 56, 192, muted))
+    out.append(text(SANS_SEMI, "METHODSMITH", 13, 56, 338, fg, tracking=0.1))
+    out.append(text(SANS, "drafts, runs, checks,", 15, 56, 360, muted))
+    out.append(text(SANS, "records", 15, 56, 380, muted))
+    for cx, stage in zip(cols, ("PLAN", "WORK", "REVIEW", "COMPOUND")):
+        out.append(text(SANS_MEDIUM, stage, 13, cx, 74, accent_text if stage == "COMPOUND" else muted,
+                        tracking=0.12, anchor="middle"))
+
+    def mask_label(label, x, y, colour, anchor="start"):
+        w = width_of(SANS_MEDIUM, label, 11.5, 0.1)
+        x0 = x if anchor == "start" else x - w / 2
+        return (f'<rect x="{x0 - 5:.1f}" y="{y - 11}" width="{w + 10:.1f}" height="16" fill="{bg}"/>'
+                + text(SANS_MEDIUM, label, 11.5, x0, y, colour, tracking=0.1))
+
+    def line(d, colour, marker, width=1.6, dash=None):
+        da = f' stroke-dasharray="{dash}"' if dash else ""
+        return (f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{width}"{da} '
+                f'stroke-linejoin="round" marker-end="url(#{marker})"/>')
+
+    a, e = f"hl-a-{theme}", f"hl-e-{theme}"
+    yb, ab = y_you + nh, y_agent  # you-bottom, agent-top
+    # 1 question -> draft (down)
+    out.append(line(f"M{cols[0]} {yb} V{ab - 2}", muted, a))
+    out.append(mask_label("BRIEF", cols[0] + 12, (yb + ab) / 2 + 4, muted))
+    # 2 draft -> approve (right, then up)
+    x0, x1 = cols[0] + nw / 2, cols[1] - nw / 2
+    xm = (x0 + x1) / 2
+    ya, yy = y_agent + nh / 2, y_you + nh / 2
+    out.append(line(f"M{x0} {ya} H{xm - 8} Q{xm} {ya} {xm} {ya - 8} V{yy + 8} Q{xm} {yy} {xm + 8} {yy} H{x1 - 2}",
+                    muted, a))
+    out.append(mask_label("DRAFT SAP", xm + 10, (ya + yy) / 2 + 4, muted))
+    # 3 approve -> run (down): the gate, ember
+    out.append(line(f"M{cols[1]} {yb} V{ab - 2}", accent, e, width=2.2))
+    out.append(mask_label("APPROVED", cols[1] + 12, (yb + ab) / 2 + 4, accent_text))
+    # 4 run -> review (right)
+    out.append(line(f"M{cols[1] + nw / 2} {ya} H{cols[2] - nw / 2 - 2}", muted, a))
+    # 5 review -> judge (up)
+    out.append(line(f"M{cols[2]} {ab} V{yb + 2}", muted, a))
+    out.append(mask_label("FINDINGS", cols[2] + 12, (yb + ab) / 2 + 4, muted))
+    # 6 judge -> sign off (right)
+    out.append(line(f"M{cols[2] + nw / 2} {yy} H{cols[3] - nw / 2 - 2}", muted, a))
+    # 7 sign off -> record (down)
+    out.append(line(f"M{cols[3]} {yb} V{ab - 2}", muted, a))
+    out.append(mask_label("LESSONS", cols[3] + 12, (yb + ab) / 2 + 4, muted))
+    # 8 return: record -> draft, under the agent lane, ember
+    yr, r = 476, 10
+    out.append(line(
+        f"M{cols[3]} {y_agent + nh} V{yr - r} Q{cols[3]} {yr} {cols[3] - r} {yr} H{cols[0] + r} "
+        f"Q{cols[0]} {yr} {cols[0]} {yr - r} V{y_agent + nh + 2}", accent, e, width=2.2))
+    note = "learnings feed the next study's plan"
+    nwid = width_of(SANS, note, 15)
+    mid = (cols[0] + cols[3]) / 2
+    out.append(f'<rect x="{mid - nwid / 2 - 12:.1f}" y="{yr - 12}" width="{nwid + 24:.1f}" height="24" fill="{bg}"/>')
+    out.append(text(SANS, note, 15, mid, yr + 5, accent_text, anchor="middle"))
+
+    # Nodes, drawn after arrows.
+    for lane, y in (("you", y_you), ("agent", y_agent)):
+        for cx, (name, sub) in zip(cols, LANE_NODES[lane]):
+            x = cx - nw / 2
+            if lane == "you":
+                out.append(f'<rect x="{x}" y="{y}" width="{nw}" height="{nh}" rx="6" fill="{ink_box}"/>')
+                out.append(text(SANS_SEMI, name, 17, cx, y + 30, ink_text, anchor="middle"))
+                out.append(text(SANS, sub, 13.5, cx, y + 52, ink_text if theme == "dark" else "#C9C5BD",
+                                anchor="middle"))
+            else:
+                out.append(f'<rect x="{x}" y="{y}" width="{nw}" height="{nh}" rx="6" fill="{card}" '
+                           f'stroke="{fg}" stroke-width="1.2"/>')
+                out.append(text(SANS_SEMI, name, 17, cx, y + 30, fg, anchor="middle"))
+                out.append(text(MONO, sub, 14, cx, y + 52, muted, anchor="middle"))
+
+    # Legend strip.
+    ly = 528
+    out.append(f'<rect x="56" y="{ly - 12}" width="16" height="16" rx="3" fill="{ink_box}"/>')
+    out.append(text(SANS, "A decision only you make", 14, 82, ly + 1, muted))
+    out.append(f'<rect x="300" y="{ly - 12}" width="16" height="16" rx="3" fill="{card}" stroke="{fg}" stroke-width="1.2"/>')
+    out.append(text(SANS, "Work Methodsmith drafts, runs or checks for you to read", 14, 326, ly + 1, muted))
+    out.append(f'<line x1="770" y1="{ly - 4}" x2="800" y2="{ly - 4}" stroke="{accent}" stroke-width="2.2"/>')
+    out.append(text(SANS, "The approval gate and the return to the next plan", 14, 810, ly + 1, muted))
+
+    desc = (
+        "Swimlane. The scientist frames the question, approves the analysis plan, judges the findings and "
+        "signs off. Methodsmith drafts the SAP with /method-plan, runs the approved analysis with "
+        "/method-work, reviews every step with /method-review, and records the lessons with "
+        "/method-compound, which feed the next study's plan."
+    )
+    body = defs + "".join(out)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
+        f'aria-labelledby="hl-{theme}-title hl-{theme}-desc"><title id="hl-{theme}-title">Who decides what in '
+        f'Methodsmith</title><desc id="hl-{theme}-desc">{desc}</desc>'
+        f'<rect width="{W}" height="{H}" fill="{bg}"/>{body}</svg>\n'
+    )
+
+
 def bare(inner, title="Methodsmith", extra=""):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"{extra}>'
@@ -361,6 +505,8 @@ def main():
     write("hero-light.svg", hero("light"))
     write("hero-dark.svg", hero("dark"))
     write("social-preview.svg", social_card())
+    write("human-loop-light.svg", human_loop("light"))
+    write("human-loop-dark.svg", human_loop("dark"))
 
 
 if __name__ == "__main__":
