@@ -545,6 +545,15 @@ generic AUC or C-index as sufficient. For claims-based studies, use
 the design needs linked claims, datasets, variables, diagnostics, outputs, and
 decision evidence. `/ce-sap-tabular` owns the workbook companion.
 
+Statistical defaults follow current primary sources. SAPs state ICH E9(R1)
+estimands, and `ce-sap-drift-detector` flags estimand, missing-data, and
+inference drift. `/ce-effect-size` pools with REML, a Hartung-Knapp CI, and a
+prediction interval. `/ce-checklist-match` routes every prediction model to
+TRIPOD+AI, target trial emulation to standalone TARGET, and protocols to SPIRIT
+2025 or PRISMA-P. `/ce-pubmed` keeps unindexed and non-English records unless
+you pass `--english-only`. The root README's "Statistical correctness" section
+lists the rest.
+
 Each public skill starts with a `Skill Value` block that names the problem it
 solves, when to use it, expected output, when it should ask questions, and what
 it should not do. Use that block to choose the right slash command during a demo
@@ -558,6 +567,10 @@ For publication artifacts:
 /ce-manuscript-package
 /ce-review-pack
 ```
+
+Pass `/ce-table1 --design rct|observational|descriptive` so Table 1 matches the
+design: randomized trials get no baseline p-values, and observational
+comparisons get a standardized mean difference (SMD) column.
 
 For a manuscript handoff, assemble artifacts with `/ce-manuscript-package`,
 resolve editable Zotero fields with `/ce-manuscript-citations`, draft or revise
