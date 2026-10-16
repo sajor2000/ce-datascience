@@ -57,6 +57,7 @@ new names.
 | `/ce-checklist-match` | `/method-checklist` |
 | `/ce-clean-gone-branches` | `/method-clean-branches` |
 | `/ce-clif` | `/method-clif` |
+| `/ce-clif-meta-analysis` | `/method-clif-meta-analysis` |
 | `/ce-clif-project-template` | `/method-clif-template` |
 | `/ce-clinical-research-voice` | `/method-voice` |
 | `/ce-code-review` | `/method-review` |
@@ -548,7 +549,7 @@ one-line warning, so a hook bug never blocks unrelated work.
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 66 |
+| Skills | 67 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -686,6 +687,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 |-------|-------------|
 | `/method-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/method-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; honors the saved sensitive-data boundary (asks once only if none is saved), keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off; IPTW examples use stabilized weights with balance checks |
 | `/method-clif-template` | Initialize or audit a CLIF project against the official Project Template, with explicit version selection, site-local configuration, and aggregate-only final-output safeguards |
+| `/method-clif-meta-analysis` | Plan, code and audit CLIF site-to-lead or literature meta-analysis, with validated aggregate contracts and explicit R/Python methods |
 | `/method-cohort` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/method-phenotype` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup, reweighting sensitivity and specificity for verification bias under algorithm-stratified sampling |
 

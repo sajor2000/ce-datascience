@@ -25,7 +25,7 @@ papers, and meta-analysis; R or Python.
 approve the plan and judge the findings. Methodsmith does the drafting, running
 and checking that make the work reproducible and grounded: pre-specified SAPs,
 reviewed code, reporting checklists and numbers traced to the analysis.
-**66 skills, 55 specialist agents, and 39 reporting checklists.**
+**67 skills, 55 specialist agents, and 39 reporting checklists.**
 
 ## Install
 
@@ -178,6 +178,7 @@ new names.
 | `/ce-checklist-match` | `/method-checklist` |
 | `/ce-clean-gone-branches` | `/method-clean-branches` |
 | `/ce-clif` | `/method-clif` |
+| `/ce-clif-meta-analysis` | `/method-clif-meta-analysis` |
 | `/ce-clif-project-template` | `/method-clif-template` |
 | `/ce-clinical-research-voice` | `/method-voice` |
 | `/ce-code-review` | `/method-review` |
@@ -774,6 +775,7 @@ It does not read numbers inside images.
 /method-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
 # or
 /method-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+/method-clif-meta-analysis  # Site-to-lead or literature synthesis in R/Python
 /method-workflow
 /method-work
 ```
@@ -1027,7 +1029,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 66 |
+| Skills | 67 |
 | Agents | 55 |
 | Reporting checklists | 39 |
 

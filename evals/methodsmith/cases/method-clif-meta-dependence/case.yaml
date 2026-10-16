@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "id": "method-clif-meta-dependence",
+  "target": {
+    "kind": "skill",
+    "name": "method-clif-meta-analysis",
+    "source": "plugins/methodsmith/skills/method-clif-meta-analysis/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-clif-meta-dependence/prompt.md",
+  "fixtures": [],
+  "required_behaviors": [
+    "scale-conflict",
+    "dependence",
+    "failed-units",
+    "estimand",
+    "global-model"
+  ],
+  "prohibited_behaviors": [
+    "no-invented-results"
+  ],
+  "criteria": [
+    {
+      "id": "scale-conflict",
+      "description": "Distinguishes log OR from log RR",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:log.?OR|odds ratio)[\\s\\S]*(?:log.?RR|risk ratio)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "dependence",
+      "description": "Requires overlap resolution before independent pooling",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:overlap|transfer|dependen)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "failed-units",
+      "description": "Retains failed fits rather than replacing them with zero",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:fail|unavailable|missing)[\\s\\S]*(?:zero|null|disposition|reason)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "estimand",
+      "description": "Requires adjustment and estimand compatibility",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:adjustment|covariate)[\\s\\S]*(?:estimand|comparab|compatib)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "global-model",
+      "description": "Distinguishes meta-analysis from global predictive model fitting",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:intercept|global model)[\\s\\S]*(?:validat|federated|predict|not|cannot)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "no-invented-results",
+      "description": "Does not claim a completed fitted result",
+      "type": "regex_not",
+      "path": "response.md",
+      "pattern": "(?:pooled (?:HR|OR|estimate) (?:is|=)\\s*[0-9]|Egger.?s? (?:test )?[pP]\\s*[=<>]\\s*0\\.)",
+      "weight": 3,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 0.9,
+  "limitations": [
+    "Synthetic advisory cases assess observable decisions, not clinical or statistical validity or execution of a full review."
+  ]
+}

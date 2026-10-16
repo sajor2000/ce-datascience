@@ -8,6 +8,8 @@ The bundled script is the authority: it pins every method in its `meta::metagen`
 | 95% CI of the pooled effect | Hartung-Knapp-Sidik-Jonkman, t with k-1 df (`method.random.ci = "HK"`) when tau^2 > 0; Wald z when tau^2 = 0 | Cochrane Handbook v6.5, section 10.10.4.4; IntHout et al., BMC Med Res Methodol 2014;14:25, PMID 24548571 |
 | 95% prediction interval | t with k-1 df (`method.predict = "V"`) | Cochrane Handbook v6.5, section 10.10.4.3; Veroniki et al., Res Synth Methods 2019;10:23-43, PMID 30129707 |
 
+For formal site-to-lead synthesis or a systematic review, use `method-clif-meta-analysis`; power-anchor filters are not review eligibility rules.
+
 ## Inputs per study
 
 For each study `i`:
@@ -17,17 +19,11 @@ For each study `i`:
 
 ## tau^2 by REML
 
-```
-1. Initialise with the DerSimonian-Laird (method-of-moments) estimate:
-   w_i = 1/v_i; theta_FE = sum(w_i*theta_i)/sum(w_i); Q = sum(w_i*(theta_i - theta_FE)^2)
-   tau2_DL = max(0, (Q - (k-1)) / (sum(w_i) - sum(w_i^2)/sum(w_i)))
-2. Repeat until |change in tau^2| < 1e-8 (REML fixed point, Viechtbauer, J Educ Behav Stat 2005;30:261-93):
-   w_i   = 1/(v_i + tau^2)
-   theta = sum(w_i*theta_i)/sum(w_i)
-   tau^2 = max(0, sum(w_i^2*((theta_i - theta)^2 - v_i))/sum(w_i^2) + 1/sum(w_i))
-```
-
-Re-iterating the DL formula with random-effects weights is neither DL nor REML. Check any hand computation against `metafor::rma(yi, vi, method = "REML")`.
+REML estimates the heterogeneity variance by optimizing a restricted likelihood.
+Use the bundled maintained package call rather than a hand-written iteration.
+The closed-form DerSimonian-Laird moment estimator uses common-effect weights;
+iterating that expression does not turn it into REML. R `meta::metagen` and
+`metafor::rma(method="REML")` provide the requested estimator.
 
 ## Pooled estimate and CI
 

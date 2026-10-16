@@ -226,6 +226,7 @@ new names.
 | `/ce-checklist-match` | `/method-checklist` |
 | `/ce-clean-gone-branches` | `/method-clean-branches` |
 | `/ce-clif` | `/method-clif` |
+| `/ce-clif-meta-analysis` | `/method-clif-meta-analysis` |
 | `/ce-clif-project-template` | `/method-clif-template` |
 | `/ce-clinical-research-voice` | `/method-voice` |
 | `/ce-code-review` | `/method-review` |
@@ -814,6 +815,7 @@ these calls before category work:
 ```text
 /method-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
 /method-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+/method-clif-meta-analysis  # Site-to-lead or literature synthesis in R/Python
 ```
 
 An explicit call does not prompt again. If it conflicts with an explicitly

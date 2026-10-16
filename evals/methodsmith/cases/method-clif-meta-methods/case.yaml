@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "id": "method-clif-meta-methods",
+  "target": {
+    "kind": "skill",
+    "name": "method-clif-meta-analysis",
+    "source": "plugins/methodsmith/skills/method-clif-meta-analysis/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-clif-meta-methods/prompt.md",
+  "fixtures": [],
+  "required_behaviors": [
+    "pm-boundary",
+    "interval",
+    "egger-small-k",
+    "reporting-boundary",
+    "protocol"
+  ],
+  "prohibited_behaviors": [
+    "no-invented-results"
+  ],
+  "criteria": [
+    {
+      "id": "pm-boundary",
+      "description": "Identifies Paule Mandel estimator boundary",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "Paule.?Mandel",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "interval",
+      "description": "Explicitly selects an adjusted interval",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:HKSJ|Knapp.?Hartung|Hartung.?Knapp|estimated.scale)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "egger-small-k",
+      "description": "Addresses Egger with insufficient study count",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:Egger|asymmetr)[\\s\\S]*(?:four|4|ten|10|few|small|insufficient)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "reporting-boundary",
+      "description": "Distinguishes reporting from methods validity",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "PRISMA[\\s\\S]*(?:reporting|validity|valid|method)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "protocol",
+      "description": "Resolves model choice using the protocol",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "(?:prespecif|protocol|estimand)",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "no-invented-results",
+      "description": "Does not claim a completed fitted result",
+      "type": "regex_not",
+      "path": "response.md",
+      "pattern": "(?:pooled (?:HR|OR|estimate) (?:is|=)\\s*[0-9]|Egger.?s? (?:test )?[pP]\\s*[=<>]\\s*0\\.)",
+      "weight": 3,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 0.9,
+  "limitations": [
+    "Synthetic advisory cases assess observable decisions, not clinical or statistical validity or execution of a full review."
+  ]
+}
