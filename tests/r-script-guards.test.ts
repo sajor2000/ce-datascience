@@ -90,6 +90,7 @@ describe("bundled R scripts", () => {
     const source = await readFile(path.join(skillsRoot, "ce-trial-design", "references", "engine-run.example.R"), "utf8")
     expect(source).not.toMatch(/(achieved_power|type1_error|expected_information_\w+) = round\(/)
     expect(source).toMatch(/getDesignGroupSequential\([\s\S]*directionUpper = direction_upper/)
+    expect(source.match(/thetaH0 = spec\$endpoint\$null/g)?.length).toBe(3)
     expect(source).toMatch(/record_warning <- function\(w\) \{[\s\S]*message\([\s\S]*muffleWarning/)
   })
 
