@@ -4,23 +4,62 @@
       "id": "cohort.n",
       "kind": "n",
       "sap_output": "cohort_summary.csv",
-      "script": {"commit": "0000000000000000000000000000000000000000", "committed": true, "path": "analysis/primary_cox.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
-      "sources": [{"path": "data/synthetic.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}],
+      "script": {
+        "commit": "0000000000000000000000000000000000000000",
+        "committed": true,
+        "path": "analysis/primary_cox.py",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "sources": [
+        {
+          "path": "data/synthetic.csv",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
       "suppressed": false,
       "text": "412",
       "timestamp": "2026-10-16T00:00:00+00:00",
-      "value": 412
+      "value": 412,
+      "format": {
+        "ci": null,
+        "digits": 2,
+        "denominator": null,
+        "style": "jama",
+        "sd": null,
+        "iqr": null
+      }
     },
     "primary.hr": {
       "id": "primary.hr",
       "kind": "estimate",
       "sap_output": "A3_cox_primary.csv",
-      "script": {"commit": "0000000000000000000000000000000000000000", "committed": true, "path": "analysis/primary_cox.py", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
-      "sources": [{"path": "data/synthetic.csv", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}],
+      "script": {
+        "commit": "0000000000000000000000000000000000000000",
+        "committed": true,
+        "path": "analysis/primary_cox.py",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "sources": [
+        {
+          "path": "data/synthetic.csv",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
       "suppressed": false,
       "text": "0.78 (95% CI, 0.66-0.92)",
       "timestamp": "2026-10-16T00:00:00+00:00",
-      "value": 0.781
+      "value": 0.781,
+      "format": {
+        "ci": [
+          0.664,
+          0.918
+        ],
+        "digits": 2,
+        "denominator": null,
+        "style": "jama",
+        "sd": null,
+        "iqr": null
+      }
     }
   },
   "version": 1
