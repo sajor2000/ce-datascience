@@ -17,9 +17,13 @@
 - Informed Consent
 
 CAse REport Guidelines (CARE).
-13-item checklist applicable to clinical case reports.
+13-item checklist applicable to clinical case reports. The downloadable 2013 checklist letters the sub-points of items 3, 5, 8, 9, 10 and 11 (for example 5a-5d); they are kept together under each item here.
 
-**Primary reference:** Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D; CARE Group. The CARE Guidelines: Consensus-based Clinical Case Reporting Guideline Development. Glob Adv Health Med. 2013;2(5):38-43. doi:10.7453/gahmj.2013.008. PMID: 24416692.
+**Primary reference:** Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D; CARE Group. The CARE Guidelines: Consensus-based Clinical Case Reporting Guideline Development. Glob Adv Health Med. 2013;2(5):38-43. doi:10.7453/gahmj.2013.008. PMID: 24416692. PMCID: PMC3833570. Published simultaneously in seven journals.
+
+**Verified against:** the 2013 CARE checklist at https://www.care-statement.org/checklist, the checklist PDF linked from the EQUATOR record https://www.equator-network.org/reporting-guidelines/care/, and the guideline table in https://pmc.ncbi.nlm.nih.gov/articles/PMC3833570/ (verified 2026-10-15). CARE 2013 is the current version.
+
+**Licence:** The article is CC BY-NC-ND 3.0 and the checklist files state no open licence, so item descriptions are faithful paraphrases of the official checklist rather than verbatim text. The "What to look for" bullets are added by this plugin.
 
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
@@ -30,7 +34,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1 -- Title
 
-**Description:** The words "case report" should appear in the title along with the area of focus most interesting to readers.
+**Description:** The title names the diagnosis or intervention of primary focus, followed by the words "case report".
 
 **What to look for in code/outputs:**
 - Report title or rendered document header containing "case report" and the primary diagnosis or clinical finding
@@ -202,7 +206,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Informed consent
 
-**Description:** The patient should provide informed consent for the publication of their case.
+**Description:** State whether the patient gave informed consent (for publication), and provide the consent if requested.
 
 **What to look for in code/outputs:**
 - Informed consent statement in the report confirming patient authorization for publication

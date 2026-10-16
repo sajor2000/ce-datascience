@@ -2,191 +2,182 @@
 
 ## Contents
 
-- Administrative Information
-- Introduction
-- Methods -- Participants, Interventions, and Outcomes
-- Methods -- Data Collection and Management
-- Methods -- Statistical Analysis
-- Ethics and Dissemination
+- Administrative Information -- Title (items 1 (i)-(ii))
+- Introduction -- Background and rationale (items 6a (i)-(ii))
+- Methods -- Participants, Interventions, and Outcomes (items 9-11a (vi))
+- Methods -- Monitoring: Harms (item 22)
+- Ethics and Dissemination -- Access to data (item 29)
 
 AI EXTENSION checklist for reporting clinical trial protocols that evaluate interventions with an artificial intelligence component.
+SPIRIT-AI adds 15 items, keyed to SPIRIT 2013 item numbers. Items marked "Elaboration" expand on an existing SPIRIT item; items marked "Extension" are new.
 
 **Base guideline:** SPIRIT 2025 (Chan AW, et al. BMJ. 2025;389:e081477. PMID: 40294953; `spirit-checklist.md`). SPIRIT-AI (2020) was written against SPIRIT 2013; apply its AI items alongside the current SPIRIT 2025 core and cite 2025 numbers for core items.
 
-**Primary reference:** Cruz Rivera S, Liu X, Chan AW, Denniston AK, Calvert MJ; SPIRIT-AI and CONSORT-AI Working Group. Guidelines for clinical trial protocols for interventions involving artificial intelligence: the SPIRIT-AI extension. Lancet Digit Health. 2020;2(10):e549-e560. doi:10.1016/S2589-7500(20)30219-3. PMID: 33328049.
+**Primary reference:** Cruz Rivera S, Liu X, Chan AW, Denniston AK, Calvert MJ; SPIRIT-AI and CONSORT-AI Working Group. Guidelines for clinical trial protocols for interventions involving artificial intelligence: the SPIRIT-AI extension. Lancet Digit Health. 2020;2(10):e549-e560. doi:10.1016/S2589-7500(20)30219-3. PMID: 33328049. Published simultaneously in BMJ. 2020;370:m3210 (doi:10.1136/bmj.m3210; PMID: 32907797; PMCID: PMC7490785) and Nat Med. 2020;26(9):1351-1363 (PMID: 32908284).
+
+**Verified against:** SPIRIT-AI Table 1 in the BMJ full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC7490785/, cross-checked against the Lancet Digital Health text, https://pmc.ncbi.nlm.nih.gov/articles/PMC8212701/ (verified 2026-10-15).
+
+**Licence:** Checklist text reproduced verbatim from the BMJ publication (Cruz Rivera et al., BMJ 2020;370:m3210) under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The Lancet Digital Health copy is CC BY-NC-ND 4.0 and was used only for cross-checking. The "What to look for" bullets and the SPIRIT 2025 mapping lines are added by this plugin and are not SPIRIT-AI text.
+
+**Numbering:** Item IDs are the SPIRIT 2013 numbers used by SPIRIT-AI (SPIRIT 2013 item 22 is harms; item 29 is access to data). Each item gives the nearest SPIRIT 2025 core item as a plugin mapping.
 
 This checklist supplements the SPIRIT 2025 core checklist. Apply both together.
 
 ---
 
-## Administrative Information
+## Administrative Information -- Title
 
-### Item 1 -- AI identification in title
+### Item 1 (i) -- AI intervention and model type (Elaboration)
 
-**Description:** Include identification of the AI component in the protocol title and trial registration.
+**Description:** Indicate that the intervention involves artificial intelligence/machine learning and specify the type of model.
+
+SPIRIT 2025 core: 1a, 1b.
 
 **What to look for in code/outputs:**
-- Protocol title explicitly mentioning AI, machine learning, or the specific algorithm type
+- Protocol title or summary explicitly mentioning AI or machine learning and the model type
 - Trial registration records (e.g., ClinicalTrials.gov) that label the study as involving AI
-- Study acronym or short title that references the AI component
-- Protocol version documents with AI-specific identifiers
+
+### Item 1 (ii) -- Intended use (Elaboration)
+
+**Description:** Specify the intended use of the AI intervention.
+
+SPIRIT 2025 core: 1a, 1b.
+
+**What to look for in code/outputs:**
+- Title or summary sentence stating what the AI does in the trial (e.g., triage, diagnosis, treatment recommendation)
 
 ---
 
-## Introduction
+## Introduction -- Background and rationale
 
-### Item 2 -- AI intervention background
+### Item 6a (i) -- Intended use in the clinical pathway (Extension)
 
-**Description:** Describe the scientific background for the AI intervention, including prior development and validation evidence.
+**Description:** Explain the intended use of the AI intervention in the context of the clinical pathway, including its purpose and its intended users (e.g. healthcare professionals, patients, public).
+
+SPIRIT 2025 core: 9a.
 
 **What to look for in code/outputs:**
-- Literature review sections citing prior AI model development and validation studies
-- References to existing model performance benchmarks on related datasets
-- Documentation of the regulatory pathway or CE marking status of the AI tool
-- Development history documentation showing training data characteristics and performance
+- Workflow diagrams specifying where AI outputs enter clinical decisions and who uses them
+
+### Item 6a (ii) -- Pre-existing evidence (Extension)
+
+**Description:** Describe any pre-existing evidence for the AI intervention.
+
+SPIRIT 2025 core: 9a.
+
+**What to look for in code/outputs:**
+- References to prior development and validation studies, with performance on related datasets
+- Regulatory status of the AI tool, or a statement that no prior evidence exists
 
 ---
 
 ## Methods -- Participants, Interventions, and Outcomes
 
-### Item 3 -- AI intervention specification
+### Item 9 -- Integration into the trial setting (Extension)
 
-**Description:** Provide a detailed specification of the AI intervention, including algorithm type, architecture, and intended function.
+**Description:** Describe the onsite and offsite requirements needed to integrate the AI intervention into the trial setting.
 
-**What to look for in code/outputs:**
-- Model architecture documentation (layers, parameters, activation functions)
-- Algorithmic specification sufficient for independent reimplementation
-- Training protocol documentation (loss function, optimizer, epochs, batch size)
-- Model card or technical specification document included with the protocol
-
-### Item 4 -- Input data specification
-
-**Description:** Specify the input data required by the AI intervention, including data types, sources, formats, and quality requirements.
+SPIRIT 2025 core: 13.
 
 **What to look for in code/outputs:**
-- Input data schema definitions (JSON schema, data dictionary, table specifications)
-- Data acquisition protocol specifying required imaging parameters, lab values, or clinical data
-- Data quality thresholds that must be met before AI inference (completeness, resolution)
-- Data format standards (DICOM parameters, HL7 FHIR resources, CSV field specifications)
+- Deployment plan (EHR integration, standalone app, PACS plugin; cloud vs on-premise; hardware) per site
 
-### Item 5 -- Output data specification
+### Item 10 (i) -- Participant-level eligibility (Elaboration)
 
-**Description:** Specify the outputs of the AI intervention, including output types, ranges, uncertainty quantification, and clinical interpretation guidance.
+**Description:** State the inclusion and exclusion criteria at the level of participants.
 
-**What to look for in code/outputs:**
-- Output data schema with defined value ranges and data types
-- Confidence score or uncertainty quantification specifications
-- Clinical interpretation guide mapping AI outputs to actionable clinical categories
-- Threshold specifications with documented sensitivity/specificity tradeoffs
-
-### Item 6 -- Human-AI interaction plan
-
-**Description:** Describe the planned human-AI interaction, including who will use the AI output, how it will be presented, and whether users can override it.
+SPIRIT 2025 core: 14a.
 
 **What to look for in code/outputs:**
-- Workflow diagrams specifying clinician interaction points with AI outputs
-- User interface mockups or wireframes showing AI output presentation
-- Override mechanism specifications and documentation requirements
-- Role-based access control specifications for AI tool use
+- Participant inclusion/exclusion criteria with explicit thresholds
 
-### Item 7 -- Error handling strategy
+### Item 10 (ii) -- Input-data-level eligibility (Extension)
 
-**Description:** Describe the planned strategy for handling AI errors, failures, and unexpected outputs during the trial.
+**Description:** State the inclusion and exclusion criteria at the level of the input data.
 
-**What to look for in code/outputs:**
-- Error handling flowcharts specifying responses to common failure modes
-- Fallback procedure documentation when AI is unavailable or produces invalid output
-- Error classification taxonomy and severity grading system
-- Safety monitoring plan with AI-specific stopping rules
-
-### Item 8 -- AI version control plan
-
-**Description:** Describe the version control strategy for the AI intervention, including whether updates are permitted during the trial.
+SPIRIT 2025 core: 14a.
 
 **What to look for in code/outputs:**
-- Version control policy documentation (frozen model vs. adaptive model)
-- Model registry setup with version tracking and rollback capabilities
-- Change management procedures for any mid-trial algorithm modifications
-- Audit trail specifications for tracking model versions deployed to each site
+- Input data schema and quality thresholds that data must meet before inference (completeness, resolution, required fields)
+
+### Item 11a (i) -- Algorithm version (Extension)
+
+**Description:** State which version of the AI algorithm will be used.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Version control policy (frozen model vs updates allowed) and model registry identifiers
+- Change management procedures for any mid-trial algorithm modification
+
+### Item 11a (ii) -- Acquisition and selection of input data (Extension)
+
+**Description:** Specify the procedure for acquiring and selecting the input data for the AI intervention.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Data acquisition protocol (imaging parameters, lab values, clinical data) and preprocessing steps before inference
+
+### Item 11a (iii) -- Poor-quality or unavailable input data (Extension)
+
+**Description:** Specify the procedure for assessing and handling poor quality or unavailable input data.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Input quality checks and the planned action on failure (reject, re-acquire, fall back to usual care)
+
+### Item 11a (iv) -- Human-AI interaction in input handling (Extension)
+
+**Description:** Specify whether there is human-AI interaction in the handling of the input data, and what level of expertise is required for users.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Training materials and qualification requirements for users who prepare or select input data
+
+### Item 11a (v) -- Output of the AI intervention (Extension)
+
+**Description:** Specify the output of the AI intervention.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Output data schema with value ranges and any decision thresholds
+
+### Item 11a (vi) -- How outputs will contribute to decisions (Extension)
+
+**Description:** Explain the procedure for how the AI intervention's output will contribute to decision-making or other elements of clinical practice.
+
+SPIRIT 2025 core: 15a.
+
+**What to look for in code/outputs:**
+- Workflow specifying clinician interaction points, override mechanisms, and escalation pathways
 
 ---
 
-## Methods -- Data Collection and Management
+## Methods -- Monitoring: Harms
 
-### Item 9 -- Data preprocessing plan
+### Item 22 -- Performance errors (Extension)
 
-**Description:** Describe the planned data preprocessing pipeline, including all transformations applied to input data before AI inference.
+**Description:** Specify any plans to identify and analyse performance errors. If there are no plans for this, justify why not.
 
-**What to look for in code/outputs:**
-- Preprocessing pipeline specification with each step documented
-- Validation rules for input data quality before model inference
-- Normalization, augmentation, or feature engineering steps defined in protocol
-- Data flow diagrams from raw data acquisition through AI input
-
-### Item 10 -- Training and validation data provenance
-
-**Description:** Describe the data used to train and validate the AI model, including source populations, time periods, and inclusion criteria.
+SPIRIT 2025 core: 17.
 
 **What to look for in code/outputs:**
-- Training dataset documentation (size, demographics, collection period, source institutions)
-- Validation dataset characteristics and relationship to trial population
-- Data use agreements and ethical approvals for training data
-- Distribution comparison between training data and expected trial population
+- Planned error analysis (false positives, false negatives, failure modes) and how errors will be identified
+- Fallback procedure when the AI is unavailable or produces invalid output
 
 ---
 
-## Methods -- Statistical Analysis
+## Ethics and Dissemination -- Access to data
 
-### Item 11 -- AI performance evaluation plan
+### Item 29 -- Access to the AI intervention and code (Extension)
 
-**Description:** Describe the statistical plan for evaluating AI performance, including primary metrics, subgroup analyses, and fairness assessments.
+**Description:** State whether and how the AI intervention and/or its code can be accessed, including any restrictions to access or re-use.
 
-**What to look for in code/outputs:**
-- Statistical analysis plan sections specific to AI performance evaluation
-- Pre-specified performance metrics (AUC, sensitivity, specificity, calibration)
-- Subgroup analysis plan for demographic and clinical subgroups
-- Fairness criterion named and justified (e.g., within-group calibration, equalized odds, predictive parity); when outcome prevalence differs between groups these criteria cannot all hold at once, so the plan should state which one matches the clinical harm
-
-### Item 12 -- Comparison strategy
-
-**Description:** Describe the comparator for the AI intervention (standard of care, expert clinician, alternative AI) and how the comparison will be conducted.
+SPIRIT 2025 core: 6.
 
 **What to look for in code/outputs:**
-- Comparator arm specification (usual care protocol, blinded expert review)
-- Non-inferiority or superiority margin definitions for AI vs. comparator
-- Reader study design documentation (number of readers, blinding, reading order)
-- Statistical methods for AI-comparator performance comparison
-
----
-
-## Ethics and Dissemination
-
-### Item 13 -- AI-specific ethical considerations
-
-**Description:** Describe ethical considerations specific to the AI intervention, including algorithmic bias, patient consent for AI-assisted care, and data governance.
-
-**What to look for in code/outputs:**
-- Ethics committee documentation addressing AI-specific concerns
-- Informed consent templates with AI-specific language
-- Algorithmic bias assessment plan
-- Data governance framework for AI training and inference data
-
-### Item 14 -- AI transparency plan
-
-**Description:** Describe the plan for making the AI intervention transparent and interpretable to patients, clinicians, and regulators.
-
-**What to look for in code/outputs:**
-- Explainability method specifications (SHAP, LIME, attention maps, saliency maps)
-- Patient-facing explanation materials or communication plans
-- Regulatory submission documentation plan (FDA, CE marking)
-- Model documentation plan (model cards, data sheets, algorithmic impact assessments)
-
-### Item 15 -- Code and model sharing plan
-
-**Description:** Describe the plan for sharing code, trained models, and associated artifacts after trial completion.
-
-**What to look for in code/outputs:**
-- Code repository plan (GitHub, institutional repository) with license specifications
-- Model sharing plan (model weights, architecture definitions, inference code)
-- Data sharing plan for de-identified training and validation datasets
-- Reproducibility checklist or documentation plan for computational environment
+- Code or model repository plan with licence and access restrictions stated

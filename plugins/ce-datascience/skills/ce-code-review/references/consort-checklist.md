@@ -10,11 +10,13 @@
 - Discussion (items 29-30)
 
 Consolidated Standards of Reporting Trials (CONSORT) 2025 Statement.
-Current core checklist for randomized trials: 30 numbered items (42 rows counting lettered sub-items) in six sections, including the new Open Science section. Item numbers and paraphrased item wording below follow Table 1 of the statement.
+Current core checklist for randomized trials: 30 numbered items (42 rows counting lettered sub-items) in six sections, including the new Open Science section. Item numbers and each **Description** are copied verbatim from Table 1 of the statement; the "What to look for" bullets are added by this plugin and are not checklist text.
 
 **Current primary reference:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. BMJ. 2025;389:e081123. doi:10.1136/bmj-2024-081123. PMID: 40228833. PMCID: PMC11995449. Published simultaneously in BMJ, JAMA, Lancet, Nature Medicine, and PLOS Medicine (PLOS Med. 2025;22(4):e1004587. doi:10.1371/journal.pmed.1004587. PMID: 40228477).
 
 **Verified against:** CONSORT 2025 Table 1 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC11995449/.
+
+**Licence:** Checklist text reproduced from Hopewell et al., BMJ 2025, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://pmc.ncbi.nlm.nih.gov/articles/PMC11995449/ (verified 2026-10-15).
 
 **Explanation and elaboration:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 explanation and elaboration: updated guideline for reporting randomised trials. BMJ. 2025;389:e081124. doi:10.1136/bmj-2024-081124. PMID: 40228832.
 
@@ -31,7 +33,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1a -- Identification as a randomised trial
 
-**Description:** Identification as a randomised trial (in the title).
+**Description:** Identification as a randomised trial
 
 **What to look for in code/outputs:**
 - Report or manuscript titles that include "randomised" or "randomized" and identify the trial design
@@ -39,7 +41,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1b -- Structured summary of trial design, methods, results, and conclusions
 
-**Description:** Structured summary of the trial design, methods, results, and conclusions (see CONSORT for Abstracts).
+**Description:** Structured summary of the trial design, methods, results, and conclusions
 
 **What to look for in code/outputs:**
 - Abstract templates structured as background, methods, results, conclusions
@@ -51,7 +53,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 2 -- Trial registration
 
-**Description:** Name of trial registry, identifying number (with URL), and date of registration.
+**Description:** Name of trial registry, identifying number (with URL) and date of registration
 
 **What to look for in code/outputs:**
 - ClinicalTrials.gov (NCT), ISRCTN, EU CTR, or other registry identifier and URL in report metadata
@@ -60,7 +62,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 3 -- Protocol and statistical analysis plan
 
-**Description:** Where the trial protocol and statistical analysis plan (SAP) can be accessed.
+**Description:** Where the trial protocol and statistical analysis plan can be accessed
 
 **What to look for in code/outputs:**
 - Protocol and SAP paths, URLs, or DOIs referenced in analysis code or report
@@ -69,7 +71,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 4 -- Data sharing
 
-**Description:** Where and how de-identified individual participant data (including a data dictionary), statistical code, and other materials can be accessed.
+**Description:** Where and how the individual de-identified participant data (including data dictionary), statistical code and any other materials can be accessed
 
 **What to look for in code/outputs:**
 - Data availability statement naming the repository, access route, and conditions
@@ -79,7 +81,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 5a -- Funding and role of funders
 
-**Description:** Sources of funding and other support (such as supply of drugs), and the role of funders in the design, conduct, analysis, and reporting of the trial.
+**Description:** Sources of funding and other support (eg, supply of drugs), and role of funders in the design, conduct, analysis and reporting of the trial
 
 **What to look for in code/outputs:**
 - Funding acknowledgment sections with grant numbers or sponsor names
@@ -88,7 +90,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 5b -- Conflicts of interest
 
-**Description:** Financial and other conflicts of interest of the manuscript authors.
+**Description:** Financial and other conflicts of interest of the manuscript authors
 
 **What to look for in code/outputs:**
 - Competing interests section in the report template
@@ -100,7 +102,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 6 -- Scientific background and rationale
 
-**Description:** Scientific background and rationale.
+**Description:** Scientific background and rationale
 
 **What to look for in code/outputs:**
 - Introductory sections citing prior evidence and knowledge gaps
@@ -108,7 +110,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 7 -- Objectives related to benefits and harms
 
-**Description:** Specific objectives related to benefits and harms.
+**Description:** Specific objectives related to benefits and harms
 
 **What to look for in code/outputs:**
 - Explicit objectives or hypotheses in the SAP or report preamble, for both benefit and harm
@@ -120,7 +122,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 8 -- Patient and public involvement
 
-**Description:** Details of patient or public involvement in the design, conduct, and reporting of the trial.
+**Description:** Details of patient or public involvement in the design, conduct and reporting of the trial
 
 **What to look for in code/outputs:**
 - Statement describing patient or public partner roles (outcome selection, materials, interpretation), or that none occurred
@@ -128,7 +130,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 9 -- Trial design
 
-**Description:** Trial design, including type of trial (such as parallel group, crossover), allocation ratio, and framework (such as superiority, equivalence, non-inferiority, exploratory).
+**Description:** Description of trial design including type of trial (eg, parallel group, crossover), allocation ratio, and framework (eg, superiority, equivalence, non-inferiority, exploratory)
 
 **What to look for in code/outputs:**
 - Config or comments stating design and allocation ratio (1:1, 2:1)
@@ -137,7 +139,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 10 -- Changes to trial protocol
 
-**Description:** Important changes to the trial after it commenced, including any outcomes or analyses that were not prespecified, with reasons.
+**Description:** Important changes to the trial after it commenced including any outcomes or analyses that were not prespecified, with reason
 
 **What to look for in code/outputs:**
 - Protocol amendment or SAP amendment log with dates and rationale
@@ -147,7 +149,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 11 -- Trial setting
 
-**Description:** Settings (such as community, hospital) and locations (such as countries, sites) where the trial was conducted.
+**Description:** Settings (eg, community, hospital) and locations (eg, countries, sites) where the trial was conducted
 
 **What to look for in code/outputs:**
 - Site or center variables used in loading, stratification, or random effects
@@ -155,7 +157,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12a -- Eligibility criteria for participants
 
-**Description:** Eligibility criteria for participants.
+**Description:** Eligibility criteria for participants
 
 **What to look for in code/outputs:**
 - Inclusion/exclusion filter logic with explicit thresholds (age, diagnosis, consent)
@@ -163,7 +165,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12b -- Eligibility criteria for sites and intervention deliverers
 
-**Description:** If applicable, eligibility criteria for sites and for individuals delivering the interventions (such as surgeons, physiotherapists).
+**Description:** If applicable, eligibility criteria for sites and for individuals delivering the interventions (eg, surgeons, physiotherapists)
 
 **What to look for in code/outputs:**
 - Site selection criteria (volume, accreditation) documented in protocol or config
@@ -171,7 +173,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Intervention and comparator
 
-**Description:** Intervention and comparator with sufficient details to allow replication; if relevant, where additional materials (such as an intervention manual) can be accessed.
+**Description:** Intervention and comparator with sufficient details to allow replication. If relevant, where additional materials describing the intervention and comparator (eg, intervention manual) can be accessed
 
 **What to look for in code/outputs:**
 - Treatment variable definitions (drug, dose, schedule, route, comparator or placebo)
@@ -180,7 +182,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 14 -- Outcomes
 
-**Description:** Prespecified primary and secondary outcomes, including the measurement variable, analysis metric (such as change from baseline, final value, time to event), method of aggregation (such as median, proportion), and time point for each.
+**Description:** Prespecified primary and secondary outcomes, including the specific measurement variable (eg, systolic blood pressure), analysis metric (eg, change from baseline, final value, time to event), method of aggregation (eg, median, proportion), and time point for each outcome
 
 **What to look for in code/outputs:**
 - Endpoint derivation code covering variable, metric, aggregation, and time point
@@ -190,7 +192,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 15 -- Harms
 
-**Description:** How harms were defined and assessed (such as systematically, non-systematically).
+**Description:** How harms were defined and assessed (eg, systematically, non-systematically)
 
 **What to look for in code/outputs:**
 - Adverse event definitions, grading (CTCAE), and coding dictionary (MedDRA) version
@@ -199,7 +201,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16a -- Sample size
 
-**Description:** How sample size was determined, including all assumptions supporting the calculation.
+**Description:** How sample size was determined, including all assumptions supporting the sample size calculation
 
 **What to look for in code/outputs:**
 - Power or sample size code (pwr, gsDesign, simulation) that runs and reproduces the stated n
@@ -208,7 +210,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16b -- Interim analyses and stopping guidelines
 
-**Description:** Explanation of any interim analyses and stopping guidelines.
+**Description:** Explanation of any interim analyses and stopping guidelines
 
 **What to look for in code/outputs:**
 - Interim analysis code with stopping boundaries (O'Brien-Fleming, Lan-DeMets alpha spending)
@@ -217,7 +219,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 17a -- Sequence generation: who and method
 
-**Description:** Who generated the random allocation sequence and the method used.
+**Description:** Who generated the random allocation sequence and the method used
 
 **What to look for in code/outputs:**
 - Randomization code specifying method (simple, block, stratified, minimization) and seed
@@ -226,7 +228,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 17b -- Type of randomisation and restriction
 
-**Description:** Type of randomisation and details of any restriction (such as stratification, blocking, and block size).
+**Description:** Type of randomisation and details of any restriction (eg, stratification, blocking and block size)
 
 **What to look for in code/outputs:**
 - Fixed or variable block sizes and stratification factors in code or config
@@ -234,7 +236,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 18 -- Allocation concealment mechanism
 
-**Description:** Mechanism used to implement the random allocation sequence (such as central computer or telephone; sequentially numbered, opaque, sealed containers), and steps to conceal the sequence until assignment.
+**Description:** Mechanism used to implement the random allocation sequence (eg, central computer/telephone; sequentially numbered, opaque, sealed containers), describing any steps to conceal the sequence until interventions were assigned
 
 **What to look for in code/outputs:**
 - References to central randomization or sealed-envelope procedures
@@ -243,7 +245,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 19 -- Implementation
 
-**Description:** Whether the personnel who enrolled and those who assigned participants to the interventions had access to the random allocation sequence.
+**Description:** Whether the personnel who enrolled and those who assigned participants to the interventions had access to the random allocation sequence
 
 **What to look for in code/outputs:**
 - Access controls on the randomization list (enrolling staff cannot view upcoming assignments)
@@ -251,7 +253,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 20a -- Who was blinded
 
-**Description:** Who was blinded after assignment to interventions (such as participants, care providers, outcome assessors, data analysts).
+**Description:** Who was blinded after assignment to interventions (eg, participants, care providers, outcome assessors, data analysts)
 
 **What to look for in code/outputs:**
 - Masking indicators and documented blinding status per role, including data analysts
@@ -260,7 +262,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 20b -- How blinding was achieved
 
-**Description:** If blinded, how blinding was achieved and description of the similarity of interventions.
+**Description:** If blinded, how blinding was achieved and description of the similarity of interventions
 
 **What to look for in code/outputs:**
 - Placebo matching documentation (appearance, taste, packaging)
@@ -268,7 +270,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21a -- Statistical methods for outcomes, including harms
 
-**Description:** Statistical methods used to compare groups for primary and secondary outcomes, including harms.
+**Description:** Statistical methods used to compare groups for primary and secondary outcomes, including harms
 
 **What to look for in code/outputs:**
 - Model specification: family, link, mixed effects, robust SEs, covariates (stratification factors)
@@ -278,7 +280,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21b -- Analysis populations
 
-**Description:** Definition of who is included in each analysis (such as all randomised participants), and in which group.
+**Description:** Definition of who is included in each analysis (eg, all randomised participants), and in which group
 
 **What to look for in code/outputs:**
 - ITT, modified ITT, per-protocol, and safety population definitions in code
@@ -286,7 +288,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21c -- Missing data
 
-**Description:** How missing data were handled in the analysis.
+**Description:** How missing data were handled in the analysis
 
 **What to look for in code/outputs:**
 - Missingness summaries by arm and outcome
@@ -296,7 +298,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21d -- Additional analyses
 
-**Description:** Methods for any additional analyses (such as subgroup and sensitivity analyses), distinguishing prespecified from post hoc.
+**Description:** Methods for any additional analyses (eg, subgroup and sensitivity analyses), distinguishing prespecified from post hoc
 
 **What to look for in code/outputs:**
 - Subgroup code using interaction terms, with prespecified vs post hoc labels
@@ -309,7 +311,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 22a -- Participant flow
 
-**Description:** For each group, the numbers of participants who were randomly assigned, received the intended intervention, and were analysed for the primary outcome (with a flow diagram).
+**Description:** For each group, the numbers of participants who were randomly assigned, received intended intervention, and were analysed for the primary outcome
 
 **What to look for in code/outputs:**
 - CONSORT flow diagram generation code (consort, ggconsort, or manual)
@@ -317,7 +319,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 22b -- Losses and exclusions
 
-**Description:** For each group, losses and exclusions after randomisation, together with reasons.
+**Description:** For each group, losses and exclusions after randomisation, together with reasons
 
 **What to look for in code/outputs:**
 - Post-randomization exclusion code with reasons, counted by arm
@@ -325,7 +327,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 23a -- Recruitment and follow-up dates
 
-**Description:** Dates defining the periods of recruitment and follow-up for outcomes of benefits and harms.
+**Description:** Dates defining the periods of recruitment and follow-up for outcomes of benefits and harms
 
 **What to look for in code/outputs:**
 - First and last enrollment dates, data cutoff, and database lock date
@@ -333,7 +335,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 23b -- Why the trial ended
 
-**Description:** If relevant, why the trial ended or was stopped.
+**Description:** If relevant, why the trial ended or was stopped
 
 **What to look for in code/outputs:**
 - Completion or early stopping documentation (DSMB recommendation, futility, sponsor decision)
@@ -341,7 +343,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 24a -- Intervention and comparator delivery
 
-**Description:** Intervention and comparator as actually administered (such as who delivered them, how participants adhered, and whether they were delivered as intended).
+**Description:** Intervention and comparator as they were actually administered (eg, where appropriate, who delivered the intervention/comparator, how participants adhered, whether they were delivered as intended (fidelity))
 
 **What to look for in code/outputs:**
 - Adherence and compliance derivations (doses received, sessions attended) by arm
@@ -350,7 +352,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 24b -- Concomitant care
 
-**Description:** Concomitant care received during the trial for each group.
+**Description:** Concomitant care received during the trial for each group
 
 **What to look for in code/outputs:**
 - Concomitant medication or co-intervention tables by arm
@@ -358,7 +360,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 25 -- Baseline data
 
-**Description:** A table showing baseline demographic and clinical characteristics for each group.
+**Description:** A table showing baseline demographic and clinical characteristics for each group
 
 **What to look for in code/outputs:**
 - Table 1 code (tableone, gtsummary) stratified by arm, with mean/SD, median/IQR, or n/%
@@ -367,7 +369,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 26 -- Numbers analysed, outcomes, and estimation
 
-**Description:** For each primary and secondary outcome, by group: the number included in the analysis; the number with available data at the outcome time point; the result for each group with the estimated effect size and its precision (such as 95% CI); and for binary outcomes, both absolute and relative effect sizes.
+**Description:** For each primary and secondary outcome, by group: the number of participants included in the analysis; the number of participants with available data at the outcome time point; result for each group, and the estimated effect size and its precision (such as 95% confidence interval); for binary outcomes, presentation of both absolute and relative effect size
 
 **What to look for in code/outputs:**
 - Per-outcome denominators: analyzed n and n with observed data at each time point, by arm
@@ -377,7 +379,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 27 -- Harms
 
-**Description:** All harms or unintended events in each group.
+**Description:** All harms or unintended events in each group
 
 **What to look for in code/outputs:**
 - Adverse event tables by arm, severity, and system organ class
@@ -385,7 +387,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 28 -- Ancillary analyses
 
-**Description:** Any other analyses performed, including subgroup and sensitivity analyses, distinguishing prespecified from post hoc.
+**Description:** Any other analyses performed, including subgroup and sensitivity analyses, distinguishing pre-specified from post hoc
 
 **What to look for in code/outputs:**
 - Subgroup results with interaction tests and forest plots
@@ -397,7 +399,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 29 -- Interpretation
 
-**Description:** Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence.
+**Description:** Interpretation consistent with results, balancing benefits and harms, and considering other relevant evidence
 
 **What to look for in code/outputs:**
 - Conclusions that weigh efficacy against safety findings
@@ -405,7 +407,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 30 -- Limitations
 
-**Description:** Trial limitations, addressing sources of potential bias, imprecision, generalisability, and, if relevant, multiplicity of analyses.
+**Description:** Trial limitations, addressing sources of potential bias, imprecision, generalisability, and, if relevant, multiplicity of analyses
 
 **What to look for in code/outputs:**
 - Limitations informed by sensitivity analyses, missing data, non-adherence, and protocol deviations
