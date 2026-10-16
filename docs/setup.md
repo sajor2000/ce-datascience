@@ -16,7 +16,7 @@ plugin.
 
 ![Steps for using Methodsmith setup, workflow, and task-specific slash commands](methodsmith-skill-commands.png)
 
-[Watch the workflow overview](https://sajor2000.github.io/methodsmith/media/methodsmith-overview.mp4)
+[See who decides what](https://sajor2000.github.io/methodsmith/#decide)
 
 ## OS Support Matrix
 

@@ -15,15 +15,17 @@
 
 </div>
 
-**Methodsmith** (formerly ce-datascience) is a plugin for Claude Code and Codex that gives your coding <!-- rebrand:keep -->
-agent the habits of a careful methods team. It plans the analysis before it
-runs, reviews it before anyone reads the results, and writes down what each
-study taught you so the next one starts ahead. Clinical statistics, Python and
-ML papers, and meta-analysis; R or Python.
+**Methodsmith** (formerly ce-datascience) is a plugin for Claude Code and Codex that brings <!-- rebrand:keep -->
+the habits of a careful methods team to your coding agent. It plans the analysis
+before it runs, reviews it before anyone reads the results, and records what each
+study taught you, so the next one starts ahead. Clinical statistics, Python and ML
+papers, and meta-analysis; R or Python.
 
-**66 skills, 55 specialist agents, and 39 reporting checklists.** You stay in
-control of the scientific decisions: Methodsmith drafts and checks, and does not
-replace a researcher, statistician, clinician, data steward, or ethics review.
+**It enhances the scientist; it does not replace one.** You frame the question,
+approve the plan and judge the findings. Methodsmith does the drafting, running
+and checking that make the work reproducible and grounded: pre-specified SAPs,
+reviewed code, reporting checklists and numbers traced to the analysis.
+**66 skills, 55 specialist agents, and 39 reporting checklists.**
 
 ## Install
 
@@ -51,18 +53,19 @@ or the [setup guide](https://sajor2000.github.io/methodsmith/docs/setup).
 
 <sub>Scripted replay on synthetic data, abridged from the output formats the skills define; it is not a recording of a live run. Source: <a href="docs/brand/scripts/demo_transcript.py">docs/brand/scripts/demo_transcript.py</a>.</sub>
 
-## The loop
+## You decide. Methodsmith does the legwork.
 
-Every study runs the same four steps. The loop comes from Every's
+Every study runs the same loop: plan, work, review, compound. The plugin drafts,
+runs and checks; every scientific choice passes through you. Nothing is analysed
+until you approve the plan, and nothing is reported until you have judged the
+review. The loop comes from Every's
 [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin);
 Methodsmith adapts each step for research methods.
 
-| Step | What it does |
-|---|---|
-| **Plan**<br>`/method-plan` | Writes the analysis plan first: a versioned SAP with ICH E9(R1) estimands, endpoints and decisions |
-| **Work**<br>`/method-work` | Runs the plan with SAP traceability, tests and a real-data gate |
-| **Review**<br>`/method-review` | Specialist reviewers check methods, leakage, PHI and the reporting checklist; findings are confidence-gated |
-| **Compound**<br>`/method-compound` | Records what the study taught you in `docs/solutions/`, so the next plan starts from it |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="website/static/brand/human-loop-dark.svg">
+  <img src="website/static/brand/human-loop-light.svg" width="100%" alt="Swimlane. You, the scientist, frame the question, approve the plan, judge the findings and sign off the result. Methodsmith drafts the SAP with /method-plan, runs the approved analysis with /method-work, reviews every step with /method-review, and records the lessons with /method-compound, which feed the next study's plan.">
+</picture>
 
 Not sure where you are? `/method-workflow` reads the project and recommends the
 next safe step.

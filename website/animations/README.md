@@ -1,7 +1,9 @@
 # Site animation source
 
-`methodsmith_overview.py` is the source for the silent overview shown on the
-GitHub Pages home page. Rebuild the committed MP4 from the repository root:
+`methodsmith_overview.py` is the source for the silent overview video. The docs
+home page no longer embeds it (the human-in-the-loop diagram from
+`docs/brand/scripts/build_brand.py` does that job); the MP4 stays published
+because older links point at it. Rebuild the committed MP4 from the repository root:
 
 ```bash
 bash website/animations/render-overview-video.sh
