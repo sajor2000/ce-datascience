@@ -24,7 +24,8 @@
         "Explains that the allowlist is for doses, units, and fixed phrases, not results",
         "Directs rerunning the script that produced table1 so the stale entry is regenerated from the changed source",
         "Replaces the typed 23.4% with a registered {{num:<id>}} placeholder or asks which SAP output it belongs to",
-        "Reruns the gate and reports its exit status rather than declaring the manuscript ready"
+        "Reruns the gate and reports its exit status rather than declaring the manuscript ready",
+        "If the manuscript is a .docx, re-renders it so CE_NUM fields show current registry text instead of editing field text by hand"
       ]
     },
     {

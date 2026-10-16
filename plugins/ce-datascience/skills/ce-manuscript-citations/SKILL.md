@@ -91,8 +91,9 @@ Use the document-editing workflow available in the host environment for DOCX man
 3. Insert citations through Zotero's Word integration so the in-text citation and bibliography are live Zotero fields. Let Zotero own numbering, bibliography ordering, and style.
 4. Never type numeric superscripts, author-date strings, or a bibliography as the final citation representation. Those may appear only in a temporary review artifact or a flattened derivative explicitly labeled static.
 5. Refresh Zotero fields and verify that every inserted citation has a field code, a Zotero item association, and a bibliography entry.
-6. Preserve the original document, field-bearing master, and ledger as separate artifacts. A PDF or flattened DOCX is a derivative, not the editable master.
-7. Render the final DOCX and inspect every page. Run a structural field audit in addition to visual QA because rendering alone cannot prove that fields remain live.
+6. When the manuscript reports results, load the `ce-numbers` skill, `render` the field-bearing master so each `{{num:<id>}}` becomes an `ADDIN CE_NUM` field beside the Zotero fields, and run its `check` on the result; a `FAIL` blocks delivery like a field audit failure.
+7. Preserve the original document, field-bearing master, and ledger as separate artifacts. A PDF or flattened DOCX is a derivative, not the editable master.
+8. Render the final DOCX and inspect every page. Run a structural field audit in addition to visual QA because rendering alone cannot prove that fields remain live.
 
 ## Audit output
 

@@ -47,7 +47,7 @@ register_number("primary.hr", hr, kind = "estimate", ci = c(lo, hi), digits = 2,
 
    Kinds: `count`, `n`, `percent`, `estimate`, `ci`, `p`. Style profiles: `jama` (default; `P = .03`, `P < .001`, `0.78 (95% CI, 0.66-0.92)`, ` to ` when a bound is negative, thousands commas) and `generic-biomedical` (`p = 0.03`). Counts from 1 to 10 are stored suppressed (`<11`, no value). Each entry records the source files' SHA-256 and the calling script's path, SHA-256, and git commit, so commit the script before the run that reports numbers; the gate fails entries whose script had uncommitted changes.
 3. **Run the analysis.** In `schema-only`, run it as `ce-safe-run -- python3 analysis/<script>.py` or `ce-safe-run -- Rscript analysis/<script>.R`.
-4. **Write with placeholders.** Cite every result as `{{num:<id>}}` in `.md`, `.qmd`, and `.Rmd` sources. List available ids (kind and SAP output, no values):
+4. **Write with placeholders.** Cite every result as `{{num:<id>}}` in `.md`, `.qmd`, and `.Rmd` sources, and type the same placeholder text into a Word `.docx`. List available ids (kind and SAP output, no values):
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
@@ -55,8 +55,8 @@ python3 "$SKILL_DIR/scripts/ce_numbers.py" ids
 ```
 
    Never type a result, and never compute one inline (`` `r ...` ``, `` `{python} ...` ``); the gate fails both.
-5. **Render.** `python3 "$SKILL_DIR/scripts/ce_numbers.py" render manuscript/results.qmd --out manuscript/_rendered/results.qmd` substitutes each entry's formatted text. It writes nothing when an id is unknown or its entry is stale.
-6. **Gate.** Run `python3 "$SKILL_DIR/scripts/ce_numbers.py" check <files or directories>` on the sources, the rendered copies, and the tables (`.md`, `.qmd`, `.Rmd`, `.csv`, `.tsv`). Exit 0 prints `PASS`; exit 1 prints one line per problem and `FAIL`. Report the result as the script's exit status and lines, not as a judgement. If `python3` is missing, try `python`, then `py`; if none runs, report the gate as not run, never as passed.
+5. **Render.** `python3 "$SKILL_DIR/scripts/ce_numbers.py" render manuscript/results.qmd --out manuscript/_rendered/results.qmd` substitutes each entry's formatted text. For a `.docx`, it writes a new file in which each placeholder (even one Word split across formatting runs) becomes a Word field `{ ADDIN CE_NUM <id> }` whose result is the entry's text, keeping the run's formatting, and it refreshes the results of existing `CE_NUM` fields, so re-render the Word master after every rerun. It never modifies the source, and it writes nothing when an id is unknown or its entry is stale.
+6. **Gate.** Run `python3 "$SKILL_DIR/scripts/ce_numbers.py" check <files or directories>` on the sources, the rendered copies, and the tables (`.md`, `.qmd`, `.Rmd`, `.csv`, `.tsv`, `.docx`). Word locations read `file.docx:p12` (paragraph 12 of the body, table cells included) or `file.docx:footnotes:p3`. Exit 0 prints `PASS`; exit 1 prints one line per problem and `FAIL`. Report the result as the script's exit status and lines, not as a judgement. If `python3` is missing, try `python`, then `py`; if none runs, report the gate as not run, never as passed.
 7. **Trace on request.** `python3 "$SKILL_DIR/scripts/ce_numbers.py" trace <files>` prints the chain for each placeholder.
 
 ## What the gate fails
@@ -65,17 +65,18 @@ python3 "$SKILL_DIR/scripts/ce_numbers.py" ids
 |---|---|---|
 | `untraced number` | A numeric token no registry entry's text produces | Replace it with a placeholder, register it, or declare it if it is a design constant |
 | `inline computed value` | Inline R/Python code prints a number outside the registry | Register the value; cite its placeholder |
-| `unknown registry id` | A placeholder names no entry | Fix the id (see `ids`) or register the number |
+| `field result differs from registry` | A Word `CE_NUM` field's shown text was hand-edited or predates a rerun | Re-render the Word master; never edit field text |
+| `unknown registry id` | A placeholder or Word field names no entry | Fix the id (see `ids`) or register the number |
 | `stale` | A source file or the producing script changed (or is gone) since registration | Rerun the producing script |
 | `untraceable` | An entry has no source files, no SAP output, or a script that was uncommitted when it ran | Register with `sources` and `sap_output`; commit the script, then rerun it |
 | `small cell` | A registered count from 1 to 10 is not suppressed | Rerun through the helper, which suppresses it |
 | `nothing to check` | No files, no registry entries, or no numbers found | Point the gate at the manuscript; a gate that checks nothing does not pass |
 | `unsupported file type` | A file the gate cannot read for numbers | Check its Markdown or table source instead |
 
-Not counted as results: YAML front matter, code blocks, HTML comments, link targets, block quotes and quoted text (quoted guideline wording), citation markers (`[12]`, `[3,4]`, `^7^`, `[@key]`), heading and list numbers, figure/table/item/section/supplement numbers, dates, years from 1900 to 2099 without a thousands comma, `95% CI`, names with digits (`CD4`, `COVID-19`), and hyphenated descriptors (`28-day`). Declare doses, units, and fixed phrases in `analysis/numbers/allowlist.txt`, one per line: `unit: mg`, `unit: mg/kg`, `phrase: two-sided P < .05`. Never add a result to the allowlist.
+Not counted as results: YAML front matter, code blocks, HTML comments, link targets, block quotes and quoted text (quoted guideline wording), citation markers (`[12]`, `[3,4]`, `^7^`, `[@key]`), heading and list numbers, figure/table/item/section/supplement numbers, dates, years from 1900 to 2099 without a thousands comma, `95% CI`, names with digits (`CD4`, `COVID-19`), and hyphenated descriptors (`28-day`). Declare doses, units, and fixed phrases in `analysis/numbers/allowlist.txt`, one per line: `unit: mg`, `unit: mg/kg`, `phrase: two-sided P < .05`. Never add a result to the allowlist. In Word files, the results of other fields (Zotero citations, cross-references, `SEQ` figure numbers, page numbers) and tracked deletions are not counted.
 
 ## Limits
 
 - A typed number that happens to equal some registry token passes; placeholders, not matching, are the proof of origin.
-- Numbers inside images, PDFs, and hand-edited Word tables are not read. Check the source tables and captions instead.
+- Numbers inside images, embedded charts, PDFs, and Word headers, footers, and comments are not read. Check the source tables and captions instead. A number typed into a Word table cell is checked like body text, so it fails unless it matches a registry token.
 - Staleness compares file hashes, not semantics: a rerun on unchanged inputs keeps entries fresh.

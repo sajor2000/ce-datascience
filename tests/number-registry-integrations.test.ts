@@ -60,6 +60,7 @@ describe("numbers locked to the registry across skills", () => {
 describe("number registry docs", () => {
   test("README, plugin README, and setup guide carry the same section with a worked example", async () => {
     const section = (text: string) => text.slice(text.indexOf("### Numbers locked to raw data"), text.indexOf("It does not read numbers inside images"))
+    expect(section(await readFile(path.join(process.cwd(), "README.md"), "utf8"))).toContain("Word manuscripts")
     const root = await readFile(path.join(process.cwd(), "README.md"), "utf8")
     const plugin = await readFile(path.join(process.cwd(), "plugins", "ce-datascience", "README.md"), "utf8")
     const setup = await readFile(path.join(process.cwd(), "docs", "setup.md"), "utf8")
@@ -67,5 +68,17 @@ describe("number registry docs", () => {
     expect(section(root)).toContain("rigor signal")
     expect(section(plugin)).toBe(section(root))
     expect(section(setup)).toBe(section(root))
+  })
+})
+
+describe("number registry in Word manuscripts", () => {
+  test("ce-numbers renders and checks DOCX fields, and the Word citation workflow runs the gate on the master", async () => {
+    const numbers = await read("ce-numbers/SKILL.md")
+    expect(numbers).toContain("`.docx`")
+    expect(numbers).toContain("ADDIN CE_NUM")
+    expect(numbers).toContain("field result differs from registry")
+    const citations = await read("ce-manuscript-citations/SKILL.md")
+    expect(citations).toContain("ce-numbers")
+    expect(citations).toContain("ADDIN CE_NUM")
   })
 })
