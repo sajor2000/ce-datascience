@@ -36,6 +36,12 @@
       "/method-plan a statistical analysis",
       "/method-review my analysis"
     ],
-    "screenshots": []
+    "screenshots": [
+      "./assets/screenshot.png"
+    ],
+    "brandColor": "#C2502A",
+    "brandColorDark": "#E57A50",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.png"
   }
 }

@@ -55,3 +55,12 @@ demo_h="$(sed -n 's/^<svg[^>]* height="\([0-9]*\)".*/\1/p' "$out/demo-poster.svg
 raster "$out/demo-poster.svg" "$out/demo-poster.png" 1200 "$demo_h"
 
 "${py[@]}" "$scripts/finish_png.py" "$out"
+
+# Directory listing assets inside the plugin folder (Claude `icon`, Codex
+# `logo`/`composerIcon`/`screenshots`). Only PNG/SVG: the Claude directory
+# holds other binary types, such as .ico, for manual review.
+plugin_assets="$repo_root/plugins/methodsmith/assets"
+mkdir -p "$plugin_assets"
+cp "$out/mark.svg" "$plugin_assets/icon.svg"
+cp "$out/mark-512.png" "$plugin_assets/icon.png"
+cp "$out/demo-poster.png" "$plugin_assets/screenshot.png"

@@ -18,5 +18,8 @@
     "quarto",
     "reporting-checklists",
     "knowledge-management"
-  ]
+  ],
+  "icon": "./assets/icon.png",
+  "documentationUrl": "https://sajor2000.github.io/methodsmith/",
+  "supportUrl": "https://github.com/sajor2000/methodsmith/issues"
 }
