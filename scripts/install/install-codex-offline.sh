@@ -119,17 +119,32 @@ run_or_echo() {
   fi
 }
 
+backup_stamp="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+
+# Replace a plugin-owned directory with the packaged copy. When the installed
+# copy differs from the package (a user edited or added files), move it to
+# $codex_home/ce-datascience/backups/<time>/ first so nothing is lost.
 copy_dir_replace() {
   local src="$1"
   local dest="$2"
+  local label="$3"
   run_or_echo mkdir -p "$(dirname "$dest")"
   if [ "$dry_run" = "yes" ]; then
     echo "[dry-run] replace $dest from $src"
-  else
-    rm -rf "$dest"
-    mkdir -p "$(dirname "$dest")"
-    cp -R "$src" "$dest"
+    return
   fi
+  if [ -e "$dest" ]; then
+    if diff -rq "$src" "$dest" >/dev/null 2>&1; then
+      rm -rf "$dest"
+    else
+      local backup_dir="$codex_home/$PLUGIN_NAME/backups/$backup_stamp/$label"
+      mkdir -p "$(dirname "$backup_dir")"
+      mv "$dest" "$backup_dir"
+      echo "Backed up your changes in $dest to $backup_dir"
+    fi
+  fi
+  mkdir -p "$(dirname "$dest")"
+  cp -R "$src" "$dest"
 }
 
 remove_managed_codex_mcp_config() {
@@ -237,12 +252,12 @@ JSON
   fi
 }
 
-copy_dir_replace "$plugin_src" "$plugin_dest"
+copy_dir_replace "$plugin_src" "$plugin_dest" plugin
 remove_managed_codex_mcp_config
 write_marketplace_json
 
 if [ -n "$bridge_source" ]; then
-  copy_dir_replace "$bridge_source" "$codex_home/agents/$PLUGIN_NAME"
+  copy_dir_replace "$bridge_source" "$codex_home/agents/$PLUGIN_NAME" agents
 else
   echo "No Codex agent bridge found under $source_root; installed native plugin marketplace only."
 fi

@@ -6,6 +6,7 @@ import { mergeCodexConfig, renderCodexConfig, writeCodexBundle, mergeCodexHooks 
 import type { CodexBundle } from "../src/types/codex"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { convertClaudeToCodex } from "../src/converters/claude-to-codex"
+import { legacyMd } from "./legacy-fixtures"
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -344,20 +345,20 @@ describe("writeCodexBundle", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-legacy-skill-"))
     const codexRoot = path.join(tempRoot, ".codex")
     await fs.mkdir(path.join(codexRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"), "legacy current workflow skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy current workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), "legacy raw colon workflow skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan-beta"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan-beta", "SKILL.md"), "legacy raw colon beta workflow skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan-beta", "SKILL.md"), legacyMd("legacy raw colon beta workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "repo-research-analyst"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "repo-research-analyst", "SKILL.md"), "legacy current agent skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "repo-research-analyst", "SKILL.md"), legacyMd("legacy current agent skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy removed skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy removed skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "bug-reproduction-validator"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "bug-reproduction-validator", "SKILL.md"), "legacy removed agent skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "bug-reproduction-validator", "SKILL.md"), legacyMd("legacy removed agent skill"))
     await fs.mkdir(path.join(codexRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "prompts", "reproduce-bug.md"), "legacy removed prompt")
-    await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), "legacy deleted command prompt")
+    await fs.writeFile(path.join(codexRoot, "prompts", "reproduce-bug.md"), legacyMd("legacy removed prompt"))
+    await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), legacyMd("legacy deleted command prompt"))
 
     const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToCodex(plugin, {
@@ -442,7 +443,7 @@ describe("writeCodexBundle", () => {
     await fs.mkdir(path.join(managedSkillsRoot, "ce-foo"), { recursive: true })
     await fs.writeFile(
       path.join(managedSkillsRoot, "ce-foo", "SKILL.md"),
-      "stale flat-alias skill from prior install",
+      "---\nname: ce-foo\ndescription: Nested-layout agent\n---\n\nstale flat-alias skill from prior install\n",
     )
 
     await writeCodexBundle(codexRoot, {

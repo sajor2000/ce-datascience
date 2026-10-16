@@ -19,6 +19,15 @@ async function exists(filePath: string): Promise<boolean> {
   }
 }
 
+async function listFiles(dir: string): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(dir, { recursive: true, withFileTypes: true })
+    return entries.filter((entry) => entry.isFile()).map((entry) => path.join(entry.parentPath, entry.name))
+  } catch {
+    return []
+  }
+}
+
 async function run(command: string[], cwd = repoRoot): Promise<{ stdout: string; stderr: string }> {
   const proc = Bun.spawn(command, {
     cwd,
@@ -528,5 +537,65 @@ describe("corporate install artifacts", () => {
 
     expect(pluginReadme).toContain("GO/WARN/NO-GO")
     expect(setupDocs).toContain("pi-ask-user")
+  })
+})
+
+describe("Codex offline installer keeps user files on update", () => {
+  test("re-running backs up edited or added files instead of deleting them", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-offline-update-"))
+    const stagingDir = path.join(tempRoot, "stage")
+    await run([
+      "bash",
+      path.join(repoRoot, "scripts", "package", "corporate-artifacts.sh"),
+      "--staging-dir",
+      stagingDir,
+      "--output-dir",
+      path.join(tempRoot, "out"),
+      "--skip-zip",
+    ])
+    const codexPackage = path.join(stagingDir, "ce-datascience-codex-local")
+    const codexHome = path.join(tempRoot, "home", ".codex")
+    const agentsHome = path.join(tempRoot, "home", ".agents")
+    const install = () => run([
+      "bash",
+      path.join(codexPackage, "install-codex-offline.sh"),
+      "--source",
+      codexPackage,
+      "--codex-home",
+      codexHome,
+      "--agents-home",
+      agentsHome,
+    ])
+    await install()
+
+    const installedPlugin = path.join(path.dirname(agentsHome), ".codex", "plugins", "ce-datascience")
+    const userNote = path.join(installedPlugin, "skills", "ce-plan", "my-notes.md")
+    await fs.writeFile(userNote, "my notes")
+    const bridgeAgent = path.join(codexHome, "agents", "ce-datascience", "ce-security-reviewer.toml")
+    const shippedAgent = await fs.readFile(bridgeAgent, "utf8")
+    await fs.writeFile(bridgeAgent, "my edited agent")
+
+    await install()
+
+    expect(await fs.readFile(bridgeAgent, "utf8")).toBe(shippedAgent)
+    const backups = await listFiles(path.join(codexHome, "ce-datascience", "backups"))
+    const savedNote = backups.find((file) => file.endsWith(path.join("ce-plan", "my-notes.md")))
+    const savedAgent = backups.find((file) => file.endsWith("ce-security-reviewer.toml"))
+    expect(savedNote && (await fs.readFile(savedNote, "utf8"))).toBe("my notes")
+    expect(savedAgent && (await fs.readFile(savedAgent, "utf8"))).toBe("my edited agent")
+  }, 120000)
+
+  test("install.ps1 compares before replacing and moves changed copies to backups", async () => {
+    // PowerShell is not available in CI; guard the Windows twin statically.
+    const ps1 = await fs.readFile(path.join(repoRoot, "install.ps1"), "utf8")
+    const replace = ps1.slice(ps1.indexOf("function Copy-DirectoryReplace"), ps1.indexOf("function Merge-CodexMarketplace"))
+    expect(replace).toContain("Test-DirectoriesMatch $SourceDir $DestDir")
+    expect(replace).toContain("Move-Item -LiteralPath $DestDir -Destination $backupDir")
+    // Without -Force, Get-ChildItem skips hidden files, so a hidden user file
+    // would compare as "matching" and be deleted without a backup.
+    const match = ps1.slice(ps1.indexOf("function Test-DirectoriesMatch"), ps1.indexOf("function Copy-DirectoryReplace"))
+    const listings = match.match(/Get-ChildItem[^|]*/g) ?? []
+    expect(listings).toHaveLength(2)
+    for (const listing of listings) expect(listing).toContain("-Force")
   })
 })

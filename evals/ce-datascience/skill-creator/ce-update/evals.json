@@ -15,24 +15,25 @@
     },
     {
       "id": 2,
-      "prompt": "/ce-update. I'm running claude --plugin-dir ~/code/ce-datascience/plugins/ce-datascience for local dev.",
-      "expected_output": "Detects the non-marketplace load path and explains no action is needed for this session, suggesting a regular session to check the marketplace cache.",
+      "prompt": "/ce-update -- I'm in Codex. I installed CE DataScience with bash install.sh codex last month. How do I get the latest version?",
+      "expected_output": "Recognizes a non-Claude harness, does not claim a version comparison, and gives the Codex marketplace upgrade command plus the bunx command that refreshes the generated agents.",
       "files": [],
       "expectations": [
-        "Recognizes the __CE_UPDATE_NOT_MARKETPLACE__ case from the skill directory path",
-        "States the skill is loaded from outside ~/.claude/plugins/cache/ and no action is needed this session",
-        "Suggests loading ce-update in a regular Claude Code session without --plugin-dir to check the marketplace install",
-        "Does not recommend an update command"
+        "Does not claim to compare installed and upstream versions, since Codex does not expose the installed version to the skill",
+        "Gives 'codex plugin marketplace upgrade ce-datascience-plugin' and says to restart Codex",
+        "Gives 'bunx ce-datascience-plugin@latest install ce-datascience --to codex' for the generated agents",
+        "States that updating keeps the user's own skills and does not tell them to move or delete anything"
       ]
     },
     {
       "id": 3,
       "prompt": "/ce-update -- gh isn't authenticated on this machine and I'm on a hospital network that blocks api.github.com.",
-      "expected_output": "Reports that the upstream version could not be fetched and stops, without guessing a version or mutating caches.",
+      "expected_output": "Reports that the upstream version could not be fetched, still gives the Claude update command, and does not guess a version or mutate caches.",
       "files": [],
       "expectations": [
         "Recognizes the __CE_UPDATE_VERSION_FAILED__ sentinel and tells the user the upstream version could not be fetched",
-        "Stops without guessing the latest version",
+        "Does not guess the latest version",
+        "Still gives 'claude plugin update ce-datascience@<marketplace-name>' as the command to run once the network allows",
         "Does not attempt to mutate plugin caches or marketplace directories as a workaround"
       ]
     }

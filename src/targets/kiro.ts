@@ -1,5 +1,5 @@
 import path from "path"
-import { backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { backupFile, copySkillDir, directWriter, ensureDir, injectManualInvocationGuard, readExistingJsonForMerge, sanitizePathName, writeJsonSecure } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForKiro } from "../converters/claude-to-kiro"
 import type { KiroBundle } from "../types/kiro"
@@ -7,15 +7,15 @@ import { cleanupStaleSkillDirs, cleanupStaleAgents } from "../utils/legacy-clean
 import { getLegacyKiroArtifacts } from "../data/plugin-legacy-artifacts"
 import {
   archiveLegacyInstallManifestIfOwned,
-  cleanupCurrentManagedDirectory,
-  cleanupRemovedManagedDirectories,
-  cleanupRemovedManagedFiles,
+  claimManagedUnit,
+  cleanupRemovedManagedEntries,
   moveLegacyArtifactToBackup,
   readManagedInstallManifestWithLegacyFallback,
   resolveManagedSegment,
   sanitizeManagedPluginName,
   writeManagedInstallManifest,
 } from "./managed-artifacts"
+import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): Promise<void> {
@@ -32,11 +32,13 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   const currentAgentPrompts = bundle.agents.map((agent) => `${sanitizePathName(agent.name)}.md`)
   const currentSteeringFiles = bundle.steeringFiles.map((file) => `${sanitizePathName(file.name)}.md`)
   await ensureDir(paths.kiroDir)
+  const ownership = pluginName ? await InstallOwnership.open(paths.kiroDir, paths.managedDir, pluginName) : null
+  const writer = ownership ?? directWriter
 
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
-  await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md")
-  await cleanupStaleAgents(paths.agentsDir, ".json")
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
+  await cleanupStaleAgents(path.join(paths.agentsDir, "prompts"), ".md", "", pluginName ? paths.managedDir : undefined)
+  await cleanupStaleAgents(paths.agentsDir, ".json", "", pluginName ? paths.managedDir : undefined)
 
   // Write agents
   if (bundle.agents.length > 0) {
@@ -44,17 +46,19 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       // Validate name doesn't escape agents directory
       validatePathSafe(agent.name, "agent")
 
+      const agentName = sanitizePathName(agent.name)
+      const configPath = path.join(paths.agentsDir, `${agentName}.json`)
+      const promptPath = path.join(paths.agentsDir, "prompts", `${agentName}.md`)
+      // The config and its prompt are one unit: once the config is claimed,
+      // the prompt it points at belongs to the plugin too.
+      if (!(await claimManagedUnit(ownership, configPath, manifest, "agents", `${agentName}.json`))) continue
+      if (ownership && !(await ownership.claim(promptPath, true))) continue
+
       // Write agent JSON config
-      await writeJson(
-        path.join(paths.agentsDir, `${sanitizePathName(agent.name)}.json`),
-        agent.config,
-      )
+      await writer.writeFile(configPath, JSON.stringify(agent.config, null, 2) + "\n")
 
       // Write agent prompt file
-      await writeText(
-        path.join(paths.agentsDir, "prompts", `${sanitizePathName(agent.name)}.md`),
-        agent.promptContent + "\n",
-      )
+      await writer.writeFile(promptPath, agent.promptContent + "\n")
     }
   }
 
@@ -62,16 +66,9 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   if (bundle.generatedSkills.length > 0) {
     for (const skill of bundle.generatedSkills) {
       validatePathSafe(skill.name, "skill")
-      await cleanupCurrentManagedDirectory(
-        path.join(paths.skillsDir, sanitizePathName(skill.name)),
-        manifest,
-        "skills",
-        sanitizePathName(skill.name),
-      )
-      await writeText(
-        path.join(paths.skillsDir, sanitizePathName(skill.name), "SKILL.md"),
-        skill.content + "\n",
-      )
+      const skillDir = path.join(paths.skillsDir, sanitizePathName(skill.name))
+      if (!(await claimManagedUnit(ownership, skillDir, manifest, "skills", sanitizePathName(skill.name)))) continue
+      await writer.writeFile(path.join(skillDir, "SKILL.md"), skill.content + "\n")
     }
   }
 
@@ -93,14 +90,13 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
         ...bundle.skillDirs.map((s) => s.name),
         ...bundle.generatedSkills.map((s) => s.name),
       ]
-      await cleanupCurrentManagedDirectory(
+      if (!(await claimManagedUnit(ownership, destDir, manifest, "skills", sanitizePathName(skill.name)))) continue
+      await copySkillDir(
+        skill.sourceDir,
         destDir,
-        manifest,
-        "skills",
-        sanitizePathName(skill.name),
-      )
-      await copySkillDir(skill.sourceDir, destDir, (content) =>
-        transformContentForKiro(content, knownAgentNames, knownSkillNames),
+        (content) => transformContentForKiro(content, knownAgentNames, knownSkillNames),
+        false,
+        writer,
       )
       if (skill.disableModelInvocation) {
         await injectManualInvocationGuard(path.join(destDir, "SKILL.md"))
@@ -112,10 +108,9 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   if (bundle.steeringFiles.length > 0) {
     for (const file of bundle.steeringFiles) {
       validatePathSafe(file.name, "steering file")
-      await writeText(
-        path.join(paths.steeringDir, `${sanitizePathName(file.name)}.md`),
-        file.content + "\n",
-      )
+      const steeringPath = path.join(paths.steeringDir, `${sanitizePathName(file.name)}.md`)
+      if (!(await claimManagedUnit(ownership, steeringPath, manifest, "steering", `${sanitizePathName(file.name)}.md`))) continue
+      await writer.writeFile(steeringPath, file.content + "\n")
     }
   }
 
@@ -124,15 +119,16 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
   // ordering does not change the end state — but deferring the deletes means a
   // mid-write failure leaves the previously-installed tree intact rather than a
   // half-updated managed directory with the old artifacts already gone.
-  await cleanupRemovedManagedDirectories(paths.skillsDir, manifest, "skills", currentSkills)
-  await cleanupRemovedManagedFiles(paths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(
+  await cleanupRemovedManagedEntries(ownership, paths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupRemovedManagedEntries(ownership, paths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedEntries(
+    ownership,
     path.join(paths.agentsDir, "prompts"),
     manifest,
     "agentPrompts",
     currentAgentPrompts,
   )
-  await cleanupRemovedManagedFiles(paths.steeringDir, manifest, "steering", currentSteeringFiles)
+  await cleanupRemovedManagedEntries(ownership, paths.steeringDir, manifest, "steering", currentSteeringFiles)
 
   // Write MCP servers to mcp.json
   const mcpServers = rewriteMcpServerPaths(bundle.mcpServers, bundle.skillDirs, paths.skillsDir) ?? bundle.mcpServers
@@ -171,6 +167,7 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
     await archiveLegacyInstallManifestIfOwned(paths.managedDir, pluginName)
     await cleanupKnownLegacyKiroArtifacts(paths, bundle)
   }
+  await ownership?.finish()
 }
 
 function resolveKiroPaths(outputRoot: string, pluginName?: string) {

@@ -1,5 +1,5 @@
 import path from "path"
-import { assertSafeArtifactName, backupFile, copySkillDir, ensureDir, injectManualInvocationGuard, pathExists, readExistingJsonForMerge, sanitizePathName, writeJson, writeJsonSecure, writeText } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copySkillDir, directWriter, ensureDir, injectManualInvocationGuard, pathExists, readExistingJsonForMerge, sanitizePathName, writeJsonSecure } from "../utils/files"
 import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformSkillContentForOpenCode } from "../converters/claude-to-opencode"
 import type { OpenCodeBundle, OpenCodeConfig } from "../types/opencode"
@@ -7,15 +7,15 @@ import { getLegacyOpenCodeArtifacts } from "../data/plugin-legacy-artifacts"
 import { cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
 import {
   archiveLegacyInstallManifestIfOwned,
-  cleanupCurrentManagedDirectory,
-  cleanupRemovedManagedDirectories,
-  cleanupRemovedManagedFiles,
+  claimManagedUnit,
+  cleanupRemovedManagedEntries,
   moveLegacyArtifactToBackup,
   readManagedInstallManifestWithLegacyFallback,
   resolveManagedSegment,
   sanitizeManagedPluginName,
   writeManagedInstallManifest,
 } from "./managed-artifacts"
+import { InstallOwnership } from "./install-ownership"
 import { rewriteOpenCodeMcpCommandPaths } from "./mcp-paths"
 
 async function mergeOpenCodeConfig(
@@ -85,12 +85,16 @@ export async function writeOpenCodeBundle(
   const currentSkills = bundle.skillDirs.map((skill) => sanitizePathName(skill.name))
 
   await ensureDir(openCodePaths.root)
+  const ownership = pluginName
+    ? await InstallOwnership.open(openCodePaths.root, openCodePaths.managedDir, pluginName)
+    : null
+  const writer = ownership ?? directWriter
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(openCodePaths.skillsDir)
-  await cleanupRemovedManagedFiles(openCodePaths.agentsDir, manifest, "agents", currentAgents)
-  await cleanupRemovedManagedFiles(openCodePaths.commandDir, manifest, "commands", currentCommands)
-  await cleanupRemovedManagedFiles(openCodePaths.pluginsDir, manifest, "plugins", currentPlugins)
-  await cleanupRemovedManagedDirectories(openCodePaths.skillsDir, manifest, "skills", currentSkills)
+  await cleanupStaleSkillDirs(openCodePaths.skillsDir, pluginName ? openCodePaths.managedDir : undefined)
+  await cleanupRemovedManagedEntries(ownership, openCodePaths.agentsDir, manifest, "agents", currentAgents)
+  await cleanupRemovedManagedEntries(ownership, openCodePaths.commandDir, manifest, "commands", currentCommands)
+  await cleanupRemovedManagedEntries(ownership, openCodePaths.pluginsDir, manifest, "plugins", currentPlugins)
+  await cleanupRemovedManagedEntries(ownership, openCodePaths.skillsDir, manifest, "skills", currentSkills)
 
   const hadExistingConfig = await pathExists(openCodePaths.configPath)
   const backupPath = await backupFile(openCodePaths.configPath)
@@ -126,7 +130,9 @@ export async function writeOpenCodeBundle(
       continue
     }
     seenAgents.add(safeName)
-    await writeText(path.join(openCodePaths.agentsDir, `${safeName}.md`), agent.content + "\n")
+    const agentPath = path.join(openCodePaths.agentsDir, `${safeName}.md`)
+    if (!(await claimManagedUnit(ownership, agentPath, manifest, "agents", `${safeName}.md`))) continue
+    await writer.writeFile(agentPath, agent.content + "\n")
   }
 
   for (const commandFile of bundle.commandFiles) {
@@ -136,17 +142,23 @@ export async function writeOpenCodeBundle(
       assertSafeArtifactName(segment, "command")
     }
     const dest = path.join(openCodePaths.commandDir, ...commandFile.name.split(":")) + ".md"
-    const cmdBackupPath = await backupFile(dest)
-    if (cmdBackupPath) {
-      console.log(`Backed up existing command file to ${cmdBackupPath}`)
+    const commandPath = `${commandFile.name.split(":").join("/")}.md`
+    if (!(await claimManagedUnit(ownership, dest, manifest, "commands", commandPath))) continue
+    if (!ownership) {
+      const cmdBackupPath = await backupFile(dest)
+      if (cmdBackupPath) {
+        console.log(`Backed up existing command file to ${cmdBackupPath}`)
+      }
     }
-    await writeText(dest, commandFile.content + "\n")
+    await writer.writeFile(dest, commandFile.content + "\n")
   }
 
   if (bundle.plugins.length > 0) {
     for (const plugin of bundle.plugins) {
       assertSafeArtifactName(plugin.name, "plugin file")
-      await writeText(path.join(openCodePaths.pluginsDir, plugin.name), plugin.content + "\n")
+      const pluginPath = path.join(openCodePaths.pluginsDir, plugin.name)
+      if (!(await claimManagedUnit(ownership, pluginPath, manifest, "plugins", plugin.name))) continue
+      await writer.writeFile(pluginPath, plugin.content + "\n")
     }
   }
 
@@ -155,12 +167,13 @@ export async function writeOpenCodeBundle(
       const skillName = sanitizePathName(skill.name)
       assertSafeArtifactName(skillName, "skill")
       const targetDir = path.join(openCodePaths.skillsDir, skillName)
-      await cleanupCurrentManagedDirectory(targetDir, manifest, "skills", skillName)
+      if (!(await claimManagedUnit(ownership, targetDir, manifest, "skills", skillName))) continue
       await copySkillDir(
         skill.sourceDir,
         targetDir,
         transformSkillContentForOpenCode,
         true,
+        writer,
       )
       if (skill.disableModelInvocation) {
         await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
@@ -183,6 +196,7 @@ export async function writeOpenCodeBundle(
     await archiveLegacyInstallManifestIfOwned(openCodePaths.managedDir, pluginName)
     await cleanupKnownLegacyOpenCodeArtifacts(openCodePaths, bundle)
   }
+  await ownership?.finish()
 }
 
 function resolveOpenCodePaths(outputRoot: string, pluginName?: string, scope?: string) {
