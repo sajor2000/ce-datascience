@@ -57,16 +57,19 @@ for (cand in spec$candidates) {
       # getSampleSizeMeans ignores directionUpper and needs alternative > null, so
       # size a lower-direction design on the mirrored alternative (same N).
       ss_alt <- if (direction_upper) sc$alternative else 2 * spec$endpoint$null - sc$alternative
-      ss <- rpact::getSampleSizeMeans(design, alternative = ss_alt, stDev = sc$standard_deviation,
+      ss <- rpact::getSampleSizeMeans(design, thetaH0 = spec$endpoint$null, alternative = ss_alt,
+                                      stDev = sc$standard_deviation,
                                       allocationRatioPlanned = 1)
       # Integer subjects, rounded up to an even total for 1:1 allocation.
       n_max <- 2 * ceiling(ss$maxNumberOfSubjects / 2)
     }
     # Achieved power and E[N | alternative] at the rounded N.            VERIFY: $overallReject, $expectedNumberOfSubjects
-    pow_alt <- rpact::getPowerMeans(design, alternative = sc$alternative, stDev = sc$standard_deviation,
+    pow_alt <- rpact::getPowerMeans(design, thetaH0 = spec$endpoint$null, alternative = sc$alternative,
+                                    stDev = sc$standard_deviation,
                                     maxNumberOfSubjects = n_max, allocationRatioPlanned = 1)
     # E[N | null] with futility stopping applied as planned.
-    pow_null <- rpact::getPowerMeans(design, alternative = spec$endpoint$null, stDev = sc$standard_deviation,
+    pow_null <- rpact::getPowerMeans(design, thetaH0 = spec$endpoint$null, alternative = spec$endpoint$null,
+                                     stDev = sc$standard_deviation,
                                      maxNumberOfSubjects = n_max, allocationRatioPlanned = 1)
   }, warning = record_warning)
   # Type I error: alpha spent by the efficacy boundaries (VERIFY: $alphaSpent).
