@@ -1,0 +1,22 @@
+version: 1
+# Written by scripts/build_package_manifest.py on every run.
+required_fields:
+  - package_id
+  - format
+  - sap_path
+  - tables
+  - figures
+  - checklists
+  - registry_packages
+  - reproducibility
+  - readiness
+# Filled by the agent after the final script run (SKILL.md workflow step 7);
+# a rerun drops them, so re-add them after any rerun.
+optional_fields:
+  word_master: "Project-relative path to the field-bearing DOCX master (docx= from the method-citations handoff); Word deliverables only"
+  citation_ledger: "Project-relative path to the citation ledger (path= from the method-citations handoff); Word deliverables only"
+  signoff_reviewer: "Name of the human reviewer the user named; required when readiness is ready-for-signoff"
+readiness_values:
+  - blocked            # set by the script when any blocker exists
+  - ready-with-review  # set by the script when no blocker exists
+  - ready-for-signoff  # set only by the agent in SKILL.md workflow step 9, never by the script

@@ -1,0 +1,22 @@
+[
+  {"query": "/method-release-notes", "should_trigger": true},
+  {"query": "/method-release-notes what happened to the deepen-plan skill? I can't find it anymore after updating", "should_trigger": true},
+  {"query": "method-release-notes 2.65.0 - what changed in that version of the methodsmith plugin?", "should_trigger": true},
+  {"query": "/method-release-notes did method-table1 ship gtsummary support, and in which release?", "should_trigger": true},
+  {"query": "run method-release-notes and summarize the last few methodsmith plugin releases for our biostat team's Monday update", "should_trigger": true},
+  {"query": "/method-release-notes when was method-prereg's registry validation script added?", "should_trigger": true},
+  {"query": "/method-release-notes was method-question renamed at some point? cite the version", "should_trigger": true},
+  {"query": "/method-release-notes which release added the CLIF 3.0 family support to method-clif", "should_trigger": true},
+  {"query": "method-release-notes: what changed in the plugin since v2.60? looking for anything that affects method-plan SAP output", "should_trigger": true},
+  {"query": "/method-release-notes did the PubMed MCP path for method-pubmed land in a release yet?", "should_trigger": true},
+  {"query": "Is methodsmith up to date in my Claude Code install? Check the marketplace version and tell me the update command if it's stale.", "should_trigger": false},
+  {"query": "Draft the release notes for our R package corecohort 0.4.0 from the NEWS.md and merged PRs since 0.3.0.", "should_trigger": false},
+  {"query": "Write a conventional commit for these skill changes and open a PR so release-please picks it up.", "should_trigger": false},
+  {"query": "The method-table1 skill crashed with a KeyError after the latest update; file a bug report for the maintainers.", "should_trigger": false},
+  {"query": "What did we try in previous sessions when the SAP tabular export broke? Search my session history.", "should_trigger": false},
+  {"query": "Show me where I am in the methodsmith lifecycle for this project and what skill to run next.", "should_trigger": false},
+  {"query": "Our CHANGELOG.md is missing entries for the last two releases; hand-add them from git log.", "should_trigger": false},
+  {"query": "Summarize what changed in this PR branch versus main for the PR description.", "should_trigger": false},
+  {"query": "Configure this project's methodsmith profile; we just switched from Python to R.", "should_trigger": false},
+  {"query": "Audit docs/solutions for stale guidance that no longer matches the current plugin skills.", "should_trigger": false}
+]

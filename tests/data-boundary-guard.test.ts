@@ -7,7 +7,7 @@ import {
 } from "./data-boundary-harness"
 
 describe("resolve_mode: one authority for the boundary", () => {
-  test("outside a ce-datascience project the mode is off", () => {
+  test("outside a methodsmith project the mode is off", () => {
     expect(resolve(project(undefined, { ceDir: false })).mode).toBe("off")
   })
 
@@ -42,7 +42,7 @@ describe("resolve_mode: one authority for the boundary", () => {
     expect(resolve(binary)).toEqual({ mode: "schema-only", why: "unreadable" })
   })
 
-  test("unset in a ce-datascience project is schema-only pointing to ce-setup", () => {
+  test("unset in a methodsmith project is schema-only pointing to method-setup", () => {
     expect(resolve(project("stack_profile:\n  language: python\n"))).toEqual({ mode: "schema-only", why: "unset" })
     expect(resolve(project())).toEqual({ mode: "schema-only", why: "unset" })
   })
@@ -61,7 +61,7 @@ describe("resolve_mode: one authority for the boundary", () => {
 
   test("the project comes from the target path, not only cwd (bypass 1)", () => {
     const root = project(SCHEMA_ONLY)
-    const outside = tempDir("ce-outside-")
+    const outside = tempDir("method-outside-")
     const target = path.join(root, "data", "cohort.csv")
     expect(resolve(outside, "Read", { file_path: target }).mode).toBe("schema-only")
     expectAll(outside, "deny", [
@@ -332,7 +332,7 @@ describe("classify: MCP and upload egress (every mode)", () => {
     expect(result.reason).toContain("endpoint approval does not cover")
   })
 
-  test("outside a ce-datascience project MCP calls are untouched", () => {
+  test("outside a methodsmith project MCP calls are untouched", () => {
     const root = project(undefined, { ceDir: false })
     expect(runGuard(root, "mcp__paperclip__search", { query: "MRN 00123456" })).toMatchObject({ stdout: "", stderr: "" })
   })
@@ -366,7 +366,7 @@ describe("hook wiring and fail mode", () => {
     expect(schema.reason).toContain("schema-only mode")
     expect(schema.reason).toContain("schema-peek.py")
     const unset = runGuard(project("stack_profile:\n  language: python\n"), "Read", { file_path: "data/cohort.csv" })
-    expect(unset.reason).toContain("Run the ce-setup skill")
+    expect(unset.reason).toContain("Run the method-setup skill")
     const typo = runGuard(project("phi_environment:\n  compliant: flase\n"), "Read", { file_path: "data/cohort.csv" })
     expect(typo.decision).toBe("deny")
     expect(typo.reason).toContain("cannot be read")
@@ -498,7 +498,7 @@ describe("schema-peek helper", () => {
 
   test("skill-local copies match the plugin-level helper", () => {
     const canonical = readFileSync(helper, "utf8")
-    for (const skill of ["ce-setup", "ce-work"]) {
+    for (const skill of ["method-setup", "method-work"]) {
       expect(readFileSync(path.join(pluginRoot, "skills", skill, "scripts", "schema-peek.py"), "utf8")).toBe(canonical)
     }
   })

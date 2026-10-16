@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build offline/corporate install artifacts for ce-datascience.
+# Build offline/corporate install artifacts for methodsmith.
 
 set -euo pipefail
 
@@ -20,9 +20,9 @@ Options:
   --help                Show this help
 
 Artifacts:
-  ce-datascience-plugin.zip
-  ce-datascience-claude-aliases.zip
-  ce-datascience-codex-local.zip
+  methodsmith.zip
+  methodsmith-claude-aliases.zip
+  methodsmith-codex-local.zip
 USAGE
 }
 
@@ -61,7 +61,7 @@ done
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/../.." && pwd)"
-plugin_src="$repo_root/plugins/ce-datascience"
+plugin_src="$repo_root/plugins/methodsmith"
 
 if [ ! -d "$plugin_src/skills" ]; then
   echo "Plugin source not found at $plugin_src" >&2
@@ -69,7 +69,7 @@ if [ ! -d "$plugin_src/skills" ]; then
 fi
 
 if [ -z "$staging_dir" ]; then
-  staging_dir="$(mktemp -d -t ce-corporate-artifacts-XXXXXX)"
+  staging_dir="$(mktemp -d -t method-corporate-artifacts-XXXXXX)"
 fi
 staging_dir="$(mkdir -p "$staging_dir" && cd "$staging_dir" && pwd)"
 case "$output_dir" in
@@ -129,14 +129,14 @@ zip_dir() {
   (cd "$root_dir" && zip -qr "$zip_path" "$entry")
 }
 
-plugin_stage="$staging_dir/ce-datascience-plugin"
-alias_stage="$staging_dir/ce-datascience-claude-aliases"
-codex_stage="$staging_dir/ce-datascience-codex-local"
+plugin_stage="$staging_dir/methodsmith"
+alias_stage="$staging_dir/methodsmith-claude-aliases"
+codex_stage="$staging_dir/methodsmith-codex-local"
 
 rm -rf "$plugin_stage" "$alias_stage" "$codex_stage"
 mkdir -p "$plugin_stage" "$alias_stage" "$codex_stage"
 
-copy_filtered_dir "$plugin_src" "$plugin_stage/ce-datascience"
+copy_filtered_dir "$plugin_src" "$plugin_stage/methodsmith"
 
 mkdir -p "$alias_stage/commands"
 bash "$repo_root/scripts/install/install-claude-aliases.sh" \
@@ -146,7 +146,7 @@ cp "$repo_root/scripts/install/install-claude-aliases.sh" "$alias_stage/install-
 cp "$repo_root/install.ps1" "$alias_stage/install.ps1"
 
 mkdir -p "$codex_stage/plugins" "$codex_stage/.agents/plugins" "$codex_stage/codex-agent-bridge"
-copy_filtered_dir "$plugin_src" "$codex_stage/plugins/ce-datascience"
+copy_filtered_dir "$plugin_src" "$codex_stage/plugins/methodsmith"
 cp "$repo_root/.agents/plugins/marketplace.json" "$codex_stage/.agents/plugins/marketplace.json"
 cp "$repo_root/scripts/install/install-codex-offline.sh" "$codex_stage/install-codex-offline.sh"
 cp "$repo_root/install.ps1" "$codex_stage/install.ps1"
@@ -154,18 +154,18 @@ cp "$repo_root/install.ps1" "$codex_stage/install.ps1"
 bridge_home="$staging_dir/codex-bridge-home"
 rm -rf "$bridge_home"
 if command -v bun >/dev/null 2>&1; then
-  (cd "$repo_root" && bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$bridge_home" >/dev/null)
-  if [ -d "$bridge_home/agents/ce-datascience" ]; then
+  (cd "$repo_root" && bun run src/index.ts install ./plugins/methodsmith --to codex --codex-home "$bridge_home" >/dev/null)
+  if [ -d "$bridge_home/agents/methodsmith" ]; then
     mkdir -p "$codex_stage/codex-agent-bridge/agents"
-    cp -R "$bridge_home/agents/ce-datascience" "$codex_stage/codex-agent-bridge/agents/ce-datascience"
+    cp -R "$bridge_home/agents/methodsmith" "$codex_stage/codex-agent-bridge/agents/methodsmith"
   fi
 else
   echo "bun not found; Codex bridge agents were not generated for this package." >&2
 fi
 
-zip_dir "$output_dir/ce-datascience-plugin.zip" "$plugin_stage" "ce-datascience"
-zip_dir "$output_dir/ce-datascience-claude-aliases.zip" "$staging_dir" "ce-datascience-claude-aliases"
-zip_dir "$output_dir/ce-datascience-codex-local.zip" "$staging_dir" "ce-datascience-codex-local"
+zip_dir "$output_dir/methodsmith.zip" "$plugin_stage" "methodsmith"
+zip_dir "$output_dir/methodsmith-claude-aliases.zip" "$staging_dir" "methodsmith-claude-aliases"
+zip_dir "$output_dir/methodsmith-codex-local.zip" "$staging_dir" "methodsmith-codex-local"
 
 echo "Corporate artifacts staged at $staging_dir"
 if [ "$skip_zip" = "no" ]; then

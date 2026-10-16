@@ -26,7 +26,7 @@ class ResearchWorkflow(Scene):
         self.camera.background_color = PAPER
         header = heading(
             "From research question to reviewable evidence",
-            "65 skills across six phases. ce-workflow recommends the next safe step.",
+            "65 skills across six phases. method-workflow recommends the next safe step.",
         ).to_edge(UP, buff=0.32)
         columns = skill_map()
         columns.scale_to_fit_width(13.5).next_to(header, DOWN, buff=0.32)
@@ -58,19 +58,19 @@ class PackageWorkflow(Scene):
         steps = (
             ("Choose a route", ("Claude Code, Codex, or Pi", "standard or locked-down"), PHASES[0][2]),
             ("Install", ("the plugin or an", "approved local package"), PHASES[1][2]),
-            ("Set up", ("ce-setup", "once per project"), PHASES[2][2]),
-            ("Work", ("ce-workflow", "recommends the next skill"), PHASES[3][2]),
+            ("Set up", ("method-setup", "once per project"), PHASES[2][2]),
+            ("Work", ("method-workflow", "recommends the next skill"), PHASES[3][2]),
             ("Deliver", ("reviewable artifacts", "with provenance"), PHASES[5][2]),
         )
         note = note_panel(
             "What you deliver",
             (
-                ("ce-evidence-map", "evidence map"),
-                ("ce-plan", "SAP + estimands"),
-                ("ce-table1", "Table 1"),
-                ("ce-figure", "figures"),
-                ("ce-model-card", "model card"),
-                ("ce-manuscript-package", "submission"),
+                ("method-evidence-map", "evidence map"),
+                ("method-plan", "SAP + estimands"),
+                ("method-table1", "Table 1"),
+                ("method-figure", "figures"),
+                ("method-model-card", "model card"),
+                ("method-submission-package", "submission"),
             ),
             13.3,
         )
@@ -81,22 +81,22 @@ class SkillCommands(Scene):
     def construct(self):
         self.camera.background_color = PAPER
         header = heading(
-            "Use CE DataScience in the project where the work lives",
+            "Use Methodsmith in the project where the work lives",
             "Start broad, then let the workflow route you to a focused skill.",
         )
         steps = (
             ("Open project", ("analysis, manuscript,", "or study folder"), PHASES[0][2]),
-            ("Set up", ("/ce-datascience:ce-setup", "or ask in plain language"), PHASES[1][2]),
-            ("View workflow", ("/ce-datascience:ce-workflow", "shows lifecycle status"), PHASES[2][2]),
-            ("Run next skill", ("ce-data-qa, ce-plan", "ce-work, ce-code-review"), PHASES[3][2]),
-            ("Record & reuse", ("ce-compound", "saves what you learned"), PHASES[5][2]),
+            ("Set up", ("/methodsmith:method-setup", "or ask in plain language"), PHASES[1][2]),
+            ("View workflow", ("/methodsmith:method-workflow", "shows lifecycle status"), PHASES[2][2]),
+            ("Run next skill", ("method-data-qa, method-plan", "method-work, method-review"), PHASES[3][2]),
+            ("Record & reuse", ("method-compound", "saves what you learned"), PHASES[5][2]),
         )
         note = note_panel(
             "Optional Claude shortcuts",
             (
                 ("--aliases", "install flag"),
-                ("/ce-setup", "short form"),
-                ("/ce-workflow", "short form"),
+                ("/method-setup", "short form"),
+                ("/method-workflow", "short form"),
                 ("Optional research add-ons", "PubMed MCP  ·  Paperclip"),
             ),
             13.3,

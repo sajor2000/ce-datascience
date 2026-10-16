@@ -1,5 +1,5 @@
 {
-  "name": "ce-datascience",
+  "name": "methodsmith",
   "owner": {
     "name": "Juan Carlos Rojas"
   },
@@ -10,8 +10,8 @@
   },
   "plugins": [
     {
-      "name": "ce-datascience",
-      "source": "ce-datascience",
+      "name": "methodsmith",
+      "source": "methodsmith",
       "description": "Compound engineering for computational scientists: reproducible, compliant, compound research automation with R/Python statistical review and SAP tracking."
     }
   ]

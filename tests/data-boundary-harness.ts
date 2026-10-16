@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import os from "os"
 import path from "path"
 
-export const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+export const pluginRoot = path.join(process.cwd(), "plugins", "methodsmith")
 export const guard = path.join(pluginRoot, "hooks", "data-boundary-guard.py")
 export const helper = path.join(pluginRoot, "scripts", "schema-peek.py")
 export const fixture = path.join(process.cwd(), "tests", "fixtures", "data-boundary", "synthetic-cohort.csv")
@@ -24,13 +24,13 @@ export const NOTEBOOK_CLEAN = JSON.stringify({
   metadata: {}, nbformat: 4, nbformat_minor: 5,
 })
 
-export function tempDir(prefix = "ce-boundary-") {
+export function tempDir(prefix = "method-boundary-") {
   const dir = mkdtempSync(path.join(os.tmpdir(), prefix))
   tempRoots.push(dir)
   return dir
 }
 
-// A synthetic ce-datascience project: data under ./data, code under ./src.
+// A synthetic methodsmith project: data under ./data, code under ./src.
 export function project(config?: string, opts: { ceDir?: boolean; git?: "dir" | "real" } = {}) {
   const root = tempDir()
   if (opts.git === "real") git(root, "init", "-q")

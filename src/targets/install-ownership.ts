@@ -129,7 +129,7 @@ export class InstallOwnership {
       return true
     }
     console.warn(
-      `Skipped ${absolutePath}: it already exists and ce-datascience did not create it. Rename it to also get the plugin's version.`,
+      `Skipped ${absolutePath}: it already exists and methodsmith did not create it. Rename it to also get the plugin's version.`,
     )
     return false
   }
@@ -206,7 +206,7 @@ export class InstallOwnership {
 
     if (this.backedUp.length > 0) {
       console.warn(
-        `Backed up ${this.backedUp.length} item(s) to ${path.join(this.managedDir, "backups", this.stamp)}: plugin files you edited, or plugin folders from an install made before ce-datascience tracked file ownership. Copy back anything you still need.`,
+        `Backed up ${this.backedUp.length} item(s) to ${path.join(this.managedDir, "backups", this.stamp)}: plugin files you edited, or plugin folders from an install made before methodsmith tracked file ownership. Copy back anything you still need.`,
       )
     }
   }

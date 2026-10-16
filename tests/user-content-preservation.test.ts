@@ -44,7 +44,7 @@ async function writeFile(filePath: string, content: string): Promise<void> {
 
 function openCodeBundle(overrides: Partial<OpenCodeBundle> = {}): OpenCodeBundle {
   return {
-    pluginName: "ce-datascience",
+    pluginName: "methodsmith",
     config: { $schema: "https://opencode.ai/config.json" },
     agents: [{ name: "ce-agent-one", content: "Agent content" }],
     plugins: [],
@@ -56,7 +56,7 @@ function openCodeBundle(overrides: Partial<OpenCodeBundle> = {}): OpenCodeBundle
 
 describe("OpenCode install never removes user-created content", () => {
   test("user skills, agents, and commands named like legacy entries survive install and update", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-user-opencode-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-user-opencode-"))
     const openCodeRoot = path.join(root, "opencode")
     const userFiles: Record<string, string> = {
       "skills/skill-creator/SKILL.md": USER_SKILL,
@@ -83,13 +83,13 @@ describe("OpenCode install never removes user-created content", () => {
 
 describe("Codex install never removes user-created content", () => {
   test("flat ~/.codex skills and prompts named like legacy entries survive install and update", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-user-codex-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-user-codex-"))
     const codexRoot = path.join(root, ".codex")
     const userFiles: Record<string, string> = {
       "skills/skill-creator/SKILL.md": USER_SKILL,
       "skills/orchestrating-swarms/SKILL.md": USER_SKILL.replace("skill-creator", "orchestrating-swarms"),
       "skills/performance-oracle/SKILL.md": USER_SKILL.replace("skill-creator", "performance-oracle"),
-      "skills/ce-datascience/setup/SKILL.md": USER_SKILL.replace("skill-creator", "setup"),
+      "skills/methodsmith/setup/SKILL.md": USER_SKILL.replace("skill-creator", "setup"),
       "prompts/reproduce-bug.md": USER_COMMAND,
       "prompts/plan.md": USER_COMMAND,
     }
@@ -97,7 +97,7 @@ describe("Codex install never removes user-created content", () => {
       await writeFile(path.join(codexRoot, relative), content)
     }
     const bundle: CodexBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [{ name: "ce-skill-one", sourceDir: fixtureSkillDir }],
       generatedSkills: [],
@@ -115,7 +115,7 @@ describe("Codex install never removes user-created content", () => {
 
 describe("Pi install never removes user-created content", () => {
   test("user skills and prompts named like legacy entries survive install and update", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-user-pi-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-user-pi-"))
     const piRoot = path.join(root, ".pi")
     const userFiles: Record<string, string> = {
       "skills/skill-creator/SKILL.md": USER_SKILL,
@@ -126,7 +126,7 @@ describe("Pi install never removes user-created content", () => {
       await writeFile(path.join(piRoot, relative), content)
     }
     const bundle: PiBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [{ name: "ce-skill-one", sourceDir: fixtureSkillDir }],
       generatedSkills: [],
@@ -145,7 +145,7 @@ describe("Pi install never removes user-created content", () => {
 
 describe("OpenCode updates use an ownership ledger", () => {
   test("a user file added inside a plugin skill directory survives update", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-userfile-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-userfile-"))
     const openCodeRoot = path.join(root, "opencode")
     await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
     const userNote = path.join(openCodeRoot, "skills", "ce-skill-one", "my-notes.md")
@@ -157,7 +157,7 @@ describe("OpenCode updates use an ownership ledger", () => {
   })
 
   test("a user-modified plugin file is backed up before it is replaced", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-modified-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-modified-"))
     const openCodeRoot = path.join(root, "opencode")
     await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
     const skillFile = path.join(openCodeRoot, "skills", "ce-skill-one", "SKILL.md")
@@ -167,14 +167,14 @@ describe("OpenCode updates use an ownership ledger", () => {
     await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
 
     expect(await fs.readFile(skillFile, "utf8")).toBe(pluginContent)
-    const backups = await findFiles(path.join(openCodeRoot, "ce-datascience", "backups"))
+    const backups = await findFiles(path.join(openCodeRoot, "methodsmith", "backups"))
     const backedUp = backups.filter((file) => file.endsWith(path.join("skills", "ce-skill-one", "SKILL.md")))
     expect(backedUp).toHaveLength(1)
     expect(await fs.readFile(backedUp[0], "utf8")).toBe("my edited version")
   })
 
   test("a user skill at a current plugin name with no install record is left untouched", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-collision-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-collision-"))
     const openCodeRoot = path.join(root, "opencode")
     const userSkill = path.join(openCodeRoot, "skills", "ce-skill-one", "SKILL.md")
     const userAgent = path.join(openCodeRoot, "agents", "ce-agent-one.md")
@@ -189,7 +189,7 @@ describe("OpenCode updates use an ownership ledger", () => {
   })
 
   test("plugin-owned files dropped by an update are removed, user files beside them stay", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-removed-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-removed-"))
     const openCodeRoot = path.join(root, "opencode")
     const twoSkills = openCodeBundle({
       skillDirs: [
@@ -222,13 +222,13 @@ const ledgerTargets: LedgerTarget[] = [
     async install(root, skillNames) {
       const codexRoot = path.join(root, ".codex")
       await writeCodexBundle(codexRoot, {
-        pluginName: "ce-datascience",
+        pluginName: "methodsmith",
         prompts: [],
         skillDirs: skillNames.map((name) => ({ name, sourceDir: fixtureSkillDir })),
         generatedSkills: [],
         agents: [],
       })
-      return { skillsDir: path.join(codexRoot, "skills", "ce-datascience"), managedDir: path.join(codexRoot, "ce-datascience") }
+      return { skillsDir: path.join(codexRoot, "skills", "methodsmith"), managedDir: path.join(codexRoot, "methodsmith") }
     },
   },
   {
@@ -236,13 +236,13 @@ const ledgerTargets: LedgerTarget[] = [
     async install(root, skillNames) {
       const geminiRoot = path.join(root, ".gemini")
       await writeGeminiBundle(geminiRoot, {
-        pluginName: "ce-datascience",
+        pluginName: "methodsmith",
         generatedSkills: [],
         skillDirs: skillNames.map((name) => ({ name, sourceDir: fixtureSkillDir })),
         agents: [],
         commands: [],
       })
-      return { skillsDir: path.join(geminiRoot, "skills"), managedDir: path.join(geminiRoot, "ce-datascience") }
+      return { skillsDir: path.join(geminiRoot, "skills"), managedDir: path.join(geminiRoot, "methodsmith") }
     },
   },
   {
@@ -250,14 +250,14 @@ const ledgerTargets: LedgerTarget[] = [
     async install(root, skillNames) {
       const piRoot = path.join(root, ".pi")
       await writePiBundle(piRoot, {
-        pluginName: "ce-datascience",
+        pluginName: "methodsmith",
         prompts: [],
         skillDirs: skillNames.map((name) => ({ name, sourceDir: fixtureSkillDir })),
         generatedSkills: [],
         agents: [],
         extensions: [],
       })
-      return { skillsDir: path.join(piRoot, "skills"), managedDir: path.join(piRoot, "ce-datascience") }
+      return { skillsDir: path.join(piRoot, "skills"), managedDir: path.join(piRoot, "methodsmith") }
     },
   },
   {
@@ -265,14 +265,14 @@ const ledgerTargets: LedgerTarget[] = [
     async install(root, skillNames) {
       const kiroRoot = path.join(root, ".kiro")
       await writeKiroBundle(kiroRoot, {
-        pluginName: "ce-datascience",
+        pluginName: "methodsmith",
         agents: [],
         generatedSkills: [],
         skillDirs: skillNames.map((name) => ({ name, sourceDir: fixtureSkillDir })),
         steeringFiles: [],
         mcpServers: {},
       })
-      return { skillsDir: path.join(kiroRoot, "skills"), managedDir: path.join(kiroRoot, "ce-datascience") }
+      return { skillsDir: path.join(kiroRoot, "skills"), managedDir: path.join(kiroRoot, "methodsmith") }
     },
   },
 ]
@@ -280,7 +280,7 @@ const ledgerTargets: LedgerTarget[] = [
 for (const target of ledgerTargets) {
   describe(`${target.name} updates use an ownership ledger`, () => {
     test("user files survive, edited plugin files are backed up, dropped plugin files are removed", async () => {
-      const root = await fs.mkdtemp(path.join(os.tmpdir(), `ce-ledger-${target.name}-`))
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), `method-ledger-${target.name}-`))
       const { skillsDir, managedDir } = await target.install(root, ["ce-skill-one", "ce-skill-two"])
       const userSkill = path.join(skillsDir, "my-own-skill", "SKILL.md")
       await writeFile(userSkill, USER_SKILL)
@@ -304,30 +304,30 @@ for (const target of ledgerTargets) {
 
 describe("install ledger", () => {
   test("round-trips and drops entries that escape the target root", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-roundtrip-"))
-    const managedDir = path.join(root, "ce-datascience")
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-roundtrip-"))
+    const managedDir = path.join(root, "methodsmith")
     const ledger = {
       version: 1 as const,
-      pluginName: "ce-datascience",
-      files: { "skills/ce-plan/SKILL.md": "a".repeat(64), "agents/ce-x.md": "b".repeat(64) },
+      pluginName: "methodsmith",
+      files: { "skills/method-plan/SKILL.md": "a".repeat(64), "agents/ce-x.md": "b".repeat(64) },
     }
     await writeOwnershipLedger(managedDir, ledger)
-    expect(await readOwnershipLedger(managedDir, root, "ce-datascience")).toEqual(ledger)
+    expect(await readOwnershipLedger(managedDir, root, "methodsmith")).toEqual(ledger)
     expect(await readOwnershipLedger(managedDir, root, "another-plugin")).toBeNull()
 
     await writeOwnershipLedger(managedDir, {
       ...ledger,
       files: { ...ledger.files, "../outside.md": "c".repeat(64), "/etc/passwd": "d".repeat(64) },
     })
-    expect(await readOwnershipLedger(managedDir, root, "ce-datascience")).toEqual(ledger)
+    expect(await readOwnershipLedger(managedDir, root, "methodsmith")).toEqual(ledger)
   })
 
   test("records the hash of every file the install wrote", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-ledger-hashes-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-ledger-hashes-"))
     const openCodeRoot = path.join(root, "opencode")
     await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
 
-    const ledger = await readOwnershipLedger(path.join(openCodeRoot, "ce-datascience"), openCodeRoot, "ce-datascience")
+    const ledger = await readOwnershipLedger(path.join(openCodeRoot, "methodsmith"), openCodeRoot, "methodsmith")
     const skillContent = await fs.readFile(path.join(openCodeRoot, "skills", "ce-skill-one", "SKILL.md"))
     expect(ledger?.files["skills/ce-skill-one/SKILL.md"]).toBe(hashContent(skillContent))
     expect(Object.keys(ledger?.files ?? {}).sort()).toEqual(["agents/ce-agent-one.md", "skills/ce-skill-one/SKILL.md"])
@@ -336,7 +336,7 @@ describe("install ledger", () => {
 
 describe("cleanup command never removes user-created content", () => {
   test("a user skill named like a stale entry survives `cleanup`", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-user-cleanup-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-user-cleanup-"))
     const openCodeRoot = path.join(root, "opencode")
     const userSkill = path.join(openCodeRoot, "skills", "skill-creator", "SKILL.md")
     const userAgent = path.join(openCodeRoot, "agents", "performance-oracle.md")
@@ -357,11 +357,11 @@ describe("cleanup command never removes user-created content", () => {
 
 describe("stale-name cleanup keeps user files found inside a plugin-owned directory", () => {
   test("a stale plugin skill directory is moved to a backup, not deleted", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-stale-dir-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-stale-dir-"))
     const openCodeRoot = path.join(root, "opencode")
     const staleDir = path.join(openCodeRoot, "skills", "git-commit")
-    // git-commit was renamed to ce-commit; an old install carries its description.
-    const ceCommit = await fs.readFile(path.join(import.meta.dir, "..", "plugins", "ce-datascience", "skills", "ce-commit", "SKILL.md"), "utf8")
+    // git-commit was renamed to method-commit; an old install carries its description.
+    const ceCommit = await fs.readFile(path.join(import.meta.dir, "..", "plugins", "methodsmith", "skills", "method-commit", "SKILL.md"), "utf8")
     const description = ceCommit.match(/^description: (.*)$/m)![1]
     await writeFile(path.join(staleDir, "SKILL.md"), `---\nname: git-commit\ndescription: ${description}\n---\n\nOld plugin skill.\n`)
     await writeFile(path.join(staleDir, "my-notes.md"), "my notes")
@@ -369,17 +369,17 @@ describe("stale-name cleanup keeps user files found inside a plugin-owned direct
     await writeOpenCodeBundle(openCodeRoot, openCodeBundle(), "global")
 
     expect(await exists(staleDir)).toBe(false)
-    const saved = (await findFiles(path.join(openCodeRoot, "ce-datascience"))).filter((file) => file.endsWith("my-notes.md"))
+    const saved = (await findFiles(path.join(openCodeRoot, "methodsmith"))).filter((file) => file.endsWith("my-notes.md"))
     expect(saved).toHaveLength(1)
     expect(await fs.readFile(saved[0], "utf8")).toBe("my notes")
   })
 })
 
-describe("legacy fingerprints cover every description ce-datascience has shipped", () => {
+describe("legacy fingerprints cover every description methodsmith has shipped", () => {
   test("an agent written by an older release, with a since-reworded description, is recognized", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-fingerprint-history-"))
-    // Description shipped for ce-web-researcher before commit 2dbb90bf reworded it.
-    const oldAgent = path.join(root, "ce-web-researcher.md")
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-fingerprint-history-"))
+    // Description shipped for method-web-researcher before commit 2dbb90bf reworded it.
+    const oldAgent = path.join(root, "method-web-researcher.md")
     await fs.writeFile(
       oldAgent,
       "---\ndescription: Performs iterative web research and returns structured external grounding (prior art, adjacent solutions, market signals, cross-domain analogies). Use when ideating outside the codebase, validating prior art, scanning competitor patterns, finding cross-domain analogies, or any task that benefits from current external context. Prefer over manual web searches when the orchestrator needs structured external grounding.\nmode: subagent\n---\n\nOld agent.\n",
@@ -393,22 +393,22 @@ describe("legacy fingerprints cover every description ce-datascience has shipped
 })
 
 describe("Codex retired skill store", () => {
-  test("files in <codex>/ce-datascience/skills are moved to a backup, not deleted", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-retired-store-"))
+  test("files in <codex>/methodsmith/skills are moved to a backup, not deleted", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-codex-retired-store-"))
     const codexRoot = path.join(root, ".codex")
-    const userSkill = path.join(codexRoot, "ce-datascience", "skills", "my-own-skill", "SKILL.md")
+    const userSkill = path.join(codexRoot, "methodsmith", "skills", "my-own-skill", "SKILL.md")
     await writeFile(userSkill, USER_SKILL)
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [{ name: "ce-skill-one", sourceDir: fixtureSkillDir }],
       generatedSkills: [],
       agents: [],
     })
 
-    expect(await exists(path.join(codexRoot, "ce-datascience", "skills"))).toBe(false)
-    const saved = (await findFiles(path.join(codexRoot, "ce-datascience", "backups")))
+    expect(await exists(path.join(codexRoot, "methodsmith", "skills"))).toBe(false)
+    const saved = (await findFiles(path.join(codexRoot, "methodsmith", "backups")))
       .filter((file) => file.endsWith(path.join("my-own-skill", "SKILL.md")))
     expect(saved).toHaveLength(1)
     expect(await fs.readFile(saved[0], "utf8")).toBe(USER_SKILL)

@@ -3,18 +3,18 @@ import path from "path"
 import { describe, expect, test } from "bun:test"
 import { load } from "js-yaml"
 
-const PLUGIN_ROOT = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const PLUGIN_ROOT = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 
-/** Canonical copies live in ce-compound; mirrors must stay identical. */
+/** Canonical copies live in method-compound; mirrors must stay identical. */
 const SHARED_SUPPORT_FILES = [
   "references/schema.yaml",
   "references/yaml-schema.md",
   "assets/resolution-template.md",
 ]
 
-const SKILLS_WITH_COPIES = ["ce-compound", "ce-compound-refresh"]
+const SKILLS_WITH_COPIES = ["method-compound", "method-compound-refresh"]
 
-describe("ce-compound support file drift", () => {
+describe("method-compound support file drift", () => {
   for (const file of SHARED_SUPPORT_FILES) {
     test(`${file} is identical across ${SKILLS_WITH_COPIES.join(", ")}`, async () => {
       const contents = await Promise.all(
@@ -38,7 +38,7 @@ describe("ce-compound support file drift", () => {
  * wrapped in double quotes — otherwise strict YAML parsers reject the file.
  * See issue #606.
  */
-describe("ce-compound YAML safety rule presence", () => {
+describe("method-compound YAML safety rule presence", () => {
   for (const skill of SKILLS_WITH_COPIES) {
     test(`${skill}/references/schema.yaml validation_rules includes YAML-safety entry`, async () => {
       const raw = await readFile(
@@ -74,9 +74,9 @@ describe("ce-compound YAML safety rule presence", () => {
     })
   }
 
-  test("ce-compound/SKILL.md points at YAML Safety Rules in both frontmatter-writing spots", async () => {
+  test("method-compound/SKILL.md points at YAML Safety Rules in both frontmatter-writing spots", async () => {
     const raw = await readFile(
-      path.join(PLUGIN_ROOT, "ce-compound", "SKILL.md"),
+      path.join(PLUGIN_ROOT, "method-compound", "SKILL.md"),
       "utf8",
     )
     // Match the distinctive write-path pointer phrase, not generic yaml-schema.md
@@ -96,9 +96,9 @@ describe("ce-compound YAML safety rule presence", () => {
     expect(frontmatterAdjacent.length).toBeGreaterThanOrEqual(2)
   })
 
-  test("ce-compound-refresh/SKILL.md points at YAML-safety rules in the Replace flow", async () => {
+  test("method-compound-refresh/SKILL.md points at YAML-safety rules in the Replace flow", async () => {
     const raw = await readFile(
-      path.join(PLUGIN_ROOT, "ce-compound-refresh", "SKILL.md"),
+      path.join(PLUGIN_ROOT, "method-compound-refresh", "SKILL.md"),
       "utf8",
     )
     // Anchor to the Replace Flow section so a drifted or deleted pointer is

@@ -3,7 +3,7 @@ import path from "path"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { sanitizePathName } from "../src/utils/files"
 
-const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+const pluginRoot = path.join(process.cwd(), "plugins", "methodsmith")
 
 describe("sanitizePathName", () => {
   test("replaces colons with hyphens", () => {

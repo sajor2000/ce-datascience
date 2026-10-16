@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "fs/promises"
 import os from "os"
 import path from "path"
 
-const script = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-pubmed", "scripts", "pubmed_search.py")
+const script = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-pubmed", "scripts", "pubmed_search.py")
 
 // Stub Bio.Entrez: the history server holds every match (80 here), and efetch
 // returns as many records as retmax allows, exactly like NCBI. Calls are logged.
@@ -34,7 +34,7 @@ def efetch(**kw):
 def read(handle): return handle.payload
 `
 
-describe("ce-pubmed search", () => {
+describe("method-pubmed search", () => {
   test("never returns or fetches more records than --max", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "pubmed-max-"))
     try {

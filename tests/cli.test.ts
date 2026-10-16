@@ -60,7 +60,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".opencode", "agents", "repo-research-analyst.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".opencode", "agents", "security-sentinel.md"))).toBe(true)
@@ -71,7 +71,7 @@ describe("CLI", () => {
   test("OpenCode install preserves the CLIF safety and template contract", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-opencode-clif-"))
     const repoRoot = path.join(import.meta.dir, "..")
-    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
 
     try {
       const proc = Bun.spawn([
@@ -99,17 +99,17 @@ describe("CLI", () => {
 
       const skillsRoot = path.join(tempRoot, ".opencode", "skills")
       const [clifSkill, rules, template, cohort, dataQa, sapMode, work] = await Promise.all([
-        fs.readFile(path.join(skillsRoot, "ce-clif", "SKILL.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-clif", "references", "clif-rules.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-clif-project-template", "SKILL.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-cohort-build", "SKILL.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-data-qa", "SKILL.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-plan", "references", "sap-mode-workflow.md"), "utf8"),
-        fs.readFile(path.join(skillsRoot, "ce-work", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-clif", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-clif", "references", "clif-rules.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-clif-template", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-cohort", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-data-qa", "SKILL.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-plan", "references", "sap-mode-workflow.md"), "utf8"),
+        fs.readFile(path.join(skillsRoot, "method-work", "SKILL.md"), "utf8"),
       ])
       const combined = [clifSkill, rules, template, cohort, dataQa, sapMode, work].join("\n")
 
-      expect(clifSkill).toContain("load the `ce-language-detect` skill")
+      expect(clifSkill).toContain("load the `method-language-detect` skill")
       expect(combined).toContain("`Approved endpoint: full access`")
       expect(combined).toContain("never mention the boundary again")
       expect(combined).not.toContain("Never give an agent PHI or RHI")
@@ -119,8 +119,8 @@ describe("CLI", () => {
       expect(combined).toContain("clif_demo")
       expect(combined).toContain("BUDDY_TEST_REPORT.md")
       expect(combined).not.toContain("QC → cohort → analysis")
-      expect(combined).toContain("load the `ce-language-detect` skill")
-      expect(combined).not.toContain("/ce-language-detect")
+      expect(combined).toContain("load the `method-language-detect` skill")
+      expect(combined).not.toContain("/method-language-detect")
     } finally {
       await fs.rm(tempRoot, { recursive: true, force: true })
     }
@@ -157,7 +157,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     // OpenCode global config lives at ~/.config/opencode per XDG spec
     expect(await exists(path.join(tempRoot, ".config", "opencode", "opencode.json"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".config", "opencode", "agents", "repo-research-analyst.md"))).toBe(true)
@@ -167,7 +167,7 @@ describe("CLI", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-pi-clean-room-"))
     const piHome = path.join(tempRoot, ".pi", "agent")
     const repoRoot = path.join(import.meta.dir, "..")
-    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
     const userFile = path.join(piHome, "prompts", "user-note.md")
     await fs.mkdir(path.dirname(userFile), { recursive: true })
     await fs.writeFile(userFile, "user-owned Pi prompt\n")
@@ -195,12 +195,12 @@ describe("CLI", () => {
       if (exitCode !== 0) {
         throw new Error(`Pi clean-room install ${runNumber} failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
       }
-      expect(stdout).toContain(`Installed ce-datascience to ${piHome}`)
+      expect(stdout).toContain(`Installed methodsmith to ${piHome}`)
     }
 
-    expect(await exists(path.join(piHome, "skills", "ce-setup", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(piHome, "agents", "ce-security-reviewer.md"))).toBe(true)
-    expect(await exists(path.join(piHome, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(piHome, "skills", "method-setup", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(piHome, "agents", "method-security-reviewer.md"))).toBe(true)
+    expect(await exists(path.join(piHome, "methodsmith", "install-manifest.json"))).toBe(true)
     expect(await fs.readFile(userFile, "utf8")).toBe("user-owned Pi prompt\n")
     const agents = await fs.readFile(path.join(piHome, "AGENTS.md"), "utf8")
     expect(agents).toContain("pi-subagents")
@@ -245,14 +245,14 @@ describe("CLI", () => {
     await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:review-beta"), { recursive: true })
     await fs.writeFile(path.join(codexRoot, "skills", "ce:review-beta", "SKILL.md"), legacyMd("legacy raw colon beta skill"))
-    await fs.mkdir(path.join(codexRoot, "skills", "ce-update"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce-update", "SKILL.md"), legacyMd("legacy pre-namespaced flat skill"))
+    await fs.mkdir(path.join(codexRoot, "skills", "method-update"), { recursive: true })
+    await fs.writeFile(path.join(codexRoot, "skills", "method-update", "SKILL.md"), legacyMd("legacy pre-namespaced flat skill"))
     // A user-authored skill at a flat path whose name happens to collide with
-    // a current CE skill name (ce-debug is a current CE skill that has never
+    // a current CE skill name (method-debug is a current CE skill that has never
     // been on the historical flat-path allow-list). The cleanup MUST NOT move
     // it -- otherwise we silently destroy unrelated user content. This guards
     // against the regression flagged in PR #609.
-    const userOwnedSkillDir = path.join(codexRoot, "skills", "ce-debug")
+    const userOwnedSkillDir = path.join(codexRoot, "skills", "method-debug")
     await fs.mkdir(userOwnedSkillDir, { recursive: true })
     const userOwnedSkillContent = "# user-authored skill, not from CE"
     await fs.writeFile(path.join(userOwnedSkillDir, "SKILL.md"), userOwnedSkillContent)
@@ -266,21 +266,21 @@ describe("CLI", () => {
     const sharedAgentSymlinkTarget = path.join(
       codexRoot,
       "skills",
-      "ce-datascience",
-      "ce-plan",
+      "methodsmith",
+      "method-plan",
     )
     await fs.mkdir(sharedAgentSymlinkTarget, { recursive: true })
     await fs.writeFile(path.join(sharedAgentSymlinkTarget, "SKILL.md"), legacyMd("legacy shared skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
-    await fs.symlink(sharedAgentSymlinkTarget, path.join(agentsRoot, "skills", "ce-plan"))
-    await fs.mkdir(path.join(codexRoot, "skills", "ce-datascience", "repo-research-analyst"), { recursive: true })
+    await fs.symlink(sharedAgentSymlinkTarget, path.join(agentsRoot, "skills", "method-plan"))
+    await fs.mkdir(path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst"), { recursive: true })
     await fs.writeFile(
-      path.join(codexRoot, "skills", "ce-datascience", "repo-research-analyst", "SKILL.md"),
+      path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst", "SKILL.md"),
       legacyMd("legacy namespaced generated agent skill"),
     )
-    await fs.mkdir(path.join(codexRoot, "skills", "ce-datascience", "ce-plan"), { recursive: true })
+    await fs.mkdir(path.join(codexRoot, "skills", "methodsmith", "method-plan"), { recursive: true })
     await fs.writeFile(
-      path.join(codexRoot, "skills", "ce-datascience", "ce-plan", "SKILL.md"),
+      path.join(codexRoot, "skills", "methodsmith", "method-plan", "SKILL.md"),
       "current namespaced skill",
     )
 
@@ -310,23 +310,23 @@ describe("CLI", () => {
     }
 
     expect(stdout).toContain("Cleaned codex")
-    // 6 historical artifacts get backed up: ce:plan, ce:review-beta, ce-update
-    // (pre-namespaced flat path; ce-update is a current skill but its managed
-    // install is at ~/.codex/skills/ce-datascience/ce-update, so the
-    // flat path is legacy), report-bug.md, the .agents/skills/ce-plan
+    // 6 historical artifacts get backed up: ce:plan, ce:review-beta, method-update
+    // (pre-namespaced flat path; method-update is a current skill but its managed
+    // install is at ~/.codex/skills/methodsmith/method-update, so the
+    // flat path is legacy), report-bug.md, the .agents/skills/method-plan
     // symlink-equivalent, and the namespaced
-    // ce-datascience/repo-research-analyst directory.
-    // The user-authored ce-debug skill is preserved.
+    // methodsmith/repo-research-analyst directory.
+    // The user-authored method-debug skill is preserved.
     expect(stdout).toContain("backed up 6 artifact")
     expect(await exists(path.join(codexRoot, "skills", "ce:plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "ce:review-beta"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "skills", "ce-update"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "method-update"))).toBe(false)
     expect(await exists(path.join(codexRoot, "prompts", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(agentsRoot, "skills", "ce-plan"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "repo-research-analyst"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "ce-plan"))).toBe(true)
-    expect(await exists(path.join(codexRoot, "ce-datascience", "legacy-backup"))).toBe(true)
-    expect(await exists(path.join(agentsRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(agentsRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "method-plan"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "methodsmith", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(agentsRoot, "methodsmith", "legacy-backup"))).toBe(true)
 
     // The user's flat-path skill survives with its original content.
     expect(await exists(path.join(userOwnedSkillDir, "SKILL.md"))).toBe(true)
@@ -348,25 +348,25 @@ describe("CLI", () => {
     const agentsRoot = path.join(tempRoot, ".agents")
     const repoRoot = path.join(import.meta.dir, "..")
 
-    // (1) CE-owned symlink: points inside `<codex>/skills/<plugin>/ce-plan`.
-    const ceOwnedTarget = path.join(codexRoot, "skills", "ce-datascience", "ce-plan")
+    // (1) CE-owned symlink: points inside `<codex>/skills/<plugin>/method-plan`.
+    const ceOwnedTarget = path.join(codexRoot, "skills", "methodsmith", "method-plan")
     await fs.mkdir(ceOwnedTarget, { recursive: true })
     await fs.writeFile(path.join(ceOwnedTarget, "SKILL.md"), legacyMd("ce-owned skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
-    await fs.symlink(ceOwnedTarget, path.join(agentsRoot, "skills", "ce-plan"))
+    await fs.symlink(ceOwnedTarget, path.join(agentsRoot, "skills", "method-plan"))
 
     // (2) User-authored symlink at a colliding legacy name -- points to a
     // directory the user controls, outside CE's managed roots.
-    const userOwnedTarget = path.join(tempRoot, "user-skills", "ce-update")
+    const userOwnedTarget = path.join(tempRoot, "user-skills", "method-update")
     await fs.mkdir(userOwnedTarget, { recursive: true })
     const userSymlinkContent = "# user-authored skill reachable via symlink"
     await fs.writeFile(path.join(userOwnedTarget, "SKILL.md"), userSymlinkContent)
-    await fs.symlink(userOwnedTarget, path.join(agentsRoot, "skills", "ce-update"))
+    await fs.symlink(userOwnedTarget, path.join(agentsRoot, "skills", "method-update"))
 
     // (3) User-authored plain directory at a colliding legacy name. CE only
     // ever emitted symlinks into `~/.agents/skills/`, so a real directory
     // here is user-owned by definition and must not be touched.
-    const userPlainDir = path.join(agentsRoot, "skills", "ce-debug")
+    const userPlainDir = path.join(agentsRoot, "skills", "method-debug")
     await fs.mkdir(userPlainDir, { recursive: true })
     const userPlainContent = "# user-authored skill, plain directory"
     await fs.writeFile(path.join(userPlainDir, "SKILL.md"), userPlainContent)
@@ -397,14 +397,14 @@ describe("CLI", () => {
     }
 
     // (1) CE-owned symlink was moved out of `.agents/skills/`.
-    expect(await exists(path.join(agentsRoot, "skills", "ce-plan"))).toBe(false)
+    expect(await exists(path.join(agentsRoot, "skills", "method-plan"))).toBe(false)
     // Its target directory is preserved (cleanupCodex leaves current
     // namespaced skills alone; the shared symlink cleanup only touches the
     // link, not its target).
     expect(await exists(ceOwnedTarget)).toBe(true)
 
     // (2) User-authored symlink and its target both survive intact.
-    expect(await exists(path.join(agentsRoot, "skills", "ce-update"))).toBe(true)
+    expect(await exists(path.join(agentsRoot, "skills", "method-update"))).toBe(true)
     expect(await exists(path.join(userOwnedTarget, "SKILL.md"))).toBe(true)
     expect(await fs.readFile(path.join(userOwnedTarget, "SKILL.md"), "utf8")).toBe(userSymlinkContent)
 
@@ -429,36 +429,36 @@ describe("CLI", () => {
     // Namespaced managed skills dir with stale agent-as-skill entries and one
     // current-named skill that must survive.
     const staleAgentSkills = [
-      "ce-correctness-reviewer",  // current agent name, old generated-skill emission
-      "ce-feasibility-reviewer",  // same
-      "ce-adversarial-reviewer",  // same
+      "method-correctness-reviewer",  // current agent name, old generated-skill emission
+      "method-feasibility-reviewer",  // same
+      "method-adversarial-reviewer",  // same
     ]
     for (const skillName of staleAgentSkills) {
-      const dir = path.join(codexRoot, "skills", "ce-datascience", skillName)
+      const dir = path.join(codexRoot, "skills", "methodsmith", skillName)
       await fs.mkdir(dir, { recursive: true })
       await fs.writeFile(path.join(dir, "SKILL.md"), `stale agent-as-skill ${skillName}`)
     }
     // A current-named skill the prior install also tracked.
-    await fs.mkdir(path.join(codexRoot, "skills", "ce-datascience", "ce-plan"), { recursive: true })
+    await fs.mkdir(path.join(codexRoot, "skills", "methodsmith", "method-plan"), { recursive: true })
     await fs.writeFile(
-      path.join(codexRoot, "skills", "ce-datascience", "ce-plan", "SKILL.md"),
+      path.join(codexRoot, "skills", "methodsmith", "method-plan", "SKILL.md"),
       "current namespaced skill",
     )
     // Stale prompt from the prior install.
     await fs.mkdir(path.join(codexRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "prompts", "ce-plan.md"), legacyMd("stale prompt from prior CE version"))
+    await fs.writeFile(path.join(codexRoot, "prompts", "method-plan.md"), legacyMd("stale prompt from prior CE version"))
 
     // Install manifest listing all the prior-install artifacts.
-    const managedDir = path.join(codexRoot, "ce-datascience")
+    const managedDir = path.join(codexRoot, "methodsmith")
     await fs.mkdir(managedDir, { recursive: true })
     await fs.writeFile(
       path.join(managedDir, "install-manifest.json"),
       JSON.stringify(
         {
           version: 1,
-          pluginName: "ce-datascience",
-          skills: [...staleAgentSkills, "ce-plan"],
-          prompts: ["ce-plan.md"],
+          pluginName: "methodsmith",
+          skills: [...staleAgentSkills, "method-plan"],
+          prompts: ["method-plan.md"],
           agents: [],
         },
         null,
@@ -493,14 +493,14 @@ describe("CLI", () => {
 
     // Stale agent-skills migrated to legacy-backup.
     for (const skillName of staleAgentSkills) {
-      expect(await exists(path.join(codexRoot, "skills", "ce-datascience", skillName))).toBe(false)
+      expect(await exists(path.join(codexRoot, "skills", "methodsmith", skillName))).toBe(false)
     }
     // Current-named namespaced skill survives (it's in the current bundle).
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "ce-plan"))).toBe(true)
-    // Stale prompt migrated (ce-plan is a skill now, not a command/prompt in current CE).
-    expect(await exists(path.join(codexRoot, "prompts", "ce-plan.md"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "method-plan"))).toBe(true)
+    // Stale prompt migrated (method-plan is a skill now, not a command/prompt in current CE).
+    expect(await exists(path.join(codexRoot, "prompts", "method-plan.md"))).toBe(false)
     // Backup tree created.
-    expect(await exists(path.join(codexRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup backs up legacy OpenCode artifacts on demand", async () => {
@@ -546,7 +546,7 @@ describe("CLI", () => {
     expect(await exists(path.join(opencodeRoot, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(opencodeRoot, "agents", "bug-reproduction-validator.md"))).toBe(false)
     expect(await exists(path.join(opencodeRoot, "commands", "compound", "plan.md"))).toBe(false)
-    expect(await exists(path.join(opencodeRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(opencodeRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup backs up legacy Pi artifacts on demand", async () => {
@@ -589,7 +589,7 @@ describe("CLI", () => {
     expect(stdout).toContain("Cleaned pi")
     expect(await exists(path.join(piRoot, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(piRoot, "prompts", "compound-plan.md"))).toBe(false)
-    expect(await exists(path.join(piRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(piRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup backs up legacy Gemini artifacts on demand", async () => {
@@ -635,7 +635,7 @@ describe("CLI", () => {
     expect(await exists(path.join(geminiRoot, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"))).toBe(false)
     expect(await exists(path.join(geminiRoot, "commands", "compound", "plan.toml"))).toBe(false)
-    expect(await exists(path.join(geminiRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(geminiRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup defaults Gemini root to workspace ./.gemini when --gemini-home is not set", async () => {
@@ -683,7 +683,7 @@ describe("CLI", () => {
 
     expect(stdout).toContain("Cleaned gemini")
     expect(await exists(path.join(workspaceGemini, "skills", "creating-agent-skills"))).toBe(false)
-    expect(await exists(path.join(workspaceGemini, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(workspaceGemini, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup backs up legacy Copilot workspace artifacts for native migration", async () => {
@@ -700,11 +700,11 @@ describe("CLI", () => {
     // are NOT on the historical allow-list. The Copilot writer has been
     // removed (users now install via `copilot plugin install`), so these
     // were never installed by CE — cleanup must leave them alone.
-    await fs.mkdir(path.join(githubRoot, "skills", "ce-debug"), { recursive: true })
-    await fs.writeFile(path.join(githubRoot, "skills", "ce-debug", "SKILL.md"), "user-authored skill")
+    await fs.mkdir(path.join(githubRoot, "skills", "method-debug"), { recursive: true })
+    await fs.writeFile(path.join(githubRoot, "skills", "method-debug", "SKILL.md"), "user-authored skill")
     await fs.mkdir(path.join(githubRoot, "skills", "my-user-skill"), { recursive: true })
     await fs.writeFile(path.join(githubRoot, "skills", "my-user-skill", "SKILL.md"), "user-authored skill")
-    await fs.writeFile(path.join(githubRoot, "agents", "ce-adversarial-reviewer.agent.md"), "user-authored agent")
+    await fs.writeFile(path.join(githubRoot, "agents", "method-adversarial-reviewer.agent.md"), "user-authored agent")
 
     const proc = Bun.spawn([
       "bun",
@@ -736,13 +736,13 @@ describe("CLI", () => {
     expect(stdout).toContain("Cleaned copilot")
     expect(await exists(path.join(githubRoot, "skills", "git-commit-push-pr"))).toBe(false)
     expect(await exists(path.join(githubRoot, "agents", "repo-research-analyst.agent.md"))).toBe(false)
-    expect(await exists(path.join(githubRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(githubRoot, "methodsmith", "legacy-backup"))).toBe(true)
 
     // User-authored files that only match current CE bundle names (not on
     // the historical allow-list) must be left untouched.
-    expect(await exists(path.join(githubRoot, "skills", "ce-debug"))).toBe(true)
+    expect(await exists(path.join(githubRoot, "skills", "method-debug"))).toBe(true)
     expect(await exists(path.join(githubRoot, "skills", "my-user-skill"))).toBe(true)
-    expect(await exists(path.join(githubRoot, "agents", "ce-adversarial-reviewer.agent.md"))).toBe(true)
+    expect(await exists(path.join(githubRoot, "agents", "method-adversarial-reviewer.agent.md"))).toBe(true)
   })
 
   test("cleanup backs up legacy Droid artifacts for native migration", async () => {
@@ -761,7 +761,7 @@ describe("CLI", () => {
     // the Droid converter) but are NOT on the historical allow-list. These
     // must survive cleanup — the Droid writer was never wired up to install
     // these, so sweeping them would be destructive.
-    await fs.writeFile(path.join(droidRoot, "droids", "ce-adversarial-reviewer.md"), "user-authored droid")
+    await fs.writeFile(path.join(droidRoot, "droids", "method-adversarial-reviewer.md"), "user-authored droid")
     await fs.writeFile(path.join(droidRoot, "commands", "my-user-command.md"), "user-authored command")
     await fs.mkdir(path.join(droidRoot, "skills", "my-user-skill"), { recursive: true })
     await fs.writeFile(path.join(droidRoot, "skills", "my-user-skill", "SKILL.md"), "user-authored skill")
@@ -797,11 +797,11 @@ describe("CLI", () => {
     expect(await exists(path.join(droidRoot, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(droidRoot, "droids", "bug-reproduction-validator.md"))).toBe(false)
     expect(await exists(path.join(droidRoot, "commands", "plan.md"))).toBe(false)
-    expect(await exists(path.join(droidRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(droidRoot, "methodsmith", "legacy-backup"))).toBe(true)
 
     // User-authored files that only match current CE bundle names (not on the
     // historical allow-list) must be left untouched.
-    expect(await exists(path.join(droidRoot, "droids", "ce-adversarial-reviewer.md"))).toBe(true)
+    expect(await exists(path.join(droidRoot, "droids", "method-adversarial-reviewer.md"))).toBe(true)
     expect(await exists(path.join(droidRoot, "commands", "my-user-command.md"))).toBe(true)
     expect(await exists(path.join(droidRoot, "skills", "my-user-skill"))).toBe(true)
   })
@@ -822,8 +822,8 @@ describe("CLI", () => {
     // are NOT on the historical allow-list. Windsurf's writer has been
     // removed, so these were never installed by CE — cleanup must leave them
     // alone.
-    await fs.mkdir(path.join(windsurfRoot, "skills", "ce-debug"), { recursive: true })
-    await fs.writeFile(path.join(windsurfRoot, "skills", "ce-debug", "SKILL.md"), "user-authored skill")
+    await fs.mkdir(path.join(windsurfRoot, "skills", "method-debug"), { recursive: true })
+    await fs.writeFile(path.join(windsurfRoot, "skills", "method-debug", "SKILL.md"), "user-authored skill")
     await fs.mkdir(path.join(windsurfRoot, "skills", "my-user-skill"), { recursive: true })
     await fs.writeFile(path.join(windsurfRoot, "skills", "my-user-skill", "SKILL.md"), "user-authored skill")
     await fs.writeFile(path.join(windsurfRoot, "global_workflows", "my-user-workflow.md"), "user-authored workflow")
@@ -859,11 +859,11 @@ describe("CLI", () => {
     expect(await exists(path.join(windsurfRoot, "skills", "reproduce-bug"))).toBe(false)
     expect(await exists(path.join(windsurfRoot, "skills", "repo-research-analyst"))).toBe(false)
     expect(await exists(path.join(windsurfRoot, "global_workflows", "workflows-plan.md"))).toBe(false)
-    expect(await exists(path.join(windsurfRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(windsurfRoot, "methodsmith", "legacy-backup"))).toBe(true)
 
     // User-authored files that only match current CE bundle names (not on
     // the historical allow-list) must be left untouched.
-    expect(await exists(path.join(windsurfRoot, "skills", "ce-debug"))).toBe(true)
+    expect(await exists(path.join(windsurfRoot, "skills", "method-debug"))).toBe(true)
     expect(await exists(path.join(windsurfRoot, "skills", "my-user-skill"))).toBe(true)
     expect(await exists(path.join(windsurfRoot, "global_workflows", "my-user-workflow.md"))).toBe(true)
   })
@@ -871,20 +871,20 @@ describe("CLI", () => {
   test("cleanup backs up legacy Qwen Bun artifacts for native migration", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-cleanup-qwen-"))
     const qwenRoot = path.join(tempRoot, ".qwen")
-    const extensionRoot = path.join(qwenRoot, "extensions", "ce-datascience")
+    const extensionRoot = path.join(qwenRoot, "extensions", "methodsmith")
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(extensionRoot, { recursive: true })
     await fs.writeFile(
       path.join(extensionRoot, "qwen-extension.json"),
       JSON.stringify({
-        name: "ce-datascience",
+        name: "methodsmith",
         _compound_managed_mcp: [],
         _compound_managed_keys: ["name", "skills", "agents"],
       }),
     )
-    await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill"))
+    await fs.mkdir(path.join(qwenRoot, "skills", "method-plan"), { recursive: true })
+    await fs.writeFile(path.join(qwenRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
     await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands"), { recursive: true })
@@ -924,11 +924,11 @@ describe("CLI", () => {
 
     expect(stdout).toContain("Cleaned qwen")
     expect(await exists(extensionRoot)).toBe(false)
-    expect(await exists(path.join(qwenRoot, "skills", "ce-plan"))).toBe(false)
+    expect(await exists(path.join(qwenRoot, "skills", "method-plan"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound-plan.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound", "plan.md"))).toBe(false)
-    expect(await exists(path.join(qwenRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(qwenRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup preserves user-authored Qwen files at current-bundle names", async () => {
@@ -937,10 +937,10 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     // Legacy artifacts from the historical allow-list (e.g. `ce:plan` sanitizes
-    // to `ce-plan`, `compound:plan` flattens to `compound-plan.md` and nests to
+    // to `method-plan`, `compound:plan` flattens to `compound-plan.md` and nests to
     // `compound/plan.md`). These MUST be backed up.
-    await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill"))
+    await fs.mkdir(path.join(qwenRoot, "skills", "method-plan"), { recursive: true })
+    await fs.writeFile(path.join(qwenRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
     await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.md"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands", "compound"), { recursive: true })
@@ -951,11 +951,11 @@ describe("CLI", () => {
     // are NOT on the historical allow-list. The Qwen writer is native
     // (`qwen extensions install`), so these were never installed by this
     // plugin — cleanup must leave them alone.
-    await fs.mkdir(path.join(qwenRoot, "skills", "ce-debug"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "ce-debug", "SKILL.md"), "user-authored skill")
+    await fs.mkdir(path.join(qwenRoot, "skills", "method-debug"), { recursive: true })
+    await fs.writeFile(path.join(qwenRoot, "skills", "method-debug", "SKILL.md"), "user-authored skill")
     await fs.mkdir(path.join(qwenRoot, "skills", "my-user-skill"), { recursive: true })
     await fs.writeFile(path.join(qwenRoot, "skills", "my-user-skill", "SKILL.md"), "user-authored skill")
-    await fs.writeFile(path.join(qwenRoot, "agents", "ce-correctness-reviewer.md"), "user-authored agent")
+    await fs.writeFile(path.join(qwenRoot, "agents", "method-correctness-reviewer.md"), "user-authored agent")
     await fs.writeFile(path.join(qwenRoot, "commands", "my-user-command.md"), "user-authored command")
 
     const proc = Bun.spawn([
@@ -989,15 +989,15 @@ describe("CLI", () => {
 
     // Historical allow-list entries (including the nested colon-command form
     // preserved by the PRRT_kwDOP_gZVc58GrCI fix) are backed up.
-    expect(await exists(path.join(qwenRoot, "skills", "ce-plan"))).toBe(false)
+    expect(await exists(path.join(qwenRoot, "skills", "method-plan"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "agents", "repo-research-analyst.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound-plan.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound", "plan.md"))).toBe(false)
 
     // User-authored files at names matching the current CE bundle survive.
-    expect(await exists(path.join(qwenRoot, "skills", "ce-debug"))).toBe(true)
+    expect(await exists(path.join(qwenRoot, "skills", "method-debug"))).toBe(true)
     expect(await exists(path.join(qwenRoot, "skills", "my-user-skill"))).toBe(true)
-    expect(await exists(path.join(qwenRoot, "agents", "ce-correctness-reviewer.md"))).toBe(true)
+    expect(await exists(path.join(qwenRoot, "agents", "method-correctness-reviewer.md"))).toBe(true)
     expect(await exists(path.join(qwenRoot, "commands", "my-user-command.md"))).toBe(true)
   })
 
@@ -1054,7 +1054,7 @@ describe("CLI", () => {
     expect(geminiLines.length).toBe(1)
     expect(geminiLines[0]).toContain("backed up 1 artifact")
     expect(await exists(path.join(sharedGemini, "skills", "creating-agent-skills"))).toBe(false)
-    expect(await exists(path.join(sharedGemini, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(sharedGemini, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup backs up Kiro artifacts on demand", async () => {
@@ -1066,15 +1066,15 @@ describe("CLI", () => {
     // file named like a current skill/agent is either a current CE install or
     // a user-authored file — cleanup seeding from the current bundle would
     // turn `install` + `cleanup` into a self-uninstall.
-    await fs.mkdir(path.join(kiroRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"), "current skill install")
+    await fs.mkdir(path.join(kiroRoot, "skills", "method-plan"), { recursive: true })
+    await fs.writeFile(path.join(kiroRoot, "skills", "method-plan", "SKILL.md"), "current skill install")
     await fs.mkdir(path.join(kiroRoot, "skills", "compound-plan"), { recursive: true })
     await fs.writeFile(path.join(kiroRoot, "skills", "compound-plan", "SKILL.md"), legacyMd("legacy generated command skill"))
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
     await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), legacyJson("{}"))
     await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), legacyMd("legacy agent prompt"))
-    await fs.writeFile(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"), legacyJson("{}"))
-    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"), "current agent prompt")
+    await fs.writeFile(path.join(kiroRoot, "agents", "method-repo-research-analyst.json"), legacyJson("{}"))
+    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "method-repo-research-analyst.md"), "current agent prompt")
 
     const proc = Bun.spawn([
       "bun",
@@ -1109,10 +1109,10 @@ describe("CLI", () => {
     expect(await exists(path.join(kiroRoot, "agents", "repo-research-analyst.json"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"))).toBe(false)
     // ...while current-named files are preserved.
-    expect(await exists(path.join(kiroRoot, "skills", "ce-plan"))).toBe(true)
-    expect(await exists(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"))).toBe(true)
-    expect(await exists(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"))).toBe(true)
-    expect(await exists(path.join(kiroRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "skills", "method-plan"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "agents", "method-repo-research-analyst.json"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "agents", "prompts", "method-repo-research-analyst.md"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("list returns plugins in a temp workspace", async () => {
@@ -1144,7 +1144,7 @@ describe("CLI", () => {
     const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-github-workspace-"))
     const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-github-repo-"))
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
-    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
 
     await fs.mkdir(path.dirname(pluginRoot), { recursive: true })
     await fs.cp(fixtureRoot, pluginRoot, { recursive: true })
@@ -1167,7 +1167,7 @@ describe("CLI", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "install",
-      "ce-datascience",
+      "methodsmith",
       "--to",
       "opencode",
     ], {
@@ -1189,13 +1189,13 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     // OpenCode global config lives at ~/.config/opencode per XDG spec
     expect(await exists(path.join(tempRoot, ".config", "opencode", "opencode.json"))).toBe(true)
-    expect(await exists(path.join(tempRoot, ".config", "opencode", "agents", "ce-repo-research-analyst.md"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".config", "opencode", "agents", "method-repo-research-analyst.md"))).toBe(true)
   })
 
-  test("install uses bundled ce-datascience plugin for codex output", async () => {
+  test("install uses bundled methodsmith plugin for codex output", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-bundled-codex-home-"))
     const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-bundled-codex-workspace-"))
     const projectRoot = path.join(import.meta.dir, "..")
@@ -1206,7 +1206,7 @@ describe("CLI", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "install",
-      "ce-datascience",
+      "methodsmith",
       "--to",
       "codex",
       "--include-skills",
@@ -1229,10 +1229,10 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(stdout).toContain(codexRoot)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "ce-plan", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(tempRoot, ".agents", "skills", "ce-plan"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "method-plan", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".agents", "skills", "method-plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
   })
 
@@ -1247,7 +1247,7 @@ describe("CLI", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "install",
-      "ce-datascience",
+      "methodsmith",
       "--to",
       "codex",
     ], {
@@ -1269,18 +1269,18 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     // Default omits skills; they're expected from `codex plugin install`.
-    expect(await exists(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "method-plan", "SKILL.md"))).toBe(false)
     // Agents still land (as generated skills for now — Codex's native plugin
     // spec does not register custom agents, so the Bun converter fills the gap).
     expect(await exists(path.join(codexRoot, "skills"))).toBe(true)
     // AGENTS.md is emitted because --to codex always ensures a root AGENTS.md
     // exists for Codex's discovery chain. It must carry the current CE block,
-    // not the retired Compound block that ce-setup check-health reports.
+    // not the retired Compound block that method-setup check-health reports.
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
     const agentsFile = await fs.readFile(path.join(codexRoot, "AGENTS.md"), "utf8")
-    expect(agentsFile).toContain("<!-- BEGIN CE DATASCIENCE CODEX TOOL MAP -->")
+    expect(agentsFile).toContain("<!-- BEGIN METHODSMITH CODEX TOOL MAP -->")
     expect(agentsFile).not.toContain("COMPOUND CODEX TOOL MAP")
   })
 
@@ -1319,8 +1319,8 @@ describe("CLI", () => {
     }
 
     expect(stdout).toContain(codexHome)
-    expect(await exists(path.join(codexHome, "agents", "ce-datascience", "security-sentinel.toml"))).toBe(true)
-    expect(await exists(path.join(tempRoot, ".codex", "agents", "ce-datascience", "security-sentinel.toml"))).toBe(false)
+    expect(await exists(path.join(codexHome, "agents", "methodsmith", "security-sentinel.toml"))).toBe(true)
+    expect(await exists(path.join(tempRoot, ".codex", "agents", "methodsmith", "security-sentinel.toml"))).toBe(false)
   })
 
   test("install --to codex treats --codex-home as the Codex root even when it is not named .codex", async () => {
@@ -1358,8 +1358,8 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(await exists(path.join(codexHome, "agents", "ce-datascience", "security-sentinel.toml"))).toBe(true)
-    expect(await exists(path.join(codexHome, ".codex", "agents", "ce-datascience", "security-sentinel.toml"))).toBe(false)
+    expect(await exists(path.join(codexHome, "agents", "methodsmith", "security-sentinel.toml"))).toBe(true)
+    expect(await exists(path.join(codexHome, ".codex", "agents", "methodsmith", "security-sentinel.toml"))).toBe(false)
   })
 
   test("install by name ignores same-named local directory", async () => {
@@ -1368,13 +1368,13 @@ describe("CLI", () => {
     const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-shadow-repo-"))
 
     // Create a directory with the plugin name that is NOT a valid plugin
-    const shadowDir = path.join(workspaceRoot, "ce-datascience")
+    const shadowDir = path.join(workspaceRoot, "methodsmith")
     await fs.mkdir(shadowDir, { recursive: true })
     await fs.writeFile(path.join(shadowDir, "README.md"), "Not a plugin")
 
     // Set up a fake GitHub source with a valid plugin
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
-    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
     await fs.mkdir(path.dirname(pluginRoot), { recursive: true })
     await fs.cp(fixtureRoot, pluginRoot, { recursive: true })
 
@@ -1395,7 +1395,7 @@ describe("CLI", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "install",
-      "ce-datascience",
+      "methodsmith",
       "--to",
       "opencode",
       "--output",
@@ -1420,7 +1420,7 @@ describe("CLI", () => {
     }
 
     // Should succeed by fetching from GitHub, NOT failing on the local shadow directory
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
   }, SLOW_TEST_TIMEOUT_MS)
 
@@ -1428,7 +1428,7 @@ describe("CLI", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-branch-install-"))
     const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cli-branch-repo-"))
     const fixtureRoot = path.join(import.meta.dir, "fixtures", "sample-plugin")
-    const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+    const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
 
     await fs.mkdir(path.dirname(pluginRoot), { recursive: true })
     await fs.cp(fixtureRoot, pluginRoot, { recursive: true })
@@ -1456,7 +1456,7 @@ describe("CLI", () => {
       "run",
       path.join(projectRoot, "src", "index.ts"),
       "install",
-      "ce-datascience",
+      "methodsmith",
       "--to",
       "opencode",
       "--output",
@@ -1482,7 +1482,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
   }, SLOW_TEST_TIMEOUT_MS)
 
@@ -1514,7 +1514,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Converted ce-datascience")
+    expect(stdout).toContain("Converted methodsmith")
     expect(await exists(path.join(tempRoot, "opencode.json"))).toBe(true)
   })
 
@@ -1548,10 +1548,10 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Converted ce-datascience")
+    expect(stdout).toContain("Converted methodsmith")
     expect(stdout).toContain(codexRoot)
     expect(await exists(path.join(codexRoot, "prompts", "workflows-review.md"))).toBe(true)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "workflows-review", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "workflows-review", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "workflows-review"))).toBe(false)
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
   })
@@ -1590,11 +1590,11 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(stdout).toContain(codexRoot)
     expect(await exists(path.join(codexRoot, "prompts", "workflows-review.md"))).toBe(true)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "workflows-review", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(codexRoot, "skills", "ce-datascience", "skill-one", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "workflows-review", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "skills", "methodsmith", "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "workflows-review"))).toBe(false)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "skill-one"))).toBe(false)
     expect(await exists(path.join(codexRoot, "AGENTS.md"))).toBe(true)
@@ -1784,7 +1784,7 @@ describe("CLI", () => {
     expect(stdout).toContain(customRoot)
     expect(await exists(path.join(customRoot, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(customRoot, "agents", "bug-reproduction-validator.md"))).toBe(false)
-    expect(await exists(path.join(customRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(customRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("cleanup --target opencode --output <workspace> scans workspace .opencode", async () => {
@@ -1842,7 +1842,7 @@ describe("CLI", () => {
     // Workspace install stale artifacts cleaned.
     expect(await exists(path.join(workspaceOpenCode, "skills", "creating-agent-skills"))).toBe(false)
     expect(await exists(path.join(workspaceOpenCode, "agents", "bug-reproduction-validator.md"))).toBe(false)
-    expect(await exists(path.join(workspaceOpenCode, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(workspaceOpenCode, "methodsmith", "legacy-backup"))).toBe(true)
     // Global root must NOT be swept — `--output` scoped the cleanup.
     expect(await exists(path.join(globalRoot, "skills", "creating-agent-skills"))).toBe(true)
     expect(stdout).not.toContain(globalRoot)
@@ -1877,7 +1877,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Converted ce-datascience")
+    expect(stdout).toContain("Converted methodsmith")
     expect(stdout).toContain(piRoot)
     expect(await exists(path.join(piRoot, "prompts", "workflows-review.md"))).toBe(true)
     // Claude agents now install at .pi/agents/<name>.md (Pi agent format) so
@@ -1888,7 +1888,7 @@ describe("CLI", () => {
     // declared in plugin.json are still translated to mcporter.json so plugins
     // with MCP wiring keep their backends after conversion.
     expect(await exists(path.join(piRoot, "extensions", "compound-engineering-compat.ts"))).toBe(false)
-    expect(await exists(path.join(piRoot, "ce-datascience", "mcporter.json"))).toBe(true)
+    expect(await exists(path.join(piRoot, "methodsmith", "mcporter.json"))).toBe(true)
   })
 
   test("install supports --also with pi output", async () => {
@@ -1924,7 +1924,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
     expect(stdout).toContain(piRoot)
     expect(await exists(path.join(piRoot, "prompts", "workflows-review.md"))).toBe(true)
     expect(await exists(path.join(piRoot, "extensions", "compound-engineering-compat.ts"))).toBe(false)
@@ -1958,7 +1958,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
 
     const opencodeJsonPath = path.join(tempRoot, "opencode.json")
     const content = await fs.readFile(opencodeJsonPath, "utf-8")
@@ -1998,7 +1998,7 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience")
+    expect(stdout).toContain("Installed methodsmith")
 
     const opencodeJsonPath = path.join(tempRoot, "opencode.json")
     const content = await fs.readFile(opencodeJsonPath, "utf-8")
@@ -2050,11 +2050,11 @@ describe("CLI", () => {
       throw new Error(`CLI failed (exit ${exitCode}).\nstdout: ${stdout}\nstderr: ${stderr}`)
     }
 
-    expect(stdout).toContain("Installed ce-datascience to codex")
-    expect(stdout).toContain("Installed ce-datascience to opencode")
-    expect(stdout).toContain("Installed ce-datascience to pi")
-    expect(stdout).toContain("Installed ce-datascience to kiro")
-    expect(stdout).toContain("Installed ce-datascience to gemini")
+    expect(stdout).toContain("Installed methodsmith to codex")
+    expect(stdout).toContain("Installed methodsmith to opencode")
+    expect(stdout).toContain("Installed methodsmith to pi")
+    expect(stdout).toContain("Installed methodsmith to kiro")
+    expect(stdout).toContain("Installed methodsmith to gemini")
     expect(stdout).toContain("droid — native plugin install; skipped")
     expect(stdout).toContain("copilot — native plugin install; skipped")
     expect(stdout).toContain("qwen — native plugin install; skipped")
@@ -2064,11 +2064,11 @@ describe("CLI", () => {
     // Codex `--to all` install uses the agents-only default — skills come from
     // `codex plugin install`, not the Bun converter. Verify agents landed
     // (the gap the converter fills) rather than skills (which the default suppresses).
-    expect(await exists(path.join(tempHome, ".codex", "agents", "ce-datascience", "security-sentinel.toml"))).toBe(true)
-    expect(await exists(path.join(tempHome, ".codex", "skills", "ce-datascience", "skill-one", "SKILL.md"))).toBe(false)
+    expect(await exists(path.join(tempHome, ".codex", "agents", "methodsmith", "security-sentinel.toml"))).toBe(true)
+    expect(await exists(path.join(tempHome, ".codex", "skills", "methodsmith", "skill-one", "SKILL.md"))).toBe(false)
     expect(await exists(path.join(tempHome, ".pi", "agent", "skills", "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempCwd, ".gemini", "skills", "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempCwd, ".kiro", "skills", "skill-one", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(tempHome, ".qwen", "extensions", "ce-datascience", "qwen-extension.json"))).toBe(false)
+    expect(await exists(path.join(tempHome, ".qwen", "extensions", "methodsmith", "qwen-extension.json"))).toBe(false)
   })
 })

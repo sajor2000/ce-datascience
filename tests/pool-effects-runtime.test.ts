@@ -6,7 +6,7 @@ import path from "node:path"
 
 // Runs pool_effects.R on synthetic rows when Rscript and the meta package are
 // available locally; CI has no R, so r-script-guards.test.ts pins the same fixes.
-const script = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-effect-size", "scripts", "pool_effects.R")
+const script = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-meta-analysis", "scripts", "pool_effects.R")
 const hasR =
   spawnSync("Rscript", ["-e", "quit(status = !(requireNamespace('meta', quietly = TRUE) && requireNamespace('ggplot2', quietly = TRUE)))"]).status === 0
 

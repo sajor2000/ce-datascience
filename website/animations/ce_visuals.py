@@ -36,11 +36,11 @@ PHASES = (
         "ask a sharp question",
         "#1D4E89",
         (
-            ("ce-brainstorm", "compare designs, scope it"),
-            ("ce-research-question", "PICO, FINER, hypothesis"),
-            ("ce-pubmed", "MeSH-aware search"),
-            ("ce-evidence-map", "cited evidence map"),
-            ("ce-method-extract", "methods from prior papers"),
+            ("method-brainstorm", "compare designs, scope it"),
+            ("method-question", "PICO, FINER, hypothesis"),
+            ("method-pubmed", "MeSH-aware search"),
+            ("method-evidence-map", "cited evidence map"),
+            ("method-extract", "methods from prior papers"),
         ),
     ),
     (
@@ -48,11 +48,11 @@ PHASES = (
         "size it and register it",
         "#2A7F7A",
         (
-            ("ce-checklist-match", "pick the EQUATOR guideline"),
-            ("ce-effect-size", "pool effects: REML + HKSJ"),
-            ("ce-power", "sample size and power"),
-            ("ce-trial-design", "group-sequential frontiers"),
-            ("ce-prereg", "OSF, CT.gov, PROSPERO"),
+            ("method-checklist", "pick the EQUATOR guideline"),
+            ("method-meta-analysis", "pool effects: REML + HKSJ"),
+            ("method-power", "sample size and power"),
+            ("method-trial-design", "group-sequential frontiers"),
+            ("method-prereg", "OSF, CT.gov, PROSPERO"),
         ),
     ),
     (
@@ -60,11 +60,11 @@ PHASES = (
         "build and trust the cohort",
         "#7A5C1E",
         (
-            ("ce-cohort-build", "index event, waterfall, SQL"),
-            ("ce-data-qa", "GO / NO-GO quality gate"),
-            ("ce-phenotype-validate", "PPV, NPV, weighted Se/Sp"),
-            ("ce-clif", "ICU data-format rules"),
-            ("ce-bioinfo-qc", "omics QC, batch checks"),
+            ("method-cohort", "index event, waterfall, SQL"),
+            ("method-data-qa", "GO / NO-GO quality gate"),
+            ("method-phenotype", "PPV, NPV, weighted Se/Sp"),
+            ("method-clif", "ICU data-format rules"),
+            ("method-omics-qc", "omics QC, batch checks"),
         ),
     ),
     (
@@ -72,11 +72,11 @@ PHASES = (
         "lock the analysis first",
         "#A61B2B",
         (
-            ("ce-model-strategy", "justify the model choice"),
-            ("ce-plan", "SAP with E9(R1) estimands"),
-            ("ce-grill", "stress-test the plan"),
-            ("ce-sap-tabular", "SAP workbook companion"),
-            ("ce-sprint", "scoped sprints, data lock"),
+            ("method-model-choice", "justify the model choice"),
+            ("method-plan", "SAP with E9(R1) estimands"),
+            ("method-grill", "stress-test the plan"),
+            ("method-sap-workbook", "SAP workbook companion"),
+            ("method-sprint", "scoped sprints, data lock"),
         ),
     ),
     (
@@ -84,11 +84,11 @@ PHASES = (
         "run it reproducibly",
         "#5B3F8C",
         (
-            ("ce-work", "SAP-traceable analysis"),
-            ("ce-rstats", "R, targets, testthat"),
-            ("ce-marimo", "reactive Python notebooks"),
-            ("ce-ml-experiment-track", "hashes, splits, metrics"),
-            ("ce-verify", "leakage, direction, PHI gate"),
+            ("method-work", "SAP-traceable analysis"),
+            ("method-r", "R, targets, testthat"),
+            ("method-marimo", "reactive Python notebooks"),
+            ("method-ml-track", "hashes, splits, metrics"),
+            ("method-verify", "leakage, direction, PHI gate"),
         ),
     ),
     (
@@ -96,11 +96,11 @@ PHASES = (
         "check it, then publish",
         "#2F6B3B",
         (
-            ("ce-code-review", "55 specialist reviewers"),
-            ("ce-table1", "Table 1 by study design"),
-            ("ce-figure", "publication figures"),
-            ("ce-model-card", "calibration, fairness, limits"),
-            ("ce-manuscript-package", "submission package"),
+            ("method-review", "55 specialist reviewers"),
+            ("method-table1", "Table 1 by study design"),
+            ("method-figure", "publication figures"),
+            ("method-model-card", "calibration, fairness, limits"),
+            ("method-submission-package", "submission package"),
         ),
     ),
 )
@@ -231,7 +231,7 @@ def guardrail_strip(width):
 
 
 def _is_code(line):
-    return all(tok.startswith(("/", "ce-", "--")) for tok in line.replace(",", " ").split())
+    return all(tok.startswith(("/", "method-", "--")) for tok in line.replace(",", " ").split())
 
 
 def step_card(index, title, detail, color, width=2.5, height=2.7):

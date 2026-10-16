@@ -109,7 +109,7 @@ export function renderReport(report: Report, trigger: string): string {
     for (const candidate of report.candidates) {
       lines.push(`| \`${candidate.branch}\` | [#${candidate.pullRequest.number}](${candidate.pullRequest.html_url}) | ${candidate.pullRequest.merged_at} | \`${candidate.sha.slice(0, 12)}\` |`)
     }
-    lines.push("", "Use the interactive `ce-clean-gone-branches` workflow to inspect local worktrees and confirm any deletion.")
+    lines.push("", "Use the interactive `method-clean-branches` workflow to inspect local worktrees and confirm any deletion.")
   }
 
   if (report.exclusions.length > 0) {

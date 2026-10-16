@@ -4,7 +4,7 @@ import os from "os"
 import path from "path"
 import { spawnSync } from "child_process"
 
-const skillRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-sap-tabular")
+const skillRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-sap-workbook")
 const script = path.join(skillRoot, "scripts", "generate-tabular-sap.py")
 const hasOpenpyxl = spawnSync("python3", ["-c", "import openpyxl"], {
   stdio: "ignore",
@@ -27,9 +27,9 @@ async function run(command: string[], cwd = process.cwd()): Promise<string> {
   return stdout
 }
 
-describe("ce-sap-tabular biostatistics workbook", () => {
+describe("method-sap-workbook biostatistics workbook", () => {
   test.skipIf(!hasOpenpyxl)("renders the three core sheets with workbook-style output section banners", async () => {
-    const temp = await mkdtemp(path.join(os.tmpdir(), "ce-sap-tabular-"))
+    const temp = await mkdtemp(path.join(os.tmpdir(), "method-sap-workbook-"))
     const out = path.join(temp, "demo-tabular-sap.xlsx")
 
     await writeFile(
@@ -104,7 +104,7 @@ describe("ce-sap-tabular biostatistics workbook", () => {
     expect(skill).toContain("optional synthetic file-shape sample sheets")
   })
   test("refuses to render when the tables break the analysis-ID contract", async () => {
-    const temp = await mkdtemp(path.join(os.tmpdir(), "ce-sap-tabular-block-"))
+    const temp = await mkdtemp(path.join(os.tmpdir(), "method-sap-workbook-block-"))
     await writeFile(
       path.join(temp, "01-overview.csv"),
       [

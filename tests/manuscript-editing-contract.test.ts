@@ -2,17 +2,17 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 
-const skillRoot = path.join(import.meta.dir, "..", "plugins", "ce-datascience", "skills")
+const skillRoot = path.join(import.meta.dir, "..", "plugins", "methodsmith", "skills")
 
 describe("manuscript editing contracts", () => {
   test("preserves required rationale and factual uncertainty without encouraging overclaiming", async () => {
     const [discipline, antiSlop, voice, preSubmission, scientificWriting, writingPatterns] = await Promise.all([
-      fs.readFile(path.join(skillRoot, "ce-manuscript-section-discipline", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillRoot, "ce-scientific-anti-slop", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillRoot, "ce-clinical-research-voice", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillRoot, "ce-pre-submission-audit", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillRoot, "ce-scientific-writing", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillRoot, "ce-scientific-writing", "references", "scientific-writing-patterns.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-section-check", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-anti-slop", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-voice", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-presubmit", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-write", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillRoot, "method-write", "references", "scientific-writing-patterns.md"), "utf8"),
     ])
 
     expect(discipline).toContain("preserve required or prespecified methodological rationale")

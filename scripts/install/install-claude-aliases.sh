@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Install optional bare /ce-* Claude Code command aliases for ce-datascience.
+# Install optional bare /method-* Claude Code command aliases for methodsmith.
 #
 # Native Claude plugin commands and skills are plugin-prefixed. These local
 # command files are only a convenience layer for demos and locked-down laptops.
 
 set -euo pipefail
 
-MARKER_PREFIX="<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "
-DEFAULT_PLUGIN_NAME="ce-datascience"
+MARKER_PREFIX="<!-- METHODSMITH_ALIAS_MANAGED v1 "
+DEFAULT_PLUGIN_NAME="methodsmith"
 
 scope="user"
 commands_dir=""
@@ -23,13 +23,13 @@ Usage: bash scripts/install/install-claude-aliases.sh [options]
 Options:
   --scope user|project      Write to ~/.claude/commands or ./.claude/commands (default: user)
   --commands-dir PATH       Override the destination command directory
-  --plugin-dir PATH         Generate aliases from this ce-datascience plugin directory
-  --plugin-name NAME        Plugin namespace used in aliases (default: ce-datascience)
-  --uninstall               Remove only managed ce-datascience aliases
+  --plugin-dir PATH         Generate aliases from this methodsmith plugin directory
+  --plugin-name NAME        Plugin namespace used in aliases (default: methodsmith)
+  --uninstall               Remove only managed methodsmith aliases
   --dry-run                 Print actions without writing files
   --help                    Show this help
 
-The installer never overwrites a user-owned ce-*.md command. Existing managed
+The installer never overwrites a user-owned method-*.md command. Existing managed
 aliases are updated in place; stale managed aliases are removed.
 USAGE
 }
@@ -94,12 +94,12 @@ repo_root="$(cd "$script_dir/../.." && pwd)"
 prebuilt_dir="$script_dir/commands"
 
 if [ -z "$plugin_dir" ]; then
-  if [ -d "$repo_root/plugins/ce-datascience/skills" ]; then
-    plugin_dir="$repo_root/plugins/ce-datascience"
+  if [ -d "$repo_root/plugins/methodsmith/skills" ]; then
+    plugin_dir="$repo_root/plugins/methodsmith"
   elif [ -d "$prebuilt_dir" ]; then
     plugin_dir=""
   else
-    echo "Could not find plugin skills. Pass --plugin-dir /path/to/ce-datascience or run from the repo checkout." >&2
+    echo "Could not find plugin skills. Pass --plugin-dir /path/to/methodsmith or run from the repo checkout." >&2
     exit 2
   fi
 fi
@@ -121,10 +121,10 @@ write_alias_file() {
   local skill_name="$2"
   cat > "$output_file" <<EOF_ALIAS
 ---
-description: "Local alias for /${plugin_name}:${skill_name} from CE DataScience."
+description: "Local alias for /${plugin_name}:${skill_name} from Methodsmith."
 ---
 ${MARKER_PREFIX}plugin=${plugin_name} skill=${skill_name} -->
-This local command is a convenience alias for the CE DataScience plugin skill:
+This local command is a convenience alias for the Methodsmith plugin skill:
 
 \`/${plugin_name}:${skill_name} \$ARGUMENTS\`
 
@@ -146,19 +146,19 @@ build_source_dir() {
   fi
 
   local temp_dir
-  temp_dir="$(mktemp -d -t ce-claude-aliases-XXXXXX)"
+  temp_dir="$(mktemp -d -t method-claude-aliases-XXXXXX)"
   alias_temp_dir="$temp_dir"
 
   shopt -s nullglob
   local skill_path skill_name
-  for skill_path in "$plugin_dir"/skills/ce-*/SKILL.md; do
+  for skill_path in "$plugin_dir"/skills/method-*/SKILL.md; do
     skill_name="$(basename "$(dirname "$skill_path")")"
     write_alias_file "$temp_dir/${skill_name}.md" "$skill_name"
   done
   shopt -u nullglob
 
-  if ! compgen -G "$temp_dir/ce-*.md" >/dev/null; then
-    echo "No public ce-* skills found under $plugin_dir/skills" >&2
+  if ! compgen -G "$temp_dir/method-*.md" >/dev/null; then
+    echo "No public method-* skills found under $plugin_dir/skills" >&2
     exit 2
   fi
 
@@ -166,10 +166,10 @@ build_source_dir() {
 }
 
 uninstall_aliases() {
-  echo "Removing managed CE DataScience aliases from $commands_dir"
+  echo "Removing managed Methodsmith aliases from $commands_dir"
   shopt -s nullglob
   local file
-  for file in "$commands_dir"/ce-*.md; do
+  for file in "$commands_dir"/method-*.md; do
     if is_managed_alias "$file"; then
       run_or_echo rm -f "$file"
       echo "removed $(basename "$file")"
@@ -180,14 +180,14 @@ uninstall_aliases() {
 
 install_aliases() {
   local source_dir="$1"
-  echo "Installing CE DataScience aliases into $commands_dir"
+  echo "Installing Methodsmith aliases into $commands_dir"
   run_or_echo mkdir -p "$commands_dir"
 
   local managed_names="
 "
   shopt -s nullglob
   local source_file base target
-  for source_file in "$source_dir"/ce-*.md; do
+  for source_file in "$source_dir"/method-*.md; do
     base="$(basename "$source_file")"
     managed_names="${managed_names}${base}
 "
@@ -205,7 +205,7 @@ install_aliases() {
   done
 
   local existing
-  for existing in "$commands_dir"/ce-*.md; do
+  for existing in "$commands_dir"/method-*.md; do
     base="$(basename "$existing")"
     case "$managed_names" in
       *"

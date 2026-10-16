@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test"
 import { readFile } from "fs/promises"
 import path from "path"
 
-const clifRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-clif")
-const setupRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-setup")
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
-const agentsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "agents")
+const clifRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-clif")
+const setupRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-setup")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
+const agentsRoot = path.join(process.cwd(), "plugins", "methodsmith", "agents")
 
 async function readClif(relativePath: string): Promise<string> {
   return readFile(path.join(clifRoot, relativePath), "utf8")
@@ -39,8 +39,8 @@ describe("CLIF guidance", () => {
     expectContainsAll(combined, [
       "CLIF 2.1 + mCIDE 2.1",
       "CLIF 3.0 + mCIDE 3.0",
-      "`ce-clif --version 2.1.0`  -> CLIF 2.1.0 + mCIDE 2.1.0",
-      "`ce-clif --version 3.0.0`  -> CLIF 3.0.0 + mCIDE 3.0.0",
+      "`method-clif --version 2.1.0`  -> CLIF 2.1.0 + mCIDE 2.1.0",
+      "`method-clif --version 3.0.0`  -> CLIF 3.0.0 + mCIDE 3.0.0",
       "selection=explicit",
       "mcide_version=",
       "Which CLIF and mCIDE version family should this project use?",
@@ -76,11 +76,11 @@ describe("CLIF guidance", () => {
     const [rules, clifSkill, workSkill, workGate, codeReviewSkill, phiReviewer, verifyCatalog] = await Promise.all([
       readClif("references/clif-rules.md"),
       readClif("SKILL.md"),
-      readSkill("ce-work/SKILL.md"),
-      readSkill("ce-work/references/phi-environment.md"),
-      readSkill("ce-code-review/SKILL.md"),
-      readFile(path.join(agentsRoot, "ce-phi-leak-reviewer.md"), "utf8"),
-      readSkill("ce-verify/references/check-catalog.md"),
+      readSkill("method-work/SKILL.md"),
+      readSkill("method-work/references/phi-environment.md"),
+      readSkill("method-review/SKILL.md"),
+      readFile(path.join(agentsRoot, "method-phi-leak-reviewer.md"), "utf8"),
+      readSkill("method-verify/references/check-catalog.md"),
     ])
     const combined = [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer].join("\n")
 
@@ -132,9 +132,9 @@ describe("CLIF guidance", () => {
   test("uses the official template workflow and distribution gate", async () => {
     const [rules, template, plan, lifecycle] = await Promise.all([
       readClif("references/clif-rules.md"),
-      readSkill("ce-clif-project-template/SKILL.md"),
-      readSkill("ce-plan/references/sap-mode-workflow.md"),
-      readSkill("ce-workflow/references/lifecycle-paths.md"),
+      readSkill("method-clif-template/SKILL.md"),
+      readSkill("method-plan/references/sap-mode-workflow.md"),
+      readSkill("method-workflow/references/lifecycle-paths.md"),
     ])
     const combined = [rules, template, plan, lifecycle].join("\n")
 
@@ -152,15 +152,15 @@ describe("CLIF guidance", () => {
 
   test("keeps CLIF language routing portable across converted targets", async () => {
     const [cohort, dataQa, sapMode, work] = await Promise.all([
-      readSkill("ce-cohort-build/SKILL.md"),
-      readSkill("ce-data-qa/SKILL.md"),
-      readSkill("ce-plan/references/sap-mode-workflow.md"),
-      readSkill("ce-work/SKILL.md"),
+      readSkill("method-cohort/SKILL.md"),
+      readSkill("method-data-qa/SKILL.md"),
+      readSkill("method-plan/references/sap-mode-workflow.md"),
+      readSkill("method-work/SKILL.md"),
     ])
     const combined = [cohort, dataQa, sapMode, work].join("\n")
 
-    expect(combined).toContain("load the `ce-language-detect` skill")
-    expect(combined).not.toContain("/ce-language-detect")
+    expect(combined).toContain("load the `method-language-detect` skill")
+    expect(combined).not.toContain("/method-language-detect")
   })
 
   test("keeps recipe calls and vocabulary coverage aligned to current clifpy and mCIDE", async () => {

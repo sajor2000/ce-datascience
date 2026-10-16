@@ -1,0 +1,45 @@
+{
+  "skill_name": "method-prereg",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our SAP is locked (analysis/sap.md frontmatter: sap_version: 1, status: final; blinding_state: blinded). It's an observational retrospective cohort, EHR data from 3 sites, exposure = early mobilization within 48h of ICU admission, primary outcome = ICU-acquired weakness at discharge. Generate the OSF preregistration package please.",
+      "expected_output": "Maps the locked SAP's canonical sections (SAP-1.1 hypotheses, SAP-2 design, SAP-5 analysis, SAP-8 missing data, SAP-6 sample size) to the OSF standard form, takes the title from the SAP H1, and writes a package under analysis/prereg/osf-<date>/ with form.md, payload.json, a SAP snapshot or hash, and a validation report, then emits the __CE_PREREG__ signal.",
+      "files": [],
+      "expectations": [
+        "Writes the package directory at analysis/prereg/osf-<date>/ containing form.md and payload.json",
+        "Fills each form field from the canonical SAP section IDs (e.g. SAP-1.1, SAP-2.2, SAP-5.1, SAP-6, SAP-8) and takes authors and funding from the user or study metadata rather than SAP frontmatter, asking for any that are missing",
+        "Declares the OSF existing-data level (e.g., registration prior to analysis of the data) and what prior QA examined, rather than a yes/no retrospective flag",
+        "Any prior-evidence, pilot-data, or sample-size-assumption citation in form.md resolves to a PMID or DOI checked through the PubMed MCP, or is listed as missing information rather than invented",
+        "Includes sap-snapshot.md or a sap_hash in payload.json, and a registry-validation-report.md produced by scripts/validate_registry_package.py",
+        "Places the PRE-REGISTRATION CHECKLIST (SAP locked, data not unblinded, no inferential analysis run, authors agree, funding, IRB) at the top of form.md",
+        "Emits a line of the form __CE_PREREG__ registry=osf package=<path> form=<path>/form.md",
+        "Does not submit to OSF or ask for OSF credentials"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "need the ClinicalTrials.gov registration text for our pragmatic RCT of a nurse-led deprescribing intervention in SNF residents. SAP is analysis/sap.md (sap_version: 1, status: draft -- still editing the secondary outcomes). Sponsor and IRB number - just put something plausible in, we'll fix later.",
+      "expected_output": "Refuses to generate the registry package because the SAP is not locked and declines to invent sponsor or IRB details, surfacing these as blockers and listing what is needed.",
+      "files": [],
+      "expectations": [
+        "Refuses to generate the registry form/package because the SAP is not locked (status: draft rather than final), and states this blocker explicitly",
+        "Does not invent a sponsor name or IRB approval reference; lists them as required missing information for ClinicalTrials.gov",
+        "Does not write analysis/prereg/clinicaltrials-<date>/form.md as if it were ready to paste into the registry",
+        "Does not submit or offer to submit to ClinicalTrials.gov"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Preregister this one for me. SAP at analysis/sap.md is locked (sap_version: 1, status: final). Heads up: I already ran the primary Cox model last week just to see if the code worked, it's in analysis/models/cox_primary.R and committed. Study is a meta-analysis of observational cohorts on PPIs and C. diff, so maybe PROSPERO or OSF, not sure which.",
+      "expected_output": "Detects evidence that inferential analysis has already been run and refuses to generate the preregistration, surfacing the blocker; also notes the registry choice is ambiguous between PROSPERO and OSF and asks rather than picking silently.",
+      "files": [],
+      "expectations": [
+        "Refuses to generate the preregistration package because inferential analysis has already been run (committed model fit in analysis/), and surfaces this as a blocker",
+        "Does not silently pick between PROSPERO and OSF; identifies the ambiguity and asks the user (one question) or defers the choice",
+        "Does not emit a __CE_PREREG__ signal",
+        "Does not fabricate a clean checklist marking 'No inferential analysis has been run' as satisfied"
+      ]
+    }
+  ]
+}

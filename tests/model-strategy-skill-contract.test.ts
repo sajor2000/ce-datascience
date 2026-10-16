@@ -2,14 +2,14 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 
-const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
-const skillRoot = path.join(pluginRoot, "skills", "ce-model-strategy")
+const pluginRoot = path.join(process.cwd(), "plugins", "methodsmith")
+const skillRoot = path.join(pluginRoot, "skills", "method-model-choice")
 
 async function read(relativePath: string): Promise<string> {
   return fs.readFile(path.join(skillRoot, relativePath), "utf8")
 }
 
-describe("ce-model-strategy contract", () => {
+describe("method-model-choice contract", () => {
   test("gates recommendations and emits review-only artifacts", async () => {
     const skill = await read("SKILL.md")
 
@@ -45,9 +45,9 @@ describe("ce-model-strategy contract", () => {
     const skill = await read("SKILL.md")
     const evidence = await read("references/evidence-access.md")
 
-    expect(skill).toContain("`ce-evidence-map`")
+    expect(skill).toContain("`method-evidence-map`")
     expect(skill).toContain("`references/evidence-access.md`")
-    expect(skill).toContain("load `ce-evidence-map` to acquire the evidence")
+    expect(skill).toContain("load `method-evidence-map` to acquire the evidence")
     expect(evidence).toContain("PubMed as the required biomedical metadata baseline")
     expect(evidence).toContain("Paperclip as best-effort full-text deepening")
     expect(evidence).toContain("3-10 relevant methods papers")
@@ -93,23 +93,23 @@ describe("ce-model-strategy contract", () => {
 
   test("integrates strategy handoffs and reviewer dispatch", async () => {
     const [plan, sap, workflow, lifecycle, stateDetection, codeReview, methods, rReviewer, pyReviewer, readme] = await Promise.all([
-      fs.readFile(path.join(pluginRoot, "skills", "ce-plan", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "skills", "ce-statistical-analysis-plan", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "skills", "ce-workflow", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "skills", "ce-workflow", "references", "lifecycle-paths.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "skills", "ce-workflow", "references", "state-detection.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "skills", "ce-code-review", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "agents", "ce-methods-reviewer.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "agents", "ce-r-pipeline-reviewer.md"), "utf8"),
-      fs.readFile(path.join(pluginRoot, "agents", "ce-python-ds-reviewer.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-plan", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-sap", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-workflow", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-workflow", "references", "lifecycle-paths.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-workflow", "references", "state-detection.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "skills", "method-review", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "agents", "method-methods-reviewer.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "agents", "method-r-pipeline-reviewer.md"), "utf8"),
+      fs.readFile(path.join(pluginRoot, "agents", "method-python-ds-reviewer.md"), "utf8"),
       fs.readFile(path.join(pluginRoot, "README.md"), "utf8"),
     ])
 
-    for (const content of [plan, sap, workflow, readme]) expect(content).toContain("ce-model-strategy")
+    for (const content of [plan, sap, workflow, readme]) expect(content).toContain("method-model-choice")
     for (const content of [workflow, lifecycle]) {
-      expect(content.indexOf("ce-data-qa")).toBeLessThan(content.indexOf("ce-model-strategy"))
-      expect(content.indexOf("ce-model-strategy")).toBeLessThan(content.indexOf("ce-plan"))
-      expect(content.indexOf("ce-plan")).toBeLessThan(content.indexOf("ce-sap-tabular"))
+      expect(content.indexOf("method-data-qa")).toBeLessThan(content.indexOf("method-model-choice"))
+      expect(content.indexOf("method-model-choice")).toBeLessThan(content.indexOf("method-plan"))
+      expect(content.indexOf("method-plan")).toBeLessThan(content.indexOf("method-sap-workbook"))
     }
     expect(stateDetection).toContain("Status: ready_for_review")
     expect(stateDetection).toContain("every discovered memo")

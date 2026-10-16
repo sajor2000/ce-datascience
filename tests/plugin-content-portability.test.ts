@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
-const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
+const pluginRoot = path.join(process.cwd(), "plugins", "methodsmith")
 
 async function collectFiles(root: string, predicate: (file: string) => boolean): Promise<string[]> {
   const entries = await fs.readdir(root, { withFileTypes: true })
@@ -15,17 +15,17 @@ async function collectFiles(root: string, predicate: (file: string) => boolean):
   return files.flat()
 }
 
-describe("ce-datascience skill portability", () => {
+describe("methodsmith skill portability", () => {
   test("script invocation instructions use installed skill-local paths", async () => {
-    const pubmed = await fs.readFile(path.join(skillsRoot, "ce-pubmed", "SKILL.md"), "utf8")
+    const pubmed = await fs.readFile(path.join(skillsRoot, "method-pubmed", "SKILL.md"), "utf8")
     expect(pubmed).toContain('python3 "$SKILL_DIR/scripts/pubmed_search.py"')
-    expect(pubmed).not.toContain("plugins/ce-datascience/skills/ce-pubmed/scripts/pubmed_search.py")
+    expect(pubmed).not.toContain("plugins/methodsmith/skills/method-pubmed/scripts/pubmed_search.py")
 
-    const sapTabular = await fs.readFile(path.join(skillsRoot, "ce-sap-tabular", "SKILL.md"), "utf8")
+    const sapTabular = await fs.readFile(path.join(skillsRoot, "method-sap-workbook", "SKILL.md"), "utf8")
     expect(sapTabular).toContain('python3 "$SKILL_DIR/scripts/generate-tabular-sap.py"')
     expect(sapTabular).not.toContain("Run `scripts/generate-tabular-sap.py`")
 
-    const sprint = await fs.readFile(path.join(skillsRoot, "ce-sprint", "SKILL.md"), "utf8")
+    const sprint = await fs.readFile(path.join(skillsRoot, "method-sprint", "SKILL.md"), "utf8")
     expect(sprint).toContain('python3 "$SKILL_DIR/scripts/sprint.py" close <name>')
     expect(sprint).not.toContain("Run `scripts/sprint.py close <name>`")
   })
@@ -47,8 +47,8 @@ describe("ce-datascience skill portability", () => {
     expect(offenders).toEqual([])
   })
 
-  test("ce-update ships to every harness and routes non-Claude sessions past the Claude-only checks", async () => {
-    const updateSkill = await fs.readFile(path.join(skillsRoot, "ce-update", "SKILL.md"), "utf8")
+  test("method-update ships to every harness and routes non-Claude sessions past the Claude-only checks", async () => {
+    const updateSkill = await fs.readFile(path.join(skillsRoot, "method-update", "SKILL.md"), "utf8")
     expect(updateSkill).not.toContain("ce_platforms:")
     expect(updateSkill).toContain("if empty or unresolved, this is another harness; go to section 3")
   })
@@ -75,11 +75,11 @@ describe("ce-datascience skill portability", () => {
     for (const file of markdownFiles) {
       const rel = path.relative(pluginRoot, file)
       const content = await fs.readFile(file, "utf8")
-      const isClaudeCacheSkill = rel === path.join("skills", "ce-update", "SKILL.md")
+      const isClaudeCacheSkill = rel === path.join("skills", "method-update", "SKILL.md")
       if (!isClaudeCacheSkill && (content.includes("~/.claude/plugins/cache/") || content.includes("~/.codex/plugins/cache/"))) {
         offenders.push(rel)
       }
-      if (content.includes("plugins/ce-datascience/skills/")) {
+      if (content.includes("plugins/methodsmith/skills/")) {
         offenders.push(rel)
       }
     }
@@ -88,7 +88,7 @@ describe("ce-datascience skill portability", () => {
   })
 
   test("cache artifacts are not tracked in distributable plugin content", async () => {
-    const proc = Bun.spawn(["git", "ls-files", "plugins/ce-datascience"], {
+    const proc = Bun.spawn(["git", "ls-files", "plugins/methodsmith"], {
       cwd: process.cwd(),
       stdout: "pipe",
       stderr: "pipe",
@@ -128,10 +128,10 @@ describe("ce-datascience skill portability", () => {
 
   test("evidence map keeps Paperclip optional and guarded", async () => {
     const evidenceMap = [
-      await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "SKILL.md"), "utf8"),
-      await fs.readFile(path.join(skillsRoot, "ce-evidence-map", "references", "paperclip-deepening.md"), "utf8"),
+      await fs.readFile(path.join(skillsRoot, "method-evidence-map", "SKILL.md"), "utf8"),
+      await fs.readFile(path.join(skillsRoot, "method-evidence-map", "references", "paperclip-deepening.md"), "utf8"),
     ].join("\n")
-    const sapMode = await fs.readFile(path.join(skillsRoot, "ce-plan", "references", "sap-mode-workflow.md"), "utf8")
+    const sapMode = await fs.readFile(path.join(skillsRoot, "method-plan", "references", "sap-mode-workflow.md"), "utf8")
 
     expect(evidenceMap).toContain("command -v paperclip && paperclip config")
     expect(evidenceMap).toContain("Do not run the Paperclip installer automatically.")

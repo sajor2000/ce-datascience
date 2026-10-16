@@ -6,7 +6,7 @@ import { load } from "js-yaml"
 
 // Policy: always use the newest version of a guideline. A superseded version is never
 // loaded, routed, recommended, or cited as current; its old names resolve to the successor.
-const referencesRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-code-review", "references")
+const referencesRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-review", "references")
 
 type Registry = {
   evidence: Record<string, { status: string; superseded_by?: string; supersedes?: string }>

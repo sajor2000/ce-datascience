@@ -1,12 +1,12 @@
-// Synthetic stand-ins for files a previous ce-datascience install wrote.
+// Synthetic stand-ins for files a previous methodsmith install wrote.
 // Legacy cleanup moves an allow-listed name only when the file's description
 // matches one the plugin shipped, so these fixtures carry a real shipped
-// description (read from the current ce-architecture-strategist agent).
+// description (read from the current method-architecture-strategist agent).
 import { readFileSync } from "fs"
 import path from "path"
 
 const agentSource = readFileSync(
-  path.join(import.meta.dir, "..", "plugins", "ce-datascience", "agents", "ce-architecture-strategist.md"),
+  path.join(import.meta.dir, "..", "plugins", "methodsmith", "agents", "method-architecture-strategist.md"),
   "utf8",
 )
 

@@ -1,22 +1,22 @@
 import path from "path"
 import { ensureDir, pathExists, readText, writeText } from "./files"
 
-export const CODEX_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE CODEX TOOL MAP -->"
-export const CODEX_AGENTS_BLOCK_END = "<!-- END CE DATASCIENCE CODEX TOOL MAP -->"
+export const CODEX_AGENTS_BLOCK_START = "<!-- BEGIN METHODSMITH CODEX TOOL MAP -->"
+export const CODEX_AGENTS_BLOCK_END = "<!-- END METHODSMITH CODEX TOOL MAP -->"
 
 /**
  * Markers written by the upstream Compound Engineering converter and by
- * ce-datascience releases before the native Codex plugin path. The ce-setup
+ * methodsmith releases before the native Codex plugin path. The method-setup
  * health check reports this block as retired, so the installer migrates it
  * into the current managed block instead of leaving both behind.
  */
 export const CODEX_AGENTS_BLOCK_START_LEGACY = "<!-- BEGIN COMPOUND CODEX TOOL MAP -->"
 export const CODEX_AGENTS_BLOCK_END_LEGACY = "<!-- END COMPOUND CODEX TOOL MAP -->"
 
-const CODEX_AGENTS_BLOCK_BODY = `## CE DataScience Codex Tool Mapping (Claude Compatibility)
+const CODEX_AGENTS_BLOCK_BODY = `## Methodsmith Codex Tool Mapping (Claude Compatibility)
 
 This section maps Claude Code plugin tool references to Codex behavior.
-Only this block is managed automatically by the ce-datascience installer.
+Only this block is managed automatically by the methodsmith installer.
 
 Tool mapping:
 - Read: use shell reads (cat/sed) or rg
@@ -28,7 +28,7 @@ Tool mapping:
 - LS: use ls via shell_command
 - WebFetch/WebSearch: use curl or Context7 for library docs
 - AskUserQuestion/Question: use request_user_input when it is available; otherwise present choices as a numbered list in chat and wait for a reply number. For multi-select (multiSelect: true), accept comma-separated numbers. Never skip or auto-configure — always wait for the user's response before proceeding.
-- Task (subagent dispatch) / Subagent / Parallel: use spawn_agent with the generated custom agents under agents/ce-datascience/ when it is available; otherwise run the work sequentially in the main thread and use multi_tool_use.parallel for independent tool calls
+- Task (subagent dispatch) / Subagent / Parallel: use spawn_agent with the generated custom agents under agents/methodsmith/ when it is available; otherwise run the work sequentially in the main thread and use multi_tool_use.parallel for independent tool calls
 - TaskCreate/TaskUpdate/TaskList/TaskGet/TaskStop/TaskOutput (Claude Code task-tracking, current): use update_plan (Codex's task-tracking primitive)
 - TodoWrite/TodoRead (Claude Code task-tracking, legacy — deprecated, replaced by Task* tools): use update_plan
 - Skill: open the referenced SKILL.md and follow it
@@ -58,7 +58,7 @@ function buildCodexAgentsBlock(): string {
 
 function upsertBlock(existing: string, block: string): string {
   // Replace the current managed block when present; otherwise migrate the
-  // retired Compound block in place so a re-install clears the ce-setup
+  // retired Compound block in place so a re-install clears the method-setup
   // health-check warning instead of stacking a second map below it.
   const replaced =
     replaceBlock(existing, CODEX_AGENTS_BLOCK_START, CODEX_AGENTS_BLOCK_END, block) ??

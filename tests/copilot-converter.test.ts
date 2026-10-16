@@ -400,9 +400,9 @@ describe("convertClaudeToCopilot", () => {
 
 describe("transformContentForCopilot", () => {
   test("rewrites .claude/ paths to .github/", () => {
-    const input = "Read `.claude/ce-datascience.local.md` for config."
+    const input = "Read `.claude/methodsmith.local.md` for config."
     const result = transformContentForCopilot(input)
-    expect(result).toContain(".github/ce-datascience.local.md")
+    expect(result).toContain(".github/methodsmith.local.md")
     expect(result).not.toContain(".claude/")
   })
 
@@ -473,7 +473,7 @@ Task best-practices-researcher(topic)`
   test("replaces ce: namespace with ce- in body text", () => {
     const input = "prefer ce:brainstorm first. Then run ce:plan and ce:review. Use ce:* skills."
     const result = transformContentForCopilot(input)
-    expect(result).toBe("prefer ce-brainstorm first. Then run ce-plan and ce-review. Use ce-* skills.")
+    expect(result).toBe("prefer method-brainstorm first. Then run method-plan and ce-review. Use method-* skills.")
     expect(result).not.toContain("ce:")
   })
 
@@ -510,15 +510,15 @@ Task best-practices-researcher(topic)`
           model: "inherit",
           allowedTools: [],
           body: "Plan the work.",
-          sourcePath: "/tmp/plugin/commands/ce-plan.md",
+          sourcePath: "/tmp/plugin/commands/method-plan.md",
         },
       ],
       skills: [
         {
           name: "ce:plan",
           description: "Planning skill",
-          sourceDir: "/tmp/plugin/skills/ce-plan",
-          skillPath: "/tmp/plugin/skills/ce-plan/SKILL.md",
+          sourceDir: "/tmp/plugin/skills/method-plan",
+          skillPath: "/tmp/plugin/skills/method-plan/SKILL.md",
         },
       ],
     }
@@ -526,7 +526,7 @@ Task best-practices-researcher(topic)`
     const bundle = convertClaudeToCopilot(plugin, defaultOptions)
 
     // The generated skill from the command should get a deduplicated name
-    // since "ce:plan" and "ce-plan" both map to "ce-plan" on disk
-    expect(bundle.generatedSkills[0].name).not.toBe("ce-plan")
+    // since "ce:plan" and "method-plan" both map to "method-plan" on disk
+    expect(bundle.generatedSkills[0].name).not.toBe("method-plan")
   })
 })

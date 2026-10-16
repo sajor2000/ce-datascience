@@ -8,7 +8,7 @@ import path from "path"
 const SLOW_TEST_TIMEOUT_MS = 60_000
 
 const repoRoot = path.join(import.meta.dir, "..")
-const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -56,7 +56,7 @@ async function collectFiles(root: string): Promise<string[]> {
 async function publicSkillNames(): Promise<string[]> {
   const entries = await fs.readdir(path.join(pluginRoot, "skills"), { withFileTypes: true })
   return (await Promise.all(entries
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith("ce-"))
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith("method-"))
     .map(async (entry) => (await exists(path.join(pluginRoot, "skills", entry.name, "SKILL.md"))) ? entry.name : null)))
     .filter((name): name is string => name !== null)
     .sort()
@@ -65,17 +65,17 @@ async function publicSkillNames(): Promise<string[]> {
 describe("corporate install artifacts", () => {
   test("easy installer exposes Compound Engineering-style setup paths", async () => {
     const installer = path.join(repoRoot, "install.sh")
-    const codexHome = path.join(os.tmpdir(), "ce-easy-install-codex")
-    const agentsHome = path.join(os.tmpdir(), "ce-easy-install-agents")
+    const codexHome = path.join(os.tmpdir(), "method-easy-install-codex")
+    const agentsHome = path.join(os.tmpdir(), "method-easy-install-agents")
 
     const claude = await run(["bash", installer, "claude", "--aliases", "--dry-run"])
     expect(claude.stdout).toContain("claude plugin marketplace add")
-    expect(claude.stdout).toContain("claude plugin install ce-datascience@ce-datascience-plugin")
+    expect(claude.stdout).toContain("claude plugin install methodsmith@methodsmith")
     expect(claude.stdout).toContain("install-claude-aliases.sh")
-    expect(claude.stdout).toContain("/ce-setup")
+    expect(claude.stdout).toContain("/method-setup")
 
     const doctor = await run(["bash", installer, "doctor"])
-    expect(doctor.stdout).toContain("CE DataScience install check")
+    expect(doctor.stdout).toContain("Methodsmith install check")
     expect(doctor.stdout).toContain("Standard laptop:")
     expect(doctor.stdout).toContain("Locked-down or corporate laptop:")
     expect(doctor.stdout).toContain("Codex always requires the final host step")
@@ -91,9 +91,9 @@ describe("corporate install artifacts", () => {
       "--dry-run",
     ])
     expect(codex.stdout).toContain("codex plugin marketplace add")
-    expect(codex.stdout).toContain("bun run src/index.ts install ./plugins/ce-datascience --to codex")
+    expect(codex.stdout).toContain("bun run src/index.ts install ./plugins/methodsmith --to codex")
     expect(codex.stdout).toContain(codexHome)
-    expect(codex.stdout).toContain("Restart Codex, open /plugins, install CE DataScience")
+    expect(codex.stdout).toContain("Restart Codex, open /plugins, install Methodsmith")
 
     const windowsCodex = await run([
       "bash",
@@ -120,7 +120,7 @@ describe("corporate install artifacts", () => {
       "--dry-run",
     ])
     expect(windowsOfflineCodex.stdout).toContain("Marketplace: C:/Users/JCR/.agents/plugins/marketplace.json")
-    expect(windowsOfflineCodex.stdout).toContain("Plugin:      C:/Users/JCR/.codex/plugins/ce-datascience")
+    expect(windowsOfflineCodex.stdout).toContain("Plugin:      C:/Users/JCR/.codex/plugins/methodsmith")
     expect(windowsOfflineCodex.stdout).not.toContain(`${repoRoot}/C:/Users/JCR/.codex`)
     expect(windowsOfflineCodex.stdout).not.toContain(`${repoRoot}/C:/Users/JCR/.agents`)
 
@@ -129,7 +129,7 @@ describe("corporate install artifacts", () => {
     expect(powershellInstaller).toContain("Install-ClaudeAliases")
     expect(powershellInstaller).toContain("Install-CodexOffline")
     expect(powershellInstaller).toContain("ConvertTo-Json")
-    expect(powershellInstaller).toContain("CE_DATASCIENCE_ALIAS_MANAGED")
+    expect(powershellInstaller).toContain("METHODSMITH_ALIAS_MANAGED")
     expect(powershellInstaller).not.toContain("ce-mcp-server")
     expect(powershellInstaller).toContain('"doctor" { Show-Doctor }')
 
@@ -149,40 +149,40 @@ describe("corporate install artifacts", () => {
   })
 
   test("Claude local aliases are managed, idempotent, and preserve user-owned commands", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-claude-aliases-"))
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "method-claude-aliases-"))
     const commandsDir = path.join(tempRoot, "commands")
     const installer = path.join(repoRoot, "scripts", "install", "install-claude-aliases.sh")
 
     await run(["bash", installer, "--plugin-dir", pluginRoot, "--commands-dir", commandsDir])
 
     const skills = await publicSkillNames()
-    const aliases = (await fs.readdir(commandsDir)).filter((file) => file.startsWith("ce-") && file.endsWith(".md"))
+    const aliases = (await fs.readdir(commandsDir)).filter((file) => file.startsWith("method-") && file.endsWith(".md"))
     expect(aliases.sort()).toEqual(skills.map((skill) => `${skill}.md`).sort())
 
-    const setupAlias = await fs.readFile(path.join(commandsDir, "ce-setup.md"), "utf8")
-    expect(setupAlias).toContain("CE_DATASCIENCE_ALIAS_MANAGED")
-    expect(setupAlias).toContain("/ce-datascience:ce-setup $ARGUMENTS")
+    const setupAlias = await fs.readFile(path.join(commandsDir, "method-setup.md"), "utf8")
+    expect(setupAlias).toContain("METHODSMITH_ALIAS_MANAGED")
+    expect(setupAlias).toContain("/methodsmith:method-setup $ARGUMENTS")
     expect(setupAlias).toContain("$ARGUMENTS")
 
     await fs.writeFile(
       path.join(commandsDir, "ce-old.md"),
-      "<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 plugin=ce-datascience skill=ce-old -->\nstale\n",
+      "<!-- METHODSMITH_ALIAS_MANAGED v1 plugin=methodsmith skill=ce-old -->\nstale\n",
     )
-    await fs.writeFile(path.join(commandsDir, "ce-plan.md"), "user-owned command\n")
+    await fs.writeFile(path.join(commandsDir, "method-plan.md"), "user-owned command\n")
 
     await run(["bash", installer, "--plugin-dir", pluginRoot, "--commands-dir", commandsDir])
 
     expect(await exists(path.join(commandsDir, "ce-old.md"))).toBe(false)
-    expect(await fs.readFile(path.join(commandsDir, "ce-plan.md"), "utf8")).toBe("user-owned command\n")
+    expect(await fs.readFile(path.join(commandsDir, "method-plan.md"), "utf8")).toBe("user-owned command\n")
 
     await run(["bash", installer, "--commands-dir", commandsDir, "--uninstall"])
 
-    expect(await exists(path.join(commandsDir, "ce-setup.md"))).toBe(false)
-    expect(await fs.readFile(path.join(commandsDir, "ce-plan.md"), "utf8")).toBe("user-owned command\n")
+    expect(await exists(path.join(commandsDir, "method-setup.md"))).toBe(false)
+    expect(await fs.readFile(path.join(commandsDir, "method-plan.md"), "utf8")).toBe("user-owned command\n")
   }, SLOW_TEST_TIMEOUT_MS)
 
   test("packaging stages offline Claude, alias, and Codex artifacts without dev/cache files", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-corporate-package-"))
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "method-corporate-package-"))
     const stagingDir = path.join(tempRoot, "stage")
     const outputDir = path.join(tempRoot, "out")
 
@@ -196,30 +196,30 @@ describe("corporate install artifacts", () => {
       "--skip-zip",
     ])
 
-    const claudePlugin = path.join(stagingDir, "ce-datascience-plugin", "ce-datascience")
+    const claudePlugin = path.join(stagingDir, "methodsmith", "methodsmith")
     expect(await exists(path.join(claudePlugin, ".claude-plugin", "plugin.json"))).toBe(true)
-    expect(await exists(path.join(claudePlugin, "skills", "ce-setup", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(claudePlugin, "skills", "method-setup", "SKILL.md"))).toBe(true)
 
     const pluginFiles = await collectFiles(claudePlugin)
     expect(pluginFiles.filter((file) => /(__pycache__|\.pyc$|\.pyo$|node_modules|\.git)/.test(file))).toEqual([])
 
-    const aliasDir = path.join(stagingDir, "ce-datascience-claude-aliases")
+    const aliasDir = path.join(stagingDir, "methodsmith-claude-aliases")
     expect(await exists(path.join(aliasDir, "install-claude-aliases.sh"))).toBe(true)
     expect(await exists(path.join(aliasDir, "install.ps1"))).toBe(true)
-    const setupAlias = await fs.readFile(path.join(aliasDir, "commands", "ce-setup.md"), "utf8")
-    expect(setupAlias).toContain("/ce-datascience:ce-setup $ARGUMENTS")
+    const setupAlias = await fs.readFile(path.join(aliasDir, "commands", "method-setup.md"), "utf8")
+    expect(setupAlias).toContain("/methodsmith:method-setup $ARGUMENTS")
 
-    const codexPackage = path.join(stagingDir, "ce-datascience-codex-local")
+    const codexPackage = path.join(stagingDir, "methodsmith-codex-local")
     expect(await exists(path.join(codexPackage, ".agents", "plugins", "marketplace.json"))).toBe(true)
-    expect(await exists(path.join(codexPackage, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"))).toBe(true)
+    expect(await exists(path.join(codexPackage, "plugins", "methodsmith", ".codex-plugin", "plugin.json"))).toBe(true)
     expect(await exists(path.join(codexPackage, "install-codex-offline.sh"))).toBe(true)
     expect(await exists(path.join(codexPackage, "install.ps1"))).toBe(true)
     expect(await exists(path.join(codexPackage, "codex-agent-bridge", "config.toml.template"))).toBe(false)
-    expect(await exists(path.join(codexPackage, "codex-agent-bridge", "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
+    expect(await exists(path.join(codexPackage, "codex-agent-bridge", "agents", "methodsmith", "method-security-reviewer.toml"))).toBe(true)
   })
 
   test("Codex offline installer writes local marketplace and bridge agents", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-offline-"))
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "method-codex-offline-"))
     const stagingDir = path.join(tempRoot, "stage")
     const outputDir = path.join(tempRoot, "out")
     await run([
@@ -232,7 +232,7 @@ describe("corporate install artifacts", () => {
       "--skip-zip",
     ])
 
-    const codexPackage = path.join(stagingDir, "ce-datascience-codex-local")
+    const codexPackage = path.join(stagingDir, "methodsmith-codex-local")
     const codexHome = path.join(tempRoot, "profiles", "research", ".codex")
     const agentsHome = path.join(tempRoot, "profiles", "research", ".agents")
 
@@ -248,16 +248,16 @@ describe("corporate install artifacts", () => {
     ])
 
     const marketplaceRoot = path.dirname(agentsHome)
-    const installedPlugin = path.join(marketplaceRoot, ".codex", "plugins", "ce-datascience")
+    const installedPlugin = path.join(marketplaceRoot, ".codex", "plugins", "methodsmith")
     expect(await exists(path.join(installedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
-    expect(await exists(path.join(agentsHome, "plugins", "ce-datascience"))).toBe(false)
-    expect(await exists(path.join(codexHome, "agents", "ce-datascience", "ce-security-reviewer.toml"))).toBe(true)
+    expect(await exists(path.join(agentsHome, "plugins", "methodsmith"))).toBe(false)
+    expect(await exists(path.join(codexHome, "agents", "methodsmith", "method-security-reviewer.toml"))).toBe(true)
 
     const marketplace = JSON.parse(await fs.readFile(path.join(agentsHome, "plugins", "marketplace.json"), "utf8")) as {
       plugins: Array<{ name: string; source: { path: string } }>
     }
-    const entry = marketplace.plugins.find((plugin) => plugin.name === "ce-datascience")
-    expect(entry?.source.path).toBe("./.codex/plugins/ce-datascience")
+    const entry = marketplace.plugins.find((plugin) => plugin.name === "methodsmith")
+    expect(entry?.source.path).toBe("./.codex/plugins/methodsmith")
     const marketplaceResolvedPlugin = path.resolve(marketplaceRoot, entry?.source.path ?? "")
     expect(marketplaceResolvedPlugin).toBe(installedPlugin)
     expect(await exists(path.join(marketplaceResolvedPlugin, ".codex-plugin", "plugin.json"))).toBe(true)
@@ -271,11 +271,11 @@ describe("corporate install artifacts", () => {
       [
         "[features]",
         "user_owned = true",
-        "# BEGIN CE DataScience plugin MCP -- do not edit this block",
-        "[mcp_servers.ce-datascience]",
+        "# BEGIN Methodsmith plugin MCP -- do not edit this block",
+        "[mcp_servers.methodsmith]",
         'command = "python3"',
         'args = ["/old/ce-mcp-server/run.py"]',
-        "# END CE DataScience plugin MCP",
+        "# END Methodsmith plugin MCP",
         "",
       ].join("\n"),
     )
@@ -291,13 +291,13 @@ describe("corporate install artifacts", () => {
     ])
     const cleanedConfig = await fs.readFile(configPath, "utf8")
     expect(cleanedConfig).toContain("user_owned = true")
-    expect(cleanedConfig).not.toContain("BEGIN CE DataScience plugin MCP")
+    expect(cleanedConfig).not.toContain("BEGIN Methodsmith plugin MCP")
 
     const malformedConfig = [
       "[features]",
       "user_owned = true",
-      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
-      "[mcp_servers.ce-datascience]",
+      "# BEGIN Methodsmith plugin MCP -- do not edit this block",
+      "[mcp_servers.methodsmith]",
       'command = "python3"',
       "[mcp_servers.user-owned]",
       'command = "keep-me"',
@@ -322,9 +322,9 @@ describe("corporate install artifacts", () => {
   })
 
   test("setup intake supports corporate no-install mode and keeps Quarto optional", async () => {
-    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "SKILL.md"), "utf8")
     const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
-    const healthScript = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "scripts", "check-health"), "utf8")
+    const healthScript = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "scripts", "check-health"), "utf8")
 
     expect(setupSkill).toContain("--locked-down")
     expect(setupSkill).toContain("--no-install")
@@ -337,13 +337,13 @@ describe("corporate install artifacts", () => {
   })
 
   test("setup health check detects only a complete legacy Codex tool map", async () => {
-    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "SKILL.md"), "utf8")
     expect(setupSkill).toContain("references/legacy-codex-tool-map.md")
     expect(setupSkill).toMatch(/optional global\s+instruction cleanup/i)
     expect(setupSkill).toMatch(/requires approval/i)
-    const codexHome = await fs.mkdtemp(path.join(os.tmpdir(), "ce-setup-codex-home-"))
+    const codexHome = await fs.mkdtemp(path.join(os.tmpdir(), "method-setup-codex-home-"))
     const agentsPath = path.join(codexHome, "AGENTS.md")
-    const healthScript = path.join(pluginRoot, "skills", "ce-setup", "scripts", "check-health")
+    const healthScript = path.join(pluginRoot, "skills", "method-setup", "scripts", "check-health")
 
     await fs.writeFile(agentsPath, "<!-- BEGIN COMPOUND CODEX TOOL MAP -->\nlegacy\n<!-- END COMPOUND CODEX TOOL MAP -->\n")
     const detected = Bun.spawn(["bash", healthScript], {
@@ -367,14 +367,14 @@ describe("corporate install artifacts", () => {
   })
 
   test("setup uses a concise evidence-first profile before optional detail", async () => {
-    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "SKILL.md"), "utf8")
     const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
     const inference = await fs.readFile(
-      path.join(pluginRoot, "skills", "ce-setup", "references", "profile-inference.md"),
+      path.join(pluginRoot, "skills", "method-setup", "references", "profile-inference.md"),
       "utf8",
     )
     const survey = await fs.readFile(
-      path.join(pluginRoot, "skills", "ce-setup", "references", "full-survey.md"),
+      path.join(pluginRoot, "skills", "method-setup", "references", "full-survey.md"),
       "utf8",
     )
 
@@ -396,10 +396,10 @@ describe("corporate install artifacts", () => {
   })
 
   test("setup consumes verified connection handoffs without requiring data_root", async () => {
-    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "SKILL.md"), "utf8")
+    const setupSkill = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "SKILL.md"), "utf8")
     const normalizedSetupSkill = setupSkill.replace(/\s+/g, " ")
-    const configTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "config-template.yaml"), "utf8")
-    const stackTemplate = await fs.readFile(path.join(pluginRoot, "skills", "ce-setup", "references", "stack-profile-template.yaml"), "utf8")
+    const configTemplate = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "references", "config-template.yaml"), "utf8")
+    const stackTemplate = await fs.readFile(path.join(pluginRoot, "skills", "method-setup", "references", "stack-profile-template.yaml"), "utf8")
     const setupDocs = await fs.readFile(path.join(repoRoot, "docs", "setup.md"), "utf8")
 
     const connectionSignal = "__CE_CONNECTION__ name=<connection-name> type=<postgres|sqlite|duckdb|other> database=<db-name> auth=<auth-mode> status=verified"
@@ -443,8 +443,8 @@ describe("corporate install artifacts", () => {
       expect(contract.firstUse).toBeDefined()
       const install = contract.install ?? ""
       const firstUse = contract.firstUse ?? ""
-      const firstUseSetup = firstUse.indexOf("/ce-datascience:ce-setup")
-      const firstUseWorkflow = firstUse.indexOf("/ce-datascience:ce-workflow")
+      const firstUseSetup = firstUse.indexOf("/methodsmith:method-setup")
+      const firstUseWorkflow = firstUse.indexOf("/methodsmith:method-workflow")
 
       expect(install).toContain("bash install.sh claude --aliases")
       expect(install).toContain("bash install.sh codex")
@@ -460,7 +460,7 @@ describe("corporate install artifacts", () => {
     expect(docsHome).toContain('to="/docs/setup"')
     expect(docsConfig).toContain("include: ['setup.md', 'guideline-sources.md']")
     expect(docsConfig).toContain("routeBasePath: 'docs'")
-    expect(rootReadme).toContain("https://sajor2000.github.io/ce-datascience/")
+    expect(rootReadme).toContain("https://sajor2000.github.io/methodsmith/")
   })
 
   test("public documentation ships and references both workflow images", async () => {
@@ -469,8 +469,8 @@ describe("corporate install artifacts", () => {
     const pluginReadme = await fs.readFile(path.join(pluginRoot, "README.md"), "utf8")
     const docsHome = await fs.readFile(path.join(repoRoot, "website", "src", "pages", "index.js"), "utf8")
     const imageNames = [
-      "ce-datascience-package-workflow.png",
-      "ce-datascience-skill-commands.png",
+      "methodsmith-package-workflow.png",
+      "methodsmith-skill-commands.png",
     ]
 
     for (const imageName of imageNames) {
@@ -482,7 +482,7 @@ describe("corporate install artifacts", () => {
       expect(pluginReadme).toContain(`../../docs/${imageName}`)
     }
 
-    expect(docsHome).toContain("../../../docs/ce-datascience-package-workflow.png")
+    expect(docsHome).toContain("../../../docs/methodsmith-package-workflow.png")
   })
 
   test("user-facing docs recommend optional scientific research add-ons safely", async () => {
@@ -499,7 +499,7 @@ describe("corporate install artifacts", () => {
       expect(section).toBeDefined()
       expect(section).toContain("cyanheads/pubmed-mcp-server")
       expect(section).toContain("paperclip.gxl.ai/docs")
-      expect(section).toContain("/ce-pubmed")
+      expect(section).toContain("/method-pubmed")
       expect(section).toMatch(/PubMed MCP/i)
       expect(section).toMatch(/Paperclip[\s\S]*full-text|full-text[\s\S]*Paperclip/i)
       expect(section).toMatch(/privacy/i)
@@ -515,7 +515,7 @@ describe("corporate install artifacts", () => {
     expect(setupDocs).toContain("does not automatically translate their results")
     expect(setupDocs).toMatch(/Never send protected\s+health information/)
     expect(setupDocs).toMatch(/must not install or authenticate\s+either add-on automatically/)
-    expect(setupDocs).toMatch(/running `\/ce-evidence-map` authorizes\s+its documented optional deepening/)
+    expect(setupDocs).toMatch(/running `\/method-evidence-map` authorizes\s+its documented optional deepening/)
   })
 
   test("public docs describe the current method and CLIF safeguards", async () => {
@@ -542,7 +542,7 @@ describe("corporate install artifacts", () => {
 
 describe("Codex offline installer keeps user files on update", () => {
   test("re-running backs up edited or added files instead of deleting them", async () => {
-    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-offline-update-"))
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "method-codex-offline-update-"))
     const stagingDir = path.join(tempRoot, "stage")
     await run([
       "bash",
@@ -553,7 +553,7 @@ describe("Codex offline installer keeps user files on update", () => {
       path.join(tempRoot, "out"),
       "--skip-zip",
     ])
-    const codexPackage = path.join(stagingDir, "ce-datascience-codex-local")
+    const codexPackage = path.join(stagingDir, "methodsmith-codex-local")
     const codexHome = path.join(tempRoot, "home", ".codex")
     const agentsHome = path.join(tempRoot, "home", ".agents")
     const install = () => run([
@@ -568,19 +568,19 @@ describe("Codex offline installer keeps user files on update", () => {
     ])
     await install()
 
-    const installedPlugin = path.join(path.dirname(agentsHome), ".codex", "plugins", "ce-datascience")
-    const userNote = path.join(installedPlugin, "skills", "ce-plan", "my-notes.md")
+    const installedPlugin = path.join(path.dirname(agentsHome), ".codex", "plugins", "methodsmith")
+    const userNote = path.join(installedPlugin, "skills", "method-plan", "my-notes.md")
     await fs.writeFile(userNote, "my notes")
-    const bridgeAgent = path.join(codexHome, "agents", "ce-datascience", "ce-security-reviewer.toml")
+    const bridgeAgent = path.join(codexHome, "agents", "methodsmith", "method-security-reviewer.toml")
     const shippedAgent = await fs.readFile(bridgeAgent, "utf8")
     await fs.writeFile(bridgeAgent, "my edited agent")
 
     await install()
 
     expect(await fs.readFile(bridgeAgent, "utf8")).toBe(shippedAgent)
-    const backups = await listFiles(path.join(codexHome, "ce-datascience", "backups"))
-    const savedNote = backups.find((file) => file.endsWith(path.join("ce-plan", "my-notes.md")))
-    const savedAgent = backups.find((file) => file.endsWith("ce-security-reviewer.toml"))
+    const backups = await listFiles(path.join(codexHome, "methodsmith", "backups"))
+    const savedNote = backups.find((file) => file.endsWith(path.join("method-plan", "my-notes.md")))
+    const savedAgent = backups.find((file) => file.endsWith("method-security-reviewer.toml"))
     expect(savedNote && (await fs.readFile(savedNote, "utf8"))).toBe("my notes")
     expect(savedAgent && (await fs.readFile(savedAgent, "utf8"))).toBe("my edited agent")
   }, 120000)

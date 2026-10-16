@@ -11,11 +11,11 @@ const compoundEngineeringRoot = path.join(
   import.meta.dir,
   "..",
   "plugins",
-  "ce-datascience",
+  "methodsmith",
 )
 
 describe("convertClaudeToOpenCode", () => {
-  test("current ce-datascience output is skills and subagents, not commands", async () => {
+  test("current methodsmith output is skills and subagents, not commands", async () => {
     const plugin = await loadClaudePlugin(compoundEngineeringRoot)
     const bundle = convertClaudeToOpenCode(plugin, {
       agentMode: "subagent",
@@ -395,11 +395,11 @@ describe("convertClaudeToOpenCode", () => {
         {
           name: "review",
           description: "Review command",
-          body: `Read \`ce-datascience.local.md\` in the project root.
+          body: `Read \`methodsmith.local.md\` in the project root.
 
 If no settings file exists, auto-detect project type.
 
-Run \`/ce-datascience-setup\` to create a settings file.`,
+Run \`/methodsmith-setup\` to create a settings file.`,
           sourcePath: "/tmp/plugin/commands/review.md",
         },
       ],
@@ -416,7 +416,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
     expect(commandFile).toBeDefined()
 
     // Tool-agnostic path in project root — no rewriting needed
-    expect(commandFile!.content).toContain("ce-datascience.local.md")
+    expect(commandFile!.content).toContain("methodsmith.local.md")
   })
 
   test("rewrites .claude/ paths in agent bodies", () => {
@@ -427,7 +427,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
         {
           name: "test-agent",
           description: "Test agent",
-          body: "Read `ce-datascience.local.md` for config.",
+          body: "Read `methodsmith.local.md` for config.",
           sourcePath: "/tmp/plugin/agents/test-agent.md",
         },
       ],
@@ -444,7 +444,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
     const agentFile = bundle.agents.find((a) => a.name === "test-agent")
     expect(agentFile).toBeDefined()
     // Tool-agnostic path in project root — no rewriting needed
-    expect(agentFile!.content).toContain("ce-datascience.local.md")
+    expect(agentFile!.content).toContain("methodsmith.local.md")
   })
 
   test("command .md files include description in frontmatter", () => {
@@ -543,9 +543,9 @@ describe("transformSkillContentForOpenCode", () => {
   })
 
   test("rewrites 2-segment category:ce-agent refs to flat names", () => {
-    const input = "Dispatch `review:ce-correctness-reviewer` for logic checks."
+    const input = "Dispatch `review:method-correctness-reviewer` for logic checks."
     expect(transformSkillContentForOpenCode(input)).toBe(
-      "Dispatch `ce-correctness-reviewer` for logic checks.",
+      "Dispatch `method-correctness-reviewer` for logic checks.",
     )
   })
 

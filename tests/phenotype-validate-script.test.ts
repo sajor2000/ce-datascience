@@ -5,10 +5,10 @@ import path from "path"
 
 const script = path.join(
   process.cwd(),
-  "plugins/ce-datascience/skills/ce-phenotype-validate/scripts/validate_phenotype.py",
+  "plugins/methodsmith/skills/method-phenotype/scripts/validate_phenotype.py",
 )
 const python3 = Bun.which("python3")
-const tmp = mkdtempSync(path.join(os.tmpdir(), "ce-phenotype-test-"))
+const tmp = mkdtempSync(path.join(os.tmpdir(), "method-phenotype-test-"))
 afterAll(() => rmSync(tmp, { recursive: true, force: true }))
 
 /** Synthetic 2x2 (no real subjects): TP=94, FP=6, FN=15, TN=85, as in the SKILL.md example. */
@@ -39,7 +39,7 @@ const signal = (out: string) =>
       .map((kv) => kv.split("=") as [string, string]),
   )
 
-describe.skipIf(!python3)("ce-phenotype-validate script", () => {
+describe.skipIf(!python3)("method-phenotype script", () => {
   test("algo-stratified sample without cohort counts reports Se/Sp as not estimable", () => {
     const csv = writeMerged("a.csv")
     const r = run(["T2DM", csv, "--out", path.join(tmp, "a/report.md")])

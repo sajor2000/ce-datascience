@@ -1,14 +1,14 @@
 {
-  "name": "ce-datascience-plugin",
+  "name": "methodsmith",
   "version": "4.1.0",
-  "description": "CE DataScience plugin for Claude Code, Codex, and Pi — agentic workflows for computational science, statistical review, and reporting compliance",
+  "description": "Methodsmith plugin for Claude Code, Codex, and Pi — agentic workflows for computational science, statistical review, and reporting compliance",
   "type": "module",
   "private": false,
   "bin": {
-    "ce-datascience-plugin": "src/index.ts"
+    "methodsmith": "src/index.ts"
   },
-  "homepage": "https://github.com/sajor2000/ce-datascience",
-  "repository": "https://github.com/sajor2000/ce-datascience",
+  "homepage": "https://github.com/sajor2000/methodsmith",
+  "repository": "https://github.com/sajor2000/methodsmith",
   "publishConfig": {
     "access": "public"
   },
@@ -23,7 +23,7 @@
     "release:preview": "bun run scripts/release/preview.ts",
     "release:sync-metadata": "bun run scripts/release/sync-metadata.ts --write",
     "release:validate": "bun run scripts/release/validate.ts",
-    "plugin:validate": "claude plugin validate .claude-plugin/marketplace.json && claude plugin validate plugins/ce-datascience",
+    "plugin:validate": "claude plugin validate .claude-plugin/marketplace.json && claude plugin validate plugins/methodsmith",
     "eval:validate": "bun run scripts/evals/validate.ts",
     "eval:score": "bun run scripts/evals/score.ts",
     "docs:guideline-sources": "bun run scripts/docs/guideline-sources.ts",

@@ -10,8 +10,8 @@ import path from "path"
 // directories so they are not shipped with the plugin.
 
 const repoRoot = process.cwd()
-const skillsRoot = path.join(repoRoot, "plugins", "ce-datascience", "skills")
-const evalsRoot = path.join(repoRoot, "evals", "ce-datascience", "skill-creator")
+const skillsRoot = path.join(repoRoot, "plugins", "methodsmith", "skills")
+const evalsRoot = path.join(repoRoot, "evals", "methodsmith", "skill-creator")
 const EVALS_PER_SKILL = 3
 const TRIGGER_QUERIES_PER_SKILL = 20
 const MIN_EXPECTATIONS = 3

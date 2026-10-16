@@ -2,7 +2,7 @@
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'CE DataScience',
+  title: 'Methodsmith',
   tagline: 'A practical AI research partner for health and biomedical data',
   url: 'https://sajor2000.github.io',
   baseUrl: '/methodsmith/',
@@ -41,12 +41,12 @@ const config = {
         respectPrefersColorScheme: true,
       },
       navbar: {
-        title: 'CE DataScience',
+        title: 'Methodsmith',
         items: [
           {to: '/docs/setup', label: 'Setup guide', position: 'left'},
           {to: '/docs/guideline-sources', label: 'Guideline sources', position: 'left'},
           {
-            href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/ce-datascience/README.md',
+            href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/methodsmith/README.md',
             label: 'Skills and agents',
             position: 'left',
           },
@@ -67,7 +67,7 @@ const config = {
               {label: 'Guideline sources', to: '/docs/guideline-sources'},
               {
                 label: 'Skills and agents',
-                href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/ce-datascience/README.md',
+                href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/methodsmith/README.md',
               },
             ],
           },
@@ -85,7 +85,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} CE DataScience. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Methodsmith. Built with Docusaurus.`,
       },
     }),
 };

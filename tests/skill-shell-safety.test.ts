@@ -12,12 +12,12 @@ import { describe, expect, test } from "bun:test"
  *
  * Past incidents:
  *   - PR #699 introduced a `case "$common" in /*) ... ;; *) ... ;; esac` block
- *     into ce-compound and ce-sessions to derive a worktree-stable repo name.
+ *     into method-compound and method-sessions to derive a worktree-stable repo name.
  *     The cleaner replacement is
  *     `basename "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)")"`.
  */
 
-const PLUGIN_SKILLS_GLOB = ["plugins/ce-datascience/skills", "plugins/coding-tutor/skills"]
+const PLUGIN_SKILLS_GLOB = ["plugins/methodsmith/skills", "plugins/coding-tutor/skills"]
 
 function listSkillFiles(): string[] {
   const out: string[] = []

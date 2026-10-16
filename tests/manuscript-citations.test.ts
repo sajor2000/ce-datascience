@@ -3,7 +3,7 @@ import { promises as fs } from "fs"
 import path from "path"
 
 const repoRoot = path.join(import.meta.dir, "..")
-const skillPath = path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-manuscript-citations", "SKILL.md")
+const skillPath = path.join(repoRoot, "plugins", "methodsmith", "skills", "method-citations", "SKILL.md")
 
 describe("manuscript citation workflow", () => {
   test("requires evidence provenance and editable Zotero-owned Word fields", async () => {

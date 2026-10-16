@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Install ce-datascience into Codex from a local folder without Bun, Git, gh, or Quarto.
+# Install methodsmith into Codex from a local folder without Bun, Git, gh, or Quarto.
 
 set -euo pipefail
 
-PLUGIN_NAME="ce-datascience"
-MANAGED_START="# BEGIN CE DataScience plugin MCP -- do not edit this block"
-MANAGED_END="# END CE DataScience plugin MCP"
+PLUGIN_NAME="methodsmith"
+MANAGED_START="# BEGIN Methodsmith plugin MCP -- do not edit this block"
+MANAGED_END="# END Methodsmith plugin MCP"
 
 source_root=""
 codex_home="${CODEX_HOME:-$HOME/.codex}"
@@ -17,7 +17,7 @@ usage() {
 Usage: bash scripts/install/install-codex-offline.sh --source PATH [options]
 
 Options:
-  --source PATH        Unpacked ce-datascience-codex-local folder or repo root
+  --source PATH        Unpacked methodsmith-codex-local folder or repo root
   --codex-home PATH    Codex profile root (default: $CODEX_HOME or ~/.codex)
   --agents-home PATH   Codex .agents root for marketplace.json (default: $AGENTS_HOME or ~/.agents)
   --dry-run            Print actions without writing files
@@ -91,8 +91,8 @@ if [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
 elif [ -d "$source_root/.codex-plugin" ] && [ -d "$source_root/skills" ]; then
   plugin_src="$source_root"
 else
-  echo "Could not find a ce-datascience plugin directory under $source_root" >&2
-  echo "Expected either plugins/ce-datascience or a plugin root containing .codex-plugin and skills/." >&2
+  echo "Could not find a methodsmith plugin directory under $source_root" >&2
+  echo "Expected either plugins/methodsmith or a plugin root containing .codex-plugin and skills/." >&2
   exit 2
 fi
 
@@ -123,7 +123,7 @@ backup_stamp="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 
 # Replace a plugin-owned directory with the packaged copy. When the installed
 # copy differs from the package (a user edited or added files), move it to
-# $codex_home/ce-datascience/backups/<time>/ first so nothing is lost.
+# $codex_home/methodsmith/backups/<time>/ first so nothing is lost.
 copy_dir_replace() {
   local src="$1"
   local dest="$2"
@@ -153,7 +153,7 @@ remove_managed_codex_mcp_config() {
     return
   fi
   if [ "$dry_run" = "yes" ]; then
-    echo "[dry-run] remove managed CE DataScience MCP block from $config_path"
+    echo "[dry-run] remove managed Methodsmith MCP block from $config_path"
     return
   fi
   if ! grep -Fqx "$MANAGED_START" "$config_path" && ! grep -Fqx "$MANAGED_END" "$config_path"; then
@@ -164,11 +164,11 @@ remove_managed_codex_mcp_config() {
     $0 == end { if (!inside) exit 1; inside = 0; next }
     END { if (inside) exit 1 }
   ' "$config_path" >/dev/null; then
-    echo "Cannot remove malformed CE DataScience MCP block from $config_path; leaving config unchanged." >&2
+    echo "Cannot remove malformed Methodsmith MCP block from $config_path; leaving config unchanged." >&2
     return 1
   fi
   local temp_config
-  temp_config="$(mktemp -t ce-codex-config-clean-XXXXXX)"
+  temp_config="$(mktemp -t method-codex-config-clean-XXXXXX)"
   awk -v start="$MANAGED_START" -v end="$MANAGED_END" '
     $0 == start { skip = 1; next }
     $0 == end { skip = 0; next }
@@ -203,13 +203,13 @@ if not isinstance(plugins, list):
     plugins = []
 
 entry = {
-    "name": "ce-datascience",
-    "source": {"source": "local", "path": "./.codex/plugins/ce-datascience"},
+    "name": "methodsmith",
+    "source": {"source": "local", "path": "./.codex/plugins/methodsmith"},
     "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
     "category": "Data Science",
 }
 
-plugins = [plugin for plugin in plugins if not (isinstance(plugin, dict) and plugin.get("name") == "ce-datascience")]
+plugins = [plugin for plugin in plugins if not (isinstance(plugin, dict) and plugin.get("name") == "methodsmith")]
 plugins.append(entry)
 data["name"] = data.get("name") or "local-codex-plugins"
 data["interface"] = data.get("interface") or {"displayName": "Local Codex Plugins"}
@@ -219,7 +219,7 @@ PY
   elif [ -f "$marketplace_path" ]; then
     echo "Cannot safely merge existing $marketplace_path without python3." >&2
     echo "Install python3, remove the existing marketplace file, or merge this entry manually:" >&2
-    echo '{"name":"ce-datascience","source":{"source":"local","path":"./.codex/plugins/ce-datascience"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Data Science"}' >&2
+    echo '{"name":"methodsmith","source":{"source":"local","path":"./.codex/plugins/methodsmith"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Data Science"}' >&2
     exit 2
   else
     if [ "$dry_run" = "yes" ]; then
@@ -234,10 +234,10 @@ PY
   },
   "plugins": [
     {
-      "name": "ce-datascience",
+      "name": "methodsmith",
       "source": {
         "source": "local",
-        "path": "./.codex/plugins/ce-datascience"
+        "path": "./.codex/plugins/methodsmith"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -270,4 +270,4 @@ echo "Marketplace source.path: $marketplace_plugin_path"
 echo "Plugin:      $plugin_dest"
 echo "Codex home:  $codex_home"
 echo ""
-echo "Restart Codex, open /plugins, install CE DataScience from the local marketplace, then restart again."
+echo "Restart Codex, open /plugins, install Methodsmith from the local marketplace, then restart again."

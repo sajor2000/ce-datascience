@@ -3,8 +3,8 @@ import { mkdtemp, readFile, rm, writeFile } from "fs/promises"
 import os from "os"
 import path from "path"
 
-const SCRIPTS = ["ce-commit", "ce-commit-push-pr"].map((skill) =>
-  path.join(process.cwd(), "plugins", "ce-datascience", "skills", skill, "scripts", "commit-group.sh"),
+const SCRIPTS = ["method-commit", "method-pr"].map((skill) =>
+  path.join(process.cwd(), "plugins", "methodsmith", "skills", skill, "scripts", "commit-group.sh"),
 )
 
 const GIT_ENV = {

@@ -7,33 +7,33 @@ import path from "path"
 // (skills cannot share files), names the connector's real tools, and uses one
 // evidence-label vocabulary.
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 
 const EVIDENCE_SKILLS = [
-  "ce-pubmed",
-  "ce-literature-search",
-  "ce-evidence-map",
-  "ce-method-extract",
-  "ce-effect-size",
-  "ce-manuscript-citations",
-  "ce-research-question",
-  "ce-grill",
-  "ce-ideate",
-  "ce-brainstorm",
-  "ce-prereg",
-  "ce-trial-design",
-  "ce-power",
-  "ce-checklist-match",
-  "ce-model-strategy",
-  "ce-statistical-analysis-plan",
-  "ce-plan",
-  "ce-cohort-build",
-  "ce-phenotype-validate",
-  "ce-bioinfo-qc",
-  "ce-model-card",
-  "ce-code-review",
-  "ce-scientific-writing",
-  "ce-pre-submission-audit",
+  "method-pubmed",
+  "method-lit-search",
+  "method-evidence-map",
+  "method-extract",
+  "method-meta-analysis",
+  "method-citations",
+  "method-question",
+  "method-grill",
+  "method-ideate",
+  "method-brainstorm",
+  "method-prereg",
+  "method-trial-design",
+  "method-power",
+  "method-checklist",
+  "method-model-choice",
+  "method-sap",
+  "method-plan",
+  "method-cohort",
+  "method-phenotype",
+  "method-omics-qc",
+  "method-model-card",
+  "method-review",
+  "method-write",
+  "method-presubmit",
 ]
 
 // Two PubMed MCP servers are common: the documented default
@@ -69,7 +69,7 @@ describe("scientific skills share one evidence-access contract", () => {
         ["full-text tool (connector)", /`get_full_text_article`/],
         ["Paperclip MCP", /Paperclip MCP/],
         ["Paperclip search with source", /`search` with an explicit `source`/],
-        ["ce-pubmed fallback", /`ce-pubmed`/],
+        ["method-pubmed fallback", /`method-pubmed`/],
         ["no-PHI rule", /no PHI, patient-level values, or small-cell counts in any query/],
         ["read-before-cite rule", /search hit is not evidence until the source is read/],
         ["label set", /`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`/],
@@ -84,7 +84,7 @@ describe("scientific skills share one evidence-access contract", () => {
 
   test("skills that keep the generic block in references/evidence-access.md point to it and use fully qualified MCP names", async () => {
     const problems: string[] = []
-    for (const name of ["ce-statistical-analysis-plan", "ce-prereg", "ce-research-question", "ce-cohort-build"]) {
+    for (const name of ["method-sap", "method-prereg", "method-question", "method-cohort"]) {
       const skill = await fs.readFile(path.join(skillsRoot, name, "SKILL.md"), "utf8")
       const ref = await fs.readFile(path.join(skillsRoot, name, "references", "evidence-access.md"), "utf8")
       if (!skill.includes("`references/evidence-access.md`")) problems.push(`${name}: SKILL.md does not point to references/evidence-access.md`)
@@ -108,9 +108,9 @@ describe("scientific skills share one evidence-access contract", () => {
   // Skills whose generic block now lives in a skill-local references/evidence-access.md.
   // Add a skill here when its block is moved and its MCP names are fully qualified.
   const MOVED_SKILLS = [
-    "ce-model-strategy", "ce-model-card", "ce-phenotype-validate", "ce-checklist-match",
-    "ce-pre-submission-audit", "ce-method-extract", "ce-bioinfo-qc", "ce-evidence-map",
-    "ce-scientific-writing",
+    "method-model-choice", "method-model-card", "method-phenotype", "method-checklist",
+    "method-presubmit", "method-extract", "method-omics-qc", "method-evidence-map",
+    "method-write",
   ]
 
   test("moved evidence blocks stay skill-local with fully qualified MCP names", async () => {
@@ -127,7 +127,7 @@ describe("scientific skills share one evidence-access contract", () => {
         if (!ref.includes("mcp__pubmed-mcp-server__pubmed_search_articles"))
           problems.push(`${entry.name}: evidence-access.md lacks the fully qualified PubMed tool name`)
         if (/mcp__PubMed__/.test(ref)) problems.push(`${entry.name}: evidence-access.md uses the wrong mcp__PubMed__ prefix`)
-        if (/`ce-pubmed` skill's bundled/.test(ref)) problems.push(`${entry.name}: reaches into ce-pubmed's bundled script`)
+        if (/`method-pubmed` skill's bundled/.test(ref)) problems.push(`${entry.name}: reaches into method-pubmed's bundled script`)
       }
       if (!/\*\*Look up here:\*\*/.test(skillMd)) problems.push(`${entry.name}: SKILL.md lost its Look up here line`)
     }

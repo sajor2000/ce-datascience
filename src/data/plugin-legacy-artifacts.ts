@@ -523,7 +523,7 @@ export function getLegacyCodexArtifacts(bundle: CodexBundle): LegacyTargetArtifa
   // plugin bundle (`bundle.skillDirs`, `bundle.generatedSkills`, `bundle.agents`).
   // That was unsafe: on a first install, any user-authored skill at a flat
   // `~/.codex/skills/<name>` path that happened to share a name with a current
-  // CE skill or agent would be swept into `ce-datascience/legacy-backup`
+  // CE skill or agent would be swept into `methodsmith/legacy-backup`
   // even though it was never part of CE.
   //
   // The historical allow-list already enumerates every skill/agent/command name
@@ -779,8 +779,8 @@ export function getLegacyWindsurfArtifacts(plugin: ClaudePlugin): LegacyWindsurf
   // purpose of this cleanup is backing up stale files from past installs.
   // Any user-authored skill/workflow at a flat Windsurf path that happened to
   // share a name with a current CE skill/agent/command (e.g.
-  // `skills/ce-debug` or `global_workflows/ce-plan.md`) would otherwise be
-  // swept into `ce-datascience/legacy-backup` even though it was never
+  // `skills/method-debug` or `global_workflows/method-plan.md`) would otherwise be
+  // swept into `methodsmith/legacy-backup` even though it was never
   // installed by CE.
   //
   // The historical allow-list already enumerates every skill/agent/command

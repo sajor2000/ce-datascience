@@ -7,7 +7,7 @@ const SOURCE_DOCUMENT = /\.(pdf|docx?|epub|djvu)$/i
 
 // Synthetic fixtures that may carry a document extension. Add a prefix here only for
 // generated, non-copyrighted test inputs.
-const ALLOWED_EVAL_FIXTURE_PREFIXES: string[] = ["evals/ce-datascience/fixtures/synthetic/"]
+const ALLOWED_EVAL_FIXTURE_PREFIXES: string[] = ["evals/methodsmith/fixtures/synthetic/"]
 
 function findForbiddenSourceDocuments(trackedPaths: string[]): string[] {
   return trackedPaths.filter((file) => {
@@ -22,12 +22,12 @@ describe("source-document guard", () => {
   test("flags guideline documents under plugins/ and evals/", () => {
     expect(
       findForbiddenSourceDocuments([
-        "plugins/ce-datascience/skills/ce-code-review/references/deal-appendix.pdf",
-        "plugins/ce-datascience/skills/ce-code-review/references/coreq.DOCX",
-        "plugins/ce-datascience/skills/x/assets/statement.doc",
-        "plugins/ce-datascience/skills/x/book.epub",
-        "plugins/ce-datascience/skills/x/scan.djvu",
-        "evals/ce-datascience/cases/x/guideline.pdf",
+        "plugins/methodsmith/skills/method-review/references/deal-appendix.pdf",
+        "plugins/methodsmith/skills/method-review/references/coreq.DOCX",
+        "plugins/methodsmith/skills/x/assets/statement.doc",
+        "plugins/methodsmith/skills/x/book.epub",
+        "plugins/methodsmith/skills/x/scan.djvu",
+        "evals/methodsmith/cases/x/guideline.pdf",
       ]),
     ).toHaveLength(6)
   })
@@ -35,9 +35,9 @@ describe("source-document guard", () => {
   test("allows checklist markdown, synthetic eval fixtures, and documents outside plugins/ and evals/", () => {
     expect(
       findForbiddenSourceDocuments([
-        "plugins/ce-datascience/skills/ce-code-review/references/deal-checklist.md",
-        "plugins/ce-datascience/skills/x/references/pdf-export.md",
-        "evals/ce-datascience/fixtures/synthetic/rendered-report.pdf",
+        "plugins/methodsmith/skills/method-review/references/deal-checklist.md",
+        "plugins/methodsmith/skills/x/references/pdf-export.md",
+        "evals/methodsmith/fixtures/synthetic/rendered-report.pdf",
         "tests/fixtures/sample.pdf",
       ]),
     ).toEqual([])
@@ -45,8 +45,8 @@ describe("source-document guard", () => {
 
   test("checklist skills never tell users to commit guideline source documents", async () => {
     for (const file of [
-      "plugins/ce-datascience/agents/ce-reporting-checklist-reviewer.md",
-      "plugins/ce-datascience/skills/ce-checklist-match/SKILL.md",
+      "plugins/methodsmith/agents/method-reporting-checklist-reviewer.md",
+      "plugins/methodsmith/skills/method-checklist/SKILL.md",
     ]) {
       expect(await Bun.file(file).text(), file).toContain("Never commit a reporting-guideline source document")
     }

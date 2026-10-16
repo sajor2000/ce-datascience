@@ -1,0 +1,82 @@
+[
+  {
+    "query": "/method-update -- a colleague says method-workflow has new lifecycle steps I don't see; check whether my installed methodsmith is behind main",
+    "should_trigger": true
+  },
+  {
+    "query": "run method-update -- is my methodsmith install out of date in Codex?",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-update please check installed vs upstream version",
+    "should_trigger": true
+  },
+  {
+    "query": "Use the method-update skill to tell me the command that updates methodsmith in OpenCode",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-update -- skills seem to be missing the new method-trial-design, maybe my cached plugin is stale?",
+    "should_trigger": true
+  },
+  {
+    "query": "invoke method-update: compare the marketplace-cached methodsmith version to main",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-update before I file a bug, confirm I'm on the latest methodsmith",
+    "should_trigger": true
+  },
+  {
+    "query": "method-update skill: check whether compound engineering datascience is up to date and give me the update command if not",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-update -- we use an internal team marketplace name, make sure the update command uses it",
+    "should_trigger": true
+  },
+  {
+    "query": "Run /method-update and then tell me if a restart is needed",
+    "should_trigger": true
+  },
+  {
+    "query": "What changed in the latest methodsmith release? Summarize the release notes",
+    "should_trigger": false
+  },
+  {
+    "query": "Did method-table1 ship in version 3.4.0 of the plugin?",
+    "should_trigger": false
+  },
+  {
+    "query": "Report a bug: method-sap-workbook crashes when openpyxl is missing",
+    "should_trigger": false
+  },
+  {
+    "query": "Update my R packages in renv.lock to the latest CRAN versions",
+    "should_trigger": false
+  },
+  {
+    "query": "Configure my project-local methodsmith profile and check environment health",
+    "should_trigger": false
+  },
+  {
+    "query": "Bump the plugin version in plugin.json and marketplace.json for the next release",
+    "should_trigger": false
+  },
+  {
+    "query": "Pull the latest main and rebase my feature branch on it",
+    "should_trigger": false
+  },
+  {
+    "query": "Check whether my Python dependencies in uv.lock have security updates",
+    "should_trigger": false
+  },
+  {
+    "query": "Show me the ordered lifecycle and next skill for this project",
+    "should_trigger": false
+  },
+  {
+    "query": "Clean up local branches whose remotes are gone",
+    "should_trigger": false
+  }
+]

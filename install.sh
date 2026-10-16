@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Convenience installer for CE DataScience.
+# Convenience installer for Methodsmith.
 
 set -euo pipefail
 

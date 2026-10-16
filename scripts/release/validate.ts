@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import path from "path"
 import { validateReleasePleaseConfig } from "../../src/release/config"
-import { getCeDatascienceCounts, syncReleaseMetadata } from "../../src/release/metadata"
+import { getMethodsmithCounts, syncReleaseMetadata } from "../../src/release/metadata"
 import { readJson } from "../../src/utils/files"
 
 type ReleasePleaseManifest = Record<string, string>
@@ -16,7 +16,7 @@ const manifest = await readJson<ReleasePleaseManifest>(
   path.join(cwd, ".github", ".release-please-manifest.json"),
 )
 const configErrors = validateReleasePleaseConfig(releasePleaseConfig)
-const counts = await getCeDatascienceCounts(cwd)
+const counts = await getMethodsmithCounts(cwd)
 
 // Pass every component's release-please version in, so the plugin/marketplace
 // manifests are compared against the release manifest rather than against
@@ -25,7 +25,7 @@ const counts = await getCeDatascienceCounts(cwd)
 const result = await syncReleaseMetadata({
   write: false,
   componentVersions: {
-    "ce-datascience": manifest["plugins/ce-datascience"],
+    "methodsmith": manifest["plugins/methodsmith"],
     "coding-tutor": manifest["plugins/coding-tutor"],
     marketplace: manifest[".claude-plugin"],
     "cursor-marketplace": manifest[".cursor-plugin"],
@@ -66,7 +66,7 @@ if (expectedCliVersion && rootPackage.version !== expectedCliVersion) {
 // the number; a prose-order pattern (`55 agents`) would never match and would
 // turn this guard into a silent no-op. Fail closed when the row is absent — a
 // missing count row means the guard can no longer see the claim it protects.
-const readmePath = path.join(cwd, "plugins", "ce-datascience", "README.md")
+const readmePath = path.join(cwd, "plugins", "methodsmith", "README.md")
 const readme = await Bun.file(readmePath).text()
 const countClaims: Array<{ label: string; actual: number; pattern: RegExp }> = [
   { label: "agents", actual: counts.agents, pattern: /\|\s*agents\s*\|\s*(\d+)\s*\|/i },
@@ -76,21 +76,21 @@ for (const claim of countClaims) {
   const match = claim.pattern.exec(readme)
   if (!match) {
     metadataErrors.push(
-      `plugins/ce-datascience/README.md is missing a "${claim.label}" count row; the inventory guard cannot verify it`,
+      `plugins/methodsmith/README.md is missing a "${claim.label}" count row; the inventory guard cannot verify it`,
     )
     continue
   }
   const claimed = Number(match[1])
   if (claimed !== claim.actual) {
     metadataErrors.push(
-      `plugins/ce-datascience/README.md claims ${claimed} ${claim.label} but the plugin ships ${claim.actual}`,
+      `plugins/methodsmith/README.md claims ${claimed} ${claim.label} but the plugin ships ${claim.actual}`,
     )
   }
 }
 
 if (configErrors.length === 0 && changed.length === 0 && metadataErrors.length === 0) {
   console.log(
-    `Release metadata is in sync. ce-datascience currently has ${counts.agents} agents, ${counts.skills} skills, and ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
+    `Release metadata is in sync. methodsmith currently has ${counts.agents} agents, ${counts.skills} skills, and ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
   )
   process.exit(0)
 }
@@ -115,7 +115,7 @@ if (changed.length > 0) {
     console.error(`- ${update.path}`)
   }
   console.error(
-    `Current ce-datascience counts: ${counts.agents} agents, ${counts.skills} skills, ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
+    `Current methodsmith counts: ${counts.agents} agents, ${counts.skills} skills, ${counts.mcpServers} MCP server${counts.mcpServers === 1 ? "" : "s"}.`,
   )
 }
 process.exit(1)

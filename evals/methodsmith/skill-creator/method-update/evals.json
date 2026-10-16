@@ -1,0 +1,41 @@
+{
+  "skill_name": "method-update",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/method-update -- is my methodsmith plugin current? I installed it from the marketplace a couple months ago.",
+      "expected_output": "Compares the loaded marketplace-cache version against upstream plugin.json on main and either confirms it is up to date or gives the claude plugin update command with the derived marketplace name.",
+      "files": [],
+      "expectations": [
+        "Compares the currently loaded version (from the skill directory path) with the upstream plugins/methodsmith/.claude-plugin/plugin.json version on main, not a release tag",
+        "If versions match, reports 'methodsmith vX is installed and up to date'",
+        "If stale, recommends 'claude plugin update methodsmith@<marketplace-name>' with the marketplace name derived from the path, then restart",
+        "Does not modify files under ~/.claude/plugins/cache/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/method-update -- I'm in Codex. I installed Methodsmith with bash install.sh codex last month. How do I get the latest version?",
+      "expected_output": "Recognizes a non-Claude harness, does not claim a version comparison, and gives the Codex marketplace upgrade command plus the bunx command that refreshes the generated agents.",
+      "files": [],
+      "expectations": [
+        "Does not claim to compare installed and upstream versions, since Codex does not expose the installed version to the skill",
+        "Gives 'codex plugin marketplace upgrade methodsmith' and says to restart Codex",
+        "Gives 'bunx methodsmith@latest install methodsmith --to codex' for the generated agents",
+        "States that updating keeps the user's own skills and does not tell them to move or delete anything"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/method-update -- gh isn't authenticated on this machine and I'm on a hospital network that blocks api.github.com.",
+      "expected_output": "Reports that the upstream version could not be fetched, still gives the Claude update command, and does not guess a version or mutate caches.",
+      "files": [],
+      "expectations": [
+        "Recognizes the __CE_UPDATE_VERSION_FAILED__ sentinel and tells the user the upstream version could not be fetched",
+        "Does not guess the latest version",
+        "Still gives 'claude plugin update methodsmith@<marketplace-name>' as the command to run once the network allows",
+        "Does not attempt to mutate plugin caches or marketplace directories as a workaround"
+      ]
+    }
+  ]
+}

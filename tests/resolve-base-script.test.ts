@@ -16,9 +16,9 @@ const resolveBaseScript = path.join(
   import.meta.dir,
   "..",
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-code-review",
+  "method-review",
   "references",
   "resolve-base.sh",
 )
@@ -99,7 +99,7 @@ async function createStubBin(mode: "gh-fails" | "pr-metadata"): Promise<string> 
     `#!/usr/bin/env bash
 set -euo pipefail
 if [ "$#" -ge 2 ] && [ "$1" = "pr" ] && [ "$2" = "view" ]; then
-  printf '%s' '{"baseRefName":"main","url":"https://github.com/EveryInc/ce-datascience-plugin/pull/123"}'
+  printf '%s' '{"baseRefName":"main","url":"https://github.com/EveryInc/methodsmith/pull/123"}'
   exit 0
 fi
 exit 1
@@ -160,7 +160,7 @@ describe("resolve-base.sh", () => {
 
     await runGit(["remote", "add", "origin", "git@github.com:someone/fork.git"], repoRoot)
     await runGit(
-      ["remote", "add", "upstream", "git@github.com:EveryInc/ce-datascience-plugin.git"],
+      ["remote", "add", "upstream", "git@github.com:EveryInc/methodsmith.git"],
       repoRoot,
     )
     await runGit(["update-ref", "refs/remotes/origin/main", forkMainSha], repoRoot)
@@ -249,7 +249,7 @@ describe("resolve-base.sh", () => {
       remotesRoot,
       "github.com",
       "EveryInc",
-      "ce-datascience-plugin.git",
+      "methodsmith.git",
     )
     await fs.mkdir(path.dirname(upstreamBare), { recursive: true })
     await runGit(["init", "--bare", upstreamBare], upstreamSeed)

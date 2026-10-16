@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { readdir, readFile } from "fs/promises"
 import path from "path"
 
-const pluginRoot = path.join(process.cwd(), "plugins", "ce-datascience")
+const pluginRoot = path.join(process.cwd(), "plugins", "methodsmith")
 const skills = path.join(pluginRoot, "skills")
 const read = (rel: string) => readFile(path.join(skills, rel), "utf8")
 const readAgent = (name: string) => readFile(path.join(pluginRoot, "agents", name), "utf8")
@@ -13,7 +13,7 @@ export const GATE_CLAUSE =
   "**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: " +
   "true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = " +
   "`schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and " +
-  "aggregates only; never open, print, or paste data values; run data-reading scripts as `ce-safe-run -- <command>` (path in the guard's deny " +
+  "aggregates only; never open, print, or paste data values; run data-reading scripts as `method-safe-run -- <command>` (path in the guard's deny " +
   "message); save results as aggregate tables (counts under 11 suppressed) in `output/` or a `phi_environment.aggregate_dirs` entry. Unset, interactive: " +
   "ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and " +
   "`No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` " +
@@ -25,13 +25,13 @@ export const MCP_EGRESS =
   "never data values, identifiers, row text, or data files; an endpoint approval does not cover third-party services."
 
 const GATED = [
-  "ce-work/references/phi-environment.md", "ce-setup/SKILL.md", "ce-clif/references/clif-rules.md", "ce-grill/SKILL.md",
-  "ce-scientific-writing/SKILL.md", "ce-data-qa/SKILL.md", "ce-verify/SKILL.md", "ce-table1/SKILL.md",
-  "ce-cohort-build/SKILL.md", "ce-code-review/SKILL.md", "ce-sas-stata-assess/SKILL.md", "ce-phenotype-validate/SKILL.md",
+  "method-work/references/phi-environment.md", "method-setup/SKILL.md", "method-clif/references/clif-rules.md", "method-grill/SKILL.md",
+  "method-write/SKILL.md", "method-data-qa/SKILL.md", "method-verify/SKILL.md", "method-table1/SKILL.md",
+  "method-cohort/SKILL.md", "method-review/SKILL.md", "method-sas-stata/SKILL.md", "method-phenotype/SKILL.md",
 ]
 const LITERATURE = [
-  "ce-pubmed/SKILL.md", "ce-evidence-map/SKILL.md", "ce-literature-search/SKILL.md",
-  "ce-manuscript-citations/SKILL.md", "ce-method-extract/SKILL.md",
+  "method-pubmed/SKILL.md", "method-evidence-map/SKILL.md", "method-lit-search/SKILL.md",
+  "method-citations/SKILL.md", "method-extract/SKILL.md",
 ]
 
 const askAndSave = (text: string) => {
@@ -57,12 +57,12 @@ describe("sensitive-data boundary: one clause, asked once, then silent", () => {
       const content = await read(rel)
       expect({ rel, hasClause: content.includes(GATE_CLAUSE) }).toEqual({ rel, hasClause: true })
     }
-    expect((await readAgent("ce-phi-leak-reviewer.md")).includes(GATE_CLAUSE)).toBe(true)
+    expect((await readAgent("method-phi-leak-reviewer.md")).includes(GATE_CLAUSE)).toBe(true)
   })
 
-  test("ce-setup and ce-work share an identical ask-and-save block that writes the new key", async () => {
+  test("method-setup and method-work share an identical ask-and-save block that writes the new key", async () => {
     const [setupRef, workRef] = await Promise.all([
-      read("ce-setup/references/sensitive-data-boundary.md"), read("ce-work/references/phi-environment.md"),
+      read("method-setup/references/sensitive-data-boundary.md"), read("method-work/references/phi-environment.md"),
     ])
     const block = askAndSave(setupRef)
     expect(askAndSave(workRef)).toBe(block)
@@ -76,16 +76,16 @@ describe("sensitive-data boundary: one clause, asked once, then silent", () => {
     expect(block).toContain("In headless or non-interactive runs, do not ask or save.")
   })
 
-  test("ce-work applies its gate reference before opening data", async () => {
-    const work = await read("ce-work/SKILL.md")
+  test("method-work applies its gate reference before opening data", async () => {
+    const work = await read("method-work/SKILL.md")
     expect(work).toContain("before opening data files or patient-level outputs, read `references/phi-environment.md` and apply its gate")
   })
 
-  test("ce-setup asks before any data inspection", async () => {
-    const setup = await read("ce-setup/SKILL.md")
+  test("method-setup asks before any data inspection", async () => {
+    const setup = await read("method-setup/SKILL.md")
     const gate = setup.indexOf("### Phase 0a: Sensitive-data boundary (before any data inspection)")
     expect(gate).toBeGreaterThan(-1)
-    expect(gate).toBeLessThan(setup.indexOf("Run the `ce-language-detect` skill"))
+    expect(gate).toBeLessThan(setup.indexOf("Run the `method-language-detect` skill"))
     expect(gate).toBeLessThan(setup.indexOf("### Data domain and connection signals"))
     expect(setup).toContain("`references/sensitive-data-boundary.md`")
   })
@@ -109,7 +109,7 @@ describe("sensitive-data boundary: one clause, asked once, then silent", () => {
   })
 
   test("the schema helper is invoked with a python probe and a manual fallback", async () => {
-    for (const rel of ["ce-setup/references/sensitive-data-boundary.md", "ce-work/references/phi-environment.md"]) {
+    for (const rel of ["method-setup/references/sensitive-data-boundary.md", "method-work/references/phi-environment.md"]) {
       const content = await read(rel)
       expect(content).toContain('"$SKILL_DIR/scripts/schema-peek.py"')
       expect(content).toContain("`python3`, then `python`, then `py`")
@@ -117,7 +117,7 @@ describe("sensitive-data boundary: one clause, asked once, then silent", () => {
   })
 
   test("the config template documents the three-valued key and the legacy keys", async () => {
-    const template = await read("ce-setup/references/config-template.yaml")
+    const template = await read("method-setup/references/config-template.yaml")
     expect(template).toContain("#   mode: approved | schema-only | no-sensitive-data")
     expect(template).toContain("compliant: true -> approved")
     expect(template).toContain("compliant: false -> schema-only")
@@ -134,7 +134,7 @@ describe("MCP egress: literature tools never receive sensitive data", () => {
   })
 
   test("manuscript-citations searches with paper-level claim terms, never manuscript text", async () => {
-    const content = await read("ce-manuscript-citations/SKILL.md")
+    const content = await read("method-citations/SKILL.md")
     expect(content).not.toContain("`search` the explicit `pmc` source for the claim or source set")
     expect(content).toContain("paper-level claim terms")
   })
@@ -142,26 +142,26 @@ describe("MCP egress: literature tools never receive sensitive data", () => {
 
 describe("closed limits: safe runner, identifier index, and aggregate reads in skills and docs", () => {
   const scripts = path.join(pluginRoot, "scripts")
-  test("ce-setup and ce-data-qa run a skill-local ce-identifier-index copy identical to the plugin's", async () => {
-    const canonical = await readFile(path.join(scripts, "ce-identifier-index"), "utf8")
-    for (const skill of ["ce-setup", "ce-data-qa"]) {
-      expect(await read(`${skill}/scripts/ce-identifier-index`)).toBe(canonical)
+  test("method-setup and method-data-qa run a skill-local method-identifier-index copy identical to the plugin's", async () => {
+    const canonical = await readFile(path.join(scripts, "method-identifier-index"), "utf8")
+    for (const skill of ["method-setup", "method-data-qa"]) {
+      expect(await read(`${skill}/scripts/method-identifier-index`)).toBe(canonical)
     }
-    const setup = await read("ce-setup/references/sensitive-data-boundary.md")
-    expect(setup).toContain('"$SKILL_DIR/scripts/ce-identifier-index"')
+    const setup = await read("method-setup/references/sensitive-data-boundary.md")
+    expect(setup).toContain('"$SKILL_DIR/scripts/method-identifier-index"')
     expect(setup).toContain("whenever `data_root` is set, in every mode")
-    expect(await read("ce-setup/SKILL.md")).toContain("build or refresh the identifier index")
-    const qa = await read("ce-data-qa/SKILL.md")
-    expect(qa).toContain('"$SKILL_DIR/scripts/ce-identifier-index"')
+    expect(await read("method-setup/SKILL.md")).toContain("build or refresh the identifier index")
+    const qa = await read("method-data-qa/SKILL.md")
+    expect(qa).toContain('"$SKILL_DIR/scripts/method-identifier-index"')
     expect(qa).toContain("refresh the identifier index")
   })
 
-  test("ce-work, ce-verify, and ce-rstats route data-touching scripts through ce-safe-run in schema-only mode", async () => {
-    for (const rel of ["ce-work/references/phi-environment.md", "ce-verify/SKILL.md", "ce-rstats/SKILL.md"]) {
+  test("method-work, method-verify, and method-r route data-touching scripts through method-safe-run in schema-only mode", async () => {
+    for (const rel of ["method-work/references/phi-environment.md", "method-verify/SKILL.md", "method-r/SKILL.md"]) {
       const content = await read(rel)
-      expect({ rel, safeRun: content.includes("ce-safe-run -- ") }).toEqual({ rel, safeRun: true })
+      expect({ rel, safeRun: content.includes("method-safe-run -- ") }).toEqual({ rel, safeRun: true })
     }
-    const work = await read("ce-work/references/phi-environment.md")
+    const work = await read("method-work/references/phi-environment.md")
     expect(work).not.toContain("the guard treats `.csv` outputs as data files")
     expect(work).toContain("aggregate check")
   })
@@ -174,11 +174,11 @@ describe("closed limits: safe runner, identifier index, and aggregate reads in s
     return text.slice(start, end).replace(/^#+ /gm, "")
   }
   test("the three setup docs carry the same boundary section describing the closed limits", async () => {
-    const [root, plugin, setup] = await Promise.all(["README.md", "plugins/ce-datascience/README.md", "docs/setup.md"].map(section))
+    const [root, plugin, setup] = await Promise.all(["README.md", "plugins/methodsmith/README.md", "docs/setup.md"].map(section))
     expect(plugin).toBe(root)
     expect(setup).toBe(root)
     const prose = root.replace(/\s+/g, " ")
-    for (const phrase of ["ce-safe-run", "identifier index", "salted hashes", "gitignored", "phi_environment.aggregate_dirs",
+    for (const phrase of ["method-safe-run", "identifier index", "salted hashes", "gitignored", "phi_environment.aggregate_dirs",
       "small-cell rule", "eutils.ncbi.nlm.nih.gov", "[masked header]", "free-text notes", "heuristic", "Claude Code only"]) {
       expect({ phrase, present: prose.includes(phrase) }).toEqual({ phrase, present: true })
     }

@@ -6,10 +6,10 @@
   "plugins": [
     {
       "type": "linked-versions",
-      "groupName": "ce-datascience",
+      "groupName": "methodsmith",
       "components": [
         "cli",
-        "ce-datascience"
+        "methodsmith"
       ]
     }
   ],
@@ -47,9 +47,9 @@
         }
       ]
     },
-    "plugins/ce-datascience": {
+    "plugins/methodsmith": {
       "release-type": "simple",
-      "package-name": "ce-datascience",
+      "package-name": "methodsmith",
       "extra-files": [
         {
           "type": "json",

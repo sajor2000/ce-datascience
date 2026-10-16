@@ -1,17 +1,17 @@
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
 import Layout from '@theme/Layout';
-import workflowImage from '../../../docs/ce-datascience-package-workflow.png';
+import workflowImage from '../../../docs/methodsmith-package-workflow.png';
 
 export default function Home() {
   return (
     <Layout
       title="Health data science workflows"
-      description="CE DataScience adds careful, documented research workflows to AI coding assistants.">
+      description="Methodsmith adds careful, documented research workflows to AI coding assistants.">
       <header className="hero hero--primary">
         <div className="container">
           <Heading as="h1" className="hero__title">
-            CE DataScience
+            Methodsmith
           </Heading>
           <p className="hero__subtitle">
             A practical AI research partner for health and biomedical data.
@@ -22,7 +22,7 @@ export default function Home() {
             </Link>
             <Link
               className="button button--outline button--secondary button--lg"
-              href="https://github.com/sajor2000/ce-datascience">
+              href="https://github.com/sajor2000/methodsmith">
               View on GitHub
             </Link>
           </div>
@@ -58,7 +58,7 @@ export default function Home() {
             <img
               className="workflow-image"
               src={workflowImage}
-              alt="CE DataScience workflow from installation through research artifacts"
+              alt="Methodsmith workflow from installation through research artifacts"
             />
           </div>
         </section>
@@ -66,7 +66,7 @@ export default function Home() {
         <section className="home-section container">
           <Heading as="h2">A short workflow overview</Heading>
           <p className="section-lead">
-            See how CE DataScience carries a research question through explicit
+            See how Methodsmith carries a research question through explicit
             design, analysis, review, and reusable documentation.
           </p>
           <video
@@ -74,8 +74,8 @@ export default function Home() {
             controls
             playsInline
             preload="metadata"
-            aria-label="CE DataScience workflow overview animation">
-            <source src="media/ce-datascience-overview.mp4" type="video/mp4" />
+            aria-label="Methodsmith workflow overview animation">
+            <source src="media/methodsmith-overview.mp4" type="video/mp4" />
             Your browser does not support HTML video.
           </video>
         </section>

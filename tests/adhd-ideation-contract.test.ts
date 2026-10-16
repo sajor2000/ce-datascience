@@ -2,15 +2,15 @@ import { describe, expect, test } from "bun:test"
 import { readFile } from "fs/promises"
 import path from "path"
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 
 async function skill(name: string): Promise<string> {
   return readFile(path.join(skillsRoot, name, "SKILL.md"), "utf8")
 }
 
 describe("token-tight ADHD-inspired ideation", () => {
-  test("ce-ideate gates direct, compact, and explicit-wide reasoning paths", async () => {
-    const content = await skill("ce-ideate")
+  test("method-ideate gates direct, compact, and explicit-wide reasoning paths", async () => {
+    const content = await skill("method-ideate")
 
     expect(content).toContain("#### 0.5b Divergence Gate")
     expect(content).toContain("**Direct**")
@@ -20,8 +20,8 @@ describe("token-tight ADHD-inspired ideation", () => {
     expect(content).toMatch(/Explicit wide requests override direct-path signals/i)
   })
 
-  test("ce-ideate uses isolated three-frame generation and a separate compact critic", async () => {
-    const content = await skill("ce-ideate")
+  test("method-ideate uses isolated three-frame generation and a separate compact critic", async () => {
+    const content = await skill("method-ideate")
 
     expect(content).toMatch(/exactly 3.*4 candidates each/i)
     expect(content).toMatch(/Generator branches are isolated/i)
@@ -31,10 +31,10 @@ describe("token-tight ADHD-inspired ideation", () => {
     expect(content).toMatch(/do not dispatch additional deepening agents/i)
   })
 
-  test("ce-ideate preserves evidence and compact survivor rules", async () => {
-    const content = await skill("ce-ideate")
+  test("method-ideate preserves evidence and compact survivor rules", async () => {
+    const content = await skill("method-ideate")
     const universalIdeation = await readFile(
-      path.join(skillsRoot, "ce-ideate", "references", "universal-ideation.md"),
+      path.join(skillsRoot, "method-ideate", "references", "universal-ideation.md"),
       "utf8",
     )
 
@@ -48,7 +48,7 @@ describe("token-tight ADHD-inspired ideation", () => {
 
   test("biomedical ideation keeps the direct and compact fan-out caps", async () => {
     const biomedicalFrames = await readFile(
-      path.join(skillsRoot, "ce-ideate", "references", "biomedical-frames.md"),
+      path.join(skillsRoot, "method-ideate", "references", "biomedical-frames.md"),
       "utf8",
     )
 
@@ -61,8 +61,8 @@ describe("token-tight ADHD-inspired ideation", () => {
     expect(biomedicalFrames).toMatch(/generic separate critic pass/i)
   })
 
-  test("ce-brainstorm requires meaningful alternatives and optional trap checks", async () => {
-    const content = await skill("ce-brainstorm")
+  test("method-brainstorm requires meaningful alternatives and optional trap checks", async () => {
+    const content = await skill("method-brainstorm")
 
     expect(content).toMatch(/at least two options are genuinely viable/i)
     expect(content).toMatch(/Do not add agent fan-out for routine clarification/i)

@@ -1,0 +1,42 @@
+{
+  "skill_name": "method-ml-track",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just finished the cohort build for the sepsis early-warning model (Python, sklearn + xgboost). Before training starts I want proper tracking - mlflow with a local mlruns/ dir, project name sepsis-ews. SAP is analysis/sap.md.",
+      "expected_output": "Sets up mlflow tracking boilerplate, a required-log run schema, SAP linkage text, and a committed YAML run-log fallback, then emits the __CE_ML_TRACK__ signal.",
+      "files": [],
+      "expectations": [
+        "Writes analysis/ml/tracking.py with mlflow init code that logs train_data_sha, git_sha, and study_id",
+        "Writes analysis/ml/run-schema.yaml listing required params (including random_seed and split_strategy), validation metrics used for model selection (auc_validation with its scheme, n_events_train), and artifacts, and restricts held-out test metrics (Brier, calibration intercept/slope, test AUC) to the locked final model logged once",
+        "Adds the tracking/manuscript-run linkage sentence to analysis/sap.md referencing analysis/ml/manuscript-run.txt",
+        "Sets up the runs/<run-id>.yaml fallback mirror and states runs/ is committed",
+        "Emits '__CE_ML_TRACK__ backend=mlflow uri=<uri> schema=<path>'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "set up experiment tracking for our readmission model, we're on the hospital's air-gapped research VM with PHI so nothing can leave the box. R project, tidymodels.",
+      "expected_output": "Selects the offline YAML backend (no network service), writes R tracking boilerplate and the run schema, and does not require wandb or any external service.",
+      "files": [],
+      "expectations": [
+        "Chooses the offline backend (runs/ YAML logs) rather than wandb or a remote tracking server",
+        "Writes analysis/ml/tracking.R (R, not Python)",
+        "Does not make a tracking service mandatory or send data off the machine",
+        "Logs data hashes rather than copying patient-level data into run logs"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our AUROC 0.89 run from March isn't reproducible - nobody logged the split seed. Add tracking so this doesn't happen again, and also train a new LightGBM with tuned hyperparameters so we can get the number back.",
+      "expected_output": "Infers or asks for the backend, wires tracking with seeds and data hashes as required fields, and declines to train the model itself, routing training to method-work.",
+      "files": [],
+      "expectations": [
+        "Infers backend from existing config (mlflow/wandb/.dvc) or asks a single backend question when none is detectable",
+        "Includes random_seed and split_strategy as required params in the run schema",
+        "States that runs missing required fields are not eligible for manuscript inclusion",
+        "Does not train or tune the LightGBM model; routes training to method-work"
+      ]
+    }
+  ]
+}

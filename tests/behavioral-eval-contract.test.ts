@@ -33,18 +33,18 @@ afterEach(async () => {
 })
 
 async function makeRepo(): Promise<string> {
-  const root = await mkdtemp(path.join(os.tmpdir(), "ce-behavioral-eval-"))
+  const root = await mkdtemp(path.join(os.tmpdir(), "method-behavioral-eval-"))
   tempRoots.push(root)
-  await mkdir(path.join(root, "evals", "ce-datascience", "cases", "sample"), { recursive: true })
-  await mkdir(path.join(root, "plugins", "ce-datascience", "skills", "sample"), {
+  await mkdir(path.join(root, "evals", "methodsmith", "cases", "sample"), { recursive: true })
+  await mkdir(path.join(root, "plugins", "methodsmith", "skills", "sample"), {
     recursive: true,
   })
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", "skills", "sample", "SKILL.md"),
+    path.join(root, "plugins", "methodsmith", "skills", "sample", "SKILL.md"),
     "# Sample skill\n",
   )
   await writeFile(
-    path.join(root, "evals", "ce-datascience", "cases", "sample", "prompt.md"),
+    path.join(root, "evals", "methodsmith", "cases", "sample", "prompt.md"),
     "Use the sample skill.\n",
   )
   await writeFile(path.join(root, "fixture.txt"), "fixture contents\n")
@@ -58,10 +58,10 @@ function sampleCase(overrides: Partial<EvaluationCase> = {}): EvaluationCase {
     target: {
       kind: "skill",
       name: "sample",
-      source: "plugins/ce-datascience/skills/sample/SKILL.md",
+      source: "plugins/methodsmith/skills/sample/SKILL.md",
     },
     mode: "forward",
-    prompt_path: "evals/ce-datascience/cases/sample/prompt.md",
+    prompt_path: "evals/methodsmith/cases/sample/prompt.md",
     fixtures: [
       {
         path: "fixture.txt",
@@ -128,7 +128,7 @@ function sampleCase(overrides: Partial<EvaluationCase> = {}): EvaluationCase {
 }
 
 async function writeCase(root: string, definition: EvaluationCase): Promise<string> {
-  const casePath = path.join(root, "evals", "ce-datascience", "cases", "sample", "case.yaml")
+  const casePath = path.join(root, "evals", "methodsmith", "cases", "sample", "case.yaml")
   await writeFile(casePath, dump(definition, { noRefs: true, lineWidth: 100 }))
   return casePath
 }
@@ -146,13 +146,13 @@ async function writeRun(root: string, response = "complete\nscore: 3.145\n"): Pr
       schema_version: "1.0",
       case_id: "sample-case",
       case_sha256: await sha256File(
-        path.join(root, "evals", "ce-datascience", "cases", "sample", "case.yaml"),
+        path.join(root, "evals", "methodsmith", "cases", "sample", "case.yaml"),
       ),
       prompt_sha256: await sha256File(
-        path.join(root, "evals", "ce-datascience", "cases", "sample", "prompt.md"),
+        path.join(root, "evals", "methodsmith", "cases", "sample", "prompt.md"),
       ),
       target_sha256: await sha256Target(
-        path.join(root, "plugins", "ce-datascience", "skills", "sample", "SKILL.md"),
+        path.join(root, "plugins", "methodsmith", "skills", "sample", "SKILL.md"),
       ),
       runner: "skill-creator",
       model: "test-model",
@@ -170,17 +170,17 @@ describe("behavioral evaluation contract", () => {
 
     expect(result.errors).toEqual([])
     expect(result.cases.map((item) => item.definition.id)).toEqual(expect.arrayContaining([
-      "ce-adversarial-review-local-plan",
-      "ce-data-qa-no-go",
-      "ce-data-qa-pre-sap",
-      "ce-doc-review-headless-missing-path",
-      "ce-doc-review-seeded",
+      "method-adversarial-review-local-plan",
+      "method-data-qa-no-go",
+      "method-data-qa-pre-sap",
+      "method-doc-review-headless-missing-path",
+      "method-doc-review-seeded",
     ]))
   })
 
-  test("keeps ce-doc-review HTML artifacts report-only", async () => {
+  test("keeps method-doc-review HTML artifacts report-only", async () => {
     const content = await Bun.file(
-      path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-doc-review", "SKILL.md"),
+      path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-doc-review", "SKILL.md"),
     ).text()
 
     expect(content).toContain("Unified HTML artifacts are report-only")
@@ -191,9 +191,9 @@ describe("behavioral evaluation contract", () => {
     const casePath = path.join(
       process.cwd(),
       "evals",
-      "ce-datascience",
+      "methodsmith",
       "cases",
-      "ce-data-qa-pre-sap",
+      "method-data-qa-pre-sap",
       "case.yaml",
     )
     const definition = await loadAndValidateCase(process.cwd(), casePath)
@@ -214,13 +214,13 @@ describe("behavioral evaluation contract", () => {
     const casePath = path.join(
       repoRoot,
       "evals",
-      "ce-datascience",
+      "methodsmith",
       "cases",
-      "ce-data-qa-no-go",
+      "method-data-qa-no-go",
       "case.yaml",
     )
     const definition = await loadAndValidateCase(repoRoot, casePath)
-    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-no-go-run-"))
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "method-no-go-run-"))
     tempRoots.push(runDir)
     const reportPath = path.join(runDir, "workspace", "reports", "data-qa", "no-go-profile.md")
     const fixture = definition.fixtures[0]
@@ -431,13 +431,13 @@ describe("behavioral evaluation contract", () => {
     const casePath = path.join(
       repoRoot,
       "evals",
-      "ce-datascience",
+      "methodsmith",
       "cases",
-      "ce-data-qa-pre-sap",
+      "method-data-qa-pre-sap",
       "case.yaml",
     )
     const definition = await loadAndValidateCase(repoRoot, casePath)
-    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-pre-sap-run-"))
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "method-pre-sap-run-"))
     tempRoots.push(runDir)
     const reportPath = path.join(
       runDir,
@@ -726,13 +726,13 @@ describe("behavioral evaluation contract", () => {
     const casePath = path.join(
       repoRoot,
       "evals",
-      "ce-datascience",
+      "methodsmith",
       "cases",
-      "ce-trial-design-unsupported-platform",
+      "method-trial-design-unsupported-platform",
       "case.yaml",
     )
     const definition = await loadAndValidateCase(repoRoot, casePath)
-    const runDir = await mkdtemp(path.join(os.tmpdir(), "ce-trial-design-claim-run-"))
+    const runDir = await mkdtemp(path.join(os.tmpdir(), "method-trial-design-claim-run-"))
     tempRoots.push(runDir)
     await writeFile(
       path.join(runDir, "run.json"),
@@ -1149,7 +1149,7 @@ describe("behavioral evaluation contract", () => {
   test("findCaseById ignores unrelated malformed cases but rejects duplicate matches", async () => {
     const root = await makeRepo()
     await writeCase(root, sampleCase())
-    const malformedDir = path.join(root, "evals", "ce-datascience", "cases", "malformed")
+    const malformedDir = path.join(root, "evals", "methodsmith", "cases", "malformed")
     await mkdir(malformedDir, { recursive: true })
     await writeFile(path.join(malformedDir, "case.yaml"), "id: [not valid yaml\n")
 
@@ -1157,7 +1157,7 @@ describe("behavioral evaluation contract", () => {
       definition: { id: "sample-case" },
     })
 
-    const duplicateDir = path.join(root, "evals", "ce-datascience", "cases", "duplicate")
+    const duplicateDir = path.join(root, "evals", "methodsmith", "cases", "duplicate")
     await mkdir(duplicateDir, { recursive: true })
     await writeFile(path.join(duplicateDir, "case.yaml"), dump(sampleCase()))
     await expect(findCaseById(root, "sample-case")).rejects.toThrow(/duplicate case id/i)
@@ -1165,9 +1165,9 @@ describe("behavioral evaluation contract", () => {
 
   test("rejects case, prompt, and target drift from the pre-dispatch run metadata", async () => {
     for (const relativePath of [
-      "evals/ce-datascience/cases/sample/case.yaml",
-      "evals/ce-datascience/cases/sample/prompt.md",
-      "plugins/ce-datascience/skills/sample/SKILL.md",
+      "evals/methodsmith/cases/sample/case.yaml",
+      "evals/methodsmith/cases/sample/prompt.md",
+      "plugins/methodsmith/skills/sample/SKILL.md",
     ]) {
       const root = await makeRepo()
       const casePath = await writeCase(root, sampleCase())
@@ -1314,7 +1314,7 @@ describe("behavioral evaluation contract", () => {
     const outside = path.join(root, "..", `${path.basename(root)}-outside.txt`)
     tempRoots.push(outside)
     await writeFile(outside, "outside\n")
-    const targetPath = path.join(root, "plugins", "ce-datascience", "skills", "sample", "SKILL.md")
+    const targetPath = path.join(root, "plugins", "methodsmith", "skills", "sample", "SKILL.md")
     await rm(targetPath)
     await symlink(outside, targetPath)
     const casePath = await writeCase(root, sampleCase())
@@ -1346,9 +1346,9 @@ describe("behavioral evaluation contract", () => {
   })
 
   test("rejects an evaluation run directory symlink that escapes the temp root", async () => {
-    const requiredRoot = "/tmp/ce-datascience/behavioral-evals"
+    const requiredRoot = "/tmp/methodsmith/behavioral-evals"
     await mkdir(requiredRoot, { recursive: true })
-    const outside = await mkdtemp(path.join(os.tmpdir(), "ce-eval-outside-"))
+    const outside = await mkdtemp(path.join(os.tmpdir(), "method-eval-outside-"))
     const link = await mkdtemp(path.join(requiredRoot, "symlink-"))
     tempRoots.push(outside, link)
     await rm(link, { recursive: true })

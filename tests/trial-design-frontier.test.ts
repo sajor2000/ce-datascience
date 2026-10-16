@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test } from "bun:test"
 
 const script = path.join(
   process.cwd(),
-  "plugins/ce-datascience/skills/ce-trial-design/scripts/build_frontier.py",
+  "plugins/methodsmith/skills/method-trial-design/scripts/build_frontier.py",
 )
 const tempRoots = new Set<string>()
 
@@ -16,7 +16,7 @@ afterEach(async () => {
 })
 
 async function makeTempRoot() {
-  const root = await mkdtemp(path.join(os.tmpdir(), "ce-trial-frontier-"))
+  const root = await mkdtemp(path.join(os.tmpdir(), "method-trial-frontier-"))
   tempRoots.add(root)
   return root
 }
@@ -267,7 +267,7 @@ describe("trial-design frontier builder", () => {
     const root = await makeTempRoot()
     const referenceRoot = path.join(
       process.cwd(),
-      "plugins/ce-datascience/skills/ce-trial-design/references",
+      "plugins/methodsmith/skills/method-trial-design/references",
     )
     const exampleSpec = JSON.parse(
       await readFile(path.join(referenceRoot, "design-spec.example.json"), "utf8"),

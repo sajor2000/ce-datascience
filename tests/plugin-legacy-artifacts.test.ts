@@ -8,7 +8,7 @@ import { getLegacyCodexArtifacts, getLegacyKiroArtifacts, getLegacyPiArtifacts, 
 
 describe("plugin legacy artifacts", () => {
   test("Codex legacy detection is restricted to the explicit historical allow-list", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -19,7 +19,7 @@ describe("plugin legacy artifacts", () => {
 
     // Historical CE skills (renamed/removed since) are detected. These are
     // explicitly enumerated in EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN.
-    expect(artifacts.skills).toContain("ce-plan")
+    expect(artifacts.skills).toContain("method-plan")
     expect(artifacts.skills).toContain("ce:plan")
     expect(artifacts.skills).toContain("ce:plan-beta")
     expect(artifacts.skills).toContain("ce-review")
@@ -29,7 +29,7 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.skills).toContain("demo-reel")
     expect(artifacts.skills).toContain("ce:polish-beta")
     expect(artifacts.skills).toContain("ce:release-notes")
-    expect(artifacts.skills).toContain("ce-update")
+    expect(artifacts.skills).toContain("method-update")
     expect(artifacts.skills).toContain("creating-agent-skills")
     expect(artifacts.skills).toContain("repo-research-analyst")
     expect(artifacts.skills).toContain("bug-reproduction-validator")
@@ -42,11 +42,11 @@ describe("plugin legacy artifacts", () => {
     // sweep an unrelated user skill at ~/.codex/skills/<name>/ into backup
     // simply because its name collides with a current CE skill.
     expect(artifacts.skills).not.toContain("ce-demo-reel")
-    // Synthesized agent name variants (e.g. ce-<final-segment>) are not on
+    // Synthesized agent name variants (e.g. method-<final-segment>) are not on
     // the historical allow-list either, so they should not be probed against
     // unrelated user skills at flat ~/.codex/skills/<name>/ paths.
-    expect(artifacts.skills).not.toContain("ce-repo-research-analyst")
-    expect(artifacts.skills).not.toContain("research-ce-repo-research-analyst")
+    expect(artifacts.skills).not.toContain("method-repo-research-analyst")
+    expect(artifacts.skills).not.toContain("research-method-repo-research-analyst")
 
     expect(artifacts.prompts).toContain("codify.md")
     expect(artifacts.prompts).toContain("compound-plan.md")
@@ -58,7 +58,7 @@ describe("plugin legacy artifacts", () => {
 
   test("Codex legacy detection ignores current bundle skills/agents not in the historical allow-list", () => {
     const artifacts = getLegacyCodexArtifacts({
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [
         // A current skill name that was NEVER shipped historically. A user
@@ -94,7 +94,7 @@ describe("plugin legacy artifacts", () => {
   })
 
   test("includes current and historical CE artifacts for Pi cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToPi(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -109,7 +109,7 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.skills).toContain("reproduce-bug")
     expect(artifacts.skills).toContain("resolve_pr_parallel")
     expect(artifacts.skills).not.toContain("ce:plan")
-    expect(artifacts.skills).not.toContain("ce-plan")
+    expect(artifacts.skills).not.toContain("method-plan")
 
     expect(artifacts.prompts).toContain("codify.md")
     expect(artifacts.prompts).toContain("compound-plan.md")
@@ -120,7 +120,7 @@ describe("plugin legacy artifacts", () => {
   })
 
   test("includes historical CE artifacts for Kiro install cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToKiro(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -135,14 +135,14 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.skills).toContain("compound-plan")
     expect(artifacts.skills).toContain("plan")
     expect(artifacts.skills).toContain("resolve_pr_parallel")
-    expect(artifacts.skills).not.toContain("ce-plan")
+    expect(artifacts.skills).not.toContain("method-plan")
 
     expect(artifacts.agents).toContain("repo-research-analyst")
-    expect(artifacts.agents).not.toContain("ce-repo-research-analyst")
+    expect(artifacts.agents).not.toContain("method-repo-research-analyst")
   })
 
   test("includes only historical CE artifacts for deprecated Windsurf cleanup", async () => {
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
 
     const artifacts = getLegacyWindsurfArtifacts(plugin)
 
@@ -156,12 +156,12 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.workflows).toContain("compound-plan.md")
     expect(artifacts.workflows).toContain("plan.md")
     expect(artifacts.workflows).toContain("workflows-plan.md")
-    expect(artifacts.workflows).toContain("ce-plan.md")
+    expect(artifacts.workflows).toContain("method-plan.md")
     expect(artifacts.workflows).toContain("technical_review.md")
 
     // Names present in the current CE bundle but NOT on the historical
     // allow-list must never be cleanup candidates, so user-authored files at
     // those paths survive `cleanup --target windsurf`.
-    expect(artifacts.skills).not.toContain("ce-debug")
+    expect(artifacts.skills).not.toContain("method-debug")
   })
 })

@@ -40,7 +40,7 @@ describe("writeCodexBundle", () => {
       generatedSkills: [{ name: "agent-skill", content: "Skill content" }],
       agents: [
         {
-          name: "research-ce-repo-research-analyst",
+          name: "research-method-repo-research-analyst",
           description: "Repo research",
           instructions: "Research the repository.",
         },
@@ -59,17 +59,17 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(tempRoot, ".codex", "prompts", "command-one.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".codex", "skills", "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".codex", "skills", "agent-skill", "SKILL.md"))).toBe(true)
-    const agentPath = path.join(tempRoot, ".codex", "agents", "research-ce-repo-research-analyst.toml")
+    const agentPath = path.join(tempRoot, ".codex", "agents", "research-method-repo-research-analyst.toml")
     expect(await exists(agentPath)).toBe(true)
     const agentToml = await fs.readFile(agentPath, "utf8")
-    expect(agentToml).toContain('name = "research-ce-repo-research-analyst"')
+    expect(agentToml).toContain('name = "research-method-repo-research-analyst"')
     expect(agentToml).toContain('developer_instructions = "Research the repository."')
     const configPath = path.join(tempRoot, ".codex", "config.toml")
     expect(await exists(configPath)).toBe(true)
 
     const config = await fs.readFile(configPath, "utf8")
-    expect(config).toContain("# BEGIN CE DataScience plugin MCP -- do not edit this block")
-    expect(config).toContain("# END CE DataScience plugin MCP")
+    expect(config).toContain("# BEGIN Methodsmith plugin MCP -- do not edit this block")
+    expect(config).toContain("# END Methodsmith plugin MCP")
     expect(config).toContain("[mcp_servers.local]")
     expect(config).toContain("command = \"echo\"")
     expect(config).toContain("args = [\"hello\"]")
@@ -88,12 +88,12 @@ describe("writeCodexBundle", () => {
       generatedSkills: [],
       agents: [
         {
-          name: "research:ce-learnings-researcher",
+          name: "research:method-learnings-researcher",
           description: "First",
           instructions: "First agent body.",
         },
         {
-          name: "research-ce-learnings-researcher",
+          name: "research-method-learnings-researcher",
           description: "Second",
           instructions: "Second agent body.",
         },
@@ -108,7 +108,7 @@ describe("writeCodexBundle", () => {
     // been written before the collision was detected (guard runs before writes).
     const agentsRoot = path.join(tempRoot, ".codex", "agents")
     expect(
-      await exists(path.join(agentsRoot, "research-ce-learnings-researcher.toml")),
+      await exists(path.join(agentsRoot, "research-method-learnings-researcher.toml")),
     ).toBe(false)
   })
 
@@ -170,13 +170,13 @@ describe("writeCodexBundle", () => {
     const promptsDir = path.join(codexRoot, "prompts")
     await fs.mkdir(promptsDir, { recursive: true })
     await fs.writeFile(
-      path.join(promptsDir, "ce-plan.md"),
-      "---\ndescription: \"Project-local ce-plan helper\"\n---\n\nCustom prompt body\n",
+      path.join(promptsDir, "method-plan.md"),
+      "---\ndescription: \"Project-local method-plan helper\"\n---\n\nCustom prompt body\n",
     )
 
     await writeCodexBundle(codexRoot, { prompts: [], skillDirs: [], generatedSkills: [] })
 
-    expect(await exists(path.join(promptsDir, "ce-plan.md"))).toBe(true)
+    expect(await exists(path.join(promptsDir, "method-plan.md"))).toBe(true)
   })
 
   test("preserves same-named user prompts when pluginName triggers legacy allow-list cleanup", async () => {
@@ -184,7 +184,7 @@ describe("writeCodexBundle", () => {
     // allow-listed filename under `~/.codex/prompts/` into
     // `compound-engineering/legacy-backup/` whenever `pluginName` was set,
     // without checking that CE authored the file. A user-authored
-    // `ce-plan.md` prompt was therefore destroyed on `install --to codex`
+    // `method-plan.md` prompt was therefore destroyed on `install --to codex`
     // even though the content was not a CE-emitted wrapper. The install path
     // now requires the same body + frontmatter ownership fingerprint that
     // the standalone `cleanupStalePrompts` helper uses before touching a
@@ -194,19 +194,19 @@ describe("writeCodexBundle", () => {
     const promptsDir = path.join(codexRoot, "prompts")
     await fs.mkdir(promptsDir, { recursive: true })
     const userPromptBody =
-      "---\ndescription: \"Project-local ce-plan helper\"\n---\n\nCustom prompt body\n"
-    await fs.writeFile(path.join(promptsDir, "ce-plan.md"), userPromptBody)
+      "---\ndescription: \"Project-local method-plan helper\"\n---\n\nCustom prompt body\n"
+    await fs.writeFile(path.join(promptsDir, "method-plan.md"), userPromptBody)
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
     })
 
-    expect(await exists(path.join(promptsDir, "ce-plan.md"))).toBe(true)
-    expect(await fs.readFile(path.join(promptsDir, "ce-plan.md"), "utf8")).toBe(userPromptBody)
-    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
+    expect(await exists(path.join(promptsDir, "method-plan.md"))).toBe(true)
+    expect(await fs.readFile(path.join(promptsDir, "method-plan.md"), "utf8")).toBe(userPromptBody)
+    const backupRoot = path.join(codexRoot, "methodsmith", "legacy-backup")
     // The legacy-backup directory should not contain the user-authored prompt.
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
@@ -214,7 +214,7 @@ describe("writeCodexBundle", () => {
         const promptsBackup = path.join(backupRoot, timestamp, "prompts")
         if (await exists(promptsBackup)) {
           const backedUp = await fs.readdir(promptsBackup)
-          expect(backedUp).not.toContain("ce-plan.md")
+          expect(backedUp).not.toContain("method-plan.md")
         }
       }
     }
@@ -224,7 +224,7 @@ describe("writeCodexBundle", () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-managed-plugin-"))
     const codexRoot = path.join(tempRoot, ".codex")
     const bundle: CodexBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "old-prompt", content: "Prompt content" }],
       skillDirs: [
         {
@@ -238,17 +238,17 @@ describe("writeCodexBundle", () => {
 
     await writeCodexBundle(codexRoot, bundle)
 
-    const managedSkillsRoot = path.join(codexRoot, "skills", "ce-datascience")
-    const managedAgentsRoot = path.join(codexRoot, "agents", "ce-datascience")
+    const managedSkillsRoot = path.join(codexRoot, "skills", "methodsmith")
+    const managedAgentsRoot = path.join(codexRoot, "agents", "methodsmith")
     expect(await exists(path.join(managedSkillsRoot, "skill-one", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(managedSkillsRoot, "old-command", "SKILL.md"))).toBe(true)
     expect(await exists(path.join(managedAgentsRoot, "old-agent.toml"))).toBe(true)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "skill-one"))).toBe(false)
     expect(await exists(path.join(tempRoot, ".agents", "skills", "old-agent"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "methodsmith", "install-manifest.json"))).toBe(true)
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "new-prompt", content: "Prompt content" }],
       skillDirs: [],
       generatedSkills: [{ name: "new-command", content: "New command" }],
@@ -273,7 +273,7 @@ describe("writeCodexBundle", () => {
     await fs.writeFile(hooksPath, "{not json")
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
@@ -298,17 +298,17 @@ describe("writeCodexBundle", () => {
   test("removes legacy .agents symlinks that point to managed Codex skills", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-flat-symlink-"))
     const codexRoot = path.join(tempRoot, ".codex")
-    const previousManagedSkillsRoot = path.join(codexRoot, "ce-datascience", "skills")
+    const previousManagedSkillsRoot = path.join(codexRoot, "methodsmith", "skills")
     const agentsSkillsDir = path.join(tempRoot, ".agents", "skills")
 
     await fs.mkdir(path.join(previousManagedSkillsRoot, "old-agent"), { recursive: true })
     await fs.mkdir(path.join(previousManagedSkillsRoot, "reproduce-bug"), { recursive: true })
     await fs.writeFile(
-      path.join(codexRoot, "ce-datascience", "install-manifest.json"),
-      JSON.stringify({ version: 1, pluginName: "ce-datascience", skills: ["old-agent"], prompts: [] }),
+      path.join(codexRoot, "methodsmith", "install-manifest.json"),
+      JSON.stringify({ version: 1, pluginName: "methodsmith", skills: ["old-agent"], prompts: [] }),
     )
     await fs.mkdir(agentsSkillsDir, { recursive: true })
-    await fs.symlink(previousManagedSkillsRoot, path.join(agentsSkillsDir, "ce-datascience"))
+    await fs.symlink(previousManagedSkillsRoot, path.join(agentsSkillsDir, "methodsmith"))
     await fs.symlink(
       path.join(previousManagedSkillsRoot, "old-agent"),
       path.join(agentsSkillsDir, "old-agent"),
@@ -323,7 +323,7 @@ describe("writeCodexBundle", () => {
     await fs.symlink(unrelatedRoot, path.join(agentsSkillsDir, "skill-one"))
 
     await writeCodexBundle(codexRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [
         {
@@ -334,7 +334,7 @@ describe("writeCodexBundle", () => {
       generatedSkills: [],
     })
 
-    expect(await entryExists(path.join(agentsSkillsDir, "ce-datascience"))).toBe(false)
+    expect(await entryExists(path.join(agentsSkillsDir, "methodsmith"))).toBe(false)
     expect(await entryExists(path.join(agentsSkillsDir, "old-agent"))).toBe(false)
     expect(await entryExists(path.join(agentsSkillsDir, "reproduce-bug"))).toBe(false)
     expect(await fs.realpath(path.join(agentsSkillsDir, "skill-one"))).toBe(await fs.realpath(unrelatedRoot))
@@ -344,8 +344,8 @@ describe("writeCodexBundle", () => {
   test("moves legacy flat Codex CE artifacts to a namespaced backup", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-legacy-skill-"))
     const codexRoot = path.join(tempRoot, ".codex")
-    await fs.mkdir(path.join(codexRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy current workflow skill"))
+    await fs.mkdir(path.join(codexRoot, "skills", "method-plan"), { recursive: true })
+    await fs.writeFile(path.join(codexRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy current workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan"), { recursive: true })
     await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan-beta"), { recursive: true })
@@ -360,7 +360,7 @@ describe("writeCodexBundle", () => {
     await fs.writeFile(path.join(codexRoot, "prompts", "reproduce-bug.md"), legacyMd("legacy removed prompt"))
     await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), legacyMd("legacy deleted command prompt"))
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -368,7 +368,7 @@ describe("writeCodexBundle", () => {
     })
     await writeCodexBundle(codexRoot, bundle)
 
-    expect(await exists(path.join(codexRoot, "skills", "ce-plan"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "method-plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "ce:plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "ce:plan-beta"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "repo-research-analyst"))).toBe(false)
@@ -376,7 +376,7 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(codexRoot, "skills", "bug-reproduction-validator"))).toBe(false)
     expect(await exists(path.join(codexRoot, "prompts", "reproduce-bug.md"))).toBe(false)
     expect(await exists(path.join(codexRoot, "prompts", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(codexRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("preserves unrelated user skills at flat ~/.codex/skills/<name>/ that share a name with a current CE skill", async () => {
@@ -393,13 +393,13 @@ describe("writeCodexBundle", () => {
     const userSkillContent = "# user-authored skill, not from CE"
     await fs.writeFile(path.join(userSkillDir, "SKILL.md"), userSkillContent)
 
-    // Same for ce-debug — current CE skill name, never in the historical
+    // Same for method-debug — current CE skill name, never in the historical
     // flat-path allow-list, so a same-named user skill must be preserved.
-    const userDebugDir = path.join(codexRoot, "skills", "ce-debug")
+    const userDebugDir = path.join(codexRoot, "skills", "method-debug")
     await fs.mkdir(userDebugDir, { recursive: true })
     await fs.writeFile(path.join(userDebugDir, "SKILL.md"), "# user debug skill")
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -413,7 +413,7 @@ describe("writeCodexBundle", () => {
     expect(await exists(path.join(userDebugDir, "SKILL.md"))).toBe(true)
 
     // And they are not silently relocated to the legacy backup.
-    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
+    const backupRoot = path.join(codexRoot, "methodsmith", "legacy-backup")
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
       for (const ts of timestamps) {
@@ -421,7 +421,7 @@ describe("writeCodexBundle", () => {
         if (!(await exists(skillsBackup))) continue
         const backed = await fs.readdir(skillsBackup)
         expect(backed).not.toContain("ce-demo-reel")
-        expect(backed).not.toContain("ce-debug")
+        expect(backed).not.toContain("method-debug")
       }
     }
   })
@@ -483,7 +483,7 @@ describe("writeCodexBundle", () => {
   test("agents-only install preserves namespaced skills previously installed via Codex native plugin flow", async () => {
     // Regression for the bug where re-running `install --to codex` after a
     // native `/plugins` install moved currently-active namespaced skills
-    // (e.g., `.codex/skills/ce-datascience/ce-plan/`) into
+    // (e.g., `.codex/skills/methodsmith/method-plan/`) into
     // legacy-backup. The agents-only default produces an empty `skillDirs` /
     // `generatedSkills`, but the converter now populates
     // `externallyManagedSkillNames` with the allow-listed current skills so
@@ -493,8 +493,8 @@ describe("writeCodexBundle", () => {
 
     // Simulate the tree produced by a native Codex plugin install: active
     // namespaced skills under `.codex/skills/<plugin>/<skill>/SKILL.md`.
-    const namespacedSkillsRoot = path.join(codexRoot, "skills", "ce-datascience")
-    for (const skillName of ["ce-plan", "ce-debug", "ce-brainstorm"]) {
+    const namespacedSkillsRoot = path.join(codexRoot, "skills", "methodsmith")
+    for (const skillName of ["method-plan", "method-debug", "method-brainstorm"]) {
       await fs.mkdir(path.join(namespacedSkillsRoot, skillName), { recursive: true })
       await fs.writeFile(
         path.join(namespacedSkillsRoot, skillName, "SKILL.md"),
@@ -502,7 +502,7 @@ describe("writeCodexBundle", () => {
       )
     }
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToCodex(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -514,27 +514,27 @@ describe("writeCodexBundle", () => {
     // does advertise the current skill names so cleanup preserves them.
     expect(bundle.skillDirs).toEqual([])
     expect(bundle.generatedSkills).toEqual([])
-    expect(bundle.externallyManagedSkillNames).toContain("ce-plan")
-    expect(bundle.externallyManagedSkillNames).toContain("ce-debug")
+    expect(bundle.externallyManagedSkillNames).toContain("method-plan")
+    expect(bundle.externallyManagedSkillNames).toContain("method-debug")
 
     await writeCodexBundle(codexRoot, bundle)
 
     // Currently-active skills survive an agents-only re-install.
-    expect(await exists(path.join(namespacedSkillsRoot, "ce-plan", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(namespacedSkillsRoot, "ce-debug", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(namespacedSkillsRoot, "ce-brainstorm", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(namespacedSkillsRoot, "method-plan", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(namespacedSkillsRoot, "method-debug", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(namespacedSkillsRoot, "method-brainstorm", "SKILL.md"))).toBe(true)
 
     // And none of them were silently relocated into legacy-backup.
-    const backupRoot = path.join(codexRoot, "ce-datascience", "legacy-backup")
+    const backupRoot = path.join(codexRoot, "methodsmith", "legacy-backup")
     if (await exists(backupRoot)) {
       const timestamps = await fs.readdir(backupRoot)
       for (const ts of timestamps) {
         const skillsBackup = path.join(backupRoot, ts, "skills")
         if (!(await exists(skillsBackup))) continue
         const backed = await fs.readdir(skillsBackup)
-        expect(backed).not.toContain("ce-plan")
-        expect(backed).not.toContain("ce-debug")
-        expect(backed).not.toContain("ce-brainstorm")
+        expect(backed).not.toContain("method-plan")
+        expect(backed).not.toContain("method-debug")
+        expect(backed).not.toContain("method-brainstorm")
       }
     }
   })
@@ -561,8 +561,8 @@ describe("writeCodexBundle", () => {
     const newConfig = await fs.readFile(configPath, "utf8")
     // Plugin MCP servers should be present in a managed block
     expect(newConfig).toContain("[mcp_servers.test]")
-    expect(newConfig).toContain("# BEGIN CE DataScience plugin MCP -- do not edit this block")
-    expect(newConfig).toContain("# END CE DataScience plugin MCP")
+    expect(newConfig).toContain("# BEGIN Methodsmith plugin MCP -- do not edit this block")
+    expect(newConfig).toContain("# END Methodsmith plugin MCP")
     // User's original config should be preserved
     expect(newConfig).toContain("# My original config")
     expect(newConfig).toContain("[custom]")
@@ -596,8 +596,8 @@ describe("writeCodexBundle", () => {
     await writeCodexBundle(codexRoot, bundle)
 
     const config = await fs.readFile(configPath, "utf8")
-    expect(config.match(/# BEGIN CE DataScience plugin MCP/g)?.length).toBe(1)
-    expect(config.match(/# END CE DataScience plugin MCP/g)?.length).toBe(1)
+    expect(config.match(/# BEGIN Methodsmith plugin MCP/g)?.length).toBe(1)
+    expect(config.match(/# END Methodsmith plugin MCP/g)?.length).toBe(1)
     expect(config).toContain("[user]")
   })
 
@@ -628,7 +628,7 @@ describe("writeCodexBundle", () => {
 
     const config = await fs.readFile(configPath, "utf8")
     expect(config).not.toContain("# BEGIN compound-plugin Claude Code MCP")
-    expect(config).toContain("# BEGIN CE DataScience plugin MCP")
+    expect(config).toContain("# BEGIN Methodsmith plugin MCP")
     expect(config).not.toContain("[mcp_servers.old]")
     expect(config).toContain("[mcp_servers.fresh]")
     expect(config).toContain("[user]")
@@ -661,10 +661,10 @@ describe("writeCodexBundle", () => {
     const config = await fs.readFile(configPath, "utf8")
     expect(config).not.toContain("# Generated by compound-plugin")
     expect(config).not.toContain("[mcp_servers.old]")
-    expect(config).toContain("# BEGIN CE DataScience plugin MCP")
+    expect(config).toContain("# BEGIN Methodsmith plugin MCP")
     expect(config).toContain("[mcp_servers.fresh]")
     // Should have exactly one BEGIN marker (no duplication)
-    expect(config.match(/# BEGIN CE DataScience plugin MCP/g)?.length).toBe(1)
+    expect(config.match(/# BEGIN Methodsmith plugin MCP/g)?.length).toBe(1)
   })
 
   test("strips stale managed block when plugin has no MCP servers", async () => {
@@ -677,17 +677,17 @@ describe("writeCodexBundle", () => {
       "[user]",
       'model = "gpt-4.1"',
       "",
-      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+      "# BEGIN Methodsmith plugin MCP -- do not edit this block",
       "[mcp_servers.stale]",
       'command = "should-be-removed"',
-      "# END CE DataScience plugin MCP",
+      "# END Methodsmith plugin MCP",
     ].join("\n"))
 
     await writeCodexBundle(codexRoot, { prompts: [], skillDirs: [], generatedSkills: [] })
 
     const config = await fs.readFile(configPath, "utf8")
     expect(config).not.toContain("mcp_servers.stale")
-    expect(config).not.toContain("# BEGIN CE DataScience")
+    expect(config).not.toContain("# BEGIN Methodsmith")
     expect(config).toContain("[user]")
   })
 
@@ -698,31 +698,31 @@ describe("writeCodexBundle", () => {
     await fs.writeFile(
       path.join(sourceSkillDir, "SKILL.md"),
       `---
-name: ce-brainstorm
+name: method-brainstorm
 description: Brainstorm workflow
 ---
 
-Continue with /ce-plan when ready.
+Continue with /method-plan when ready.
 Or use /workflows:plan if you're following an older doc.
 Use /todo-resolve for deeper research.
 `,
     )
     await fs.writeFile(
       path.join(sourceSkillDir, "notes.md"),
-      "Reference docs still mention /ce-plan here.\n",
+      "Reference docs still mention /method-plan here.\n",
     )
 
     const bundle: CodexBundle = {
       prompts: [],
-      skillDirs: [{ name: "ce-brainstorm", sourceDir: sourceSkillDir }],
+      skillDirs: [{ name: "method-brainstorm", sourceDir: sourceSkillDir }],
       generatedSkills: [],
       invocationTargets: {
         promptTargets: {
           "todo-resolve": "todo-resolve",
         },
         skillTargets: {
-          "ce-plan": "ce-plan",
-          "workflows-plan": "ce-plan",
+          "method-plan": "method-plan",
+          "workflows-plan": "method-plan",
         },
       },
     }
@@ -730,18 +730,18 @@ Use /todo-resolve for deeper research.
     await writeCodexBundle(tempRoot, bundle)
 
     const installedSkill = await fs.readFile(
-      path.join(tempRoot, ".codex", "skills", "ce-brainstorm", "SKILL.md"),
+      path.join(tempRoot, ".codex", "skills", "method-brainstorm", "SKILL.md"),
       "utf8",
     )
-    expect(installedSkill).toContain("the ce-plan skill")
+    expect(installedSkill).toContain("the method-plan skill")
     expect(installedSkill).not.toContain("/workflows:plan")
     expect(installedSkill).toContain("/prompts:todo-resolve")
 
     const notes = await fs.readFile(
-      path.join(tempRoot, ".codex", "skills", "ce-brainstorm", "notes.md"),
+      path.join(tempRoot, ".codex", "skills", "method-brainstorm", "notes.md"),
       "utf8",
     )
-    expect(notes).toContain("/ce-plan")
+    expect(notes).toContain("/method-plan")
   })
 
   test("transforms namespaced Task calls in copied SKILL.md files", async () => {
@@ -751,7 +751,7 @@ Use /todo-resolve for deeper research.
     await fs.writeFile(
       path.join(sourceSkillDir, "SKILL.md"),
       `---
-name: ce-plan
+name: method-plan
 description: Planning workflow
 ---
 
@@ -769,7 +769,7 @@ Also run bare agents:
 
     const bundle: CodexBundle = {
       prompts: [],
-      skillDirs: [{ name: "ce-plan", sourceDir: sourceSkillDir }],
+      skillDirs: [{ name: "method-plan", sourceDir: sourceSkillDir }],
       generatedSkills: [],
       invocationTargets: {
         promptTargets: {},
@@ -780,7 +780,7 @@ Also run bare agents:
     await writeCodexBundle(tempRoot, bundle)
 
     const installedSkill = await fs.readFile(
-      path.join(tempRoot, ".codex", "skills", "ce-plan", "SKILL.md"),
+      path.join(tempRoot, ".codex", "skills", "method-plan", "SKILL.md"),
       "utf8",
     )
 
@@ -818,7 +818,7 @@ API examples:
 - https://www.proofeditor.ai/share/markdown
 
 Workflow handoff:
-- /ce-plan
+- /method-plan
 `,
     )
 
@@ -829,7 +829,7 @@ Workflow handoff:
       invocationTargets: {
         promptTargets: {},
         skillTargets: {
-          "ce-plan": "ce-plan",
+          "method-plan": "method-plan",
         },
       },
     }
@@ -845,7 +845,7 @@ Workflow handoff:
     expect(installedSkill).toContain("/settings")
     expect(installedSkill).toContain("https://www.proofeditor.ai/api/agent/{slug}/state")
     expect(installedSkill).toContain("https://www.proofeditor.ai/share/markdown")
-    expect(installedSkill).toContain("the ce-plan skill")
+    expect(installedSkill).toContain("the method-plan skill")
     expect(installedSkill).not.toContain("/prompts:users")
     expect(installedSkill).not.toContain("/prompts:settings")
     expect(installedSkill).not.toContain("https://prompts:www.proofeditor.ai")
@@ -960,9 +960,9 @@ describe("renderCodexConfig", () => {
 describe("mergeCodexConfig", () => {
   test("returns managed block when no existing content", () => {
     const result = mergeCodexConfig("", "[mcp_servers.test]\ncommand = \"echo\"")
-    expect(result).toContain("# BEGIN CE DataScience plugin MCP")
+    expect(result).toContain("# BEGIN Methodsmith plugin MCP")
     expect(result).toContain("[mcp_servers.test]")
-    expect(result).toContain("# END CE DataScience plugin MCP")
+    expect(result).toContain("# END Methodsmith plugin MCP")
   })
 
   test("preserves user content and replaces managed block", () => {
@@ -970,10 +970,10 @@ describe("mergeCodexConfig", () => {
       "[user]",
       'model = "gpt-4.1"',
       "",
-      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+      "# BEGIN Methodsmith plugin MCP -- do not edit this block",
       "[mcp_servers.old]",
       'command = "old"',
-      "# END CE DataScience plugin MCP",
+      "# END Methodsmith plugin MCP",
       "",
       "[after]",
       'key = "value"',
@@ -1000,7 +1000,7 @@ describe("mergeCodexConfig", () => {
     const result = mergeCodexConfig(existing, "[mcp_servers.new]\ncommand = \"new\"")!
     expect(result).not.toContain("# BEGIN compound-plugin Claude Code MCP")
     expect(result).not.toContain("[mcp_servers.old]")
-    expect(result).toContain("# BEGIN CE DataScience plugin MCP")
+    expect(result).toContain("# BEGIN Methodsmith plugin MCP")
     expect(result).toContain("[mcp_servers.new]")
   })
 
@@ -1009,10 +1009,10 @@ describe("mergeCodexConfig", () => {
       "[user]",
       'model = "gpt-4.1"',
       "",
-      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+      "# BEGIN Methodsmith plugin MCP -- do not edit this block",
       "[mcp_servers.stale]",
       'command = "stale"',
-      "# END CE DataScience plugin MCP",
+      "# END Methodsmith plugin MCP",
     ].join("\n")
 
     const result = mergeCodexConfig(existing, null)!
@@ -1033,7 +1033,7 @@ describe("mergeCodexConfig", () => {
     const result = mergeCodexConfig(existing, "[mcp_servers.new]\ncommand = \"new\"")!
     expect(result).not.toContain("# Generated by compound-plugin")
     expect(result).not.toContain("[mcp_servers.old]")
-    expect(result).toContain("# BEGIN CE DataScience plugin MCP")
+    expect(result).toContain("# BEGIN Methodsmith plugin MCP")
     expect(result).toContain("[mcp_servers.new]")
   })
 
@@ -1108,10 +1108,10 @@ describe("mergeCodexConfig", () => {
 
   test("returns empty string when file was only a managed block and mcpToml is null", () => {
     const existing = [
-      "# BEGIN CE DataScience plugin MCP -- do not edit this block",
+      "# BEGIN Methodsmith plugin MCP -- do not edit this block",
       "[mcp_servers.stale]",
       'command = "stale"',
-      "# END CE DataScience plugin MCP",
+      "# END Methodsmith plugin MCP",
     ].join("\n")
 
     const result = mergeCodexConfig(existing, null)

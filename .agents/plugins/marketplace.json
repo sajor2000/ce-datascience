@@ -1,14 +1,14 @@
 {
-  "name": "ce-datascience-plugin",
+  "name": "methodsmith",
   "interface": {
-    "displayName": "CE DataScience"
+    "displayName": "Methodsmith"
   },
   "plugins": [
     {
-      "name": "ce-datascience",
+      "name": "methodsmith",
       "source": {
         "source": "local",
-        "path": "./plugins/ce-datascience"
+        "path": "./plugins/methodsmith"
       },
       "policy": {
         "installation": "AVAILABLE",

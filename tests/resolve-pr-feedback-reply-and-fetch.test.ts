@@ -5,7 +5,7 @@ import { tmpdir } from "os"
 import path from "path"
 
 /**
- * Locks in the ported upstream fixes for ce-resolve-pr-feedback:
+ * Locks in the ported upstream fixes for method-resolve-feedback:
  *   - REST replies that cannot vanish into a pending review (#1196, #1491)
  *   - multiline reply bodies via a quoted heredoc body file (#1199)
  *   - temp files + --slurpfile instead of --argjson on large PRs (#1244)
@@ -16,9 +16,9 @@ const SKILL_DIR = path.join(
   import.meta.dir,
   "..",
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-resolve-pr-feedback",
+  "method-resolve-feedback",
 )
 const SCRIPTS = path.join(SKILL_DIR, "scripts")
 const REPLY_SCRIPT = path.join(SCRIPTS, "reply-to-pr-thread")
@@ -53,7 +53,7 @@ function bashBlocks(markdown: string): string[] {
 // ---------------------------------------------------------------------------
 
 function replyFixture() {
-  const dir = tempDir("ce-reply-")
+  const dir = tempDir("method-reply-")
   const capture = path.join(dir, "args.txt")
   writeExecutable(
     path.join(dir, "gh"),
@@ -306,7 +306,7 @@ describe("get-pr-comments", () => {
   })
 
   test("keeps the PR author's comments, reports identity and pending review, survives a >128KB page", () => {
-    const dir = tempDir("ce-pr-comments-")
+    const dir = tempDir("method-pr-comments-")
     // A single argv string over MAX_ARG_STRLEN (128KB on Linux) broke the old
     // --argjson path with "Argument list too long".
     const huge = "x".repeat(300_000)
@@ -367,7 +367,7 @@ describe("get-pr-comments", () => {
   })
 
   test("pending_review is null when the viewer holds no draft", () => {
-    const dir = tempDir("ce-pr-comments-")
+    const dir = tempDir("method-pr-comments-")
     fakeGraphqlGh(dir, {
       threads: [{ data: { repository: { pullRequest: {
         author: { login: "author" },
@@ -394,7 +394,7 @@ describe("get-pr-comments", () => {
 
 describe("get-thread-for-comment", () => {
   function lookup(commentId: string) {
-    const dir = tempDir("ce-thread-lookup-")
+    const dir = tempDir("method-thread-lookup-")
     fakeGraphqlGh(dir, {
       threads: [
         { data: { repository: { pullRequest: { reviewThreads: {

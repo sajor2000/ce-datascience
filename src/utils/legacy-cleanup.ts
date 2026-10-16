@@ -1,8 +1,8 @@
 /**
- * One-time cleanup of stale ce-datascience files from previous installs.
+ * One-time cleanup of stale methodsmith files from previous installs.
  *
- * The v3 rename changed all skill and agent names (e.g., git-commit -> ce-commit,
- * adversarial-reviewer -> ce-adversarial-reviewer). Target writers create new
+ * The v3 rename changed all skill and agent names (e.g., git-commit -> method-commit,
+ * adversarial-reviewer -> method-adversarial-reviewer). Target writers create new
  * files at the new paths but don't remove the old ones, leaving orphans that
  * confuse the agent runtime.
  *
@@ -406,7 +406,7 @@ async function pathExists(targetPath: string): Promise<boolean> {
 async function findRepoRoot(startDir: string): Promise<string | null> {
   let current = startDir
   while (true) {
-    const pluginRoot = path.join(current, "plugins", "ce-datascience")
+    const pluginRoot = path.join(current, "plugins", "methodsmith")
     if (await pathExists(pluginRoot)) return current
     const parent = path.dirname(current)
     if (parent === current) return null
@@ -485,7 +485,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
         return { skills: new Map(), agents: new Map(), prompts: new Map() }
       }
 
-      const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+      const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
       const [skillIndex, agentIndex] = await Promise.all([
         buildSkillIndex(path.join(pluginRoot, "skills")),
         buildAgentIndex(path.join(pluginRoot, "agents")),
@@ -502,7 +502,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
           if (description) skills.set(legacyName, description)
           continue
         }
-        // No current ce-* replacement shipped. Fall back to the hardcoded
+        // No current method-* replacement shipped. Fall back to the hardcoded
         // historical description so cleanup can still fingerprint the
         // legacy-only artifact on upgrade.
         const legacyOnly = LEGACY_ONLY_SKILL_DESCRIPTIONS[legacyName]
@@ -510,7 +510,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
       }
 
       for (const legacyName of STALE_AGENT_NAMES) {
-        const currentPath = agentIndex.get(`ce-${legacyName}`)
+        const currentPath = agentIndex.get(`method-${legacyName}`)
         if (currentPath) {
           const description = await readDescription(currentPath)
           if (description) agents.set(legacyName, description)
@@ -547,7 +547,7 @@ function normalizeDescriptionFingerprint(value: string): string {
 
 /**
  * Short hash of a normalized description. `src/data/shipped-description-fingerprints.json`
- * holds one per description any ce-datascience release shipped, generated from
+ * holds one per description any methodsmith release shipped, generated from
  * git history by `scripts/maintenance/description-fingerprints.ts`.
  */
 export function descriptionFingerprint(value: string): string {
@@ -557,7 +557,7 @@ export function descriptionFingerprint(value: string): string {
 const shippedFingerprints = new Set<string>(shippedDescriptionFingerprints.fingerprints)
 
 /**
- * Every `description:` value ce-datascience has shipped that this checkout
+ * Every `description:` value methodsmith has shipped that this checkout
  * knows about: current skills and agents, plus the historical maps above.
  * A file's description is the second ownership signal for legacy artifacts
  * that predate the install ledger; the name alone is never enough.
@@ -571,7 +571,7 @@ async function loadKnownDescriptions(): Promise<Set<string>> {
       }
       const repoRoot = await findRepoRoot(path.dirname(fileURLToPath(import.meta.url)))
       if (repoRoot) {
-        const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+        const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
         const [skillIndex, agentIndex] = await Promise.all([
           buildSkillIndex(path.join(pluginRoot, "skills")),
           buildAgentIndex(path.join(pluginRoot, "agents")),
@@ -613,7 +613,7 @@ async function readArtifactDescription(targetPath: string): Promise<string | nul
 /**
  * Second ownership signal for an artifact found at a legacy allow-listed name
  * with no install-ledger record: its description must exactly match one that
- * ce-datascience has shipped. A user's own `skill-creator`, `setup`, or
+ * methodsmith has shipped. A user's own `skill-creator`, `setup`, or
  * `review.md` fails this check and is left in place.
  */
 export async function isKnownPluginArtifact(
@@ -631,9 +631,9 @@ export async function isKnownPluginArtifact(
   return false
 }
 
-/** One-line notice for a same-named item that ce-datascience leaves alone. */
+/** One-line notice for a same-named item that methodsmith leaves alone. */
 export function noticeKeptUserArtifact(targetPath: string): void {
-  console.warn(`Kept ${targetPath}: it has the name of an old ce-datascience file but ce-datascience did not create it.`)
+  console.warn(`Kept ${targetPath}: it has the name of an old methodsmith file but methodsmith did not create it.`)
 }
 
 // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
@@ -686,27 +686,27 @@ async function isLegacyPluginOwned(
  * for an invocable command. These strings have remained stable across every
  * Codex-producing version of the plugin:
  *
- *   - `Use the $ce-plan skill for this command and follow its instructions.`
+ *   - `Use the $method-plan skill for this command and follow its instructions.`
  *     (v2.39+ command-form wrapper)
  *   - `Use the ce:plan skill for this workflow and follow its instructions exactly.`
  *     (v2.55+ workflow-form wrapper, pre-rename)
- *   - `Use the ce-plan skill for this workflow and follow its instructions exactly.`
+ *   - `Use the method-plan skill for this workflow and follow its instructions exactly.`
  *     (post-rename workflow-form wrapper)
  *
- * The "command" form is NOT exclusive to ce-datascience. `renderPrompt`
+ * The "command" form is NOT exclusive to methodsmith. `renderPrompt`
  * in `src/converters/claude-to-codex.ts` emits the same sentence (with a
  * different skill name) for every plugin that ships invocable commands. A
  * third-party plugin that happens to ship a same-named prompt wrapper (for
- * example, a fork that keeps the `ce-*` namespace) would produce a wrapper
+ * example, a fork that keeps the `method-*` namespace) would produce a wrapper
  * whose body passes this signal alone.
  *
  * **Signal 2 — description ownership.** To avoid deleting another plugin's
  * wrapper out of a shared `~/.codex/prompts/` directory, we additionally
  * require the frontmatter `description:` to match either (a) the current
- * shipped description of the corresponding ce-datascience skill, or
+ * shipped description of the corresponding methodsmith skill, or
  * (b) one of the historical descriptions we have shipped in a prior release
  * (`LEGACY_PROMPT_DESCRIPTION_ALIASES`). A wrapper with our body fingerprint
- * but a description that has never appeared in any ce-datascience
+ * but a description that has never appeared in any methodsmith
  * release is treated as NOT ours.
  *
  * Trade-off: adding a new release that reworks a prompt-related skill's
@@ -854,12 +854,12 @@ export async function cleanupStaleAgents(
  * Only applies to targets that used to generate workflow prompt wrappers (Codex).
  *
  * Ownership uses the two-signal check documented on `isLegacyPromptWrapper`:
- * the body must contain one of the ce-datascience-specific instruction
+ * the body must contain one of the methodsmith-specific instruction
  * sentences AND the frontmatter description must match either the current
- * shipped description of the corresponding ce-* skill or a known historical
+ * shipped description of the corresponding method-* skill or a known historical
  * alias. This prevents deleting a sibling plugin's same-named wrapper from a
  * shared `~/.codex/prompts/` directory when both plugins happen to use the
- * `ce-*` namespace.
+ * `method-*` namespace.
  */
 export async function cleanupStalePrompts(promptsDir: string, backupDir?: string): Promise<number> {
   const { prompts } = await loadLegacyFingerprints()
@@ -876,15 +876,15 @@ export async function cleanupStalePrompts(promptsDir: string, backupDir?: string
  * Ownership verdict for an individual Codex prompt file at a shared path like
  * `~/.codex/prompts/<file>.md`. Used by callers in the Codex install and
  * standalone-cleanup paths to gate legacy-name allow-list moves before
- * renaming a file into `ce-datascience/legacy-backup/`.
+ * renaming a file into `methodsmith/legacy-backup/`.
  *
  * Verdicts:
  *   - `"ce-owned"`: body + frontmatter fingerprint match a known
- *     ce-datascience prompt-wrapper shape. Safe to move.
+ *     methodsmith prompt-wrapper shape. Safe to move.
  *   - `"foreign"`: we have a fingerprint on record for this filename and the
  *     file does NOT match it. A user or sibling plugin authored this file —
  *     leave it alone. `~/.codex/prompts/` is a cross-plugin directory, so a
- *     name-only match (e.g. `ce-plan.md`) is not a strong enough signal.
+ *     name-only match (e.g. `method-plan.md`) is not a strong enough signal.
  *   - `"unknown"`: we have no fingerprint on record for this filename. This
  *     applies to historical prompt wrappers whose corresponding CE skill no
  *     longer ships (e.g. `reproduce-bug.md`, `report-bug.md`) — user
@@ -894,7 +894,7 @@ export async function cleanupStalePrompts(promptsDir: string, backupDir?: string
  *
  * Rationale for the three-way split: `LEGACY_PROMPT_CURRENT_SKILL_FOR_FILE`
  * + `LEGACY_PROMPT_DESCRIPTION_ALIASES` only cover prompt filenames whose
- * corresponding ce-* skill is still shipped. For names that are fully
+ * corresponding method-* skill is still shipped. For names that are fully
  * retired, we have no description to compare against, so a strict ownership
  * gate would strand genuinely-owned orphan wrappers. Reporting `"unknown"`
  * lets callers keep the historical allow-list behavior for those while still

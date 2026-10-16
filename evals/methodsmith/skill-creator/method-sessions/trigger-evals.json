@@ -1,0 +1,82 @@
+[
+  {
+    "query": "What did I try last week to fix the MICE imputation crash? Check my previous Claude Code sessions",
+    "should_trigger": true
+  },
+  {
+    "query": "search session history: have we already discussed switching from pandas to polars for the cohort build?",
+    "should_trigger": true
+  },
+  {
+    "query": "i know we debugged the renv restore failure in a codex session a few days ago -- what was the fix?",
+    "should_trigger": true
+  },
+  {
+    "query": "Summarize prior decisions from past agent sessions about how we defined index date for the sepsis cohort",
+    "should_trigger": true
+  },
+  {
+    "query": "Before I start, check whether a previous session already attempted the Table 1 small-cell suppression and what blocked it",
+    "should_trigger": true
+  },
+  {
+    "query": "what happened in my cursor and claude sessions this morning on the KM plot bug",
+    "should_trigger": true
+  },
+  {
+    "query": "Did an earlier session on branch feat/aki-phenotype decide anything about the creatinine baseline window?",
+    "should_trigger": true
+  },
+  {
+    "query": "Look back through the last month of sessions for anything we learned about the Fabric lakehouse auth errors",
+    "should_trigger": true
+  },
+  {
+    "query": "prior attempts at fixing the flaky testthat snapshot -- what didn't work? search old sessions",
+    "should_trigger": true
+  },
+  {
+    "query": "Recover what was tried in previous sessions on the propensity score overlap problem so I can write it up",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a handoff note so the next agent can resume this task without chat history",
+    "should_trigger": false
+  },
+  {
+    "query": "Document the validated propensity-score approach we just finished into docs/solutions",
+    "should_trigger": false
+  },
+  {
+    "query": "Show git log for the last two weeks of commits on feat/competing-risks",
+    "should_trigger": false
+  },
+  {
+    "query": "What changed in the latest methodsmith plugin release?",
+    "should_trigger": false
+  },
+  {
+    "query": "Debug why the Fine-Gray model fails to converge -- here's the stack trace",
+    "should_trigger": false
+  },
+  {
+    "query": "Audit docs/solutions for stale or drifted learnings and consolidate duplicates",
+    "should_trigger": false
+  },
+  {
+    "query": "Show me the lifecycle status for this project and what skill to run next",
+    "should_trigger": false
+  },
+  {
+    "query": "Monitor PR #88 and tell me when CI goes green",
+    "should_trigger": false
+  },
+  {
+    "query": "Search PubMed for prior studies on competing risks in readmission",
+    "should_trigger": false
+  },
+  {
+    "query": "Report a bug in the method-sessions skill: extract-metadata.py crashes on Cursor transcripts",
+    "should_trigger": false
+  }
+]

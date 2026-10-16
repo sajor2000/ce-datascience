@@ -32,7 +32,7 @@ async function runInstaller(args: string[], env: Record<string, string>): Promis
 
 describe("installer keeps users updated", () => {
   test("Claude: installs from the GitHub marketplace and turns on auto-update, preserving user settings", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-install-claude-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-install-claude-"))
     const { bin, log } = await stubBin(root)
     const configDir = path.join(root, "claude-config")
     await fs.mkdir(configDir, { recursive: true })
@@ -46,20 +46,20 @@ describe("installer keeps users updated", () => {
 
     expect(exitCode).toBe(0)
     const calls = await fs.readFile(log, "utf8")
-    expect(calls).toContain("claude plugin marketplace add sajor2000/ce-datascience --scope user")
-    expect(calls).toContain("claude plugin install ce-datascience@ce-datascience-plugin --scope user")
+    expect(calls).toContain("claude plugin marketplace add sajor2000/methodsmith --scope user")
+    expect(calls).toContain("claude plugin install methodsmith@methodsmith --scope user")
     const settings = JSON.parse(await fs.readFile(settingsPath, "utf8"))
     expect(settings.theme).toBe("dark")
     expect(settings.permissions).toEqual({ allow: ["Bash(ls)"] })
-    expect(settings.extraKnownMarketplaces["ce-datascience-plugin"]).toEqual({
-      source: { source: "github", repo: "sajor2000/ce-datascience" },
+    expect(settings.extraKnownMarketplaces["methodsmith"]).toEqual({
+      source: { source: "github", repo: "sajor2000/methodsmith" },
       autoUpdate: true,
     })
     expect(stdout).toContain("Auto-update is on")
   })
 
   test("Claude: --no-auto-update leaves settings alone and prints the manual update command", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-install-claude-off-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-install-claude-off-"))
     const { bin } = await stubBin(root)
     const configDir = path.join(root, "claude-config")
 
@@ -70,11 +70,11 @@ describe("installer keeps users updated", () => {
 
     expect(exitCode).toBe(0)
     expect(await Bun.file(path.join(configDir, "settings.json")).exists()).toBe(false)
-    expect(stdout).toContain("claude plugin update ce-datascience@ce-datascience-plugin")
+    expect(stdout).toContain("claude plugin update methodsmith@methodsmith")
   })
 
   test("Claude: refuses to rewrite a settings.json it cannot parse", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-install-claude-bad-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-install-claude-bad-"))
     const { bin } = await stubBin(root)
     const configDir = path.join(root, "claude-config")
     await fs.mkdir(configDir, { recursive: true })
@@ -92,7 +92,7 @@ describe("installer keeps users updated", () => {
   })
 
   test("Codex: registers the Git marketplace so upgrade works, and prints the upgrade command", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-install-codex-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-install-codex-"))
     const { bin, log } = await stubBin(root)
 
     const { stdout, exitCode } = await runInstaller(
@@ -101,12 +101,12 @@ describe("installer keeps users updated", () => {
     )
 
     expect(exitCode).toBe(0)
-    expect(await fs.readFile(log, "utf8")).toContain("codex plugin marketplace add sajor2000/ce-datascience")
-    expect(stdout).toContain("codex plugin marketplace upgrade ce-datascience-plugin")
+    expect(await fs.readFile(log, "utf8")).toContain("codex plugin marketplace add sajor2000/methodsmith")
+    expect(stdout).toContain("codex plugin marketplace upgrade methodsmith")
   })
 
   test("an explicit --source keeps the local checkout as the marketplace", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-install-local-"))
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-install-local-"))
     const { bin, log } = await stubBin(root)
 
     const { exitCode } = await runInstaller(["claude", "--source", repoRoot, "--no-auto-update"], {
@@ -123,7 +123,7 @@ describe("install.ps1 keeps users updated", () => {
   // PowerShell is not available in CI; guard the Windows twin statically.
   test("mirrors the GitHub-source, auto-update, and Codex upgrade behavior", async () => {
     const ps1 = await fs.readFile(path.join(repoRoot, "install.ps1"), "utf8")
-    expect(ps1).toContain('$GitHubRepo = "sajor2000/ce-datascience"')
+    expect(ps1).toContain('$GitHubRepo = "sajor2000/methodsmith"')
     expect(ps1).toContain('Invoke-Step "claude" @("plugin", "marketplace", "add", $GitHubRepo, "--scope", $Scope)')
     expect(ps1).toContain('Set-JsonProperty $markets.$MarketplaceName "autoUpdate" $true')
     expect(ps1).toContain("[switch]$NoAutoUpdate")

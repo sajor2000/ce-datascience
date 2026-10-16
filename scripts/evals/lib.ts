@@ -251,7 +251,7 @@ function resolveInside(base: string, relativePath: string, label: string): strin
 }
 
 export async function resolveEvaluationRunDir(runDirArg: string): Promise<string> {
-  const requiredRoot = await fs.realpath("/tmp/ce-datascience/behavioral-evals")
+  const requiredRoot = await fs.realpath("/tmp/methodsmith/behavioral-evals")
   const runDir = await fs.realpath(path.resolve(runDirArg))
   if (!isPathInside(requiredRoot, runDir)) {
     throw new Error(`Run directory must be under ${requiredRoot}`)
@@ -606,7 +606,7 @@ export async function validateAllCases(repoRoot: string): Promise<{
   cases: Array<{ casePath: string; definition: EvaluationCase }>
   errors: string[]
 }> {
-  const caseRoot = path.join(repoRoot, "evals", "ce-datascience", "cases")
+  const caseRoot = path.join(repoRoot, "evals", "methodsmith", "cases")
   const caseFiles = await findCaseFiles(caseRoot)
   const cases: Array<{ casePath: string; definition: EvaluationCase }> = []
   const errors: string[] = []
@@ -1224,7 +1224,7 @@ export async function findCaseById(
   repoRoot: string,
   caseId: string,
 ): Promise<{ casePath: string; definition: EvaluationCase }> {
-  const caseRoot = path.join(repoRoot, "evals", "ce-datascience", "cases")
+  const caseRoot = path.join(repoRoot, "evals", "methodsmith", "cases")
   const matches: string[] = []
   for (const casePath of await findCaseFiles(caseRoot)) {
     try {

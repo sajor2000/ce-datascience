@@ -2,11 +2,11 @@
 
 Use the repository-owned behavioral evaluation layer when a skill or agent change can alter what
 the model does but static content assertions cannot prove the intended behavior. The pilot covers
-`ce-doc-review` and `ce-data-qa`.
+`method-doc-review` and `method-data-qa`.
 
 ## Design
 
-Each case under `evals/ce-datascience/cases/` freezes:
+Each case under `evals/methodsmith/cases/` freezes:
 
 - the target skill or agent source;
 - a user-shaped prompt and synthetic or seeded fixtures;
@@ -32,7 +32,7 @@ Deterministic validation and live evaluation are intentionally separate:
 Keep every live run under:
 
 ```text
-/tmp/ce-datascience/behavioral-evals/<run-id>/
+/tmp/methodsmith/behavioral-evals/<run-id>/
 ├── run.json
 ├── response.md
 ├── workspace/
@@ -45,7 +45,7 @@ Keep every live run under:
 ```json
 {
   "schema_version": "1.0",
-  "case_id": "ce-data-qa-pre-sap",
+  "case_id": "method-data-qa-pre-sap",
   "case_sha256": "SHA-256 captured before dispatch",
   "prompt_sha256": "SHA-256 captured before dispatch",
   "target_sha256": "SHA-256 captured before dispatch (whole-directory digest for a SKILL.md target)",
@@ -77,7 +77,7 @@ differs from the current file.
 > stored digest by hand.
 
 The scorer canonicalizes the repository and run paths before reading them, so a symlink cannot
-escape the repository or `/tmp/ce-datascience/behavioral-evals` roots. It snapshots `run.json`, the
+escape the repository or `/tmp/methodsmith/behavioral-evals` roots. It snapshots `run.json`, the
 primary output, the case, prompt, target, fixtures, and every unique scored artifact exactly once.
 The report and manifest hashes are derived from those immutable bytes. Both output files are fully
 written and synced to same-directory temporary files before publishing starts. The publisher then

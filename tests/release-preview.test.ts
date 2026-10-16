@@ -5,31 +5,31 @@ describe("release preview", () => {
   test("uses changed files to determine affected components and next versions", async () => {
     const versions = await loadCurrentVersions()
     const preview = await buildReleasePreview({
-      title: "fix: adjust ce-plan wording",
-      files: ["plugins/ce-datascience/skills/ce-plan/SKILL.md"],
+      title: "fix: adjust method-plan wording",
+      files: ["plugins/methodsmith/skills/method-plan/SKILL.md"],
     })
 
     expect(preview.components).toHaveLength(1)
-    expect(preview.components[0].component).toBe("ce-datascience")
+    expect(preview.components[0].component).toBe("methodsmith")
     expect(preview.components[0].inferredBump).toBe("patch")
-    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["ce-datascience"], "patch"))
+    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["methodsmith"], "patch"))
   })
 
   test("supports per-component overrides", async () => {
     const versions = await loadCurrentVersions()
     const preview = await buildReleasePreview({
-      title: "fix: update ce-datascience prompts",
-      files: ["plugins/ce-datascience/README.md"],
+      title: "fix: update methodsmith prompts",
+      files: ["plugins/methodsmith/README.md"],
       overrides: {
-        "ce-datascience": "minor",
+        "methodsmith": "minor",
       },
     })
 
     expect(preview.components).toHaveLength(1)
-    expect(preview.components[0].component).toBe("ce-datascience")
+    expect(preview.components[0].component).toBe("methodsmith")
     expect(preview.components[0].inferredBump).toBe("patch")
     expect(preview.components[0].effectiveBump).toBe("minor")
-    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["ce-datascience"], "minor"))
+    expect(preview.components[0].nextVersion).toBe(bumpVersion(versions["methodsmith"], "minor"))
   })
 
   test("docs-only changes remain non-releasable by default", async () => {

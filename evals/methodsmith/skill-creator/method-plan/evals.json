@@ -1,0 +1,45 @@
+{
+  "skill_name": "method-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write the SAP for our retrospective cohort study: adult ICU patients with septic shock (inclusion: norepinephrine >0.1 mcg/kg/min), exposure is vasopressin started within 6h vs later, primary endpoint is 28-day mortality, observational EHR data from 3 sites. The extract is at data/restricted/shock_v1.parquet and method-data-qa already produced reports/data-qa/shock_v1.md (GO).",
+      "expected_output": "Announces SAP mode, consumes the data-QA report before variable/model sections, writes a versioned draft SAP at analysis/sap.md with stable SAP-N.M IDs and explicit estimand/causal assumptions, requires the method-sap-workbook companion, runs the gap checklist, and presents the post-generation menu.",
+      "files": [],
+      "expectations": [
+        "Announces 'Entering SAP mode' based on study-design keywords",
+        "Reads reports/data-qa/shock_v1.md before writing variable, missingness, cohort-size, or model sections",
+        "Writes the SAP to analysis/sap.md (the default path) with sap_version and status frontmatter, keeping status: draft while any estimand, comparator, time-zero, adjustment, or missing-data choice remains unresolved",
+        "Requires the method-sap-workbook companion (analysis/sap-tables/01-overview.csv, 02-outputs.csv, 03-variables.csv) or records an explicit blocker",
+        "Does not set status: final without user acceptance and does not run inferential analyses",
+        "Grounds SAP-1 background and SAP-5 methods justification in sources read through the PubMed/Paperclip MCP tools and cited by PMID/DOI with an evidence label, or writes a GAP comment, never a citation from memory"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "plan out adding a CLI flag --site-filter to our cohort-builder package (src/cohort/cli.py) so analysts can restrict to one hospital. should be small.",
+      "expected_output": "Enters implementation mode, writes a Lightweight plan at docs/plans/YYYY-MM-DD-NNN-feat-<name>-plan.md with U-ID units, repo-relative file paths, test file paths and concrete test scenarios, and writes no implementation code.",
+      "files": [],
+      "expectations": [
+        "Announces 'Entering implementation mode'",
+        "Writes the plan to docs/plans/ using the YYYY-MM-DD-NNN-<type>-<name>-plan.md naming with the date resolved at runtime",
+        "Uses stable U-IDs (U1, U2, ...) with no '- [ ]' checkboxes and lists a test file path plus concrete test scenarios for each feature-bearing unit",
+        "Uses only repo-relative paths (e.g. src/cohort/cli.py), never absolute paths",
+        "Does not write implementation code or modify src/ files, and presents the post-generation menu after writing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Draft the statistical analysis plan for the randomized trial of early mobilization vs usual care; primary outcome is ICU-free days at day 28, hypothesis is superiority. We haven't received any data yet.",
+      "expected_output": "Enters SAP mode, writes a draft SAP with a GAP comment for the missing data profile, keeps variable/model sections provisional, and lists method-data-qa then method-model-choice before method-sap-workbook as next steps.",
+      "files": [],
+      "expectations": [
+        "Announces 'Entering SAP mode'",
+        "Keeps the SAP at status: draft with a GAP comment noting the missing method-data-qa column profile",
+        "Marks variable, missingness, and model sections as provisional rather than inventing column names or cohort sizes",
+        "Lists method-data-qa followed by method-model-choice as required next steps before method-sap-workbook, method-sprint, or method-work",
+        "Does not invent tabular SAP workbook rows while data QA is missing"
+      ]
+    }
+  ]
+}

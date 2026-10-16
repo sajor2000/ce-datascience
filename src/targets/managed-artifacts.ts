@@ -24,7 +24,7 @@ export function sanitizeManagedPluginName(name: string): string {
  * the same target root keep independent manifests. When no plugin name is
  * supplied (legacy callers / bundles without `pluginName`), the historical
  * `compound-engineering` segment is returned to preserve pre-existing paths
- * from installs that predate the ce-datascience rename.
+ * from installs that predate the methodsmith rename.
  */
 export function resolveManagedSegment(pluginName?: string): string {
   return pluginName ?? LEGACY_MANAGED_SEGMENT
@@ -33,7 +33,7 @@ export function resolveManagedSegment(pluginName?: string): string {
 /**
  * Resolves the legacy shared managed directory that lived next to the
  * current plugin-scoped directory before the per-plugin namespacing fix.
- * `managedDir` is the plugin-scoped path (e.g. `<root>/ce-datascience`);
+ * `managedDir` is the plugin-scoped path (e.g. `<root>/methodsmith`);
  * the legacy sibling is `<root>/compound-engineering`. When `pluginName`
  * is the historical `compound-engineering`, the legacy path and the
  * current path are the same, so there is nothing to migrate -- this
@@ -49,7 +49,7 @@ export function resolveLegacyManagedDir(managedDir: string, pluginName: string):
  * shared manifest at `<root>/compound-engineering/install-manifest.json`
  * when the plugin-scoped one is missing. The legacy manifest is only
  * returned when its recorded `pluginName` matches the current plugin
- * (ce-datascience) -- `readManagedInstallManifest` enforces that match,
+ * (methodsmith) -- `readManagedInstallManifest` enforces that match,
  * so a legacy manifest belonging to a different plugin is left untouched
  * for that plugin's own next install to migrate.
  */
@@ -193,7 +193,7 @@ export async function claimManagedUnit(
 /**
  * Move a legacy artifact into `legacy-backup/`. Returns whether it moved.
  * Pass `ownershipProven` only when a second signal (an install-manifest entry,
- * a symlink into the managed tree) already shows ce-datascience wrote it;
+ * a symlink into the managed tree) already shows methodsmith wrote it;
  * otherwise the artifact's description must match one the plugin shipped.
  */
 export async function moveLegacyArtifactToBackup(
