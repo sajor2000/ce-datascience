@@ -176,3 +176,14 @@ describe("DOCX fail closed and trace", () => {
     expect(result.out).toMatch(/^manuscript\/ok\.docx:p1 \{\{num:primary\.hr\}\} <- registry primary\.hr \(estimate\) <- analysis\/model\.py@[0-9a-f]{12} <- data\/synthetic\.csv#[0-9a-f]{12} <- SAP T2$/m)
   })
 })
+
+describe("DOCX render without placeholders", () => {
+  test("writes nothing when the file has no placeholders or CE_NUM fields", () => {
+    const root = project()
+    docx(path.join(root, "manuscript", "plain.docx"), p(r("No numbers to lock.")))
+    const result = run(root, ["python3", cli, "render", "manuscript/plain.docx", "--out", "manuscript/out.docx"])
+    expect(result.code).toBe(1)
+    expect(result.out).toContain("manuscript/plain.docx: nothing to render")
+    expect(() => readFileSync(path.join(root, "manuscript", "out.docx"))).toThrow()
+  })
+})

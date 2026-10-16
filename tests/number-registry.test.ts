@@ -353,11 +353,12 @@ register_table("table1", {
     ].join("\n"))
     const result = check(root, "analysis/publication/tables/table1.csv")
     expect(result.code).toBe(1)
-    expect(result.out).toContain("analysis/publication/tables/table1.csv:2: untraced number: 11.8")
+    // Table cells are located by column, never printed (a table may be a run output, which is data).
+    expect(result.out).toContain("analysis/publication/tables/table1.csv:2: untraced number: column 2")
     expect(result.out).not.toContain("table1.csv:1:")
     expect(result.out).not.toContain("table1.csv:3:")
-    expect(result.out).toContain("analysis/publication/tables/table1.csv:4: untraced number: 200")
-    expect(result.out).toContain("analysis/publication/tables/table1.csv:4: untraced number: 48.5%")
+    expect(result.out.match(/table1\.csv:4: untraced number: column 2/g)?.length).toBe(1)
+    expect(result.out).not.toContain("48.5")
   })
 })
 
