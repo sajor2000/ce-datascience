@@ -107,7 +107,6 @@ SEPARATORS = {";", "&", "&&", "||", "|", "|&", "(", ")", ";;"}
 REDIRECTS = {"<", ">", ">>", "<>", ">|", "&>", "&>>", ">&", "<&"}
 
 DOI_OR_PMC = re.compile(r"\b10\.\d{4,9}/\S+|\bPMC\d+\b", re.IGNORECASE)
-EXEMPT_KEYS = {"pmid", "pmids", "pmcid", "pmcids", "doi", "dois", "id", "ids", "upload_id"}
 RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
 UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
 UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
@@ -1181,9 +1180,7 @@ def identifier_reason(text, mode, key=""):
 
 def mcp_violation(tool, tool_input, cwd, mode):
     uploadish = bool(UPLOADISH_TOOL.search(tool.split("__")[-1]))
-    for key, value in _strings(tool_input):
-        if key in EXEMPT_KEYS:
-            continue
+    for key, value in _strings(tool_input):  # no key is exempt: DOIs/PMCIDs are stripped, bare PMIDs never match
         reason = identifier_reason(value, mode, key)
         if reason:
             return reason
