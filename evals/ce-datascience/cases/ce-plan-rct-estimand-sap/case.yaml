@@ -1,0 +1,97 @@
+schema_version: "1.0"
+id: ce-plan-rct-estimand-sap
+target:
+  kind: skill
+  name: ce-plan
+  source: plugins/ce-datascience/skills/ce-plan/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-plan-rct-estimand-sap/prompt.md
+fixtures: []
+required_behaviors:
+  - sap-exists
+  - estimand-section
+  - intercurrent-strategy
+  - names-rescue-event
+  - per-protocol-supplementary
+  - interim-section
+  - stratification-factor-adjustment
+  - gamble-cross-check
+prohibited_behaviors:
+  - no-legacy-sensitivity-populations
+  - stays-draft
+criteria:
+  - id: sap-exists
+    description: The SAP file is written.
+    type: file_exists
+    path: workspace/analysis/sap.md
+    expected: true
+    weight: 3
+    hard_gate: true
+  - id: estimand-section
+    description: The SAP has the SAP-1.4 estimand section.
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: '^#+\s*SAP-1\.4\b[^\n]*estimand'
+    weight: 4
+    hard_gate: true
+  - id: intercurrent-strategy
+    description: Each intercurrent event is paired with an ICH E9(R1) strategy; treatment policy fits this assignment question.
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: 'treatment[- ]policy'
+    weight: 3
+    hard_gate: true
+  - id: names-rescue-event
+    description: Rescue medication is named as an intercurrent event.
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: 'rescue[^\n]*(intercurrent|strategy|treatment[- ]policy|hypothetical|composite)|(intercurrent|strategy)[^\n]*rescue'
+    weight: 2
+    hard_gate: false
+  - id: per-protocol-supplementary
+    description: The per-protocol analysis is labelled supplementary (a different estimand), not a sensitivity analysis.
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: 'per[- ]protocol[^\n]*supplementary|supplementary[^\n]*per[- ]protocol'
+    weight: 3
+    hard_gate: true
+  - id: interim-section
+    description: The interim analysis is specified in SAP-5.4 with an alpha-spending or stopping rule.
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: '^#+\s*SAP-5\.4\b'
+    weight: 2
+    hard_gate: false
+  - id: stratification-factor-adjustment
+    description: The primary analysis adjusts for the randomization stratification factor (site).
+    type: regex
+    path: workspace/analysis/sap.md
+    pattern: 'stratif[^\n]*(site|factor)[^\n]*(adjust|covariate|model)|(adjust|covariate)[^\n]*stratif'
+    weight: 2
+    hard_gate: false
+  - id: gamble-cross-check
+    description: The response or SAP cross-checks against the Gamble et al. 2017 SAP content guideline.
+    type: text_contains
+    path: response.md
+    value: "Gamble"
+    weight: 1
+    hard_gate: false
+  - id: no-legacy-sensitivity-populations
+    description: The SAP does not use the pre-E9(R1) "Sensitivity Populations" heading that conflates analysis sets with sensitivity analyses.
+    type: regex_not
+    path: workspace/analysis/sap.md
+    pattern: '^#+\s*SAP-4\.2:\s*Sensitivity Populations'
+    weight: 2
+    hard_gate: true
+  - id: stays-draft
+    description: Without a data profile the SAP is not finalized.
+    type: regex_not
+    path: workspace/analysis/sap.md
+    pattern: '^status:\s*final\b'
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The prompt is a synthetic trial description; no data or protocol file is provided.
+  - Regex criteria check structure and labels, not whether every estimand attribute is scientifically well chosen.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

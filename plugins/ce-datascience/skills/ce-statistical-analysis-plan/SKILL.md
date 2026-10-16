@@ -3,7 +3,9 @@ name: ce-statistical-analysis-plan
 description: "Deepen a clinical or observational SAP with a claims-to-datasets schema, estimands, diagnostics, and decision evidence. Use when a complex EHR/registry, validation, prediction, causal, multisite, or benchmarking design needs more depth after ce-plan establishes the canonical plan."
 ---
 
-# Claims-Based Statistical Analysis Plan
+# Claim-Linked Statistical Analysis Plan
+
+"Claim" here means a scientific claim, not an insurance claim; this skill applies to any data source, including administrative claims.
 
 ## Skill Value
 
@@ -28,15 +30,15 @@ description: "Deepen a clinical or observational SAP with a claims-to-datasets s
 
 ## Intake and Data Gate
 
-Classify the study's aim (validation, association, prediction, benchmarking, or causal effect) and design (RCT, EHR/registry cohort, cross-sectional, multisite, or other). Capture:
+Classify the study's aim (validation, association, prediction, benchmarking, or causal effect) and design (RCT, EHR/registry cohort, cross-sectional, multisite, `early-clinical-ai-evaluation`, or other), and note `protocol_stage: true` when the SAP accompanies a protocol (SPIRIT 2025 for trial protocols, PRISMA-P for review protocols). Capture:
 
 - Study population, inclusion/exclusion criteria, data sources, study window, and site structure.
-- Named claims, each with an analysis question and estimand.
+- Named claims, each with an analysis question and an ICH E9(R1) estimand (treatment, population, variable, intercurrent events with strategies, population-level summary).
 - Dataset grain, denominator, identifiers, join keys, and unit of analysis for each claim.
 - Exposure/intervention, outcome, covariates, temporal definitions, index date, and follow-up/censoring rules when longitudinal.
 - Missing-data mechanism and intended handling, required outputs, and target journal or operational audience.
 
-When data are available, run the `ce-data-qa` skill before finalizing variables or models. Keep the SAP draft when provenance, grain, keys, types, row counts, or missing-data handling are unresolved. For observational or causal claims, also make the estimand, assumptions, treatment strategy, time zero, and success criteria explicit; unresolved choices block finalization.
+When data are available, run the `ce-data-qa` skill before finalizing variables or models. Keep the SAP draft when provenance, grain, keys, types, row counts, or missing-data handling are unresolved. For observational or causal claims, also make the estimand, assumptions, and success criteria explicit, and specify the target-trial protocol: eligibility (assessable at time zero), treatment strategies, assignment, follow-up start and end, outcome, causal contrast, and analysis plan. Time zero is when eligibility is met and a strategy is assigned, by the same rule in every arm; name any grace period and how it is emulated (e.g., clone-censor-weight), and handle per-protocol deviations with artificial censoring plus inverse-probability weighting. Report against TARGET (2025). Unresolved choices block finalization.
 
 Consume an existing `__CE_MODEL_STRATEGY__` handoff when present. For a nontrivial primary model decision without one, load `ce-model-strategy` after the data gate. Only `ready_for_review` strategy details may populate an execution-ready model specification; carry `blocked` or `provisional` decisions into the unresolved-decisions review.
 
@@ -50,29 +52,27 @@ Create these linked objects before rendering any output:
 |---|---|
 | `Study` | Aim, design, population, sites, protocol/version, study window |
 | `Dataset` | Source, grain, denominator, keys, refresh/provenance, analysis-ready status |
-| `Claim` | Label, plain-language scientific claim, analysis question, estimand |
+| `Claim` | Label, plain-language scientific claim, analysis question, and estimand with all five ICH E9(R1) attributes: treatment conditions compared, population, variable/endpoint with time point, each anticipated intercurrent event with its strategy (treatment policy, hypothetical, composite, while on treatment, or principal stratum), and population-level summary (e.g., risk difference, marginal OR, HR, RMST difference) |
 | `Variable` | Role, category, temporal type, source, grain, coding, and analyses that use it |
 | `Analysis` | Claim, question, estimand, unit of analysis, supporting dataset, primary/secondary method, model-strategy memo, script, output artifact, and decision ID |
 | `Diagnostic` | Assumption or failure mode, diagnostic/sensitivity method, trigger, and interpretation |
 | `Output` | Filename, subfolder, cohort scope, column-level contents, and interpretation |
 | `Decision_Evidence` | Decision, rationale, threshold or rule, uncertainty, and 1–3 method citations |
 
-Map variables to analyses with a visible `used_by` matrix. Give every analysis a plain-language question beside its estimand. Give each full sensitivity replication its own `SA-<name>` analysis row rather than burying it in prose.
+Map variables to analyses with a visible `used_by` matrix. Give every analysis a plain-language question beside its estimand. Give each full sensitivity replication its own `SA-<name>` analysis row rather than burying it in prose. A sensitivity analysis targets the same estimand under a changed assumption; an analysis with a different estimand, population, or outcome definition (e.g., per-protocol) is supplementary and gets its own estimand. Read `references/estimands.md` for the attribute and strategy definitions, sensitivity-versus-supplementary rules, the target-trial protocol, and a filled `Claim`/`Analysis`/`Decision_Evidence` example.
 
 ## Method and Evidence Routing
 
 Choose methods only after the claim, estimand, unit of analysis, and data structure are known. Use `ce-model-strategy` to resolve the primary family, link, dependence structure, diagnostics, fallback triggers, and stack-matched scaffold. Account for clustering, repeated measurements, time at risk, competing risks, missingness, validation reference standards, and any benchmarking hierarchy.
 
-For nontrivial choices, record 1–3 citations in `Decision_Evidence`: primary model family, missing-data strategy, competing-risk handling, multilevel structure, agreement metric, composite outcome, causal adjustment, or benchmarking model. Find a methods anchor with the Evidence access tools below, read it before citing it, and record PMID/DOI plus the evidence label on the row.
+For randomized designs, prespecify adjustment covariates before unblinding: baseline only, chosen for prognostic strength (never by testing baseline imbalance), including the randomization stratification factors. State whether the summary is conditional or unconditional (marginal); for a marginal target with a binary or time-to-event outcome, use standardization/g-computation with bootstrap or literature-justified robust SEs (FDA 2023 covariate-adjustment guidance).
+
+For nontrivial choices, record 1–3 citations in `Decision_Evidence`: primary model family, missing-data strategy, competing-risk handling, multilevel structure, agreement metric, composite outcome, causal adjustment, or benchmarking model. Find a methods anchor with the tools in `references/evidence-access.md`, read it before citing it, and record PMID/DOI plus the evidence label on the row.
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before any literature lookup (PubMed and Paperclip MCP tools, fallbacks, and rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** estimand and analysis-method precedents for each `Decision_Evidence` row, plus the missing-data and sensitivity-analysis conventions for the design (RCT, EHR/registry cohort, target-trial emulation, validation, prediction, or benchmarking).
 
 At the first literature lookup of a session, check once which of these servers is connected; never block SAP work on either, do not re-offer setup in the same session, and use the `ce-pubmed` script, not ad hoc HTTP calls, when no PubMed server is connected. Use full text only when an abstract cannot verify a needed formula, cutoff, eligibility rule, or methods claim.
@@ -81,7 +81,8 @@ At the first literature lookup of a session, check once which of these servers i
 
 - No method choice before `unit_of_analysis` and dataset grain are defined for that analysis.
 - No high-stakes method choice without at least one citation in `Decision_Evidence`.
-- No analysis without an explicit missing-data strategy and at least one diagnostic entry.
+- No analysis without an explicit missing-data strategy and at least one diagnostic entry. Per estimand and variable group, the strategy names the assumed mechanism (MCAR/MAR/MNAR) and why; the primary approach (complete-case only when missingness is plausibly independent of the outcome given model covariates, otherwise multiple imputation or likelihood-based methods); for MI, the imputation model (outcome, all analysis-model variables and interactions, auxiliaries), the number of imputations (at least the percentage of incomplete cases; White, Royston & Wood 2011), and pooling by Rubin's rules; and an MNAR sensitivity analysis (delta-adjusted or tipping-point) for the primary endpoint.
+- No estimand without every anticipated intercurrent event (e.g., treatment discontinuation, rescue medication, switching, death before the outcome time point) named with its strategy. Flag hypothetical and principal-stratum strategies as resting on untestable assumptions and attach a sensitivity analysis.
 - No threshold, recode, or exclusion criterion only in prose; record it in `Decision_Evidence`.
 - No vague phrase such as “appropriate tests were used”; name the method, estimand, and evidence-backed rationale.
 - Do not treat model discrimination as causal balance, post-treatment variables as baseline confounders, or an undocumented time zero as acceptable.
@@ -107,4 +108,4 @@ Name the likely method and the assumption it rests on, but do not present the ch
 
 For a new CE DataScience SAP, use `ce-plan` for the durable study-plan artifact. Add this schema to that artifact, then use `ce-sap-tabular` for the workbook companion. Keep claim and decision identifiers aligned rather than creating competing plans.
 
-Before handoff, verify that every claim maps to a dataset and grain, every analysis maps to a claim and output, every output names an interpretation, and every nontrivial decision has evidence. In review mode, clearly separate confirmed integrity blockers from methodological questions requiring analyst resolution.
+Before handoff, verify that every claim maps to a dataset and grain, every analysis maps to a claim and output, every output names an interpretation, and every nontrivial decision has evidence. For randomized trials, also check the canonical SAP against the Gamble et al. 2017 minimum content (55 items; JAMA 2017;318:2337-43, PMID 29260229) and list any missing item (e.g., interim analyses, timing of final analysis relative to unblinding, protocol deviations, harms summaries, software versions) as an integrity blocker; the trial protocol itself follows SPIRIT 2025 (PMID 40294953). In review mode, clearly separate confirmed integrity blockers from methodological questions requiring analyst resolution.

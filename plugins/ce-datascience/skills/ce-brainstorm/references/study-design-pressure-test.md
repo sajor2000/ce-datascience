@@ -14,6 +14,8 @@ Read this in Phase 1.2 for Standard and Deep scope. It is agent-internal analysi
 - **PICO/PECO framing.** Population, Intervention or Exposure, Comparison, Outcome: probe any missing element.
 - **Comparison group validity.** Is it a true control, or could selection bias confound the comparison?
 - **Confounding strategy.** Adjustment, matching, restriction, stratification, or instrumental variables? When absent, ask for the key potential confounders and how they will be addressed.
+- **Time zero and target trial.** For a causal question from observational data, do eligibility, treatment assignment, and start of follow-up coincide at one time zero, by the same rule in every arm? If not, ask how immortal-time and prevalent-user bias will be avoided (target trial emulation; new-user design).
+- **Estimand and intercurrent events.** For a trial or causal question, what happens to the comparison when patients stop treatment, switch, receive rescue therapy, or die before the outcome? Ask which effect is wanted (e.g., effect of assignment regardless of these events versus effect had they not occurred), so the plan can state an ICH E9(R1) estimand.
 - **Outcome measurement validity.** How is the outcome operationalized: a validated measure, ICD/CPT definition, lab threshold, or clinical assessment tool?
 - **Data access feasibility.** Is the data available, accessible, and of sufficient quality? Any IRB, data use agreement, or linkage barriers? Is the sample size likely sufficient?
 

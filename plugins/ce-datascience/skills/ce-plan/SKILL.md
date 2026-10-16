@@ -55,7 +55,7 @@ Before SAP-1 background or SAP-5 methods, read `references/evidence-access.md` (
 
 SAP-mode gates that hold regardless of what the reference says:
 - **Data profile before SAP structure (SAP Phase 2.5).** Read the `ce-data-qa` profile/QA report before filling variable, missingness, cohort-size, or model sections. Inspectable data with no profile -> load `ce-data-qa` in pre-SAP column profile mode first. No inspectable data -> keep `status: draft` with a GAP comment. QA blockers -> do not write a final SAP.
-- **No finalization over open methodological choices.** Unresolved estimand, comparator, outcome, follow-up, adjustment, or missing-data choices keep the SAP in `status: draft`.
+- **No finalization over open methodological choices.** Unresolved estimand (SAP-1.4), comparator, outcome, follow-up, adjustment, or missing-data choices keep the SAP in `status: draft`.
 - **Tabular companion required (SAP Phase 4.5).** A new SAP without the `ce-sap-tabular` companion and no explicit blocker is incomplete.
 - **Human checkpoint on finalization.** Report critical/important/advisory gaps and set `status: final` only when the user accepts it and no critical gap remains.
 - **SAP versioning.** Increment `sap_version`; never renumber SAP-N.M IDs.
