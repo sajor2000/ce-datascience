@@ -11,7 +11,7 @@ researcher, statistician, clinician, data steward, or ethics review.
 
 [Read the public documentation](https://sajor2000.github.io/ce-datascience/) · [Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
 
-**65 skills, 55 specialist agents, and 40 reporting checklists** help make each project more explicit, reproducible, and reviewable.
+**65 skills, 55 specialist agents, and 41 reporting checklists** help make each project more explicit, reproducible, and reviewable.
 
 ## In plain English
 
@@ -53,7 +53,7 @@ to make before we analyze any data.
 The quickest install paths are below. If you are not sure which one applies,
 start with Claude Code or Codex and follow the matching section.
 
-![Skill map: 30 key skills across six phases (Frame, Design, Data, Plan, Execute, Review), with guardrails for ICH E9(R1) estimands, 40 reporting checklists, 55 specialist reviewers, and PHI-safe outputs](docs/workflow-diagram.png)
+![Skill map: 30 key skills across six phases (Frame, Design, Data, Plan, Execute, Review), with guardrails for ICH E9(R1) estimands, 41 reporting checklists, 55 specialist reviewers, and PHI-safe outputs](docs/workflow-diagram.png)
 
 ## How the package works
 
@@ -632,7 +632,7 @@ remain external. When the core Compound Engineering plugin is also installed,
 ce-datascience handoffs can use those skills with a visible fallback; they are
 not packaged as ce-datascience slash skills.
 
-## Reviews against 40 reporting checklists
+## Reviews against 41 reporting checklists
 
 The checklist registry records publication evidence, current versus legacy versions, and methodological roles. Reporting guidelines, appraisal tools, planning templates, and unresolved candidates are not treated as interchangeable routes; unresolved entries remain explicitly labeled rather than being presented as authoritative.
 
@@ -741,7 +741,7 @@ bun run package:corporate
 |---|---|
 | Skills | 65 |
 | Agents | 55 |
-| Reporting checklists | 40 |
+| Reporting checklists | 41 |
 
 [See every skill and agent](plugins/ce-datascience/README.md)
 
