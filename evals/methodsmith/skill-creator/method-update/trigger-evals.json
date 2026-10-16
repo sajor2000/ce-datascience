@@ -28,7 +28,7 @@
     "should_trigger": true
   },
   {
-    "query": "method-update skill: check whether compound engineering datascience is up to date and give me the update command if not",
+    "query": "method-update skill: I upgraded from the old ce datascience plugin, tell me how to switch my installs to Methodsmith",
     "should_trigger": true
   },
   {

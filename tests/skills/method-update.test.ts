@@ -199,3 +199,60 @@ describe("method-update covers every supported harness", () => {
     expect(SKILL_BODY).toMatch(/your own skills/i)
   })
 })
+
+// Methodsmith was ce-datascience before 5.0. method-update finds an old // rebrand:keep
+// install and prints the exact switch commands; it never changes anything.
+describe("method-update migration from the pre-5.0 name", () => {
+  const skillDir = path.join(process.cwd(), "plugins/methodsmith/skills/method-update")
+  const detector = path.join(skillDir, "scripts/detect-pre-rename-install.sh")
+
+  test("runs the bundled detector through the SKILL_DIR anchor", () => {
+    expect(SKILL_BODY).toContain('bash "$SKILL_DIR/scripts/detect-pre-rename-install.sh"')
+    expect(SKILL_BODY).toContain("references/renamed-commands.md")
+    expect(SKILL_BODY).toMatch(/do not run (the|these) commands/i)
+  })
+
+  test("its command table matches the rename mapping", async () => {
+    const { renamedCommandsTable } = await import("../../scripts/rebrand/rename")
+    const table = readFileSync(path.join(skillDir, "references/renamed-commands.md"), "utf8")
+    expect(table).toContain(renamedCommandsTable())
+  })
+
+  test("prints the Claude Code switch for an old marketplace install", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "method-update-detect-"))
+    try {
+      const pluginsDir = path.join(home, ".claude", "plugins")
+      execFileSync("mkdir", ["-p", pluginsDir])
+      writeFileSync(
+        path.join(pluginsDir, "installed_plugins.json"),
+        JSON.stringify({ version: 2, plugins: { "ce-datascience@ce-datascience-plugin": [{ scope: "user" }] } }), // rebrand:keep
+      )
+      const out = execFileSync("bash", [detector], {
+        encoding: "utf8",
+        cwd: home,
+        env: { PATH: process.env.PATH ?? "", HOME: home, CLAUDE_CONFIG_DIR: path.join(home, ".claude") },
+      })
+      expect(out).toContain("claude plugin uninstall ce-datascience@ce-datascience-plugin") // rebrand:keep
+      expect(out).toContain("claude plugin marketplace remove ce-datascience-plugin") // rebrand:keep
+      expect(out).toContain("claude plugin marketplace add sajor2000/methodsmith")
+      expect(out).toContain("claude plugin install methodsmith@methodsmith")
+      expect(out).toContain("| `/ce-statistical-analysis-plan` | `/method-sap` |") // rebrand:keep
+    } finally {
+      rmSync(home, { recursive: true, force: true })
+    }
+  })
+
+  test("reports nothing to migrate on a clean machine", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "method-update-clean-"))
+    try {
+      const out = execFileSync("bash", [detector], {
+        encoding: "utf8",
+        cwd: home,
+        env: { PATH: process.env.PATH ?? "", HOME: home },
+      })
+      expect(out).toMatch(/^No \S+ install found\. Nothing to migrate\.$/m)
+    } finally {
+      rmSync(home, { recursive: true, force: true })
+    }
+  })
+})
