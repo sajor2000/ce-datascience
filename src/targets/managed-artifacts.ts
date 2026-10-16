@@ -1,5 +1,6 @@
 import fs from "fs/promises"
 import path from "path"
+import { isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
 import { ensureDir, isSafeManagedPath, pathExists, readText, sanitizePathName, writeJson } from "../utils/files"
 
 const MANAGED_INSTALL_MANIFEST = "install-manifest.json"
@@ -191,21 +192,33 @@ export async function cleanupCurrentManagedDirectory(
   await fs.rm(targetDir, { recursive: true, force: true })
 }
 
+/**
+ * Move a legacy artifact into `legacy-backup/`. Returns whether it moved.
+ * Pass `ownershipProven` only when a second signal (an install-manifest entry,
+ * a symlink into the managed tree) already shows ce-datascience wrote it;
+ * otherwise the artifact's description must match one the plugin shipped.
+ */
 export async function moveLegacyArtifactToBackup(
   managedDir: string,
   kind: string,
   artifactRoot: string,
   relativePath: string,
   label: string,
-): Promise<void> {
+  ownershipProven = false,
+): Promise<boolean> {
   const artifactPath = resolveArtifactPath(artifactRoot, relativePath)
-  if (!(await pathExists(artifactPath))) return
+  if (!(await pathExists(artifactPath))) return false
+  if (!ownershipProven && !(await isKnownPluginArtifact(artifactPath))) {
+    noticeKeptUserArtifact(artifactPath)
+    return false
+  }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
   const backupPath = path.join(managedDir, "legacy-backup", timestamp, kind, ...relativePath.split("/"))
   await ensureDir(path.dirname(backupPath))
   await fs.rename(artifactPath, backupPath)
   console.warn(`Moved legacy ${label} artifact to ${backupPath}`)
+  return true
 }
 
 function resolveArtifactPath(rootDir: string, relativePath: string): string {

@@ -18,7 +18,7 @@ import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForPi } from "../converters/claude-to-pi"
 import type { PiBundle } from "../types/pi"
 import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
-import { cleanupStaleAgents, cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
+import { cleanupStaleAgents, cleanupStaleSkillDirs, isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
@@ -520,6 +520,13 @@ async function moveLegacyArtifactToBackup(
   artifactPath: string,
 ): Promise<void> {
   if (!(await pathExists(artifactPath))) return
+  // Skills and prompts share directories with user content, so a legacy name
+  // match also needs a content fingerprint. Extensions and mcporter.json are
+  // plugin-branded or live inside the plugin's own managed directory.
+  if ((kind === "skills" || kind === "prompts") && !(await isKnownPluginArtifact(artifactPath))) {
+    noticeKeptUserArtifact(artifactPath)
+    return
+  }
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
   const backupDir = path.join(managedDir, "legacy-backup", timestamp, kind)
   const backupPath = path.join(backupDir, path.basename(artifactPath))

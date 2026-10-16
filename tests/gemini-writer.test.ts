@@ -6,6 +6,7 @@ import { writeGeminiBundle } from "../src/targets/gemini"
 import type { GeminiBundle } from "../src/types/gemini"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { convertClaudeToGemini } from "../src/converters/claude-to-gemini"
+import { legacyMd, legacyToml } from "./legacy-fixtures"
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -337,14 +338,14 @@ Run these research agents:
     const geminiRoot = path.join(tempRoot, ".gemini")
 
     await fs.mkdir(path.join(geminiRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy removed skill")
+    await fs.writeFile(path.join(geminiRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy removed skill"))
     await fs.mkdir(path.join(geminiRoot, "skills", "bug-reproduction-validator"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "skills", "bug-reproduction-validator", "SKILL.md"), "legacy removed agent skill")
+    await fs.writeFile(path.join(geminiRoot, "skills", "bug-reproduction-validator", "SKILL.md"), legacyMd("legacy removed agent skill"))
     await fs.mkdir(path.join(geminiRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"), "legacy removed agent")
+    await fs.writeFile(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"), legacyMd("legacy removed agent"))
     await fs.mkdir(path.join(geminiRoot, "commands"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "commands", "reproduce-bug.toml"), "legacy removed command")
-    await fs.writeFile(path.join(geminiRoot, "commands", "report-bug.toml"), "legacy deleted command")
+    await fs.writeFile(path.join(geminiRoot, "commands", "reproduce-bug.toml"), legacyToml("legacy removed command"))
+    await fs.writeFile(path.join(geminiRoot, "commands", "report-bug.toml"), legacyToml("legacy deleted command"))
 
     const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToGemini(plugin, {

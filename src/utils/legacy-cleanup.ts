@@ -526,6 +526,94 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
   return legacyFingerprintsPromise
 }
 
+let knownDescriptionsPromise: Promise<Set<string>> | null = null
+
+function normalizeDescriptionFingerprint(value: string): string {
+  return normalizeLegacyWorkflowReferences(value)
+    .replace(/[/$](ce-[a-z0-9-]+)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+/**
+ * Every `description:` value ce-datascience has shipped that this checkout
+ * knows about: current skills and agents, plus the historical maps above.
+ * A file's description is the second ownership signal for legacy artifacts
+ * that predate the install ledger; the name alone is never enough.
+ */
+async function loadKnownDescriptions(): Promise<Set<string>> {
+  if (!knownDescriptionsPromise) {
+    knownDescriptionsPromise = (async () => {
+      const known = new Set<string>()
+      const add = (value: string | null | undefined) => {
+        if (value) known.add(normalizeDescriptionFingerprint(value))
+      }
+      const repoRoot = await findRepoRoot(path.dirname(fileURLToPath(import.meta.url)))
+      if (repoRoot) {
+        const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+        const [skillIndex, agentIndex] = await Promise.all([
+          buildSkillIndex(path.join(pluginRoot, "skills")),
+          buildAgentIndex(path.join(pluginRoot, "agents")),
+        ])
+        for (const filePath of [...skillIndex.values(), ...agentIndex.values()]) {
+          add(await readDescription(filePath))
+        }
+      }
+      for (const map of [LEGACY_ONLY_SKILL_DESCRIPTIONS, LEGACY_ONLY_AGENT_DESCRIPTIONS]) {
+        Object.values(map).forEach(add)
+      }
+      for (const map of [LEGACY_SKILL_DESCRIPTION_ALIASES, LEGACY_PROMPT_DESCRIPTION_ALIASES]) {
+        Object.values(map).flat().forEach(add)
+      }
+      return known
+    })()
+  }
+  return knownDescriptionsPromise
+}
+
+async function readArtifactDescription(targetPath: string): Promise<string | null> {
+  try {
+    const stat = await fs.stat(targetPath)
+    if (stat.isDirectory()) return readDescription(path.join(targetPath, "SKILL.md"))
+    if (targetPath.endsWith(".json")) {
+      const parsed = JSON.parse(await fs.readFile(targetPath, "utf8")) as Record<string, unknown>
+      return typeof parsed.description === "string" ? parsed.description : null
+    }
+    if (targetPath.endsWith(".toml")) {
+      const match = (await fs.readFile(targetPath, "utf8")).match(/^description\s*=\s*"((?:[^"\\]|\\.)*)"/m)
+      return match ? JSON.parse(`"${match[1]}"`) as string : null
+    }
+    return readDescription(targetPath)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Second ownership signal for an artifact found at a legacy allow-listed name
+ * with no install-ledger record: its description must exactly match one that
+ * ce-datascience has shipped. A user's own `skill-creator`, `setup`, or
+ * `review.md` fails this check and is left in place.
+ */
+export async function isKnownPluginArtifact(
+  targetPath: string,
+  extraDescriptions: Iterable<string> = [],
+): Promise<boolean> {
+  const description = await readArtifactDescription(targetPath)
+  if (!description) return false
+  const fingerprint = normalizeDescriptionFingerprint(description)
+  if ((await loadKnownDescriptions()).has(fingerprint)) return true
+  for (const extra of extraDescriptions) {
+    if (normalizeDescriptionFingerprint(extra) === fingerprint) return true
+  }
+  return false
+}
+
+/** One-line notice for a same-named item that ce-datascience leaves alone. */
+export function noticeKeptUserArtifact(targetPath: string): void {
+  console.warn(`Kept ${targetPath}: it has the name of an old ce-datascience file but ce-datascience did not create it.`)
+}
+
 function promptSkillNamesForLegacy(fileName: string): string[] {
   switch (fileName) {
     case "ce-review.md":

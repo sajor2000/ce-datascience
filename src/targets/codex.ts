@@ -5,7 +5,7 @@ import type { CodexBundle } from "../types/codex"
 import type { ClaudeMcpServer } from "../types/claude"
 import { transformContentForCodex } from "../utils/codex-content"
 import { getLegacyCodexArtifacts } from "../data/plugin-legacy-artifacts"
-import { classifyCodexLegacyPromptOwnership, cleanupStaleSkillDirs} from "../utils/legacy-cleanup"
+import { classifyCodexLegacyPromptOwnership, cleanupStaleSkillDirs, isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const MANAGED_START_MARKER = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
@@ -331,10 +331,9 @@ async function cleanupKnownLegacyCodexArtifacts(codexRoot: string, bundle: Codex
     // `~/.codex/prompts/ce-plan.md` for their own workflow would otherwise see
     // it swept into `ce-datascience/legacy-backup/` on every install.
     // Mirror the body + frontmatter check used by the standalone
-    // `cleanupStalePrompts` helper. "unknown" (no fingerprint on record, e.g.
-    // fully-retired wrappers like `reproduce-bug.md`) falls through to the
-    // historical allow-list behavior — user collisions at those names are
-    // unlikely and a strict gate would strand genuinely-owned orphans.
+    // `cleanupStalePrompts` helper. "unknown" (no prompt fingerprint on record,
+    // e.g. fully-retired wrappers like `reproduce-bug.md`) falls through to
+    // `moveLegacyArtifactToBackup`, which still requires a shipped description.
     const ownership = await classifyCodexLegacyPromptOwnership(legacyPromptPath)
     if (ownership === "foreign") continue
     await moveLegacyArtifactToBackup(codexRoot, pluginName, "prompts", legacyPromptPath)
@@ -374,10 +373,13 @@ async function cleanupLegacyAgentSkillDirs(
     legacySkillNames.add(name)
   }
 
+  // Agent-derived skill dirs carried the agent's description, which is the
+  // ownership fingerprint for plugins without a historical description map.
+  const bundleDescriptions = (bundle.agents ?? []).map((agent) => agent.description)
   const skillsRoot = path.join(codexRoot, "skills", pluginName)
   for (const skillName of legacySkillNames) {
     if (currentSkillSet.has(skillName)) continue
-    await moveLegacyArtifactToBackup(codexRoot, pluginName, "skills", path.join(skillsRoot, skillName))
+    await moveLegacyArtifactToBackup(codexRoot, pluginName, "skills", path.join(skillsRoot, skillName), bundleDescriptions)
   }
 }
 
@@ -510,8 +512,13 @@ async function moveLegacyArtifactToBackup(
   pluginName: string,
   kind: "skills" | "prompts",
   artifactPath: string,
+  extraDescriptions: string[] = [],
 ): Promise<void> {
   if (!(await pathExists(artifactPath))) return
+  if (!(await isKnownPluginArtifact(artifactPath, extraDescriptions))) {
+    noticeKeptUserArtifact(artifactPath)
+    return
+  }
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
   const backupDir = path.join(codexRoot, pluginName, "legacy-backup", timestamp, kind)
   const backupPath = path.join(backupDir, path.basename(artifactPath))
