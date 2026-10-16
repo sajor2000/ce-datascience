@@ -6,6 +6,43 @@ requests. For the current release status and notes, use the repository's
 open release PRs; do not hand-add release entries from feature or documentation
 work.
 
+## [4.1.0](https://github.com/sajor2000/ce-datascience/compare/cli-v4.0.0...cli-v4.1.0) (2026-10-16)
+
+
+### Features
+
+* **hooks:** close data-boundary limits with a safe runner, identifier index, and aggregate reads ([2ae9fe0](https://github.com/sajor2000/ce-datascience/commit/2ae9fe0a210044b536b4e742c3457391f5ada8a5))
+* **reporting:** add SPIRIT 2025 and PRISMA-P protocol checklists ([1115d1e](https://github.com/sajor2000/ce-datascience/commit/1115d1e8cb83515765eb2ebb7636f765195b1b06))
+* **reporting:** add TRIPOD-LLM, DECIDE-AI and MI-CLAIM checklists ([61b39eb](https://github.com/sajor2000/ce-datascience/commit/61b39ebcff3e380f3c00b840fb8204daf24f4a86))
+* **setup:** ask for a sensitive-data boundary and enforce schema-only mode ([f575c81](https://github.com/sajor2000/ce-datascience/commit/f575c814e5e96ee51d64a156bb2abcadb44f33c3))
+
+
+### Bug Fixes
+
+* **checklist-match:** never commit or ask users to commit guideline source documents ([54a3284](https://github.com/sajor2000/ce-datascience/commit/54a32847229518f961ebc291e99734787753a395))
+* **checklists:** always route to the newest guideline version ([a142525](https://github.com/sajor2000/ce-datascience/commit/a142525977b102b253220d6d574fcf4db0fb1839))
+* **checklists:** close unverified items from official DEAL, CENT, PRISMA-ScR and QUADAS-3 documents ([0ca57b4](https://github.com/sajor2000/ce-datascience/commit/0ca57b439ad4514d6b4a09fcbe7d606ba00769ce))
+* **checklists:** verify all reporting checklists against EQUATOR and primary sources ([ca77c5c](https://github.com/sajor2000/ce-datascience/commit/ca77c5cc8fd523d1f215535d43a895c79bbf8599))
+* **deal-checklist:** record pathways and sections confirmed by the DEAL main article ([e865f41](https://github.com/sajor2000/ce-datascience/commit/e865f41772c2257a7db2290c618dc8975facc2d1))
+* **deal-checklist:** transcribe DEAL-A and DEAL-B items from Supplementary Table 2 and mark DEAL verified ([12afa41](https://github.com/sajor2000/ce-datascience/commit/12afa41a3019aea3841427c865e5230e03856e84))
+* **guideline-registry:** drop superseded TRIPOD 2015 and QUADAS-2 and resolve old names to successors ([4e485ae](https://github.com/sajor2000/ce-datascience/commit/4e485aee49933418743a60105cda5c5a655ca218))
+* **hooks:** treat data piped or redirected into a network tool as an upload ([c28cbc8](https://github.com/sajor2000/ce-datascience/commit/c28cbc84918bb9f0f26548d0e6bb42002237b35b))
+* **phenotype-validate:** correct estimability guidance and add eval case ([7d69f53](https://github.com/sajor2000/ce-datascience/commit/7d69f53503baaf7961b3d5afa6f8c945a27f24b0))
+* **phenotype-validate:** reweight Se/Sp for algorithm-stratified chart review ([fb2dc60](https://github.com/sajor2000/ce-datascience/commit/fb2dc60122e8f10dd4c0c89257e9bb7c35a58d8d))
+* **reporting:** rebuild TARGET checklist and supersede TRIPOD 2015 ([ec4a0ab](https://github.com/sajor2000/ce-datascience/commit/ec4a0ab2556196bef1f023999ea99f49d11bfb11))
+* **review:** correct calibration, causal-inference and multiplicity reviewers ([535677a](https://github.com/sajor2000/ce-datascience/commit/535677ab7eb5e9ae584f4ddd78cd7be539f68a9a))
+* **review:** correct methods, leakage, fairness and checklist reviewers ([1e763ca](https://github.com/sajor2000/ce-datascience/commit/1e763ca5a6086ea5e30200bbfdc3dda623dc251c))
+* **schema-peek:** never print a first row of personal names as headings ([ceb1d18](https://github.com/sajor2000/ce-datascience/commit/ceb1d1875e51038a2ed936d9028066b4489ac1cc))
+* **skills:** correct verify, genome-build and pubmed guidance; guard sprint signoff and review scope ([83ccd07](https://github.com/sajor2000/ce-datascience/commit/83ccd0771a8e944a04f62a99bdc2094124e39e63))
+* **skills:** tighten skill and agent descriptions for routing ([e10c0c3](https://github.com/sajor2000/ce-datascience/commit/e10c0c3f35e36c3a07e0745e7fda697cef739ef6))
+* **stats:** correct checklist routing, omics batch, CLIF IPTW and pipeline reviewers ([9739975](https://github.com/sajor2000/ce-datascience/commit/97399753596729003b4bfaed3f4a3119216a58a8))
+* **stats:** correct effect reporting, method extraction and evidence mapping ([09a44c4](https://github.com/sajor2000/ce-datascience/commit/09a44c48e5ffa0dcc8752f63ef82eec0a34b43f5))
+* **stats:** correct missing-data, calibration-figure, model-card and GEE guidance ([900092c](https://github.com/sajor2000/ce-datascience/commit/900092c377c8119e453e4f275ceb9f297002911b))
+* **stats:** correct power, effect-size and trial-design methods ([f020d61](https://github.com/sajor2000/ce-datascience/commit/f020d61d880314f63ca64116eeeb4cefdb9e5d85))
+* **stats:** correct preregistration rules and Table 1 design rules ([0bed951](https://github.com/sajor2000/ce-datascience/commit/0bed951405956bd111e851efe09fd894df1a20d4))
+* **stats:** correct SAP tables, cohort build, research-question and workflow methods ([2c468fd](https://github.com/sajor2000/ce-datascience/commit/2c468fde8dbc1ea9361a23362aabf8b43efe9448))
+* **stats:** require ICH E9(R1) estimands in the SAP and SAP template ([15dca83](https://github.com/sajor2000/ce-datascience/commit/15dca8327ca9a00babb722d886df537a707bbf0b))
+
 ## [4.0.0](https://github.com/sajor2000/ce-datascience/compare/cli-v3.7.0...cli-v4.0.0) (2026-10-10)
 
 
