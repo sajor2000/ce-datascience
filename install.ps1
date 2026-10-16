@@ -18,6 +18,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $PluginName = "ce-datascience"
+$script:BackupStamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ")
 $MarketplaceName = "ce-datascience-plugin"
 $AliasMarker = "<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "
 $ManagedStart = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
@@ -214,13 +215,33 @@ function Set-JsonProperty([object]$Object, [string]$Name, [object]$Value) {
   }
 }
 
-function Copy-DirectoryReplace([string]$SourceDir, [string]$DestDir) {
+function Test-DirectoriesMatch([string]$Left, [string]$Right) {
+  $leftFiles = @(Get-ChildItem -Recurse -File $Left | ForEach-Object { $_.FullName.Substring($Left.Length) } | Sort-Object)
+  $rightFiles = @(Get-ChildItem -Recurse -File $Right | ForEach-Object { $_.FullName.Substring($Right.Length) } | Sort-Object)
+  if (Compare-Object $leftFiles $rightFiles) { return $false }
+  foreach ($relative in $leftFiles) {
+    if ((Get-FileHash -LiteralPath ($Left + $relative)).Hash -ne (Get-FileHash -LiteralPath ($Right + $relative)).Hash) { return $false }
+  }
+  return $true
+}
+
+# Replace a plugin-owned directory with the packaged copy. When the installed
+# copy differs (a user edited or added files), move it to
+# <CodexHome>\ce-datascience\backups\<time>\<Label> first so nothing is lost.
+function Copy-DirectoryReplace([string]$SourceDir, [string]$DestDir, [string]$Label) {
   if ($DryRun) {
     Write-Output "[dry-run] replace $DestDir from $SourceDir"
     return
   }
   if (Test-Path $DestDir) {
-    Remove-Item -Recurse -Force $DestDir
+    if (Test-DirectoriesMatch $SourceDir $DestDir) {
+      Remove-Item -Recurse -Force $DestDir
+    } else {
+      $backupDir = Join-Path $CodexHome "$PluginName\backups\$script:BackupStamp\$Label"
+      New-Item -ItemType Directory -Force -Path (Split-Path -Parent $backupDir) | Out-Null
+      Move-Item -LiteralPath $DestDir -Destination $backupDir
+      Write-Output "Backed up your changes in $DestDir to $backupDir"
+    }
   }
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $DestDir) | Out-Null
   Copy-Item -Recurse -Force $SourceDir $DestDir
@@ -324,7 +345,7 @@ function Install-CodexOffline {
   $marketplaceRoot = Split-Path -Parent $AgentsHome
   $marketplacePath = Join-Path $AgentsHome "plugins\marketplace.json"
   $pluginDest = Join-Path $marketplaceRoot ".codex\plugins\$PluginName"
-  Copy-DirectoryReplace $pluginSrc $pluginDest
+  Copy-DirectoryReplace $pluginSrc $pluginDest "plugin"
   Merge-CodexMarketplace $marketplacePath
 
   $bridgeSourceCandidates = @(
@@ -334,7 +355,7 @@ function Install-CodexOffline {
   )
   $bridgeSource = $bridgeSourceCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
   if ($bridgeSource) {
-    Copy-DirectoryReplace $bridgeSource (Join-Path $CodexHome "agents\$PluginName")
+    Copy-DirectoryReplace $bridgeSource (Join-Path $CodexHome "agents\$PluginName") "agents"
   } else {
     Write-Output "No Codex agent bridge found under $Source; installed native plugin marketplace only."
   }
