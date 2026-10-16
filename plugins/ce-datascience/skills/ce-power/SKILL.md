@@ -84,7 +84,7 @@ Write to `analysis/power/<design>-<date>.R` or `.py`. Include:
 
 Execute the script (or print it for manual run). Capture stdout to `analysis/power/<design>-<date>.log`. Save the sweep table to `analysis/power/<design>-<date>-sweep.csv` and the plot to `<design>-<date>.png`.
 
-Completion check: recompute the point estimate with the closed-form formula in `references/formula-cheatsheet.md`. Script and formula must agree within 2% (t vs z); otherwise stop and report the discrepancy. Round every N up (`ceiling`) at each step: per arm, then total, then dropout inflation.
+Completion check: recompute the point estimate with the closed-form formula in `references/formula-cheatsheet.md` for the same test and assumptions as the script. For a t-test, add `z_{1-alpha/2}^2 / 4` per arm to the z formula first (the uncorrected z formula is 4% low at d = 0.8 and 15% low at d = 1.5; the corrected one is within 2% of `power.t.test` up to d = 1.5). Script and formula must agree within 2%; otherwise stop and report the discrepancy. Round every N up (`ceiling`) at each step: per arm, then total, then dropout inflation.
 
 ### Step 4: Write the SAP-6 paragraph
 
@@ -99,7 +99,7 @@ across d = 0.30 to d = 0.50 yields required total N from 128 to 352 before attri
 No interim efficacy or sample-size re-estimation analysis is planned.
 ```
 
-Reference the prior literature explicitly by PMID/DOI with the level read so the assumption is auditable, and label every remaining default (dropout, ICC, allocation) as an assumption. Choose the target difference as both clinically important and realistic (DELTA2 guidance, Cook et al. BMJ 2018;363:k3750, PMID 30560792); a pooled literature estimate is an upper bound on a realistic target because published effects are selected. Do not promise an interim look or sample-size re-estimation: any adaptation needs a prespecified, type-I-error-controlling design (route to `ce-trial-design` for two-arm group-sequential designs).
+Reference the prior literature explicitly by PMID/DOI with the level read so the assumption is auditable, and label every remaining default (dropout, ICC, allocation) as an assumption. Choose the target difference as both clinically important and realistic (DELTA2 guidance, Cook et al. BMJ 2018;363:k3750, PMID 30560792); published effects are selected, so a pooled literature estimate may overstate the benefit (for a protective HR, the realistic target is closer to 1). Do not promise an interim look or sample-size re-estimation: any adaptation needs a prespecified, type-I-error-controlling design (route to `ce-trial-design` for two-arm group-sequential designs).
 
 ### Step 5: Emit signal
 
