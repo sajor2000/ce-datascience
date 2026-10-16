@@ -34,6 +34,8 @@ that opens data, and recursive content searches are denied. Script files run
 by python/Rscript/bash/sh/quarto render/jupyter nbconvert --execute are read
 statically (1 MB cap) and denied when they name a data path or call a reader
 on a variable path, unless the command runs through the plugin's ce-safe-run.
+Inside ce-safe-run only the copy rule still applies (output stays in the log),
+and files a run wrote (runs/outputs.txt) are data afterwards.
 Tables under phi_environment.aggregate_dirs are readable when they pass the
 aggregate check (no identifier headers or indexed cells, no counts 1-10, at
 most 500 rows). Limits: the script check is heuristic; obfuscation the parser
@@ -236,6 +238,21 @@ def index_hit(text, index):
 # --- end identifier index ---
 
 INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
+OUTPUTS = "outputs.txt"  # ce-safe-run lists the files its runs wrote here, one project-relative path per line
+
+
+def run_outputs(mode):
+    """Absolute paths of files written by ce-safe-run runs: data, because the run read data."""
+    if "_outputs" not in mode:
+        mode["_outputs"] = set()
+        for listing in mode.get("output_lists", []):
+            base = os.path.dirname(os.path.dirname(os.path.dirname(listing)))
+            try:
+                with open(listing, encoding="utf-8", errors="replace") as fh:
+                    mode["_outputs"].update(os.path.normpath(os.path.join(base, line)) for line in fh.read().splitlines() if line)
+            except OSError:
+                continue
+    return mode["_outputs"]
 
 
 def load_index(mode):
@@ -429,7 +446,7 @@ def _project_mode(ce_root, main):
     aggregate = sorted(aggregate)
     index_paths = [os.path.join(base, INDEX_REL) for base in [ce_root] + ([main] if main else [])]
     return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots),
-            "aggregate_dirs": aggregate, "index_paths": index_paths}
+            "aggregate_dirs": aggregate, "index_paths": index_paths, "output_lists": [os.path.join(runs, OUTPUTS)]}
 
 
 RANK = {"off": 0, "approved": 1, "no-sensitive-data": 1, "schema-only": 2}
@@ -455,7 +472,7 @@ def _anchors(context):
 def resolve_mode(context):
     """Resolve the boundary for a tool call from cwd and the paths it targets. Strictest project wins."""
     cwd, anchors = _anchors(context)
-    cache, best, data_roots, roots, aggregate, index_paths = {}, None, set(), [], set(), []
+    cache, best, data_roots, roots, aggregate, index_paths, output_lists = {}, None, set(), [], set(), [], []
     for anchor in anchors:
         found = _locate(anchor, cache)
         if not found:
@@ -464,14 +481,15 @@ def resolve_mode(context):
         data_roots.update(project["data_roots"])
         aggregate.update(project["aggregate_dirs"])
         index_paths.extend(p for p in project["index_paths"] if p not in index_paths)
+        output_lists.extend(p for p in project["output_lists"] if p not in output_lists)
         roots.extend(r for r in project["roots"] if r not in roots)
         if best is None or RANK[project["mode"]] > RANK[best["mode"]]:
             best = project
     if best is None:
         return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "aggregate_dirs": [],
-                "index_paths": [], "cwd": cwd}
+                "index_paths": [], "output_lists": [], "cwd": cwd}
     return dict(best, roots=roots, data_roots=sorted(data_roots), aggregate_dirs=sorted(aggregate),
-                index_paths=index_paths, cwd=cwd)
+                index_paths=index_paths, output_lists=output_lists, cwd=cwd)
 
 
 # ------------------------------------------------------------------- data refs
@@ -520,6 +538,9 @@ def is_data_path(raw, cwd, mode):
             return True
         path = _resolve(variant, cwd)
         if _under(path, mode["data_roots"]):
+            return True
+        outputs = run_outputs(mode)
+        if outputs and (path in outputs or os.path.realpath(path) in outputs):
             return True
         if any(ch in variant for ch in "*?["):
             parts = [p for p in variant.replace("\\", "/").split("/")[:-1] if p not in ("", ".", "..")]
@@ -1163,9 +1184,13 @@ def bash_violations(command, cwd, mode, depth=0):
                 if not cmd:
                     continue
             egress = egress or upload_violation(cmd, cur, mode) or ncbi_violation(cmd, mode)
-            if mode["mode"] != "schema-only" or safe:
+            if mode["mode"] != "schema-only":
                 continue
             verb = program(cmd[0])
+            if safe:  # output stays in the run log; a copy to a readable path still leaks
+                if verb in COPY_VERBS:
+                    access = access or judge(cmd, cur, mode, tainted, written)[0]
+                continue
             if listed and verb in EXEC_CONSUMERS:
                 sub = [t for t in cmd[1:] if not t.startswith("-")]
                 if verb != "xargs" or not sub or program(sub[0]) not in METADATA_VERBS:

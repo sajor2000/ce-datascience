@@ -117,3 +117,32 @@ describe("#87: a malformed identifier index fails closed instead of disabling th
     expect(ran).toContain("ce-identifier-index")
   })
 })
+
+const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
+
+describe("#87: ce-safe-run hides output but cannot launder data into readable files (schema-only)", () => {
+  test("copy commands inside the runner still follow the copy rule", () => {
+    const root = project(SCHEMA_ONLY)
+    expectAll(root, "deny", [
+      ["Bash", bash(`${safeRun} -- cp data/cohort.csv leak.txt`)],
+      ["Bash", bash(`${safeRun} -- rsync data/cohort.csv /tmp/leak.txt`)],
+    ])
+    expectAll(root, "allow", [["Bash", bash(`${safeRun} -- cat data/cohort.csv`)], ["Bash", bash(`${safeRun} -- cp data/cohort.csv data/backup.csv`)]])
+  })
+
+  test("files a run creates or modifies are data afterwards; raster figures stay readable", () => {
+    const root = project(SCHEMA_ONLY)
+    const writer = "import shutil; shutil.copy('data/cohort.csv', 'leak.txt'); open('output/fig1.png', 'wb').write(b'png')"
+    withFile(root, "output/.keep", "")
+    const ran = Bun.spawnSync([safeRun, "--", "python3", "-c", writer], { cwd: root })
+    expect(ran.exitCode).toBe(0)
+    expectAll(root, "deny", [
+      ["Read", { file_path: "leak.txt" }],
+      ["Read", { file_path: path.join(root, "leak.txt") }],
+      ["Bash", bash("cat leak.txt")],
+      ["Bash", bash("head -n 3 ./leak.txt")],
+      ["Edit", { file_path: "leak.txt", old_string: "a", new_string: "b" }],
+    ])
+    expectAll(root, "allow", [["Read", { file_path: "output/fig1.png" }], ["Read", { file_path: "src/load.py" }]])
+  })
+})

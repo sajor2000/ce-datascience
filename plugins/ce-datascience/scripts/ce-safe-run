@@ -11,7 +11,10 @@ and row count for tabular files), and the last 30 lines of stderr with values
 in the project's identifier index, quoted literals, digit runs of 4 or more,
 emails, phones, and SSNs masked. Traceback file/line frames stay readable, and
 file names are masked against the index too. Stdout is never printed. The exit code is the
-command's.
+command's. Files the run created or modified (except raster images) are listed in
+.ce-datascience/runs/outputs.txt, and the boundary guard treats them as data: the
+run read data, so what it wrote may hold values. Writes outside the project are not
+tracked.
 """
 
 import json
@@ -142,6 +145,7 @@ def index_hit(text, index):
 SKIP_DIRS = {".git", ".ce-datascience", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache",
              ".pytest_cache", ".ruff_cache", ".quarto", "renv", ".Rproj.user"}
 TABULAR = (".csv", ".tsv", ".psv", ".tab")
+RASTER = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 MAX_FILES = 20000
 MAX_LISTED = 50
 TAIL_LINES = 30
@@ -221,11 +225,27 @@ def row_count(path):
     return None
 
 
+def changed_files(before, after):
+    return [rel for rel in sorted(after) if before.get(rel) != after[rel]]
+
+
+def record_outputs(runs, changed):
+    """Add written files to runs/outputs.txt; the boundary guard treats them as data. Raster figures are exempt."""
+    path = os.path.join(runs, "outputs.txt")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            known = set(fh.read().splitlines())
+    except OSError:
+        known = set()
+    new = [rel for rel in changed if rel not in known and not rel.lower().endswith(RASTER)]
+    if new:
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write("".join(rel + "\n" for rel in new))
+
+
 def changes(before, after, root, index):
     lines = []
-    for rel in sorted(after):
-        if before.get(rel) == after[rel]:
-            continue
+    for rel in changed_files(before, after):
         kind = "created " if rel not in before else "modified"
         rows = row_count(os.path.join(root, rel))
         shown = mask_indexed(rel, index)
@@ -323,7 +343,9 @@ def main(argv):
     print(f"ce-safe-run: exit code: {code}, duration: {duration:.1f}s")
     print(f"Full stdout and stderr (not shown): {os.path.relpath(log_path, root)}")
     index = find_index(root)
-    changed = changes(before, snapshot(root), root, index)
+    after = snapshot(root)
+    record_outputs(runs, changed_files(before, after))
+    changed = changes(before, after, root, index)
     print("Files created or modified:" if changed else "Files created or modified: none")
     for line in changed[:MAX_LISTED]:
         print(line)
