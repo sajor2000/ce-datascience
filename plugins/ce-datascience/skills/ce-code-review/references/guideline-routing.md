@@ -25,7 +25,7 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 | `qualitative` | COREQ | `references/coreq-checklist.md` |
 | `animal` | ARRIVE 2.0 | `references/arrive-checklist.md` |
 | `health-economic` | CHEERS 2022 | `references/cheers-checklist.md` |
-| `prediction-model` | TRIPOD+AI (regression or machine learning; TRIPOD 2015 is superseded) | `references/tripod-ai-checklist.md` |
+| `prediction-model` | TRIPOD+AI (regression or machine learning; supersedes TRIPOD 2015) | `references/tripod-ai-checklist.md` |
 | `target-trial-emulation` | TARGET (standalone) | `references/target-checklist.md` |
 | `quality-improvement` | SQUIRE 2.0 | `references/squire-checklist.md` |
 | `early-clinical-ai-evaluation` | DECIDE-AI (early, small-scale live clinical evaluation of an AI decision-support system) | `references/decide-ai-checklist.md` |
@@ -36,11 +36,11 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 
 **Stand-alone replacements:** some extensions are complete checklists that already contain their base, so they are the primary in place of it, never layered on it. The registry records each one with a `replaces:` key: STROBE-MR replaces STROBE for Mendelian randomization (Skrivankova et al. 2021, PMID 34698778); TARGET replaces STROBE for target trial emulation; STARD-AI (40 items, contains STARD 2015) replaces STARD for AI-centred diagnostic accuracy studies (Sounderajah et al. 2025, PMID 40954311); and PRISMA-DTA, -NMA, -IPD, and -ScR replace PRISMA 2020 for their review types.
 
-**Systematic review subtypes:** a diagnostic test accuracy review uses PRISMA-DTA (`references/prisma-dta-checklist.md`; PMID 29362800) in place of PRISMA 2020, appraised with QUADAS-3 (`references/quadas-3-checklist.md`; PMID 41698208; QUADAS-2 only when the review protocol pre-specified it); a network meta-analysis uses PRISMA-NMA (PMID 26030634); an IPD meta-analysis uses PRISMA-IPD (PMID 25919529); a scoping review uses PRISMA-ScR (PMID 30178033); a review of prediction-model studies adds CHARMS for data extraction and appraisal (PMID 25314315). The subtype extensions predate PRISMA 2020, so also check PRISMA 2020 items 24-27 (registration, support, competing interests, data and code availability).
+**Systematic review subtypes:** a diagnostic test accuracy review uses PRISMA-DTA (`references/prisma-dta-checklist.md`; PMID 29362800) in place of PRISMA 2020, appraised with QUADAS-3 (`references/quadas-3-checklist.md`; PMID 41698208); a network meta-analysis uses PRISMA-NMA (PMID 26030634); an IPD meta-analysis uses PRISMA-IPD (PMID 25919529); a scoping review uses PRISMA-ScR (PMID 30178033); a review of prediction-model studies adds CHARMS for data extraction and appraisal (PMID 25314315). The subtype extensions predate PRISMA 2020, so also check PRISMA 2020 items 24-27 (registration, support, competing interests, data and code availability).
 
 **Mixed methods:** route the quantitative strand to its primary and add GRAMMS (`references/gramms-checklist.md`; O'Cathain et al. 2008, PMID 18416914); GRAMMS is never the primary.
 
-**Prediction models:** TRIPOD+AI supersedes TRIPOD 2015 for every prediction-model study, regression or machine learning (Collins et al. 2024, PMID 38626948). Load `references/tripod-checklist.md` only when the user explicitly asks for a legacy TRIPOD 2015 audit (alias `tripod-2015`).
+**Prediction models:** TRIPOD+AI supersedes TRIPOD 2015 for every prediction-model study, regression or machine learning (Collins et al. 2024, PMID 38626948). A request for TRIPOD or TRIPOD 2015 (aliases `tripod`, `tripod-2015`) resolves to TRIPOD+AI; the superseded checklist is not shipped. The same rule applies to every guideline: always route to the newest version, and resolve an old version name to the successor that replaced it.
 
 **Protocol stage:** a trial protocol or pre-results SAP uses SPIRIT 2025 (`references/spirit-checklist.md`; PMID 40294953) instead of CONSORT; a systematic review protocol uses PRISMA-P 2015 (`references/prisma-p-checklist.md`; PMID 25554246) instead of PRISMA 2020.
 
@@ -71,7 +71,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 
 ## Trial Design Extension Layer
 
-When `study_type: rct`, layer design extensions on the CONSORT 2025 core (or on SPIRIT 2025 at the protocol stage, where no design extension below applies). These extensions were written against CONSORT 2010; cite their published item IDs and map to CONSORT 2025 numbers for core items. Each checklist file gives the mapping. REFORMS is never applied to an RCT.
+When `study_type: rct`, layer design extensions on the CONSORT 2025 core (or on SPIRIT 2025 at the protocol stage, where no design extension below applies). These extensions were written against CONSORT 2010, now superseded by CONSORT 2025; cite their published item IDs and map to CONSORT 2025 numbers for core items. Each checklist file gives the mapping. REFORMS is never applied to an RCT.
 
 | Condition | Extension guideline | Checklist file |
 |---|---|---|
@@ -123,11 +123,11 @@ When the primary is STROBE or TARGET, add RECORD for routinely collected data (E
 | CHEERS | Consolidated Health Economic Evaluation Reporting Standards | 28 | Health economics (CHEERS-AI for AI interventions) |
 | SQUIRE | Standards for QUality Improvement Reporting Excellence (2.0) | 18 | Quality improvement |
 | GRAMMS | Good Reporting of A Mixed Methods Study | 6 | Mixed methods |
-| CONSORT-AI | CONSORT extension for AI interventions (written against CONSORT 2010) | 14 | AI + RCT |
-| SPIRIT-AI | SPIRIT extension for AI trial protocols (written against SPIRIT 2013) | 15 | AI + trial protocol |
+| CONSORT-AI | CONSORT extension for AI interventions (written against CONSORT 2010, superseded by CONSORT 2025) | 14 | AI + RCT |
+| SPIRIT-AI | SPIRIT extension for AI trial protocols (written against SPIRIT 2013, superseded by SPIRIT 2025) | 15 | AI + trial protocol |
 | CONSORT-CLUSTER | CONSORT extension for cluster randomised trials (2012; written against CONSORT 2010) | 19 extended items (item 10 replaced by 10a-10c) | Cluster RCT |
-| CONSORT-ADAPTIVE | Adaptive designs CONSORT Extension, ACE (2020; written against CONSORT 2010) | 7 new + 9 modified (+6 with added explanation) | Adaptive RCT |
-| CONSORT-NOF1 | CONSORT extension for N-of-1 trials, CENT 2015 (written against CONSORT 2010) | 14 of 25 CONSORT 2010 items extended | N-of-1 trials |
+| CONSORT-ADAPTIVE | Adaptive designs CONSORT Extension, ACE (2020; written against CONSORT 2010, superseded by CONSORT 2025) | 7 new + 9 modified (+6 with added explanation) | Adaptive RCT |
+| CONSORT-NOF1 | CONSORT extension for N-of-1 trials, CENT 2015 (written against CONSORT 2010, superseded by CONSORT 2025) | 14 of 25 core items extended | N-of-1 trials |
 | TRIPOD+AI | Prediction-model reporting, regression or ML (supersedes TRIPOD 2015) | 27 | Any prediction model |
 | TRIPOD-LLM | TRIPOD+AI extension for large language models | 19 (50 subitems) | Any LLM development or evaluation study |
 | DECIDE-AI | Early-stage clinical evaluation of AI decision support | 27 (17 AI-specific + 10 generic) | Live clinical AI evaluation |

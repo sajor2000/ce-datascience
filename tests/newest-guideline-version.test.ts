@@ -24,7 +24,6 @@ const OLD_VERSION_ALIASES: Record<string, string> = {
   "cheers-2013": "CHEERS",
   "arrive-1.0": "ARRIVE",
   "squire-1.0": "SQUIRE",
-  "stard-2008": "STARD",
   "stard-2003": "STARD",
 }
 
