@@ -19,9 +19,9 @@ schema-only, sensitive_data: false -> no-sensitive-data. Any explicit
 schema-only signal wins a conflict. An unreadable or misspelled value, or no
 saved answer, also resolves to schema-only, with a deny reason that says why.
 
-Egress (every mode except off): MCP tool arguments and Bash calls to NCBI
-E-utilities (curl/wget to eutils.ncbi.nlm.nih.gov, the ce-pubmed script) must
-not carry identifiers (SSN, email, phone, keyword-anchored MRN/patient/member/
+Egress (every mode except off): MCP tool arguments and Bash HTTP requests
+(curl/wget/httpie/xh to any host, so NCBI E-utilities by name or IP, and the
+ce-pubmed script, also inside sh -c or eval) must not carry identifiers (SSN, email, phone, keyword-anchored MRN/patient/member/
 claim IDs, DOB, or a value in the project's hashed identifier index), MCP tools
 must not receive data files, and Bash must not upload data files. An endpoint
 approval does not cover third-party services.
@@ -1161,6 +1161,18 @@ def judge(cmd, cwd, mode, tainted, written):
     return f"`{verb}` on a data file prints its values", False
 
 
+def shell_code(cmd):
+    """The code string run by `sh|bash|zsh|dash|ksh -c CODE` or `eval CODE...`, else None."""
+    verb = program(cmd[0])
+    if verb == "eval":
+        return " ".join(cmd[1:])
+    if verb in ("sh", "bash", "zsh", "dash", "ksh"):
+        flags = [i for i, t in enumerate(cmd[1:], 1) if re.match(r"^-[A-Za-z]*c[A-Za-z]*$", t)]
+        if flags and flags[0] + 1 < len(cmd):
+            return cmd[flags[0] + 1]
+    return None
+
+
 def bash_violations(command, cwd, mode, depth=0):
     """Return (egress reason, access reason) for a shell command."""
     if depth > 3:
@@ -1208,6 +1220,9 @@ def bash_violations(command, cwd, mode, depth=0):
                 if not cmd:
                     continue
             egress = egress or upload_violation(cmd, cur, mode) or ncbi_violation(cmd, mode)
+            inner = shell_code(cmd)
+            if inner is not None:
+                egress = egress or bash_violations(inner, cur, mode, depth + 1)[0]
             if mode["mode"] != "schema-only":
                 continue
             verb = program(cmd[0])
@@ -1268,22 +1283,28 @@ def mcp_violation(tool, tool_input, cwd, mode):
     return None
 
 
-def ncbi_violation(cmd, mode):
-    """curl/wget to NCBI E-utilities, or the ce-pubmed script: same identifier checks as MCP arguments."""
-    verb, args = program(cmd[0]), cmd[1:]
-    if verb in ("curl", "wget", "http", "https", "xh"):
-        if not any(NCBI_HOST in t for t in args):
-            return None
-    elif not any(os.path.basename(t) == PUBMED_SCRIPT for t in cmd[:3]):
-        return None
-    from urllib.parse import unquote_plus  # only NCBI calls need it
+HTTP_CLIENTS = {"curl", "wget", "http", "https", "xh"}
+# Option values that carry the caller's own account, not query data: an email there is not a patient's.
+OWN_ACCOUNT_OPTS = {"-u", "--user", "-H", "--header", "-A", "--user-agent", "-e", "--referer"}
 
-    for token in args:
+
+def ncbi_violation(cmd, mode):
+    """Any HTTP client call (NCBI E-utilities by name or IP included) or the ce-pubmed script: MCP identifier checks."""
+    verb, args = program(cmd[0]), cmd[1:]
+    if verb not in HTTP_CLIENTS and not any(os.path.basename(t) == PUBMED_SCRIPT for t in cmd):
+        return None
+    from urllib.parse import unquote_plus  # only outbound queries need it
+
+    where = "an NCBI E-utilities query" if any(NCBI_HOST in t or os.path.basename(t) == PUBMED_SCRIPT for t in cmd) \
+        else f"a `{verb}` request"
+    for index, token in enumerate(args):
         if os.path.basename(token) == PUBMED_SCRIPT:
             continue
-        reason = identifier_reason(unquote_plus(token), mode)
+        own = verb in HTTP_CLIENTS and index > 0 and (args[index - 1] in OWN_ACCOUNT_OPTS
+                                                       or token.split("=", 1)[0] in OWN_ACCOUNT_OPTS)
+        reason = identifier_reason(unquote_plus(token), mode, "email" if own else "")
         if reason:
-            return f"an NCBI E-utilities query: {reason[len('an argument '):]}" if reason.startswith("an argument ") else reason
+            return f"{where}: {reason[len('an argument '):]}" if reason.startswith("an argument ") else reason
     return None
 
 

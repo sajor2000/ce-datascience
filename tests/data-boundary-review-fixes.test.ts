@@ -188,3 +188,29 @@ describe("#87: aggregate reads cannot be raced: one helper checks and prints the
     expectAll(root, "deny", [["Bash", bash("./ce-aggregate-read data/cohort.csv")], ["Bash", bash("./ce-aggregate-read output/table1.csv")]])
   })
 })
+
+describe("#87: identifier checks cover every HTTP client call and wrapped shells (every mode)", () => {
+  const pubmedScript = path.join(pluginRoot, "skills", "ce-pubmed", "scripts", "pubmed_search.py")
+  const eutils = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term="
+  test("extra interpreter flags, sh/bash -c, eval, and NCBI by IP are denied; ordinary queries pass", () => {
+    for (const config of [SCHEMA_ONLY, APPROVED]) {
+      const root = project(config)
+      const denied = verdicts(root, [
+        ["Bash", bash(`python3 -B -u ${pubmedScript} "sepsis 123-45-6789"`)],
+        ["Bash", bash(`uv run python -X dev -B ${pubmedScript} "MRN 00123456"`)],
+        ["Bash", bash(`bash -c "curl -s '${eutils}123-45-6789'"`)],
+        ["Bash", bash(`sh -c 'wget -qO- "${eutils}MRN+00123456"'`)],
+        ["Bash", bash(`eval "curl -s '${eutils}123-45-6789'"`)],
+        ["Bash", bash(`curl -sk -H 'Host: eutils.ncbi.nlm.nih.gov' 'https://130.14.29.110/entrez/eutils/esearch.fcgi?term=123-45-6789'`)],
+        ["Bash", bash(`curl -s 'https://api.example.org/search?q=zed.t%40example.com'`)],
+      ])
+      for (const v of denied) expect({ ...v, config }).toEqual({ tool: v.tool, input: v.input, decision: "deny", kind: "egress", config })
+      expectAll(root, "allow", [
+        ["Bash", bash(`python3 -B -u ${pubmedScript} "sepsis bundle compliance"`)],
+        ["Bash", bash(`bash -c "curl -s '${eutils}sepsis+bundle'"`)],
+        ["Bash", bash(`curl -s 'https://api.example.org/search?q=sepsis+2015'`)],
+        ["Bash", bash(`curl -s -u me@example.org:token -H 'From: me@example.org' https://api.example.org/v1/items`)],
+      ])
+    }
+  })
+})
