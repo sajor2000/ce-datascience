@@ -7,6 +7,11 @@
 set -euo pipefail
 
 MARKER_PREFIX="<!-- METHODSMITH_ALIAS_MANAGED v1 "
+# Aliases written before the rename to Methodsmith carry this marker. They are
+# still ours: stale ones are removed and current ones are rewritten.
+LEGACY_MARKER_PREFIX="<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "  # rebrand:keep
+# Pre-rebrand command names stay usable as deprecated aliases for one release.
+LEGACY_PREFIX="ce-"  # rebrand:keep
 DEFAULT_PLUGIN_NAME="methodsmith"
 
 scope="user"
@@ -29,7 +34,10 @@ Options:
   --dry-run                 Print actions without writing files
   --help                    Show this help
 
-The installer never overwrites a user-owned method-*.md command. Existing managed
+Each command name from before the rename to Methodsmith
+also gets a deprecated alias that points to the renamed skill.
+
+The installer never overwrites a user-owned command. Existing managed
 aliases are updated in place; stale managed aliases are removed.
 USAGE
 }
@@ -113,7 +121,15 @@ run_or_echo() {
 }
 
 is_managed_alias() {
-  [ -f "$1" ] && grep -Fq "$MARKER_PREFIX" "$1"
+  [ -f "$1" ] && { grep -Fq "$MARKER_PREFIX" "$1" || grep -Fq "$LEGACY_MARKER_PREFIX" "$1"; }
+}
+
+# Managed command files use either the current or the pre-rebrand prefix.
+alias_files_in() {
+  local dir="$1" file
+  for file in "$dir"/method-*.md "$dir/$LEGACY_PREFIX"*.md; do
+    [ -f "$file" ] && printf '%s\n' "$file"
+  done
 }
 
 write_alias_file() {
@@ -132,6 +148,35 @@ Delegate to that namespaced plugin skill and pass through the arguments exactly:
 
 \$ARGUMENTS
 EOF_ALIAS
+}
+
+write_legacy_alias_file() {
+  local output_file="$1"
+  local old_name="$2"
+  local skill_name="$3"
+  cat > "$output_file" <<EOF_ALIAS
+---
+description: "Deprecated: /${old_name} is now /${plugin_name}:${skill_name} (Methodsmith)."
+---
+${MARKER_PREFIX}plugin=${plugin_name} skill=${skill_name} legacy=${old_name} -->
+Deprecated alias. \`/${old_name}\` was renamed to \`/${plugin_name}:${skill_name}\` when the plugin
+was renamed to Methodsmith. This alias will be removed in the next major release.
+
+Tell the user about the new name once, then delegate to the renamed skill and pass
+the arguments through exactly:
+
+\`/${plugin_name}:${skill_name} \$ARGUMENTS\`
+
+\$ARGUMENTS
+EOF_ALIAS
+}
+
+# Prints "old new" pairs from the rebrand mapping (one pair per line in mapping.json).
+legacy_skill_pairs() {
+  local mapping="$repo_root/scripts/rebrand/mapping.json"
+  [ -f "$mapping" ] || return 0
+  sed -n '/"skills": {/,/}/p' "$mapping" \
+    | sed -n 's/^ *"\([a-z0-9-]*\)": "\(method-[a-z0-9-]*\)",\{0,1\}$/\1 \2/p'
 }
 
 build_source_dir() {
@@ -162,6 +207,12 @@ build_source_dir() {
     exit 2
   fi
 
+  local old_name new_name
+  while read -r old_name new_name; do
+    [ -n "$old_name" ] && [ -f "$plugin_dir/skills/$new_name/SKILL.md" ] || continue
+    write_legacy_alias_file "$temp_dir/${old_name}.md" "$old_name" "$new_name"
+  done < <(legacy_skill_pairs)
+
   printf '%s\n' "$temp_dir"
 }
 
@@ -169,12 +220,12 @@ uninstall_aliases() {
   echo "Removing managed Methodsmith aliases from $commands_dir"
   shopt -s nullglob
   local file
-  for file in "$commands_dir"/method-*.md; do
+  while IFS= read -r file; do
     if is_managed_alias "$file"; then
       run_or_echo rm -f "$file"
       echo "removed $(basename "$file")"
     fi
-  done
+  done < <(alias_files_in "$commands_dir")
   shopt -u nullglob
 }
 
@@ -187,7 +238,7 @@ install_aliases() {
 "
   shopt -s nullglob
   local source_file base target
-  for source_file in "$source_dir"/method-*.md; do
+  while IFS= read -r source_file; do
     base="$(basename "$source_file")"
     managed_names="${managed_names}${base}
 "
@@ -202,10 +253,10 @@ install_aliases() {
       cp "$source_file" "$target"
     fi
     echo "installed $base"
-  done
+  done < <(alias_files_in "$source_dir")
 
   local existing
-  for existing in "$commands_dir"/method-*.md; do
+  while IFS= read -r existing; do
     base="$(basename "$existing")"
     case "$managed_names" in
       *"
@@ -218,7 +269,7 @@ $base
         fi
         ;;
     esac
-  done
+  done < <(alias_files_in "$commands_dir")
   shopt -u nullglob
 }
 

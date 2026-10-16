@@ -8,6 +8,12 @@ import type { OpenCodeBundle } from "../types/opencode"
 import type { PiBundle } from "../types/pi"
 import { sanitizePathName } from "../utils/files"
 import { normalizeCodexName } from "../utils/codex-content"
+import {
+  PLUGIN_NAME,
+  PRE_REBRAND_AGENT_NAMES,
+  PRE_REBRAND_PLUGIN_NAME,
+  PRE_REBRAND_SKILL_NAMES,
+} from "../utils/rebrand-names"
 
 type LegacyPluginArtifacts = {
   skills?: string[]
@@ -469,6 +475,15 @@ export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifa
     ],
   },
   // rebrand:keep-end
+}
+
+// 5.0 renamed the plugin to Methodsmith. Installs under the new name sweep
+// everything the old name ever shipped, including every pre-rebrand name.
+const preRebrandArtifacts = EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN[PRE_REBRAND_PLUGIN_NAME]
+EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN[PLUGIN_NAME] = {
+  skills: [...new Set([...(preRebrandArtifacts.skills ?? []), ...PRE_REBRAND_SKILL_NAMES])],
+  agents: [...new Set([...(preRebrandArtifacts.agents ?? []), ...PRE_REBRAND_AGENT_NAMES])],
+  commands: preRebrandArtifacts.commands,
 }
 
 export type LegacyTargetArtifacts = {

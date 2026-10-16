@@ -344,8 +344,8 @@ describe("writeCodexBundle", () => {
   test("moves legacy flat Codex CE artifacts to a namespaced backup", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-legacy-skill-"))
     const codexRoot = path.join(tempRoot, ".codex")
-    await fs.mkdir(path.join(codexRoot, "skills", "method-plan"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy current workflow skill"))
+    await fs.mkdir(path.join(codexRoot, "skills", "ce-plan"), { recursive: true }) // rebrand:keep
+    await fs.writeFile(path.join(codexRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy current workflow skill")) // rebrand:keep
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan"), { recursive: true })
     await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon workflow skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan-beta"), { recursive: true })
@@ -368,7 +368,7 @@ describe("writeCodexBundle", () => {
     })
     await writeCodexBundle(codexRoot, bundle)
 
-    expect(await exists(path.join(codexRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "ce-plan"))).toBe(false) // rebrand:keep
     expect(await exists(path.join(codexRoot, "skills", "ce:plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "ce:plan-beta"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "repo-research-analyst"))).toBe(false)

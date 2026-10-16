@@ -18,6 +18,13 @@ import fs from "fs/promises"
 import path from "path"
 import { fileURLToPath } from "url"
 import { parseFrontmatter } from "./frontmatter"
+import {
+  PRE_REBRAND_AGENT_NAMES,
+  PRE_REBRAND_SKILL_NAMES,
+  currentAgentName,
+  currentSkillName,
+  toPreRebrandText,
+} from "./rebrand-names"
 import shippedDescriptionFingerprints from "../data/shipped-description-fingerprints.json"
 
 // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
@@ -349,6 +356,11 @@ const LEGACY_ONLY_AGENT_DESCRIPTIONS: Record<string, string> = {
 }
 // rebrand:keep-end
 
+// The 5.0 rename to Methodsmith retired every pre-rebrand skill and agent name.
+// Installs from 4.x left them behind under their old names.
+STALE_SKILL_DIRS.push(...PRE_REBRAND_SKILL_NAMES)
+STALE_AGENT_NAMES.push(...PRE_REBRAND_AGENT_NAMES)
+
 type LegacyFingerprints = {
   skills: Map<string, string>
   agents: Map<string, string>
@@ -472,8 +484,10 @@ function descriptionsMatch(
   aliases: string[] = [],
 ): boolean {
   if (!actualDescription || !expectedDescription) return false
-  const normalizedActual = normalizeLegacyWorkflowReferences(actualDescription)
-  const candidates = [expectedDescription, ...aliases].map(normalizeLegacyWorkflowReferences)
+  // Compare in pre-rebrand terms so a 4.x description matches the renamed skill.
+  const normalize = (value: string) => normalizeLegacyWorkflowReferences(toPreRebrandText(value))
+  const normalizedActual = normalize(actualDescription)
+  const candidates = [expectedDescription, ...aliases].map(normalize)
   return candidates.includes(normalizedActual)
 }
 
@@ -496,7 +510,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
       const prompts = new Map<string, string>()
 
       for (const legacyName of STALE_SKILL_DIRS) {
-        const currentPath = skillIndex.get(currentSkillNameForLegacy(legacyName))
+        const currentPath = skillIndex.get(currentSkillName(currentSkillNameForLegacy(legacyName)))
         if (currentPath) {
           const description = await readDescription(currentPath)
           if (description) skills.set(legacyName, description)
@@ -510,7 +524,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
       }
 
       for (const legacyName of STALE_AGENT_NAMES) {
-        const currentPath = agentIndex.get(`method-${legacyName}`)
+        const currentPath = agentIndex.get(currentAgentName(legacyName))
         if (currentPath) {
           const description = await readDescription(currentPath)
           if (description) agents.set(legacyName, description)
@@ -521,7 +535,7 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
       }
 
       for (const [fileName, skillName] of Object.entries(LEGACY_PROMPT_CURRENT_SKILL_FOR_FILE)) {
-        const currentPath = skillIndex.get(skillName)
+        const currentPath = skillIndex.get(currentSkillName(skillName))
         if (!currentPath) continue
         const description = await readDescription(currentPath)
         if (description) prompts.set(fileName, description)
@@ -538,7 +552,8 @@ let knownDescriptionsPromise: Promise<Set<string>> | null = null
 
 // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
 function normalizeDescriptionFingerprint(value: string): string {
-  return normalizeLegacyWorkflowReferences(value)
+  // Pre-rebrand terms, so a renamed skill's description hashes like the 4.x one.
+  return normalizeLegacyWorkflowReferences(toPreRebrandText(value))
     .replace(/[/$](ce-[a-z0-9-]+)/g, "$1")
     .replace(/\s+/g, " ")
     .trim()
@@ -633,7 +648,7 @@ export async function isKnownPluginArtifact(
 
 /** One-line notice for a same-named item that methodsmith leaves alone. */
 export function noticeKeptUserArtifact(targetPath: string): void {
-  console.warn(`Kept ${targetPath}: it has the name of an old methodsmith file but methodsmith did not create it.`)
+  console.warn(`Kept ${targetPath}: an older release shipped a file with this name, but Methodsmith did not create this one.`)
 }
 
 // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).

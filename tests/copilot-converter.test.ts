@@ -473,7 +473,7 @@ Task best-practices-researcher(topic)`
   test("replaces ce: namespace with ce- in body text", () => {
     const input = "prefer ce:brainstorm first. Then run ce:plan and ce:review. Use ce:* skills."
     const result = transformContentForCopilot(input)
-    expect(result).toBe("prefer method-brainstorm first. Then run method-plan and ce-review. Use method-* skills.")
+    expect(result).toBe("prefer ce-brainstorm first. Then run ce-plan and ce-review. Use ce-* skills.") // rebrand:keep
     expect(result).not.toContain("ce:")
   })
 

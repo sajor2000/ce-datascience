@@ -19,7 +19,7 @@ describe("plugin legacy artifacts", () => {
 
     // Historical CE skills (renamed/removed since) are detected. These are
     // explicitly enumerated in EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN.
-    expect(artifacts.skills).toContain("method-plan")
+    expect(artifacts.skills).toContain("ce-plan") // rebrand:keep
     expect(artifacts.skills).toContain("ce:plan")
     expect(artifacts.skills).toContain("ce:plan-beta")
     expect(artifacts.skills).toContain("ce-review")
@@ -29,7 +29,7 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.skills).toContain("demo-reel")
     expect(artifacts.skills).toContain("ce:polish-beta")
     expect(artifacts.skills).toContain("ce:release-notes")
-    expect(artifacts.skills).toContain("method-update")
+    expect(artifacts.skills).toContain("ce-update") // rebrand:keep
     expect(artifacts.skills).toContain("creating-agent-skills")
     expect(artifacts.skills).toContain("repo-research-analyst")
     expect(artifacts.skills).toContain("bug-reproduction-validator")
@@ -156,7 +156,7 @@ describe("plugin legacy artifacts", () => {
     expect(artifacts.workflows).toContain("compound-plan.md")
     expect(artifacts.workflows).toContain("plan.md")
     expect(artifacts.workflows).toContain("workflows-plan.md")
-    expect(artifacts.workflows).toContain("method-plan.md")
+    expect(artifacts.workflows).toContain("ce-plan.md") // rebrand:keep
     expect(artifacts.workflows).toContain("technical_review.md")
 
     // Names present in the current CE bundle but NOT on the historical

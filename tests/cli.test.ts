@@ -245,8 +245,8 @@ describe("CLI", () => {
     await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:review-beta"), { recursive: true })
     await fs.writeFile(path.join(codexRoot, "skills", "ce:review-beta", "SKILL.md"), legacyMd("legacy raw colon beta skill"))
-    await fs.mkdir(path.join(codexRoot, "skills", "method-update"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "method-update", "SKILL.md"), legacyMd("legacy pre-namespaced flat skill"))
+    await fs.mkdir(path.join(codexRoot, "skills", "ce-update"), { recursive: true }) // rebrand:keep
+    await fs.writeFile(path.join(codexRoot, "skills", "ce-update", "SKILL.md"), legacyMd("legacy pre-namespaced flat skill")) // rebrand:keep
     // A user-authored skill at a flat path whose name happens to collide with
     // a current CE skill name (method-debug is a current CE skill that has never
     // been on the historical flat-path allow-list). The cleanup MUST NOT move
@@ -272,7 +272,7 @@ describe("CLI", () => {
     await fs.mkdir(sharedAgentSymlinkTarget, { recursive: true })
     await fs.writeFile(path.join(sharedAgentSymlinkTarget, "SKILL.md"), legacyMd("legacy shared skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
-    await fs.symlink(sharedAgentSymlinkTarget, path.join(agentsRoot, "skills", "method-plan"))
+    await fs.symlink(sharedAgentSymlinkTarget, path.join(agentsRoot, "skills", "ce-plan")) // rebrand:keep
     await fs.mkdir(path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst"), { recursive: true })
     await fs.writeFile(
       path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst", "SKILL.md"),
@@ -310,19 +310,19 @@ describe("CLI", () => {
     }
 
     expect(stdout).toContain("Cleaned codex")
-    // 6 historical artifacts get backed up: ce:plan, ce:review-beta, method-update
-    // (pre-namespaced flat path; method-update is a current skill but its managed
-    // install is at ~/.codex/skills/methodsmith/method-update, so the
-    // flat path is legacy), report-bug.md, the .agents/skills/method-plan
+    // 6 historical artifacts get backed up: ce:plan, ce:review-beta, the flat ce-update // rebrand:keep
+    // from a pre-namespaced 4.x layout (the managed install now lives at
+    // ~/.codex/skills/methodsmith/method-update, so the flat path is legacy),
+    // report-bug.md, the .agents/skills/ce-plan // rebrand:keep
     // symlink-equivalent, and the namespaced
     // methodsmith/repo-research-analyst directory.
     // The user-authored method-debug skill is preserved.
     expect(stdout).toContain("backed up 6 artifact")
     expect(await exists(path.join(codexRoot, "skills", "ce:plan"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "ce:review-beta"))).toBe(false)
-    expect(await exists(path.join(codexRoot, "skills", "method-update"))).toBe(false)
+    expect(await exists(path.join(codexRoot, "skills", "ce-update"))).toBe(false) // rebrand:keep
     expect(await exists(path.join(codexRoot, "prompts", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(agentsRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(agentsRoot, "skills", "ce-plan"))).toBe(false) // rebrand:keep
     expect(await exists(path.join(codexRoot, "skills", "methodsmith", "repo-research-analyst"))).toBe(false)
     expect(await exists(path.join(codexRoot, "skills", "methodsmith", "method-plan"))).toBe(true)
     expect(await exists(path.join(codexRoot, "methodsmith", "legacy-backup"))).toBe(true)
@@ -353,7 +353,7 @@ describe("CLI", () => {
     await fs.mkdir(ceOwnedTarget, { recursive: true })
     await fs.writeFile(path.join(ceOwnedTarget, "SKILL.md"), legacyMd("ce-owned skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
-    await fs.symlink(ceOwnedTarget, path.join(agentsRoot, "skills", "method-plan"))
+    await fs.symlink(ceOwnedTarget, path.join(agentsRoot, "skills", "ce-plan")) // rebrand:keep
 
     // (2) User-authored symlink at a colliding legacy name -- points to a
     // directory the user controls, outside CE's managed roots.
@@ -397,7 +397,7 @@ describe("CLI", () => {
     }
 
     // (1) CE-owned symlink was moved out of `.agents/skills/`.
-    expect(await exists(path.join(agentsRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(agentsRoot, "skills", "ce-plan"))).toBe(false) // rebrand:keep
     // Its target directory is preserved (cleanupCodex leaves current
     // namespaced skills alone; the shared symlink cleanup only touches the
     // link, not its target).
@@ -883,8 +883,8 @@ describe("CLI", () => {
         _compound_managed_keys: ["name", "skills", "agents"],
       }),
     )
-    await fs.mkdir(path.join(qwenRoot, "skills", "method-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy skill"))
+    await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true }) // rebrand:keep
+    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill")) // rebrand:keep
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
     await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands"), { recursive: true })
@@ -924,7 +924,7 @@ describe("CLI", () => {
 
     expect(stdout).toContain("Cleaned qwen")
     expect(await exists(extensionRoot)).toBe(false)
-    expect(await exists(path.join(qwenRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(qwenRoot, "skills", "ce-plan"))).toBe(false) // rebrand:keep
     expect(await exists(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound-plan.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound", "plan.md"))).toBe(false)
@@ -939,8 +939,8 @@ describe("CLI", () => {
     // Legacy artifacts from the historical allow-list (e.g. `ce:plan` sanitizes
     // to `method-plan`, `compound:plan` flattens to `compound-plan.md` and nests to
     // `compound/plan.md`). These MUST be backed up.
-    await fs.mkdir(path.join(qwenRoot, "skills", "method-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "method-plan", "SKILL.md"), legacyMd("legacy skill"))
+    await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true }) // rebrand:keep
+    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill")) // rebrand:keep
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
     await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.md"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands", "compound"), { recursive: true })
@@ -989,7 +989,7 @@ describe("CLI", () => {
 
     // Historical allow-list entries (including the nested colon-command form
     // preserved by the PRRT_kwDOP_gZVc58GrCI fix) are backed up.
-    expect(await exists(path.join(qwenRoot, "skills", "method-plan"))).toBe(false)
+    expect(await exists(path.join(qwenRoot, "skills", "ce-plan"))).toBe(false) // rebrand:keep
     expect(await exists(path.join(qwenRoot, "agents", "repo-research-analyst.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound-plan.md"))).toBe(false)
     expect(await exists(path.join(qwenRoot, "commands", "compound", "plan.md"))).toBe(false)

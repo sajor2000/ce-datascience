@@ -23,6 +23,12 @@ const pathspecs = [
   "plugins/methodsmith/agents/*/*.md",
   "plugins/methodsmith/commands/*.md",
   "plugins/methodsmith/commands/*/*.md",
+  // Releases before 5.0 shipped from the pre-rebrand plugin folder.
+  "plugins/ce-datascience/skills/*/SKILL.md", // rebrand:keep
+  "plugins/ce-datascience/agents/*.md", // rebrand:keep
+  "plugins/ce-datascience/agents/*/*.md", // rebrand:keep
+  "plugins/ce-datascience/commands/*.md", // rebrand:keep
+  "plugins/ce-datascience/commands/*/*.md", // rebrand:keep
 ]
 
 function git(args: string[], input?: string): Buffer {
