@@ -507,14 +507,20 @@ describe("writeOpenCodeBundle", () => {
 
     // Seed the stale artifacts on disk as they'd exist from the prior install.
     await fs.mkdir(path.join(outputRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "agents", legacyMd("stale-tutor-agent.md")), "stale")
+    await fs.writeFile(path.join(outputRoot, "agents", "stale-tutor-agent.md"), "stale")
     await fs.mkdir(path.join(outputRoot, "commands"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "commands", legacyMd("stale-tutor-cmd.md")), "stale")
+    await fs.writeFile(path.join(outputRoot, "commands", "stale-tutor-cmd.md"), "stale")
     await fs.mkdir(path.join(outputRoot, "skills", "stale-tutor-skill"), { recursive: true })
     await fs.writeFile(
       path.join(outputRoot, "skills", "stale-tutor-skill", "SKILL.md"),
       "stale",
     )
+    // The manifest entry is the ownership signal here, so plain content is
+    // realistic. Guard against seeding the wrong paths, which would make the
+    // removal assertions below pass vacuously.
+    for (const seeded of ["agents/stale-tutor-agent.md", "commands/stale-tutor-cmd.md", "skills/stale-tutor-skill/SKILL.md"]) {
+      expect(await exists(path.join(outputRoot, seeded))).toBe(true)
+    }
 
     // Reinstall coding-tutor with a new, non-overlapping set of artifacts.
     await writeOpenCodeBundle(outputRoot, {
