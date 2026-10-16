@@ -13,10 +13,8 @@ from pathlib import Path
 from manim import (
     DOWN,
     LEFT,
-    PI,
     RIGHT,
     UP,
-    AnnularSector,
     Circle,
     Line,
     Polygon,
@@ -154,33 +152,36 @@ def shadowed(box, offset=0.045, opacity=0.08):
     return VGroup(shadow, box)
 
 
-def brand_mark(height=0.62, ink=INK, accent=EMBER):
-    """The Methodsmith mark: an ink m on an ember anvil face.
-
-    Rebuilt from filled shapes on the brand's 64-unit grid (see
-    docs/brand/scripts/build_brand.py), because Manim draws the SVG's stroked
-    path as an outline."""
-    half, r = 3.1, 7  # half stroke width, arch radius (centre line)
+def brand_mark(height=0.62, ink=INK, accent=EMBER, ground=PAPER):
+    """The Methodsmith hallmark: an ink M struck into an ember plate with
+    chamfered corners. Rebuilt from filled shapes on the brand's 64-unit grid
+    (see docs/brand/scripts/build_brand.py); `ground` fills the plate's inside
+    so the stroke reads as a ring on any background."""
 
     def pt(x, y):
         return [x, -y, 0]
 
-    shapes = VGroup()
-    for x in (18, 32, 46):  # stems
-        shapes.add(Polygon(pt(x - half, 24), pt(x + half, 24), pt(x + half, 44.5), pt(x - half, 44.5)))
-    for cx in (25, 39):  # arches
-        shapes.add(AnnularSector(inner_radius=r - half, outer_radius=r + half, angle=PI).move_arc_center_to(pt(cx, 24)))
-    for shape in shapes:
-        shape.set_fill(ink, 1).set_stroke(width=0)
-    anvil = Polygon(pt(11, 43.5), pt(53, 43.5), pt(48.5, 49.5), pt(15.5, 49.5))
-    anvil.set_fill(accent, 1).set_stroke(width=0)
-    return VGroup(shapes, anvil).set_height(height)
+    def plate(inset):
+        x0, y0, x1, y1, c = 7 + inset, 12 + inset, 57 - inset, 52 - inset, 4 - inset * 0.414
+        return Polygon(*(pt(x, y) for x, y in (
+            (x0 + c, y0), (x1 - c, y0), (x1, y0 + c), (x1, y1 - c),
+            (x1 - c, y1), (x0 + c, y1), (x0, y1 - c), (x0, y0 + c))))
+
+    outer = plate(-1.7).set_fill(accent, 1).set_stroke(width=0)
+    inner = plate(1.7).set_fill(ground, 1).set_stroke(width=0)
+    stem, dv = 6.2, 6.2 * 1.35
+    l0, l1, r0, r1, top, base, v = 18, 18 + stem, 46 - stem, 46, 20.5, 43.5, 37
+    m = Polygon(*(pt(x, y) for x, y in (
+        (l0, base), (l0, top), (l1, top), (32, v - dv), (r0, top), (r1, top), (r1, base),
+        (r0, base), (r0, top + dv * 1.05), (32, v), (l1, top + dv * 1.05), (l1, base))))
+    m.set_fill(ink, 1).set_stroke(width=0)
+    return VGroup(outer, inner, m).set_height(height)
 
 
 def heading(title, subtitle, width=12.6, top_buff=0.38, mark=False):
     head = text(title, 42, weight="SEMIBOLD", font=SERIF)
     if mark:
-        head = VGroup(brand_mark(head.height * 1.1), head).arrange(RIGHT, buff=0.26)
+        head = VGroup(brand_mark(head.height * 1.2), head).arrange(RIGHT, buff=0.26)
     sub = text(subtitle, 20, color=MUTED)
     group = VGroup(head, sub).arrange(DOWN, buff=0.18)
     fit(group, width)
