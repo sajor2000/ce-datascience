@@ -638,14 +638,14 @@ The checklist registry records publication evidence, current versus legacy versi
 
 | Study type | Primary | Extensions |
 |---|---|---|
-| Observational cohort | STROBE | RECORD, RECORD-PE, STROBE-MR, STREGA |
+| Observational cohort | STROBE (STROBE-MR stand-alone for Mendelian randomization) | RECORD, RECORD-PE, STREGA |
 | Randomized trial | CONSORT (SPIRIT 2025 for protocols) | CONSORT-AI, SPIRIT-AI, Cluster, Adaptive, N-of-1 |
-| Prediction model | TRIPOD+AI (supersedes TRIPOD 2015) | TRIPOD-LLM, CHARMS, MI-CLAIM |
-| Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 |
-| Systematic review | PRISMA (PRISMA-P for protocols) | DTA, NMA, IPD, ScR |
+| Prediction model | TRIPOD+AI (supersedes TRIPOD 2015) | TRIPOD-LLM, MI-CLAIM |
+| Diagnostic accuracy | STARD (STARD-AI stand-alone for AI index tests) | CLAIM |
+| Systematic review | PRISMA (PRISMA-P for protocols; stand-alone DTA, NMA, IPD, ScR by review type) | QUADAS-3 (DTA appraisal; supersedes QUADAS-2), CHARMS (prediction-model reviews) |
 | Target trial emulation | TARGET (standalone) | |
 | Early live clinical evaluation of AI | DECIDE-AI | |
-| Other | SQUIRE, GRAMMS, STaRT-RWE, ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL, PDSQI, REFORMS | |
+| Other | SQUIRE, GRAMMS, STaRT-RWE, ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL (LLM), PDSQI-9 (LLM summaries), REFORMS | |
 
 ---
 
