@@ -645,6 +645,40 @@ without replacing CE DataScience's SAP, PHI, real-data, or reporting rules:
   matches, while repository instructions remain authoritative.
 - `ce-setup` reports obsolete Codex tool-map blocks and asks before cleanup.
 
+### Numbers locked to raw data
+
+Clinical journals, reviewers, and data-sharing audits ask where each number in a
+paper came from. `/ce-numbers` makes that answer checkable: a rigor signal, not a
+style rule. Analysis code registers aggregates in
+`analysis/numbers/registry.json` (R or Python; counts from 1 to 10 are stored
+suppressed). The manuscript cites them as `{{num:<id>}}`. A gate fails the
+submission when a number can't be traced. Each number follows one chain:
+SAP output -> script@commit -> source file hash -> registry entry -> sentence.
+
+Worked example (synthetic):
+
+```r
+# analysis/primary_cox.R, committed before it runs
+source("analysis/numbers/ce_numbers.R")
+register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918),
+                sources = "data/analytic.parquet", sap_output = "A3_cox_primary.csv")
+```
+
+```text
+manuscript/results.qmd:  The hazard ratio was {{num:primary.hr}}.
+rendered:                The hazard ratio was 0.78 (95% CI, 0.66-0.92).
+gate on a typed number:  manuscript/abstract.md:7: untraced number: 0.81
+gate after a data pull:  registry:primary.hr: stale: source data/analytic.parquet changed
+```
+
+The gate also fails on unknown ids, unsuppressed small cells, entries without a
+SAP output or committed script, and when it found nothing to check. It allows
+years, citation markers, figure, table, and item numbers, dates, quoted
+guideline text, and the doses or units you declare. Table 1, figure captions,
+model cards, and scientific writing cite the registry; `ce-verify`,
+`ce-pre-submission-audit`, and `ce-manuscript-package` run the gate and fail
+closed. It does not read numbers inside images or hand-edited Word tables.
+
 ### Versioned CLIF projects
 
 For a CLIF repository, setup and workflow reuse a matching declared CLIF data

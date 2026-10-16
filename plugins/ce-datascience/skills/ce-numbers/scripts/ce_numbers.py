@@ -24,6 +24,7 @@ import sys
 
 REGISTRY_REL = os.path.join("analysis", "numbers", "registry.json")
 ALLOWLIST_REL = os.path.join("analysis", "numbers", "allowlist.txt")
+OUTPUTS_REL = os.path.join("analysis", "sap-tables", "02-outputs.csv")
 
 
 def _project_root():
@@ -97,7 +98,7 @@ def _p(value, style):
     return f"{label} = {text[1:] if jama else text}"
 
 
-def format_number(value, kind, ci=None, digits=2, denominator=None, style="jama"):
+def format_number(value, kind, ci=None, digits=2, denominator=None, style="jama", sd=None, iqr=None):
     """The journal-style text for one aggregate."""
     if style not in STYLES:
         raise ValueError(f"unknown style profile {style!r}; expected one of {', '.join(STYLES)}")
@@ -119,21 +120,27 @@ def format_number(value, kind, ci=None, digits=2, denominator=None, style="jama"
             raise ValueError("kind 'ci' needs ci=(lower, upper)")
         return interval
     text = _fmt(value, digits)
-    return f"{text} (95% CI, {interval})" if interval else text
+    if interval:
+        return f"{text} (95% CI, {interval})"
+    if sd is not None:
+        return f"{text} ({_fmt(sd, digits)})"
+    if iqr is not None:
+        return f"{text} ({_fmt(iqr[0], digits)}-{_fmt(iqr[1], digits)})"
+    return text
 
 
 def _entry(root, script, id, value, kind, ci=None, digits=2, denominator=None, style="jama", sources=(),
-           sap_output=None, table=None):
+           sap_output=None, table=None, sd=None, iqr=None):
     if kind not in KINDS:
         raise ValueError(f"unknown kind; expected one of {', '.join(KINDS)}")
-    if not _finite(value) or not all(_finite(v) for v in (ci or ())):
+    if not all(_finite(v) for v in (value, *(ci or ()), *(iqr or ()), *([] if sd is None else [sd]))):
         raise ValueError(f"{id}: the registry holds finite numeric aggregates only")
     suppressed = kind in COUNT_KINDS and 1 <= value < SMALL_CELL
     entry = {
         "id": id,
         "value": None if suppressed else value,
         "kind": kind,
-        "text": f"<{SMALL_CELL}" if suppressed else format_number(value, kind, ci, digits, denominator, style),
+        "text": f"<{SMALL_CELL}" if suppressed else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
         "suppressed": suppressed,
         "sources": [{"path": _rel(root, s), "sha256": _sha256(os.path.join(root, s))} for s in sources],
         "script": {"path": _rel(root, script), "sha256": _sha256(script), "commit": _commit(root),
@@ -163,11 +170,11 @@ def _write(root, registry, entries):
 
 
 def register_number(id, value, kind, ci=None, digits=2, denominator=None, style="jama", sources=(),
-                    sap_output=None, script=None, registry=None):
+                    sap_output=None, script=None, registry=None, sd=None, iqr=None):
     """Register one aggregate. Counts from 1 to 10 are stored suppressed, without their value."""
     root = _project_root()
     entry = _entry(root, _script(script), id, value, kind, ci, digits, denominator, style,
-                   sources, sap_output)
+                   sources, sap_output, sd=sd, iqr=iqr)
     _write(root, registry, [entry])
     return entry
 
@@ -404,6 +411,31 @@ def untraceable(entries):
         yield from ((f"registry:{id}", "untraceable", problem) for problem in problems)
 
 
+def sap_outputs(path):
+    """Output IDs declared in the SAP outputs catalog (file names, with and without extension), or None."""
+    text = _read(path)
+    if text is None:
+        return None
+    rows = list(csv.reader(io.StringIO(text)))
+    if not rows:
+        return set()
+    header = [cell.strip().lower() for cell in rows[0]]
+    column = next((i for i, name in enumerate(header) if name.startswith(("output id", "output file", "output"))), 0)
+    ids = set()
+    for row in rows[1:]:
+        cell = row[column].strip() if column < len(row) else ""
+        if cell and "|" not in cell:  # section banner rows carry "SECTION | script"
+            ids.update({cell, os.path.splitext(cell)[0]})
+    return ids
+
+
+def unknown_sap_outputs(entries, declared):
+    for id, entry in sorted(entries.items()):
+        output = entry.get("sap_output")
+        if output and output not in declared:
+            yield f"registry:{id}", "unknown SAP output", output
+
+
 def small_cells(entries, threshold=SMALL_CELL):
     """Registered counts from 1 to threshold - 1 that are not suppressed. Never yields the value."""
     for id, entry in sorted(entries.items()):
@@ -412,7 +444,7 @@ def small_cells(entries, threshold=SMALL_CELL):
             yield f"registry:{id}", "small cell", f"a count from 1 to {threshold - 1} is not suppressed"
 
 
-def check(files, registry_path, allowlist_path, threshold=SMALL_CELL):
+def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_path=None, outputs_required=False):
     """(failures, checked): failures are (location, reason, token) and never carry registry values."""
     entries = load_registry(registry_path) or {}
     produced = registry_tokens(entries)
@@ -454,6 +486,11 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL):
                 failures.extend((f"{rel}:{number}", "untraced number", shown) for shown in untraced)
     failures.extend(stale(entries, _project_root()))
     failures.extend(untraceable(entries))
+    declared_outputs = sap_outputs(outputs_path) if outputs_path else None
+    if declared_outputs is not None:
+        failures.extend(unknown_sap_outputs(entries, declared_outputs))
+    elif outputs_required:
+        failures.append((outputs_path, "unreadable file", "missing"))
     failures.extend(small_cells(entries, threshold))
     if not entries or not checked:
         failures.append(("-", "nothing to check", "no registry entries" if not entries else "no numbers found"))
@@ -524,6 +561,7 @@ def main(argv=None):
     gate.add_argument("files", nargs="*")
     gate.add_argument("--registry", help=f"default: {REGISTRY_REL} in the project root")
     gate.add_argument("--allowlist", help=f"declared units and phrases (default: {ALLOWLIST_REL} in the project root)")
+    gate.add_argument("--sap-outputs", help=f"SAP outputs catalog (default: {OUTPUTS_REL} in the project root, when present)")
     gate.add_argument("--small-cell", type=int, default=SMALL_CELL, help="counts below this (from 1) must be suppressed")
     draw = sub.add_parser("render", help="substitute {{num:id}} placeholders with registry text")
     draw.add_argument("source")
@@ -547,6 +585,8 @@ def main(argv=None):
         return 0
     if args.command == "check":
         args.allowlist = args.allowlist or os.path.join(root, ALLOWLIST_REL)
+        args.outputs_required = bool(args.sap_outputs)
+        args.sap_outputs = args.sap_outputs or os.path.join(root, OUTPUTS_REL)
     if args.command == "trace":
         out, failures = trace(args.files, args.registry)
         print("\n".join(out))
@@ -557,7 +597,8 @@ def main(argv=None):
     if not args.files:
         print("FAIL: nothing to check (no manuscript or table files given)")
         return 1
-    failures, checked = check(args.files, args.registry, args.allowlist, args.small_cell)
+    failures, checked = check(args.files, args.registry, args.allowlist, args.small_cell, args.sap_outputs,
+                              args.outputs_required)
     return report(failures, f"{'FAIL' if failures else 'PASS'}: {checked} numbers checked, {len(failures)} problems")
 
 

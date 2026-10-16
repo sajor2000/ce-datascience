@@ -87,6 +87,8 @@ r("deaths", 148, kind="count", denominator=412)
 r("diff", -1.234, kind="estimate", ci=(-2.5, 0.04), digits=1)
 r("pct", 35.92, kind="percent", digits=1)
 r("interval", 0.781, kind="ci", ci=(0.664, 0.918))
+r("age.mean", 64.23, kind="estimate", sd=11.84, digits=1)
+r("los.median", 6, kind="estimate", iqr=(3, 11), digits=0)
 `)
     const result = run(root, ["python3", "analysis/model.py"])
     expect(result.err).toBe("")
@@ -98,6 +100,8 @@ r("interval", 0.781, kind="ci", ci=(0.664, 0.918))
     expect(e["diff"].text).toBe("-1.2 (95% CI, -2.5 to 0.0)")
     expect(e["pct"].text).toBe("35.9%")
     expect(e["interval"].text).toBe("0.66-0.92")
+    expect(e["age.mean"].text).toBe("64.2 (11.8)")
+    expect(e["los.median"].text).toBe("6 (3-11)")
   })
 })
 
@@ -401,6 +405,8 @@ describe.skipIf(!hasR)("R register_number and register_table", () => {
       `register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918), sources = "data/synthetic.csv", sap_output = "T2")`,
       `register_number("p.main", 0.0312, kind = "p", sources = "data/synthetic.csv", sap_output = "T2")`,
       `register_number("interval", -0.5, kind = "ci", ci = c(-1.234, 0.5), sources = "data/synthetic.csv", sap_output = "T3")`,
+      `register_number("age.mean", 64.23, kind = "estimate", sd = 11.84, digits = 1, sources = "data/synthetic.csv", sap_output = "T1")`,
+      `register_number("los.median", 6, kind = "estimate", iqr = c(3, 11), digits = 0, sources = "data/synthetic.csv", sap_output = "T1")`,
       `register_table("table1", list(`,
       `  n.overall = list(value = 1412, kind = "n"),`,
       `  female.overall = list(value = 212, kind = "count", denominator = 412),`,
@@ -424,6 +430,8 @@ describe.skipIf(!hasR)("R register_number and register_table", () => {
     })
     expect(e["p.main"].text).toBe("P = .03")
     expect(e["interval"].text).toBe("-1.23 to 0.50")
+    expect(e["age.mean"].text).toBe("64.2 (11.8)")
+    expect(e["los.median"].text).toBe("6 (3-11)")
     expect(e["table1.n.overall"]).toMatchObject({ text: "1,412", table: "table1", sap_output: "T1" })
     expect(e["table1.female.overall"].text).toBe("212 (51.5%)")
     expect(e["table1.female.small_site"]).toMatchObject({ value: null, text: "<11", suppressed: true })
@@ -540,5 +548,31 @@ r("no.sap", 2.5, kind="estimate", sources=["data/synthetic.csv"])
     expect(result.out).toContain("registry:no.sap: untraceable: no SAP output")
     expect(result.out).toContain("registry:dirty: untraceable: script analysis/uncommitted.py was not committed when it ran")
     expect(result.out).not.toContain("registry:no.sources: untraceable: script")
+  })
+})
+
+describe("numbers gate: SAP outputs catalog", () => {
+  test("fails entries whose SAP output is not an output in analysis/sap-tables/02-outputs.csv", () => {
+    const root = project(`from ce_numbers import register_number as r
+r("table1.n", 412, kind="n", sources=["data/synthetic.csv"], sap_output="table1_cohort_characteristics.csv")
+r("a3.or", 1.21, kind="estimate", ci=(1.05, 1.4), sources=["data/synthetic.csv"], sap_output="A3_dt_primary_coefs")
+r("typo.or", 1.5, kind="estimate", sources=["data/synthetic.csv"], sap_output="A9_missing.csv")
+`)
+    expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
+    write(root, "analysis/sap-tables/02-outputs.csv", [
+      "Output File (SITE_ID_ prefix added automatically),Subfolder,Dataset / Cohort Scope,Script Section,Contents,Role at Coordinating Center,Interpretation",
+      "TABLE OUTPUTS | 00_setup.R,,,,,,",
+      "table1_cohort_characteristics.csv,tables/,cohort,Table - general,Characteristics,Table 1,Balance",
+      "MODEL OUTPUTS | 345_outcomes.R,,,,,,",
+      "A3_dt_primary_coefs.csv,models/a3/,cohort,Analysis 3.1,OR and CI,Pool,OR > 1",
+    ].join("\n"))
+    write(root, "manuscript/a.md", "{{num:table1.n}} {{num:a3.or}} {{num:typo.or}}\n")
+    const result = check(root, "manuscript/a.md")
+    expect(result.code).toBe(1)
+    expect(result.out).toContain("registry:typo.or: unknown SAP output: A9_missing.csv")
+    expect(result.out).not.toContain("registry:table1.n:")
+    expect(result.out).not.toContain("registry:a3.or:")
+    const missing = check(root, "--sap-outputs", "analysis/sap-tables/nope.csv", "manuscript/a.md")
+    expect(missing.out).toContain("analysis/sap-tables/nope.csv: unreadable file: missing")
   })
 })
