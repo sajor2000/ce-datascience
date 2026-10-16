@@ -74,17 +74,41 @@ def id_hash(salt, entry):
     return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
 
 
+# A present but malformed index: every lookup matches, so callers fail closed.
+INVALID_INDEX = ("", HASH_WIDTH, "")
+
+
 def read_index(path):
-    """(salt, width, sorted hash blob) from an index file, or None."""
+    """(salt, width, sorted hash blob) from an index file, None when absent, INVALID_INDEX when malformed."""
     try:
         with open(path, encoding="utf-8") as fh:
             data = json.load(fh)
-        return data["salt"], int(data["width"]), data["hashes"]
-    except (OSError, ValueError, KeyError, TypeError):
+    except (FileNotFoundError, NotADirectoryError):
         return None
+    except (OSError, ValueError):
+        return INVALID_INDEX
+    if not isinstance(data, dict):
+        return INVALID_INDEX
+    salt, width, blob = data.get("salt"), data.get("width"), data.get("hashes")
+    if (not isinstance(salt, str) or not re.fullmatch(r"[0-9a-f]{32,128}", salt) or type(width) is not int
+            or width != HASH_WIDTH or not isinstance(blob, str) or len(blob) % width
+            or data.get("count") != len(blob) // width or blob != blob.lower()):
+        return INVALID_INDEX
+    try:
+        if len(bytes.fromhex(blob)) * 2 != len(blob):  # fromhex skips whitespace
+            return INVALID_INDEX
+    except ValueError:
+        return INVALID_INDEX
+    count = len(blob) // width  # binary search needs sorted keys: check all, or 4096 evenly spaced
+    keys = [blob[i * width:(i + 1) * width] for i in range(0, count, max(1, count // 4096))] + [blob[-width:]]
+    if any(a >= b for a, b in zip(keys, keys[1:-1])) or (count > 1 and keys[-2] > keys[-1]):
+        return INVALID_INDEX
+    return salt, width, blob
 
 
 def _indexed(index, entry):
+    if index is INVALID_INDEX:
+        return True
     salt, width, blob = index
     key = id_hash(salt, entry)[:width]
     lo, hi = 0, len(blob) // width
@@ -102,6 +126,8 @@ def _indexed(index, entry):
 
 def index_hit(text, index):
     """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    if index is INVALID_INDEX:
+        return True
     tokens = id_tokens(text)
     grams = {" ".join(tokens)} if len(tokens) > 3 else set()
     for size in (1, 2, 3):
@@ -214,6 +240,8 @@ def mask_indexed(text, index):
     """Replace every 1-3 token run that is an identifier-index entry with [masked]."""
     if not index:
         return text
+    if index is INVALID_INDEX:
+        return "[masked]"
     spans = [(m.start(), m.end(), " ".join(id_tokens(m.group()))) for m in re.finditer(r"[^\W_]+", text)]
     hits = []
     for i in range(len(spans)):
@@ -301,6 +329,9 @@ def main(argv):
         print(line)
     if len(changed) > MAX_LISTED:
         print(f"  ... and {len(changed) - MAX_LISTED} more")
+    if index is INVALID_INDEX:
+        print("The identifier index is malformed, so file names and stderr are withheld; "
+              "rebuild it with ce-identifier-index.")
     tail = masked_tail(err, index)
     if tail:
         print(f"stderr (last {TAIL_LINES} lines, masked):")
