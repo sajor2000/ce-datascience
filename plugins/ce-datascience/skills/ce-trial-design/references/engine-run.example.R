@@ -32,6 +32,7 @@ if (spec$design$allocation_ratio != 1) stop("this example assumes 1:1 allocation
 warnings_seen <- list()
 record_warning <- function(w) {
   warnings_seen[[length(warnings_seen) + 1]] <<- list(code = "engine_warning", message = conditionMessage(w))
+  message("Warning: ", conditionMessage(w))  # keep it in engine-run.log too
   invokeRestart("muffleWarning")
 }
 
@@ -40,18 +41,23 @@ rows <- list()
 for (cand in spec$candidates) {
   ea <- cand$parameters$engine_arguments
   sc <- scenarios[[cand$scenario_id]]
+  # rpact 4.4.0 takes the direction on the design; getPowerMeans inherits it.
+  direction_upper <- if (is.null(ea$directionUpper)) TRUE else isTRUE(ea$directionUpper)
   withCallingHandlers({
     design <- rpact::getDesignGroupSequential(
       kMax = ea$kMax, informationRates = unlist(ea$informationRates),
       typeOfDesign = ea$typeOfDesign, typeBetaSpending = ea$typeBetaSpending,
       bindingFutility = ea$bindingFutility, sided = ea$sided,
-      alpha = ea$alpha, beta = ea$beta
+      alpha = ea$alpha, beta = ea$beta, directionUpper = direction_upper
     )
     if (!is.null(ea$maxNumberOfSubjects)) {
       # Robustness candidate: N fixed from another scenario, power evaluated here.
       n_max <- ea$maxNumberOfSubjects
     } else {
-      ss <- rpact::getSampleSizeMeans(design, alternative = sc$alternative, stDev = sc$standard_deviation,
+      # getSampleSizeMeans ignores directionUpper and needs alternative > null, so
+      # size a lower-direction design on the mirrored alternative (same N).
+      ss_alt <- if (direction_upper) sc$alternative else 2 * spec$endpoint$null - sc$alternative
+      ss <- rpact::getSampleSizeMeans(design, alternative = ss_alt, stDev = sc$standard_deviation,
                                       allocationRatioPlanned = 1)
       # Integer subjects, rounded up to an even total for 1:1 allocation.
       n_max <- 2 * ceiling(ss$maxNumberOfSubjects / 2)
@@ -71,11 +77,13 @@ for (cand in spec$candidates) {
     scenario_id = cand$scenario_id, candidate_id = cand$id,
     engine = "rpact", engine_version = observed_version,
     analyses = design$kMax,
-    achieved_power = round(pow_alt$overallReject, 4),
-    type1_error = round(design$alphaSpent[design$kMax], 4),
+    # Full precision: feasibility and Pareto comparisons read these values;
+    # round only when presenting them.
+    achieved_power = pow_alt$overallReject,
+    type1_error = design$alphaSpent[design$kMax],
     max_information = n_max,
-    expected_information_null = round(pow_null$expectedNumberOfSubjects, 1),
-    expected_information_alt = round(pow_alt$expectedNumberOfSubjects, 1),
+    expected_information_null = pow_null$expectedNumberOfSubjects,
+    expected_information_alt = pow_alt$expectedNumberOfSubjects,
     power_lower_bound = NA, type1_error_upper_bound = NA
   )
 }
