@@ -1,0 +1,67 @@
+schema_version: "1.0"
+id: ce-calibration-reviewer-offset-intercept
+target:
+  kind: agent
+  name: ce-calibration-reviewer
+  source: plugins/ce-datascience/agents/ce-calibration-reviewer.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-calibration-reviewer-offset-intercept/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-calibration-reviewer-offset-intercept/fixtures/validate.R
+    destination: workspace/validate.R
+    sha256: 948cd81c534aac2a36c51ba854a454f898aefff780aaf0795e35e64360bafff0
+required_behaviors:
+  - detects-offset-intercept
+  - flags-hosmer-lemeshow
+  - requests-flexible-curve
+  - cites-lines
+prohibited_behaviors:
+  - claims-dca-mandated
+  - mutates-code
+criteria:
+  - id: detects-offset-intercept
+    description: The review says calibration-in-the-large needs the linear predictor as an offset (slope fixed at 1), not the intercept of glm(y ~ lp).
+    type: regex
+    path: response.md
+    pattern: 'offset'
+    weight: 3
+    hard_gate: true
+  - id: flags-hosmer-lemeshow
+    description: The review rejects the Hosmer-Lemeshow p-value as evidence of good calibration.
+    type: regex
+    path: response.md
+    pattern: 'hosmer.?lemeshow|hoslem'
+    weight: 2
+    hard_gate: true
+  - id: requests-flexible-curve
+    description: The review asks for a flexible (loess or spline) calibration curve.
+    type: regex
+    path: response.md
+    pattern: 'loess|spline|flexible calibration'
+    weight: 2
+    hard_gate: true
+  - id: cites-lines
+    description: Findings cite the implementation location.
+    type: regex
+    path: response.md
+    pattern: 'validate\.R:[0-9]+'
+    weight: 2
+    hard_gate: true
+  - id: claims-dca-mandated
+    description: The review does not claim TRIPOD+AI requires decision-curve analysis.
+    type: regex_not
+    path: response.md
+    pattern: '(?:DCA|decision.curve)[^.\n]{0,60}(?:required|mandated) by TRIPOD'
+    weight: 2
+    hard_gate: true
+  - id: mutates-code
+    description: The code fixture remains unchanged.
+    type: file_unchanged
+    path: workspace/validate.R
+    fixture_path: evals/ce-datascience/cases/ce-calibration-reviewer-offset-intercept/fixtures/validate.R
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The fixture is synthetic code with simulated data; the case measures review detection, not model execution.
+  - Regex criteria check that the right concepts are named, not that the explanation is complete.
