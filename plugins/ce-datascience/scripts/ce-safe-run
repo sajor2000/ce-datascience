@@ -9,8 +9,10 @@ already ignore it. The terminal gets only the exit code, the duration,
 the log path, the files created or modified under the project (path, size,
 and row count for tabular files), and the last 30 lines of stderr with values
 in the project's identifier index, quoted literals, digit runs of 4 or more,
-emails, phones, and SSNs masked. Traceback file/line frames stay readable, and
-file names are masked against the index too. Stdout is never printed. The exit code is the
+emails, phones, and SSNs masked. Traceback frames that name an existing file
+keep that path readable (identifier-shaped or indexed parts masked); any other
+frame-shaped line is masked like the rest. File names are masked against the
+index too. Stdout is never printed. The exit code is the
 command's. Files the run created or modified (except raster images) are listed in
 .ce-datascience/runs/outputs.txt, and the boundary guard treats them as data: the
 run read data, so what it wrote may hold values. Writes outside the project are not
@@ -149,7 +151,7 @@ RASTER = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 MAX_FILES = 20000
 MAX_LISTED = 50
 TAIL_LINES = 30
-FRAME = re.compile(r'^(\s*File "[^"\n]+", line \d+(?:, in [\w<>.]+)?)(.*)$')
+FRAME = re.compile(r'^(\s*File ")([^"\n]+)(", line \d+)(.*)$')
 MASKS = (
     (re.compile(r"'[^'\n]*'"), "'…'"),
     (re.compile(r'"[^"\n]*"'), '"…"'),
@@ -248,10 +250,7 @@ def changes(before, after, root, index):
     for rel in changed_files(before, after):
         kind = "created " if rel not in before else "modified"
         rows = row_count(os.path.join(root, rel))
-        shown = mask_indexed(rel, index)
-        for _, pattern in IDENTIFIER_PATTERNS:
-            shown = pattern.sub("[masked]", shown)
-        line = f"  {kind} {shown}  {after[rel][1]} bytes"
+        line = f"  {kind} {mask_path(rel, index)}  {after[rel][1]} bytes"
         lines.append(line + (f"  {rows} rows" if rows is not None else ""))
     return lines
 
@@ -296,8 +295,18 @@ def masked_tail(err, index):
     out = []
     for line in lines:
         frame = FRAME.match(line)
-        out.append(frame.group(1) + mask(frame.group(2), index) if frame else mask(line, index))
+        if frame and os.path.isfile(frame.group(2)):  # a real file: keep its path readable, minus identifiers
+            out.append(frame.group(1) + mask_path(frame.group(2), index) + frame.group(3) + mask(frame.group(4), index))
+        else:
+            out.append(mask(line, index))
     return out
+
+
+def mask_path(path, index):
+    shown = mask_indexed(path, index)
+    for _, pattern in IDENTIFIER_PATTERNS:
+        shown = pattern.sub("[masked]", shown)
+    return shown
 
 
 def find_index(root):

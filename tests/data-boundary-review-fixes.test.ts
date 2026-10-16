@@ -230,3 +230,14 @@ describe("#87: aggregate_dirs entries must stay inside their own project (schema
     expect(Bun.spawnSync([aggregateReader, "tables/t.csv"], { cwd: inside }).stdout.toString()).toBe(CLEAN_TABLE)
   })
 })
+
+describe("#87: ce-safe-run trusts a traceback frame only when it names a real file, and masks it anyway", () => {
+  test("fabricated frame lines are masked like any other stderr line; real frames stay readable", () => {
+    const root = withFile(project(SCHEMA_ONLY), "analysis/fail.py", "import sys\nsys.stderr.write('  File \"Zed Testperson 123-45-6789 FAKE0001\", line 3, in x\\n')\nraise ValueError('boom')\n")
+    const run = Bun.spawnSync([safeRun, "--", "python3", "analysis/fail.py"], { cwd: root })
+    const out = run.stdout.toString() + run.stderr.toString()
+    for (const value of ["Zed", "Testperson", "123-45-6789", "FAKE0001"]) expect({ value, leaked: out.includes(value) }).toEqual({ value, leaked: false })
+    expect(out).toContain('analysis/fail.py", line 3, in <module>')
+    expect(out).toContain("ValueError")
+  })
+})
