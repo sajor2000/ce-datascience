@@ -1,7 +1,5 @@
 # Reporting Guideline Routing Map
 
-Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the supported checklist files, their evidence status, and their methodological roles.
-
 ## Contents
 
 - Primary Guidelines
@@ -10,6 +8,8 @@ Route a study to its applicable reporting guidelines based on stack-profile and 
 - Observational Extension Layer
 - Extension Selection Rules
 - Guideline Metadata
+
+Route a study to its applicable reporting guidelines based on stack-profile and SAP fields. `guideline-registry.yaml` is the machine-readable source of truth for the supported checklist files, their evidence status, and their methodological roles.
 
 ## Primary Guidelines
 
