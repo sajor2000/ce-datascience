@@ -11,11 +11,13 @@
 - Funding
 
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Individual Participant Data (PRISMA-IPD).
-Extension of PRISMA for systematic reviews and meta-analyses that use individual participant data.
+Stand-alone extension of PRISMA for systematic reviews and meta-analyses that use individual participant data.
 
 **Primary reference:** Stewart LA, Clarke M, Rovers M, Riley RD, Simmonds M, Stewart G, Tierney JF; PRISMA-IPD Development Group. Preferred Reporting Items for Systematic Review and Meta-Analyses of Individual Participant Data: The PRISMA-IPD Statement. JAMA. 2015;313(16):1657-1665. doi:10.1001/jama.2015.3656. PMID: 25919529.
 
-This checklist extends base PRISMA with items specific to IPD meta-analyses (IPDMAs). Items marked with an asterisk (*) are new additions or modifications from base PRISMA. Apply when reporting a systematic review or meta-analysis that uses participant-level data obtained directly from trial or study investigators, rather than relying solely on published aggregate data. The base 27-item PRISMA 2009 checklist remains applicable alongside these extensions.
+**Source and licence:** Item IDs and order follow the official PRISMA-IPD checklist (https://www.prisma-statement.org/s/PRISMA-IPD-checklist.pdf). The PRISMA-IPD Group permits reuse only for non-commercial purposes, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. The "What to look for" cues are added by this plugin.
+
+PRISMA-IPD is a stand-alone checklist with 31 rows: the 27 PRISMA items adapted for IPD, plus A1-A3 (new items) and A4 (created by rearranging standard PRISMA content). Use it in place of the base PRISMA checklist. Developed mainly for reviews of randomized trials, many items also apply to IPD reviews of diagnosis and prognosis.
 
 ---
 
@@ -23,13 +25,10 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 1 -- Title
 
-**Description:** Identify the report as a systematic review and/or meta-analysis of individual participant data. *
+**Description:** Identify the report as a systematic review and meta-analysis of individual participant data.
 
 **What to look for in code/outputs:**
-- Report title identifying the review as an IPD meta-analysis or IPD systematic review
-- Title naming the intervention(s), condition, and key outcome
-- Keywords including "individual participant data," "IPD meta-analysis," or "individual patient data"
-- Structured abstract consistent with IPD review scope
+- Report title stating "individual participant data" (or "IPD") meta-analysis
 
 ---
 
@@ -37,13 +36,16 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 2 -- Structured summary
 
-**Description:** Provide a structured summary including, as applicable: background, objectives, data sources, eligibility criteria, participants, interventions and comparators, IPD collection, data checking and harmonization, statistical methods, results, and conclusions. *
+**Description:** Give a structured summary covering, as applicable:
+- **Background:** the research question and main objectives, with information on participants, interventions, comparators, and outcomes.
+- **Methods:** eligibility criteria; data sources, including dates of the last bibliographic search or elicitation, noting that IPD were sought; methods for assessing risk of bias.
+- **Results:** the number and type of studies and participants identified, and the number (%) for which IPD were obtained; summary effect estimates for the main outcomes (benefits and harms) with confidence intervals and measures of statistical heterogeneity; the direction and size of summary effects, in terms meaningful to those who would put the findings into practice.
+- **Discussion:** the main strengths and limitations of the evidence, a general interpretation of the results, and any important implications.
+- **Other:** the primary funding source, and the registration number and registry name for the systematic review and IPD meta-analysis.
 
 **What to look for in code/outputs:**
-- Abstract stating the proportion of eligible IPD obtained (e.g., IPD from X of Y eligible studies)
-- Summary of data harmonization and checking procedures
-- Key efficacy or safety estimates with confidence intervals
-- One- vs. two-stage analysis method named in abstract
+- Abstract reporting the number (%) of studies and participants with IPD obtained
+- Summary effects with confidence intervals and heterogeneity measures
 
 ---
 
@@ -51,23 +53,17 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 3 -- Rationale
 
-**Description:** Describe the rationale for the review, specifically including why IPD were sought (rather than or in addition to aggregate data), in the context of what is already known. *
+**Description:** Describe why the review was done, in the context of what is already known.
 
 **What to look for in code/outputs:**
-- Justification for IPD approach over aggregate data (subgroup analyses, time-to-event, standardized outcomes)
-- Documentation of limitations of published aggregate data for the research question
-- Prior systematic reviews using aggregate data cited with their limitations
-- Specific advantages of IPD for the stated objectives (participant-level subgroups, covariate adjustment)
+- Introductory sections citing prior evidence and gaps
 
 ### Item 4 -- Objectives
 
-**Description:** Provide an explicit statement of questions being addressed with reference to participants, interventions, comparators, outcomes, and study design (PICOS), specifying whether an IPD meta-analysis was planned.
+**Description:** Give an explicit statement of the questions addressed with reference, as applicable, to participants, interventions, comparisons, outcomes, and study design (PICOS). Include any hypotheses about particular participant-level subgroups.
 
 **What to look for in code/outputs:**
-- PICOS framework specified
-- IPD meta-analysis designated as primary or secondary analysis
-- Participant-level subgroup analyses prespecified
-- Primary and secondary outcomes defined with measurement methods
+- PICOS question and pre-specified participant-level subgroup hypotheses in the protocol
 
 ---
 
@@ -75,219 +71,178 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 5 -- Protocol and registration
 
-**Description:** Indicate if a review protocol exists, if and where it can be accessed, and, if available, provide registration information including registration number.
+**Description:** State whether a protocol exists and where it can be accessed. If available, give registration information, including the registration number and registry name, and publication details if applicable.
 
 **What to look for in code/outputs:**
-- PROSPERO registration number or other review registry reference
-- Published protocol DOI or URL
-- Deviation log for protocol amendments
-- Date of registration relative to data collection and analysis
+- Registration number, registry name, and protocol link or citation
 
 ### Item 6 -- Eligibility criteria
 
-**Description:** Specify study characteristics (e.g., PICOS, length of follow-up) and report characteristics (e.g., years considered, language, publication status) used as criteria for eligibility, giving rationale. Specify whether IPD, aggregate data, or both were sought. *
+**Description:** Specify the inclusion and exclusion criteria, including those relating to participants, interventions, comparisons, outcomes, study design, and study characteristics (e.g., years when conducted, required minimum follow-up). State whether the criteria were applied at the study level or the individual level, i.e. whether eligible participants were included (and ineligible participants excluded) from a study whose population was wider than the review's inclusion criteria. Give the rationale for the criteria.
 
 **What to look for in code/outputs:**
-- Eligibility criteria specifying whether IPD were required for inclusion or merely preferred
-- Criteria for accepting aggregate data in place of IPD for non-contributing studies
-- Minimum follow-up or sample size thresholds with rationale
-- Study design restrictions (RCTs, observational, or both)
+- Participant-level eligibility filters applied to pooled IPD, with counts excluded per study
 
-### Item 7 -- Information sources
+### Item 7 -- Identifying studies: information sources
 
-**Description:** Describe all information sources (e.g., databases with dates of coverage, contact with study authors to identify additional studies) in the search and the date last searched.
+**Description:** Describe all methods used to identify published and unpublished studies, including, as applicable: the bibliographic databases searched, with dates of coverage; any hand searching, including of conference proceedings; use of study registers and agency or company databases; contact with the original research teams and experts in the field; open adverts and surveys. Give the date of the last search or elicitation.
 
 **What to look for in code/outputs:**
-- Database list with coverage dates
-- Unpublished and ongoing trial registries searched (ClinicalTrials.gov, WHO ICTRP)
-- Author and sponsor contact for unreported studies or data
-- Date last searched for each source
+- Search and elicitation sources documented with last-search dates
 
-### Item 8 -- Search
+### Item 8 -- Identifying studies: search
 
-**Description:** Present the full electronic search strategy for at least one database, including any limits used, such that it could be repeated.
+**Description:** Present the full electronic search strategy for at least one database, including any limits used, so that it could be repeated.
 
 **What to look for in code/outputs:**
-- Full reproducible search string for at least one database
-- MeSH terms, free-text terms, and Boolean operators documented
-- Search strategy sufficient to identify unpublished and ongoing studies
-- Search peer-reviewed or validated using known-item testing
+- Complete search string for at least one database stored verbatim
 
-### Item 9 -- Study selection
+### Item 9 -- Study selection processes
 
-**Description:** State the process for selecting studies (i.e., screening, eligibility, included in systematic review, and, if applicable, included in the meta-analysis).
+**Description:** State the process used to decide which studies were eligible for inclusion.
 
 **What to look for in code/outputs:**
-- Two-stage screening process with counts at each stage
-- Study selection process documented separately from IPD collection outcome
-- PRISMA flow diagram generated distinguishing studies providing IPD from those not
-- Reasons for non-contribution of IPD documented per study
+- Screening workflow and eligibility decisions documented
 
-### Item 10 -- IPD collection process
+### Item 10 -- Data collection processes
 
-**Description:** Describe all methods used to identify, request, receive, and manage the IPD, including any process for obtaining and confirming data from investigators. *
+**Description:** Describe how IPD were requested, collected, and managed, including any processes for querying and confirming data with investigators. If IPD were not sought from an eligible study, give the reason (for each such study). If applicable, describe how studies without available IPD were dealt with, including whether, how, and what aggregate data were sought or extracted from study reports and publications (such as independent extraction in duplicate) and any processes for obtaining and confirming these data with investigators.
 
 **What to look for in code/outputs:**
-- Data request process documented (initial contact, reminders, data sharing agreements)
-- Data transfer method specified (secure file transfer, data repository)
-- Data management plan or data custody documentation referenced
-- Timeline from initial contact to data receipt per study
+- IPD request and transfer log per study, including data-sharing agreements and query logs
+- Reasons recorded for each study where IPD were not sought
+- Aggregate-data extraction forms for studies without IPD
 
-### Item 11a -- Data items: study-level
+### Item 11 -- Data items
 
-**Description:** List and define all study-level variables for which data were sought (e.g., PICOS, funding sources) and any assumptions made.
-
-**What to look for in code/outputs:**
-- Study-level extraction form with all variables listed
-- Study design, intervention details, and setting variables defined
-- Risk of bias assessment variables captured at study level
-- Statistical analysis plan variables to inform planned analyses
-
-### Item 11b -- Data items: participant-level
-
-**Description:** List and define all participant-level variables for which data were sought and any assumptions made. *
+**Description:** Describe how the information and variables to be collected were chosen. List and define all study-level and participant-level data sought, including baseline and follow-up information. If applicable, describe the methods used to standardise or translate variables within the IPD datasets to ensure common scales or measurements across studies.
 
 **What to look for in code/outputs:**
-- Participant-level variable list including demographic, prognostic, treatment, and outcome variables
-- Variable definitions with units, coding schemes, and reference ranges
-- Prespecified subgroup variables (age, sex, disease severity, biomarkers) listed
-- Outcome variable definitions consistent across studies in the data collection plan
+- Harmonized data dictionary mapping each study's variables to common definitions
+- Recoding and unit-conversion scripts per study
 
-### Item 12 -- Risk of bias in individual studies
+### Item A1 -- IPD integrity
 
-**Description:** Describe methods used for assessing risk of bias of individual studies (including specification of whether this was done at the study or outcome level) and how this information is to be used in data synthesis.
+**Description:** Describe which aspects of the IPD were checked (such as sequence generation, data consistency and completeness, and baseline imbalance) and how this was done.
 
 **What to look for in code/outputs:**
-- Cochrane RoB 2.0 or RoB 1.0 domain ratings applied
-- IPD-specific risk of bias items assessed (selective participant exclusion, differential outcome data availability)
-- Risk of bias judgments coded per domain per study
-- Sensitivity analyses excluding high-risk-of-bias studies planned
+- Data-checking scripts per study: randomization pattern, date consistency, range and logic checks, completeness, baseline balance
+- Query logs sent to investigators
 
-### Item 13 -- Summary measures
+### Item 12 -- Risk of bias assessment in individual studies
 
-**Description:** State the principal summary measures (e.g., risk ratio, difference in means).
+**Description:** Describe the methods used to assess risk of bias in the individual studies and whether this was done separately for each outcome. If applicable, describe how the findings of IPD checking informed the assessment. Report whether and how the risk-of-bias assessment was used in any data synthesis.
 
 **What to look for in code/outputs:**
-- Primary effect measure specified (OR, HR, RR, mean difference)
-- Absolute and relative measures both specified
-- Treatment interaction terms for subgroup analyses defined
-- Time-to-event outcome handling specified (Cox model, parametric survival)
+- Risk-of-bias tool and per-outcome ratings, linked to IPD-check findings
 
-### Item 14 -- Planned methods of analysis
+### Item 13 -- Specification of outcomes and effect measures
 
-**Description:** Describe the methods of handling data and combining results of studies, including any planned exploration of between-study heterogeneity. Describe the statistical method used (e.g., one-stage or two-stage approach). Specify any methods used to check, clean, and harmonize the IPD received from different studies. *
+**Description:** State all treatment comparisons of interest. State all outcomes addressed and define them in detail. State whether they were pre-specified for the review and, if applicable, whether they were primary/main or secondary/additional outcomes. Give the principal effect measures (such as risk ratio, hazard ratio, or difference in means) used for each outcome.
 
 **What to look for in code/outputs:**
-- One-stage vs. two-stage analysis approach specified with rationale
-- One-stage model specification (mixed-effects regression, stratified Cox, clustered standard errors)
-- Two-stage approach with within-study estimate extraction method defined
-- Data checking procedures specified (range checks, internal consistency, cross-variable logic)
-- Harmonization procedures for differently coded variables across studies
-- Missing participant data handling (within-study imputation, missing at random assumption)
+- Outcome definitions derived consistently across studies, labelled pre-specified and primary or secondary
+- Effect measure per outcome specified in analysis code
 
-### Item 15 -- Assessment of risk of bias across studies
+### Item 14 -- Synthesis methods
 
-**Description:** Specify any assessment of risk of bias that may affect the cumulative evidence (e.g., publication bias, selective reporting within studies).
+**Description:** Describe the meta-analysis methods used to synthesise the IPD, specifying any statistical methods and models used. Issues should include, but are not restricted to:
+- use of a one-stage or two-stage approach;
+- how effect estimates were generated separately within each study and combined across studies (where applicable);
+- specification of one-stage models (where applicable), including how clustering of patients within studies was accounted for;
+- use of fixed-effect or random-effects models and any other model assumptions, such as proportional hazards;
+- how (summary) survival curves were generated (where applicable);
+- methods for quantifying statistical heterogeneity (such as I² and τ²);
+- how studies providing and not providing IPD were analysed together (where applicable);
+- how missing data within the IPD were dealt with (where applicable).
 
 **What to look for in code/outputs:**
-- Comparison of characteristics between contributing and non-contributing studies
-- Funnel plot asymmetry test planned
-- Comparison of results using IPD vs. published aggregate data where both available
-- Selection bias assessment for non-contributing studies
+- One-stage (mixed model with study-level clustering) or two-stage analysis code, with model assumptions checked
+- Heterogeneity estimates; methods for combining IPD with aggregate data; missing-data handling within IPD
+
+### Item A2 -- Exploration of variation in effects
+
+**Description:** If applicable, describe any methods used to explore variation in effects by study-level or participant-level characteristics (such as estimating interactions between effect and covariates). State all participant-level characteristics analysed as potential effect modifiers and whether they were pre-specified.
+
+**What to look for in code/outputs:**
+- Treatment-covariate interaction models that separate within-study from across-study information
+- Effect modifiers listed and labelled pre-specified or exploratory
+
+### Item 15 -- Risk of bias across studies
+
+**Description:** Specify any assessment of risk of bias affecting the accumulated body of evidence, including any arising from not obtaining IPD for particular studies, outcomes, or other variables.
+
+**What to look for in code/outputs:**
+- Assessment of availability bias (studies or outcomes without IPD) and of publication bias
 
 ### Item 16 -- Additional analyses
 
-**Description:** Describe methods of additional analyses (e.g., sensitivity or subgroup analyses, meta-regression), if done, indicating which were pre-specified.
+**Description:** Describe the methods of any additional analyses, including sensitivity analyses, and state which were pre-specified.
 
 **What to look for in code/outputs:**
-- Participant-level subgroup analyses coded (treatment-by-covariate interaction terms)
-- Aggregate vs. IPD result comparison coded as sensitivity analysis
-- Meta-regression for between-study moderators specified
-- Pre-specified vs. post-hoc labeling for all additional analyses
+- Sensitivity analysis code labelled pre-specified or post hoc
 
 ---
 
 ## Results
 
-### Item 17 -- Study selection
+### Item 17 -- Study selection and IPD obtained
 
-**Description:** Give numbers of studies screened, assessed for eligibility, and included in the review, with reasons for exclusions at each stage, ideally with a flow diagram. Report the number of studies and participants (and events, if applicable) for which IPD were obtained. *
+**Description:** Give the numbers of studies screened, assessed for eligibility, and included in the systematic review, with reasons for exclusion at each stage. Give the numbers of studies and participants for which IPD were sought and for which IPD were obtained. For studies without available IPD, give the numbers of studies and participants for which aggregate data were available. Report the reasons IPD were not available. Include a flow diagram.
 
 **What to look for in code/outputs:**
-- PRISMA flow diagram distinguishing studies providing IPD from non-contributing studies
-- Total participant count and event count across IPD-contributing studies
-- Reasons for IPD non-contribution per study (refused, unreachable, data lost)
-- Proportion of eligible IPD obtained reported (studies and participants)
+- PRISMA-IPD flow diagram with IPD sought vs obtained, and aggregate data available for the rest
+- Reasons for IPD non-availability tabulated
 
 ### Item 18 -- Study characteristics
 
-**Description:** For each study, present characteristics for which data were extracted and provide the citations. Present comparisons of characteristics between studies that did and did not provide IPD. *
+**Description:** For each study, present key study and participant characteristics (such as description of interventions, numbers of participants, demographic data, unavailability of outcomes, funding source, and, if applicable, duration of follow-up). Give the (main) citation for each study. Where applicable, report similar characteristics for any studies not providing IPD.
 
 **What to look for in code/outputs:**
-- Study characteristics table stratified by IPD contributor vs. non-contributor
-- Statistical comparison of key characteristics between contributing and non-contributing studies
-- Missing IPD impact assessment (would non-contributors change conclusions)
-- Treatment arm descriptions and dosing per study
+- Characteristics table for IPD studies and, separately, for non-IPD studies
+
+### Item A3 -- IPD integrity
+
+**Description:** Report any important issues found when checking the IPD, or state that there were none.
+
+**What to look for in code/outputs:**
+- Summary of data-check findings and their resolution per study
 
 ### Item 19 -- Risk of bias within studies
 
-**Description:** Present data on risk of bias of each included study and, if available, any outcome-level assessment.
+**Description:** Present the data on the risk-of-bias assessments. If applicable, describe whether data checking led to these assessments being up-weighted or down-weighted. Consider how any potential bias affects the robustness of the meta-analysis conclusions.
 
 **What to look for in code/outputs:**
-- Risk of bias table or traffic light plot per study and per domain
-- IPD-specific risk of bias items reported (completeness of IPD, selective participant exclusion)
-- Comparison of risk of bias between IPD contributors and non-contributors
-- Sensitivity analysis results for high-risk-of-bias studies
+- Per-study risk-of-bias ratings, with changes prompted by IPD checks noted
 
-### Item 20a -- Results of data checking and harmonization
+### Item 20 -- Results of individual studies
 
-**Description:** Report on any important issues found when checking and harmonizing the IPD received from different studies, and how these were resolved. *
+**Description:** For each comparison and each main outcome (benefit or harm), report for each individual study the number of eligible participants for whom data were obtained, together with simple summary data for each intervention group (including, where applicable, the number of events), effect estimates, and confidence intervals. These may be tabulated or shown in a forest plot.
 
 **What to look for in code/outputs:**
-- Data cleaning log documenting issues found and resolution decisions
-- Variable harmonization decisions documented (recoding, combining categories, unit conversion)
-- Participant-level data integrity checks and error correction procedures
-- Final variable coding scheme with decisions documented per study
+- Per-study counts, events by arm, and effect estimates with CIs, as tables or forest plots
 
-### Item 20b -- Results of individual studies
+### Item 21 -- Results of syntheses
 
-**Description:** For all outcomes considered, present, for each study: (a) simple summary data for each intervention group and (b) effect estimates and confidence intervals, ideally with a forest plot.
+**Description:** Present summary effects for each meta-analysis, with confidence intervals and measures of statistical heterogeneity. State whether the analysis was pre-specified, and report the numbers of studies and participants (and, where applicable, events) on which it is based. When exploring variation in effects due to patient or study characteristics, present summary interaction estimates for each characteristic examined, with confidence intervals and measures of statistical heterogeneity; state whether the analysis was pre-specified and whether any interaction is consistent across trials. Describe the direction and size of effects in terms meaningful to those who would put the findings into practice.
 
 **What to look for in code/outputs:**
-- Arm-level event rates, means, or survival summaries per study
-- Study-level effect estimates with 95% CIs in forest plots
-- Participant flow within each contributing study (randomized, analyzed, events)
-- Consistency between IPD-derived estimates and published aggregate data checked
-
-### Item 21 -- Synthesis of results
-
-**Description:** Present the results of each meta-analysis done, including confidence intervals and measures of consistency.
-
-**What to look for in code/outputs:**
-- Pooled effect estimate with 95% CI from IPD meta-analysis
-- Heterogeneity statistics (I-squared, tau-squared) reported
-- One-stage and two-stage estimates compared if both computed
-- Prediction intervals reported alongside summary estimates
+- Summary effects with CIs, heterogeneity, and denominators
+- Interaction estimates with CIs, consistency across trials, and pre-specification labels
 
 ### Item 22 -- Risk of bias across studies
 
-**Description:** Present results of any assessment of risk of bias across studies (see Item 15).
+**Description:** Present the results of any assessment of risk of bias affecting the accumulated body of evidence, including any relating to the availability and representativeness of the available studies, outcomes, or other variables.
 
 **What to look for in code/outputs:**
-- Comparison of pooled estimates from IPD vs. published aggregate data
-- Funnel plot and asymmetry test results reported
-- Characteristics comparison between contributing and non-contributing studies
-- Sensitivity analysis excluding non-contributing studies reported
+- Results of availability-bias and publication-bias assessments
 
 ### Item 23 -- Additional analyses
 
-**Description:** Give results of additional analyses, if done (e.g., sensitivity or subgroup analyses, meta-regression [see Item 16]).
+**Description:** Give the results of any additional analyses (e.g., sensitivity analyses). If applicable, include any analyses that incorporate aggregate data for studies without IPD, and summarise the main meta-analysis results with and without the studies for which IPD were not available.
 
 **What to look for in code/outputs:**
-- Participant-level subgroup interaction estimates with p-values for interaction reported
-- Aggregate vs. IPD sensitivity analysis results compared
-- Meta-regression covariate estimates tabulated
-- Pre-specified vs. exploratory labeling for each analysis
+- Sensitivity results, including IPD-only vs IPD-plus-aggregate-data comparisons
 
 ---
 
@@ -295,33 +250,31 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 24 -- Summary of evidence
 
-**Description:** Summarize the main findings including the strength of evidence for each main outcome; consider their relevance to key groups.
+**Description:** Summarise the main findings, including the strength of the evidence for each main outcome.
 
 **What to look for in code/outputs:**
-- Summary of pooled IPD estimates with clinical interpretation
-- Participant-level subgroup findings contextualized
-- IPD advantages over prior aggregate analyses discussed
-- Certainty of evidence (GRADE) assessed and reported
+- Key results with certainty of evidence per outcome
 
-### Item 25 -- Limitations
+### Item 25 -- Strengths and limitations
 
-**Description:** Discuss limitations at study and outcome level (e.g., risk of bias), and at review-level (e.g., incomplete retrieval of identified research, reporting bias). Describe any limitations of the IPD meta-analysis (e.g., not all eligible IPD obtained, between-study heterogeneity in variable definitions). *
+**Description:** Discuss any important strengths and limitations of the evidence, including the benefits of having access to IPD and any limitations arising from IPD that were not available.
 
 **What to look for in code/outputs:**
-- Missing IPD impact discussed (studies and participant proportions not contributing)
-- Variable harmonization limitations and residual heterogeneity in variable definitions
-- Missing participant-level data patterns and potential bias impact
-- Generalizability limitations from contributing vs. non-contributing study differences
+- Discussion of IPD advantages and of the impact of unavailable IPD
 
 ### Item 26 -- Conclusions
 
-**Description:** Provide a general interpretation of the results in the context of other evidence, and implications for future research.
+**Description:** Give a general interpretation of the findings in the context of other evidence.
 
 **What to look for in code/outputs:**
-- Conclusions referencing both summary estimates and subgroup findings
-- Clinical implications of participant-level subgroup analyses
-- Recommended future research based on IPD findings
-- Data sharing recommendations for future trials to facilitate prospective IPD-MA
+- Conclusions linked to prior evidence
+
+### Item A4 -- Implications
+
+**Description:** Consider the relevance of the findings to key groups (such as policy makers, service providers, and service users) and the implications for future research.
+
+**What to look for in code/outputs:**
+- Implications for stakeholders and for future research stated separately from the conclusions
 
 ---
 
@@ -329,10 +282,7 @@ This checklist extends base PRISMA with items specific to IPD meta-analyses (IPD
 
 ### Item 27 -- Funding
 
-**Description:** Describe sources of funding for the systematic review and other support; role of funders for the systematic review.
+**Description:** Describe the sources of funding and other support (such as supply of IPD), and the role in the systematic review of those providing such support.
 
 **What to look for in code/outputs:**
-- Funding acknowledgment in report
-- Conflict of interest disclosures for all authors
-- Role of funder in IPD collection, analysis, or reporting stated
-- Independence of analysis from original study sponsors confirmed
+- Funding acknowledgment, including providers of IPD and their role

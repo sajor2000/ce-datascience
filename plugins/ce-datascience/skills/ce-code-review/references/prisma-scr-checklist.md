@@ -11,12 +11,16 @@
 - Funding
 
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses extension for Scoping Reviews (PRISMA-ScR).
-22-item checklist applicable to scoping reviews that map the extent, range, and nature of evidence on a topic.
+22-item checklist (20 essential items plus 2 optional items, per the statement abstract) applicable to scoping reviews and evidence maps that map the extent, range, and nature of evidence on a topic.
 
 **Primary reference:** Tricco AC, Lillie E, Zarin W, et al. PRISMA Extension for Scoping Reviews (PRISMA-ScR): checklist and explanation. Ann Intern Med. 2018;169(7):467-473. doi:10.7326/M18-0850. PMID: 30178033.
 
+**Source and licence:** Item numbers and order follow the official PRISMA-ScR fillable checklist (https://www.prisma-statement.org/s/PRISMA-ScR-Fillable-Checklist_11Sept2019.pdf). The checklist and article are copyright of the American College of Physicians and carry no open licence, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. An updated PRISMA-ScR is in development (Tricco et al. J Clin Epidemiol 2026, PMID 42107664); until it is published, this 2018 checklist is current.
+
+The official checklist does not say which items are optional. Items 12 and 16 (critical appraisal, both worded "If done") are marked "(Optional)" below. UNVERIFIED against the primary article: this mapping comes from secondary sources, because the Annals full text could not be retrieved.
+
 Each item includes the section, description, and what to look for in analysis code and outputs
-when evaluating compliance. Items marked with an asterisk (*) are additions to the base PRISMA checklist.
+when evaluating compliance. Item wording is adapted from PRISMA for scoping reviews; the official footnotes define "sources of evidence" (any type of evidence or data source, not only studies), "data charting" (data extraction), and "critical appraisal" (used instead of "risk of bias").
 
 ---
 
@@ -24,7 +28,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 1 -- Title
 
-**Description:** Identify the report as a scoping review.
+**Description:** State in the report that it is a scoping review.
 
 **What to look for in code/outputs:**
 - Report title or rendered document header explicitly including "scoping review"
@@ -37,7 +41,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 2 -- Structured summary
 
-**Description:** Provide a structured summary that includes the background, objectives, eligibility criteria, sources of evidence, charting methods, results, and conclusions that relate to the review questions and objectives.
+**Description:** Give a structured summary covering, as applicable, the background, objectives, eligibility criteria, sources of evidence, charting methods, results, and conclusions, each related to the review questions and objectives.
 
 **What to look for in code/outputs:**
 - Abstract template or generation code with structured sections covering all required elements
@@ -49,9 +53,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ## Introduction
 
-### Item 3 -- Rationale*
+### Item 3 -- Rationale
 
-**Description:** Describe the rationale for the review in the context of what is already known, explaining why the review questions or objectives lend themselves to a scoping review approach.
+**Description:** Explain why the review was done in light of existing knowledge, and why its questions or objectives suit a scoping review approach.
 
 **What to look for in code/outputs:**
 - Documentation explicitly justifying the scoping review methodology over a systematic review or meta-analysis
@@ -59,9 +63,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - References to prior reviews and the specific gap or breadth of topic that motivates the scoping approach
 - Report sections or comments explaining the appropriateness of scoping review for an emerging or heterogeneous evidence base
 
-### Item 4 -- Objectives*
+### Item 4 -- Objectives
 
-**Description:** Provide an explicit statement of the questions and objectives being addressed with reference to their key elements (e.g., population or participants, concept, and context) or other relevant key elements used to conceptualize the review questions and/or objectives.
+**Description:** State the review questions and objectives explicitly, naming their key elements (e.g., population or participants, concepts, and context) or any other key elements used to frame them.
 
 **What to look for in code/outputs:**
 - PICO or PCC (population, concept, context) framework documented in protocol, report preamble, or config file
@@ -75,7 +79,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 5 -- Protocol and registration
 
-**Description:** Indicate whether a review protocol exists; state if and where it can be accessed (e.g., a web address); and if available, provide registration information including the registration number.
+**Description:** Say whether a review protocol exists and whether and where it can be accessed (e.g., a web address); if available, give registration details, including the registration number.
 
 **What to look for in code/outputs:**
 - Protocol document path or URL referenced in analysis code or report
@@ -85,7 +89,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 6 -- Eligibility criteria
 
-**Description:** Specify characteristics of the sources of evidence used as eligibility criteria (e.g., years considered, language, and publication status) and provide a rationale.
+**Description:** Specify the characteristics of the sources of evidence used as eligibility criteria (e.g., years considered, language, publication status), with a rationale.
 
 **What to look for in code/outputs:**
 - Inclusion and exclusion criteria for study designs, languages, date ranges, and publication types in code or documentation
@@ -95,7 +99,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 7 -- Information sources
 
-**Description:** Describe all information sources in the search (e.g., databases with dates of coverage and contact with authors to identify additional sources) and the date the most recent search was executed.
+**Description:** Describe every information source searched (e.g., databases with their coverage dates, contact with authors to find more sources) and the date of the most recent search.
 
 **What to look for in code/outputs:**
 - List of databases searched (MEDLINE, Embase, CINAHL, etc.) with coverage dates and search execution dates
@@ -105,7 +109,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 8 -- Search
 
-**Description:** Present the full electronic search strategy for at least one database, including any limits used, such that it could be repeated.
+**Description:** Give the full electronic search strategy for at least one database, including any limits, so that the search could be repeated.
 
 **What to look for in code/outputs:**
 - Full search string for at least one database included in supplementary materials or methods appendix
@@ -113,9 +117,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - Any limits applied (date, language, publication type) specified in the search strategy
 - Search strings stored as reproducible code or query files
 
-### Item 9 -- Selection of sources of evidence*
+### Item 9 -- Selection of sources of evidence
 
-**Description:** State the process for selecting sources of evidence (i.e., screening and eligibility) included in the scoping review.
+**Description:** State how sources of evidence were selected for the scoping review (screening and eligibility).
 
 **What to look for in code/outputs:**
 - Documentation of the screening process: title/abstract screening followed by full-text review
@@ -123,9 +127,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - Screening tool or data extraction platform referenced (Covidence, Rayyan, DistillerSR)
 - Pilot testing of eligibility criteria documented prior to full screening
 
-### Item 10 -- Data charting process*
+### Item 10 -- Data charting process
 
-**Description:** Describe the methods of charting data from the included sources of evidence (e.g., calibrated forms or forms that have been pilot-tested by the team before widespread use, and whether data charting was done independently or in duplicate) and any processes for obtaining and confirming data from investigators.
+**Description:** Describe how data were charted from the included sources of evidence (e.g., calibrated forms, or forms tested by the team before use, and whether charting was done independently or in duplicate), and any processes for obtaining and confirming data from investigators.
 
 **What to look for in code/outputs:**
 - Data charting form or template referenced or included in supplementary materials
@@ -133,9 +137,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - Pilot testing of the charting form before full extraction documented
 - Process for contacting study authors to confirm or supplement charted data described
 
-### Item 11 -- Data items*
+### Item 11 -- Data items
 
-**Description:** List and define all variables for which data were sought and any assumptions and simplifications made.
+**Description:** List and define every variable for which data were sought, and any assumptions and simplifications made.
 
 **What to look for in code/outputs:**
 - Data dictionary or codebook listing all charted variables with definitions
@@ -143,9 +147,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - Documentation of assumptions made when source information was incomplete or ambiguous
 - Simplifications applied to heterogeneous data types (e.g., collapsing outcome categories) justified and recorded
 
-### Item 12 -- Critical appraisal of individual sources of evidence*
+### Item 12 -- Critical appraisal of individual sources of evidence
 
-**Description:** If done, provide a rationale for conducting a critical appraisal of included sources of evidence; describe the methods used and how this information was used in any data synthesis.
+**Description:** (Optional) If critical appraisal of the included sources of evidence was done, give the rationale for it, describe the methods, and explain how the results were used in any data synthesis (if appropriate).
 
 **What to look for in code/outputs:**
 - Documentation of whether formal quality appraisal was performed and the stated rationale
@@ -155,7 +159,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 13 -- Synthesis of results
 
-**Description:** Describe the methods of handling and summarizing the data that were charted.
+**Description:** Describe how the charted data were handled and summarized.
 
 **What to look for in code/outputs:**
 - Narrative synthesis approach described (thematic analysis, descriptive mapping, content analysis)
@@ -169,7 +173,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 14 -- Selection of sources of evidence
 
-**Description:** Give numbers of sources of evidence screened, assessed for eligibility, and included in the review, with reasons for exclusions at each stage, ideally using a flow diagram.
+**Description:** Report the numbers of sources of evidence screened, assessed for eligibility, and included, with the reasons for exclusion at each stage, ideally in a flow diagram.
 
 **What to look for in code/outputs:**
 - PRISMA-style flow diagram generation code with counts at each stage (records identified, deduplicated, screened, assessed, included)
@@ -177,9 +181,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 - Final included source count consistent across flow diagram, results text, and data tables
 - Kappa or percent agreement statistics for inter-rater reliability at screening stages
 
-### Item 15 -- Characteristics of sources of evidence*
+### Item 15 -- Characteristics of sources of evidence
 
-**Description:** For each source of evidence, present characteristics for which data were charted and provide the citations.
+**Description:** For each source of evidence, give its citation and the characteristics for which data were charted.
 
 **What to look for in code/outputs:**
 - Table summarizing characteristics of all included sources (author, year, country, design, population, concept, context, key findings)
@@ -189,7 +193,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 16 -- Critical appraisal within sources of evidence
 
-**Description:** If done, present data on critical appraisal of included sources of evidence (see item 12).
+**Description:** (Optional) If critical appraisal was done, present its results for the included sources of evidence (see item 12).
 
 **What to look for in code/outputs:**
 - Quality appraisal scores or ratings table if appraisal was performed
@@ -198,7 +202,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 17 -- Results of individual sources of evidence
 
-**Description:** For each included source of evidence, present the relevant data that were charted that relate to the review questions and objectives.
+**Description:** For each included source of evidence, present the charted data relevant to the review questions and objectives.
 
 **What to look for in code/outputs:**
 - Per-source data table or appendix with charted data aligned to review objectives
@@ -208,7 +212,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 18 -- Synthesis of results
 
-**Description:** Summarize and/or present the charting results as they relate to the review questions and objectives.
+**Description:** Summarize and/or present the charting results in relation to the review questions and objectives.
 
 **What to look for in code/outputs:**
 - Narrative synthesis organized by the concept dimensions, population subgroups, or contexts identified in the objectives
@@ -220,9 +224,9 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ## Discussion
 
-### Item 19 -- Summary of evidence*
+### Item 19 -- Summary of evidence
 
-**Description:** Summarize the main results (including an overview of concepts, themes, and types of evidence available), link to the review questions and objectives, and consider the relevance to key stakeholders.
+**Description:** Summarize the main results (including an overview of the concepts, themes, and types of evidence available), relate them to the review questions and objectives, and consider their relevance to key groups.
 
 **What to look for in code/outputs:**
 - Discussion sections linking findings back to the stated objectives and concept framework
@@ -242,7 +246,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 21 -- Conclusions
 
-**Description:** Provide a general interpretation of the results with respect to the review questions and objectives, as well as potential implications and/or next steps.
+**Description:** Give a general interpretation of the results in relation to the review questions and objectives, with potential implications and/or next steps.
 
 **What to look for in code/outputs:**
 - Conclusion statements that directly address the stated objectives and concept being mapped
@@ -256,7 +260,7 @@ when evaluating compliance. Items marked with an asterisk (*) are additions to t
 
 ### Item 22 -- Funding
 
-**Description:** Describe sources of funding for the included sources of evidence, as well as sources of funding for the scoping review. Describe the role of the funders of the scoping review.
+**Description:** Describe the funding sources of the included sources of evidence and of the scoping review itself, and the role of the scoping review's funders.
 
 **What to look for in code/outputs:**
 - Funding acknowledgment section in report templates naming the funding source and grant numbers
