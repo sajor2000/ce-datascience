@@ -1,7 +1,10 @@
 # Methodsmith brand guide
 
-Methodsmith is a plugin for rigorous research methods: clinical statistics,
-Python and machine-learning papers, and meta-analysis, from question to paper.
+Methodsmith is a plugin for Claude Code and Codex for rigorous research methods:
+clinical statistics, Python and machine-learning papers, and meta-analysis, from
+question to paper. It is a plugin, not an app: the brand appears in plugin
+directories, on GitHub, on the docs site and in the terminal, so every asset is
+designed for those places.
 The brand should read like a well-kept methods section: plain, exact and
 checkable. It should not read like a startup.
 
@@ -31,31 +34,58 @@ needed to view them) and exports the PNGs with headless Chrome.
   as the origin of the plan -> work -> review -> compound loop wherever the loop
   is explained at length (README, docs home).
 
-## The mark
+## The mark: the hallmark
 
-![The Methodsmith mark at 512, 64, 32 and 16 pixels](../../website/static/brand/mark-512.png)
+![The Methodsmith hallmark](../../website/static/brand/mark-512.png)
 
-A lowercase **m** for methods, forged on an **anvil face** for the smith. The
-two arches are two passes through the loop; the ember face is the compound step
-that every study rests on. It is drawn on a 64-unit grid with a 6.2-unit stroke
-and holds its shape at 16 px.
+A smith punches a **hallmark** into finished work to vouch for it. The
+Methodsmith mark is a geometric **M** struck into a plate with chamfered
+corners: the maker's guarantee that the work was tested, which is what the
+plugin offers an analysis (verified, reviewed, traceable). The choice and the
+alternatives are recorded in [logo-audit.md](logo-audit.md).
+
+Construction, on a 64-unit grid:
+
+- **Plate:** a 50 x 40 rectangle with 4-unit 45-degree chamfers, stroked at 3.4
+  units with mitred corners.
+- **M:** filled, with flat-cut tops. The stems are 6.2 units wide, matching the
+  stem weight of the Semibold wordmark at lockup size.
+- **Vertex:** the M's inner vertex sits 5 units below centre, so the two
+  counters balance optically inside the plate.
+- **Small form:** at 32 px and below, the plate is dropped and the M is enlarged
+  1.55x, so favicons and composer icons stay crisp.
 
 | File | Use |
 |---|---|
-| `mark.svg`, `mark-{16..1024}.png` | App icon: ink tile, paper m, ember face. Default everywhere a square icon is needed |
-| `mark-light.svg` | Tile-free mark for light backgrounds (ink m, ember face) |
-| `mark-dark.svg` | Tile-free mark for dark backgrounds (paper m, glow face) |
-| `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Browser and home-screen icons (ico holds 16, 32, 48) |
-| `lockup-light.svg/.png`, `lockup-dark.svg/.png` | Mark plus wordmark, horizontal |
+| `mark-light.svg`, `mark-{64..1024}.png` | The mark on light backgrounds: ember plate, ink M, transparent |
+| `mark-dark.svg` | On dark backgrounds: glow plate, paper M |
+| `mark-mono.svg` | One colour, following `currentColor` (print, embossing, single-colour badges) |
+| `icon.svg`, `icon-{48..1024}.png` | Square tile: ink ground, full hallmark. For the plugin directories and avatars |
+| `icon-small.svg`, `icon-16.png`, `icon-32.png` | Square tile, small form (M only). For the Codex composer icon and anywhere 32 px or smaller |
+| `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Docs site browser icons; the ico holds 16, 32 and 48 |
+| `avatar.png` | 500 x 500 tile for a GitHub organisation or profile avatar |
+| `lockup-light`, `lockup-dark` (`.svg`, `.png`) | Horizontal lockup |
+| `lockup-stacked-light`, `lockup-stacked-dark` (`.svg`, `.png`) | Stacked lockup for square spaces |
 
-Rules:
+### Clear space and minimum size
 
-- Keep clear space of one arch width (14 grid units) on every side of the mark.
-- Minimum size: 16 px for the tile, 20 px for the tile-free mark.
-- Don't recolour the m in ember, add gradients, outlines or shadows, rotate it,
-  or put the tile-free ink mark on a dark background.
-- In the lockup the anvil sits on the wordmark baseline and the mark is 1.34x
-  the font size. Use the files; don't rebuild the lockup by hand.
+- **Clear space:** keep at least the gap between the plate and the M (about 7 grid units,
+  about 10% of the mark's width) clear on every side. In lockups, the gap
+  between mark and wordmark is 0.62x the cap height.
+- **Minimum size:** 48 px for the full hallmark, 14 px for the small form, and
+  120 px wide for the horizontal lockup.
+- **Lockup proportions:** the plate is 1.6x the wordmark's cap height and is
+  centred on it. Use the lockup files; don't rebuild the lockup by hand.
+
+### Don'ts
+
+- Don't fill the plate, round its corners, or replace the chamfers with notches.
+- Don't recolour the M in ember, or the plate in ink when colour is available.
+- Don't add gradients, shadows, outlines, glows, or 3D bevels.
+- Don't put the light mark (ink M) on a dark ground; use `mark-dark.svg`.
+- Don't set the wordmark in another face, in all caps, or with wider tracking.
+- Don't present the mark as an app icon (no squircles or platform icon grids).
+  The square tile exists because the plugin directories ask for a square image.
 
 ## Colour
 
@@ -69,7 +99,7 @@ hues. Methodsmith adds one accent, **ember**, the colour of worked metal.
 | Paper | `#F7F5F0` | Light background | — |
 | Muted | `#5B6370` | Secondary text on light | 5.6:1 on Paper, 6.1:1 on white |
 | Rule | `#DCD8CF` | Hairlines and borders on light | decorative |
-| Ember | `#C2502A` | Accent fills: anvil face, active node, return arrow | 4.3:1 on Paper (graphics need 3:1) |
+| Ember | `#C2502A` | Accent fills: the hallmark plate, active node, return arrow | 4.3:1 on Paper (graphics need 3:1) |
 | Ember Deep | `#A63F1C` | Accent **text** and links on light | 5.8:1 on Paper, 6.3:1 on white |
 | Night | `#11141A` | Dark background | — |
 | Night Surface | `#1B1F27` | Cards and the icon tile on dark | — |
@@ -103,7 +133,11 @@ The README diagrams and the overview video use the same three faces; see
 |---|---|---|
 | README hero | `hero-light.svg`, `hero-dark.svg` (+ PNG) | 1600x560. Use a `<picture>` element so GitHub picks the theme |
 | GitHub social preview | `social-preview.png` | 1280x640, under 1 MB. Upload in repository Settings (it cannot be set through the API) |
-| Plugin directory icon | `plugins/<plugin>/assets/icon.png` and `icon.svg` | 512x512 square, used by the Claude `icon` and Codex `logo`/`composerIcon` fields |
+| README hero | (as above) | The README's H1 carries the name, so the banner leads with the mark and the promise |
+| Plugin directory icon | `plugins/methodsmith/assets/icon.png` (512) and `icon.svg` | Square tile. Claude reads `icon` from `plugin.json`; Codex reads `interface.logo`. Both directories require a square image of at least 48 px (PNG or SVG), and neither accepts `.ico` inside the plugin |
+| Codex composer icon | `plugins/methodsmith/assets/icon-small.svg` | Small form, for `interface.composerIcon` |
+| Badges | README docs badge | Carries the small-form M as a shields.io logo |
+| Terminal | `demo.svg`, `demo-poster.png` | Commands in IBM Plex Mono; no mark inside the terminal |
 
 ## The loop graphic
 

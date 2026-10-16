@@ -65,14 +65,15 @@ export default function Home() {
   return (
     <Layout
       title="Rigorous methods, from question to paper"
-      description="Methodsmith is a Claude Code and Codex plugin for rigorous research methods: clinical statistics, Python and ML papers, and meta-analysis.">
+      description="Methodsmith is a plugin for Claude Code and Codex for rigorous research methods: clinical statistics, Python and ML papers, and meta-analysis.">
       <main>
         <header className="ms-hero container">
           <Heading as="h1">Rigorous methods, from question to paper.</Heading>
           <p className="ms-hero__lead">
-            Methodsmith gives Claude Code and Codex the workflows of a careful
-            methods team: statistics, machine learning and meta-analysis, planned
-            before they run and reviewed before they ship.{' '}
+            Methodsmith is a plugin for Claude Code and Codex that gives your
+            coding agent the workflows of a careful methods team: statistics,
+            machine learning and meta-analysis, planned before they run and
+            reviewed before they ship.{' '}
             <strong>Every study compounds.</strong>
           </p>
           <div className="ms-actions">

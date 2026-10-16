@@ -1,8 +1,9 @@
 # Methodsmith Setup Guide
 
-This guide is the fastest path from a fresh machine to a working `methodsmith`
-install. Use Bash on macOS, Linux, WSL, or Git Bash. Use PowerShell on native
-Windows. Upgrading from methodsmith (the plugin's name before 5.0)? See
+Methodsmith is a plugin for Claude Code and Codex. This guide is the fastest
+path from a fresh machine to a working `methodsmith` install. Use Bash on macOS,
+Linux, WSL, or Git Bash. Use PowerShell on native Windows. Upgrading from
+ce-datascience (the plugin's name before 5.0)? See <!-- rebrand:keep -->
 [Moving from ce-datascience](#moving-from-ce-datascience). <!-- rebrand:keep -->
 
 Methodsmith builds on [Every](https://every.to)'s
