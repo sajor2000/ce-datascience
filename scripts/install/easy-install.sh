@@ -366,17 +366,20 @@ install_codex() {
 
   if [ -f "$source_root/.agents/plugins/marketplace.json" ] && [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
     require_command codex
+    # The codex CLI refuses a CODEX_HOME that does not exist yet, and it must
+    # register the marketplace in the same profile this installer writes to.
+    run_or_echo mkdir -p "$codex_home"
     local codex_marketplace="$source_root"
     if [ "$source_explicit" = "no" ]; then
       # A Git marketplace is what `codex plugin marketplace upgrade` refreshes.
       codex_marketplace="$GITHUB_REPO"
-      if ! run_or_echo codex plugin marketplace add "$GITHUB_REPO"; then
+      if ! run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$GITHUB_REPO"; then
         echo "Could not reach the GitHub marketplace; using the local checkout instead."
         codex_marketplace="$source_root"
-        run_or_echo codex plugin marketplace add "$source_root"
+        run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$source_root"
       fi
     else
-      run_or_echo codex plugin marketplace add "$source_root"
+      run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$source_root"
     fi
     if command -v bun >/dev/null 2>&1; then
       if [ "$dry_run" = "yes" ]; then
