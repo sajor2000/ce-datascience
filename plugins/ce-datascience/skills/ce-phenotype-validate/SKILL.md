@@ -144,7 +144,7 @@ SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/validate_phenotype.py" <phenotype> <merged-csv> --out reports/phenotype-validation/<phenotype>-<date>.md --design algo-stratified --n-algo-pos-pop <cohort algo+ count> --n-algo-neg-pop <cohort algo- count>
 ```
 
-Use `--design srs` for a simple random sample of the cohort (no stratum counts). Without stratum counts under the default `algo-stratified` design, the script reports sensitivity and specificity as not estimable. Set `--disclosure-floor` to the project floor (default 11). It writes the Markdown report, the suppressed aggregate CSV, and a `.yaml` validation block beside it, applying the disclosure floor to all cells: if any 2x2 cell is below the floor, the whole table is suppressed, and subgroups below the floor are dropped. Proportions from a table with suppressed cells are flagged; confirm the project disclosure policy before external release.
+Use `--design srs` for a simple random sample of the cohort (no stratum counts). Without stratum counts under the default `algo-stratified` design, the script reports sensitivity and specificity as not estimable. Set `--disclosure-floor` to the project floor (default 11). It writes the Markdown report, the suppressed aggregate CSV, and a `.yaml` validation block beside it, applying the disclosure floor to all three: if any 2x2 cell is from 1 to floor-1, all four cells read `suppressed` and n and every metric and CI are withheld, because n with PPV/NPV/Se/Sp recovers the small cell. Zero cells are publishable. A subgroup axis (missing values count as a group) is dropped whole if any group is below the floor or has a small cell. The stdout signal keeps the aggregate metrics and adds `suppressed=yes|no`; do not copy them into shared outputs when `suppressed=yes`.
 
 ### Step 7: Update the concept set provenance
 
@@ -174,7 +174,7 @@ validation:
 The bundled script (`scripts/validate_phenotype.py`) prints the canonical envelope:
 
 ```
-__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> design=<algo-stratified|srs> ppv=<v> npv=<v> sens=<v|NA> spec=<v|NA> report=<path-to-report.md> csv=<path-to-suppressed.csv> yaml=<path-to-validation.yaml>
+__CE_PHENOTYPE_VALIDATE__ name=<phenotype-name> n=<n> design=<algo-stratified|srs> suppressed=<yes|no> ppv=<v> npv=<v> sens=<v|NA> spec=<v|NA> report=<path-to-report.md> csv=<path-to-suppressed.csv> yaml=<path-to-validation.yaml>
 ```
 
 Surface this line so `ce-plan` SAP mode and the concept-set provenance YAML pick the validation up. `sens=NA` means sensitivity was not estimable from the design; never substitute the raw-cell value.
