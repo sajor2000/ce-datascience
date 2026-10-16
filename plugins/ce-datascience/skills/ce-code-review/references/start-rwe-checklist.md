@@ -1,251 +1,173 @@
-# STaRT-RWE Checklist for Real-World Evidence Studies
+# STaRT-RWE Structured Template for Real-World Evidence Studies
 
 ## Contents
 
-- Regulatory and Decision Context
-- Data Source
-- Study Design
-- Exposure and Comparator
-- Outcome
-- Confounding
-- Statistical Analysis
-- Transparency and Reproducibility
+- Administrative Information (Tables 1-2)
+- Study Design (Figure 1)
+- Analytic Study Population (Table 3A-3H)
+- Analysis (Tables 4-5)
+- Feasibility (Tables 6-7)
+- Terminology (Tables 8-9)
+- Plugin Review Cues
 
-Structured Template for Planning and Reporting on the Implementation of Real World Evidence (STaRT-RWE).
-Checklist for planning and reporting real-world evidence studies intended for regulatory decision-making.
+Structured Template and Reporting Tool for Real World Evidence (STaRT-RWE).
+A structured template, not a reporting checklist, for planning and reporting the implementation of real world evidence studies of the safety and effectiveness of treatments. The authors state that "STaRT-RWE is not a reporting checklist but can complement existing checklists"; it is compatible with STROBE, RECORD, RECORD-PE, or TARGET and does not replace them when they apply.
 
-**Related and legacy references:** Wang SV, Schneeweiss S, RWE DUPLICATE Initiative Working Group, et al. Emulation of Randomized Clinical Trials With Nonrandomized Database Analyses: Results of 32 Clinical Trials. JAMA. 2023;329(16):1376-1385. doi:10.1001/jama.2023.4221. PMID: 37097356. PMCID: PMC10130954. For the related HARmonized protocol template: Wang SV, Pottegard A, Crown W, Norgaard M, Ekstrom CT, Feldman W, et al. HARmonized Protocol Template to Enhance Reproducibility of Hypothesis Evaluating Real-World Evidence Studies on Treatment Effects: A Good Practices Report of a Joint ISPE/ISPOR Task Force. Pharmacoepidemiol Drug Saf. 2023;32(1):44-55. doi:10.1002/pds.5507. PMID: 36215113. PMCID: PMC9771861.
-**Current primary reference:** Wang SV, Pottegard A, Crown W, et al. STaRT-RWE: structured template for planning and reporting on the implementation of real world evidence studies. BMJ. 2021;372:m4856. doi:10.1136/bmj.m4856. PMID: 33436424. PMCID: PMC8489282.
+**Current primary reference:** Wang SV, Pinheiro S, Hua W, Arlett P, Uyama Y, Berlin JA, Bartels DB, Kahler KH, Bessette LG, Schneeweiss S. STaRT-RWE: structured template for planning and reporting on the implementation of real world evidence studies. BMJ. 2021;372:m4856. doi:10.1136/bmj.m4856. PMID: 33436424. PMCID: PMC8489282.
 
-**Related protocol-template reference:** Wang SV, Pottegard A, Crown W, et al. HARmonized protocol template to enhance reproducibility of hypothesis evaluating real-world evidence studies on treatment effects. Pharmacoepidemiol Drug Saf. 2023;32(1):44-55. doi:10.1002/pds.5507. PMID: 36215113. PMCID: PMC9771861.
+**Related protocol-template reference:** Wang SV, Pottegard A, Crown W, et al. HARmonized Protocol Template to Enhance Reproducibility of hypothesis evaluating real-world evidence studies on treatment effects: a good practices report of a joint ISPE/ISPOR task force. Pharmacoepidemiol Drug Saf. 2023;32(1):44-55. doi:10.1002/pds.5507. PMID: 36215113. PMCID: PMC9771861. HARPER builds on earlier transparency efforts including STaRT-RWE; use it for full study protocols.
 
-Apply as a planning/reporting template for real-world evidence studies on treatment effects using non-interventional data. It is not a replacement for STROBE, RECORD, RECORD-PE, or TARGET when those design-specific guidelines apply.
+**Source and licence:** Section names and contents follow the STaRT-RWE template tables in BMJ web appendix 1 (wans059917.ww1.pdf) and the article text (CC BY 4.0, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8489282/). Descriptions condense the template's field lists and instructions without changing their meaning. Section IDs (T1, T3B, ...) are the template's table numbers, not checklist items. The "What to look for in code/outputs" bullets are review cues added by this plugin.
 
 ---
 
-## Regulatory and Decision Context
+## Administrative Information (Tables 1-2)
 
-### Item 1 -- Regulatory question specification
+### STaRT-RWE T1 -- Administrative information
 
-**Description:** Specify the regulatory or decision-making question that the RWE study is designed to address. State the intended use of the study results and the relevant regulatory pathway or decision context.
-
-**What to look for in code/outputs:**
-- Explicit statement of regulatory or coverage question (label expansion, post-market requirement, coverage decision)
-- Intended use of evidence documented (FDA submission, HTA submission, payer negotiation)
-- Decision context described (confirmatory evidence, supplementary evidence, exploratory)
-- Alignment between the regulatory question and the study's estimand
-- Pre-specification of analysis relative to data access (protocol finalized before data lock)
-
-### Item 2 -- Estimand specification
-
-**Description:** Define the target estimand precisely, including the treatment contrast, the target population, the variable of interest (outcome), and the handling of intercurrent events (e.g., treatment discontinuation, competing events).
+**Description:** Protocol title; objective stated with PICOTS (patient, intervention, comparator, outcome, time horizon, setting) for primary and secondary objectives; protocol registration (identifier, date, site); protocol version (number, date); contributors (name, role, affiliation); funding (grant identifier, source); data use agreement (identifier, data provider, contact); human subjects/ethics approval (submission identifier, approval date, committee).
 
 **What to look for in code/outputs:**
-- Estimand framework components documented (treatment, population, outcome, intercurrent events, summary measure)
-- Treatment contrast specified (new user of drug A vs. new user of drug B)
-- Handling of intercurrent events specified (treatment-policy, hypothetical, composite, while on treatment)
-- Estimand distinguishes between the effect of initiating vs. continuing treatment
-- Alignment between estimand and the corresponding RCT estimand being emulated (if applicable)
+- PICOTS objectives stated before analysis code was written
+- Registration identifier (e.g., ENCePP EU PAS, OSF, ClinicalTrials.gov) referenced
+- DUA and ethics approval identifiers recorded
+
+### STaRT-RWE T2 -- Version history
+
+**Description:** Log each protocol version with its date, version number, change log, and rationale for the change.
+
+**What to look for in code/outputs:**
+- Protocol amendments dated and justified; deviations from the registered protocol listed
+- Git history or changelog consistent with the documented versions
 
 ---
 
-## Data Source
+## Study Design (Figure 1)
 
-### Item 3 -- Data source fitness for purpose
+### STaRT-RWE F1 -- Design diagram
 
-**Description:** Describe the data source(s) used and evaluate their fitness for addressing the regulatory question, including coverage, completeness, accuracy of key variables, and representativeness of the target population.
-
-**What to look for in code/outputs:**
-- Data source description (EHR system, claims database, registry, name, coverage dates, population)
-- Validation studies referenced for key variable accuracy (diagnosis codes, drug exposure, outcomes)
-- Completeness assessment for key covariates (laboratory values, vital signs, clinical variables)
-- Population representativeness assessed relative to the indicated patient population
-- Linkage to other data sources documented (mortality registry, cancer registry, dispensing data)
-
-### Item 4 -- Data source limitations relevant to the regulatory question
-
-**Description:** Describe specific limitations of the data source that are relevant to the study question, including known misclassification, unmeasured confounders, and potential biases inherent to the data.
+**Description:** A design diagram (Schneeweiss et al. framework, Ann Intern Med 2019) read from top to bottom in the order of operations used to create the analytic cohort, with assessment windows for washout, inclusion/exclusion, covariates, and follow-up shown relative to the cohort entry date (day 0) using bracketed inclusive or exclusive day ranges.
 
 **What to look for in code/outputs:**
-- Known misclassification rates for exposure or outcome variables documented
-- Unmeasured or incompletely measured confounders identified by name
-- Channeling bias potential assessed (reasons for treatment selection likely correlated with outcome)
-- Healthy user bias and depletion of susceptibles documented as applicable
-- Duration of data availability relative to the treatment exposure and outcome window
+- Design diagram present and consistent with window parameters in config or code
+- Day-0 inclusion or exclusion in each window explicit (open vs closed intervals)
 
 ---
 
-## Study Design
+## Analytic Study Population (Table 3A-3H)
 
-### Item 5 -- Study design selection and justification
+### STaRT-RWE T3A -- Meta-data about data source and software
 
-**Description:** Specify the study design (cohort, case-control, self-controlled) and justify its appropriateness for the regulatory question and data source. Describe the target trial emulation framework if applicable.
-
-**What to look for in code/outputs:**
-- Study design specified with justification relative to the regulatory question
-- Active comparator, new user design implemented in cohort construction code
-- Target trial emulation protocol documented (eligibility criteria, treatment assignment, follow-up, outcomes)
-- Design choice rationale addressing alternative designs and why they were not used
-- Prevalent user exclusion implemented and documented in cohort entry code
-
-### Item 6 -- Index date and follow-up definition
-
-**Description:** Define the index date (cohort entry date) for each study participant and the follow-up period, including start, end, and censoring rules. Describe how these definitions align with the regulatory question.
+**Description:** Data source(s); study period; eligible cohort entry period; data extraction date/version; data sampling/extraction criteria; type(s) of data; data linkage (with citation or appendix describing how linkage was done and its performance); data conversion; software used to create the study population. Code algorithms are supplied in machine-readable appendices.
 
 **What to look for in code/outputs:**
-- Index date definition coded and documented (first prescription, first diagnosis, first clinical encounter)
-- Washout period applied and duration specified
-- Follow-up end date rules documented (treatment discontinuation, switching, death, database end, administrative censoring)
-- Grace period or treatment gap tolerance specified for exposure continuation definition
-- Censoring rules pre-specified and implemented consistently in code
+- Database name, version, and extraction date pinned in config
+- Calendar windows (study period, cohort entry period) defined once and reused
+- Common data model or conversion step documented; cohort-building software and version recorded
 
-### Item 7 -- Eligibility criteria
+### STaRT-RWE T3B -- Index date (day 0) defining criterion
 
-**Description:** Define inclusion and exclusion criteria for study participants, specifying how they were operationalized in the data. Justify criteria in relation to the target population of interest.
+**Description:** One row per unique definition of study population entry (e.g., exposure and comparator for an active-comparator study): study population name, day-0 description, number of entries allowed, type of entry, washout window, care setting, code type, diagnosis position, what entry is incident with respect to, whether pre-specified or varied for sensitivity, and the source of the algorithm.
 
 **What to look for in code/outputs:**
-- Inclusion criteria coded with look-back window specifications
-- Exclusion criteria coded with diagnosis, procedure, or dispensing code lists
-- Minimum continuous enrollment period prior to index date implemented
-- Contraindication and prior use exclusions documented
-- Age, sex, and clinical eligibility criteria aligned with the approved indication or trial population
+- Index-date logic (first qualifying dispensing, new-user washout) in cohort-entry code
+- Single vs multiple entries per patient explicit
+
+### STaRT-RWE T3C-T3D -- Inclusion and exclusion criteria
+
+**Description:** For each criterion: conceptual definition and details, order of application relative to selection of the index date (before or after), assessment window, care setting, code type, diagnosis position, study populations it applies to, pre-specified or varied for sensitivity, and source of the algorithm. Defining observable patient time (enrollment in claims; an explicit algorithm for EHR data) is almost always required as an inclusion criterion.
+
+**What to look for in code/outputs:**
+- Criteria applied in a documented order relative to index-date selection
+- Continuous enrollment or observability rule with allowed gap length
+
+### STaRT-RWE T3E -- Predefined covariates
+
+**Description:** For each covariate: conceptual definition, which analyses adjust for it, type of variable (continuous, categorical, binary), assessment window, care setting, code type, diagnosis position, study populations, pre-specified or varied for sensitivity, and source of the algorithm.
+
+**What to look for in code/outputs:**
+- Covariate code lists and assessment windows defined relative to day 0
+- Adjustment set per analysis matches the specification
+
+### STaRT-RWE T3F -- Empirically defined covariates
+
+**Description:** If used, the algorithm for empirical covariate identification (e.g., high-dimensional propensity score) and its parameter settings, assessment window, analyses that adjust for them, model specification, care setting and diagnosis-position restrictions, study populations, pre-specified or varied for sensitivity, and source or code for the algorithm.
+
+**What to look for in code/outputs:**
+- hdPS or similar implementation with parameters (number of dimensions, covariates per dimension, ranking method) recorded
+
+### STaRT-RWE T3G -- Outcome
+
+**Description:** Conceptual definition and whether it is the primary outcome; outcome type (incident with washout window, or other); care setting; code category; diagnosis position; groups or analyses it applies to; measurement characteristics of the outcome algorithm (e.g., PPV, sensitivity, specificity) from publications or in-study validation; pre-specified or varied for sensitivity; and source of the algorithm.
+
+**What to look for in code/outputs:**
+- Outcome code lists with validation reference or in-study PPV
+- Incident-outcome washout implemented
+
+### STaRT-RWE T3H -- Follow-up
+
+**Description:** When follow-up begins relative to day 0 and each criterion that ends it: date of outcome, death, disenrollment, day X after index, end of study period, end of exposure (with stockpiling algorithm and grace period), date of add-on to or switch from exposure, or other; whether each was pre-specified or varied for sensitivity.
+
+**What to look for in code/outputs:**
+- Censoring logic covers every listed end-of-follow-up criterion
+- Grace period and stockpiling parameters for exposure-based censoring documented
 
 ---
 
-## Exposure and Comparator
+## Analysis (Tables 4-5)
 
-### Item 8 -- Exposure and comparator definition
+### STaRT-RWE T4 -- Analysis specification
 
-**Description:** Define the treatment exposure and the comparator, including drug classes, dose ranges, route of administration, and the time window used to classify exposure.
-
-**What to look for in code/outputs:**
-- Drug codes (NDC, RxNorm, ATC) for treatment and comparator fully specified
-- Dose range restrictions applied and documented
-- Route of administration specified where relevant
-- New user definition implemented (absence of exposure in washout period confirmed in code)
-- Active comparator rationale documented (why this comparator reduces confounding by indication)
-
-### Item 9 -- Handling of treatment changes
-
-**Description:** Define how treatment switching, augmentation, discontinuation, and gap tolerance are handled in the exposure definition and follow-up.
+**Description:** For the primary and each secondary analysis: hypothesis, study population(s), outcome, software, model(s), confounding adjustment method (bivariate, multivariable, propensity score matching with algorithm, ratio and caliper; weighting with weight formula, trimming and truncation; stratification with strata definition; other), missing data methods (missing indicators, complete case, last value carried forward, multiple imputation with variables, other), and subgroup analyses.
 
 **What to look for in code/outputs:**
-- Treatment discontinuation definition coded (days supply plus grace period)
-- Switching and augmentation handling specified (censoring, ITT-like, per-protocol-like)
-- Grace period duration specified and clinically justified
-- Sensitivity analyses with alternative grace period durations planned
-- Intent-to-treat and per-protocol analytic approaches compared if applicable
+- Model code matches the specified estimator, adjustment method, and parameters (caliper, trimming)
+- Missing-data handling implemented as specified; subgroups pre-specified
+
+### STaRT-RWE T5 -- Sensitivity analyses
+
+**Description:** For each sensitivity analysis: the parameter being varied (and what it changes from), why (what investigators expect to learn), and its strengths and weaknesses compared with the primary analysis.
+
+**What to look for in code/outputs:**
+- Each sensitivity analysis maps to one varied parameter with a stated rationale
+- Parameters marked "varied for sensitivity" in Table 3 have a matching run
 
 ---
 
-## Outcome
+## Feasibility (Tables 6-7)
 
-### Item 10 -- Outcome definition and validation
+### STaRT-RWE T6 -- Attrition table
 
-**Description:** Define the primary and secondary outcomes, including the code lists and algorithms used for ascertainment. Describe any validation of the outcome definition in the data source.
+**Description:** Number of patients excluded and remaining after applying each inclusion/exclusion criterion sequentially, for each exposure group. (The appendix labels this table "Table 5" in its body but "Table 6" in its table of contents.)
 
 **What to look for in code/outputs:**
-- Outcome definition code lists (ICD-9, ICD-10, CPT, HCPCS, lab codes) fully specified
-- Positive predictive value or sensitivity/specificity of outcome algorithm cited or measured
-- Outcome ascertainment window defined relative to index date
-- Competing events identified and handling strategy specified
-- Secondary and safety outcomes defined with the same specificity as the primary outcome
+- Sequential attrition counts by exposure group generated by the cohort-building code
+
+### STaRT-RWE T7 -- Power and sample size calculation
+
+**Description:** Software used, what is calculated (power, sample size, or detectable difference), population assumptions and statistical parameters with primary value, range considered, and source for each estimated parameter.
+
+**What to look for in code/outputs:**
+- Power or sample size script with assumptions and their sources
 
 ---
 
-## Confounding
+## Terminology (Tables 8-9)
 
-### Item 11 -- Confounding assessment and control
+### STaRT-RWE T8-T9 -- Glossary and abbreviations
 
-**Description:** Describe the approach to identifying, measuring, and controlling for confounding, including the covariate list, measurement windows, and analytic method.
-
-**What to look for in code/outputs:**
-- Full covariate list with measurement windows and data source tables
-- Confounding control method specified (propensity score, multivariable regression, high-dimensional propensity score, instrumental variable)
-- Propensity score model specification documented (variables included, model type)
-- Propensity score trimming, matching, or weighting approach specified
-- Covariate balance assessment code (standardized mean differences, Love plot)
-- High-dimensional propensity score (hdPS) implementation if used
-
-### Item 12 -- Unmeasured confounding assessment
-
-**Description:** Describe methods used to assess the potential impact of unmeasured confounding, including sensitivity analyses, quantitative bias analyses, or negative control analyses.
+**Description:** Glossary of terms (e.g., index date, assessment window, washout window, grace window, stockpiling algorithm, observable time, study period, treatment episode) and list of abbreviations used in the template.
 
 **What to look for in code/outputs:**
-- E-value calculation or quantitative bias analysis code implemented
-- Negative control outcome or exposure analysis coded
-- Instrument-based sensitivity analysis (e.g., instrumental variable) if applicable
-- Array approach or rule-out analysis for unmeasured confounders
-- Comparison with RCT results using the target trial emulation framework
+- Terms used in code comments and outputs match the glossary definitions
 
 ---
 
-## Statistical Analysis
+## Plugin Review Cues
 
-### Item 13 -- Primary analysis specification
+These cues come from the earlier version of this file. They are not STaRT-RWE template sections; use them only as prompts when reviewing an RWE treatment-effect study.
 
-**Description:** Specify the primary statistical analysis method, the effect measure, and how the analysis accounts for the study design and confounding approach.
-
-**What to look for in code/outputs:**
-- Primary analysis model specified (Cox regression, logistic regression, Poisson, G-computation)
-- Effect measure defined (hazard ratio, risk ratio, odds ratio, risk difference, rate difference)
-- Confidence interval method specified (robust variance, bootstrap, profile likelihood)
-- Covariate adjustment or propensity score incorporation in the outcome model documented
-- Absolute risk estimates planned alongside relative measures
-
-### Item 14 -- Sensitivity analyses for regulatory purposes
-
-**Description:** Pre-specify sensitivity analyses that address the key assumptions and data limitations of the RWE study, including design choices, exposure definitions, and potential biases.
-
-**What to look for in code/outputs:**
-- Sensitivity analyses listed and pre-specified before data access
-- Alternative exposure definitions tested (different grace periods, dose thresholds)
-- Alternative comparator groups analyzed
-- Alternative confounder adjustment approaches compared (PS matching vs. weighting, hdPS vs. standard PS)
-- On-treatment vs. intent-to-treat analytic approaches compared
-- Restriction analyses for high-adherence subpopulations
-
-### Item 15 -- Subgroup and interaction analyses
-
-**Description:** Pre-specify any subgroup or effect modification analyses, with rationale for the subgroups examined.
-
-**What to look for in code/outputs:**
-- Prespecified subgroup variables listed with clinical rationale
-- Interaction terms specified in the outcome model for effect modification assessment
-- Sample size adequacy for planned subgroup analyses addressed
-- Multiplicity adjustment approach specified for subgroup analyses
-
----
-
-## Transparency and Reproducibility
-
-### Item 16 -- Protocol pre-specification and transparency
-
-**Description:** Confirm that the study protocol was finalized and, ideally, publicly registered before accessing the study data. Describe any deviations from the pre-specified protocol.
-
-**What to look for in code/outputs:**
-- Protocol registration reference (ENCEPP, ClinicalTrials.gov, OSF, or other registry)
-- Protocol version number and date relative to data access documented
-- Deviation log documenting any post-data-access protocol changes with rationale
-- Protocol and SAP availability in supplementary materials or repository
-
-### Item 17 -- Analytical transparency
-
-**Description:** Describe the availability of the analysis code, the data, and any analytic tools to support replication or validation of the study results.
-
-**What to look for in code/outputs:**
-- Analysis code availability stated (public repository, supplementary materials, available on request)
-- Data availability statement including data use agreement constraints
-- Software and package versions documented in code or supplementary materials
-- Study protocol and analysis plan linked or appended to the report
-
-### Item 18 -- Assumptions documentation
-
-**Description:** Explicitly state the key assumptions underlying the study design, analysis, and interpretation, and describe how each was evaluated or addressed.
-
-**What to look for in code/outputs:**
-- No unmeasured confounding assumption stated and evaluated (negative controls, E-value)
-- Positivity assumption assessed (covariate overlap between treatment groups)
-- Consistency assumption addressed (treatment version irrelevance discussed)
-- Exchangeability assumption evaluated (covariate balance statistics reported)
-- Any target trial emulation assumptions explicitly stated and justified
+- **Estimand:** treatment contrast, target population, outcome, and handling of intercurrent events stated (HARPER covers estimands explicitly).
+- **Data fitness for purpose:** coverage, completeness, and accuracy of key variables assessed, and data-source limitations stated.
+- **Unmeasured confounding:** E-values, quantitative bias analysis, or negative-control outcomes or exposures.
+- **Transparency:** analysis code and data access statement; protocol registered before data access.
