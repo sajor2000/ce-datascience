@@ -1,6 +1,6 @@
 # CONSORT 2025 Checklist (Reporting of Randomized Controlled Trials)
 
-Current CONSORT core for randomized trials: 30 numbered items (42 rows with lettered sub-items) in six sections, including the new Open Science section. Item numbers and wording mirror the CONSORT 2025 checklist that `ce-code-review` validates against at review time, so the plan-time placeholder and the review-time check use the same items. Fill each row as the SAP and manuscript develop. For specialized RCT designs, layer on the relevant extension (Cluster, Adaptive, N-of-1, AI). CONSORT 2010 (25 items) is superseded; do not reuse its item numbers.
+Current CONSORT core for randomized trials: 30 numbered items (42 rows with lettered sub-items) in six sections, including the new Open Science section. Item numbers and wording mirror the CONSORT 2025 checklist that `ce-code-review` validates against at review time, so the plan-time placeholder and the review-time check use the same items. Fill each row as the SAP and manuscript develop. For specialized RCT designs, layer on the relevant extension (Cluster, Adaptive, N-of-1, AI). CONSORT 2025 supersedes CONSORT 2010 (25 items); do not reuse the old item numbers.
 
 **Current primary reference:** Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. BMJ. 2025;389:e081123. doi:10.1136/bmj-2024-081123. PMID: 40228833. Published simultaneously in BMJ, JAMA, Lancet, Nature Medicine, and PLOS Medicine.
 

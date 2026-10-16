@@ -11,13 +11,13 @@
 Consolidated Standards of Reporting Trials (CONSORT) extension for cluster randomized trials (CRTs).
 Supplements the current CONSORT core with items specific to trials in which intact groups rather than individuals are randomized. The extension adds cluster-specific text to CONSORT 2010 items 1a, 1b, 2a, 2b, 3a, 4a, 5, 6a, 7a, 8b, 9, 12a, 13a, 13b, 15, 16, 17a and 21, and replaces item 10 with 10a, 10b and 10c. All other CONSORT 2010 items apply unchanged.
 
-**Primary reference:** Campbell MK, Piaggio G, Elbourne DR, Altman DG; CONSORT Group. Consort 2010 statement: extension to cluster randomised trials. BMJ. 2012;345:e5661. doi:10.1136/bmj.e5661. PMID: 22951546.
+**Primary reference:** Campbell MK, Piaggio G, Elbourne DR, Altman DG; CONSORT Group. Consort 2010 statement: extension to cluster randomised trials. BMJ. 2012;345:e5661. doi:10.1136/bmj.e5661. PMID: 22951546. (Its base, CONSORT 2010, is superseded by CONSORT 2025.)
 
 **Verified against:** "CONSORT Extension for Cluster Trials 2012 Checklist" (Word), linked from https://www.consort-spirit.org/extensions, and the EQUATOR record https://www.equator-network.org/reporting-guidelines/consort-cluster/ (verified 2026-10-15).
 
 **Licence:** The BMJ article and the checklist file state no open licence, so the item descriptions below are close paraphrases of the official extension text. They keep each item's meaning and qualifiers but are not verbatim; consult the source for exact wording. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin.
 
-**Numbering:** Item IDs are the CONSORT 2010 numbers used by the extension. This extension was written against CONSORT 2010; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item gives the nearest CONSORT 2025 core item as a plugin mapping.
+**Numbering:** Item IDs are the numbers the extension uses, keyed to CONSORT 2010, which CONSORT 2025 supersedes; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item gives the nearest CONSORT 2025 core item as a plugin mapping.
 
 ---
 
