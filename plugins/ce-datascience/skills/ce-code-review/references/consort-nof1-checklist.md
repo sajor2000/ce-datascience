@@ -2,215 +2,256 @@
 
 ## Contents
 
-- Title and Abstract
-- Introduction
-- Methods
-- Results
-- Discussion
+- Title and Abstract (items 1a-1b)
+- Introduction (item 2a.2)
+- Methods (items 3a-12c)
+- Results (items 13a.1-19)
 
-Consolidated Standards of Reporting Trials (CONSORT) extension for N-of-1 trials.
-Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series.
+Consolidated Standards of Reporting Trials (CONSORT) extension for N-of-1 trials (CENT 2015).
+Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series. CENT adds guidance to 14 of the 25 CONSORT 2010 items; the CONSORT 2010 items not listed below apply unchanged, and items 2a.1, 6a.1 and 13b keep the CONSORT 2010 text. CENT also recommends a diagram depicting an individual N-of-1 trial and a modified CONSORT flow diagram for a series.
 
-**Primary reference:** Vohra S, Shamseer L, Sampson M, et al. CONSORT extension for reporting N-of-1 trials (CENT) 2015 statement. J Clin Epidemiol. 2015;76:9-17. doi:10.1016/j.jclinepi.2015.05.004. PMID: 26272792.
+**Primary reference:** Vohra S, Shamseer L, Sampson M, et al.; CENT Group. CONSORT extension for reporting N-of-1 trials (CENT) 2015 Statement. BMJ. 2015;350:h1738. doi:10.1136/bmj.h1738. PMID: 25976398. Erratum: BMJ. 2016;355:i5381 (PMID: 27758798). Also published in J Clin Epidemiol. 2016;76:9-17 (doi:10.1016/j.jclinepi.2015.05.004; PMID: 26272792; e-published 2015).
 
-Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for N-of-1 trial designs. Each item includes the description and what to look for in analysis code and outputs.
+**Explanation and elaboration:** Shamseer L, Sampson M, Bukutu C, et al.; CENT Group. CONSORT extension for reporting N-of-1 trials (CENT) 2015: Explanation and elaboration. BMJ. 2015;350:h1793. PMID: 25976162.
+
+**Verified against:** "CONSORT Extension for N-of-1 Trials (CENT) 2015 checklist" (Word), linked from https://www.consort-spirit.org/extensions, and the EQUATOR record https://www.equator-network.org/reporting-guidelines/consort-cent/ (verified 2026-10-15). The CENT abstract checklist (Table 2 of the statement) was not available in that file and is not reproduced here (UNVERIFIED).
+
+**Licence:** Checklist text reproduced verbatim (including its original punctuation) from the CENT 2015 checklist, which states: "The copyright for CENT (including checklist) is held by the CENT Group and is distributed under a Creative Commons Attribution (CC-BY 4.0) license." (https://creativecommons.org/licenses/by/4.0/). The BMJ article itself is CC BY-NC 4.0. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CENT text.
+
+**Numbering:** Item IDs are the CENT 2015 numbers, keyed to CONSORT 2010. Apply CENT alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items; each item gives the nearest CONSORT 2025 core item as a plugin mapping.
+
+**Privacy (checklist footnote):** Caution should be taken when reporting potentially identifying information pertaining to CENT items 4a, 4b, 14a, and 15.
 
 ---
 
 ## Title and Abstract
 
-### Item 1 -- Identification as an N-of-1 trial
+### Item 1a -- Identification as an N-of-1 trial
 
-**Description:** Identify the study as an N-of-1 trial or series of N-of-1 trials in the title and abstract, specifying whether the report covers a single patient or an aggregated series.
+**Description:** Identify as an "N-of-1 trial" in the title For series: Identify as "a series of N-of-1 trials" in the title
+
+CONSORT 2025 core: 1a.
 
 **What to look for in code/outputs:**
-- Report title or rendered document header explicitly stating "N-of-1 trial," "single patient trial," or "series of N-of-1 trials"
-- Abstract text clarifying whether results describe a single patient or an aggregated analysis across multiple N-of-1 trials
-- Documentation distinguishing this design from a crossover trial, case study, or observational repeated-measures study
+- Report title or rendered document header explicitly stating "N-of-1 trial" or "series of N-of-1 trials"
+- Documentation distinguishing this design from a parallel-group crossover trial, case study, or observational repeated-measures study
+
+### Item 1b -- Abstract
+
+**Description:** For specific guidance, see CENT guidance for abstracts (table 2)
+
+CONSORT 2025 core: 1b.
+
+**What to look for in code/outputs:**
+- Abstract stating whether results describe a single patient or a series
 
 ---
 
 ## Introduction
 
-### Item 2 -- Rationale for N-of-1 design*
+### Item 2a.2 -- Rationale for the N-of-1 approach
 
-**Description:** Explain the rationale for using an N-of-1 design, including the clinical or scientific circumstances that make individual-level treatment comparison appropriate.
+**Description:** Rationale for using N-of-1 approach
+
+CONSORT 2025 core: 6.
 
 **What to look for in code/outputs:**
-- Documentation justifying why a parallel-group or conventional crossover trial was not used (e.g., chronic stable condition, long-term treatment decision for an individual, patient preference)
-- Report sections describing the clinical condition as one where group-average effects are expected to be heterogeneous or where individual-level decisions are the goal
-- Protocol or SAP text explaining how the N-of-1 design addresses the specific clinical question
+- Documentation justifying why a parallel-group trial was not used (e.g., chronic stable condition, individual long-term treatment decision, rare disease)
+- Protocol or SAP text explaining how the N-of-1 design addresses the clinical question
 
 ---
 
 ## Methods
 
-### Item 3 -- Treatment periods and washout*
+### Item 3a -- Trial design, periods, and durations
 
-**Description:** Describe the length of each treatment period, the criteria used to determine period length (e.g., expected time to treatment effect and offset), and the duration and nature of any washout periods between treatment periods.
+**Description:** Describe trial design, planned number of periods, and duration of each period (including run-in and wash out, if applicable) In addition for series: Whether and how the design was individualized to each participant, and explain the series design
 
-**What to look for in code/outputs:**
-- Treatment period length specified in the SAP or protocol with justification based on pharmacokinetics or expected time to therapeutic effect
-- Washout period duration specified with the rationale (minimum time for drug clearance, return to baseline)
-- Code variables defining period start and end dates or time points relative to the washout schedule
-- Outcome assessment windows within each treatment period documented and coded
-
-### Item 4 -- Sequence of treatments*
-
-**Description:** Describe the method used to determine the order of treatment periods (e.g., random assignment, alternating order) and whether the sequence was disclosed to the patient and clinician.
+CONSORT 2025 core: 9.
 
 **What to look for in code/outputs:**
-- Randomization or sequence assignment code operating at the period level for each patient
-- Documentation of whether a balanced incomplete block design, fully randomized order, or fixed alternating sequence was used
-- Record of whether treatment sequence allocation was concealed from the patient and clinician prior to each period
-- Sequence assignment recorded in the data alongside the outcome data for each period
+- Treatment period length and washout duration specified in the SAP, with justification (time to effect and offset)
+- Pre-specified number of periods or pairs, and any stopping rules for individual patients
+- Code variables defining period start and end dates relative to the washout schedule
 
-### Item 5 -- Number of treatment pairs or cycles*
+### Item 4a -- Diagnosis and clinical context
 
-**Description:** State the planned number of treatment periods (or treatment pairs for alternating designs) and the rationale for this number, including any stopping rules for individual patients.
+**Description:** Diagnosis or disorder, diagnostic criteria, comorbid conditions, and concurrent therapies. For series: Same as CONSORT item 4a
 
-**What to look for in code/outputs:**
-- Pre-specified number of treatment cycles or pairs documented in the SAP (e.g., three pairs of two periods each)
-- Rationale for the planned number of cycles based on power considerations or clinical decision requirements
-- Stopping rules for individual patients defined (e.g., stop after achieving a clear treatment preference or after a pre-specified number of cycles regardless of outcome)
-- Code recording the actual number of completed cycles per patient and flagging patients who stopped early with reasons
-
-### Item 6 -- Carryover effects assessment*
-
-**Description:** Describe how carryover effects (the influence of treatment received in one period on outcomes in subsequent periods) were assessed and accounted for in the analysis.
+CONSORT 2025 core: 12a.
 
 **What to look for in code/outputs:**
-- Code testing for period-by-treatment interaction or carry-over effects in the statistical model
-- Washout monitoring variables (e.g., drug levels, symptom scores at the start of each period) used as indicators of incomplete washout
-- Documentation of the assumption of no carry-over and the evidence supporting this assumption
-- Sensitivity analyses excluding the first period of each pair or extending the washout period in a subset of patients
-- Graphical displays of outcomes by period overlaid on treatment assignment to visually inspect period trends and carryover
+- Diagnostic criteria, comorbidities, and concurrent therapies recorded without identifying details
 
-### Item 7 -- Outcome measurement within periods*
+### Item 4c -- Research status and ethics approval
 
-**Description:** Describe how and when outcomes were measured within each treatment period, including the number of observations per period and how multiple measurements within a period were combined.
+**Description:** Whether the trial(s) represents a research study and if so, whether institutional ethics approval was obtained
+
+CONSORT 2025 core: no direct equivalent (ethics approval is reported outside the core items).
 
 **What to look for in code/outputs:**
-- Timing of outcome assessments within each period documented (e.g., daily diary for days 5-14 of a 14-day period)
-- Code averaging or summarizing multiple within-period observations to a single period-level outcome
-- Rules for handling missing within-period observations documented and applied consistently
-- Period summary statistics output alongside raw within-period measurements for review
+- Statement of whether the trial was research or clinical care, with the ethics approval reference if research
 
-### Item 8 -- Blinding in N-of-1 context
+### Item 5 -- Interventions for each period
 
-**Description:** State whether the patient, clinician, and outcome assessors were blinded to treatment assignment within each period, and describe how blinding was achieved (e.g., matching placebo, overencapsulation).
+**Description:** The interventions for each period with sufficient details to allow replication, including how and when they were actually administered
 
-**What to look for in code/outputs:**
-- Documentation of blinding status for the patient, treating clinician, and outcome assessor
-- Pharmaceutical preparation method ensuring treatment indistinguishability referenced (overencapsulation, matching placebo)
-- Blinding check or success assessment code (patient's guess of treatment assignment)
-- Procedures for emergency unblinding described in the protocol
-
-### Item 9 -- Statistical methods for within-patient analysis*
-
-**Description:** Describe the primary statistical method for estimating the within-patient treatment effect, including how data were analysed to compare treatment periods for the individual patient.
+CONSORT 2025 core: 13.
 
 **What to look for in code/outputs:**
-- Within-patient analysis method specified: paired t-test, Wilcoxon signed-rank, linear mixed model with patient-as-random-effect, Bayesian hierarchical model
-- Code implementing the primary within-patient comparison at the individual level before any aggregation
-- Confidence intervals or credible intervals for the individual-level treatment effect computed and reported
-- Documentation that the within-patient analysis is the primary inference target, not a group-average effect
+- Per-period treatment records (drug, dose, timing) and pharmaceutical preparation used for blinding (e.g., overencapsulation, matching placebo)
 
-### Item 10 -- Aggregation across patients in a series*
+### Item 6a.2 -- Outcome assessment tools
 
-**Description:** If the report covers a series of N-of-1 trials, describe the method used to aggregate or synthesize individual patient results, including the rationale for aggregation and the model used.
+**Description:** Description and measurement properties (validity and reliability) of outcome assessment tools
 
-**What to look for in code/outputs:**
-- Aggregation method described: meta-analytic pooling using random-effects model, Bayesian hierarchical model with patient-level random effects, or fixed-effects pooling
-- Code implementing the aggregation with individual patient estimates as inputs
-- Between-patient heterogeneity estimated and reported (tau-squared or I-squared for random-effects approaches)
-- Rationale for aggregating results across patients documented (e.g., estimating average treatment effect across a heterogeneous population)
-- Individual patient treatment effect estimates presented alongside the pooled estimate
-
-### Item 11 -- Patient-level treatment effect estimation*
-
-**Description:** Describe how patient-specific treatment effect estimates were derived and whether they were used to guide individual treatment decisions.
+CONSORT 2025 core: 14.
 
 **What to look for in code/outputs:**
-- Code generating individual patient treatment effect estimates with uncertainty intervals (confidence or credible intervals)
-- Documentation of how individual estimates were used clinically (shared with patient, used for prescribing decision)
-- Empirical Bayes or shrinkage estimates reported when a hierarchical model is used, alongside the patient's own observed estimate
-- Graphical display of individual patient estimates with uncertainty across the patient series
+- Instrument names, versions, and cited validity and reliability evidence
+- Timing of outcome assessments within each period and how multiple within-period observations are summarized
+
+### Item 8a -- Randomisation of period order
+
+**Description:** Whether the order of treatment periods was randomised, with rationale, and method used to generate allocation sequence
+
+CONSORT 2025 core: 17a.
+
+**What to look for in code/outputs:**
+- Sequence assignment code operating at the period level for each patient, with seed recorded
+
+### Item 8b -- Type of randomisation and restrictions
+
+**Description:** When applicable, type of randomisation; details of any restrictions (such as pairs, blocking)
+
+CONSORT 2025 core: 17b.
+
+**What to look for in code/outputs:**
+- Documentation of randomisation within pairs or blocks, or of a fixed alternating sequence
+
+### Item 8c -- Full intended sequence
+
+**Description:** Full, intended sequence of periods
+
+CONSORT 2025 core: 17b.
+
+**What to look for in code/outputs:**
+- The planned sequence of periods stored alongside the per-period outcome data
+
+### Item 12a -- Summarizing data and comparing interventions
+
+**Description:** Methods used to summarize data and compare interventions for primary and secondary outcomes
+
+CONSORT 2025 core: 21a.
+
+**What to look for in code/outputs:**
+- Within-patient analysis method specified (e.g., paired comparison, linear mixed model, Bayesian model) and implemented before any aggregation
+- Interval estimates for the individual-level treatment effect
+
+### Item 12b -- Quantitative synthesis for a series
+
+**Description:** For series: If done, methods of quantitative synthesis of individual trial data, including subgroup analyses, adjusted analyses, and how heterogeneity between participants was assessed, (for specific guidance on reporting syntheses of multiple trials, please consult the PRISMA Statement)
+
+CONSORT 2025 core: 21d.
+
+**What to look for in code/outputs:**
+- Aggregation method (random-effects meta-analysis or Bayesian hierarchical model) with individual estimates as inputs
+- Between-patient heterogeneity estimated and reported
+
+### Item 12c -- Carryover, period effects, and intra-subject correlation
+
+**Description:** Statistical methods used to account for carryover effect, period effects, and intra-subject correlation
+
+CONSORT 2025 core: 21a.
+
+**What to look for in code/outputs:**
+- Model terms or tests for period-by-treatment interaction and carryover
+- Correlation structure for repeated measures within a patient (e.g., autoregressive errors)
+- Sensitivity analyses excluding early observations in each period when carryover is suspected
 
 ---
 
 ## Results
 
-### Item 12 -- Participant flow per patient and per series
+### Item 13a.1 -- Periods completed
 
-**Description:** Report the number of treatment cycles completed for each patient and, for a series, the total number of patients enrolled, completing the full protocol, and analyzed.
+**Description:** Number and sequence of periods completed, and any changes from original plan with reasons
 
-**What to look for in code/outputs:**
-- Per-patient cycle completion table: planned cycles vs. completed cycles with reasons for early stopping
-- For a series: CONSORT flow diagram showing number of patients enrolled, completing all cycles, and analyzed
-- Reasons for missing periods or early stopping documented by patient
-- Sensitivity analyses comparing completers to non-completers in a series
-
-### Item 13 -- Baseline characteristics per patient
-
-**Description:** Present baseline characteristics for each patient and, where relevant, compare characteristics across patients in a series.
+CONSORT 2025 core: 22a.
 
 **What to look for in code/outputs:**
-- Per-patient baseline table including relevant clinical characteristics and disease severity measures
-- For a series: summary table of patient characteristics with variability statistics (mean, SD, range)
-- Baseline outcome or symptom scores recorded before the first treatment period for each patient
-- Code generating the baseline table from the per-patient data file
+- Per-patient table of planned vs completed periods, in sequence, with reasons for changes
 
-### Item 14 -- Individual patient treatment effects*
+### Item 13a.2 -- Participant flow for a series
 
-**Description:** Present the estimated treatment effect for each individual patient with its confidence or credible interval, using a format that allows comparison across patients in a series.
+**Description:** For series: The number of participants who were enrolled, assigned to interventions, and analysed for the primary outcome
 
-**What to look for in code/outputs:**
-- Forest plot or table of individual patient treatment effects with confidence or credible intervals
-- Code generating per-patient estimates from the within-patient analysis model
-- Graphical display of outcomes by treatment period for each patient (raw data plots)
-- Clear labeling of the direction of effect (which treatment is favored) for each patient
-
-### Item 15 -- Aggregated results for a series*
-
-**Description:** For a series of N-of-1 trials, report the pooled treatment effect with its uncertainty, heterogeneity measures, and the number of patients for whom each treatment was favored.
+CONSORT 2025 core: 22a.
 
 **What to look for in code/outputs:**
-- Pooled treatment effect estimate with 95% confidence or credible interval from the aggregation model
-- Between-patient heterogeneity statistics (tau-squared, I-squared, or posterior distribution of heterogeneity)
-- Count or proportion of patients for whom treatment A was favored, treatment B was favored, or results were inconclusive
-- Code confirming the aggregation model and its output are consistent with the described method
+- Modified CONSORT flow diagram for the series showing participants enrolled, assigned, and analysed
 
-### Item 16 -- Carryover and period effects*
+### Item 13c -- Losses and exclusions in a series
 
-**Description:** Report the results of any tests for carryover or period effects and describe how these findings affected the analysis or interpretation.
+**Description:** For series: losses or exclusions of participants after treatment assignment, with reasons, and period in which this occurred, if applicable
 
-**What to look for in code/outputs:**
-- Test statistics and p-values for carryover and period effect tests reported in results
-- Code output for the period-by-treatment interaction test
-- Discussion of how any detected carryover or period effects were handled (e.g., excluding first period, extending washout in future trials)
-- Sensitivity analysis results when carryover was detected or suspected
-
----
-
-## Discussion
-
-### Item 17 -- Clinical application of individual results*
-
-**Description:** Discuss how the individual patient treatment effect estimates can be used to guide clinical decisions for the patient(s) included in the trial.
+CONSORT 2025 core: 22b.
 
 **What to look for in code/outputs:**
-- Discussion of how the individual estimates were communicated to patients and clinicians
-- Description of the clinical decision made based on the N-of-1 trial results
-- Acknowledgment of uncertainty in the individual estimate when cycles are few
-- Consideration of whether the result for this individual generalizes to other similar patients
+- Withdrawal records with reasons and the period in which each occurred
 
-### Item 18 -- Generalizability from a series
+### Item 14b -- Early stopping of periods or trial
 
-**Description:** For a series of N-of-1 trials, discuss the extent to which the aggregated results generalize to the population of patients with the condition, and compare the N-of-1 series results to parallel-group trial evidence if available.
+**Description:** Whether any periods were stopped early and/or whether trial was stopped early, with reason(s).
+
+CONSORT 2025 core: 23b.
 
 **What to look for in code/outputs:**
-- Discussion comparing the aggregate N-of-1 series estimate to evidence from parallel-group RCTs
-- Acknowledgment of selection bias (patients motivated to participate in N-of-1 trials may differ from the general population)
-- Comparison of the between-patient heterogeneity found in the series to heterogeneity assumptions made in the design
-- Recommendations for which patient subtypes may benefit most based on the heterogeneity of treatment response observed
+- Flags for periods or trials stopped early, with reasons
+
+### Item 16 -- Number of periods analysed
+
+**Description:** For each intervention, number of periods analysed. In addition for series: if quantitative synthesis was performed, number of trials for which data were synthesized
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Periods analysed per intervention per patient, and the number of trials entering any synthesis
+
+### Item 17a.1 -- Results for each period
+
+**Description:** For each primary and secondary outcome, results for each period; an accompanying figure displaying the trial data is recommended.
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Per-period outcome summaries and a plot of outcomes over time with periods and treatments marked
+
+### Item 17a.2 -- Effect size and precision
+
+**Description:** For each primary and secondary outcome, the estimated effect size and its precision (such as 95% confidence interval) In addition for series: if quantitative synthesis was performed, group estimates of effect and precision for each primary and secondary outcome
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Individual patient effect estimates with confidence or credible intervals, with the direction of effect labelled
+- For a series, the pooled estimate with its interval alongside the individual estimates
+
+### Item 18 -- Other analyses
+
+**Description:** Results of any other analyses performed, including assessment of carryover effects, period effects, intra-subject correlation In addition for series: If done, results of subgroup or sensitivity analyses
+
+CONSORT 2025 core: 28.
+
+**What to look for in code/outputs:**
+- Reported results of carryover, period-effect, and autocorrelation assessments
+- Subgroup or sensitivity analysis results for a series, labelled as such
+
+### Item 19 -- Harms for each intervention
+
+**Description:** All harms or unintended effects for each intervention. (for specific guidance see CONSORT for harms)
+
+CONSORT 2025 core: 27.
+
+**What to look for in code/outputs:**
+- Adverse event records attributed to the intervention and period in which they occurred
