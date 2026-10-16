@@ -1,0 +1,34 @@
+import { describe, expect, test } from "bun:test"
+import { promises as fs } from "fs"
+import path from "path"
+
+const repoRoot = path.join(import.meta.dir, "..")
+const docs = ["README.md", "docs/setup.md", "plugins/ce-datascience/README.md"]
+
+describe("update model and user-skill safety are documented in every install doc", () => {
+  for (const doc of docs) {
+    test(doc, async () => {
+      const content = await fs.readFile(path.join(repoRoot, doc), "utf8")
+      expect(content).toMatch(/^#+ Keep CE DataScience updated$/m)
+      expect(content).toMatch(/^#+ Your own skills are safe$/m)
+      for (const required of [
+        "claude plugin update ce-datascience@ce-datascience-plugin",
+        "Enable auto-update",
+        "codex plugin marketplace upgrade ce-datascience-plugin",
+        "bunx ce-datascience-plugin@latest install ce-datascience --to opencode",
+        "qwen extensions update ce-datascience",
+        "~/.claude/skills",
+        ".claude/skills",
+        "~/.agents/skills",
+      ]) {
+        expect(content).toContain(required)
+      }
+    })
+  }
+
+  test("the plugin's contributor guide separates plugin skills from personal skills", async () => {
+    const guide = await fs.readFile(path.join(repoRoot, "plugins/ce-datascience/AGENTS.md"), "utf8")
+    expect(guide).toContain("~/.claude/skills")
+    expect(guide).toMatch(/never put it inside an installed copy of the plugin/i)
+  })
+})
