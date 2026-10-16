@@ -22,50 +22,51 @@ IF design == RCT:
   primary = CONSORT  # CONSORT 2025 core
   IF ai_involvement IN [ai-primary, llm-based] AND the AI is the trial intervention: extension += CONSORT-AI
   IF protocol_stage == true: protocol = SPIRIT  # SPIRIT 2025 (Chan et al., BMJ 2025, PMID 40294953)
-  IF protocol_stage == true AND ai_involvement IN [ai-primary, llm-based]: protocol += SPIRIT-AI (layered on SPIRIT 2025)
-  IF cluster_design: extension += CONSORT-CLUSTER
-  IF adaptive_design: extension += CONSORT-ADAPTIVE
-  IF n_of_1_design: extension += CONSORT-NOF1
+  IF protocol_stage == true AND ai_involvement IN [ai-primary, llm-based] AND the AI is the trial intervention: protocol += SPIRIT-AI (layered on SPIRIT 2025)
+  IF cluster_design: extension += CONSORT-CLUSTER  # Campbell et al., BMJ 2012, PMID 22951546
+  IF adaptive_design: extension += CONSORT-ADAPTIVE  # ACE, Dimairo et al., BMJ 2020, PMID 32554564
+  IF n_of_1_design: extension += CONSORT-NOF1  # CENT 2015, Vohra et al., BMJ 2015, PMID 25976398
+  # design extensions were written against CONSORT 2010; map their core items to CONSORT 2025 numbers. Never add REFORMS to an RCT.
 
 ELIF design == target_trial_emulation:  # observational data explicitly emulating a target trial
   primary = TARGET
   companion += STROBE only when the journal requires it (TARGET is intended as a standalone guideline; Cashin et al. 2025, PMID 40903028)
-  IF data_source IN [EHR, claims, registry]: extension += RECORD
-  IF data_source == claims AND pharmacoepidemiology == true: extension += RECORD-PE
+  IF data_source IN [EHR, claims, registry]: extension += RECORD  # RECORD items are numbered against STROBE; map 6.x/12.x to TARGET items 5 and 7
+  IF data_source IN [EHR, claims, registry] AND pharmacoepidemiology == true: extension += RECORD-PE  # extends RECORD + STROBE (Langan et al., BMJ 2018, PMID 30429167)
 
 ELIF design IN [observational_cohort, observational_case_control, observational_cross_sectional]:
   primary = STROBE
   IF data_source IN [EHR, claims, registry]: extension += RECORD
-  IF data_source == claims AND pharmacoepidemiology == true: extension += RECORD-PE
-  IF mendelian_randomization == true: extension += STROBE-MR
+  IF data_source IN [EHR, claims, registry] AND pharmacoepidemiology == true: extension += RECORD-PE  # extends RECORD + STROBE (Langan et al., BMJ 2018, PMID 30429167)
+  IF mendelian_randomization == true: primary = STROBE-MR  # stand-alone STROBE extension, 20 items (Skrivankova et al., JAMA 2021, PMID 34698778); do not also require STROBE
   IF genetic_association == true: extension += STREGA
   IF target_trial_emulation == true: re-route to design == target_trial_emulation (TARGET primary)
-  IF RWE_treatment_effect == true: extension += START-RWE
+  IF RWE_treatment_effect == true: extension += START-RWE  # planning/reporting template, not a reporting checklist (Wang et al., BMJ 2021, PMID 33436424)
 
 ELIF design == prediction_model:
   primary = TRIPOD+AI  # supersedes TRIPOD 2015 for regression and ML models alike (Collins et al. 2024, PMID 38626948)
   IF ai_involvement == llm-based: extension += TRIPOD-LLM  # Gallifant et al., Nat Med 2025, PMID 39779929
   IF ai_involvement IN [ai-primary, llm-based] AND the study makes ML-based science claims: extension += REFORMS
-  IF systematic_review_of_prediction_models == true: extension += CHARMS as appraisal
-  IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically
+  IF data_source IN [EHR, claims]: do not add PDSQI-9 automatically  # PDSQI-9 rates LLM clinical summaries, not datasets
 
 ELIF design == diagnostic_accuracy:
-  primary = STARD
-  IF index test uses AI/ML: extension += STARD-AI
-  IF modality == imaging: extension += CLAIM
+  primary = STARD-AI IF index test uses AI/ML ELSE STARD  # STARD-AI (40 items) contains STARD 2015; never apply both (Sounderajah et al., Nat Med 2025, PMID 40954311)
+  IF modality == imaging: extension += CLAIM  # CLAIM 2024, 44 items; not for radiomics/pathomics
 
 ELIF design == systematic_review:
-  primary = PRISMA
-  IF subtype == diagnostic_accuracy: extension += PRISMA-DTA and QUADAS-2 as appraisal
-  IF subtype == network_meta: extension += PRISMA-NMA
-  IF subtype == individual_patient_data: extension += PRISMA-IPD
-  IF subtype == scoping_review: extension += PRISMA-SCR
+  primary = PRISMA  # PRISMA 2020
+  IF subtype == diagnostic_accuracy: primary = PRISMA-DTA; appraisal += QUADAS-3 (QUADAS-2 only if pre-specified)  # QUADAS-3, Whiting et al., Ann Intern Med 2026, PMID 41698208
+  IF subtype == network_meta: primary = PRISMA-NMA
+  IF subtype == individual_patient_data: primary = PRISMA-IPD
+  IF subtype == scoping_review: primary = PRISMA-SCR
+  IF subtype == prediction_model: extension += CHARMS as data extraction and appraisal  # Moons et al., PLoS Med 2014, PMID 25314315; TRIPOD-SRMA (PMID 37137496) and PROBAST+AI (PMID 40127903) are the dedicated reporting and risk-of-bias tools but are not yet in the registry
+  # DTA, NMA, IPD, and ScR are stand-alone checklists built on PRISMA 2009; also check PRISMA 2020 items 24-27 (registration, support, competing interests, data/code availability)
   IF protocol_stage == true: protocol = PRISMA-P  # PRISMA-P 2015 (Moher et al., Syst Rev 2015, PMID 25554246)
 
 ELIF design == qualitative: primary = COREQ
 ELIF design == mixed_methods:
   primary = route the quantitative strand through this tree (GRAMMS is never primary)
-  extension += GRAMMS with provisional evidence status
+  extension += GRAMMS  # verified on EQUATOR; update in development (PMID 41841629)
 ELIF design == animal: primary = ARRIVE
 ELIF design == case_report: primary = CARE
 ELIF design == economic_evaluation: primary = CHEERS
@@ -76,10 +77,11 @@ ELIF design == early-clinical-ai-evaluation:  # live clinical use of AI decision
 ELIF design == ml_methods:
   primary = route the underlying design through this tree (TRIPOD+AI for an AI prediction model)
   extension += REFORMS (ML-based science; REFORMS is never primary)
-ELIF design == pathology_deep_learning: require verified-source override before DEAL
+ELIF design == pathology_deep_learning: no dedicated verified guideline; route by aim (STARD-AI / TRIPOD+AI, plus CLAIM for imaging). DEAL is an LLM checklist: require verified-source override before DEAL
 ELSE: ask the user which supported guideline applies
 
-ALWAYS (any design): IF ai_involvement == llm-based AND the study is a prediction/classification model: extension += TRIPOD-LLM; add REFORMS only for ML-based science claims (never for chatbot-advice or trial designs)
+ALWAYS (any design): IF ai_involvement == llm-based AND the study develops, fine-tunes, prompt-engineers, or evaluates an LLM on any task (classification, generation, summarization, QA, extraction): extension += TRIPOD-LLM (TRIPOD+AI stays primary when the LLM is a prediction model; CHART stays primary for chatbot health-advice studies); add REFORMS only for ML-based science claims (never for chatbot-advice studies or RCTs); DEAL (LLM-specific) only with verified-source override
+ALWAYS (economic evaluation): IF ai_involvement IN [ai-primary, llm-based] AND the intervention is AI: cite CHEERS-AI (Elvidge et al., Value Health 2024, PMID 38795956) alongside CHEERS; no local checklist file
 OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat Med 2020, PMID 32908275) or MI-CLAIM-GEN for generative models (Miao et al., Nat Med 2025, PMID 39915678) as a documentation template, never as the primary reporting guideline
 ```
 
@@ -97,7 +99,7 @@ OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat 
 2. Pass each selected name to `ce-code-review` for resolution against the canonical evidence registry; reject unknown names there.
 3. Do not route entries with `evidence_status: unverified` as authoritative (`unverified` is a registry status, not an evidence label).
 4. Treat `appraisal`, `template`, `data-quality-tool`, and `evaluation-instrument` roles as distinct from primary reporting guidelines.
-5. Layer base and extension checklists; an extension never replaces its base unless the registry explicitly records supersession.
+5. Layer base and extension checklists; an extension never replaces its base unless the registry records it with `replaces:` (STROBE-MR, TARGET, STARD-AI, PRISMA-DTA, PRISMA-NMA, PRISMA-IPD, PRISMA-SCR) or records supersession. A replacing extension is the primary.
 6. When current and legacy versions coexist, select the current version and retain the legacy citation only for historical compatibility.
 7. If study attributes cannot distinguish competing routes, ask one decision-changing question rather than guessing.
 
@@ -106,10 +108,10 @@ OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat 
 - Mixed-methods studies may combine the applicable quantitative guideline with GRAMMS; label each section by method.
 - A prediction sub-analysis inside an RCT keeps CONSORT as the trial primary and applies TRIPOD+AI only to the prediction analysis.
 - A target-trial emulation uses TARGET (standalone, 21 items) as the primary reporting guideline; add RECORD for routinely collected EHR, claims, or registry data, and STROBE only when the journal requires it.
-- An imaging study routes by aim: STARD for diagnostic accuracy, TRIPOD+AI for a prediction model; add CLAIM for the imaging AI, plus STARD-AI when it is a diagnostic-accuracy study.
-- Qualitative studies use COREQ; SRQR is not in the registry.
+- An imaging study routes by aim: STARD-AI (in place of STARD) for an AI diagnostic-accuracy study, TRIPOD+AI for a prediction model; add CLAIM for the imaging AI.
+- Qualitative interview and focus-group studies use COREQ (its stated scope); SRQR, the broader qualitative guideline listed by EQUATOR, is not in the registry.
 - Generic AI involvement does not trigger CHART.
-- CLAIM is limited to medical imaging; DEAL and PDSQI-9 require an explicit verified-source override before authoritative use.
+- CLAIM is limited to medical imaging and does not cover imaging-biomarker (radiomics, pathomics) studies. DEAL (an LLM checklist; items not yet transcribed) requires an explicit verified-source override; PDSQI-9 is an LLM-summary evaluation instrument, never a reporting guideline.
 
 ## Overrides
 
