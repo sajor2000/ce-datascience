@@ -8,6 +8,7 @@
       "files": [],
       "expectations": [
         "Runs scripts/generate_table1.py with --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama and passes the requested stratification with --strata prone_any",
+        "Passes --design observational and presents absolute standardized differences, not p-values, for the prone versus non-prone comparison",
         "Produces table1-spec.json, table1.csv, table1.md, and table1-validation-report.md",
         "Reviews the validation report before presenting the table as ready",
         "Applies small-cell suppression (default n<11) to every stratified cell, including complementary cells recoverable by subtraction",

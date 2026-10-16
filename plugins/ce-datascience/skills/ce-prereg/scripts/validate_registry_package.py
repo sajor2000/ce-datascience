@@ -18,6 +18,8 @@ ALLOWED_REGISTRIES = {
     "aspredicted": ["research_question", "hypothesis", "dependent_variable", "conditions", "analyses"],
 }
 COMMON_REQUIRED = ["registry", "title", "study_type", "sap_version", "generated_at", "fields"]
+# PROSPERO requires registration before data extraction (or receipt of IPD) starts.
+PROSPERO_LATE_STAGE = re.compile(r"extraction|\bIPD\b|risk.of.bias|synthesis|complete", re.IGNORECASE)
 PLACEHOLDER_PATTERNS = [re.compile(r"<[^>]+>"), re.compile(r"\bTBD\b", re.IGNORECASE), re.compile(r"\bTODO\b", re.IGNORECASE)]
 
 
@@ -124,6 +126,26 @@ def main() -> int:
         for field in ALLOWED_REGISTRIES[registry]:
             if not has_value(fields.get(field)):
                 blocks.append(f"payload.fields missing required {registry} field: {field}")
+
+    sap_status = str(payload.get("sap_status", "")).strip().lower()
+    if sap_status == "draft":
+        blocks.append("payload.sap_status is draft; the SAP must be locked (final or amended) before registration")
+    elif not sap_status:
+        warnings.append("payload.sap_status not recorded; confirm the SAP is locked")
+    blinding_state = str(payload.get("blinding_state", "")).strip().lower()
+    if blinding_state == "unblinded":
+        blocks.append("payload.blinding_state is unblinded; comparative data must not be unblinded before registration")
+    elif not blinding_state:
+        warnings.append("payload.blinding_state not recorded; confirm comparative data are still blinded")
+
+    if registry == "prospero":
+        stage = str(fields.get("review_stage", "")).strip()
+        if not stage:
+            warnings.append("payload.fields.review_stage not recorded; PROSPERO requires registration before data extraction starts")
+        elif PROSPERO_LATE_STAGE.search(stage):
+            blocks.append(
+                f"PROSPERO review_stage '{stage}' is too late: register before data extraction or IPD receipt starts, or register on OSF and disclose the timing"
+            )
 
     if form_text and "PRE-REGISTRATION CHECKLIST" not in form_text:
         warnings.append("form.md does not contain a PRE-REGISTRATION CHECKLIST heading")

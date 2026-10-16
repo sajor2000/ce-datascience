@@ -1,5 +1,16 @@
 # OSF Standard Pre-Registration Form
 
+## Contents
+
+- 1. Title
+- 2. Description
+- 3. Hypotheses
+- 4. Design plan
+- 5. Sampling plan
+- 6. Variables
+- 7. Analysis plan
+- 8. Other (optional)
+
 Paste each section into the corresponding OSF field at https://osf.io/prereg/
 
 Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP title }}` is the SAP H1 (`# Statistical Analysis Plan: <title>`); `{{ user: ... }}` comes from the user or project study metadata (never SAP frontmatter; ask, never invent).
@@ -36,7 +47,9 @@ For each primary hypothesis, the registered prediction is:
 ## 5. Sampling plan
 
 ### 5.1 Existing data
-{{ "Yes -- this is a retrospective analysis" if stack_profile.is_retrospective else "No -- prospective enrollment" }}
+{{ one of: "Registration prior to creation of data" / "Registration prior to any human observation of the data" / "Registration prior to accessing the data" / "Registration prior to analysis of the data" }}
+
+For existing EHR/registry data, state who accessed the data and what was examined (e.g., the `ce-data-qa` column profile and missingness), and certify that no analysis related to the research plan, including outcome-by-exposure summary statistics, has been run.
 
 ### 5.2 Explanation of existing data (if applicable)
 {{ SAP-2.2: source population and data provenance }}
@@ -71,13 +84,15 @@ Power calculation reference: `analysis/power/<design>-<date>-summary.md`
 ## 7. Analysis plan
 
 ### 7.1 Statistical models
+Estimand: {{ SAP-1.4: primary estimand, including intercurrent-event strategies }}
+
 {{ SAP-5.1 to SAP-5.3: primary, secondary, and subgroup analyses }}
 
 ### 7.2 Transformations (if applicable)
 {{ SAP-5.1: transformations | default("None") }}
 
 ### 7.3 Inference criteria
-- Alpha: {{ SAP-5.1: significance threshold | default("0.05, two-sided") }}
+- Alpha and sidedness: {{ SAP-5.1: significance threshold and sidedness }}
 - Multiple comparisons handling: {{ SAP-7: multiplicity adjustments }}
 
 ### 7.4 Data exclusion rules

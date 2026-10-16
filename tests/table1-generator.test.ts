@@ -94,9 +94,66 @@ describe("Table 1 generator", () => {
     )
     const tableCsv = await readFile(path.join(root, "analysis", "publication", "tables", "table1.csv"), "utf8")
 
-    expect(spec.rows.map((row: { variable: string }) => row.variable)).toEqual(["age", "SOFA_prior"])
-    expect(spec.rows.map((row: { levels: string }) => row.levels)).toEqual(["Integer years", "Integer"])
-    expect(tableCsv).toContain("SOFA_prior,Prior-day SOFA score,Clinical Characteristic,Time-varying,Integer")
+    const report = await readFile(
+      path.join(root, "analysis", "publication", "tables", "table1-validation-report.md"),
+      "utf8",
+    )
+
+    // Baseline means at or before time zero: time-varying rows are skipped with a warning.
+    expect(spec.rows.map((row: { variable: string }) => row.variable)).toEqual(["age"])
+    expect(spec.rows.map((row: { levels: string }) => row.levels)).toEqual(["Integer years"])
+    expect(tableCsv).toContain("age,Age,Patient Characteristic,Fixed,Integer years")
+    expect(tableCsv).not.toContain("SOFA_prior")
+    expect(report).toContain("Skipped time-varying rows")
+    expect(report).toContain("SOFA_prior")
+  })
+
+  test("never lists the exposure as a baseline row and adds an SMD column only for observational designs", async () => {
+    const root = await makeProject()
+    const catalog = path.join(root, "analysis", "sap-tables", "03-variables.csv")
+    await writeFile(
+      catalog,
+      [
+        "category,variable,description,type,levels,notes",
+        "Patient Characteristic,age,Age,Fixed,,",
+        "Exposure,statin_new_user,Statin initiation,Fixed,0/1,stratifier",
+      ].join("\n"),
+    )
+    const runWith = async (design: string) => {
+      const proc = Bun.spawn([
+        "python3", scriptPath, "--project-root", root, "--out-dir", `analysis/t1-${design}`,
+        "--strata", "statin_new_user", "--design", design,
+      ], { stdout: "pipe", stderr: "pipe" })
+      expect(await proc.exited).toBe(0)
+      return {
+        spec: JSON.parse(await readFile(path.join(root, "analysis", `t1-${design}`, "table1-spec.json"), "utf8")),
+        md: await readFile(path.join(root, "analysis", `t1-${design}`, "table1.md"), "utf8"),
+      }
+    }
+
+    const obs = await runWith("observational")
+    expect(obs.spec.rows.map((row: { variable: string }) => row.variable)).toEqual(["age"])
+    expect(obs.spec.comparison_column).toBe("abs_smd")
+    expect(obs.md).toContain("| Abs. SMD |")
+
+    const rct = await runWith("rct")
+    expect(rct.spec.comparison_column).toBeNull()
+    expect(rct.md).toContain("CONSORT 2025 item 25")
+    expect(rct.md).not.toContain("Abs. SMD")
+  })
+
+  test("blocks an unknown style profile", async () => {
+    const root = await makeProject()
+    const proc = Bun.spawn([
+      "python3", scriptPath, "--project-root", root, "--out-dir", "analysis/publication/tables",
+      "--style-profile", "nejm-imaginary",
+    ], { stdout: "pipe", stderr: "pipe" })
+    expect(await proc.exited).toBe(1)
+    const report = await readFile(
+      path.join(root, "analysis", "publication", "tables", "table1-validation-report.md"),
+      "utf8",
+    )
+    expect(report).toContain("Unknown style profile: nejm-imaginary")
   })
 
   test("blocks when the variables catalog is missing", async () => {

@@ -52,7 +52,9 @@ Placeholders: `{{ SAP-N.M: ... }}` is that section of the `ce-plan` SAP; `{{ SAP
 
 ## 5. Stage of review at submission
 
-{{ "Preliminary searches" / "Piloting of selection process" / "Formal screening of search results against eligibility criteria" / "Data extraction" / "Completed but not published" }}
+{{ one of: "Preliminary searches" / "Piloting of the study selection process" / "Formal screening of search results against eligibility criteria" }}
+
+Data extraction (or receipt of IPD), risk-of-bias assessment, and data synthesis must be "Not started": PROSPERO requires registration before data extraction has started or IPD have been received. If extraction has begun, PROSPERO will not register the review; register the protocol on OSF instead and disclose the timing.
 
 ## 6. Named contact
 
@@ -87,7 +89,7 @@ Databases:
 
 Search dates: from {{ protocol: search start | default("inception") }} to {{ protocol: search end }}.
 
-Language restrictions: {{ protocol: language restrictions | default("English") }}
+Language restrictions: {{ protocol: language restrictions | default("None") }} (justify any restriction; restricting searches by language risks language bias, Cochrane Handbook ch. 4)
 
 Search strategy: see `analysis/pubmed/<query>-<date>.md` (output of `ce-pubmed`)
 
@@ -141,7 +143,7 @@ Not in the SAP template; take from the systematic-review protocol.
 
 ## 24. Strategy for data synthesis
 
-{{ SAP-5.1: pooling model }} -- meta-analysis (random-effects, REML; heterogeneity by I^2; subgroup pre-specified). Sensitivity analyses: {{ SAP-9: sensitivity analyses }}. If pooling is not feasible, take the narrative-synthesis rules from the systematic-review protocol when the SAP does not state them.
+{{ SAP-5.1: pooling model }} -- meta-analysis (random-effects with REML estimate of tau^2; confidence interval by Hartung-Knapp-Sidik-Jonkman, or justify a Wald interval; report tau^2, I^2, and a 95% prediction interval; subgroups pre-specified). Sensitivity analyses: {{ SAP-9: sensitivity analyses }}. If pooling is not feasible, take the narrative-synthesis rules from the systematic-review protocol when the SAP does not state them.
 
 ## 25. Analysis of subgroups or subsets
 

@@ -18,8 +18,6 @@ argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --
 - **Do not do:** Do not submit registrations or invent sponsor/IRB details.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
-Pre-registration is once-per-study, painful, and high-value. This skill converts a locked SAP into a registry-specific form so the analyst doesn't translate by hand.
-
 ## When this skill activates
 
 - SAP is locked: frontmatter `status: final` (or `status: amended` with `date_amended` set after a final lock), integer `sap_version`, and no uncommitted SAP edits. `status: draft` is not locked.
@@ -42,28 +40,29 @@ Map the study type to the registry:
 
 | Study type | Registry |
 |------------|----------|
-| Interventional clinical trial (any human RCT) | ClinicalTrials.gov (required by ICMJE) |
-| Observational human study | OSF (preferred) or ClinicalTrials.gov |
-| Systematic review | PROSPERO |
-| Behavioral / decision-science RCT | AsPredicted or OSF |
+| Interventional clinical trial (any prospective assignment to a health-related intervention, randomized or not) | ClinicalTrials.gov or any WHO ICTRP primary registry, before first enrollment (ICMJE) |
+| Observational treatment-effect study (EHR/claims, incl. target trial emulation) | OSF with a HARPER-structured protocol, or ClinicalTrials.gov (Observational study type) |
+| Other observational human study | OSF (preferred) or ClinicalTrials.gov |
+| Systematic review | PROSPERO, before data extraction starts; otherwise OSF with the timing disclosed |
+| Behavioral / decision-science RCT | ClinicalTrials.gov or a WHO primary registry if the intervention targets a health-related outcome (ICMJE counts behavioural and educational interventions); otherwise AsPredicted or OSF |
 | Animal study | OSF (preclinical preregistration) |
 | Meta-analysis | PROSPERO or OSF |
 
 If no registry argument is passed, infer from `stack_profile.study_type`.
 
+Registry text summarizes a protocol; check that the protocol follows its content standard: SPIRIT 2025 for randomized-trial protocols (34 items; BMJ 2025;389:e081477, PMID 40294953), PRISMA-P 2015 for systematic-review protocols (Syst Rev 2015;4:1, PMID 25554246), and HARPER for real-world-evidence treatment-effect protocols (Wang et al., Pharmacoepidemiol Drug Saf 2023;32:44-55, doi:10.1002/pds.5507). For trials and causal observational studies, carry the SAP-1.4 estimand into the registry's outcome or analysis text.
+
+Register before data access when possible. For existing data, OSF distinguishes registration before creation, before observation, before access, and before analysis of the data; declare the level honestly and what any prior QA examined.
+
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+Read `references/evidence-access.md` before any literature lookup (PubMed and Paperclip MCP tools, fallbacks, and rules); never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** every registry-required citation: prior evidence and pilot data in the rationale or background fields, the source of the sample-size assumption, and the risk-of-bias tool references must resolve to a PMID or DOI through the metadata or citation-lookup tool before they enter `form.md`; PROSPERO's databases list and search dates come from the systematic-review protocol, never from a default.
 
 ### Step 2: Map SAP sections → registry fields
 
-Use the registry-specific template in `references/templates/`. Section IDs follow the `ce-plan` SAP template: SAP-1 objectives, SAP-2 design (2.1 type, 2.2 population/eligibility, 2.3 exposure/intervention, 2.4 comparator), SAP-3 endpoints, SAP-4 analysis populations, SAP-5 methods (5.1 primary, 5.2 secondary, 5.3 subgroups), SAP-6 sample size, SAP-7 multiplicity, SAP-8 missing data, SAP-9 sensitivity, SAP-13 variable catalog. "User/metadata" means the user or the project's study metadata, never SAP frontmatter.
+Use the registry-specific template in `references/templates/`. Section IDs follow the `ce-plan` SAP template: SAP-1 objectives (1.4 estimands), SAP-2 design (2.1 type, 2.2 population/eligibility, 2.3 exposure/intervention, 2.4 comparator), SAP-3 endpoints, SAP-4 analysis populations, SAP-5 methods (5.1 primary, 5.2 secondary, 5.3 subgroups, 5.4-5.6 RCT interim, deviations, harms), SAP-6 sample size, SAP-7 multiplicity, SAP-8 missing data, SAP-9 sensitivity, SAP-13 variable catalog. "User/metadata" means the user or the project's study metadata, never SAP frontmatter.
 
 **OSF (Standard pre-registration form):**
 
@@ -75,7 +74,7 @@ Use the registry-specific template in `references/templates/`. Section IDs follo
 | Design | SAP-2.1, SAP-2.3, SAP-2.4 |
 | Sampling plan | SAP-2.2 (population, sampling frame), SAP-6 |
 | Variables (independent / dependent / covariates) | SAP-2.3, SAP-3, SAP-13 |
-| Analysis plan (statistical models) | SAP-5.1 to SAP-5.3 |
+| Analysis plan (statistical models) | SAP-1.4 (estimand), SAP-5.1 to SAP-5.3 |
 | Inference criteria (alpha, multiple comparisons) | SAP-5.1 (threshold), SAP-7 |
 | Data exclusion rules | SAP-2.2 (exclusion criteria), SAP-4 |
 | Missing data handling | SAP-8 |
@@ -137,7 +136,7 @@ PRE-REGISTRATION CHECKLIST -- review before submitting:
 ☐ Submission deadline relative to enrollment understood
 ```
 
-If any of these fails the automated check (SAP `status` is `draft`, blinding state unblinded, evidence of inferential analysis in the git log), refuse to generate and surface the blocker.
+Record `sap_status` (from the SAP frontmatter) and `blinding_state` (`blinded`, `unblinded`, or `not_applicable`) in `payload.json`; the validator blocks a `draft` SAP, an `unblinded` state, and a PROSPERO `fields.review_stage` at or past data extraction. Check the git log of `analysis/` for model fits yourself before generating; if inferential analysis has run, refuse to generate and surface the blocker.
 
 Before emitting the signal, run:
 
