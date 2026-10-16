@@ -8,12 +8,14 @@
 - Methods
 - Results
 - Discussion
-- Other
+- Other relevant information
 
 Consolidated Health Economic Evaluation Reporting Standards (CHEERS 2022).
 28-item checklist applicable to health economic evaluations.
 
 **Primary reference:** Husereau D, Drummond M, Augustovski F, et al; CHEERS 2022 ISPOR Good Research Practices Task Force. Consolidated Health Economic Evaluation Reporting Standards 2022 (CHEERS 2022) statement: updated reporting guidance for health economic evaluations. BMJ. 2022;376:e067975. doi:10.1136/bmj-2021-067975. PMID: 35017145.
+
+**Source and licence:** Item numbers, topics, and guidance are reproduced verbatim from "The CHEERS 2022 checklist" table in BMJ 2022;376:e067975 (https://doi.org/10.1136/bmj-2021-067975, PMC8749494), published under CC BY 4.0. Official checklist PDF: https://www.equator-network.org/wp-content/uploads/2013/04/CHEERS-2022-checklist-1.pdf. The "What to look for" bullets are ce-datascience review guidance, not part of the guideline. For economic evaluations of interventions that use artificial intelligence, also apply the CHEERS-AI extension (Elvidge J, et al. Value Health. 2024;27(9):1196-1205. doi:10.1016/j.jval.2024.05.006. PMID: 38795956).
 
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
@@ -24,7 +26,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1 -- Title
 
-**Description:** Identify the study as an economic evaluation or use more specific terms such as "cost-effectiveness analysis," and describe the interventions compared.
+**Description:** Identify the study as an economic evaluation and specify the interventions being compared.
 
 **What to look for in code/outputs:**
 - Report title or rendered document header identifying the study as a health economic evaluation
@@ -38,7 +40,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 2 -- Abstract
 
-**Description:** Provide a structured summary that highlights context, key methods (including study design, inputs, and outcomes), results (including base-case and uncertainty analyses), and implications.
+**Description:** Provide a structured summary that highlights context, key methods, results, and alternative analyses.
 
 **What to look for in code/outputs:**
 - Structured abstract with context, methods, results, and implications sections
@@ -52,7 +54,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 3 -- Background and objectives
 
-**Description:** Give the context for the study, the study question and its practical relevance for decision making in policy or practice.
+**Description:** Give the context for the study, the study question, and its practical relevance for decision making in policy or practice.
 
 **What to look for in code/outputs:**
 - Background section establishing the clinical and economic context for the evaluation
@@ -66,7 +68,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 4 -- Health economic analysis plan
 
-**Description:** Indicate whether a health economic analysis plan was developed and where it can be accessed.
+**Description:** Indicate whether a health economic analysis plan was developed and where available.
 
 **What to look for in code/outputs:**
 - Health economic analysis plan (HEAP) referenced or included in project files
@@ -76,7 +78,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 5 -- Study population
 
-**Description:** Describe characteristics of the study population (such as age range, demographics, disease status, country, and other important characteristics).
+**Description:** Describe characteristics of the study population (such as age range, demographics, socioeconomic, or clinical characteristics).
 
 **What to look for in code/outputs:**
 - Target population demographics defined in model parameters or documentation
@@ -86,7 +88,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 6 -- Setting and location
 
-**Description:** Provide relevant contextual information that may influence findings (such as country, setting of care, geography).
+**Description:** Provide relevant contextual information that may influence findings.
 
 **What to look for in code/outputs:**
 - Country and healthcare setting specified in model documentation
@@ -96,7 +98,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 7 -- Comparators
 
-**Description:** Describe the interventions or strategies being compared and why they were chosen.
+**Description:** Describe the interventions or strategies being compared and why chosen.
 
 **What to look for in code/outputs:**
 - Comparator interventions explicitly defined in model structure or documentation
@@ -106,7 +108,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 8 -- Perspective
 
-**Description:** State the perspective(s) adopted and why.
+**Description:** State the perspective(s) adopted by the study and why chosen.
 
 **What to look for in code/outputs:**
 - Analytic perspective explicitly stated (healthcare system, societal, patient, payer)
@@ -116,7 +118,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 9 -- Time horizon
 
-**Description:** State the time horizon for the study and why it is appropriate.
+**Description:** State the time horizon for the study and why appropriate.
 
 **What to look for in code/outputs:**
 - Time horizon specified in model parameters (e.g., lifetime, 10 years, trial duration)
@@ -126,7 +128,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 10 -- Discount rate
 
-**Description:** Report the discount rate(s) used for costs and outcomes and why.
+**Description:** Report the discount rate(s) and reason chosen.
 
 **What to look for in code/outputs:**
 - Discount rate specified in model parameters (e.g., 3%, 3.5%, 5% per year)
@@ -136,7 +138,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 11 -- Selection of outcomes
 
-**Description:** Describe what outcomes were used as the measure(s) of benefit, harm, and net benefit and why.
+**Description:** Describe what outcomes were used as the measure(s) of benefit(s) and harm(s).
 
 **What to look for in code/outputs:**
 - Health outcomes specified (QALYs, DALYs, life years, clinical endpoints)
@@ -146,7 +148,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12 -- Measurement of outcomes
 
-**Description:** Describe how outcomes used to capture benefit were measured or estimated.
+**Description:** Describe how outcomes used to capture benefit(s) and harm(s) were measured.
 
 **What to look for in code/outputs:**
 - Outcome measurement methods documented (clinical trial endpoints, survival data, natural history models)
@@ -156,7 +158,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Valuation of outcomes
 
-**Description:** Describe the population and methods used to measure and value outcomes, including the use of preference-based instruments.
+**Description:** Describe the population and methods used to measure and value outcomes.
 
 **What to look for in code/outputs:**
 - Utility valuation method documented (EQ-5D, SF-6D, HUI, direct elicitation)
@@ -164,7 +166,7 @@ in analysis code and outputs when evaluating compliance.
 - Country-specific tariffs or value sets referenced
 - Disutility values for adverse events documented with sources
 
-### Item 14 -- Resources and costs
+### Item 14 -- Measurement and valuation of resources and costs
 
 **Description:** Describe how costs were valued.
 
@@ -177,7 +179,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 15 -- Currency, price date, and conversion
 
-**Description:** Report the dates of the estimated resource quantities and unit costs, the currency, and the year of conversion.
+**Description:** Report the dates of the estimated resource quantities and unit costs, plus the currency and year of conversion.
 
 **What to look for in code/outputs:**
 - Currency and price year explicitly stated in model outputs
@@ -187,7 +189,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16 -- Rationale and description of model
 
-**Description:** If a model was used, describe and give reasons for the type of model used. Providing a figure to show model structure is strongly recommended.
+**Description:** If modelling is used, describe in detail and why used. Report if the model is publicly available and where it can be accessed.
 
 **What to look for in code/outputs:**
 - Model type explicitly stated (decision tree, Markov, microsimulation, partitioned survival, discrete event simulation)
@@ -195,20 +197,15 @@ in analysis code and outputs when evaluating compliance.
 - Rationale for model type selection documented (disease natural history, data availability)
 - Health states, transitions, and model architecture described
 - Model validation procedures documented
-
-### Item 17 -- Description of model
-
-**Description:** Describe all structural or other assumptions underpinning the model.
-
-**What to look for in code/outputs:**
 - Structural assumptions listed and justified (cycle length, half-cycle correction, mortality assumptions)
 - Clinical assumptions documented (treatment effect duration, disease progression, cure rates)
 - Assumptions about resource use patterns documented
 - Model simplifications acknowledged with rationale
+- Public availability of the model and where it can be accessed (repository, licence) stated
 
-### Item 18 -- Analytics and assumptions
+### Item 17 -- Analytics and assumptions
 
-**Description:** Describe all analytical methods supporting the evaluation, including methods for dealing with skewed, missing, or censored data; extrapolation methods; approaches for pooling data; regression or curve-fitting methods; and translation of data to the model context.
+**Description:** Describe any methods for analysing or statistically transforming data, any extrapolation methods, and approaches for validating any model used.
 
 **What to look for in code/outputs:**
 - Statistical methods for parameter estimation documented (survival analysis, regression, meta-analysis)
@@ -217,9 +214,9 @@ in analysis code and outputs when evaluating compliance.
 - Data pooling or synthesis methods (network meta-analysis, indirect comparison) described
 - Curve-fitting diagnostics (AIC, BIC, visual inspection) reported for model selection
 
-### Item 19 -- Characterizing heterogeneity
+### Item 18 -- Characterising heterogeneity
 
-**Description:** Describe any methods for identifying, measuring, and adjusting for heterogeneity.
+**Description:** Describe any methods used for estimating how the results of the study vary for subgroups.
 
 **What to look for in code/outputs:**
 - Subgroup analyses defined by relevant patient or clinical characteristics
@@ -227,9 +224,9 @@ in analysis code and outputs when evaluating compliance.
 - Individual patient-level simulation with heterogeneous inputs documented
 - Equity-relevant subgroup analyses included where appropriate
 
-### Item 20 -- Characterizing distributional effects
+### Item 19 -- Characterising distributional effects
 
-**Description:** Describe methods used for estimating how costs and outcomes are distributed across different individuals or adjustments made to reflect priority populations.
+**Description:** Describe how impacts are distributed across different individuals or adjustments made to reflect priority populations.
 
 **What to look for in code/outputs:**
 - Distributional analysis code examining equity implications
@@ -237,9 +234,9 @@ in analysis code and outputs when evaluating compliance.
 - Equity weighting methods documented if applied
 - Health inequality impact assessment included
 
-### Item 21 -- Characterizing uncertainty
+### Item 20 -- Characterising uncertainty
 
-**Description:** Describe methods for characterizing the effects of uncertainty on results, distinguishing among sources of uncertainty.
+**Description:** Describe methods to characterise any sources of uncertainty in the analysis.
 
 **What to look for in code/outputs:**
 - Deterministic sensitivity analysis (one-way, multi-way) code and tornado diagram output
@@ -248,9 +245,9 @@ in analysis code and outputs when evaluating compliance.
 - Cost-effectiveness acceptability curve (CEAC) generated from PSA output
 - Scenario analyses varying structural assumptions documented
 
-### Item 22 -- Approach to engagement with patients and others affected by the study
+### Item 21 -- Approach to engagement with patients and others affected by the study
 
-**Description:** Describe any approaches to engage patients or other individuals affected by the study (e.g., patient representatives, public contributors) in the design, conduct, and interpretation of the evaluation.
+**Description:** Describe any approaches to engage patients or service recipients, the general public, communities, or stakeholders (such as clinicians or payers) in the design of the study.
 
 **What to look for in code/outputs:**
 - Patient or public involvement (PPI) in study design documented
@@ -262,9 +259,9 @@ in analysis code and outputs when evaluating compliance.
 
 ## Results
 
-### Item 23 -- Study parameters
+### Item 22 -- Study parameters
 
-**Description:** Report the values, ranges, references, and if used, probability distributions for all parameters. Report reasons or sources for distributions used to represent uncertainty where appropriate.
+**Description:** Report all analytic inputs (such as values, ranges, references) including uncertainty or distributional assumptions.
 
 **What to look for in code/outputs:**
 - Parameter table generated with base-case values, ranges, distributions, and sources
@@ -272,9 +269,9 @@ in analysis code and outputs when evaluating compliance.
 - Probability distributions for PSA specified per parameter
 - Source references for each parameter included in output tables
 
-### Item 24 -- Summary of main results
+### Item 23 -- Summary of main results
 
-**Description:** For each intervention, report mean values for the main categories of estimated costs and outcomes, as well as mean differences between comparators. If applicable, report incremental cost-effectiveness ratios.
+**Description:** Report the mean values for the main categories of costs and outcomes of interest and summarise them in the most appropriate overall measure.
 
 **What to look for in code/outputs:**
 - Total costs and outcomes per strategy reported in results tables
@@ -283,9 +280,9 @@ in analysis code and outputs when evaluating compliance.
 - Disaggregated costs by category (drug, hospitalization, monitoring) reported
 - QALYs or other outcomes disaggregated by health state if model-based
 
-### Item 25 -- Effect of uncertainty
+### Item 24 -- Effect of uncertainty
 
-**Description:** Describe the effects of uncertainty for all stated decision outcomes of the analysis, doing so as rigorously as possible.
+**Description:** Describe how uncertainty about analytic judgments, inputs, or projections affect findings. Report the effect of choice of discount rate and time horizon, if applicable.
 
 **What to look for in code/outputs:**
 - Tornado diagram showing one-way sensitivity analysis results
@@ -294,13 +291,22 @@ in analysis code and outputs when evaluating compliance.
 - Value of information analysis (EVPI, EVPPI) if conducted
 - Scenario analysis results comparing structural assumptions
 
+### Item 25 -- Effect of engagement with patients and others affected by the study
+
+**Description:** Report on any difference patient/service recipient, general public, community, or stakeholder involvement made to the approach or findings of the study
+
+**What to look for in code/outputs:**
+- Results or discussion text describing what changed because of patient, public, community, or stakeholder input (outcomes chosen, model structure, parameter values, interpretation)
+- Explicit statement when engagement made no difference or no engagement took place
+- Consistency with the engagement approach described under Item 21
+
 ---
 
 ## Discussion
 
-### Item 26 -- Study findings, limitations, generalizability, and current knowledge
+### Item 26 -- Study findings, limitations, generalisability, and current knowledge
 
-**Description:** Summarize key study findings and describe how they support the conclusions reached. Discuss limitations and the generalisability of the findings. Compare the findings with current knowledge.
+**Description:** Report key findings, limitations, ethical or equity considerations not captured, and how these could affect patients, policy, or practice.
 
 **What to look for in code/outputs:**
 - Discussion section summarizing key findings and linking to conclusions
@@ -308,14 +314,15 @@ in analysis code and outputs when evaluating compliance.
 - Comparison with prior economic evaluations on the same topic
 - Generalizability assessment relative to different settings, populations, or health systems
 - Policy implications framed by the uncertainty in results
+- Ethical or equity considerations not captured by the analysis discussed
 
 ---
 
-## Other
+## Other relevant information
 
 ### Item 27 -- Source of funding
 
-**Description:** Describe how the study was funded and the role of the funder in the identification, design, conduct, and reporting of the analysis.
+**Description:** Describe how the study was funded and any role of the funder in the identification, design, conduct, and reporting of the analysis
 
 **What to look for in code/outputs:**
 - Funding source documented with grant numbers
@@ -325,7 +332,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 28 -- Conflicts of interest
 
-**Description:** Report authors' conflicts of interest according to journal or ICMJE requirements.
+**Description:** Report authors conflicts of interest according to journal or International Committee of Medical Journal Editors requirements.
 
 **What to look for in code/outputs:**
 - Conflict of interest disclosures for all authors in report output
