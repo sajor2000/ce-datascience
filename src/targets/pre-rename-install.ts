@@ -51,14 +51,19 @@ export async function retirePreRenameInstall(rootDir: string, managedDir: string
   if (manifest?.pluginName === PRE_REBRAND_PLUGIN_NAME) {
     for (const [group, name] of manifestUnits(manifest)) {
       candidates.add(path.join(group, name))
-      candidates.add(path.join(group, PRE_REBRAND_PLUGIN_NAME, name))
+      if (group !== "plugins") candidates.add(path.join(group, PRE_REBRAND_PLUGIN_NAME, name))
     }
   }
   const ledger = await readJson(path.join(oldManagedDir, "owned-files.json"))
   if (ledger?.pluginName === PRE_REBRAND_PLUGIN_NAME && ledger.files && typeof ledger.files === "object") {
     for (const relativePath of Object.keys(ledger.files)) candidates.add(relativePath)
   }
-  for (const group of UNIT_GROUPS) candidates.add(path.join(group, PRE_REBRAND_PLUGIN_NAME))
+  // Namespace folders the old install wrote. `plugins/` is skipped: there the
+  // folder can be the harness's own native plugin install, which its config
+  // still points at, so only manifest-listed files move.
+  for (const group of UNIT_GROUPS) {
+    if (group !== "plugins") candidates.add(path.join(group, PRE_REBRAND_PLUGIN_NAME))
+  }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-")
   const backupRoot = path.join(managedDir, "backups", stamp, "pre-rename")
