@@ -21,7 +21,7 @@ const config = {
       ({
         docs: {
           path: '../docs',
-          include: ['setup.md'],
+          include: ['setup.md', 'guideline-sources.md'],
           routeBasePath: 'docs',
           sidebarPath: false,
           editUrl: ({docPath}) =>
@@ -44,6 +44,7 @@ const config = {
         title: 'CE DataScience',
         items: [
           {to: '/docs/setup', label: 'Setup guide', position: 'left'},
+          {to: '/docs/guideline-sources', label: 'Guideline sources', position: 'left'},
           {
             href: 'https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/README.md',
             label: 'Skills and agents',
@@ -63,6 +64,7 @@ const config = {
             title: 'Documentation',
             items: [
               {label: 'Setup guide', to: '/docs/setup'},
+              {label: 'Guideline sources', to: '/docs/guideline-sources'},
               {
                 label: 'Skills and agents',
                 href: 'https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/README.md',

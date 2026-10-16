@@ -636,6 +636,8 @@ not packaged as ce-datascience slash skills.
 
 The checklist registry records publication evidence, current versus legacy versions, and methodological roles. Reporting guidelines, appraisal tools, planning templates, and unresolved candidates are not treated as interchangeable routes; unresolved entries remain explicitly labeled rather than being presented as authoritative.
 
+[Guideline sources](docs/guideline-sources.md) lists each checklist's primary citation, PMID, DOI, verification status, and superseded versions. It is generated from the registry.
+
 | Study type | Primary | Extensions |
 |---|---|---|
 | Observational cohort | STROBE (STROBE-MR stand-alone for Mendelian randomization) | RECORD, RECORD-PE, STREGA |

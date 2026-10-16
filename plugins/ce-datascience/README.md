@@ -1,6 +1,6 @@
 # CE DataScience
 
-Compound engineering for computational scientists. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 39 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates.
+Compound engineering for computational scientists. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 39 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates. [Guideline sources](../../docs/guideline-sources.md) lists each checklist's primary citation, PMID, DOI, verification status, and superseded versions; it is generated from the registry.
 
 ## How It Works
 

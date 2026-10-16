@@ -449,7 +449,7 @@ describe("corporate install artifacts", () => {
     }
 
     expect(docsHome).toContain('to="/docs/setup"')
-    expect(docsConfig).toContain("include: ['setup.md']")
+    expect(docsConfig).toContain("include: ['setup.md', 'guideline-sources.md']")
     expect(docsConfig).toContain("routeBasePath: 'docs'")
     expect(rootReadme).toContain("https://sajor2000.github.io/ce-datascience/")
   })
