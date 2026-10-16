@@ -32,10 +32,10 @@ Do not self-activate. If dispatched without either condition being met, return a
 - **If `stack_profile.reporting_checklist` is set**: use it as the primary guideline and layer any `stack_profile.reporting_checklist_extensions`. Load each named checklist file from the registry.
 - **If legacy `guidelines_selected` is explicitly set** (non-empty list in SAP frontmatter): use that list as a compatibility override. Prefer the canonical stack-profile fields when both are present.
 - **Otherwise, route by `study_type`**: look up the `study_type` in the routing map's Primary Guidelines table to get the primary checklist file. If `study_type` is unrecognized or `other`, ask the user which guideline to apply.
-- **If `ai_involvement` is not `none`**: scan the AI Extension Layer table in the routing map for conditions that match the `study_type` and `ai_involvement` combination. Load all matching extension checklist files in addition to the primary checklist.
+- **If `ai_involvement` is not `none`**: scan the AI Extension Layer table in the routing map for conditions that match the `study_type` and `ai_involvement` combination. Load all matching extension checklist files in addition to the primary checklist. For `study_type: rct`, also apply the Trial Design Extension Layer (cluster, adaptive, N-of-1).
 
-- **Resolve registry evidence before loading.** Check each selected guideline's `evidence.status` in the registry. A `verified-but-superseded` entry is replaced by its `superseded_by` guideline unless the user explicitly asked for the legacy checklist: a `TRIPOD` selection loads TRIPOD+AI, which covers regression and machine-learning prediction models alike. Note the substitution in `residual_risks`. `unverified` entries are never authoritative selections.
-- **Protocol stage and standalone guidelines.** A trial protocol or pre-results SAP is reviewed against SPIRIT 2025 (plus SPIRIT-AI for AI interventions), and a systematic-review protocol against PRISMA-P, not against the results-stage guideline. TARGET is a standalone guideline for target trial emulation; add STROBE or RECORD only when the stack profile or the user asks for them.
+- **Resolve registry evidence before loading.** Check each selected guideline's `evidence.status` in the registry. A `verified-but-superseded` entry is replaced by its `superseded_by` guideline unless the user explicitly asked for the legacy checklist: a `TRIPOD` selection loads TRIPOD+AI, which covers regression and machine-learning prediction models alike, and a `QUADAS-2` selection loads QUADAS-3 unless the review protocol pre-specified QUADAS-2. Note the substitution in `residual_risks`. `unverified` entries are never authoritative selections.
+- **Protocol stage and standalone guidelines.** A trial protocol or pre-results SAP is reviewed against SPIRIT 2025 (plus SPIRIT-AI for AI interventions), and a systematic-review protocol against PRISMA-P, not against the results-stage guideline. TARGET is a standalone guideline for target trial emulation; add STROBE or RECORD only when the stack profile or the user asks for them. A registry entry with `replaces:` (STROBE-MR, STARD-AI, PRISMA-DTA, -NMA, -IPD, -ScR) is reviewed in place of its base checklist, never on top of it.
 
 **Explicit user override:** When the user specifies a guideline explicitly (e.g., "use STROBE" or "review against PRISMA"), apply that guideline regardless of SAP content.
 
@@ -106,7 +106,7 @@ Return findings as JSON conforming to the findings schema. Each finding must inc
 - `suggested_fix`: Concrete code or documentation change to address the item (required for "Not addressed" items)
 
 Additionally, include:
-- `checklist_item`: The specific checklist item identifier, prefixed by the guideline abbreviation (e.g., `STROBE-12a`, `CONSORT-16a`, `TARGET-7d`, `REFORMS-5`). Use the abbreviation and the item number exactly as they appear in the loaded checklist file; never cite an item number that is not in that file.
+- `checklist_item`: The specific checklist item identifier, prefixed by the guideline abbreviation (e.g., `STROBE-12a`, `CONSORT-16a`, `TARGET-7d`, `REFORMS-5c`). Use the abbreviation and the item number exactly as they appear in the loaded checklist file; never cite an item number that is not in that file.
 - `coverage`: One of `addressed`, `partially_addressed`, `not_addressed`, `not_applicable`
 - `guideline`: The guideline abbreviation this finding belongs to (e.g., `STROBE`, `CONSORT-AI`)
 
