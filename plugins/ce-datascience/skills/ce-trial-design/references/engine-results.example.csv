@@ -1,5 +1,5 @@
 scenario_id,candidate_id,engine,engine_version,analyses,achieved_power,type1_error,max_information,expected_information_null,expected_information_alt,power_lower_bound,type1_error_upper_bound
-base,of-3-look,rpact,4.4.0,3,0.9004,0.025,374,229.4,273.4,,
-base,pocock-3-look,rpact,4.4.0,3,0.9008,0.025,418,246.1,257.9,,
-conservative,of-3-look,rpact,4.4.0,3,0.9007,0.025,732,448.9,534.9,,
-conservative,pocock-3-look,rpact,4.4.0,3,0.9002,0.025,816,480.3,503.6,,
+base,of-3-look,rpact,4.4.0,3,0.900422769936744,0.02499999,374,229.352173754763,273.391085013285,,
+base,pocock-3-look,rpact,4.4.0,3,0.90075472032621,0.02499999,418,246.055465976365,257.856714191851,,
+conservative,of-3-look,rpact,4.4.0,3,0.900741526700964,0.02499999,732,448.892489808787,534.947461766834,,
+conservative,pocock-3-look,rpact,4.4.0,3,0.900241647207244,0.02499999,816,480.337943150033,503.604241934135,,
