@@ -74,6 +74,7 @@ When changing `plugins/ce-datascience/` content:
 - Do not hand-bump release-owned versions in plugin or marketplace manifests.
 - Do not hand-add release entries to `CHANGELOG.md` or treat it as the canonical source for new releases.
 - Run `bun run release:validate` if agents, commands, skills, MCP servers, or release-owned descriptions/counts may have changed.
+- **Guideline source documents stay local.** Reporting-guideline source documents (PDFs, Word files, supplements, articles) are never committed (enforced by `tests/source-document-guard.test.ts` and `.gitignore`). Encode them as checklist rules in `plugins/ce-datascience/skills/ce-code-review/references/<name>-checklist.md` with the official item IDs and a source and licence header. Copy text verbatim only from CC BY or CC0 sources; otherwise paraphrase faithfully. Record the verification (source, date, status) in `guideline-registry.yaml`.
 - When removing a skill, agent, or command, add its name to both cleanup registries so stale flat-install artifacts are swept on upgrade:
   - `STALE_SKILL_DIRS` / `STALE_AGENT_NAMES` / `STALE_PROMPT_FILES` in `src/utils/legacy-cleanup.ts`
   - `EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN["ce-datascience"]` in `src/data/plugin-legacy-artifacts.ts`

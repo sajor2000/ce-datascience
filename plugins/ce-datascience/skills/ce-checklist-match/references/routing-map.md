@@ -77,10 +77,10 @@ ELIF design == early-clinical-ai-evaluation:  # live clinical use of AI decision
 ELIF design == ml_methods:
   primary = route the underlying design through this tree (TRIPOD+AI for an AI prediction model)
   extension += REFORMS (ML-based science; REFORMS is never primary)
-ELIF design == pathology_deep_learning: no dedicated verified guideline; route by aim (STARD-AI / TRIPOD+AI, plus CLAIM for imaging). DEAL is an LLM checklist: require verified-source override before DEAL
+ELIF design == pathology_deep_learning: no dedicated verified guideline; route by aim (STARD-AI / TRIPOD+AI, plus CLAIM for imaging). DEAL is an LLM checklist: require explicit request before DEAL
 ELSE: ask the user which supported guideline applies
 
-ALWAYS (any design): IF ai_involvement == llm-based AND the study develops, fine-tunes, prompt-engineers, or evaluates an LLM on any task (classification, generation, summarization, QA, extraction): extension += TRIPOD-LLM (TRIPOD+AI stays primary when the LLM is a prediction model; CHART stays primary for chatbot health-advice studies); add REFORMS only for ML-based science claims (never for chatbot-advice studies or RCTs); DEAL (LLM-specific) only with verified-source override
+ALWAYS (any design): IF ai_involvement == llm-based AND the study develops, fine-tunes, prompt-engineers, or evaluates an LLM on any task (classification, generation, summarization, QA, extraction): extension += TRIPOD-LLM (TRIPOD+AI stays primary when the LLM is a prediction model; CHART stays primary for chatbot health-advice studies); add REFORMS only for ML-based science claims (never for chatbot-advice studies or RCTs); DEAL (LLM-specific, DEAL-A or DEAL-B) only on explicit request
 ALWAYS (economic evaluation): IF ai_involvement IN [ai-primary, llm-based] AND the intervention is AI: cite CHEERS-AI (Elvidge et al., Value Health 2024, PMID 38795956) alongside CHEERS; no local checklist file
 OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat Med 2020, PMID 32908275) or MI-CLAIM-GEN for generative models (Miao et al., Nat Med 2025, PMID 39915678) as a documentation template, never as the primary reporting guideline
 ```
@@ -111,7 +111,7 @@ OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat 
 - An imaging study routes by aim: STARD-AI (in place of STARD) for an AI diagnostic-accuracy study, TRIPOD+AI for a prediction model; add CLAIM for the imaging AI.
 - Qualitative interview and focus-group studies use COREQ (its stated scope); SRQR, the broader qualitative guideline listed by EQUATOR, is not in the registry.
 - Generic AI involvement does not trigger CHART.
-- CLAIM is limited to medical imaging and does not cover imaging-biomarker (radiomics, pathomics) studies. DEAL (an LLM checklist; items not yet transcribed) requires an explicit verified-source override; PDSQI-9 is an LLM-summary evaluation instrument, never a reporting guideline.
+- CLAIM is limited to medical imaging and does not cover imaging-biomarker (radiomics, pathomics) studies. DEAL (an LLM checklist; DEAL-A 39 items, DEAL-B 22 items) is opt-in and requires an explicit request; PDSQI-9 is an LLM-summary evaluation instrument, never a reporting guideline.
 
 ## Overrides
 

@@ -16,7 +16,7 @@ Tool for assessing the risk of bias and the applicability of primary diagnostic 
 
 **Explanation and elaboration:** Davenport CF, Rutjes AWS, Mallett S, et al. QUADAS-3 Explanation and Elaboration: Guidance for Quality Assessment of Diagnostic Test Accuracy Studies. Ann Intern Med. 2026. doi:10.7326/ANNALS-25-04943. PMID: 41698205.
 
-**Source and licence:** Phases, domains, and signalling-question IDs follow the official QUADAS-3 tool, version 1.2 (https://www.bristol.ac.uk/media-library/sites/social-community-medicine/quadas/QUADAS-3%201.2.docx, checked on 2026-10-15). The tool states no open licence, so the signalling questions and descriptions are faithful paraphrases that keep the meaning of each question. Use the official form for verbatim wording and read the explanation and elaboration paper before applying the tool. QUADAS is a risk-of-bias appraisal tool, not an EQUATOR reporting guideline. For comparative accuracy reviews, use QUADAS-C in addition to QUADAS-3. The "What to look for" cues are added by this plugin.
+**Source and licence:** Phases, domains, and signalling-question IDs follow the official QUADAS-3 tool, version 1.2 (https://www.bristol.ac.uk/media-library/sites/social-community-medicine/quadas/QUADAS-3%201.2.docx, checked on 2026-10-15). Signalling-question numbers and order for all four domains were checked on 2026-10-15 against the explanation and elaboration (Tables 4-7 and its example form), which numbers them 1.1-1.4, 2.1-2.4, 3.1-3.8, and 4.1-4.4. The tool states no open licence and the explanation and elaboration is copyright the American College of Physicians, so the signalling questions and descriptions are faithful paraphrases that keep the meaning of each question. Use the official form for verbatim wording and read the explanation and elaboration paper before applying the tool. QUADAS is a risk-of-bias appraisal tool, not an EQUATOR reporting guideline. For comparative accuracy reviews, use QUADAS-C in addition to QUADAS-3. The "What to look for" cues are added by this plugin.
 
 Main changes from QUADAS-2:
 - Assessment is done for each selected accuracy estimate, not once per study.
@@ -66,7 +66,7 @@ Signalling-question answers are yes (Y), probably yes (PY), probably no (PN), no
 
 **Description:** Assess whether the way participants were enrolled and selected could bias the accuracy estimate. Drop-outs or exclusions caused by missing index test or reference standard results are assessed in the Analysis domain, not here.
 
-Signalling questions (paraphrased; the official form lists these unnumbered, so the numbers are plugin labels):
+Signalling questions (paraphrased; official numbering 1.1-1.4 from the explanation and elaboration, Table 4):
 - 1.1 Was a single-gate design used (rather than a multi-gate, case-control design)?
 - 1.2 Were participants enrolled prospectively?
 - 1.3 Was a consecutive or random sample of participants included?
@@ -91,7 +91,7 @@ Signalling questions (paraphrased; the official form lists these unnumbered, so 
 
 **Description:** Assess whether the conduct or interpretation of the index test could bias the accuracy estimate.
 
-Signalling questions (paraphrased; the official form lists these unnumbered, so the numbers are plugin labels):
+Signalling questions (paraphrased; official numbering 2.1-2.4 from the explanation and elaboration, Table 5):
 - 2.1 Was the index test conducted and interpreted following the recommended instructions?
 - 2.2 Were index test results interpreted without knowledge of the reference standard results?
 - 2.3 Were index test results interpreted with the same information that would be available when the test is used in practice?
@@ -116,7 +116,7 @@ Signalling questions (paraphrased; the official form lists these unnumbered, so 
 
 **Description:** Assess whether the way the target condition was defined and assessed (reference standard and timing) could bias the accuracy estimate.
 
-Signalling questions (paraphrased; the official form lists these unnumbered, so the numbers are plugin labels):
+Signalling questions (paraphrased; official numbering 3.1-3.8 from the explanation and elaboration, Table 6):
 - 3.1 Does the reference standard adequately identify those with and without the target condition?
 - 3.2 Was the target condition assessed in all participants?
 - 3.3 Was the target condition assessed in the same way in all participants?
@@ -144,7 +144,7 @@ Signalling questions (paraphrased; the official form lists these unnumbered, so 
 
 **Description:** Assess whether the analysis behind the estimate could introduce bias, including exclusions from the 2x2 table, handling of missing data, unit of analysis, and the statistical methods used. This domain has no applicability judgment.
 
-Signalling questions (paraphrased; the official form numbers these 4.1-4.4):
+Signalling questions (paraphrased; official numbering 4.1-4.4 from the explanation and elaboration, Table 7):
 - 4.1 Were all participants included in the analysis?
 - 4.2 Were missing data handled appropriately?
 - 4.3 Does the unit of analysis match the ideal test accuracy trial?

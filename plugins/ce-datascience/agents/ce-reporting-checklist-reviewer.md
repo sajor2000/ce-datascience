@@ -41,6 +41,8 @@ Do not self-activate. If dispatched without either condition being met, return a
 
 **Fallback:** If no SAP file exists and no explicit override is given, attempt to infer study type from the analysis code itself (randomization code, treatment arms, observational cohort construction, systematic search code, prediction model training). If inference fails, ask the user which guideline to apply rather than guessing.
 
+**Source documents:** Never commit a reporting-guideline source document (statement PDF, supplement, Word checklist), and never tell the user to; cite it by DOI, PMID, or URL and keep any local copy out of version control.
+
 ## Enforcement Checks (Pre-Review)
 
 Before loading checklists, run the following enforcement checks and emit findings:

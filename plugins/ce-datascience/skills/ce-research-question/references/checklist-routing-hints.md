@@ -22,7 +22,7 @@ Default mapping from `suggested_design` → primary EQUATOR checklist. This is a
 | Diagnostic accuracy (AI) | STARD-AI (stand-alone; replaces STARD) | CLAIM if imaging |
 | Imaging AI | STARD-AI or TRIPOD+AI depending on aim | CLAIM (not radiomics/pathomics) |
 | ML-based science (AI prediction model) | TRIPOD+AI (or the underlying design's primary) | REFORMS |
-| Generative AI / LLM paper | Ask whether the study is chatbot health advice, a trial, a diagnostic test, or a prediction model | Apply CHART only to chatbot health-advice reporting; add TRIPOD-LLM for any LLM development or evaluation; do not auto-route unverified DEAL or the PDSQI-9 evaluation instrument |
+| Generative AI / LLM paper | Ask whether the study is chatbot health advice, a trial, a diagnostic test, or a prediction model | Apply CHART only to chatbot health-advice reporting; add TRIPOD-LLM for any LLM development or evaluation; do not auto-route DEAL (opt-in on request) or the PDSQI-9 evaluation instrument |
 | Early clinical evaluation of an AI decision-support system (`early-clinical-ai-evaluation`) | DECIDE-AI | — |
 | Systematic review / meta-analysis | PRISMA 2020; PRISMA-DTA, PRISMA-NMA, or PRISMA-IPD replace it for those subtypes | QUADAS-3 for DTA appraisal; CHARMS for reviews of prediction models |
 | Scoping review | PRISMA-ScR | — |

@@ -14,9 +14,9 @@ Supplements the current CONSORT core with items specific to single-patient multi
 
 **Explanation and elaboration:** Shamseer L, Sampson M, Bukutu C, et al.; CENT Group. CONSORT extension for reporting N-of-1 trials (CENT) 2015: Explanation and elaboration. BMJ. 2015;350:h1793. PMID: 25976162.
 
-**Verified against:** "CONSORT Extension for N-of-1 Trials (CENT) 2015 checklist" (Word), linked from https://www.consort-spirit.org/extensions, and the EQUATOR record https://www.equator-network.org/reporting-guidelines/consort-cent/ (verified 2026-10-15). The CENT abstract checklist (Table 2 of the statement) was not available in that file and is not reproduced here (UNVERIFIED).
+**Verified against:** "CONSORT Extension for N-of-1 Trials (CENT) 2015 checklist" (Word), linked from https://www.consort-spirit.org/extensions, and the EQUATOR record https://www.equator-network.org/reporting-guidelines/consort-cent/ (verified 2026-10-15). Re-checked on 2026-10-15 against Tables 1 and 2 of the BMJ statement (BMJ 2015;350:h1738, PDF): items 1a-19 match Table 1, and the abstract guidance under item 1b follows Table 2.
 
-**Licence:** Checklist text reproduced verbatim (including its original punctuation) from the CENT 2015 checklist, which states: "The copyright for CENT (including checklist) is held by the CENT Group and is distributed under a Creative Commons Attribution (CC-BY 4.0) license." (https://creativecommons.org/licenses/by/4.0/). The BMJ article itself is CC BY-NC 4.0. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CENT text.
+**Licence:** Checklist text reproduced verbatim (including its original punctuation) from the CENT 2015 checklist, which states: "The copyright for CENT (including checklist) is held by the CENT Group and is distributed under a Creative Commons Attribution (CC-BY 4.0) license." (https://creativecommons.org/licenses/by/4.0/). The BMJ article itself is CC BY-NC 4.0. The CC BY statement is a footnote to the checklist (Table 1), so the abstract guidance (Table 2) is treated as part of the CC BY-NC article and paraphrased. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CENT text.
 
 **Numbering:** Item IDs are the CENT 2015 numbers, keyed to CONSORT 2010. Apply CENT alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items; each item gives the nearest CONSORT 2025 core item as a plugin mapping.
 
@@ -42,8 +42,21 @@ CONSORT 2025 core: 1a.
 
 CONSORT 2025 core: 1b.
 
+**CENT abstract guidance (Table 2, paraphrased):** CENT changes or adds to these CONSORT for Abstracts items; all other CONSORT for Abstracts items (authors, objective, outcome, randomisation, blinding, outcome results, harms, conclusions, trial registration, funding) apply unchanged.
+
+| CONSORT for Abstracts item | N-of-1 modification |
+|---|---|
+| Title | Identify the study in the title as an N-of-1 trial or a series of N-of-1 trials |
+| Trial design | Describe the design, the number of periods, and the duration of each period |
+| Participant(s) | Individual trial: the clinical condition studied. Series: participant eligibility criteria |
+| Interventions | Interventions planned for each period (not each group) |
+| Numbers randomised | Individual trial: number and sequence of periods completed. Series: number of individual trials done |
+| Recruitment | Not applicable (trial status is not required) |
+| Numbers analysed | Individual trial: periods analysed per intervention. Series: number of participants analysed |
+
 **What to look for in code/outputs:**
 - Abstract stating whether results describe a single patient or a series
+- Abstract reporting the number and duration of periods, and the periods completed and analysed per intervention (or, for a series, trials done and participants analysed)
 
 ---
 
