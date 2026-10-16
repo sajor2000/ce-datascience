@@ -2,15 +2,9 @@ import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Heading from '@theme/Heading';
 import Layout from '@theme/Layout';
+import ThemedImage from '@theme/ThemedImage';
 import packageWorkflow from '../../../docs/methodsmith-package-workflow.png';
 import skillMap from '../../../docs/workflow-diagram.png';
-
-const LOOP = [
-  ['Plan', '/method-plan', 'Write the analysis plan first: estimands, endpoints and decisions, versioned before any data are touched.'],
-  ['Work', '/method-work', 'Run the plan with SAP traceability, tests and a real-data gate. Every output names the step that made it.'],
-  ['Review', '/method-review', 'Specialist reviewers check methods, leakage, PHI and the reporting checklist, with confidence-gated findings.'],
-  ['Compound', '/method-compound', 'Record what this study taught you in docs/solutions, so the next plan starts from it.'],
-];
 
 const AUDIENCES = [
   {
@@ -60,58 +54,73 @@ const TRUST = [
 
 export default function Home() {
   const demo = useBaseUrl('/brand/demo.svg');
-  const video = useBaseUrl('/media/methodsmith-overview.mp4');
-  const poster = useBaseUrl('/media/methodsmith-overview-poster.jpg');
   return (
     <Layout
       title="Rigorous methods, from question to paper"
       description="Methodsmith is a plugin for Claude Code and Codex for rigorous research methods: clinical statistics, Python and ML papers, and meta-analysis.">
       <main>
         <header className="ms-hero container">
-          <Heading as="h1">Rigorous methods, from question to paper.</Heading>
-          <p className="ms-hero__lead">
-            Methodsmith is a plugin for Claude Code and Codex that gives your
-            coding agent the workflows of a careful methods team: statistics,
-            machine learning and meta-analysis, planned before they run and
-            reviewed before they ship.{' '}
-            <strong>Every study compounds.</strong>
-          </p>
-          <div className="ms-actions">
-            <Link className="ms-button ms-button--primary" to="/docs/setup">
-              Read the setup guide
-            </Link>
-            <Link className="ms-button ms-button--quiet" href="https://github.com/sajor2000/methodsmith">
-              View on GitHub
-            </Link>
+          <div className="ms-hero__text">
+            <Heading as="h1">Rigorous methods, from question to paper.</Heading>
+            <p className="ms-hero__lead">
+              Methodsmith is a plugin for Claude Code and Codex. It gives your
+              coding agent the habits of a careful methods team, so statistics,
+              machine learning and meta-analysis are planned before they run and
+              reviewed before anyone reads the results. The scientific decisions
+              stay with you. <strong>Every study compounds.</strong>
+            </p>
+            <div className="ms-actions">
+              <Link className="ms-button ms-button--primary" to="/docs/setup">
+                Read the setup guide
+              </Link>
+              <Link className="ms-button ms-button--quiet" href="https://github.com/sajor2000/methodsmith">
+                View on GitHub
+              </Link>
+            </div>
           </div>
-          <div className="ms-install">
-            <p>Install in Claude Code</p>
+          <figure className="ms-terminal" aria-label="Getting started in Claude Code">
+            <figcaption>Start in your terminal</figcaption>
             <pre>
-              <code>claude plugin install methodsmith --marketplace sajor2000/methodsmith</code>
+              <code>
+                <span className="c"># install the plugin</span>
+                {'\n'}claude plugin install methodsmith \{'\n'}  --marketplace sajor2000/methodsmith
+                {'\n\n'}
+                <span className="c"># in your project, inside Claude Code</span>
+                {'\n'}<span className="p">&gt;</span> /methodsmith:method-setup
+                {'\n'}<span className="p">&gt;</span> /method-workflow
+                {'\n\n'}
+                <span className="c"># then plan before any analysis runs</span>
+                {'\n'}<span className="p">&gt;</span> /method-plan a cohort study of 30-day mortality
+              </code>
             </pre>
-          </div>
+            <p>
+              Codex, Pi and locked-down laptops: see the <Link to="/docs/setup">setup guide</Link>.
+            </p>
+          </figure>
         </header>
 
-        <section className="ms-section container" aria-labelledby="loop">
-          <Heading as="h2" id="loop">
-            One loop, every study
+        <section className="ms-section container" aria-labelledby="decide">
+          <Heading as="h2" id="decide">
+            You decide. Methodsmith does the legwork.
           </Heading>
           <p className="ms-section__lead">
-            Plan, work, review, compound. The loop comes from Every&apos;s Compound
-            Engineering; Methodsmith adapts each step for research methods.
+            The plugin drafts, runs and checks; every scientific choice passes
+            through you. Nothing is analysed until you approve the plan, and
+            nothing is reported until you have judged the review. The loop of
+            plan, work, review and compound comes from Every&apos;s Compound
+            Engineering.
           </p>
-          <ol className="ms-loop">
-            {LOOP.map(([step, command, text]) => (
-              <li key={step}>
-                <span className="ms-loop__step">{step}</span>
-                <code>{command}</code>
-                <p>{text}</p>
-              </li>
-            ))}
-          </ol>
-          <div className="ms-return" aria-hidden="true">
-            <span>learnings feed the next plan</span>
-          </div>
+          <figure className="ms-figure ms-figure--diagram ms-figure--scroll">
+            <ThemedImage
+              sources={{
+                light: useBaseUrl('/brand/human-loop-light.svg'),
+                dark: useBaseUrl('/brand/human-loop-dark.svg'),
+              }}
+              width="1200"
+              height="560"
+              alt="Swimlane. You, the scientist, frame the question, approve the plan, judge the findings and sign off the result. Methodsmith drafts the SAP with /method-plan, runs the approved analysis with /method-work, reviews every step with /method-review, and records the lessons with /method-compound, which feed the next study's plan."
+            />
+          </figure>
         </section>
 
         <section className="ms-section container" aria-labelledby="demo">
@@ -122,7 +131,7 @@ export default function Home() {
             Find the next step, link a causal claim to its estimand, then review
             the analysis before anyone reads the results.
           </p>
-          <figure className="ms-figure">
+          <figure className="ms-figure ms-figure--scroll">
             <img
               src={demo}
               width="1200"
@@ -184,20 +193,14 @@ export default function Home() {
             The skill map
           </Heading>
           <p className="ms-section__lead">
-            Thirty of the skills, in the order a study meets them.
+            Thirty of the 66 skills, in the order a study meets them, with the
+            guardrails that apply at every step.
           </p>
           <figure className="ms-figure">
             <img
               src={skillMap}
               alt="Skill map: key skills across six phases (Frame, Design, Data, Plan, Execute, Review), with guardrails for ICH E9(R1) estimands, 39 reporting checklists, 55 specialist reviewers and PHI-safe outputs"
             />
-          </figure>
-          <figure className="ms-figure">
-            <video controls playsInline preload="metadata" width="960" poster={poster} aria-label="Methodsmith workflow overview animation">
-              <source src={video} type="video/mp4" />
-              Your browser does not support HTML video.
-            </video>
-            <figcaption>A 20-second overview of the workflow, without sound.</figcaption>
           </figure>
         </section>
 
