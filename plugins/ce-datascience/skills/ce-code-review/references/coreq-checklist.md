@@ -16,6 +16,8 @@ Consolidated Criteria for Reporting Qualitative Research (COREQ).
 
 **Primary reference:** Tong A, Sainsbury P, Craig J. Consolidated criteria for reporting qualitative research (COREQ): a 32-item checklist for interviews and focus groups. Int J Qual Health Care. 2007;19(6):349-357. doi:10.1093/intqhc/mzm042. PMID: 17872937.
 
+**Source and licence:** Item numbers, domains, and item names follow Table 1 of Tong et al. 2007 (https://doi.org/10.1093/intqhc/mzm042). That article is copyright Oxford University Press and is not openly licensed, so each description is a faithful paraphrase of the published guide question, not a verbatim copy. EQUATOR record: https://www.equator-network.org/reporting-guidelines/coreq/. COREQ is scoped to interviews and focus groups; an LLM extension (COREQ+LLM) is in development (Fehring L, et al. JMIR Res Protoc. 2025;14:e78682. PMID: 40991937) and has no final checklist yet. The "What to look for" bullets are ce-datascience review guidance, not part of the guideline.
+
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
 
@@ -25,7 +27,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1 -- Interviewer/facilitator
 
-**Description:** Which author(s) conducted the interview or focus group?
+**Description:** Which author or authors conducted the interviews or focus groups?
 
 **What to look for in code/outputs:**
 - Documentation identifying which team member(s) conducted data collection
@@ -35,7 +37,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 2 -- Credentials
 
-**Description:** What were the researcher's credentials (e.g., PhD, MD)?
+**Description:** What credentials did the researcher hold (for example, PhD or MD)?
 
 **What to look for in code/outputs:**
 - Researcher credentials listed in author information or methods documentation
@@ -44,7 +46,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 3 -- Occupation
 
-**Description:** What was their occupation at the time of the study?
+**Description:** What was the researcher's occupation when the study was done?
 
 **What to look for in code/outputs:**
 - Researcher occupations and institutional affiliations documented
@@ -53,7 +55,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 4 -- Gender
 
-**Description:** Was the researcher male or female?
+**Description:** What was the researcher's gender (male or female)?
 
 **What to look for in code/outputs:**
 - Researcher gender documented in methods or reflexivity section
@@ -76,7 +78,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 6 -- Relationship established
 
-**Description:** Was a relationship established prior to study commencement?
+**Description:** Had a relationship with participants been established before the study began?
 
 **What to look for in code/outputs:**
 - Documentation of any prior relationship between researchers and participants
@@ -85,7 +87,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 7 -- Participant knowledge of the interviewer
 
-**Description:** What did the participants know about the researcher (e.g., personal goals, reasons for doing the research)?
+**Description:** What did participants know about the researcher (for example, personal goals or reasons for doing the research)?
 
 **What to look for in code/outputs:**
 - Information shared with participants about the researcher documented
@@ -94,7 +96,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 8 -- Interviewer characteristics
 
-**Description:** What characteristics were reported about the interviewer/facilitator (e.g., bias, assumptions, reasons and interests in the research topic)?
+**Description:** What characteristics of the interviewer or facilitator were reported (for example, bias, assumptions, and reasons for and interests in the research topic)?
 
 **What to look for in code/outputs:**
 - Reflexivity statement in methods or a dedicated reflexivity section
@@ -108,7 +110,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 9 -- Methodological orientation and theory
 
-**Description:** What methodological orientation was stated to underpin the study (e.g., grounded theory, discourse analysis, ethnography, phenomenology, content analysis)?
+**Description:** What methodological orientation was stated as underpinning the study (for example, grounded theory, discourse analysis, ethnography, phenomenology, or content analysis)?
 
 **What to look for in code/outputs:**
 - Qualitative methodology explicitly named (grounded theory, phenomenology, thematic analysis, etc.)
@@ -122,7 +124,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 10 -- Sampling
 
-**Description:** How were participants selected (e.g., purposive, convenience, consecutive, snowball)?
+**Description:** How were participants selected (for example, purposive, convenience, consecutive, or snowball sampling)?
 
 **What to look for in code/outputs:**
 - Sampling strategy explicitly named and justified
@@ -132,7 +134,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 11 -- Method of approach
 
-**Description:** How were participants approached (e.g., face-to-face, telephone, mail, email)?
+**Description:** How were participants approached (for example, face-to-face, telephone, mail, or email)?
 
 **What to look for in code/outputs:**
 - Recruitment approach documented (in-person, telephone, email, posted letter, referral)
@@ -141,7 +143,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12 -- Sample size
 
-**Description:** How many participants were in the study?
+**Description:** How many participants took part in the study?
 
 **What to look for in code/outputs:**
 - Total participant count clearly reported
@@ -151,7 +153,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Non-participation
 
-**Description:** How many people refused to participate or dropped out? Reasons?
+**Description:** How many people declined to participate or dropped out, and for what reasons?
 
 **What to look for in code/outputs:**
 - Number of individuals who declined participation documented
@@ -165,7 +167,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 14 -- Setting of data collection
 
-**Description:** Where was the data collected (e.g., home, clinic, workplace)?
+**Description:** Where were the data collected (for example, home, clinic, or workplace)?
 
 **What to look for in code/outputs:**
 - Data collection setting documented (clinic, home, community venue, virtual/online)
@@ -174,7 +176,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 15 -- Presence of non-participants
 
-**Description:** Was anyone else present besides the participants and researchers?
+**Description:** Was anyone present other than the participants and the researchers?
 
 **What to look for in code/outputs:**
 - Documentation of who was present during data collection sessions
@@ -183,7 +185,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16 -- Description of sample
 
-**Description:** What are the important characteristics of the sample (e.g., demographic data, date)?
+**Description:** What were the important characteristics of the sample (for example, demographic data and date)?
 
 **What to look for in code/outputs:**
 - Participant characteristics table with relevant demographics
@@ -197,7 +199,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 17 -- Interview guide
 
-**Description:** Were questions, prompts, guides provided by the authors? Was it pilot tested?
+**Description:** Did the authors provide the questions, prompts, or guides used, and was the guide pilot tested?
 
 **What to look for in code/outputs:**
 - Interview guide or topic guide included in project files or appendices
@@ -207,7 +209,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 18 -- Repeat interviews
 
-**Description:** Were repeat interviews carried out? If yes, how many?
+**Description:** Were repeat interviews conducted, and if so, how many?
 
 **What to look for in code/outputs:**
 - Documentation of whether participants were interviewed more than once
@@ -216,7 +218,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 19 -- Audio/visual recording
 
-**Description:** Did the research use audio or visual recording to collect the data?
+**Description:** Was audio or visual recording used to collect the data?
 
 **What to look for in code/outputs:**
 - Recording method documented (audio, video, field notes only)
@@ -226,7 +228,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 20 -- Field notes
 
-**Description:** Were field notes made during and/or after the interview or focus group?
+**Description:** Were field notes taken during and/or after the interview or focus group?
 
 **What to look for in code/outputs:**
 - Field note documentation strategy described
@@ -236,7 +238,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21 -- Duration
 
-**Description:** What was the duration of the interviews or focus groups?
+**Description:** How long did the interviews or focus group last?
 
 **What to look for in code/outputs:**
 - Interview or focus group duration reported (range, mean, median)
@@ -269,7 +271,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 24 -- Number of data coders
 
-**Description:** How many data coders coded the data?
+**Description:** How many coders coded the data?
 
 **What to look for in code/outputs:**
 - Number of coders documented in methods
@@ -278,7 +280,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 25 -- Description of the coding tree
 
-**Description:** Did authors provide a description of the coding tree?
+**Description:** Did the authors describe the coding tree?
 
 **What to look for in code/outputs:**
 - Codebook or coding tree included in project files or appendices
@@ -298,7 +300,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 27 -- Software
 
-**Description:** What software, if applicable, was used to manage the data?
+**Description:** What software, if any, was used to manage the data?
 
 **What to look for in code/outputs:**
 - Qualitative data analysis software named (NVivo, ATLAS.ti, MAXQDA, Dedoose, R/RQDA)
@@ -308,7 +310,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 28 -- Participant checking
 
-**Description:** Did participants provide feedback on the findings?
+**Description:** Did participants give feedback on the findings?
 
 **What to look for in code/outputs:**
 - Member checking of findings documented (presenting themes to participants for validation)
@@ -322,7 +324,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 29 -- Quotations presented
 
-**Description:** Were participant quotations presented to illustrate the themes/findings? Was each quotation identified (e.g., participant number)?
+**Description:** Were participant quotations presented to illustrate the themes or findings, and was each quotation identified (for example, by participant number)?
 
 **What to look for in code/outputs:**
 - Direct quotations included in report output with participant identifiers (pseudonyms, ID numbers)
@@ -332,7 +334,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 30 -- Data and findings consistent
 
-**Description:** Was there consistency between the data presented and the findings?
+**Description:** Were the data presented consistent with the findings?
 
 **What to look for in code/outputs:**
 - Themes supported by multiple quotations or data excerpts
@@ -342,7 +344,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 31 -- Clarity of major themes
 
-**Description:** Were major themes clearly presented in the findings?
+**Description:** Were the major themes clearly presented in the findings?
 
 **What to look for in code/outputs:**
 - Major themes clearly named, defined, and presented with supporting data
@@ -352,7 +354,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 32 -- Clarity of minor themes
 
-**Description:** Is there a description of diverse cases or discussion of minor themes?
+**Description:** Are diverse cases described or minor themes discussed?
 
 **What to look for in code/outputs:**
 - Minor themes or outlier perspectives documented alongside major findings
