@@ -551,7 +551,7 @@ function Install-Codex {
       Write-Output "then re-run this installer."
     }
     Write-Output "Refresh the generated agents too with:"
-    Write-Output "  bunx methodsmith@latest install $PluginName --to codex --codex-home `"$CodexHome`""
+    Write-Output "  bunx github:sajor2000/methodsmith install $PluginName --to codex --codex-home `"$CodexHome`""
     return
   }
 

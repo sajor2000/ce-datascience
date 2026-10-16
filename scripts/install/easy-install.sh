@@ -403,7 +403,7 @@ install_codex() {
       echo "then re-run this installer."
     fi
     echo "Refresh the generated agents too with:"
-    echo "  bunx methodsmith@latest install $PLUGIN_NAME --to codex --codex-home \"$codex_home\""
+    echo "  bunx github:sajor2000/methodsmith install $PLUGIN_NAME --to codex --codex-home \"$codex_home\""
     return
   fi
 

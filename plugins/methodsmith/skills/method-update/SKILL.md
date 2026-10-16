@@ -140,11 +140,11 @@ safe: it replaces only plugin-owned files and keeps your own skills.
 | Harness | Update command | Then |
 |---|---|---|
 | Codex (plugin from the GitHub marketplace) | `codex plugin marketplace upgrade methodsmith` | Restart Codex. Codex does not update plugins automatically. |
-| Codex (generated Methodsmith agents) | `bunx methodsmith@latest install methodsmith --to codex --codex-home "${CODEX_HOME:-$HOME/.codex}"` | Restart Codex. |
-| OpenCode | `bunx methodsmith@latest install methodsmith --to opencode` | Add `--output <workspace>` for a project install. Restart OpenCode. |
-| Pi | `bunx methodsmith@latest install methodsmith --to pi --pi-home "$HOME/.pi/agent"` | Restart Pi. |
-| Gemini CLI | `bunx methodsmith@latest install methodsmith --to gemini --output <workspace>` | Restart Gemini CLI. |
-| Kiro | `bunx methodsmith@latest install methodsmith --to kiro --output <workspace>` | Restart Kiro. |
+| Codex (generated Methodsmith agents) | `bunx github:sajor2000/methodsmith install methodsmith --to codex --codex-home "${CODEX_HOME:-$HOME/.codex}"` | Restart Codex. |
+| OpenCode | `bunx github:sajor2000/methodsmith install methodsmith --to opencode` | Add `--output <workspace>` for a project install. Restart OpenCode. |
+| Pi | `bunx github:sajor2000/methodsmith install methodsmith --to pi --pi-home "$HOME/.pi/agent"` | Restart Pi. |
+| Gemini CLI | `bunx github:sajor2000/methodsmith install methodsmith --to gemini --output <workspace>` | Restart Gemini CLI. |
+| Kiro | `bunx github:sajor2000/methodsmith install methodsmith --to kiro --output <workspace>` | Restart Kiro. |
 | Qwen Code | `qwen extensions update methodsmith` | Restart Qwen Code. |
 
 To tell which Codex marketplace is in use, run the read-only

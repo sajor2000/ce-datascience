@@ -21,7 +21,7 @@
       "expectations": [
         "Does not claim to compare installed and upstream versions, since Codex does not expose the installed version to the skill",
         "Gives 'codex plugin marketplace upgrade methodsmith' and says to restart Codex",
-        "Gives 'bunx methodsmith@latest install methodsmith --to codex' for the generated agents",
+        "Gives 'bunx github:sajor2000/methodsmith install methodsmith --to codex' for the generated agents",
         "States that updating keeps the user's own skills and does not tell them to move or delete anything"
       ]
     },
@@ -33,7 +33,7 @@
       "expectations": [
         "Runs scripts/detect-pre-rename-install.sh through the SKILL_DIR anchor before the version check",
         "Shows the Claude Code switch: uninstall the old plugin id, remove the old marketplace, add sajor2000/methodsmith, install methodsmith@methodsmith",
-        "Shows 'bunx methodsmith@latest install methodsmith --to opencode' for OpenCode",
+        "Shows 'bunx github:sajor2000/methodsmith install methodsmith --to opencode' for OpenCode",
         "States that the new install moves old plugin files to backups and leaves the user's own skills in place",
         "Does not run the uninstall or install commands for the user"
       ]

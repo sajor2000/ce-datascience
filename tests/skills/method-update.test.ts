@@ -175,11 +175,11 @@ describe("method-update covers every supported harness", () => {
     for (const command of [
       "claude plugin update methodsmith@{marketplace-name}",
       "codex plugin marketplace upgrade methodsmith",
-      "bunx methodsmith@latest install methodsmith --to codex",
-      "bunx methodsmith@latest install methodsmith --to opencode",
-      "bunx methodsmith@latest install methodsmith --to pi",
-      "bunx methodsmith@latest install methodsmith --to gemini",
-      "bunx methodsmith@latest install methodsmith --to kiro",
+      "bunx github:sajor2000/methodsmith install methodsmith --to codex",
+      "bunx github:sajor2000/methodsmith install methodsmith --to opencode",
+      "bunx github:sajor2000/methodsmith install methodsmith --to pi",
+      "bunx github:sajor2000/methodsmith install methodsmith --to gemini",
+      "bunx github:sajor2000/methodsmith install methodsmith --to kiro",
       "qwen extensions update methodsmith",
     ]) {
       expect(SKILL_BODY).toContain(command)

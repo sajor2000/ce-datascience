@@ -15,7 +15,7 @@ describe("update model and user-skill safety are documented in every install doc
         "claude plugin update methodsmith@methodsmith",
         "Enable auto-update",
         "codex plugin marketplace upgrade methodsmith",
-        "bunx methodsmith@latest install methodsmith --to opencode",
+        "bunx github:sajor2000/methodsmith install methodsmith --to opencode",
         "qwen extensions update methodsmith",
         "~/.claude/skills",
         ".claude/skills",
