@@ -67,6 +67,8 @@ done
 raster "$out/hero-light.svg" "$out/hero-light.png" 1600 560
 raster "$out/hero-dark.svg" "$out/hero-dark.png" 1600 560
 raster "$out/social-preview.svg" "$out/social-preview.png" 1280 640
+raster "$out/human-loop-light.svg" "$out/human-loop-light.png" 1200 560
+raster "$out/human-loop-dark.svg" "$out/human-loop-dark.png" 1200 560
 demo_h="$(sed -n 's/^<svg[^>]* height="\([0-9]*\)".*/\1/p' "$out/demo-poster.svg")"
 raster "$out/demo-poster.svg" "$out/demo-poster.png" 1200 "$demo_h"
 

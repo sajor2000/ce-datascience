@@ -154,7 +154,61 @@ table {
 
 /* Home */
 .ms-hero {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2.5rem, 5vw, 4rem);
+}
+
+/* The hero's terminal card: real first commands, not decoration. */
+.ms-terminal {
+  background: #11141a;
+  border: 1px solid #2e3440;
+  border-radius: 10px;
+  color: #ece8e0;
+  margin: 0;
+  padding: 1.1rem 1.25rem 1.2rem;
+}
+.ms-terminal figcaption {
+  border-bottom: 1px solid #2e3440;
+  color: #a3aab5;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  margin: 0 -1.25rem 1rem;
+  padding: 0 1.25rem 0.8rem;
+  text-transform: uppercase;
+}
+.ms-terminal pre {
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0;
+  white-space: pre;
+}
+.ms-terminal code {
+  background: none;
+  border: 0;
+  color: inherit;
+  padding: 0;
+}
+.ms-terminal .c {
+  color: #8b93a0;
+}
+.ms-terminal .p {
+  color: #e57a50;
+}
+.ms-terminal p {
+  color: #a3aab5;
+  font-size: 0.85rem;
+  margin: 1rem 0 0;
+}
+.ms-terminal a {
+  color: #ece8e0;
 }
 .ms-hero h1 {
   font-size: clamp(2.4rem, 5.4vw, 4.25rem);
@@ -210,24 +264,6 @@ table {
   background: var(--ms-surface);
   color: var(--ms-ink);
 }
-.ms-install {
-  margin-top: 2.25rem;
-  max-width: 44rem;
-}
-.ms-install p {
-  color: var(--ms-muted);
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
-}
-.ms-install pre {
-  background: var(--ms-surface);
-  border: 1px solid var(--ms-rule);
-  margin: 0;
-  overflow-wrap: anywhere;
-  padding: 0.85rem 1rem;
-  white-space: pre-wrap;
-}
-
 .ms-section {
   border-top: 1px solid var(--ms-rule);
   padding-block: clamp(3rem, 6vw, 5rem);
@@ -243,98 +279,6 @@ table {
   max-width: 42rem;
 }
 
-/* The loop: four steps on one rule, with the ember return line under them. */
-.ms-loop {
-  display: grid;
-  gap: 0;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  list-style: none;
-  margin: 3rem 0 0;
-  padding: 0;
-  position: relative;
-}
-.ms-loop::before {
-  background: var(--ms-rule);
-  content: '';
-  height: 2px;
-  left: 0.45rem;
-  position: absolute;
-  right: 12.5%;
-  top: 0.4rem;
-}
-.ms-loop li {
-  padding-right: 1.5rem;
-  position: relative;
-}
-.ms-loop li::before {
-  background: var(--ms-ink);
-  border: 3px solid var(--ms-paper);
-  border-radius: 50%;
-  content: '';
-  display: block;
-  height: 1.05rem;
-  margin-bottom: 1.1rem;
-  position: relative;
-  width: 1.05rem;
-}
-.ms-loop li:last-child::before {
-  background: var(--ms-ember);
-}
-.ms-loop__step {
-  color: var(--ms-muted);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.ms-loop code {
-  background: none;
-  border: 0;
-  display: block;
-  font-size: 1rem;
-  font-weight: 500;
-  margin: 0.35rem 0 0.6rem;
-  padding: 0;
-}
-.ms-loop li:last-child code {
-  color: var(--ms-ember-text);
-}
-.ms-loop p {
-  font-size: 0.97rem;
-  margin: 0;
-}
-.ms-return {
-  border: 2px solid var(--ms-ember);
-  border-radius: 0 0 14px 14px;
-  border-top: 0;
-  height: 2.6rem;
-  margin: 1.4rem 0 0 0.45rem;
-  position: relative;
-  width: calc(75% + 0.05rem);
-}
-.ms-return::before {
-  border-left: 2px solid var(--ms-ember);
-  border-top: 2px solid var(--ms-ember);
-  content: '';
-  height: 0.7rem;
-  left: -0.42rem;
-  position: absolute;
-  top: -0.1rem;
-  transform: rotate(45deg);
-  width: 0.7rem;
-}
-.ms-return span {
-  background: var(--ms-paper);
-  bottom: -0.75rem;
-  color: var(--ms-ember-text);
-  font-size: 0.9rem;
-  left: 50%;
-  padding: 0 0.75rem;
-  position: absolute;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-
 .ms-figure {
   margin: 2.5rem 0 0;
 }
@@ -345,6 +289,11 @@ table {
   display: block;
   height: auto;
   max-width: 100%;
+}
+.ms-figure--diagram img {
+  border: 0;
+  border-radius: 0;
+  width: 100%;
 }
 .ms-figure figcaption {
   color: var(--ms-muted);
@@ -431,17 +380,22 @@ table {
   .ms-audiences {
     grid-template-columns: minmax(0, 1fr);
   }
-  .ms-loop {
-    gap: 1.75rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .ms-hero {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .ms-loop::before,
-  .ms-return {
-    display: none;
+}
+@media (max-width: 760px) {
+  /* Wide figures keep a readable size and scroll sideways inside their frame. */
+  .ms-figure--scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ms-figure--scroll img {
+    max-width: none;
+    min-width: 760px;
   }
 }
 @media (max-width: 576px) {
-  .ms-loop,
   .ms-trust {
     grid-template-columns: minmax(0, 1fr);
   }

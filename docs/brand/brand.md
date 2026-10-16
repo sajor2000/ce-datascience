@@ -132,6 +132,7 @@ The README diagrams and the overview video use the same three faces; see
 | Asset | File | Notes |
 |---|---|---|
 | README hero | `hero-light.svg`, `hero-dark.svg` (+ PNG) | 1600x560. Use a `<picture>` element so GitHub picks the theme |
+| Who decides what | `human-loop-light.svg`, `human-loop-dark.svg` (+ PNG) | 1200x560 swimlane: the scientist's decisions above, the plugin's work below, ember on the approval gate and the return to the next plan. Used in the README and on the docs home in place of a video |
 | GitHub social preview | `social-preview.png` | 1280x640, under 1 MB. Upload in repository Settings (it cannot be set through the API) |
 | README hero | (as above) | The README's H1 carries the name, so the banner leads with the mark and the promise |
 | Plugin directory icon | `plugins/methodsmith/assets/icon.png` (512) and `icon.svg` | Square tile. Claude reads `icon` from `plugin.json`; Codex reads `interface.logo`. Both directories require a square image of at least 48 px (PNG or SVG), and neither accepts `.ico` inside the plugin |

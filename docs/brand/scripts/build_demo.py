@@ -37,6 +37,10 @@ BOLD = {"cmd", "head", "accent", "p1"}
 TYPE_CPS = 22  # typed characters per second
 LINE_GAP = 0.16  # seconds between output lines
 HOLD = 3.2  # seconds a finished scene stays on screen
+# Every animation begins this far into its timeline, so the very first frame
+# (and any viewer that pauses SMIL for an off-screen image) shows a complete
+# first scene instead of an empty terminal. Set in main() from the schedule.
+OFFSET = 0.0
 FADE = 0.35
 
 rows = max(len(scene) for scene in SCENES)
@@ -68,7 +72,7 @@ def visible(start, end, total):
     a, b = start / total, min(end / total, 1)
     return (
         f'<animate attributeName="opacity" values="0;1;0" keyTimes="0;{a:.4f};{b:.4f}" '
-        f'dur="{total:.2f}s" repeatCount="indefinite" calcMode="discrete"/>'
+        f'dur="{total:.2f}s" begin="-{OFFSET:.2f}s" repeatCount="indefinite" calcMode="discrete"/>'
     )
 
 
@@ -82,7 +86,7 @@ def typed_clip(cid, x, y, width, start, end, total, full=False):
     return (
         f'<clipPath id="{cid}"><rect x="{x}" y="{y - SIZE}" height="{LINE}" width="{width if full else 0}">'
         f'<animate attributeName="width" values="{";".join(vals)}" keyTimes="{";".join(keys)}" '
-        f'dur="{total:.2f}s" repeatCount="indefinite" calcMode="discrete"/></rect></clipPath>'
+        f'dur="{total:.2f}s" begin="-{OFFSET:.2f}s" repeatCount="indefinite" calcMode="discrete"/></rect></clipPath>'
     )
 
 
@@ -147,7 +151,10 @@ DESC = (
 
 
 def main():
+    global OFFSET
     plan, total = schedule()
+    first_start, first_end = plan[0][0], plan[0][1]
+    OFFSET = first_end - HOLD + 0.2  # scene one fully typed, at the start of its hold
     scenes = []
     for sid, ((start, end, times, typed), scene) in enumerate(zip(plan, SCENES)):
         # Renderers that ignore SMIL show base values: only the last scene, complete.
