@@ -13,7 +13,7 @@ argument-hint: "<endpoint and estimand>, optional: --engine rpact|gsDesign --alp
 - **Output:** A locked design specification, exact external-engine script and log, normalized operating-characteristic table, feasible/Pareto frontier, provenance receipt, and SAP handoff.
 - **Ask only if:** The endpoint/estimand, hypothesis, effect scale, sidedness, alpha, target power, information times, or intended external engine cannot be established from the repository and conversation.
 - **Interaction:** Ask required questions with `AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, or `ask_user` in Pi via `pi-ask-user`. In Claude Code, first call `ToolSearch` with `select:AskUserQuestion` when the schema is not loaded. Only when no blocking tool exists or the call errors, present numbered options in chat and wait. Never silently skip the question.
-- **Do not do:** Do not reimplement boundary or operating-characteristic mathematics, call CE output a validated design, choose a clinically acceptable design, or imply regulatory acceptance.
+- **Do not do:** Do not reimplement boundary or operating-characteristic mathematics, call Methodsmith output a validated design, choose a clinically acceptable design, or imply regulatory acceptance.
 
 This skill owns the auditable workflow around the calculation. `rpact` or `gsDesign` owns boundaries, sample size/information, error spending, stopping probabilities, power, and expected information.
 
@@ -51,7 +51,7 @@ Completion evidence: the engine script contains a fail-closed version assertion 
 
 Author a project-local R script at `analysis/trial-design/<design-id>/engine-run.R`, starting from `references/engine-run.example.R` (rpact, continuous endpoint) and adapting it for the endpoint. Use only documented engine functions named in `references/engine-adapters.md`. Run every declared scenario and candidate through the same pinned engine and write one normalized row per result to `engine-results.csv` using the exact column contract in `references/design-contract.md`.
 
-Values for achieved power, type I error, maximum information, and expected information must be read from engine results, using the accessors in `references/engine-adapters.md`. With non-binding futility, type I error is computed ignoring the futility bound; the null-scenario rejection probability with futility applied understates it. Never reconstruct, approximate, or back-fill them in CE code. If the engine does not provide a required value for the chosen design, stop and report the missing operating characteristic.
+Values for achieved power, type I error, maximum information, and expected information must be read from engine results, using the accessors in `references/engine-adapters.md`. With non-binding futility, type I error is computed ignoring the futility bound; the null-scenario rejection probability with futility applied understates it. Never reconstruct, approximate, or back-fill them in Methodsmith code. If the engine does not provide a required value for the chosen design, stop and report the missing operating characteristic.
 
 Capture stdout/stderr in `engine-run.log`, save `sessionInfo()` output, and have the same R process write `runtime-provenance.json` using the contract in `references/engine-adapters.md`. If simulation is used, record the algorithm, iteration count, seed, Monte Carlo uncertainty, and failure count. Do not treat a simulated point estimate as proof that an error-rate constraint is satisfied when its Monte Carlo interval crosses the declared limit.
 

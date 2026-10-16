@@ -140,5 +140,5 @@ hash-based evidence used in
 [agent-evaluation chapter](https://github.com/bojieli/ai-agent-book/blob/main/chapter6/README.en.md),
 [chapter 6 evaluation write-up](https://github.com/bojieli/ai-agent-book/blob/main/chapter6/README.en.md) (the original public-health-reporting-eval directory is no longer in the repository),
 and [skill experiment protocol](https://github.com/bojieli/ai-agent-book/blob/main/chapter2/agent-skills-ppt/experiment_protocol.json).
-The CE implementation and fixtures are original and use the external repository as conceptual
+The Methodsmith implementation and fixtures are original and use the external repository as conceptual
 grounding only.

@@ -13,7 +13,7 @@
 
 </div>
 
-**Methodsmith** is a plugin for Claude Code and Codex that gives your coding
+**Methodsmith** (formerly ce-datascience) is a plugin for Claude Code and Codex that gives your coding <!-- rebrand:keep -->
 agent the habits of a careful methods team. It plans the analysis before it
 runs, reviews it before anyone reads the results, and writes down what each
 study taught you so the next one starts ahead. Clinical statistics, Python and
@@ -124,6 +124,121 @@ to make before we analyze any data.
 
 ---
 
+<!-- rebrand:keep-start migration-guide -->
+## Moving from ce-datascience
+
+Methodsmith is the same plugin as ce-datascience, renamed in 5.0. Every
+command and agent now starts with `method-` instead of `ce-`. A few names are
+also shorter, for example `/ce-statistical-analysis-plan` is now `/method-sap`.
+
+**What stays the same:** your own skills, your project's `.ce-datascience/`
+folder (including the PHI-boundary settings in `config.local.yaml`), and the
+plan -> work -> review -> compound loop.
+
+**What the switch does:** the first Methodsmith install moves the old plugin's
+files to a `backups/` folder next to the new install. Nothing is deleted, and
+files you created are not touched.
+
+To see what is installed on your machine, run `/method-update` after
+installing Methodsmith, or run the same read-only checker from a checkout. It
+prints exactly the commands below for each harness it finds:
+
+```bash
+bash plugins/methodsmith/skills/method-update/scripts/detect-pre-rename-install.sh
+```
+
+| Harness | Switch to Methodsmith |
+|---|---|
+| Claude Code | `claude plugin uninstall ce-datascience@ce-datascience-plugin`, then `claude plugin marketplace remove ce-datascience-plugin`, `claude plugin marketplace add sajor2000/methodsmith`, `claude plugin install methodsmith@methodsmith`. If you used `--aliases`, re-run `bash install.sh claude --aliases`. |
+| Codex | `codex plugin marketplace remove ce-datascience-plugin`, then `codex plugin marketplace add sajor2000/methodsmith` and `bunx methodsmith@latest install methodsmith --to codex`. Open `/plugins` and install Methodsmith. |
+| OpenCode | `bunx methodsmith@latest install methodsmith --to opencode` |
+| Pi | `bunx methodsmith@latest install methodsmith --to pi --pi-home ~/.pi/agent` |
+| Gemini CLI, Kiro | `bunx methodsmith@latest install methodsmith --to gemini --output .` (or `--to kiro`) in each workspace |
+| Qwen Code | `qwen extensions uninstall ce-datascience`, then `qwen extensions install sajor2000/methodsmith:methodsmith` |
+
+On Claude Code with `--aliases`, the old `/ce-*` commands keep working for one
+release as deprecated aliases that point at the new skills. Elsewhere, use the
+new names.
+
+<details>
+<summary>Every renamed command</summary>
+
+<!-- rebrand:keep-end -->
+<!-- rebrand:keep-start renamed-commands -->
+| Before 5.0 | Methodsmith |
+|---|---|
+| `/ce-adversarial-review` | `/method-adversarial-review` |
+| `/ce-bioinfo-qc` | `/method-omics-qc` |
+| `/ce-brainstorm` | `/method-brainstorm` |
+| `/ce-checklist-match` | `/method-checklist` |
+| `/ce-clean-gone-branches` | `/method-clean-branches` |
+| `/ce-clif` | `/method-clif` |
+| `/ce-clif-project-template` | `/method-clif-template` |
+| `/ce-clinical-research-voice` | `/method-voice` |
+| `/ce-code-review` | `/method-review` |
+| `/ce-cohort-build` | `/method-cohort` |
+| `/ce-commit` | `/method-commit` |
+| `/ce-commit-push-pr` | `/method-pr` |
+| `/ce-compound` | `/method-compound` |
+| `/ce-compound-refresh` | `/method-compound-refresh` |
+| `/ce-data-qa` | `/method-data-qa` |
+| `/ce-debug` | `/method-debug` |
+| `/ce-doc-review` | `/method-doc-review` |
+| `/ce-effect-size` | `/method-meta-analysis` |
+| `/ce-evidence-map` | `/method-evidence-map` |
+| `/ce-fabric` | `/method-fabric` |
+| `/ce-figure` | `/method-figure` |
+| `/ce-genome-build` | `/method-genome-build` |
+| `/ce-grill` | `/method-grill` |
+| `/ce-handoff` | `/method-handoff` |
+| `/ce-ideate` | `/method-ideate` |
+| `/ce-language-detect` | `/method-language-detect` |
+| `/ce-literature-search` | `/method-lit-search` |
+| `/ce-manuscript-citations` | `/method-citations` |
+| `/ce-manuscript-package` | `/method-submission-package` |
+| `/ce-manuscript-section-discipline` | `/method-section-check` |
+| `/ce-marimo` | `/method-marimo` |
+| `/ce-method-extract` | `/method-extract` |
+| `/ce-ml-experiment-track` | `/method-ml-track` |
+| `/ce-model-card` | `/method-model-card` |
+| `/ce-model-strategy` | `/method-model-choice` |
+| `/ce-notebook-edit` | `/method-notebook-edit` |
+| `/ce-notebook-standards` | `/method-notebook-standards` |
+| `/ce-numbers` | `/method-numbers` |
+| `/ce-optimize` | `/method-optimize` |
+| `/ce-phenotype-validate` | `/method-phenotype` |
+| `/ce-plan` | `/method-plan` |
+| `/ce-power` | `/method-power` |
+| `/ce-pre-submission-audit` | `/method-presubmit` |
+| `/ce-prereg` | `/method-prereg` |
+| `/ce-pubmed` | `/method-pubmed` |
+| `/ce-release-notes` | `/method-release-notes` |
+| `/ce-report-bug` | `/method-report-bug` |
+| `/ce-research-question` | `/method-question` |
+| `/ce-resolve-pr-feedback` | `/method-resolve-feedback` |
+| `/ce-review-pack` | `/method-signoff` |
+| `/ce-rstats` | `/method-r` |
+| `/ce-sap-tabular` | `/method-sap-workbook` |
+| `/ce-sas-stata-assess` | `/method-sas-stata` |
+| `/ce-scientific-anti-slop` | `/method-anti-slop` |
+| `/ce-scientific-writing` | `/method-write` |
+| `/ce-sessions` | `/method-sessions` |
+| `/ce-setup` | `/method-setup` |
+| `/ce-sprint` | `/method-sprint` |
+| `/ce-statistical-analysis-plan` | `/method-sap` |
+| `/ce-table1` | `/method-table1` |
+| `/ce-trial-design` | `/method-trial-design` |
+| `/ce-update` | `/method-update` |
+| `/ce-verify` | `/method-verify` |
+| `/ce-work` | `/method-work` |
+| `/ce-workflow` | `/method-workflow` |
+| `/ce-worktree` | `/method-worktree` |
+<!-- rebrand:keep-end -->
+
+Agents keep the rest of their name: `ce-methods-reviewer` is now `method-methods-reviewer`. <!-- rebrand:keep -->
+
+</details>
+
 ## Get started like Compound Engineering
 
 The normal path is intentionally short: install the plugin, start your agent,
@@ -209,7 +324,7 @@ also installs the generated agent bridge when Bun is available.
 
 ### Pi, generated install
 
-Install Pi's two workflow extensions once, then generate the CE files into the
+Install Pi's two workflow extensions once, then generate the Methodsmith files into the
 Pi agent root:
 
 ```bash
@@ -220,7 +335,7 @@ bun run src/index.ts install ./plugins/methodsmith --to pi --pi-home "$HOME/.pi/
 ```
 
 Restart Pi, open the project, then invoke `method-setup` with Pi's normal skill
-interface. `pi-subagents` is required for CE review/workflow delegation;
+interface. `pi-subagents` is required for Methodsmith review/workflow delegation;
 `pi-ask-user` enables the short setup confirmation UI.
 
 ### Use the plugin after installation
@@ -319,9 +434,9 @@ research planning needs deeper full-text or cross-source evidence. Neither is
 required or installed automatically. Review institutional privacy and network
 policy before connecting a hosted research service. See the
 [optional research add-ons setup](docs/setup.md#8-optional-research-add-ons).
-The Paperclip skill is fetched and maintained by Paperclip, not bundled with CE
-DataScience. CE workflows currently auto-detect the Paperclip CLI only; external
-MCP or provider-skill results are direct agent capabilities, not automatic CE
+The Paperclip skill is fetched and maintained by Paperclip, not bundled with
+Methodsmith. Methodsmith workflows currently auto-detect the Paperclip CLI only; external
+MCP or provider-skill results are direct agent capabilities, not automatic Methodsmith
 artifact handoffs.
 
 ### Source checkout for contributors
@@ -656,7 +771,7 @@ Word table. It does not read numbers inside images.
 /method-work
 ```
 
-If a direct call conflicts with an explicitly declared project pair, CE asks
+If a direct call conflicts with an explicitly declared project pair, Methodsmith asks
 which source is intended before it validates categories or generates filters.
 
 ### Analyze omics data
@@ -711,7 +826,7 @@ Repository maintenance is reported weekly through [Weekly Branch Maintenance](.g
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |
 
-## Upstream CE features now included
+## Upstream Compound Engineering features now included
 
 This fork tracks useful infrastructure and workflow improvements from the original [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) plugin while keeping the product scoped to health data science.
 
@@ -939,16 +1054,15 @@ generated install, and others through the converter CLI. See
 loop, the review architecture and much of the engineering workflow come from
 Every's plugin; Methodsmith adds the research-methods skills, reviewers,
 checklists and guards.
-
-## Credits
-
-Methodsmith is a fork of [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
-by [Kieran Klaassen](https://github.com/kieranklaassen) and [Trevin Chow](https://github.com/tmchow)
-at [Every](https://every.to), which introduced the plan, work, review, compound
-loop. It is also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
-and [Superpowers](https://github.com/obra/superpowers). Methodsmith is maintained
-by Juan Carlos Rojas. Brand assets and their sources are in [docs/brand](docs/brand/brand.md).
 <!-- brand:faq:end -->
+
+## Built on
+
+Methodsmith started as a fork of [Every](https://every.to)'s
+[Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
+plugin by [Kieran Klaassen](https://github.com/kieranklaassen). The
+plan -> work -> review -> compound loop, the review personas, and the
+cross-platform converter come from that work. Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers). Brand assets and their sources are in [docs/brand](docs/brand/brand.md).
 
 ## License
 

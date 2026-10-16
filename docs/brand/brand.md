@@ -60,7 +60,7 @@ Rules:
 ## Colour
 
 Built on the editorial palette already used by the README diagrams and site
-video (`website/animations/ce_visuals.py`): warm paper, ink type, muted phase
+video (`website/animations/method_visuals.py`): warm paper, ink type, muted phase
 hues. Methodsmith adds one accent, **ember**, the colour of worked metal.
 
 | Token | Hex | Role | Contrast (WCAG 2.x) |
@@ -80,7 +80,7 @@ hues. Methodsmith adds one accent, **ember**, the colour of worked metal.
 Ember is never body text on light: use Ember Deep. Keep ember to one or two
 marks per view; it signals "this is the compounding step" or "act here".
 
-The six phase hues in `ce_visuals.py` (Frame `#1D4E89`, Design `#2A7F7A`,
+The six phase hues in `method_visuals.py` (Frame `#1D4E89`, Design `#2A7F7A`,
 Data `#7A5C1E`, Plan `#A61B2B`, Execute `#5B3F8C`, Review `#2F6B3B`) stay as the
 categorical palette for diagrams. They are data colours, not brand colours.
 

@@ -2,7 +2,12 @@
 
 This guide is the fastest path from a fresh machine to a working `methodsmith`
 install. Use Bash on macOS, Linux, WSL, or Git Bash. Use PowerShell on native
-Windows.
+Windows. Upgrading from methodsmith (the plugin's name before 5.0)? See
+[Moving from ce-datascience](#moving-from-ce-datascience). <!-- rebrand:keep -->
+
+Methodsmith builds on [Every](https://every.to)'s
+[Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
+plugin.
 
 ## Visual Overview
 
@@ -116,7 +121,7 @@ codex
 
 Inside Codex, run `/plugins`, install **Methodsmith**, restart Codex, then
 start a new thread and ask Codex to use Methodsmith for setup. If Bun is
-available, the helper also installs the generated CE agents into the selected
+available, the helper also installs the generated Methodsmith agents into the selected
 `CODEX_HOME`.
 
 ### Pi
@@ -131,7 +136,7 @@ bun run src/index.ts install ./plugins/methodsmith --to pi --pi-home "$HOME/.pi/
 ```
 
 Restart Pi, open the project, and invoke `method-setup` using Pi's normal skill
-interface. `pi-subagents` is required for CE subagent workflows; `pi-ask-user`
+interface. `pi-subagents` is required for Methodsmith subagent workflows; `pi-ask-user`
 is recommended for the compact setup confirmation.
 
 ### What the easy installer does
@@ -140,7 +145,7 @@ is recommended for the compact setup confirmation.
 |---|---|---|
 | Claude Code | Adds the GitHub marketplace (or this checkout with `--source`), installs `methodsmith`, turns on auto-update, and optionally creates managed bare `/method-*` aliases | Restart Claude Code, open the project or study directory, then run `/methodsmith:method-setup` or the optional `/method-setup` alias |
 | Codex | Adds the GitHub marketplace (or this checkout with `--source`) so `codex plugin marketplace upgrade` works and, when Bun is available, writes the generated agent bridge into the selected `CODEX_HOME` | Restart Codex, open `/plugins`, install **Methodsmith**, restart again, then start a new task in the target project |
-| Pi | Writes generated CE skills and agents under the selected Pi home, plus a managed block in that root's `AGENTS.md` | Install `pi-subagents`, restart Pi, open the target project, then invoke `method-setup` |
+| Pi | Writes generated Methodsmith skills and agents under the selected Pi home, plus a managed block in that root's `AGENTS.md` | Install `pi-subagents`, restart Pi, open the target project, then invoke `method-setup` |
 
 The installer does not configure every research project globally. The
 `method-setup` skill creates project-local configuration after the plugin is loaded.
@@ -170,6 +175,121 @@ unless you also set `FORCE_AUTOUPDATE_PLUGINS=1`.
 
 Not sure which command applies? Run the `method-update` skill (`/method-update` in
 Claude Code). It prints the exact command for the agent you are in.
+
+<!-- rebrand:keep-start migration-guide -->
+### Moving from ce-datascience
+
+Methodsmith is the same plugin as ce-datascience, renamed in 5.0. Every
+command and agent now starts with `method-` instead of `ce-`. A few names are
+also shorter, for example `/ce-statistical-analysis-plan` is now `/method-sap`.
+
+**What stays the same:** your own skills, your project's `.ce-datascience/`
+folder (including the PHI-boundary settings in `config.local.yaml`), and the
+plan -> work -> review -> compound loop.
+
+**What the switch does:** the first Methodsmith install moves the old plugin's
+files to a `backups/` folder next to the new install. Nothing is deleted, and
+files you created are not touched.
+
+To see what is installed on your machine, run `/method-update` after
+installing Methodsmith, or run the same read-only checker from a checkout. It
+prints exactly the commands below for each harness it finds:
+
+```bash
+bash plugins/methodsmith/skills/method-update/scripts/detect-pre-rename-install.sh
+```
+
+| Harness | Switch to Methodsmith |
+|---|---|
+| Claude Code | `claude plugin uninstall ce-datascience@ce-datascience-plugin`, then `claude plugin marketplace remove ce-datascience-plugin`, `claude plugin marketplace add sajor2000/methodsmith`, `claude plugin install methodsmith@methodsmith`. If you used `--aliases`, re-run `bash install.sh claude --aliases`. |
+| Codex | `codex plugin marketplace remove ce-datascience-plugin`, then `codex plugin marketplace add sajor2000/methodsmith` and `bunx methodsmith@latest install methodsmith --to codex`. Open `/plugins` and install Methodsmith. |
+| OpenCode | `bunx methodsmith@latest install methodsmith --to opencode` |
+| Pi | `bunx methodsmith@latest install methodsmith --to pi --pi-home ~/.pi/agent` |
+| Gemini CLI, Kiro | `bunx methodsmith@latest install methodsmith --to gemini --output .` (or `--to kiro`) in each workspace |
+| Qwen Code | `qwen extensions uninstall ce-datascience`, then `qwen extensions install sajor2000/methodsmith:methodsmith` |
+
+On Claude Code with `--aliases`, the old `/ce-*` commands keep working for one
+release as deprecated aliases that point at the new skills. Elsewhere, use the
+new names.
+
+<details>
+<summary>Every renamed command</summary>
+
+<!-- rebrand:keep-end -->
+<!-- rebrand:keep-start renamed-commands -->
+| Before 5.0 | Methodsmith |
+|---|---|
+| `/ce-adversarial-review` | `/method-adversarial-review` |
+| `/ce-bioinfo-qc` | `/method-omics-qc` |
+| `/ce-brainstorm` | `/method-brainstorm` |
+| `/ce-checklist-match` | `/method-checklist` |
+| `/ce-clean-gone-branches` | `/method-clean-branches` |
+| `/ce-clif` | `/method-clif` |
+| `/ce-clif-project-template` | `/method-clif-template` |
+| `/ce-clinical-research-voice` | `/method-voice` |
+| `/ce-code-review` | `/method-review` |
+| `/ce-cohort-build` | `/method-cohort` |
+| `/ce-commit` | `/method-commit` |
+| `/ce-commit-push-pr` | `/method-pr` |
+| `/ce-compound` | `/method-compound` |
+| `/ce-compound-refresh` | `/method-compound-refresh` |
+| `/ce-data-qa` | `/method-data-qa` |
+| `/ce-debug` | `/method-debug` |
+| `/ce-doc-review` | `/method-doc-review` |
+| `/ce-effect-size` | `/method-meta-analysis` |
+| `/ce-evidence-map` | `/method-evidence-map` |
+| `/ce-fabric` | `/method-fabric` |
+| `/ce-figure` | `/method-figure` |
+| `/ce-genome-build` | `/method-genome-build` |
+| `/ce-grill` | `/method-grill` |
+| `/ce-handoff` | `/method-handoff` |
+| `/ce-ideate` | `/method-ideate` |
+| `/ce-language-detect` | `/method-language-detect` |
+| `/ce-literature-search` | `/method-lit-search` |
+| `/ce-manuscript-citations` | `/method-citations` |
+| `/ce-manuscript-package` | `/method-submission-package` |
+| `/ce-manuscript-section-discipline` | `/method-section-check` |
+| `/ce-marimo` | `/method-marimo` |
+| `/ce-method-extract` | `/method-extract` |
+| `/ce-ml-experiment-track` | `/method-ml-track` |
+| `/ce-model-card` | `/method-model-card` |
+| `/ce-model-strategy` | `/method-model-choice` |
+| `/ce-notebook-edit` | `/method-notebook-edit` |
+| `/ce-notebook-standards` | `/method-notebook-standards` |
+| `/ce-numbers` | `/method-numbers` |
+| `/ce-optimize` | `/method-optimize` |
+| `/ce-phenotype-validate` | `/method-phenotype` |
+| `/ce-plan` | `/method-plan` |
+| `/ce-power` | `/method-power` |
+| `/ce-pre-submission-audit` | `/method-presubmit` |
+| `/ce-prereg` | `/method-prereg` |
+| `/ce-pubmed` | `/method-pubmed` |
+| `/ce-release-notes` | `/method-release-notes` |
+| `/ce-report-bug` | `/method-report-bug` |
+| `/ce-research-question` | `/method-question` |
+| `/ce-resolve-pr-feedback` | `/method-resolve-feedback` |
+| `/ce-review-pack` | `/method-signoff` |
+| `/ce-rstats` | `/method-r` |
+| `/ce-sap-tabular` | `/method-sap-workbook` |
+| `/ce-sas-stata-assess` | `/method-sas-stata` |
+| `/ce-scientific-anti-slop` | `/method-anti-slop` |
+| `/ce-scientific-writing` | `/method-write` |
+| `/ce-sessions` | `/method-sessions` |
+| `/ce-setup` | `/method-setup` |
+| `/ce-sprint` | `/method-sprint` |
+| `/ce-statistical-analysis-plan` | `/method-sap` |
+| `/ce-table1` | `/method-table1` |
+| `/ce-trial-design` | `/method-trial-design` |
+| `/ce-update` | `/method-update` |
+| `/ce-verify` | `/method-verify` |
+| `/ce-work` | `/method-work` |
+| `/ce-workflow` | `/method-workflow` |
+| `/ce-worktree` | `/method-worktree` |
+<!-- rebrand:keep-end -->
+
+Agents keep the rest of their name: `ce-methods-reviewer` is now `method-methods-reviewer`. <!-- rebrand:keep -->
+
+</details>
 
 ### Your own skills are safe
 
@@ -213,7 +333,7 @@ plugin's version and tells you.
 
 ### What setup asks
 
-Setup inspects manifests, lockfiles, notebooks, imports, IDE files, existing CE
+Setup inspects manifests, lockfiles, notebooks, imports, IDE files, existing Methodsmith
 configuration, verified database handoffs, and data-file patterns first. It
 shows a single detected-profile card and offers **Continue with detected
 profile**, **Adjust a field**, or **Full survey**. The normal path leaves
@@ -382,7 +502,7 @@ For project-only aliases, run from the project root:
 bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/methodsmith --scope project
 ```
 
-To remove only managed CE aliases:
+To remove only managed Methodsmith aliases:
 
 ```bash
 bash scripts/install/install-claude-aliases.sh --scope user --uninstall
@@ -564,7 +684,7 @@ cd "$CE_DS_REPO"
 bun run src/index.ts install ./plugins/methodsmith --to pi --pi-home "$HOME/.pi/agent"
 ```
 
-`pi-subagents` is required for CE workflows that delegate work. Add
+`pi-subagents` is required for Methodsmith workflows that delegate work. Add
 `pi install npm:pi-ask-user` when you want Pi's compact blocking-question UI;
 without it, skills use their documented numbered-choice fallback.
 
@@ -694,11 +814,11 @@ these calls before category work:
 ```
 
 An explicit call does not prompt again. If it conflicts with an explicitly
-declared local or project pair, CE shows the mismatch and asks which source is
+declared local or project pair, Methodsmith shows the mismatch and asks which source is
 intended. It never infers CLIF 3.0 from a folder name or missing language
 signals.
 
-Before patient-level access, CE applies the saved sensitive-data boundary (see
+Before patient-level access, Methodsmith applies the saved sensitive-data boundary (see
 [Sensitive-data boundary](#sensitive-data-boundary)). Patient-level intermediates
 remain under the declared approved restricted data root. The template
 `output/intermediate_phi/` path is used only when that exact location is
@@ -728,8 +848,8 @@ Good first workflows:
 
 Those examples use the short names for readability. In Claude Code without
 aliases, prefix each one with `/methodsmith:`, such as
-`/methodsmith:method-question`. In Codex, ask it to use the named CE
-DataScience skill. Skills operate on the currently open project and should be
+`/methodsmith:method-question`. In Codex, ask it to use the named Methodsmith
+skill. Skills operate on the currently open project and should be
 given the scientific question, analysis goal, or code task they need.
 
 ### Fabric and Marimo projects
@@ -839,11 +959,11 @@ PubMed identifiers and Paperclip claim evidence in a citation ledger, then uses
 Zotero-owned Word fields for the editable DOCX master. Static superscripts and
 typed bibliography entries are not treated as editable citations.
 
-CE's artifact-producing workflows currently auto-detect only the Paperclip CLI.
+Methodsmith's artifact-producing workflows currently auto-detect only the Paperclip CLI.
 PubMed MCP and Paperclip's external skill or MCP server are direct agent
-capabilities; CE does not automatically translate their results into the
+capabilities; Methodsmith does not automatically translate their results into the
 `__CE_PUBMED_RESULTS__` CSV handoff or `__CE_EVIDENCE_MAP__` artifact. Continue
-through `/method-pubmed` and `/method-evidence-map` when downstream CE skills need those
+through `/method-pubmed` and `/method-evidence-map` when downstream Methodsmith skills need those
 handoffs.
 
 Example local PubMed MCP configuration:
@@ -931,7 +1051,7 @@ The build writes:
 | Paperclip is missing or blocked | `/method-evidence-map` still works from PubMed-only evidence. Paperclip is optional for full-text, result-set grep/map, SQL, and figure deepening. |
 | Local install says it cannot find `plugins/methodsmith` remotely | Use `./plugins/methodsmith` from the repo root, including the leading `./`. |
 | Codex installed into the wrong profile | Set `CODEX_HOME` and pass the same value to `--codex-home`. |
-| Codex has duplicate or stale CE files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |
-| `method-setup` reports a legacy Compound Codex tool map | Rerun `install --to codex --codex-home "$CODEX_HOME"`; it replaces the retired `COMPOUND CODEX TOOL MAP` block with the current CE block. Or remove the block after reviewing it, as the skill offers. |
+| Codex has duplicate or stale Methodsmith files | Rerun the Codex installer for the same `CODEX_HOME`; managed artifacts are namespaced and stale managed files are cleaned. |
+| `method-setup` reports a legacy Compound Codex tool map | Rerun `install --to codex --codex-home "$CODEX_HOME"`; it replaces the retired `COMPOUND CODEX TOOL MAP` block with the current Methodsmith block. Or remove the block after reviewing it, as the skill offers. |
 | OpenCode did not create `.opencode/` | Do not use an output directory named `opencode` or `.opencode` when you want workspace nesting. Use a normal workspace path. |
 | MCP writes reports into the plugin cache | Set `METHODSMITH_PROJECT_ROOT=/absolute/path/to/project` or pass `project_root` where the MCP tool supports it. |

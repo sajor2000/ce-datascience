@@ -10,7 +10,7 @@ argument-hint: "[coding|pipelines|semantic-models|ml|kql]"
 
 - **Problem it solves:** Fabric combines several execution engines; treating it as generic Spark, SQL Server, or Power BI can produce invalid code or unsafe data handling.
 - **Use when:** The user mentions Fabric, OneLake, Lakehouse, Warehouse, Data Factory, Direct Lake, Eventhouse, or KQL.
-- **Output:** A selected Fabric route, the applicable CE guardrails, and a bounded next action.
+- **Output:** A selected Fabric route, the applicable Methodsmith guardrails, and a bounded next action.
 - **Ask only if:** The requested outcome could be implemented by more than one Fabric engine.
 - **Do not do:** Do not guess a workspace, capacity, identity, or write permission; do not move data or create cloud resources without authorization.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time with the blocking tool: `AskUserQuestion` in Claude Code, `request_user_input` in Codex, `ask_user` in Gemini, or `ask_user` in Pi via `pi-ask-user`. In Claude Code, if the schema is not loaded, first call `ToolSearch` with `select:AskUserQuestion`; a pending schema load is not a fallback reason. Only when no blocking tool exists or the call errors, present numbered choices in chat and wait.

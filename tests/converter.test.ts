@@ -549,9 +549,9 @@ describe("transformSkillContentForOpenCode", () => {
     )
   })
 
-  test("preserves 2-segment refs without ce- prefix", () => {
+  test("preserves 2-segment refs without the method- prefix", () => {
     const input = "Spawn `compound-engineering:coherence-reviewer` as subagent."
-    // 2-segment names without ce- prefix could be skill refs — not rewritten
+    // 2-segment names without the method- prefix could be skill refs — not rewritten
     expect(transformSkillContentForOpenCode(input)).toBe(input)
   })
 

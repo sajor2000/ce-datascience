@@ -54,7 +54,7 @@ Before committing ANY changes:
 
 ```
 agents/
-└── method-*.md        # All agents live flat under agents/, prefixed with ce-
+└── method-*.md        # All agents live flat under agents/, prefixed with method-
 
 skills/
 ├── method-*/          # Core workflow skills (method-plan, method-review, etc.)

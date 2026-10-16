@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This repository houses the `methodsmith` plugin — compound engineering for computational scientists — and the Claude Code marketplace/catalog metadata used to distribute it.
+This repository houses the `methodsmith` plugin — rigorous methods for statistics, machine learning, and meta-analysis, built on Every's Compound Engineering — and the Claude Code marketplace/catalog metadata used to distribute it.
 
 It also contains:
 - the Bun/TypeScript CLI that converts Claude Code plugins into other agent platform formats

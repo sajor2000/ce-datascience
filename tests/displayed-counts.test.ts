@@ -26,7 +26,7 @@ const SURFACES = [
   "docs/guideline-sources.md",
   "docs/brand/brand.md",
   "website/src/pages/index.js",
-  "website/animations/ce_visuals.py",
+  "website/animations/method_visuals.py",
   "website/animations/readme_diagrams.py",
   "website/animations/methodsmith_overview.py",
   "website/static/brand/social-preview.svg",

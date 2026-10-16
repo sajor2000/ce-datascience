@@ -107,7 +107,7 @@ Report:
 - render and structural-audit status;
 - remaining author decisions.
 
-Use this handoff when another CE skill needs the ledger:
+Use this handoff when another Methodsmith skill needs the ledger:
 
 ```text
 __CE_CITATION_LEDGER__ path=<ledger-path> docx=<field-bearing-master> style=<style> supported=<n> unresolved=<n> fields_verified=<n>

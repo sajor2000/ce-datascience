@@ -52,7 +52,7 @@ Language-specific reviewers add a distinct, opinionated lens on top of the alway
 
 ## Stage 3: Choose the roster
 
-Read the diff and file list from Stage 1. The 4 always-on personas and 1 CE always-on agent are automatic. For each statistical, language-specific, and cross-cutting conditional persona in the Roster table above, decide whether the diff warrants it. This is agent judgment, not keyword matching. Apply the blinded-EDA exclusions before finalizing the roster.
+Read the diff and file list from Stage 1. The 4 always-on personas and 1 Methodsmith always-on agent are automatic. For each statistical, language-specific, and cross-cutting conditional persona in the Roster table above, decide whether the diff warrants it. This is agent judgment, not keyword matching. Apply the blinded-EDA exclusions before finalizing the roster.
 
 **File-type awareness for conditional selection:** Instruction-prose files (Markdown skill definitions, JSON schemas, config files) are product code but do not benefit from runtime-focused reviewers. The adversarial reviewer's techniques (race conditions, cascade failures, abuse cases) target executable code behavior. For diffs that only change instruction-prose files, skip adversarial unless the prose describes auth, payment, or data-mutation behavior. Count only executable code lines toward line-count thresholds.
 
@@ -88,6 +88,6 @@ Pass the resulting criteria-to-changed-files mapping to the `project-standards` 
 
 ## Stage 3c: Apply the fail-closed lite-roster gate
 
-`depth:full` always keeps the complete CE roster. With `depth:auto`, use the lite roster only when all of the following are known from the Stage 1 diff: 1-39 executable changed lines, no untracked or uncounted paths, no changed tests/configuration/instructions, no auth, privacy, PHI, data mutation, external API, credentials, serialization, concurrency, filesystem, or process-execution signal, and no conditional reviewer beyond project standards. Any uncertainty uses the complete roster.
+`depth:full` always keeps the complete Methodsmith roster. With `depth:auto`, use the lite roster only when all of the following are known from the Stage 1 diff: 1-39 executable changed lines, no untracked or uncounted paths, no changed tests/configuration/instructions, no auth, privacy, PHI, data mutation, external API, credentials, serialization, concurrency, filesystem, or process-execution signal, and no conditional reviewer beyond project standards. Any uncertainty uses the complete roster.
 
-The lite roster is `method-correctness-reviewer` plus `method-project-standards-reviewer` when Stage 3b found an applicable standards file. Record the selected roster and the reason in Coverage. This optimization never applies to analytical code, notebooks, statistical methods, or reporting artifacts: those retain CE's methods, reproducibility, multiplicity, and stack-specific review paths regardless of size.
+The lite roster is `method-correctness-reviewer` plus `method-project-standards-reviewer` when Stage 3b found an applicable standards file. Record the selected roster and the reason in Coverage. This optimization never applies to analytical code, notebooks, statistical methods, or reporting artifacts: those retain Methodsmith's methods, reproducibility, multiplicity, and stack-specific review paths regardless of size.

@@ -112,4 +112,4 @@ The same R process that reads `design-spec.json` and writes `engine-results.csv`
 }
 ```
 
-MD5 here is only a same-run byte-identity check available in base R. The CE receipt separately records SHA-256 for every retained input.
+MD5 here is only a same-run byte-identity check available in base R. The Methodsmith receipt separately records SHA-256 for every retained input.

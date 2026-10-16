@@ -7,7 +7,10 @@ from manim import DOWN, UP, Scene, VGroup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ce_visuals import (  # noqa: E402
+SKILLS_DIR = Path(__file__).resolve().parents[2] / "plugins" / "methodsmith" / "skills"
+SKILL_COUNT = sum(1 for skill in SKILLS_DIR.iterdir() if (skill / "SKILL.md").is_file())
+
+from method_visuals import (  # noqa: E402
     PAPER,
     PHASES,
     connectors,
@@ -26,7 +29,7 @@ class ResearchWorkflow(Scene):
         self.camera.background_color = PAPER
         header = heading(
             "From research question to reviewable evidence",
-            "66 skills across six phases. method-workflow recommends the next safe step.",
+            f"{SKILL_COUNT} skills across six phases. method-workflow recommends the next safe step.",
             mark=True,
         ).to_edge(UP, buff=0.32)
         columns = skill_map()

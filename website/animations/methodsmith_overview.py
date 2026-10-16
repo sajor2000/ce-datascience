@@ -17,7 +17,7 @@ from manim import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ce_visuals import EMBER_DEEP, MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
+from method_visuals import EMBER_DEEP, MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
 
 
 class MethodsmithOverview(Scene):

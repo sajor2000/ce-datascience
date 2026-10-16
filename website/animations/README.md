@@ -16,7 +16,7 @@ not modify the repository's application dependencies. Review the resulting
 
 `readme_diagrams.py` is the editable source for the three README diagrams,
 including the skill map (`docs/workflow-diagram.png`). The overview video and
-the diagrams share one design system and one content list in `ce_visuals.py`:
+the diagrams share one design system and one content list in `method_visuals.py`:
 edit `PHASES` or `GUARDRAILS` there and re-render both so they stay in sync.
 
 Type and colour follow the brand guide (`docs/brand/brand.md`): Source Serif 4

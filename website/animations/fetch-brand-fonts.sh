@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Download the OFL brand fonts used by the diagrams and video to /tmp.
-# Prints the directory. Nothing is installed system-wide: ce_visuals.py
+# Prints the directory. Nothing is installed system-wide: method_visuals.py
 # registers these files for the render process only.
 set -euo pipefail
 

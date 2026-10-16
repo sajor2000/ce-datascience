@@ -200,7 +200,8 @@
       "ce-user-cleanup": "method-user-cleanup",
       "ce-user-codex": "method-user-codex",
       "ce-user-opencode": "method-user-opencode",
-      "ce-user-pi": "method-user-pi"
+      "ce-user-pi": "method-user-pi",
+      "ce-visuals": "method-visuals"
     }
   },
   "pending": {

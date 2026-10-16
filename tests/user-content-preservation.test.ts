@@ -414,3 +414,32 @@ describe("Codex retired skill store", () => {
     expect(await fs.readFile(saved[0], "utf8")).toBe(USER_SKILL)
   })
 })
+
+describe("upgrade from the pre-5.0 plugin name", () => {
+  test("leaves a harness's native plugin folder alone and keeps unlisted user skills", async () => {
+    const { retirePreRenameInstall } = await import("../src/targets/pre-rename-install")
+    const { PRE_REBRAND_PLUGIN_NAME } = await import("../src/utils/rebrand-names")
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "method-pre-rename-"))
+    const old = PRE_REBRAND_PLUGIN_NAME
+    await fs.mkdir(path.join(root, old), { recursive: true })
+    await fs.writeFile(
+      path.join(root, old, "install-manifest.json"),
+      JSON.stringify({ version: 1, pluginName: old, skills: ["old-skill"], agents: ["old-agent.md"] }),
+    )
+    for (const dir of ["skills/old-skill", "skills/users-own", `plugins/${old}`, `agents/${old}`]) {
+      await fs.mkdir(path.join(root, dir), { recursive: true })
+      await fs.writeFile(path.join(root, dir, "SKILL.md"), dir)
+    }
+    await fs.writeFile(path.join(root, "agents", "old-agent.md"), "agent")
+
+    const moved = await retirePreRenameInstall(root, path.join(root, "methodsmith"), "methodsmith")
+
+    expect(moved.map((item) => path.relative(root, item)).sort()).toEqual(
+      [old, path.join("agents", old), path.join("agents", "old-agent.md"), path.join("skills", "old-skill")].sort(),
+    )
+    expect(await fs.readFile(path.join(root, "skills", "users-own", "SKILL.md"), "utf8")).toBe("skills/users-own")
+    expect(await fs.readFile(path.join(root, "plugins", old, "SKILL.md"), "utf8")).toBe(`plugins/${old}`)
+    expect(await retirePreRenameInstall(root, path.join(root, "methodsmith"), "methodsmith")).toEqual([])
+    await fs.rm(root, { recursive: true, force: true })
+  })
+})
