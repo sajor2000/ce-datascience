@@ -389,7 +389,7 @@ describe("numbers renderer", () => {
 })
 
 // R is not installed in CI; these run wherever Rscript and jsonlite are available.
-const hasR = Bun.spawnSync(["Rscript", "-e", "quit(status = !requireNamespace('jsonlite', quietly = TRUE))"],
+const hasR = Bun.which("Rscript") !== null && Bun.spawnSync(["Rscript", "-e", "quit(status = !requireNamespace('jsonlite', quietly = TRUE))"],
   { stderr: "ignore", stdout: "ignore" }).exitCode === 0
 
 describe.skipIf(!hasR)("R register_number and register_table", () => {
