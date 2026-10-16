@@ -2,167 +2,124 @@
 
 ## Contents
 
-- Intended Use Documentation
-- Model Card
-- Performance Across Subgroups
-- Deployment Environment
-- Monitoring Plan
-- Update Strategy
-- Known Limitations
+- Title and Abstract
+- Introduction
+- Methods
+- Results
+- Discussion
+- Open Science
 
-Chatbot Assessment Reporting Tool (CHART) statement for studies evaluating chatbots that provide health advice.
+Chatbot Assessment Reporting Tool (CHART) statement for Chatbot Health Advice (CHA) studies: studies evaluating how well generative AI-driven chatbots summarize clinical evidence or give health advice. CHART has 12 items and 39 subitems; a separate CHART for Abstracts checklist covers the abstract.
 
-**Scope:** Reporting guideline for chatbot health-advice studies; it is not a generic extension for every clinical AI, prediction, diagnostic, or intervention study.
+**Scope:** CHART is the primary reporting guideline for chatbot health-advice studies. It is not a generic extension for every clinical AI, prediction, diagnostic, or intervention study. For LLM development or evaluation studies outside health advice, use TRIPOD-LLM.
 
-**Primary reference:** Huo B, Collins G, Chartash D, et al; CHART Collaborative. Reporting guideline for Chatbot Health Advice studies: the CHART statement. BMC Med. 2025;23:306. doi:10.1186/s12916-025-04274-w. PMID: 40745595.
+**Primary reference:** Huo B, Collins G, Chartash D, Thirunavukarasu A, Flanagin A, Iorio A, et al. Reporting guideline for Chatbot Health Advice studies: the CHART statement. BMC Med. 2025;23(1):447. doi:10.1186/s12916-025-04274-w. PMID: 40745595. PMCID: PMC12315282.
 
-Apply when the study evaluates chatbot-generated health advice. Use the primary reporting guideline for the underlying study design separately when applicable.
+**Simultaneous publications:** Ann Fam Med (PMID 40750305), Artif Intell Med (PMID 40753040), BMJ Med (PMID 40761518), Br J Surg (PMID 40747825), and JAMA Netw Open (PMID 40747871).
 
----
+**Explanation and elaboration:** CHART Collaborative. Reporting guidelines for chatbot health advice studies: explanation and elaboration for the Chatbot Assessment Reporting Tool (CHART). BMJ. 2025;390:e083305. PMID: 40750271.
 
-## Intended Use Documentation
+**Verified against:** Table 2 (checklist) and Table 3 (abstract checklist) of the BMC Medicine publication, https://pmc.ncbi.nlm.nih.gov/articles/PMC12315282/, and the EQUATOR record, https://www.equator-network.org/reporting-guidelines/reporting-guideline-for-chatbot-health-advice-studies-the-chart-statement/, checked 2026-10-15.
 
-### Item 1 -- Intended use statement
-
-**Description:** Provide a clear intended use statement defining the clinical context, target population, and decision the AI model supports.
-
-**What to look for in code/outputs:**
-- Intended use documentation specifying clinical indication and target population
-- User profile definition (specialty, training level, clinical setting)
-- Decision context documentation (screening, diagnosis, treatment planning, monitoring)
-- Contraindications or populations for which the model is not intended
-
-### Item 2 -- Intended deployment environment
-
-**Description:** Describe the intended deployment environment including clinical workflow, hardware, software, and integration requirements.
-
-**What to look for in code/outputs:**
-- Deployment infrastructure specifications (cloud, on-premise, edge device)
-- Clinical system integration requirements (EHR, PACS, LIS)
-- Hardware requirements (GPU, memory, processing speed)
-- Network and latency requirements for real-time applications
+**Licence and wording:** The BMC Medicine article is CC BY-NC-ND 4.0, which allows neither commercial reuse nor adapted versions, so item text below is a faithful paraphrase of Table 2; item and subitem numbers and headings are exact. Review cues are added by this plugin.
 
 ---
 
-## Model Card
+## Title and Abstract
 
-### Item 3 -- Model card or documentation
+### Item 1 -- Title and abstract
 
-**Description:** Provide a model card documenting model type, training data, performance, limitations, and ethical considerations.
-
-**What to look for in code/outputs:**
-- Model card following the Mitchell et al. template or equivalent
-- Model architecture, training data summary, and evaluation metrics documented
-- Known limitations and failure modes listed
-- Ethical considerations and potential biases acknowledged
-
-### Item 4 -- Training data documentation
-
-**Description:** Document the training data including source, size, demographics, collection period, and known limitations.
+**Description:** (1a) Title: state that the study assesses one or more generative AI-driven chatbots for clinical evidence or health advice. (1b) Abstract/summary: use a structured format, if applicable (see CHART for Abstracts).
 
 **What to look for in code/outputs:**
-- Training dataset description with source institutions and collection dates
-- Demographic composition of training data (age, sex, race/ethnicity distributions)
-- Known biases or gaps in training data representation
-- Data preprocessing and quality control procedures documented
+- Title naming the chatbot(s) and the health-advice task
 
 ---
 
-## Performance Across Subgroups
+## Introduction
 
-### Item 5 -- Subgroup performance reporting
+### Item 2 -- Background
 
-**Description:** Report model performance across clinically and demographically relevant subgroups.
-
-**What to look for in code/outputs:**
-- Performance stratified by age, sex, race/ethnicity, disease severity
-- Performance across different institutions, equipment, or data collection settings
-- Worst-performing subgroup identified and reported
-- Sample sizes per subgroup alongside performance metrics
-
-### Item 6 -- Equity assessment
-
-**Description:** Assess whether model performance disparities across subgroups could lead to inequitable outcomes.
-
-**What to look for in code/outputs:**
-- Disparity quantification using a named fairness metric (e.g., equalized odds, predictive parity) with its rationale; these criteria conflict when outcome prevalence differs between groups, so one should be chosen to match the harm
-- Clinical impact assessment of performance disparities on patient outcomes
-- Bias mitigation strategies implemented or recommended
-- Intersectional analysis across multiple demographic dimensions
+**Description:** (2a) Give the scientific background, rationale, and healthcare context for evaluating the chatbot(s), citing relevant literature where applicable. (2b) State the aims and research questions, including the target audience, intervention, comparator(s), and outcome(s).
 
 ---
 
-## Deployment Environment
+## Methods
 
-### Item 7 -- Clinical workflow integration
+### Item 3 -- Model identifiers
 
-**Description:** Describe how the AI model integrates into the clinical workflow, including triggers, outputs, and clinician interaction points.
-
-**What to look for in code/outputs:**
-- Workflow diagrams showing AI integration points in clinical care
-- Trigger conditions that initiate AI inference
-- Output presentation format and clinical interpretation guidance
-- Override and escalation mechanisms for clinicians
-
-### Item 8 -- Technical infrastructure
-
-**Description:** Document the technical infrastructure requirements and constraints for deployment.
+**Description:** (3a) Name the generative AI model(s) and chatbot(s) evaluated, with version identifiers and date of release or last update. (3b) State whether each is open-source or closed-source/proprietary.
 
 **What to look for in code/outputs:**
-- System architecture documentation (APIs, microservices, batch processing)
-- Performance requirements (latency, throughput, availability)
-- Data pipeline specifications from source to model inference
-- Security and privacy safeguards (encryption, access control, audit logging)
+- Exact model identifier and version pinned in config (not an alias such as "latest")
+
+### Item 4 -- Model details
+
+**Description:** (4a) State whether the model was a base model, or a novel base, tuned, or fine-tuned model. (4b) For a base model, cite its development in enough detail to identify it. (4c) For a novel base, tuned, or fine-tuned model, describe the pre- and/or post-implementation/deployment data and parameters.
+
+**What to look for in code/outputs:**
+- Retrieval sources, system prompts, or fine-tuning data documented for tuned models
+
+### Item 5 -- Prompt engineering
+
+**Description:** (5a) Describe how the study prompts were developed. (5ai) Describe the sources of prompts. (5aii) Give the number and characteristics of the people involved in prompt engineering. (5aiii) Describe any patient and public involvement in prompt engineering. (5b) Provide the study prompts.
+
+**What to look for in code/outputs:**
+- Prompt files versioned in the repository, with a log of prompt iterations
+
+### Item 6 -- Query strategy
+
+**Description:** (6a) State how the generative AI model was accessed. (6b) Give the date(s) (day, month, year) and location(s) (city, country) of the queries. (6c) State whether prompts were entered in separate chat sessions. (6d) Provide all chatbot outputs/responses.
+
+**What to look for in code/outputs:**
+- Query timestamps, access route (web interface or API), and session handling logged per prompt
+- Raw responses archived unedited
+
+### Item 7 -- Performance evaluation
+
+**Description:** (7a) Define the ground truth or reference standard used to judge successful chatbot performance. (7b) Describe how chatbot performance was evaluated. (7bi) Give the number and characteristics of the evaluators. (7bii) Describe any patient and public involvement in evaluation. (7biii) State whether evaluators were blinded to the identity of the chatbot(s).
+
+**What to look for in code/outputs:**
+- Scoring rubric and reference answers; evaluator roster; blinding of chatbot identity in the rating interface
+
+### Item 8 -- Sample size
+
+**Description:** Report how the sample size was determined.
+
+### Item 9 -- Data analysis
+
+**Description:** (9a) Describe the statistical methods, including any evaluation of how reproducible the chatbot's responses were. (9ai) Report the measures used to evaluate performance.
+
+**What to look for in code/outputs:**
+- Repeated queries per prompt with an agreement or consistency measure; inter-rater agreement for human scoring
 
 ---
 
-## Monitoring Plan
+## Results
 
-### Item 9 -- Performance monitoring
+### Item 10 -- Results
 
-**Description:** Describe the plan for monitoring model performance after deployment, including metrics, frequency, and alert thresholds.
-
-**What to look for in code/outputs:**
-- Monitoring dashboard specifications with tracked metrics
-- Performance degradation detection thresholds and alert mechanisms
-- Data drift monitoring for input data distribution changes
-- Outcome monitoring to track clinical impact over time
-
-### Item 10 -- Safety monitoring
-
-**Description:** Describe the safety monitoring plan including adverse event detection, reporting, and response procedures.
+**Description:** (10a) Report the performance evaluation, including how well chatbot output aligned with the ground truth or reference standard, using quantitative or mixed methods as applicable. (10b) For responses that deviated from the ground truth or reference standard, describe the nature of the differences. (10c) Report the evaluation of potentially harmful, biased, or misleading responses.
 
 **What to look for in code/outputs:**
-- Adverse event definition and reporting mechanism
-- Safety review committee or escalation pathway
-- Automated safety alert detection based on model outputs
-- Post-deployment safety analysis schedule
+- Harm and bias classification of responses with counts
 
 ---
 
-## Update Strategy
+## Discussion
 
-### Item 11 -- Model update and maintenance plan
+### Item 11 -- Discussion
 
-**Description:** Describe the strategy for updating the model, including retraining triggers, validation requirements, and rollback procedures.
-
-**What to look for in code/outputs:**
-- Retraining trigger criteria (performance degradation, new data, clinical guideline changes)
-- Validation requirements before deploying model updates
-- Version control and model registry specifications
-- Rollback procedures and criteria for reverting to previous model versions
+**Description:** (11a) Interpret the findings in the context of relevant evidence. (11b) Describe the study's strengths and limitations. (11c) Describe potential implications for practice, education, policy, regulation, and research.
 
 ---
 
-## Known Limitations
+## Open Science
 
-### Item 12 -- Limitation documentation
+### Item 12 -- Open science
 
-**Description:** Document known limitations, failure modes, and scenarios where the model should not be relied upon.
+**Description:** (12a) Disclosures: report relevant conflicts of interest for all authors. (12b) Funding: report funding sources and their role in conducting and reporting the study. (12c) Ethics: describe the ethical approval process. (12ci) Describe measures taken to protect the privacy of patient health information, as applicable. (12cii) State whether permission or licensing was obtained to use original copyrighted data. (12d) Protocol: provide a study protocol. (12e) Data availability: state where study data, code, and model parameters can be accessed.
 
 **What to look for in code/outputs:**
-- Known failure modes with example cases or data characteristics
-- Population or clinical scenarios where the model has not been validated
-- Edge cases with degraded performance documented
-- Guidance for clinicians on when to disregard or override model outputs
-- Temporal validity constraints (how long the model is expected to remain accurate)
+- No patient-identifiable text sent to external chatbots without approval; copyright status of source material recorded
+- Repository with prompts, raw outputs, scoring data, and analysis code

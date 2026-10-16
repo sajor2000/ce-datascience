@@ -4,7 +4,7 @@
 
 - Title and Abstract
 - Introduction
-- Methods -- Source of Data
+- Methods -- Source of Data and Participants
 - Methods -- Outcome and Predictors
 - Methods -- Sample Size
 - Methods -- Missing Data
@@ -13,14 +13,18 @@
 - Discussion
 - Other Information
 
-Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD).
-22-item checklist for studies developing, validating, or updating multivariable prediction models using regression methods.
+Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD) 2015.
+22 numbered items (37 rows counting lettered sub-items) for studies developing, validating, or updating multivariable prediction models.
 
-**Primary reference:** Moons KGM, Altman DG, Reitsma JB, Ioannidis JPA, Macaskill P, Steyerberg EW, Vickers AJ, Ransohoff DF, Collins GS. Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD): explanation and elaboration. Ann Intern Med. 2015;162(1):W1-73. doi:10.7326/M14-0698. PMID: 25560730.
+**Primary reference:** Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD): the TRIPOD statement. Ann Intern Med. 2015;162(1):55-63. doi:10.7326/M14-0697. PMID: 25560714. Erratum: Ann Intern Med. 2015;162(8):600. PMID: 25894039.
 
-**Companion statement:** Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD): the TRIPOD statement. Ann Intern Med. 2015;162(1):55-63. doi:10.7326/M14-0697. PMID: 25560714.
+**Explanation and elaboration:** Moons KGM, Altman DG, Reitsma JB, Ioannidis JPA, Macaskill P, Steyerberg EW, Vickers AJ, Ransohoff DF, Collins GS. Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD): explanation and elaboration. Ann Intern Med. 2015;162(1):W1-73. doi:10.7326/M14-0698. PMID: 25560730.
 
-**Superseded:** TRIPOD 2015 is superseded by TRIPOD+AI (Collins GS, et al. BMJ. 2024;385:e078378. PMID: 38626948) for all prediction-model studies, whether regression or machine learning. Use `tripod-ai-checklist.md` and cite TRIPOD+AI item numbers; use this file only when a journal or legacy protocol explicitly requires TRIPOD 2015 numbering. Items marked D apply to model development, V to validation, and D+V to both.
+**Verified against:** Table 1 of the simultaneous BMC Medicine publication (BMC Med. 2015;13:1. doi:10.1186/s12916-014-0241-z. PMID: 25563062. PMCID: PMC4284921), https://pmc.ncbi.nlm.nih.gov/articles/PMC4284921/, checked 2026-10-15.
+
+**Licence and wording:** Item descriptions are copied verbatim from that table, which is published under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); © Collins et al. The "What to look for" cues are added by this plugin.
+
+**Superseded:** TRIPOD 2015 is superseded by TRIPOD+AI (Collins GS, et al. BMJ. 2024;385:e078378. PMID: 38626948) for all prediction-model studies, whether regression or machine learning. Use `tripod-ai-checklist.md` and cite TRIPOD+AI item numbers; use this file only when a journal or legacy protocol explicitly requires TRIPOD 2015 numbering. Markers: D = development only; V = validation only; D;V = both.
 
 ---
 
@@ -28,85 +32,117 @@ Transparent Reporting of a multivariable prediction model for Individual Prognos
 
 ### Item 1 -- Title
 
-**Description:** Identify the study as developing and/or validating a multivariable prediction model, the target population, and the outcome to be predicted. (D+V)
+**Description:** Identify the study as developing and/or validating a multivariable prediction model, the target population, and the outcome to be predicted. (D;V)
 
 **What to look for in code/outputs:**
 - Report title or header that names the prediction target (e.g., 30-day mortality, 5-year cardiovascular event)
 - Title that identifies whether the study is developing, validating, or updating a model
 - Keywords in document metadata that include the model type and clinical domain
-- Structured abstract or summary section consistent with the stated title
 
 ### Item 2 -- Abstract
 
-**Description:** Provide a summary of objectives, study design, setting, participants, sample size, predictors, outcome, statistical analysis, results, and conclusions. (D+V)
+**Description:** Provide a summary of objectives, study design, setting, participants, sample size, predictors, outcome, statistical analysis, results, and conclusions. (D;V)
 
 **What to look for in code/outputs:**
-- Abstract sections reporting model development or validation objectives
-- Sample sizes for development and validation datasets stated in abstract
-- Key performance metrics (AUC/C-statistic, calibration measure) reported in abstract
-- Event rates or outcome frequencies summarized in abstract
+- Sample sizes for development and validation datasets stated in the abstract
+- Key performance metrics (AUC/C-statistic, calibration measure) reported in the abstract
+- Event rates or outcome frequencies summarized in the abstract
 
 ---
 
 ## Introduction
 
-### Item 3 -- Background and objectives
+### Item 3a -- Background and objectives (context)
 
-**Description:** Explain the medical context (including whether diagnostic or prognostic) and rationale for developing or validating the multivariable prediction model, including references to existing models. State the objectives, including whether the study describes the development or validation of the model or both. (D+V)
+**Description:** Explain the medical context (including whether diagnostic or prognostic) and rationale for developing or validating the multivariable prediction model, including references to existing models. (D;V)
 
 **What to look for in code/outputs:**
 - Documentation of the clinical question (diagnostic vs. prognostic prediction)
 - Literature review referencing existing models for the same clinical question
-- Stated rationale for developing a new model or validating an existing one
-- Primary objectives defined in analysis header, SAP, or documentation
+
+### Item 3b -- Background and objectives (objectives)
+
+**Description:** Specify the objectives, including whether the study describes the development or validation of the model, or both. (D;V)
+
+**What to look for in code/outputs:**
+- Primary objectives defined in the analysis header, SAP, or documentation
+- Consistency between stated objectives and the analyses actually run
 
 ---
 
-## Methods -- Source of Data
+## Methods -- Source of Data and Participants
 
-### Item 4 -- Source of data
+### Item 4a -- Source of data
 
-**Description:** Describe the study design or data source (such as a randomized trial, a cohort, or registry data), separately for the development and validation data sets, if applicable. (D+V)
+**Description:** Describe the study design or source of data (e.g., randomized trial, cohort, or registry data), separately for the development and validation data sets, if applicable. (D;V)
 
 **What to look for in code/outputs:**
 - Data source documentation (clinical trial, prospective cohort, registry, EHR extract, claims)
-- Study design classification (prospective vs. retrospective data collection)
 - Separate description of development and validation data sources when both are used
-- Date range filters in data extraction code (enrollment period, follow-up cutoff)
 
-### Item 5 -- Participants
+### Item 4b -- Source of data (dates)
 
-**Description:** Specify the key elements of the study setting (e.g., primary, secondary, tertiary care, community) including number and location of centers. Describe the eligibility criteria for participants. (D+V)
+**Description:** Specify the key study dates, including start of accrual; end of accrual; and, if applicable, end of follow-up. (D;V)
 
 **What to look for in code/outputs:**
-- Inclusion/exclusion criteria implemented in cohort construction code
+- Date range filters in data extraction code (accrual window, follow-up cutoff) matching the reported dates
+
+### Item 5a -- Participants (setting)
+
+**Description:** Specify key elements of the study setting (e.g., primary care, secondary care, general population) including number and location of centres. (D;V)
+
+**What to look for in code/outputs:**
 - Care setting and institutional context documented
 - Number of centers or sites with contribution counts
-- Participant flow from source population through final analytic sample
+
+### Item 5b -- Participants (eligibility)
+
+**Description:** Describe eligibility criteria for participants. (D;V)
+
+**What to look for in code/outputs:**
+- Inclusion/exclusion criteria implemented in cohort construction code and matching the written criteria
+
+### Item 5c -- Participants (treatments)
+
+**Description:** Give details of treatments received, if relevant. (D;V)
+
+**What to look for in code/outputs:**
+- Treatment variables extracted and a documented decision on how treatment was handled (predictor, exclusion, or ignored)
 
 ---
 
 ## Methods -- Outcome and Predictors
 
-### Item 6 -- Outcome
+### Item 6a -- Outcome
 
-**Description:** Clearly define the outcome that is predicted by the prediction model, including how and when the outcome was measured. (D+V)
+**Description:** Clearly define the outcome that is predicted by the prediction model, including how and when assessed. (D;V)
 
 **What to look for in code/outputs:**
 - Outcome variable derivation code with ICD/CPT/LOINC code definitions
-- Prediction horizon specification (e.g., in-hospital, 30-day, 1-year)
-- Outcome ascertainment window defined relative to index date in code
-- Binary, time-to-event, or ordinal outcome type specified with appropriate model family
+- Prediction horizon specification (e.g., in-hospital, 30-day, 1-year) and ascertainment window relative to the index date
 
-### Item 7 -- Predictors
+### Item 6b -- Outcome (blinding)
 
-**Description:** Clearly define all predictors used in developing or validating the multivariable prediction model, including how and when they were measured. (D+V)
+**Description:** Report any actions to blind assessment of the outcome to be predicted. (D;V)
 
 **What to look for in code/outputs:**
-- Complete predictor list with variable derivation code and source tables
+- Adjudication protocol stating whether outcome assessors saw predictor values
+
+### Item 7a -- Predictors
+
+**Description:** Clearly define all predictors used in developing the multivariable prediction model, including how and when they were measured. (D;V)
+
+**What to look for in code/outputs:**
+- Complete predictor list with variable derivation code, source tables, units, and coding schema
 - Temporal relationship documented (all predictors available before the prediction time)
-- Measurement units, reference ranges, and coding schema specified
 - Look-back window definitions for time-varying predictors
+
+### Item 7b -- Predictors (blinding)
+
+**Description:** Report any actions to blind assessment of predictors for the outcome and other predictors. (D;V)
+
+**What to look for in code/outputs:**
+- Statement of whether predictor measurement (e.g., imaging reads) was done without knowledge of the outcome
 
 ---
 
@@ -114,13 +150,12 @@ Transparent Reporting of a multivariable prediction model for Individual Prognos
 
 ### Item 8 -- Sample size
 
-**Description:** Explain how the study size was arrived at. (D+V)
+**Description:** Explain how the study size was arrived at. (D;V)
 
 **What to look for in code/outputs:**
 - Development sample size justified with the Riley et al. criteria (BMJ 2020;368:m441, PMID 32188600; R/Stata `pmsampsize`): shrinkage >= 0.9, optimism in Nagelkerke R-squared <= 0.05, and precise overall risk, counted in candidate predictor parameters (degrees of freedom), not variables
 - Events-per-variable rules of thumb (e.g., 10-20) flagged as insufficient justification on their own
 - Validation sample size justified by the precision of calibration (O/E, calibration slope), C-statistic, and net benefit (Riley et al. Stat Med 2021, PMID 34031906; `pmvalsampsize`), not hypothesis-test power
-- Comments when sample size is limited by available data
 
 ---
 
@@ -128,176 +163,189 @@ Transparent Reporting of a multivariable prediction model for Individual Prognos
 
 ### Item 9 -- Missing data
 
-**Description:** Describe how missing data were handled (e.g., complete-case analysis, single imputation, multiple imputation) with details of any imputation method. (D+V)
+**Description:** Describe how missing data were handled (e.g., complete-case analysis, single imputation, multiple imputation) with details of any imputation method. (D;V)
 
 **What to look for in code/outputs:**
 - Missing data summary table showing count and percentage missing per variable
-- Imputation method implemented in code (multiple imputation, single imputation, indicator)
-- Imputation model specified with predictors of missingness
-- Comparison of complete cases vs. full sample to assess potential bias
+- Imputation method implemented in code, with the imputation model and predictors of missingness
 
 ---
 
 ## Methods -- Statistical Analysis
 
-### Item 10a -- Statistical analysis methods (development)
+### Item 10a -- Statistical analysis methods (predictor handling)
 
 **Description:** Describe how predictors were handled in the analyses. (D)
 
 **What to look for in code/outputs:**
-- Continuous predictor handling (linear assumption testing, splines, categorization)
-- Cut-point selection rationale if continuous variables were categorized
+- Continuous predictor handling (linearity checks, splines, fractional polynomials, categorization with cut-point rationale)
 - Interaction term specification and clinical rationale
-- Non-linear transformation code (fractional polynomials, restricted cubic splines)
 
 ### Item 10b -- Statistical analysis methods (model type)
 
-**Description:** Specify the type of model, all model-building procedures (including any predictor selection), and method for internal validation. (D)
+**Description:** Specify type of model, all model-building procedures (including any predictor selection), and method for internal validation. (D)
 
 **What to look for in code/outputs:**
 - Model family and link function specified (logistic, Cox, competing risks, multinomial)
 - Predictor selection method documented (full model, backward elimination, LASSO, clinical prespecification)
-- Internal validation method coded (bootstrap, cross-validation, apparent vs. optimism-corrected)
-- Optimism correction applied if predictor selection was performed
+- Internal validation coded (bootstrap or cross-validation), with optimism correction covering any selection steps
 
-### Item 10c -- Statistical analysis methods (validation)
+### Item 10c -- Statistical analysis methods (validation predictions)
 
 **Description:** For validation, describe how the predictions were calculated. (V)
 
 **What to look for in code/outputs:**
-- Prediction calculation code applying the original model formula or intercept/slope recalibration
-- Coefficient values or model object from development dataset applied to validation data
-- Recalibration method specified if applied (intercept update, slope recalibration)
+- Prediction code applying the original model formula or object to the validation data
 - No re-estimation of predictor effects in the validation dataset
 
 ### Item 10d -- Statistical analysis methods (performance measures)
 
-**Description:** Specify all measures used to assess model performance and, if relevant, to compare multiple models. (D+V)
+**Description:** Specify all measures used to assess model performance and, if relevant, to compare multiple models. (D;V)
 
 **What to look for in code/outputs:**
-- Discrimination measures coded (C-statistic/AUC with confidence intervals)
-- Calibration measures coded (calibration-in-the-large, calibration slope, calibration plot)
-- Overall performance measures (Brier score, R-squared equivalents)
-- Decision curve analysis or net benefit calculations if clinical utility is assessed
+- Discrimination (C-statistic/AUC), calibration (calibration-in-the-large, slope, plot), and overall performance (Brier score)
+- Decision curve analysis or net benefit if clinical utility is assessed
 
-### Item 10e -- Statistical analysis methods (risk groups)
+### Item 10e -- Statistical analysis methods (model updating)
 
 **Description:** Describe any model updating (e.g., recalibration) arising from the validation, if done. (V)
 
 **What to look for in code/outputs:**
-- Risk group definitions applied (low/medium/high) with cut-points specified
-- Clinical or statistical basis for cut-point selection documented
-- Distribution of participants across risk groups reported
-- Sensitivity and specificity at each threshold calculated
+- Recalibration method specified (intercept update, slope recalibration, refitting) and its trigger
+
+### Item 11 -- Risk groups
+
+**Description:** Provide details on how risk groups were created, if done. (D;V)
+
+**What to look for in code/outputs:**
+- Risk group definitions (low/medium/high) with cut-points and their clinical or statistical basis
+- Distribution of participants across risk groups
+
+### Item 12 -- Development vs. validation
+
+**Description:** For validation, identify any differences from the development data in setting, eligibility criteria, outcome, and predictors. (V)
+
+**What to look for in code/outputs:**
+- Side-by-side documentation of setting, eligibility, outcome, and predictor definitions across datasets
 
 ---
 
 ## Results
 
-### Item 11 -- Participants
+### Item 13a -- Participants (flow)
 
-**Description:** Describe the flow of participants through the study, including the number of participants with and without the outcome and, if applicable, a summary of the follow-up time. A diagram may be helpful. (D+V)
-
-**What to look for in code/outputs:**
-- Participant flow from eligible population to final analytic sample with counts
-- Event count and event rate in development and validation cohorts
-- Follow-up time summary (median, IQR, person-years) for time-to-event outcomes
-- Flowchart or attrition table generated in code
-
-### Item 12 -- Model development
-
-**Description:** Describe the characteristics (e.g., demographic, clinical, predictor values) of the participants in the development and any validation data sets. (D+V)
+**Description:** Describe the flow of participants through the study, including the number of participants with and without the outcome and, if applicable, a summary of the follow-up time. A diagram may be helpful. (D;V)
 
 **What to look for in code/outputs:**
-- Table 1 generation code with descriptive statistics for predictor and outcome variables
-- Stratification by development vs. validation cohort where applicable
-- Missing data counts per variable in the descriptive table
-- Continuous variables summarized as mean/SD or median/IQR as appropriate
+- Participant flow from eligible population to final analytic sample with counts, generated in code
+- Event count and follow-up summary (median, IQR, person-years) for each cohort
 
-### Item 13 -- Model specification
+### Item 13b -- Participants (characteristics)
+
+**Description:** Describe the characteristics of the participants (basic demographics, clinical features, available predictors), including the number of participants with missing data for predictors and outcome. (D;V)
+
+**What to look for in code/outputs:**
+- Table 1 code with descriptive statistics for predictors and outcome, including missing-data counts per variable
+
+### Item 13c -- Participants (validation comparison)
+
+**Description:** For validation, show a comparison with the development data of the distribution of important variables (demographics, predictors and outcome). (V)
+
+**What to look for in code/outputs:**
+- Development-versus-validation comparison table or standardised mean differences
+
+### Item 14a -- Model development (numbers)
+
+**Description:** Specify the number of participants and outcome events in each analysis. (D)
+
+**What to look for in code/outputs:**
+- Logged sample size and event count for every analysis, including bootstrap or cross-validation runs
+
+### Item 14b -- Model development (unadjusted associations)
+
+**Description:** If done, report the unadjusted association between each candidate predictor and outcome. (D)
+
+**What to look for in code/outputs:**
+- Univariable association table, kept separate from any predictor-selection step
+
+### Item 15a -- Model specification (full model)
 
 **Description:** Present the full prediction model to allow predictions for individuals (i.e., all regression coefficients, and model intercept or baseline survival at a given time point). (D)
 
 **What to look for in code/outputs:**
-- Final model coefficients or hazard ratios reported with confidence intervals
-- Model intercept or baseline hazard/survival function reported
-- Predictor reference categories and coding scheme documented
+- Final coefficients, intercept or baseline survival, reference categories, and coding scheme reported
 - Sufficient information to reproduce predictions without the original dataset
 
-### Item 14 -- Model performance
+### Item 15b -- Model specification (how to use)
 
-**Description:** Report performance measures (with confidence intervals) for the prediction model. (D+V)
+**Description:** Explain how to use the prediction model. (D)
 
 **What to look for in code/outputs:**
-- Discrimination statistics (C-statistic/AUC) with bootstrap or cross-validated confidence intervals
-- Calibration plot (observed vs. predicted probabilities) generated as figure
-- Calibration metrics (calibration slope, calibration-in-the-large) reported numerically
+- Worked example, nomogram, score chart, or web calculator showing a prediction for a new individual
+
+### Item 16 -- Model performance
+
+**Description:** Report performance measures (with CIs) for the prediction model. (D;V)
+
+**What to look for in code/outputs:**
+- Discrimination statistics with bootstrap or analytic confidence intervals
+- Calibration plot and calibration metrics reported numerically
 - Apparent and optimism-corrected performance reported separately for development
 
-### Item 15 -- Model updating
+### Item 17 -- Model updating
 
-**Description:** Report the results from any model updating (i.e., model specification, model performance after updating). (V)
+**Description:** If done, report the results from any model updating (i.e., model specification, model performance). (V)
 
 **What to look for in code/outputs:**
-- Updated intercept or recalibration slope applied and reported
-- Performance before and after updating compared in results tables
-- Reason for updating documented (poor calibration, different outcome rate)
-- Updated model coefficients or recalibrated predictions saved and reported
+- Updated intercept, slope, or coefficients reported, with performance before and after updating
 
 ---
 
 ## Discussion
 
-### Item 16 -- Limitations
+### Item 18 -- Limitations
 
-**Description:** Discuss any limitations of the study (such as non-representative sample, few events per predictor, missing data). (D+V)
+**Description:** Discuss any limitations of the study (such as nonrepresentative sample, few events per predictor, missing data). (D;V)
 
 **What to look for in code/outputs:**
-- Limitation section referencing sample representativeness and generalizability
 - Sample size relative to the Riley et al. criteria (or events per candidate predictor parameter) reported
-- Missing data mechanism and potential impact discussed
-- Overfitting risk discussed relative to internal validation method used
+- Missing data mechanism and overfitting risk discussed relative to the internal validation method
 
-### Item 17 -- Interpretation
+### Item 19a -- Interpretation (validation)
 
-**Description:** Give an overall interpretation of the results, considering objectives, limitations, results from similar studies, and other relevant evidence. (D+V)
+**Description:** For validation, discuss the results with reference to performance in the development data, and any other validation data. (V)
 
 **What to look for in code/outputs:**
-- Conclusion section contextualizing model performance relative to existing models
-- Clinical relevance of discrimination and calibration metrics discussed
+- Validation performance placed next to the published development performance
+
+### Item 19b -- Interpretation (overall)
+
+**Description:** Give an overall interpretation of the results, considering objectives, limitations, results from similar studies, and other relevant evidence. (D;V)
+
+**What to look for in code/outputs:**
 - Comparison with other published models for the same prediction task
-- Risk group cut-points justified in clinical terms
 
-### Item 18 -- Implications
+### Item 20 -- Implications
 
-**Description:** Discuss the potential clinical use of the model and implications for future research. (D+V)
+**Description:** Discuss the potential clinical use of the model and implications for future research. (D;V)
 
 **What to look for in code/outputs:**
-- Intended clinical application described (triage, treatment selection, shared decision-making)
-- Recommended next steps articulated (external validation, prospective evaluation, impact study)
-- Net benefit or decision curve analysis interpretation in clinical context
-- Generalizability of findings to target deployment population discussed
+- Intended clinical application and recommended next steps (external validation, impact study)
 
 ---
 
 ## Other Information
 
-### Item 19 -- Supplementary information
+### Item 21 -- Supplementary information
 
-**Description:** Provide information about the availability of supplementary resources, such as study protocol, Web calculator, and datasets. (D+V)
-
-**What to look for in code/outputs:**
-- Data availability statement in report
-- Web calculator or online implementation referenced or provided
-- Analysis code availability (GitHub, supplementary materials, OSF)
-- Protocol or pre-registration reference
-
-### Item 20 -- Funding
-
-**Description:** Give the source of funding and the role of the funders for the present study. (D+V)
+**Description:** Provide information about the availability of supplementary resources, such as study protocol, Web calculator, and data sets. (D;V)
 
 **What to look for in code/outputs:**
-- Funding acknowledgment in report template
-- Grant numbers or sponsor documentation
-- Conflict of interest disclosures
-- Role of funder in study design, analysis, or reporting stated
+- Data availability statement, analysis code location, protocol reference, and any web calculator
+
+### Item 22 -- Funding
+
+**Description:** Give the source of funding and the role of the funders for the present study. (D;V)
+
+**What to look for in code/outputs:**
+- Funding acknowledgment with grant numbers and the funder's role in design, analysis, or reporting
