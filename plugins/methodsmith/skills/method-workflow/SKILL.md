@@ -132,6 +132,8 @@ Next step: `method-extract`
 Render each status as `[done]`, `[wip ]` (in progress), or `[    ]` (not
 started), and after each done or in-progress step name the artifact that set it.
 
+When `analysis/numbers/registry.json` exists, add a `Numbers:` line under the card with the `method-numbers` gate status from `references/state-detection.md` (`PASS`, `FAIL` with its problem count, or `not run`); a `FAIL` makes fixing it the next step before any manuscript or submission step.
+
 Inline language-specific and data-layer notes at the steps where they matter (e.g., step 7 shows "OMOP SQL + concept sets" or "CAPR + SQL" depending on language; step 14 shows "Jupyter .ipynb" or "Marimo .py" or "Quarto .qmd").
 
 If all steps are complete, emit: "All lifecycle steps complete. Load the `method-compound` skill to document learnings."

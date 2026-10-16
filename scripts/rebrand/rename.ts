@@ -113,6 +113,29 @@ export function rewriteText(text: string): string {
     .join("\n")
 }
 
+const BLOCK_START = "<!-- rebrand:keep-start renamed-commands -->"
+const BLOCK_END = "<!-- rebrand:keep-end -->"
+
+/** Old -> new command table for migration docs, straight from the mapping. */
+export function renamedCommandsTable(): string {
+  const rows = Object.entries(map.skills).map(([oldName, newName]) => `| \`/${oldName}\` | \`/${newName}\` |`)
+  return ["| Before 5.0 | Methodsmith |", "|---|---|", ...rows].join("\n")
+}
+
+/** Replace the body of every renamed-commands block with the current table. */
+export function fillGeneratedBlocks(text: string): string {
+  let out = ""
+  let rest = text
+  for (;;) {
+    const start = rest.indexOf(BLOCK_START)
+    if (start === -1) return out + rest
+    const end = rest.indexOf(BLOCK_END, start)
+    if (end === -1) return out + rest
+    out += `${rest.slice(0, start)}${BLOCK_START}\n${renamedCommandsTable()}\n`
+    rest = rest.slice(end)
+  }
+}
+
 export function isExcluded(relPath: string): boolean {
   return EXCLUDED_PATHS.some((pattern) => pattern.test(relPath))
 }
@@ -147,7 +170,7 @@ export function applyRename(root: string, files: string[], options: { dryRun?: b
       const buffer = readFileSync(source)
       if (!isBinary(buffer)) {
         const before = buffer.toString("utf8")
-        const after = rewriteText(before)
+        const after = fillGeneratedBlocks(rewriteText(before))
         if (after !== before) {
           result.rewritten.push(target)
           if (!options.dryRun) writeFileSync(source, after)

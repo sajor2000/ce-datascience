@@ -41,6 +41,9 @@ bun test tests/rebrand.test.ts                # mapping, residue, idempotency
 bun run scripts/rebrand/rename.ts --check     # exit 0 = nothing left to do
 ```
 
+The script reads `git ls-files`, so `git add` new files before a dry run or
+`--check`; untracked files are neither rewritten nor scanned for residue.
+
 If a newly merged branch adds a `ce-*` skill or agent, the mapping test fails
 and names it. Add it to `mapping.json` and re-run. If the residue test reports
 a new token, decide which kind it is: one of ours (add it to `extra`), a retired

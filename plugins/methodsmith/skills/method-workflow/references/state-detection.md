@@ -28,6 +28,7 @@ File-system signals to determine which lifecycle steps have been completed. Use 
 | `method-genome-build` | `.ce-datascience/config.local.yaml` contains `genome_build` key | — |
 | `method-ml-track` | `mlruns/`, `wandb/`, or `dvc.yaml` exists at repo root | — |
 | `method-model-card` | `analysis/model-card.md` or `docs/model-card.md` exists | — |
+| `method-numbers` | `analysis/numbers/registry.json` exists and the `method-numbers` `check` on the manuscript sources and tables exits 0 (`PASS`) | Registry exists but the check prints `FAIL`, or it has not been run on the manuscript |
 
 ## Rendering Rules
 

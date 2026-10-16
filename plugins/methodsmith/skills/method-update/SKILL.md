@@ -1,6 +1,6 @@
 ---
 name: method-update
-description: "Checks whether the installed methodsmith plugin is current and gives the exact update command for the harness in use: Claude Code, Codex, OpenCode, Pi, Gemini CLI, Kiro, or Qwen Code. Use when the user asks if methodsmith is up to date or how to update it."
+description: "Checks whether methodsmith is current and gives the exact update command for Claude Code, Codex, OpenCode, Pi, Gemini CLI, Kiro, or Qwen Code. Finds a pre-5.0 ce-datascience install and prints the switch. Use when asked if methodsmith is up to date or how to update or migrate." # rebrand:keep
 disable-model-invocation: true
 ---
 
@@ -20,6 +20,28 @@ Report whether methodsmith is current and give the exact command that
 updates it. Updates never delete or overwrite your own skills: the plugin only
 replaces files it installed, and it backs up any plugin file you edited before
 replacing it.
+
+## 0. Check for an install from before 5.0
+
+<!-- rebrand:keep-start -->
+Methodsmith was named ce-datascience before 5.0, and its commands started with
+`ce-`. Run the read-only detector first:
+<!-- rebrand:keep-end -->
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+bash "$SKILL_DIR/scripts/detect-pre-rename-install.sh"
+```
+
+- If it reports an old install, show its output as printed: one block of exact
+  commands per harness, then the renamed-commands table. Add that the new
+  install moves the old plugin's files to a backups folder instead of deleting
+  them, and that the user's own skills stay where they are.
+  Do not run these commands for the user.
+- If it reports nothing to migrate, continue without mentioning it.
+- If the script is missing or `bash` is unavailable, check by hand for the
+  folders it looks for and point the user to `references/renamed-commands.md`
+  for the old -> new command names.
 
 ## 1. Identify the harness
 

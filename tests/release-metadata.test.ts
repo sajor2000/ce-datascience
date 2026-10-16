@@ -161,7 +161,7 @@ describe("release metadata", () => {
     const description = await buildMethodsmithDescription(process.cwd())
 
     expect(description).toBe(
-      "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+      "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
     )
   })
 
@@ -231,7 +231,7 @@ describe("release metadata", () => {
 
     const afterContents = JSON.parse(await Bun.file(codexPath).text())
     expect(afterContents.description).toBe(
-      "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+      "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
     )
   })
 

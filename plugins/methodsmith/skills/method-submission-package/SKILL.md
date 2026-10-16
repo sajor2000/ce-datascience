@@ -29,16 +29,17 @@ Build a traceable manuscript package manifest. The skill wires known study artif
 5. If the deliverable is a Word manuscript, run `method-citations` before
    final packaging and include the field-bearing DOCX master plus its citation
    ledger; a flattened DOCX or static bibliography is not the editable master.
-6. Run:
+6. **Number gate.** Load the `method-numbers` skill and run its `check` on the manuscript sources, rendered copies, and tables (it reads `analysis/numbers/registry.json`). A `FAIL` exit, or a gate that could not run, blocks readiness: quote its `file:line: reason: token` lines as printed, and never add a result to the allowlist or edit the registry to make it pass.
+7. Run:
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
 python3 "$SKILL_DIR/scripts/build_package_manifest.py" --project-root . --out-dir manuscript --format quarto
 ```
 
-7. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-4 to those lists. For a Word deliverable, also set the optional `word_master` and `citation_ledger` paths from the step 5 `__CE_CITATION_LEDGER__` handoff (`docx=` and `path=`).
-8. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
-9. The script never sets `ready-for-signoff`. The agent sets `readiness: ready-for-signoff` only after step 7, when the script result is `ready-with-review` and the user names the human reviewer who reviewed the readiness report; record that name in `signoff_reviewer`. Never set it from a `blocked` result or without a named reviewer. A rerun resets readiness, so repeat steps 7-9 after any rerun.
+8. The script writes `checklists`, `registry_packages`, and `reproducibility` as empty lists and rewrites the manifest on every run; after the final run, add the artifacts from steps 3-4 to those lists. For a Word deliverable, also set the optional `word_master` and `citation_ledger` paths from the step 5 `__CE_CITATION_LEDGER__` handoff (`docx=` and `path=`).
+9. Review `manuscript/package-readiness-report.md` before calling the package submission-ready.
+10. The script never sets `ready-for-signoff`. The agent sets `readiness: ready-for-signoff` only after step 8, when the script result is `ready-with-review`, the step 6 number gate printed `PASS`, and the user names the human reviewer who reviewed the readiness report; record that name in `signoff_reviewer`. Never set it from a `blocked` result or without a named reviewer. A rerun resets readiness, so repeat steps 6-10 after any rerun.
 
 ## Quarto Path
 

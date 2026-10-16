@@ -4,13 +4,13 @@
     "name": "Juan Carlos Rojas"
   },
   "metadata": {
-    "description": "Compound engineering plugin for computational scientists",
+    "description": "Methodsmith: rigorous research methods, from question to paper",
     "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "methodsmith",
-      "description": "Compound engineering for computational scientists: reproducible, compliant, compound research automation with R/Python statistical review and SAP tracking.",
+      "description": "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper: pre-specified SAPs, statistical and reporting-checklist review, and reproducible R and Python workflows. Every study compounds.",
       "author": {
         "name": "Juan Carlos Rojas"
       },

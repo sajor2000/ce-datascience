@@ -1,0 +1,22 @@
+[
+  { "query": "Make sure every number in the manuscript traces back to the analysis output before we submit to JAMA", "should_trigger": true },
+  { "query": "set up a number registry so the results section pulls hazard ratios from the R script instead of me typing them", "should_trigger": true },
+  { "query": "The abstract still says 0.81 but the rerun gives 0.78 -- how do I stop numbers drifting from the analysis?", "should_trigger": true },
+  { "query": "Render the {{num:primary.hr } } placeholders in results.qmd with the registry values", "should_trigger": true },
+  { "query": "run the numbers gate on manuscript/ and tell me which numbers are untraced", "should_trigger": true },
+  { "query": "Which script and commit produced the 412 patients number in the Results? trace it to the SAP output", "should_trigger": true },
+  { "query": "register the Table 1 cells from our python script so the table and the text use the same numbers", "should_trigger": true },
+  { "query": "Our manuscript is a Word file -- turn the {{num:... } } placeholders into fields and catch anyone hand-editing the numbers", "should_trigger": true },
+  { "query": "lock the model card AUC and calibration slope to the registry so they can't be hand-edited", "should_trigger": true },
+  { "query": "check whether the registry entries are stale after I re-pulled the analytic extract", "should_trigger": true },
+  { "query": "Generate Table 1 baseline characteristics stratified by treatment arm from the variables catalog", "should_trigger": false },
+  { "query": "Fit a Cox model for time to extubation with site as a frailty term", "should_trigger": false },
+  { "query": "Check the manuscript against the STROBE checklist before submission", "should_trigger": false },
+  { "query": "Insert Zotero citations into the Word manuscript and keep the fields editable", "should_trigger": false },
+  { "query": "Remove AI-sounding phrases from the Discussion section", "should_trigger": false },
+  { "query": "compute the sample size for a two-arm trial with 80% power", "should_trigger": false },
+  { "query": "Make a forest plot of the subgroup hazard ratios in ggplot2", "should_trigger": false },
+  { "query": "Write the statistical analysis plan for the sepsis cohort", "should_trigger": false },
+  { "query": "Profile the new extract for missingness and out-of-range values", "should_trigger": false },
+  { "query": "Commit these changes and open a pull request", "should_trigger": false }
+]

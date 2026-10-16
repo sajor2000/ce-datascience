@@ -13,7 +13,8 @@
         "Reports N, number of events, the validation type, and a 95% CI for every overall performance estimate including Brier score and calibration intercept/slope",
         "Highlights any subgroup AUC gap > 0.05 or calibration intercept difference > 0.10 in the card body, not only a footnote",
         "Adds 'Model card available at analysis/model-card.md.' to the SAP and manuscript Methods",
-        "Cites fairness-metric definitions and TRIPOD+AI reporting items by PMID/DOI with an evidence label, without recomputing or adjusting any reported metric"
+        "Cites fairness-metric definitions and TRIPOD+AI reporting items by PMID/DOI with an evidence label, without recomputing or adjusting any reported metric",
+        "Registers each reported metric with register_number from the method-numbers helpers, writes the card's numeric cells as {{num:<id>}}, and renders the card with the method-numbers render command"
       ]
     },
     {

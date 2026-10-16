@@ -27,14 +27,15 @@
     },
     {
       "id": 3,
-      "prompt": "/method-update -- gh isn't authenticated on this machine and I'm on a hospital network that blocks api.github.com.",
-      "expected_output": "Reports that the upstream version could not be fetched, still gives the Claude update command, and does not guess a version or mutate caches.",
+      "prompt": "/method-update -- I still have the plugin from before it was renamed to Methodsmith (the old ce datascience one) in Claude Code and OpenCode. What do I run to switch, and will I lose my own skills?",
+      "expected_output": "Runs the bundled read-only detector, shows the exact per-harness switch commands it prints and the old -> new command table, says old plugin files are backed up rather than deleted and the user's own skills stay, and does not run the commands itself.",
       "files": [],
       "expectations": [
-        "Recognizes the __CE_UPDATE_VERSION_FAILED__ sentinel and tells the user the upstream version could not be fetched",
-        "Does not guess the latest version",
-        "Still gives 'claude plugin update methodsmith@<marketplace-name>' as the command to run once the network allows",
-        "Does not attempt to mutate plugin caches or marketplace directories as a workaround"
+        "Runs scripts/detect-pre-rename-install.sh through the SKILL_DIR anchor before the version check",
+        "Shows the Claude Code switch: uninstall the old plugin id, remove the old marketplace, add sajor2000/methodsmith, install methodsmith@methodsmith",
+        "Shows 'bunx methodsmith@latest install methodsmith --to opencode' for OpenCode",
+        "States that the new install moves old plugin files to backups and leaves the user's own skills in place",
+        "Does not run the uninstall or install commands for the user"
       ]
     }
   ]

@@ -12,7 +12,8 @@
         "Exports a vector PDF at a final column width (3.5, 5, or 7 in) using save_figure or cairo_pdf rather than scaling a large plot down, with the R script and source data recorded",
         "Creates or updates analysis/publication/figures/figure-manifest.json with a fig2 entry containing figure_id, sap_section SAP-5.2, source_data, source_code, output_path, caption starting with 'Figure 2.', alt_text, and style_profile jama (the journal override), noting that the override inherits clinical-standard",
         "Runs scripts/validate_figure_manifest.py against the manifest with --project-root and reports blockers or warnings",
-        "Visually inspects the exported image for text overlap, risk-table alignment, and legend placement when image viewing is available, or states that inspection was not performed"
+        "Visually inspects the exported image for text overlap, risk-table alignment, and legend placement when image viewing is available, or states that inspection was not performed",
+        "Cites numbers in the caption and alt text (such as n per group) as {{num:<id>}} from the number registry rather than typing them"
       ]
     },
     {

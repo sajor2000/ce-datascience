@@ -56,6 +56,8 @@ Read the stack profile for language and data paths. Check for:
 
 Execute each applicable check from `references/check-catalog.md`. Skip checks that don't apply (e.g., skip leakage scan if no train/test split exists; skip figure quality if no figures found).
 
+**Number gate.** Load the `method-numbers` skill and run its `check` on the manuscript sources, rendered copies, and tables (it reads `analysis/numbers/registry.json`). A `FAIL` exit, or a gate that could not run, blocks readiness: quote its `file:line: reason: token` lines as printed, and never add a result to the allowlist or edit the registry to make it pass. Run it whenever `analysis/numbers/registry.json` exists or the outputs feed a manuscript, table, caption, or model card; each `FAIL` line is a FAIL check.
+
 ### Step 3: Emit verification report
 
 ```

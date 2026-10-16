@@ -3,6 +3,7 @@ import fs from "fs/promises"
 import path from "path"
 import { ensureDir, isSafeManagedPath, pathExists, writeJson } from "../utils/files"
 import { isKnownPluginArtifact } from "../utils/legacy-cleanup"
+import { retirePreRenameInstall } from "./pre-rename-install"
 
 export const OWNERSHIP_LEDGER_FILE = "owned-files.json"
 
@@ -97,6 +98,8 @@ export class InstallOwnership {
   readonly hasLedger: boolean
 
   static async open(rootDir: string, managedDir: string, pluginName: string): Promise<InstallOwnership> {
+    // First methodsmith install over a pre-5.0 install: back up the old plugin files.
+    await retirePreRenameInstall(rootDir, managedDir, pluginName)
     return new InstallOwnership(rootDir, managedDir, pluginName, await readOwnershipLedger(managedDir, rootDir, pluginName))
   }
 

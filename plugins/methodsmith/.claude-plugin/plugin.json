@@ -1,10 +1,12 @@
 {
   "name": "methodsmith",
   "version": "4.1.0",
-  "description": "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+  "description": "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
   "author": {
     "name": "Juan Carlos Rojas"
   },
+  "homepage": "https://sajor2000.github.io/methodsmith/",
+  "repository": "https://github.com/sajor2000/methodsmith",
   "license": "MIT",
   "keywords": [
     "ai-powered",

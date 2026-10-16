@@ -168,6 +168,28 @@ describe("rewriteText", () => {
   })
 })
 
+describe("generated command tables", () => {
+  const { fillGeneratedBlocks } = require("../scripts/rebrand/rename") as typeof import("../scripts/rebrand/rename")
+
+  test("fills a renamed-commands block with every old -> new skill pair from the mapping", () => {
+    const text = [
+      "# Migration",
+      "<!-- rebrand:keep-start renamed-commands -->",
+      "stale",
+      "<!-- rebrand:keep-end -->",
+      "after",
+    ].join("\n")
+    const filled = fillGeneratedBlocks(text)
+    expect(filled).toContain("| `/ce-statistical-analysis-plan` | `/method-sap` |")
+    expect(filled).toContain("| `/ce-plan` | `/method-plan` |")
+    expect(filled).not.toContain("stale")
+    expect(filled.split("\n").at(-1)).toBe("after")
+    const rows = filled.split("\n").filter((line) => line.startsWith("| `/ce-"))
+    expect(rows.length).toBe(Object.keys(map.skills).length)
+    expect(fillGeneratedBlocks(filled)).toBe(filled)
+  })
+})
+
 describe("applyRename on a copy of this checkout", () => {
   const { applyRename, residueReport, rewritePath } = require("../scripts/rebrand/rename") as typeof import("../scripts/rebrand/rename")
   const { cpSync, mkdtempSync, rmSync, mkdirSync } = require("fs") as typeof import("fs")

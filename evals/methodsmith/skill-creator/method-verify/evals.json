@@ -12,7 +12,8 @@
         "Judges missing data by the stated mechanism and SAP-consistent handling, not by a percent-missing pass/fail threshold",
         "Skips the leakage scan if no train/test split exists",
         "Emits a numbered Verification Report with PASS/WARN/FAIL lines and a summary count",
-        "Emits '__CE_VERIFY__ pass=<n> warn=<n> fail=<n> blocking=<true|false>' with blocking=true if any FAIL"
+        "Emits '__CE_VERIFY__ pass=<n> warn=<n> fail=<n> blocking=<true|false>' with blocking=true if any FAIL",
+        "Runs the method-numbers number gate when analysis/numbers/registry.json exists or the outputs feed a manuscript, reporting each FAIL line as a FAIL check"
       ]
     },
     {

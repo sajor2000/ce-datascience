@@ -19,7 +19,7 @@ runs, reviews it before anyone reads the results, and writes down what each
 study taught you so the next one starts ahead. Clinical statistics, Python and
 ML papers, and meta-analysis; R or Python.
 
-**65 skills, 55 specialist agents, and 39 reporting checklists.** You stay in
+**66 skills, 55 specialist agents, and 39 reporting checklists.** You stay in
 control of the scientific decisions: Methodsmith drafts and checks, and does not
 replace a researcher, statistician, clinician, data steward, or ethics review.
 
@@ -593,6 +593,43 @@ Use `/method-voice`, `/method-section-check`, or
 pre-submission audit is the final editing gate; required Methods rationale is
 preserved, while retrospective interpretation remains in Discussion.
 
+### Numbers locked to raw data
+
+Clinical journals, reviewers, and data-sharing audits ask where each number in a
+paper came from. `/method-numbers` makes that answer checkable: a rigor signal, not a
+style rule. Analysis code registers aggregates in
+`analysis/numbers/registry.json` (R or Python; counts from 1 to 10 are stored
+suppressed). The manuscript cites them as `{{num:<id>}}`. A gate fails the
+submission when a number can't be traced. Each number follows one chain:
+SAP output -> script@commit -> source file hash -> registry entry -> sentence.
+
+Worked example (synthetic):
+
+```r
+# analysis/primary_cox.R, committed before it runs
+source("analysis/numbers/method_numbers.R")
+register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918),
+                sources = "data/analytic.parquet", sap_output = "A3_cox_primary.csv")
+```
+
+```text
+manuscript/results.qmd:  The hazard ratio was {{num:primary.hr}}.
+rendered:                The hazard ratio was 0.78 (95% CI, 0.66-0.92).
+gate on a typed number:  manuscript/abstract.md:7: untraced number: 0.81
+gate after a data pull:  registry:primary.hr: stale: source data/analytic.parquet changed
+```
+
+The gate also fails on unknown ids, unsuppressed small cells, entries without a
+SAP output or committed script, and when it found nothing to check. It allows
+years, citation markers, figure, table, and item numbers, dates, quoted
+guideline text, and the doses or units you declare. Table 1, figure captions,
+model cards, and scientific writing cite the registry; `method-verify`,
+`method-presubmit`, and `method-submission-package` run the gate and fail
+closed. Word manuscripts keep each number as a registry-owned field
+(`ADDIN CE_NUM <id>`, beside Zotero's citation fields);
+the gate fails a field whose text was hand-edited, and a number typed into a
+Word table. It does not read numbers inside images.
+
 ### Build a prediction model
 
 ```
@@ -868,7 +905,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 65 |
+| Skills | 66 |
 | Agents | 55 |
 | Reporting checklists | 39 |
 

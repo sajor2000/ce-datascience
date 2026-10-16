@@ -55,6 +55,8 @@ For a full empirical manuscript, default to this order when the available artifa
 
 Use `method-section-check` for Methods, Results, legends, and table notes. Use `method-voice` only when its clinical register fits the assignment. Keep citations attached to the claims they support; obtain each one through Evidence access, read before citing, and record the level read. Do not turn an association into causation, a secondary analysis into a primary finding, or absence of evidence into evidence of no effect.
 
+Numbers come only from the number registry: cite every count, percent, estimate, CI, and P value as `{{num:<id>}}` (load the `method-numbers` skill; its `ids` command lists ids, kinds, and SAP outputs without values), and never type a result number, including in the abstract, legends, and table notes. When a needed number has no entry, write `{{num:missing.<what>}}` and list it under `author decision needed`; the gate keeps it visible until the analysis registers it.
+
 ### Revise
 
 First perform a developmental pass. For each section, write one sentence stating what it contributes to the paper. Flag content that does not serve that function, missing logical steps, unsupported claims, duplicated findings, and conclusions that outrun the design.
@@ -65,7 +67,7 @@ Only after the argument and evidence are stable, perform the line edit. Preserve
 
 ### Audit or finalize
 
-For an audit, report findings first in this order: evidence or provenance failure, inference risk, Methods or Results boundary violation, cross-artifact inconsistency, reporting-guideline or journal mismatch, then prose quality. Cite exact locations and distinguish deterministic checks from scientific judgment.
+Before finalizing, load the `method-numbers` skill and run its `check` on the manuscript sources and rendered copies; report each `FAIL` line as an evidence or provenance failure. For an audit, report findings first in this order: evidence or provenance failure, inference risk, Methods or Results boundary violation, cross-artifact inconsistency, reporting-guideline or journal mismatch, then prose quality. Cite exact locations and distinguish deterministic checks from scientific judgment.
 
 Before author handoff, run `method-presubmit`. Use `method-citations` when Word citations or reference repair are in scope. Never describe a manuscript as submission-ready while unresolved evidence, authorship, ethics, disclosure, data-sharing, citation, or journal-compliance blockers remain.
 

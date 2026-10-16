@@ -11,7 +11,8 @@
         "Emits a numbered lifecycle card marking method-question and method-pubmed done based on existing artifacts",
         "Recommends a single next step (e.g., method-extract) with a one-line rationale",
         "Does not run any lifecycle skill or create/modify project files",
-        "Appends a note to run method-setup if no stack profile exists"
+        "Appends a note to run method-setup if no stack profile exists",
+        "When analysis/numbers/registry.json exists, adds a Numbers line with the method-numbers gate status (PASS, FAIL, or not run) to the lifecycle card"
       ]
     },
     {
