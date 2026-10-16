@@ -78,11 +78,11 @@ Each check has: id, applies_when, bucket, language-agnostic intent, R/Python rec
 
 ### QA-8: Distribution shift vs prior wave
 
-- **Bucket**: `warn` if mean shifts > 1 SD from prior wave; KS-test p < 0.01 vs prior
+- **Bucket**: `warn` if |standardized mean difference| vs prior wave > 0.1, or the KS statistic D exceeds a project-declared threshold (both project defaults). Report the KS P value only descriptively: with EHR-scale n any trivial shift is "significant", and with small waves large shifts are missed.
 - **Why**: a re-extract that changes data shape silently is a SAP-amendment trigger
-- **R**: KS test, `ks.test(current, prior)`
-- **Python**: `scipy.stats.kstest(current, prior)`
-- **Finding format**: "Variable `bmi` distribution shifted vs wave_001 (KS p=0.003)"
+- **R**: SMD `(mean(current) - mean(prior)) / sqrt((var(current) + var(prior)) / 2)`; KS statistic `ks.test(current, prior)$statistic`
+- **Python**: same SMD formula; `scipy.stats.ks_2samp(current, prior).statistic`
+- **Finding format**: "Variable `bmi` shifted vs wave_001 (SMD 0.18; KS D 0.07)"
 
 ## Date sanity checks
 
@@ -111,6 +111,7 @@ Each check has: id, applies_when, bucket, language-agnostic intent, R/Python rec
 - **R**: `naniar::vis_miss(data)` or `mice::md.pattern(data)`
 - **Python**: `missingno.matrix(df)`
 - **Finding format**: "Missingness pattern: [monotone | block | scattered]. Imputation strategy implication: [text]"
+- **Note**: the pattern is observable; the mechanism (MCAR/MAR/MNAR) is an assumption justified from design knowledge, never "detected". See `missingness-patterns.md`.
 
 ### QA-12: Missingness clusters
 

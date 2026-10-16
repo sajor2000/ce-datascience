@@ -34,6 +34,8 @@ Define treatment strategies, time zero, eligibility, follow-up, outcome, estiman
 
 Define intended use, prediction horizon, target population, validation design, leakage boundary, calibration, and decision threshold. An inferential regression may still be a prediction model, but p-values are not its selection criterion.
 
+Determine the minimum development sample size with the Riley et al. criteria (BMJ 2020, PMID `32188600`; `pmsampsize` in R/Stata), not a fixed events-per-variable rule (van Smeden et al. 2019, PMID `29966490`). Keep continuous predictors continuous and model nonlinearity with restricted cubic splines; never dichotomize for convenience (Harrell, *Regression Modeling Strategies*, 2nd ed., ch. 2). Use penalized estimation (ridge, lasso, elastic net, or uniform shrinkage) when the sample-size criteria are not comfortably met, and report bootstrap optimism-corrected discrimination and calibration slope (Steyerberg & Vergouwe 2014, PMID `24898551`).
+
 ### Validation or agreement
 
 Match the metric and model to the reference standard, repeated ratings, and intended decision: calibration, discrimination, agreement, reliability, or measurement error are different targets.
@@ -58,7 +60,7 @@ Every primary model needs checks for convergence/identifiability, influential ob
 - Count: dispersion, zero structure, offset validity.
 - Ordinal: proportional-odds or threshold assumptions.
 - Survival: proportional hazards when used, time-varying effects, informative censoring.
-- Prediction: resampling by the independent unit, calibration, optimism, subgroup performance.
+- Prediction: minimum sample size (Riley criteria), resampling by the independent unit, calibration, optimism, subgroup performance.
 - Causal: balance, overlap/positivity, weight distribution, time alignment, sensitivity to unmeasured confounding.
 - Meta-analysis: heterogeneity estimate uncertainty, influence, and prediction interval when appropriate.
 
@@ -71,3 +73,18 @@ Fallbacks respond to diagnosed failure, never to an inconvenient p-value:
 3. Simplify only the unsupported component while preserving the estimand.
 4. Use an alternative family or estimator when diagnostics show a structural mismatch.
 5. If no defensible model remains, return `blocked` and identify the additional data or design decision required.
+
+## Example memo skeleton
+
+Illustrative structure only; every value comes from the project's own inputs and ledger.
+
+```text
+Status: provisional            Reviewer: pending
+Aim/estimand: marginal mean difference in 12-month HbA1c, intervention vs usual care
+Grain: patient-visit; 4 visits; 38 clinics (clusters); dropout 18%, related to baseline HbA1c (MAR plausible)
+Primary: Gaussian LMM, random clinic + patient intercepts, unstructured visit covariance (MMRM-type), REML, Kenward-Roger df
+Rejected: GEE (dropout not plausibly MCAR; 38 clusters needs a bias-corrected sandwich) -> sensitivity analysis only
+Diagnostics: residual vs fitted by visit; singularity; influential clinics; fallback = drop clinic-patient correlation first
+Sensitivity: delta-adjusted MNAR tipping point for dropout
+Ledger: "MAR validity of likelihood LMM vs GEE" -> Fitzmaurice 2011 (textbook, documentation); PMID 11252587 (abstract)
+```

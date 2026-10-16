@@ -7,10 +7,10 @@ Use the project's locked environment and existing conventions. Check `renv.lock`
 | Need | Candidate path | Required implementation checks |
 |---|---|---|
 | Ordinary linear/GLM | `stats::lm`, `stats::glm` | Family/link, contrasts, design matrix, diagnostics |
-| LMM/GLMM | `lme4::lmer`, `lme4::glmer` | Grouping, random structure, singularity, optimizer, marginalization |
+| LMM/GLMM | `lme4::lmer`, `lme4::glmer` (+ `lmerTest` or `pbkrtest` for Satterthwaite/Kenward-Roger df; `lme4` reports none) | Grouping, random structure, singularity, optimizer, marginalization |
 | Flexible GLMM/count/zero models | `glmmTMB` | Family, dispersion/zero component, convergence code, simulation residuals |
 | Residual covariance/MMRM | Existing `nlme`, `mmrm`, or project-approved path | Time spacing, covariance structure, denominator df |
-| GEE | `geepack::geeglm` or existing approved path | Cluster id, waves/order, working correlation, small-cluster limitation |
+| GEE | `geepack::geeglm` or existing approved path; `glmtoolbox::glmgee` when a Mancl-DeRouen bias-corrected sandwich is needed | Cluster id, waves/order, working correlation, small-cluster correction, MCAR assumption |
 | Survival | `survival`, plus an existing approved competing-risk/flexible package | Time zero, event coding, PH/time-varying checks |
 | Bayesian hierarchy | Existing `brms`, `rstanarm`, or project-approved Stan path | Priors, chains, R-hat, ESS, divergences, posterior predictive checks |
 | Meta-analysis | Existing `meta` or `metafor` path | Effect scale, tau-squared, interval method, influence, prediction interval |
@@ -30,6 +30,6 @@ The `.R` scaffold must:
 7. Produce estimand-aligned contrasts or predictions rather than dumping raw coefficients alone.
 8. Save no row-level output by default.
 
-For mixed models, include variance/correlation summaries, singularity checks, and a predeclared simplification path. For nonlinear links, use appropriate marginal standardization when the memo requests population-average effects.
+For mixed models, include variance/correlation summaries, singularity checks, and a predeclared simplification path. For nonlinear links, use appropriate marginal standardization when the memo requests population-average effects (e.g., an installed `marginaleffects::avg_comparisons()` or `emmeans` path; verify the API against the pinned version).
 
 Record `sessionInfo()` or the repository's equivalent reproducibility evidence. If an unfamiliar API is version-sensitive, verify its official documentation before writing it; otherwise write no scaffold, use `provisional` or `blocked` with `code=none`, and record the exact version gap.

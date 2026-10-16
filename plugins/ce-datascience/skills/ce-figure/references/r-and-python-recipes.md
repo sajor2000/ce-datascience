@@ -86,7 +86,7 @@ fig, ax, fitters = km_with_risk_table(dat, time="time_mo", event="event", group=
 save_figure(fig, "analysis/publication/figures/fig1.pdf", width_in=3.5, height_in=3.6, also=["png"])
 ```
 
-`km_with_risk_table` wraps `KaplanMeierFitter.plot_survival_function(ax=ax)` and `lifelines.plotting.add_at_risk_counts(*fitters, rows_to_show=["At risk"], ax=ax, xticks=...)`. For cumulative incidence, plot `1 - S(t)` with `plot_cumulative_density` and relabel the y axis "Cumulative Incidence, %".
+`km_with_risk_table` wraps `KaplanMeierFitter.plot_survival_function(ax=ax)` and `lifelines.plotting.add_at_risk_counts(*fitters, rows_to_show=["At risk"], ax=ax, xticks=...)`. For cumulative incidence without competing events, plot `1 - S(t)` with `plot_cumulative_density` and relabel the y axis "Cumulative Incidence, %". When competing events exist (for example death competing with discharge), use the Aalen-Johansen estimator instead (`lifelines.AalenJohansenFitter`; R `tidycmprsk::cuminc()` + `ggsurvfit::ggcuminc()`), because `1 - KM` overestimates cumulative incidence (Austin et al., Circulation 2016, PMID 26858290).
 
 ## Forest plot
 
@@ -145,9 +145,9 @@ Python: `im = ax.imshow(M, cmap="viridis")` (sequential) or `cmap="RdBu_r", vmin
 
 ## ROC and calibration
 
-R: `pROC::roc()` for the curve and `ci.auc()`; draw with `geom_path` + `geom_abline(linetype = "dashed")` + `coord_equal()`; annotate "AUC, 0.81 (95% CI, 0.77-0.85)" at 8 pt. Calibration: bin into risk deciles (`dplyr::ntile(risk, 10)`, or base `cut()` at `quantile(risk, 0:10 / 10)` as in the asset block), plot observed vs predicted with `geom_abline`, add `geom_histogram(aes(risk))` below with `patchwork` heights `c(4, 1)`; print intercept and slope from `glm(outcome ~ qlogis(risk), family = binomial)`.
+R: `pROC::roc()` for the curve and `ci.auc()`; draw with `geom_path` + `geom_abline(linetype = "dashed")` + `coord_equal()`; annotate "AUC, 0.81 (95% CI, 0.77-0.85)" at 8 pt. Calibration: bin into risk deciles (`dplyr::ntile(risk, 10)`, or base `cut()` at `quantile(risk, 0:10 / 10)` as in the asset block), plot observed vs predicted with `geom_abline`, add `geom_histogram(aes(risk))` below with `patchwork` heights `c(4, 1)`; print the calibration slope from `glm(outcome ~ qlogis(risk), family = binomial)` (coefficient of `qlogis(risk)`) and the calibration intercept (calibration-in-the-large) from `glm(outcome ~ 1, offset = qlogis(risk), family = binomial)`, each with its 95% CI. The intercept of the first model is not calibration-in-the-large. Prefer a flexible (loess or spline) calibration curve with a pointwise CI over decile bins, which are arbitrary (Van Calster et al., BMC Med 2019, PMID 31842878).
 
-Python: `roc_plot(y_true, y_score, label="Model", auc_ci=(0.77, 0.85))`; `calibration_plot(y_true, y_prob, n_bins=10, strategy="quantile", intercept_slope=(0.02, 0.96))`. Both import scikit-learn lazily; compute the AUC CI (bootstrap or DeLong) in the analysis script and pass it in.
+Python: `roc_plot(y_true, y_score, label="Model", auc_ci=(0.77, 0.85))`; `calibration_plot(y_true, y_prob, n_bins=10, strategy="quantile", intercept_slope=(0.02, 0.96), smoother="lowess")`, where `intercept_slope` is (calibration-in-the-large from `smf.glm("y ~ 1", data, offset=logit_risk, family=sm.families.Binomial())`, slope from `smf.glm("y ~ logit_risk", data, family=sm.families.Binomial())`). Both import scikit-learn lazily; compute the AUC CI (bootstrap or DeLong) in the analysis script and pass it in.
 
 ## Flow diagram
 

@@ -34,12 +34,8 @@ Generates a model card in the model-card framework introduced by Mitchell and co
 
 ## Evidence access
 
-Use connected MCP servers for literature; never invent a citation, effect size, or guideline item.
+When this run needs literature, read `references/evidence-access.md` first; never invent a citation, effect size, or guideline item.
 
-- **PubMed MCP** (canonical biomedical metadata). Call by purpose; two servers are common, so match the name on whichever is connected: search (`pubmed_search_articles` or `search_articles`), metadata by PMID (`pubmed_fetch_articles` or `get_article_metadata`), partial reference to PMID (`pubmed_lookup_citation` or `lookup_article_by_citation`), PMID/PMCID/DOI conversion (`pubmed_convert_ids` or `convert_article_ids`), related papers (`pubmed_find_related` or `find_related_articles`), full text (`pubmed_fetch_fulltext`, or `get_copyright_status` then `get_full_text_article` for open PMC). The documented default server (`@cyanheads/pubmed-mcp-server`) also offers `pubmed_lookup_mesh`, `pubmed_spell_check`, `pubmed_europepmc_search`, and `pubmed_format_citations` (a display check, never a substitute for a reference-manager field). Tool names carry the harness's server prefix (for example `mcp__PubMed__search_articles` in Claude Code).
-- **Paperclip MCP** (full text across papers, preprints, trials, FDA documents): `search` with an explicit `source` (for example `pmc`), `lookup` by DOI/PMID/PMCID, then `cat`, `grep`, `scan`, `map`, or `filter` on the result, and `ask-image` for figures. The authenticated `paperclip` CLI is the fallback; neither is required.
-- **Fallbacks:** without PubMed MCP, run the `ce-pubmed` skill's bundled E-utilities script; without Paperclip, continue PubMed-only and state the full-text limitation.
-- **Rules:** no PHI, patient-level values, or small-cell counts in any query; a search hit is not evidence until the source is read; label every claim at the level read (`abstract`, `full_text`, `figure`, `trial`, `regulatory`, `documentation`); keep PMID/PMCID/DOI, the query string, and the date as provenance; cite PubMed and include DOIs whenever PMC full text is used; lawful full-text access only.
 - **Look up here:** fairness-metric definitions (demographic parity, equalized odds, calibration by group) and the reporting items the card must satisfy (TRIPOD+AI, PMID 38626948, DOI 10.1136/bmj-2023-078378; model-card and model-reporting literature), cited by PMID or DOI with an evidence label; literature never supplies, adjusts, or recomputes a performance metric, and every number in the card comes from the eval output.
 
 ## Core workflow
@@ -56,18 +52,32 @@ Parse the eval-output JSON. Expected schema:
     "source": "EHR site A", "features": ["age", "sex", "creatinine"]
   },
   "evaluation": {
-    "internal": { "auc": 0.84, "auc_ci": [0.82, 0.86], "brier": 0.18, "calibration_intercept": -0.02, "calibration_slope": 1.04 },
-    "external": { "auc": 0.79, "n": 5500, "site": "B" },
+    "internal": {
+      "validation_type": "bootstrap optimism-corrected",
+      "n": 12500, "n_events": 1310, "prevalence": 0.105,
+      "auc": 0.84, "auc_ci": [0.82, 0.86],
+      "brier": 0.08, "brier_ci": [0.07, 0.09],
+      "calibration_intercept": -0.02, "calibration_intercept_ci": [-0.08, 0.04],
+      "calibration_slope": 0.96, "calibration_slope_ci": [0.89, 1.03],
+      "threshold": 0.20,
+      "sens": 0.71, "sens_ci": [0.68, 0.73], "spec": 0.84, "spec_ci": [0.83, 0.85],
+      "ppv": 0.35, "ppv_ci": [0.33, 0.37], "npv": 0.96, "npv_ci": [0.95, 0.96]
+    },
+    "external": { "cohort": "site B", "n": 5500, "n_events": 610, "auc": 0.79, "auc_ci": [0.77, 0.81],
+                  "calibration_intercept": 0.15, "calibration_intercept_ci": [0.06, 0.24],
+                  "calibration_slope": 0.88, "calibration_slope_ci": [0.79, 0.97] },
     "subgroups": {
-      "sex_F": { "auc": 0.85, "n": 7100 },
-      "sex_M": { "auc": 0.83, "n": 5400 },
+      "sex_F": { "n": 7100, "n_events": 700, "auc": 0.85, "auc_ci": [0.83, 0.87], "calibration_intercept": -0.04,
+                 "calibration_slope": 0.98, "tpr": 0.72, "fpr": 0.15 },
+      "sex_M": { "n": 5400, "n_events": 610, "auc": 0.83, "auc_ci": [0.81, 0.85], "calibration_intercept": 0.01,
+                 "calibration_slope": 0.94, "tpr": 0.69, "fpr": 0.17 },
       ...
     }
   }
 }
 ```
 
-If the eval output is missing required fields, surface the gap and refuse to generate a card with placeholders.
+This schema is the superset of the evaluation keys the template uses (illustrative values); model, intended-use, and population fields come from the user or model metadata. Required: `validation_type` (apparent, bootstrap optimism-corrected, held-out split, or internal-external; TRIPOD+AI item 12c), `n`, `n_events` (item 21), and a 95% CI for every reported performance estimate (item 23a), plus `tpr` and `fpr` per subgroup at the deployment threshold for the fairness gaps. If the eval output is missing required fields, surface the gap and refuse to generate a card with placeholders.
 
 ### Step 2: Fill the template
 
@@ -91,7 +101,7 @@ For each protected attribute in the eval output, report (derive gaps and ratios 
 - Calibration intercept + slope per group
 - Sensitivity and specificity at the deployment threshold per group
 - Demographic parity ratio (selection rate group_A / group_B)
-- Equalized odds gap (max TPR difference across groups)
+- Equal-opportunity gap (max TPR difference across groups) and equalized-odds gap (max of the TPR difference and the FPR difference across groups, as in `fairlearn.metrics.equalized_odds_difference`)
 
 Highlight any AUC gap > 0.05 or calibration intercept |Δ| > 0.10 in the card body, not just in a footnote. These flags are project defaults, not literature thresholds; if the card claims a benchmark, cite it per Evidence access.
 
@@ -100,6 +110,8 @@ Highlight any AUC gap > 0.05 or calibration intercept |Δ| > 0.10 in the card bo
 - `analysis/model-card.md` -- the markdown card
 - `analysis/model-card.html` -- rendered (for sharing)
 - `analysis/model-card.json` -- structured form for deployment registries
+
+Completion check: every numeric cell in the card traces to a key in the eval JSON, and no template placeholder (`{{ ... }}`) remains; if either fails, fix the input or the fill and regenerate before writing outputs.
 
 ### Step 5: Cross-link
 

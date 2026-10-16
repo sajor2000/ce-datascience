@@ -101,6 +101,7 @@ Code that implements these rules: `assets/theme_clinical.R` (ggplot2) and `asset
 - CI bands optional (alpha 0.15-0.2); if two bands overlap heavily, prefer lines.
 - Do not draw a curve beyond the point where fewer than 10% of a group remains at risk unless the caption states the extent of follow-up.
 - Caption: n per group, HR (95% CI) and model or log-rank P, what censoring marks mean, median follow-up.
+- Competing events: plot Aalen-Johansen cumulative incidence per event type, never 1 - Kaplan-Meier (Austin et al. 2016, PMID 26858290).
 
 ### Forest plot
 
@@ -127,7 +128,7 @@ Code that implements these rules: `assets/theme_clinical.R` (ggplot2) and `asset
 
 - Alpha 0.3-0.6 and small points; hex bins or 2-D density above ~5000 points.
 - Fitted line with CI band only when a model was fitted, named in the caption (linear, LOESS with span).
-- Equal aspect ratio and identity line when x and y share units (Bland-Altman, predicted vs observed).
+- Equal aspect ratio and identity line when x and y share units (method-comparison scatter, predicted vs observed). Bland-Altman plots instead show difference (y) against mean (x), with a solid line at the mean difference and dashed lines at the 95% limits of agreement (mean ± 1.96 SD), each with its CI (Bland & Altman, Lancet 1986, PMID 2868172).
 - Correlation coefficient with 95% CI in an annotation (8 pt) or the caption, never a bare r.
 
 ### Line and time series
@@ -152,20 +153,20 @@ Code that implements these rules: `assets/theme_clinical.R` (ggplot2) and `asset
 ### ROC and calibration
 
 - ROC: axes "1 - Specificity" and "Sensitivity", 0-1, equal aspect; dashed gray diagonal reference; AUC with 95% CI in the legend ("Model (AUC, 0.81 [95% CI, 0.77-0.85])"); legend lower right.
-- Calibration: axes "Predicted Risk" and "Observed Proportion", 0-1, equal aspect; dashed diagonal reference; binned points or a flexible curve with CI; calibration intercept and slope (with 95% CI) printed in the panel or caption; histogram or rug of predicted risk under the plot, y "Patients, No.".
+- Calibration: axes "Predicted Risk" and "Observed Proportion", 0-1, equal aspect; dashed diagonal reference; binned points or a flexible curve with CI; calibration-in-the-large (offset-only logistic model) and calibration slope (with 95% CI) printed in the panel or caption; histogram or rug of predicted risk under the plot, y "Patients, No.".
 - State the validation set (apparent, internal, external) and n with events in the caption.
 
 ### Correlation matrix
 
 - Lower (or upper) triangle only; diverging palette centered on 0; variable names as full labels in row order matching the manuscript; coefficient text only when it stays >= 8 pt.
-- Mark non-significant or unstable cells by blanking or hatching, defined in the caption.
+- Show every coefficient; if precision matters, mark cells whose 95% CI is wide (state the rule in the caption) rather than blanking by P value.
 
 ### Flow diagram (CONSORT, STROBE, PRISMA)
 
 - Counts at every node; exclusions in side boxes with reasons and counts that sum to the parent box; one box per stage (assessed, excluded, randomized or included, allocated, followed up, analyzed).
 - R: `consort::consort_plot(data = df, order = c(...), side_box = c(...), allocation = "arm", labels = c(...))` then `plot(out)` or `plot(out, grViz = TRUE)`; Python: graphviz (`graphviz.Digraph`) with `fontname="Arial"`, `fontsize="8"`, rectangular nodes, vector PDF output.
 - Arial 8-10 pt in boxes, black 0.5-0.75 pt borders, arrows straight, no color.
-- Use the reporting guideline's own template order and wording (CONSORT 2010 flow, STROBE participant flow, PRISMA 2020).
+- Use the reporting guideline's own template order and wording (CONSORT 2025 flow diagram, STROBE participant flow, PRISMA 2020).
 
 ### Multi-panel composition
 
