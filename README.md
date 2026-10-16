@@ -53,7 +53,7 @@ to make before we analyze any data.
 The quickest install paths are below. If you are not sure which one applies,
 start with Claude Code or Codex and follow the matching section.
 
-![Workflow — From research question to a documented, reviewable analysis](docs/workflow-diagram.png)
+![Skill map: 30 key skills across six phases (Frame, Design, Data, Plan, Execute, Review), with guardrails for ICH E9(R1) estimands, 40 reporting checklists, 55 specialist reviewers, and PHI-safe outputs](docs/workflow-diagram.png)
 
 ## How the package works
 

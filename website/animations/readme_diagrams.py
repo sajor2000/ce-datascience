@@ -1,189 +1,104 @@
 """Editable, text-accurate diagrams used by the repository README."""
 
-from manim import (
-    Arrow,
-    DOWN,
-    LEFT,
-    RIGHT,
-    UP,
-    RoundedRectangle,
-    Scene,
-    Text,
-    VGroup,
+import sys
+from pathlib import Path
+
+from manim import DOWN, UP, Scene, VGroup
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from ce_visuals import (  # noqa: E402
+    PAPER,
+    PHASES,
+    connectors,
+    guardrail_strip,
+    heading,
+    skill_map,
+    note_panel,
+    step_card,
 )
 
 
-# Print-first editorial palette: restrained, accessible, and legible in PDF.
-# It is a clinical-journal visual treatment, not JAMA branding.
-BACKGROUND = "#FCFBF8"
-PANEL = "#FFFFFF"
-PANEL_ALT = "#F3F1EC"
-TEXT = "#202124"
-TEXT_MUTED = "#555C66"
-BLUE = "#1D4E89"
-TEAL = "#3C6E71"
-GOLD = "#A61B2B"
-LINE = "#B8B4AC"
+class ResearchWorkflow(Scene):
+    """Skill map: six lifecycle phases with the skills that do the work."""
 
-
-class ReadmeDiagram(Scene):
-    def heading(self, title: str, subtitle: str) -> VGroup:
-        heading = Text(title, font="Arial", weight="BOLD", font_size=38, color=TEXT)
-        subheading = Text(subtitle, font="Arial", font_size=19, color=TEXT_MUTED)
-        group = VGroup(heading, subheading).arrange(DOWN, buff=0.12)
-        group.scale_to_fit_width(13.1)
-        return group.to_edge(UP, buff=0.42)
-
-    def card(self, title: str, detail: str, accent: str, width: float = 3.4) -> VGroup:
-        box = RoundedRectangle(
-            corner_radius=0.04,
-            width=width,
-            height=1.7,
-            stroke_color=accent,
-            stroke_width=1.8,
-            fill_color=PANEL,
-            fill_opacity=1,
-        )
-        title_text = Text(title, font="Arial", weight="BOLD", font_size=23, color=TEXT)
-        detail_text = Text(detail, font="Arial", font_size=15, color=TEXT_MUTED, line_spacing=0.75)
-        if title_text.width > width - 0.65:
-            title_text.scale_to_fit_width(width - 0.65)
-        if detail_text.width > width - 0.35:
-            detail_text.scale_to_fit_width(width - 0.35)
-        title_text.move_to(box.get_center() + UP * 0.3)
-        detail_text.move_to(box.get_center() + DOWN * 0.32)
-        return VGroup(box, title_text, detail_text)
-
-    def pill(self, text: str, color: str, width: float = 2.4) -> VGroup:
-        box = RoundedRectangle(
-            corner_radius=0.04,
-            width=width,
-            height=0.53,
-            stroke_color=color,
-            fill_color=PANEL_ALT,
-            fill_opacity=1,
-        )
-        label = Text(text, font="Arial", weight="BOLD", font_size=15, color=TEXT)
-        label.move_to(box)
-        return VGroup(box, label)
-
-class ResearchWorkflow(ReadmeDiagram):
     def construct(self):
-        self.camera.background_color = BACKGROUND
-        header = self.heading(
+        self.camera.background_color = PAPER
+        header = heading(
             "From research question to reviewable evidence",
-            "65 skills • 55 specialist agents • 40 reporting checklists",
-        )
-        steps = (
-            ("Frame", "question + estimand", BLUE),
-            ("Check data", "keys, joins, missingness", TEAL),
-            ("Plan", "protocol + analysis plan", GOLD),
-            ("Execute", "reproducible R or Python", BLUE),
-            ("Review", "methods + reporting", TEAL),
-        )
-        cards = VGroup(*(self.card(*step, width=2.65) for step in steps)).arrange(RIGHT, buff=0.28)
-        cards.scale_to_fit_width(13.2).move_to(UP * 0.2)
-        arrows = VGroup(
-            *(
-                Arrow(
-                    cards[index][0].get_right() + RIGHT * 0.04,
-                    cards[index + 1][0].get_left() + LEFT * 0.04,
-                    buff=0,
-                    stroke_width=3,
-                    color=TEXT,
-                    max_tip_length_to_length_ratio=0.25,
-                )
-                for index in range(len(cards) - 1)
-            )
-        )
-        outcome = self.card(
-            "Result: documented decisions, evidence, code, and a reusable record",
-            "Researcher judgment remains the decision point.",
-            GOLD,
-            width=8.7,
-        ).scale(0.9).to_edge(DOWN, buff=0.55)
-        self.add(header, arrows, cards, outcome)
+            "65 skills across six phases. ce-workflow recommends the next safe step.",
+        ).to_edge(UP, buff=0.32)
+        columns = skill_map()
+        columns.scale_to_fit_width(13.5).next_to(header, DOWN, buff=0.32)
+        strip = guardrail_strip(columns.width)
+        strip.next_to(columns, DOWN, buff=0.22)
+        body = VGroup(header, columns, strip)
+        if body.height > 7.7:
+            body.scale_to_fit_height(7.7)
+        body.move_to(0)
+        self.add(body)
 
 
-class PackageWorkflow(ReadmeDiagram):
+def stepped(header, steps, note):
+    cards = VGroup(*(step_card(i + 1, *s) for i, s in enumerate(steps))).arrange(buff=0.34)
+    cards.scale_to_fit_width(13.3)
+    cards.next_to(header, DOWN, buff=0.6)
+    note.scale_to_fit_width(min(note.width, cards.width)).next_to(cards, DOWN, buff=0.5)
+    body = VGroup(header, connectors(cards), cards, note)
+    return body.move_to(0)
+
+
+class PackageWorkflow(Scene):
     def construct(self):
-        self.camera.background_color = BACKGROUND
-        header = self.heading(
+        self.camera.background_color = PAPER
+        header = heading(
             "Install once. Set up each project. Create reviewable artifacts.",
             "Use the route that matches your coding assistant and local policy.",
         )
         steps = (
-            ("1  Choose a route", "Claude Code • Codex • Pi\nstandard or locked-down", BLUE),
-            ("2  Install", "plugin or approved local package", TEAL),
-            ("3  Set up", "open a project\nrun ce-setup", GOLD),
-            ("4  Work", "ce-workflow recommends\nthe next skill", BLUE),
-            ("5  Deliver", "evidence map • SAP • figures\nmanuscript • review pack", TEAL),
+            ("Choose a route", ("Claude Code, Codex, or Pi", "standard or locked-down"), PHASES[0][2]),
+            ("Install", ("the plugin or an", "approved local package"), PHASES[1][2]),
+            ("Set up", ("ce-setup", "once per project"), PHASES[2][2]),
+            ("Work", ("ce-workflow", "recommends the next skill"), PHASES[3][2]),
+            ("Deliver", ("reviewable artifacts", "with provenance"), PHASES[5][2]),
         )
-        cards = VGroup(*(self.card(*step, width=2.65) for step in steps)).arrange(RIGHT, buff=0.3)
-        cards.scale_to_fit_width(13.15).move_to(UP * 0.14)
-        arrows = VGroup(
-            *(
-                Arrow(
-                    cards[index][0].get_right() + RIGHT * 0.04,
-                    cards[index + 1][0].get_left() + LEFT * 0.04,
-                    buff=0,
-                    stroke_width=3,
-                    color=TEXT,
-                    max_tip_length_to_length_ratio=0.25,
-                )
-                for index in range(len(cards) - 1)
-            )
+        note = note_panel(
+            "What you deliver",
+            (
+                ("ce-evidence-map", "evidence map"),
+                ("ce-plan", "SAP + estimands"),
+                ("ce-table1", "Table 1"),
+                ("ce-figure", "figures"),
+                ("ce-model-card", "model card"),
+                ("ce-manuscript-package", "submission"),
+            ),
+            13.3,
         )
-        addons_title = Text("Optional research add-ons", font="Arial", weight="BOLD", font_size=21, color=TEXT)
-        addons = VGroup(
-            self.pill("PubMed MCP", BLUE),
-            self.pill("Paperclip", TEAL),
-        ).arrange(RIGHT, buff=0.35)
-        addon_content = VGroup(addons_title, addons).arrange(DOWN, buff=0.12).to_edge(DOWN, buff=0.67)
-        addon_box = RoundedRectangle(
-            corner_radius=0.04,
-            width=6.4,
-            height=1.35,
-            stroke_color=LINE,
-            fill_color=PANEL,
-            fill_opacity=1,
-        ).move_to(addon_content)
-        self.add(header, arrows, cards, addon_box, addons_title, addons)
+        self.add(stepped(header, steps, note))
 
 
-class SkillCommands(ReadmeDiagram):
+class SkillCommands(Scene):
     def construct(self):
-        self.camera.background_color = BACKGROUND
-        header = self.heading(
+        self.camera.background_color = PAPER
+        header = heading(
             "Use CE DataScience in the project where the work lives",
             "Start broad, then let the workflow route you to a focused skill.",
         )
         steps = (
-            ("1  Open project", "analysis, manuscript,\nor study folder", BLUE),
-            ("2  Set up", "/ce-datascience:ce-setup\nor ask Codex in plain language", TEAL),
-            ("3  View workflow", "/ce-datascience:ce-workflow", GOLD),
-            ("4  Choose next skill", "data QA • plan • execute\nreview • publish", BLUE),
-            ("5  Continue", "follow the next recommended\nstep with human review", TEAL),
+            ("Open project", ("analysis, manuscript,", "or study folder"), PHASES[0][2]),
+            ("Set up", ("/ce-datascience:ce-setup", "or ask in plain language"), PHASES[1][2]),
+            ("View workflow", ("/ce-datascience:ce-workflow", "shows lifecycle status"), PHASES[2][2]),
+            ("Run next skill", ("ce-data-qa, ce-plan", "ce-work, ce-code-review"), PHASES[3][2]),
+            ("Record & reuse", ("ce-compound", "saves what you learned"), PHASES[5][2]),
         )
-        cards = VGroup(*(self.card(*step, width=2.65) for step in steps)).arrange(RIGHT, buff=0.3)
-        cards.scale_to_fit_width(13.15).move_to(UP * 0.12)
-        arrows = VGroup(
-            *(
-                Arrow(
-                    cards[index][0].get_right() + RIGHT * 0.04,
-                    cards[index + 1][0].get_left() + LEFT * 0.04,
-                    buff=0,
-                    stroke_width=3,
-                    color=TEXT,
-                    max_tip_length_to_length_ratio=0.25,
-                )
-                for index in range(len(cards) - 1)
-            )
+        note = note_panel(
+            "Optional Claude shortcuts",
+            (
+                ("--aliases", "install flag"),
+                ("/ce-setup", "short form"),
+                ("/ce-workflow", "short form"),
+                ("Optional research add-ons", "PubMed MCP  ·  Paperclip"),
+            ),
+            13.3,
         )
-        note = self.card(
-            "Claude shortcuts are optional",
-            "Install with --aliases to use /ce-setup and /ce-workflow.",
-            GOLD,
-            width=7.5,
-        ).scale(0.9).to_edge(DOWN, buff=0.55)
-        self.add(header, arrows, cards, note)
+        self.add(stepped(header, steps, note))

@@ -13,8 +13,13 @@ not modify the repository's application dependencies. Review the resulting
 
 ## README diagrams
 
-`readme_diagrams.py` is the editable source for the three workflow diagrams
-shown in the root README. Render the complete set after an inventory or
+`readme_diagrams.py` is the editable source for the three README diagrams,
+including the skill map (`docs/workflow-diagram.png`). The overview video and
+the diagrams share one design system and one content list in `ce_visuals.py`:
+edit `PHASES` or `GUARDRAILS` there and re-render both so they stay in sync.
+
+Render on macOS: the type pairs Avenir Next (prose) with Menlo (skill names);
+other systems fall back to default faces and will not match the committed art. Render the complete set after an inventory or
 workflow change:
 
 ```bash

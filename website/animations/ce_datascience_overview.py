@@ -1,81 +1,67 @@
-"""A silent GitHub Pages overview of the CE DataScience research workflow."""
+"""A silent GitHub Pages overview: the skill map, built phase by phase."""
+
+import sys
+from pathlib import Path
 
 from manim import (
-    BLUE_B,
     DOWN,
+    LEFT,
+    UP,
     FadeIn,
     FadeOut,
-    GREEN_B,
-    GREY_B,
-    LEFT,
-    RIGHT,
-    RoundedRectangle,
+    LaggedStart,
     Scene,
-    Text,
-    UP,
     VGroup,
-    WHITE,
     Write,
-    YELLOW_B,
 )
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-BACKGROUND = "#0B1F33"
-ACCENT = "#63B3ED"
-STEPS = (
-    ("Frame", "question + estimand", ACCENT),
-    ("Design", "PICO, SAP, data checks", BLUE_B),
-    ("Analyze", "reproducible R or Python", GREEN_B),
-    ("Review", "methods + reporting", YELLOW_B),
-    ("Document", "handoff + reusable record", GREY_B),
-)
+from ce_visuals import MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
 
 
 class CEDataScienceOverview(Scene):
-    def card(self, title, detail, color):
-        box = RoundedRectangle(
-            corner_radius=0.16,
-            width=4.6,
-            height=1.15,
-            stroke_color=color,
-            stroke_width=3,
-            fill_color="#102A43",
-            fill_opacity=1,
-        )
-        heading = Text(title, font="Arial", font_size=26, color=WHITE, weight="BOLD")
-        heading.move_to(box.get_left() + RIGHT * 0.35 + UP * 0.2, aligned_edge=LEFT)
-        detail_text = Text(detail, font="Arial", font_size=17, color="#C9D8E8")
-        detail_text.move_to(box.get_left() + RIGHT * 0.35 + DOWN * 0.25, aligned_edge=LEFT)
-        return VGroup(box, heading, detail_text)
-
     def construct(self):
-        self.camera.background_color = BACKGROUND
+        self.camera.background_color = PAPER
 
-        title = Text(
-            "CE DataScience", font="Arial", font_size=42, color=WHITE, weight="BOLD"
+        header = heading(
+            "CE DataScience",
+            "From research question to reviewable evidence, one safe step at a time",
         )
-        subtitle = Text(
-            "A research workflow that stays reviewable",
-            font="Arial",
-            font_size=21,
-            color="#C9D8E8",
-        )
-        title.to_edge(UP, buff=0.65)
-        subtitle.next_to(title, DOWN, buff=0.2)
-        self.play(Write(title), FadeIn(subtitle, shift=UP * 0.15), run_time=1.2)
+        header.to_edge(UP, buff=0.32)
+        columns = skill_map()
+        columns.scale_to_fit_width(13.5).next_to(header, DOWN, buff=0.32)
+        strip = guardrail_strip(columns.width).next_to(columns, DOWN, buff=0.22)
+        body = VGroup(header, columns, strip)
+        if body.height > 7.7:
+            body.scale_to_fit_height(7.7)
+        body.move_to(0)
 
-        cards = VGroup(*(self.card(*step) for step in STEPS)).arrange(DOWN, buff=0.2)
-        cards.scale(0.72).next_to(subtitle, DOWN, buff=0.35)
+        self.play(Write(header[0]), FadeIn(header[1], shift=UP * 0.12), run_time=1.3)
+        self.wait(0.4)
 
-        for card in cards:
-            self.play(FadeIn(card, shift=RIGHT * 0.25), run_time=0.42)
+        for column in columns:
+            frame, band, inner = column
+            head, sub, rule, rows = inner
+            self.play(
+                FadeIn(frame, shift=UP * 0.15),
+                FadeIn(band),
+                FadeIn(head, shift=LEFT * 0.08),
+                FadeIn(sub),
+                FadeIn(rule),
+                run_time=0.45,
+            )
+            self.play(
+                LaggedStart(*(FadeIn(row, shift=LEFT * 0.1) for row in rows), lag_ratio=0.18),
+                run_time=1.0,
+            )
+            self.wait(0.35)
 
-        close = Text(
-            "Researcher judgment remains the decision point.",
-            font="Arial",
-            font_size=20,
-            color=WHITE,
-        ).to_edge(DOWN, buff=0.62)
-        self.play(FadeIn(close, shift=UP * 0.15), run_time=0.7)
-        self.wait(2)
-        self.play(FadeOut(VGroup(title, subtitle, cards, close)), run_time=0.6)
+        self.play(FadeIn(strip, shift=UP * 0.15), run_time=0.8)
+        self.wait(2.2)
+
+        close = text("Researcher judgment remains the decision point.", 26, color=MUTED)
+        self.play(FadeOut(body, shift=UP * 0.2), run_time=0.8)
+        self.play(FadeIn(close, shift=UP * 0.12), run_time=0.8)
+        self.wait(1.6)
+        self.play(FadeOut(close), run_time=0.6)
