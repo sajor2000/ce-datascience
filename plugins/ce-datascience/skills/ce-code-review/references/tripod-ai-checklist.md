@@ -11,13 +11,17 @@
 - Results (items 20a-24)
 - Discussion (items 25-27c)
 
-Current primary checklist for transparent reporting of studies developing or evaluating (validating) a clinical prediction model, regardless of whether regression or machine learning methods were used: 27 numbered items (52 rows counting lettered sub-items) in eight sections. Item numbers, section headings, D/E markers, and paraphrased item wording below follow Table 2 of the statement.
+Current primary checklist for transparent reporting of studies developing or evaluating (validating) a clinical prediction model, regardless of whether regression or machine learning methods were used: 27 numbered items (52 rows counting lettered sub-items) in eight sections. Item numbers, section headings, D/E markers, and item wording below are copied verbatim from Table 2 of the statement (footnote symbols omitted; footnotes are reproduced under the affected items).
 
 **Base guideline:** TRIPOD (Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis)
 
 **Primary reference (TRIPOD+AI):** Collins GS, Moons KGM, Dhiman P, Riley RD, Beam AL, Van Calster B, Ghassemi M, Liu X, Reitsma JB, van Smeden M, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. BMJ. 2024;385:e078378. doi:10.1136/bmj-2023-078378. PMID: 38626948. PMCID: PMC11019967.
 
-**Verified against:** TRIPOD+AI Table 2 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC11019967/. The 13-item TRIPOD+AI for Abstracts checklist is Table 3 of the same article.
+**Verified against:** TRIPOD+AI Table 2 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC11019967/, checked 2026-10-15. The 13-item TRIPOD+AI for Abstracts checklist is Table 3 of the same article. EQUATOR record: https://www.equator-network.org/reporting-guidelines/tripod-statement/.
+
+**Correction:** BMJ. 2024;385:q902. doi:10.1136/bmj.q902. PMID: 38636956.
+
+**Licence and wording:** The statement is open access under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); © the authors, published by BMJ. Item text is verbatim with attribution; the "What to look for" cues are added by this plugin. The full TRIPOD+AI explanation and elaboration paper is not yet published; EQUATOR directs users to the TRIPOD 2015 E&E (PMID 25560730) and the TRIPOD+AI Expanded Checklist (Supplementary Table 1) meanwhile.
 
 **Original TRIPOD reference:** Moons KGM, Altman DG, Reitsma JB, Ioannidis JPA, Macaskill P, Steyerberg EW, Vickers AJ, Ransohoff DF, Collins GS. Transparent Reporting of a multivariable prediction model for Individual Prognosis or Diagnosis (TRIPOD): explanation and elaboration. Ann Intern Med. 2015;162(1):W1-73. doi:10.7326/M14-0698. PMID: 25560730.
 
@@ -31,12 +35,11 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 1 -- Title (D;E)
 
-**Description:** Identify the study as developing or evaluating a multivariable prediction model, and name the target population and the outcome to be predicted.
+**Description:** Identify the study as developing or evaluating the performance of a multivariable prediction model, the target population, and the outcome to be predicted.
 
 **What to look for in code/outputs:**
 - Report title or header naming the prediction target and population (e.g., 30-day mortality after cardiac surgery)
 - Title stating whether the study develops, evaluates (validates), or both
-- Keywords or document metadata consistent with the stated design and clinical domain
 
 ---
 
@@ -44,7 +47,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 2 -- Abstract (D;E)
 
-**Description:** Report the abstract according to the TRIPOD+AI for Abstracts checklist (13 items).
+**Description:** See TRIPOD+AI for Abstracts checklist. (13 items; Table 3 of the statement.)
 
 **What to look for in code/outputs:**
 - Structured abstract separating objectives, data source, participants, outcome, predictors, model type, and performance
@@ -58,7 +61,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 3 -- Background (D;E)
 
-**Description:** (3a) Healthcare context, including whether the model is diagnostic or prognostic, and the rationale for developing or evaluating it, with references to existing models. (3b) Target population, intended purpose within the care pathway, and intended users. (3c) Known health inequalities between sociodemographic groups.
+**Description:** (3a) Explain the healthcare context (including whether diagnostic or prognostic) and rationale for developing or evaluating the prediction model, including references to existing models. (3b) Describe the target population and the intended purpose of the prediction model in the context of the care pathway, including its intended users (eg, healthcare professionals, patients, public). (3c) Describe any known health inequalities between sociodemographic groups.
 
 **What to look for in code/outputs:**
 - Literature review or comparison table of existing models for the same prediction task
@@ -68,12 +71,11 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 4 -- Objectives (D;E)
 
-**Description:** Specify the study objectives, including whether the study describes development, validation, or both.
+**Description:** Specify the study objectives, including whether the study describes the development or validation of a prediction model (or both).
 
 **What to look for in code/outputs:**
 - Objectives stated in the SAP or protocol and matched by the analysis entry point
 - Study design classification (development with internal validation, external validation, development plus external validation)
-- Consistency between stated objectives and the analyses actually run
 
 ---
 
@@ -81,7 +83,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 5 -- Data (D;E)
 
-**Description:** (5a) Sources of data, separately for development and evaluation datasets (e.g., randomised trial, cohort, routine care, registry), the rationale for using them, and their representativeness. (5b) Dates of participant accrual and, if applicable, end of follow-up.
+**Description:** (5a) Describe the sources of data separately for the development and evaluation datasets (eg, randomised trial, cohort, routine care or registry data), the rationale for using these data, and representativeness of the data. (5b) Specify the dates of the collected participant data, including start and end of participant accrual; and, if applicable, end of follow-up.
 
 **What to look for in code/outputs:**
 - Data source documentation (EHR system, registry, cohort, claims) per dataset, with the reason each was chosen
@@ -91,7 +93,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 6 -- Participants (D;E)
 
-**Description:** (6a) Study setting (e.g., primary care, secondary care, general population), including the number and location of centres. (6b) Eligibility criteria. (6c) Treatments received and how they were handled during development or evaluation, if relevant.
+**Description:** (6a) Specify key elements of the study setting (eg, primary care, secondary care, general population) including the number and location of centres. (6b) Describe the eligibility criteria for study participants. (6c) Give details of any treatments received, and how they were handled during model development or evaluation, if relevant.
 
 **What to look for in code/outputs:**
 - Inclusion and exclusion criteria implemented in filtering code and matching the written criteria
@@ -101,7 +103,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 7 -- Data preparation (D;E)
 
-**Description:** Describe data pre-processing and quality checking, including whether it was similar across relevant sociodemographic groups.
+**Description:** Describe any data pre-processing and quality checking, including whether this was similar across relevant sociodemographic groups.
 
 **What to look for in code/outputs:**
 - Normalisation, encoding, outlier, and quality-check code with the thresholds used
@@ -111,7 +113,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 8 -- Outcome (D;E)
 
-**Description:** (8a) Outcome definition and time horizon, how and when assessed, rationale for the outcome, and whether assessment is consistent across sociodemographic groups. (8b) Qualifications and demographics of outcome assessors when assessment is subjective. (8c) Actions to blind outcome assessment.
+**Description:** (8a) Clearly define the outcome that is being predicted and the time horizon, including how and when assessed, the rationale for choosing this outcome, and whether the method of outcome assessment is consistent across sociodemographic groups. (8b) If outcome assessment requires subjective interpretation, describe the qualifications and demographic characteristics of the outcome assessors. (8c) Report any actions to blind assessment of the outcome to be predicted.
 
 **What to look for in code/outputs:**
 - Outcome derivation code with ICD/CPT/LOINC or phenotype definitions and the ascertainment window relative to the index date
@@ -121,7 +123,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 9 -- Predictors (9a D; 9b-9c D;E)
 
-**Description:** (9a) Choice of initial predictors (literature, previous models, all available variables) and any pre-selection before model building. (9b) Definition of all predictors, how and when they were measured, and any blinding of predictor assessment. (9c) Qualifications and demographics of predictor assessors when measurement is subjective.
+**Description:** (9a) Describe the choice of initial predictors (eg, literature, previous models, all available predictors) and any pre-selection of predictors before model building. (9b) Clearly define all predictors, including how and when they were measured (and any actions to blind assessment of predictors for the outcome and other predictors). (9c) If predictor measurement requires subjective interpretation, describe the qualifications and demographic characteristics of the predictor assessors.
 
 **What to look for in code/outputs:**
 - Candidate predictor list with data types, units, source tables, and the rationale for inclusion
@@ -131,7 +133,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 10 -- Sample size (D;E)
 
-**Description:** Explain how the study size was arrived at, separately for development and evaluation, and justify that it is sufficient, including any sample size calculation.
+**Description:** Explain how the study size was arrived at (separately for development and evaluation), and justify that the study size was sufficient to answer the research question. Include details of any sample size calculation.
 
 **What to look for in code/outputs:**
 - Sample size or minimum-events calculation (e.g., `pmsampsize`-style criteria for development, precision targets for evaluation)
@@ -140,7 +142,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 11 -- Missing data (D;E)
 
-**Description:** Describe how missing data were handled and give reasons for omitting any data.
+**Description:** Describe how missing data were handled. Provide reasons for omitting any data.
 
 **What to look for in code/outputs:**
 - Missing data summary (count and percentage per predictor and outcome) for each dataset
@@ -150,7 +152,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 12 -- Analytical methods (12a-12c D; 12d-12e D;E; 12f-12g E)
 
-**Description:** (12a) How the data were used in the analysis, including any partitioning, considering sample size requirements. (12b) How predictors were handled (functional form, rescaling, transformation, standardisation). (12c) Type of model, rationale, all model-building steps including hyperparameter tuning, and the internal validation method. (12d) Handling and quantification of heterogeneity in parameters and performance across clusters (see TRIPOD-Cluster). (12e) All measures and plots used to evaluate performance (discrimination, calibration, clinical utility) and to compare models. (12f) Any model updating (e.g., recalibration) arising from evaluation, overall or for particular groups or settings. (12g) How predictions were calculated for evaluation (formula, code, object, API).
+**Description:** (12a) Describe how the data were used (eg, for development and evaluation of model performance) in the analysis, including whether the data were partitioned, considering any sample size requirements. (12b) Depending on the type of model, describe how predictors were handled in the analyses (functional form, rescaling, transformation, or any standardisation). (12c) Specify the type of model, rationale (separately for all model building approaches), all model building steps, including any hyperparameter tuning, and method for internal validation. (12d) Describe if and how any heterogeneity in estimates of model parameter values and model performance was handled and quantified across clusters (eg, hospitals, countries). See TRIPOD-Cluster for additional considerations. (12e) Specify all measures and plots used (and their rationale) to evaluate model performance (eg, discrimination, calibration, clinical utility) and, if relevant, to compare multiple models. (12f) Describe any model updating (eg, recalibration) arising from the model evaluation, either overall or for particular sociodemographic groups or settings. (12g) For model evaluation, describe how the model predictions were calculated (eg, formula, code, object, application programming interface).
 
 **What to look for in code/outputs:**
 - Train/validation/test split or cross-validation code with ratios, seeds, stratification, and grouping by patient or site; temporal splits preserving order
@@ -163,7 +165,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 13 -- Class imbalance (D;E)
 
-**Description:** If class imbalance methods were used, state why and how, and any subsequent recalibration of the model or its predictions.
+**Description:** If class imbalance methods were used, state why and how this was done, and any subsequent methods to recalibrate the model or the model predictions.
 
 **What to look for in code/outputs:**
 - Resampling, reweighting, or synthetic oversampling code (e.g., SMOTE, class weights) and the rationale
@@ -172,7 +174,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 14 -- Fairness (D;E)
 
-**Description:** Describe any approaches used to address model fairness and their rationale.
+**Description:** Describe any approaches that were used to address model fairness and their rationale.
 
 **What to look for in code/outputs:**
 - Fairness strategy stated before modelling (group definitions, metrics, mitigation such as reweighting or threshold adjustment)
@@ -182,7 +184,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 15 -- Model output (D)
 
-**Description:** Specify the model output (probabilities, classification) and the details and rationale for any classification thresholds.
+**Description:** Specify the output of the prediction model (eg, probabilities, classification). Provide details and rationale for any classification and how the thresholds were identified.
 
 **What to look for in code/outputs:**
 - Output type of the final model artefact (probability, risk score, class label)
@@ -191,7 +193,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 16 -- Training versus evaluation (D;E)
 
-**Description:** Identify differences between development and evaluation data in healthcare setting, eligibility criteria, outcome, and predictors.
+**Description:** Identify any differences between the development and evaluation data in healthcare setting, eligibility criteria, outcome, and predictors.
 
 **What to look for in code/outputs:**
 - Side-by-side documentation of setting, eligibility, outcome definition, and predictor definitions across datasets
@@ -200,12 +202,11 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 17 -- Ethical approval (D;E)
 
-**Description:** Name the research ethics board or committee that approved the study and describe participant consent or the waiver of consent.
+**Description:** Name the institutional research board or ethics committee that approved the study and describe the participant informed consent or the ethics committee waiver of informed consent.
 
 **What to look for in code/outputs:**
 - IRB or ethics approval reference recorded in the protocol or project documentation
 - Consent or waiver statement consistent with the data source (e.g., routine-care data under waiver)
-- Data-use agreement constraints reflected in the data access code
 
 ---
 
@@ -213,7 +214,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 18 -- Open science (D;E)
 
-**Description:** (18a) Source of funding and role of funders. (18b) Conflicts of interest and financial disclosures for all authors. (18c) Where the study protocol can be accessed, or that none was prepared. (18d) Registration details (register name and number), or that the study was not registered. (18e) Availability of the study data. (18f) Availability of the analytical code, covering data cleaning, feature engineering, model building, and evaluation.
+**Description:** (18a) Give the source of funding and the role of the funders for the present study. (18b) Declare any conflicts of interest and financial disclosures for all authors. (18c) Indicate where the study protocol can be accessed or state that a protocol was not prepared. (18d) Provide registration information for the study, including register name and registration number, or state that the study was not registered. (18e) Provide details of the availability of the study data. (18f) Provide details of the availability of the analytical code (relates to the analysis code, for example, any data cleaning, feature engineering, model building, and evaluation).
 
 **What to look for in code/outputs:**
 - Funding and conflict-of-interest statements, including industry roles in data or algorithm provision
@@ -228,7 +229,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 19 -- Patient and public involvement (D;E)
 
-**Description:** Describe any patient and public involvement during design, conduct, reporting, interpretation, or dissemination, or state that there was none.
+**Description:** Provide details of any patient and public involvement during the design, conduct, reporting, interpretation, or dissemination of the study or state no involvement.
 
 **What to look for in code/outputs:**
 - PPI section in the protocol or manuscript naming the stage(s) of involvement
@@ -241,7 +242,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 20 -- Participants (20a-20b D;E; 20c E)
 
-**Description:** (20a) Flow of participants through the study, including numbers with and without the outcome and a summary of follow-up time; a diagram may help. (20b) Characteristics overall and per data source or setting, including key dates, key predictors and demographics, treatments, sample size, outcome events, follow-up, and amount of missing data; report differences across key demographic groups. (20c) For evaluation, a comparison with the development data of the distribution of important predictors, demographics, and outcome.
+**Description:** (20a) Describe the flow of participants through the study, including the number of participants with and without the outcome and, if applicable, a summary of the follow-up time. A diagram may be helpful. (20b) Report the characteristics overall and, where applicable, for each data source or setting, including the key dates, key predictors (including demographics), treatments received, sample size, number of outcome events, follow-up time, and amount of missing data. A table may be helpful. Report any differences across key demographic groups. (20c) For model evaluation, show a comparison with the development data of the distribution of important predictors (demographics, predictors, and outcome).
 
 **What to look for in code/outputs:**
 - Participant flow with counts at each exclusion step, generated from the cohort-construction code (e.g., the `ce-cohort-build` waterfall)
@@ -250,15 +251,14 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 21 -- Model development (D;E)
 
-**Description:** Specify the number of participants and outcome events in each analysis (e.g., model development, hyperparameter tuning, model evaluation).
+**Description:** Specify the number of participants and outcome events in each analysis (eg, for model development, hyperparameter tuning, model evaluation).
 
 **What to look for in code/outputs:**
 - Logged sample size and event count for every data partition, fold, and bootstrap resample set
-- Numbers reported in outputs that reconcile with the flow diagram in item 20a
 
 ### Item 22 -- Model specification (D)
 
-**Description:** Provide the full prediction model (formula, code, object, or API) so that predictions can be made in new individuals and third parties can evaluate and implement it, including any access or reuse restrictions.
+**Description:** Provide details of the full prediction model (eg, formula, code, object, application programming interface) to allow predictions in new individuals and to enable third party evaluation and implementation, including any restrictions to access or reuse (eg, freely available, proprietary). This relates to the code to implement the model to get estimates of risk for a new individual.
 
 **What to look for in code/outputs:**
 - Serialised model object or published formula with coefficients, plus the preprocessing pipeline needed to reproduce predictions
@@ -268,7 +268,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 23 -- Model performance (D;E)
 
-**Description:** (23a) Performance estimates with confidence intervals, including for key subgroups (e.g., sociodemographic); consider plots. (23b) If examined, heterogeneity in performance across clusters (see TRIPOD-Cluster).
+**Description:** (23a) Report model performance estimates with confidence intervals, including for any key subgroups (eg, sociodemographic). Consider plots to aid presentation. (23b) If examined, report results of any heterogeneity in model performance across clusters. See TRIPOD-Cluster for additional details.
 
 **What to look for in code/outputs:**
 - Performance tables with bootstrap or analytic confidence intervals for every dataset and subgroup
@@ -278,7 +278,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 24 -- Model updating (E)
 
-**Description:** Report the results of any model updating, including the updated model and its subsequent performance.
+**Description:** Report the results from any model updating, including the updated model and subsequent performance.
 
 **What to look for in code/outputs:**
 - Updated coefficients, recalibration parameters, or refitted artefact alongside the original
@@ -291,7 +291,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 25 -- Interpretation (D;E)
 
-**Description:** Give an overall interpretation of the main results, including issues of fairness, in the context of the objectives and previous studies.
+**Description:** Give an overall interpretation of the main results, including issues of fairness in the context of the objectives and previous studies.
 
 **What to look for in code/outputs:**
 - Interpretation that matches the reported estimates and uncertainty, without spin on discrimination alone
@@ -301,7 +301,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 26 -- Limitations (D;E)
 
-**Description:** Discuss limitations such as a non-representative sample, sample size, overfitting, and missing data, and their effects on bias, statistical uncertainty, and generalisability.
+**Description:** Discuss any limitations of the study (such as a non-representative sample, sample size, overfitting, missing data) and their effects on any biases, statistical uncertainty, and generalisability.
 
 **What to look for in code/outputs:**
 - Comparison of development population to the intended deployment population from item 3b
@@ -311,7 +311,7 @@ Each item lists the sub-items with their markers, then what to look for in analy
 
 ### Item 27 -- Usability of the model in the context of current care (27a-27b D; 27c D;E)
 
-**Description:** (27a) How poor-quality or unavailable input data should be assessed and handled when the model is implemented. (27b) Whether users must interact in handling input data or using the model, and the expertise required. (27c) Next steps for future research, with a view to the model's applicability and generalisability.
+**Description:** (27a) Describe how poor quality or unavailable input data (eg, predictor values) should be assessed and handled when implementing the prediction model. (27b) Specify whether users will be required to interact in the handling of the input data or use of the model, and what level of expertise is required of users. (27c) Discuss any next steps for future research, with a specific view to applicability and generalisability of the model.
 
 **What to look for in code/outputs:**
 - Input validation and missing-input behaviour in the prediction code (defaults, imputation at prediction time, refusal to predict)
