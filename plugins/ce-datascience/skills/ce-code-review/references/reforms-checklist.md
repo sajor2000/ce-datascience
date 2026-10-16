@@ -2,236 +2,280 @@
 
 ## Contents
 
-- Data
-- Experimental Setup
-- Evaluation
-- Reproducibility
-- Reporting
+- Module 1: Study goals
+- Module 2: Computational reproducibility
+- Module 3: Data quality
+- Module 4: Data preprocessing
+- Module 5: Modeling
+- Module 6: Data leakage
+- Module 7: Metrics and uncertainty
+- Module 8: Generalizability and limitations
 
-AI EXTENSION checklist providing consensus-based recommendations for conducting and reporting machine learning-based scientific research across disciplines.
+Cross-disciplinary reporting checklist for ML-based science: 32 items in 8 modules. Use it alongside, never instead of, the primary reporting guideline for the study design (for example TRIPOD+AI for a clinical prediction model).
 
-**Base guideline:** Applies across multiple study types (any ML/computational study in biomedical or scientific research)
+**Base guideline:** Applies across study types whenever the study makes scientific claims from machine-learning methods. It is never the primary guideline.
 
 **Primary reference:** Kapoor S, Cantrell EM, Peng K, Pham TH, Bail CA, Gundersen OE, Hofman JM, Hullman J, Lones MA, Malik MM, Nanayakkara P, Poldrack RA, Raji ID, Roberts M, Salganik MJ, Serra-Garcia M, Stewart BM, Vandewiele G, Narayanan A. REFORMS: Consensus-based Recommendations for Machine-learning-based Science. Sci Adv. 2024;10(18):eadk3452. doi:10.1126/sciadv.adk3452. PMID: 38691601.
 
-This checklist covers 32 questions organized across key areas of ML-based research. Apply to any study using machine learning methods for scientific inference or prediction.
+**Source and licence:** Module names and item IDs (1a-8b) follow Table 1 of Kapoor et al. 2024; item descriptions are paraphrased from Kapoor S, et al. Sci Adv. 2024;10(18):eadk3452 (https://doi.org/10.1126/sciadv.adk3452, PMC11092361; CC BY-NC 4.0); see the original for exact wording. EQUATOR record: https://www.equator-network.org/reporting-guidelines/reforms-consensus-based-recommendations-for-machine-learning-based-science/. Project site: https://reforms.cs.princeton.edu/. The authors note that not every item applies to every study; authors and referees decide which items are relevant. The "What to look for" bullets are ce-datascience review guidance, not part of the guideline.
 
 ---
 
-## Data
+## Module 1: Study goals
 
-### Item 1 -- Data provenance
+### Item 1a -- Population or distribution of the claim
 
-**Description:** Document the source, collection method, and original purpose of all datasets used.
-
-**What to look for in code/outputs:**
-- Data loading code with source documentation (URL, database, registry, institutional source)
-- Data use agreements or licensing information referenced in documentation
-- Original dataset publication or data descriptor cited
-- Documentation distinguishing primary data collection from secondary data reuse
-
-### Item 2 -- Dataset characteristics
-
-**Description:** Report dataset size, dimensionality, class distribution, and key demographic or domain characteristics.
+**Description:** State the population or distribution that the scientific claim is about.
 
 **What to look for in code/outputs:**
-- Summary statistics code generating dataset shape, class balance, and feature distributions
-- Demographic or domain characteristic tables for the dataset
-- Class imbalance quantification and handling strategy
-- Comparison with reference populations when using observational data
+- Target population or data distribution named in the protocol, SAP, or report
+- Claims in the results limited to that population
 
-### Item 3 -- Data preprocessing and cleaning
+### Item 1b -- Motivation for the population
 
-**Description:** Document all preprocessing steps including cleaning, filtering, normalization, and transformation.
+**Description:** Explain why this population or distribution (1a) was chosen.
 
 **What to look for in code/outputs:**
-- Preprocessing pipeline code with each step documented
-- Outlier detection and removal criteria
-- Normalization and scaling methods with parameters
-- Data quality filtering thresholds and their justification
+- Rationale for the population choice stated in the protocol or introduction
 
-### Item 4 -- Feature engineering
+### Item 1c -- Motivation for ML
 
-**Description:** Describe all feature construction, selection, and transformation steps, including the rationale.
+**Description:** Explain why ML methods are used in the study.
 
 **What to look for in code/outputs:**
-- Feature derivation code with documented rationale for each engineered feature
-- Feature selection method (filter, wrapper, embedded) with selection criteria
-- Dimensionality before and after feature engineering reported
-- Domain knowledge justification for feature construction choices
-
-### Item 5 -- Data splitting strategy
-
-**Description:** Describe how data were split into training, validation, and test sets, including the rationale for the splitting strategy.
-
-**What to look for in code/outputs:**
-- Split code with explicit random seeds, split ratios, and stratification logic
-- Temporal, geographic, or institutional splits when independence is required
-- Leakage prevention measures (splitting before preprocessing, group-aware splits)
-- Documentation of why the chosen split strategy is appropriate for the research question
+- Stated reason ML is needed over simpler or traditional methods
 
 ---
 
-## Experimental Setup
+## Module 2: Computational reproducibility
 
-### Item 6 -- Model selection rationale
+### Item 2a -- Dataset identification
 
-**Description:** Justify the choice of ML algorithm(s), including why they are appropriate for the data and research question.
-
-**What to look for in code/outputs:**
-- Documentation comparing candidate model families and rationale for selection
-- Baseline model specifications (logistic regression, simple heuristic) for comparison
-- Model complexity justification relative to dataset size
-- Domain-specific constraints influencing model choice (interpretability, real-time inference)
-
-### Item 7 -- Hyperparameter search
-
-**Description:** Describe the hyperparameter search strategy, including search space, search method, and computational budget.
+**Description:** Describe the dataset used to train and evaluate the model, and give a link or DOI that uniquely identifies it.
 
 **What to look for in code/outputs:**
-- Hyperparameter search code with defined search spaces and ranges
-- Search method specification (grid, random, Bayesian, successive halving)
-- Computational budget documentation (number of trials, GPU hours)
-- Best hyperparameter configuration reported with selection criterion
+- Dataset name, version, and persistent link or DOI in the README or data loader
+- Access restrictions documented when the data cannot be shared
 
-### Item 8 -- Cross-validation strategy
+### Item 2b -- Code identification
 
-**Description:** Describe the cross-validation strategy, ensuring it accounts for data structure (temporal, spatial, grouped).
+**Description:** Describe the code used to train and evaluate the model and to produce the reported results, with a link or DOI that uniquely identifies the code version used.
 
 **What to look for in code/outputs:**
-- Cross-validation implementation respecting data structure (grouped k-fold, time-series split)
-- Nested cross-validation for simultaneous model selection and evaluation
-- Documentation of fold assignment strategy and any stratification
-- Leakage checks confirming no information flow from test to training folds
+- Repository URL with a tagged release, commit hash, or archived DOI (e.g., Zenodo)
 
-### Item 9 -- Computational environment
+### Item 2c -- Computing infrastructure
 
-**Description:** Document the computational environment, including hardware, software versions, and random seeds.
+**Description:** Describe the computing infrastructure used.
 
 **What to look for in code/outputs:**
-- Environment specification files (requirements.txt, environment.yml, Dockerfile)
-- Hardware documentation (GPU type, CPU cores, memory)
-- Random seed setting code for reproducibility
-- Framework and library version numbers logged in outputs or config
+- Hardware (CPU/GPU), operating system, and software/package versions recorded (lockfile, environment file, container)
+
+### Item 2d -- README
+
+**Description:** Provide a README with instructions for generating the results from the provided dataset and code.
+
+**What to look for in code/outputs:**
+- README with step-by-step commands from raw data to reported results
+
+### Item 2e -- Reproduction script
+
+**Description:** Provide a reproduction script that produces all results reported in the paper.
+
+**What to look for in code/outputs:**
+- Single entry-point script or pipeline (Makefile, Snakemake, targets, shell script) that regenerates every reported table and figure
+- Random seeds fixed and recorded
 
 ---
 
-## Evaluation
+## Module 3: Data quality
 
-### Item 10 -- Performance metrics
+### Item 3a -- Data sources
 
-**Description:** Report multiple performance metrics appropriate for the task, not just the primary metric.
-
-**What to look for in code/outputs:**
-- Multiple metric calculations (accuracy, precision, recall, F1, AUC, MSE, MAE)
-- Task-appropriate primary metric selection with justification
-- Threshold-dependent metrics reported at multiple operating points
-- Metrics computed on held-out test set, not validation set used for tuning
-
-### Item 11 -- Confidence intervals and uncertainty
-
-**Description:** Report confidence intervals or other uncertainty measures for all performance metrics.
+**Description:** Describe the data source(s), separately for training and evaluation datasets where applicable, including when the data were collected, how ground-truth annotations were sourced and produced, and other data documentation.
 
 **What to look for in code/outputs:**
-- Bootstrap confidence interval code for performance metrics
-- Standard error or standard deviation across cross-validation folds
-- Bayesian credible intervals when applicable
-- Statistical significance testing against baselines with appropriate corrections
+- Separate provenance for training and evaluation data, with collection dates
+- Label or ground-truth annotation process documented (who, how, agreement)
 
-### Item 12 -- Comparison with baselines
+### Item 3b -- Sampling frame
 
-**Description:** Compare model performance against meaningful baselines, including simple models, existing methods, and human performance where applicable.
+**Description:** State the distribution or set the dataset is sampled from (the sampling frame).
 
 **What to look for in code/outputs:**
-- Baseline model implementations (majority class, random, logistic regression, existing clinical scores)
-- Statistical comparison between proposed model and baselines
-- Effect size quantification for performance differences
-- Human expert performance benchmarks when available
+- Sampling frame stated (e.g., all admissions at site X in years Y-Z)
 
-### Item 13 -- Subgroup analysis
+### Item 3c -- Usefulness of the dataset
 
-**Description:** Report model performance across meaningful subgroups to identify disparities.
+**Description:** Explain why the dataset is useful for the modeling task.
 
 **What to look for in code/outputs:**
-- Subgroup-stratified performance tables (by demographics, severity, data source)
-- Performance disparity quantification across subgroups
-- Sample sizes per subgroup reported alongside metrics
-- Worst-subgroup performance highlighted
+- Argument linking dataset content to the modeling task
 
-### Item 14 -- Failure analysis
+### Item 3d -- Outcome variable
 
-**Description:** Analyze and report model failures, including systematic error patterns and their potential causes.
+**Description:** State the model's outcome variable and its definition, with descriptive statistics (split by class when the outcome is categorical).
 
 **What to look for in code/outputs:**
-- Error analysis code examining misclassified or high-error cases
-- Confusion matrices with error pattern documentation
-- Systematic failure mode identification (e.g., specific data characteristics associated with errors)
-- Case studies of notable failures with clinical or scientific context
+- Outcome definition in code matches the report; descriptive table by class
+
+### Item 3e -- Sample size and outcome frequencies
+
+**Description:** State the sample size and the outcome frequencies.
+
+**What to look for in code/outputs:**
+- N and outcome prevalence reported for each split
+
+### Item 3f -- Missing data
+
+**Description:** State the percentage of missing data, split by class when the outcome is categorical.
+
+**What to look for in code/outputs:**
+- Missingness table by variable and by outcome class
+
+### Item 3g -- Representativeness
+
+**Description:** Explain why the distribution or set the dataset is drawn from (3b) represents the one the scientific claim is about (1a).
+
+**What to look for in code/outputs:**
+- Comparison of the sampling frame with the target population of the claim
 
 ---
 
-## Reproducibility
+## Module 4: Data preprocessing
 
-### Item 15 -- Code availability
+### Item 4a -- Excluded samples
 
-**Description:** Share all code required to reproduce the analysis, including preprocessing, model training, and evaluation.
-
-**What to look for in code/outputs:**
-- Public code repository with complete analysis pipeline
-- README with reproduction instructions
-- Environment setup documentation sufficient for independent reproduction
-- License specification for code reuse
-
-### Item 16 -- Data availability
-
-**Description:** Share datasets or provide detailed instructions for data access, including any restrictions.
+**Description:** State whether any samples were excluded and why.
 
 **What to look for in code/outputs:**
-- Data availability statement with access instructions
-- Synthetic or simulated data provided when original data cannot be shared
-- Data use agreement or application process documented
-- De-identification procedures documented when sharing clinical data
+- Filtering code with documented exclusion criteria and counts (exclusion waterfall)
 
-### Item 17 -- Trained model availability
+### Item 4b -- Impossible or corrupt samples
 
-**Description:** Share trained model weights or provide access to the model for independent evaluation.
+**Description:** Describe how impossible or corrupt samples were handled.
 
 **What to look for in code/outputs:**
-- Model checkpoint files available in a repository
-- Model card documenting intended use, limitations, and performance
-- Inference API or containerized model for independent evaluation
-- Model serialization format documented
+- Range checks or validation rules and the action taken (drop, correct, flag)
+
+### Item 4c -- Transformations
+
+**Description:** Describe every transformation from the raw dataset (3a) to the form used in the model, such as missing-data treatment and normalization, ideally with a flow chart.
+
+**What to look for in code/outputs:**
+- Every transformation step traceable in code (imputation, scaling, encoding, feature construction)
+- Flow chart or pipeline diagram from raw data to model input
 
 ---
 
-## Reporting
+## Module 5: Modeling
 
-### Item 18 -- Limitations
+### Item 5a -- Models trained
 
-**Description:** Discuss limitations of the ML approach, including data limitations, methodological constraints, and generalizability.
-
-**What to look for in code/outputs:**
-- Documented dataset limitations (size, representativeness, label quality)
-- Methodological limitations (model assumptions, evaluation constraints)
-- Generalizability constraints based on training data characteristics
-- Temporal validity concerns (concept drift, data distribution shift)
-
-### Item 19 -- Ethical considerations
-
-**Description:** Discuss ethical implications of the ML research, including potential for misuse, fairness concerns, and societal impact.
+**Description:** Describe all trained models in detail.
 
 **What to look for in code/outputs:**
-- Fairness assessment across protected attributes
-- Potential misuse or dual-use scenario documentation
-- Informed consent and privacy considerations for data subjects
-- Societal impact assessment for model deployment
+- Every model trained is reported, not only the best one
 
-### Item 20 -- Claims and evidence alignment
+### Item 5b -- Choice of model types
 
-**Description:** Ensure conclusions are supported by the evidence presented, avoiding overclaiming beyond what the evaluation demonstrates.
+**Description:** Explain why the implemented model types were chosen.
 
 **What to look for in code/outputs:**
-- Conclusion statements that match the strength of evidence (internal vs. external validation)
-- Causal language used only when supported by study design
-- Generalizability claims bounded by the populations and settings studied
-- Clear distinction between exploratory and confirmatory findings
+- Rationale for each model family in the protocol or methods
+
+### Item 5c -- Evaluation method
+
+**Description:** Describe how the reported model(s) were evaluated, including train-test splits or cross-validation folds.
+
+**What to look for in code/outputs:**
+- Split strategy and fold construction in code (grouped, temporal, or stratified as the data require)
+
+### Item 5d -- Model selection
+
+**Description:** Describe how the reported model(s) were selected.
+
+**What to look for in code/outputs:**
+- Selection criterion and the data used for selection (validation set, inner CV), never the test set
+
+### Item 5e -- Hyperparameter tuning
+
+**Description:** For the reported model(s), give details of hyperparameter tuning.
+
+**What to look for in code/outputs:**
+- Search space, search method, budget, and final hyperparameter values recorded
+
+### Item 5f -- Baselines
+
+**Description:** Explain why the baselines used for model comparison are appropriate.
+
+**What to look for in code/outputs:**
+- Simple baselines (e.g., logistic regression, prior standard of care) evaluated on the same splits
+
+---
+
+## Module 6: Data leakage
+
+### Item 6a -- Train-only preprocessing and modeling
+
+**Description:** Show that the preprocessing (Module 4) and modeling (Module 5) steps use information only from the training data, not the test data.
+
+**What to look for in code/outputs:**
+- Scalers, imputers, encoders, and feature selection fit inside the training fold only (pipeline objects)
+
+### Item 6b -- Dependencies and duplicates
+
+**Description:** Describe how dependencies or duplicates between training and test data were handled (for example, keeping different samples from the same patient in the same partition).
+
+**What to look for in code/outputs:**
+- Group-aware splitting by patient, site, or time; duplicate checks across partitions
+
+### Item 6c -- Legitimate features
+
+**Description:** Explain why each feature or input is legitimate for the task and does not cause leakage.
+
+**What to look for in code/outputs:**
+- Feature availability at prediction time checked (no post-outcome or proxy-of-label features)
+
+---
+
+## Module 7: Metrics and uncertainty
+
+### Item 7a -- Metrics
+
+**Description:** State every metric used to assess and compare model performance (for example accuracy or AUROC), and explain why the metric used to select the final model suits the task.
+
+**What to look for in code/outputs:**
+- All computed metrics reported; selection metric justified for the task (e.g., class imbalance)
+
+### Item 7b -- Uncertainty estimates
+
+**Description:** Report uncertainty estimates (for example confidence intervals or standard deviations) and how they were calculated.
+
+**What to look for in code/outputs:**
+- Confidence intervals or variability across folds/seeds, with the method (bootstrap, analytical) stated
+
+### Item 7c -- Statistical tests
+
+**Description:** Explain the choice of any statistical tests and how their assumptions were checked.
+
+**What to look for in code/outputs:**
+- Named test for model comparisons (e.g., DeLong, McNemar, corrected resampled t-test) with assumption checks
+
+---
+
+## Module 8: Generalizability and limitations
+
+### Item 8a -- External validity
+
+**Description:** Describe the evidence for external validity.
+
+**What to look for in code/outputs:**
+- Evaluation on an external dataset, site, or time period, or an explicit statement that none was done
+
+### Item 8b -- Contexts where findings may not hold
+
+**Description:** Describe the contexts in which the authors expect the findings not to hold.
+
+**What to look for in code/outputs:**
+- Stated populations, settings, or data shifts where the results should not be applied

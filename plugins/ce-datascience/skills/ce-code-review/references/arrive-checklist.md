@@ -17,7 +17,7 @@
   - Item 11 -- Abstract
   - Item 12 -- Background
   - Item 13 -- Objectives
-  - Item 14 -- Ethical review
+  - Item 14 -- Ethical statement
   - Item 15 -- Housing and husbandry
   - Item 16 -- Animal care and monitoring
   - Item 17 -- Interpretation/scientific implications
@@ -33,6 +33,8 @@ Animal Research: Reporting of In Vivo Experiments (ARRIVE 2.0).
 
 **Explanation and elaboration:** Percie du Sert N, Ahluwalia A, Alam S, et al. Reporting animal research: Explanation and elaboration for the ARRIVE guidelines 2.0. PLoS Biol. 2020;18(7):e3000411. doi:10.1371/journal.pbio.3000411. PMID: 32663221.
 
+**Source and licence:** Item numbers and descriptions are reproduced verbatim from Tables 1 and 2 of the ARRIVE guidelines 2.0 (PLoS Biol 2020;18(7):e3000410, https://doi.org/10.1371/journal.pbio.3000410), published under the CC0 1.0 public domain dedication. Official checklists: https://arriveguidelines.org/resources. The "What to look for" bullets are ce-datascience review guidance, not part of the guideline.
+
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
 
@@ -42,7 +44,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1 -- Study design
 
-**Description:** For each experiment, provide brief details of the study design including (a) the groups being compared, including control groups; (b) the experimental unit (e.g., a single animal, litter, cage of animals).
+**Description:** For each experiment, provide brief details of study design including: (a) The groups being compared, including control groups. If no control group has been used, the rationale should be stated. (b) The experimental unit (e.g., a single animal, litter, or cage of animals).
 
 **What to look for in code/outputs:**
 - Experimental groups clearly defined in code (treatment, control, sham, vehicle)
@@ -52,7 +54,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 2 -- Sample size
 
-**Description:** (a) Specify the exact number of experimental units allocated to each group and the total number in each experiment. (b) Explain how the sample size was decided. Provide details of any power analysis, if done.
+**Description:** (a) Specify the exact number of experimental units allocated to each group, and the total number in each experiment. Also indicate the total number of animals used. (b) Explain how the sample size was decided. Provide details of any a priori sample size calculation, if done.
 
 **What to look for in code/outputs:**
 - Sample size per group clearly stated in analysis code or documentation
@@ -62,17 +64,18 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 3 -- Inclusion and exclusion criteria
 
-**Description:** (a) Describe any criteria used for including and excluding animals (or experimental units) during the experiment, and data points during the analysis. Specify whether criteria were established a priori. (b) Report any deviations from the original plan.
+**Description:** (a) Describe any criteria used for including and excluding animals (or experimental units) during the experiment, and data points during the analysis. Specify if these criteria were established a priori. If no criteria were set, state this explicitly. (b) For each experimental group, report any animals, experimental units, or data points not included in the analysis and explain why. If there were no exclusions, state so. (c) For each analysis, report the exact value of n in each experimental group.
 
 **What to look for in code/outputs:**
 - Pre-specified inclusion/exclusion criteria documented in protocol or analysis plan
 - Data filtering code that applies exclusion criteria with documented rationale
 - Outlier removal procedures with justification (statistical threshold, biological implausibility)
-- Deviations from planned exclusion criteria noted with reasons
+- Every excluded animal, experimental unit, or data point listed per group with the reason (or an explicit statement of no exclusions)
+- Exact n per experimental group reported for each analysis
 
 ### Item 4 -- Randomisation
 
-**Description:** (a) State whether randomisation was used to allocate experimental units to control and treatment groups. If done, provide the method of randomisation. (b) Describe the strategy used to minimise confounders such as order of treatments, animal/cage location.
+**Description:** (a) State whether randomisation was used to allocate experimental units to control and treatment groups. If done, provide the method used to generate the randomisation sequence. (b) Describe the strategy used to minimise potential confounders such as the order of treatments and measurements, or animal/cage location. If confounders were not controlled, state this explicitly.
 
 **What to look for in code/outputs:**
 - Randomisation method documented (simple random, block, stratified, computer-generated)
@@ -82,7 +85,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 5 -- Blinding
 
-**Description:** Describe who was aware of the group allocation at the different stages of the experiment (during allocation, conduct of experiment, outcome assessment, data analysis).
+**Description:** Describe who was aware of the group allocation at the different stages of the experiment (during the allocation, the conduct of the experiment, the outcome assessment, and the data analysis).
 
 **What to look for in code/outputs:**
 - Blinding status documented for each stage (allocation, intervention, assessment, analysis)
@@ -92,7 +95,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 6 -- Outcome measures
 
-**Description:** (a) Clearly define all outcome measures assessed (e.g., cell count, organ weight, tumour volume). (b) For hypothesis-testing studies, specify the primary outcome measure.
+**Description:** (a) Clearly define all outcome measures assessed (e.g., cell death, molecular markers, or behavioural changes). (b) For hypothesis-testing studies, specify the primary outcome measure, i.e., the outcome measure that was used to determine the sample size.
 
 **What to look for in code/outputs:**
 - Outcome variables clearly defined with measurement units and methods
@@ -102,18 +105,19 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 7 -- Statistical methods
 
-**Description:** (a) Provide details of the statistical methods used for each analysis. (b) Specify the unit of analysis for each dataset. (c) Describe any methods used to assess whether data met the assumptions of the statistical approach.
+**Description:** (a) Provide details of the statistical methods used for each analysis, including software used. (b) Describe any methods used to assess whether the data met the assumptions of the statistical approach, and what was done if the assumptions were not met.
 
 **What to look for in code/outputs:**
 - Statistical tests specified for each comparison (t-test, ANOVA, mixed model, non-parametric)
-- Unit of analysis confirmed to match the experimental unit (not pseudoreplication)
+- Unit of analysis confirmed to match the experimental unit (not pseudoreplication); see Item 1b
+- What was done when assumptions were not met (transformation, alternative test)
 - Assumption checking code (normality tests, homogeneity of variance, independence)
 - Post-hoc test methods and multiple comparison corrections documented
 - Statistical software and version documented
 
 ### Item 8 -- Experimental animals
 
-**Description:** (a) Provide species-appropriate details (e.g., species, strain, substrain, sex, age/weight, source, genetic modification status, genotype). (b) Describe any previous procedures the animals may have undergone.
+**Description:** (a) Provide species-appropriate details of the animals used, including species, strain and substrain, sex, age or developmental stage, and, if relevant, weight. (b) Provide further relevant information on the provenance of animals, health/immune status, genetic modification status, genotype, and any previous procedures.
 
 **What to look for in code/outputs:**
 - Species, strain, and substrain documented in metadata or methods section
@@ -124,7 +128,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 9 -- Experimental procedures
 
-**Description:** For each experimental group, describe the procedures in enough detail to allow replication, including (a) what was done, how, and what was used; (b) when and how often; (c) where (including detail of any acclimatisation); (d) why (provide rationale for procedures).
+**Description:** For each experimental group, including controls, describe the procedures in enough detail to allow others to replicate them, including: (a) What was done, how it was done, and what was used. (b) When and how often. (c) Where (including detail of any acclimatisation periods). (d) Why (provide rationale for procedures).
 
 **What to look for in code/outputs:**
 - Experimental procedures documented with sufficient detail for replication
@@ -135,7 +139,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 10 -- Results
 
-**Description:** For each experiment conducted, including independent replications, report (a) summary/descriptive statistics for each experimental group with a measure of variability (e.g., mean and SD, median and range); (b) if applicable, the effect size with a confidence interval.
+**Description:** For each experiment conducted, including independent replications, report: (a) Summary/descriptive statistics for each experimental group, with a measure of variability where applicable (e.g., mean and SD, or median and range). (b) If applicable, the effect size with a confidence interval.
 
 **What to look for in code/outputs:**
 - Summary statistics (mean, SD or SEM, median, IQR) reported per group
@@ -150,7 +154,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 11 -- Abstract
 
-**Description:** Provide an accurate summary of the research objectives, animal species, strain and sex, key methods, principal findings, and study interpretation.
+**Description:** Provide an accurate summary of the research objectives, animal species, strain and sex, key methods, principal findings, and study conclusions.
 
 **What to look for in code/outputs:**
 - Abstract or summary section identifying species, strain, and sex
@@ -160,7 +164,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12 -- Background
 
-**Description:** (a) Include sufficient scientific background to understand the rationale and context for the study, and explain the experimental approach. (b) Explain how the animal species and model were chosen and their relevance to the research question.
+**Description:** (a) Include sufficient scientific background to understand the rationale and context for the study, and explain the experimental approach. (b) Explain how the animal species and model used address the scientific objectives and, where appropriate, the relevance to human biology.
 
 **What to look for in code/outputs:**
 - Background section with citations establishing the scientific context
@@ -170,7 +174,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Objectives
 
-**Description:** Clearly describe the research question, research objectives, and, where appropriate, specific hypotheses being tested.
+**Description:** Clearly describe the research question, research objectives and, where appropriate, specific hypotheses being tested.
 
 **What to look for in code/outputs:**
 - Research questions or objectives explicitly stated in protocol or report
@@ -178,9 +182,9 @@ in analysis code and outputs when evaluating compliance.
 - Primary vs. exploratory objectives distinguished
 - Objectives linked to specific outcome measures
 
-### Item 14 -- Ethical review
+### Item 14 -- Ethical statement
 
-**Description:** Provide the name of the ethical review committee or equivalent body that approved the use of animals and any relevant licence or protocol numbers.
+**Description:** Provide the name of the ethical review committee or equivalent that has approved the use of animals in this study, and any relevant licence or protocol numbers (if applicable). If ethical approval was not sought or granted, provide a justification.
 
 **What to look for in code/outputs:**
 - IACUC or ethics committee approval statement with protocol number
@@ -190,7 +194,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 15 -- Housing and husbandry
 
-**Description:** Provide details of housing and husbandry conditions, including (a) housing (type of facility, cage or housing type, bedding, enrichment); (b) husbandry (access to food and water, light/dark cycle, temperature, quality of water).
+**Description:** Provide details of housing and husbandry conditions, including any environmental enrichment.
 
 **What to look for in code/outputs:**
 - Housing conditions documented (cage type, group vs. individual, bedding, enrichment)
@@ -200,7 +204,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16 -- Animal care and monitoring
 
-**Description:** (a) Describe any interventions or steps taken to reduce pain, suffering, and distress. (b) Report any adverse events.
+**Description:** (a) Describe any interventions or steps taken in the experimental protocols to reduce pain, suffering, and distress. (b) Report any expected or unexpected adverse events. (c) Describe the humane endpoints established for the study, the signs that were monitored, and the frequency of monitoring. If the study did not have humane endpoints, state this.
 
 **What to look for in code/outputs:**
 - Analgesia, anaesthesia, and humane endpoint criteria documented
@@ -211,18 +215,18 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 17 -- Interpretation/scientific implications
 
-**Description:** (a) Interpret the results, taking into account the study objectives, limitations, multiplicity of analyses, and other relevant studies. (b) Comment on the clinical/scientific/3Rs implications of the findings and how they might advance scientific knowledge.
+**Description:** (a) Interpret the results, taking into account the study objectives and hypotheses, current theory, and other relevant studies in the literature. (b) Comment on the study limitations, including potential sources of bias, limitations of the animal model, and imprecision associated with the results.
 
 **What to look for in code/outputs:**
 - Discussion section interpreting results relative to study objectives
 - Limitations acknowledged (sample size, model limitations, generalizability)
 - Implications for clinical translation or scientific advancement discussed
-- 3Rs implications addressed where relevant
+- Potential sources of bias, limitations of the animal model, and imprecision of the results discussed
 - Overgeneralization from animal data to human outcomes avoided
 
 ### Item 18 -- Generalisability/translation
 
-**Description:** Comment on whether the findings can be generalised to other species or experimental conditions, including any relevance to human biology.
+**Description:** Comment on whether, and how, the findings of this study are likely to generalise to other species or experimental conditions, including any relevance to human biology (where appropriate).
 
 **What to look for in code/outputs:**
 - Generalisability of findings discussed with respect to species, strain, sex
@@ -252,7 +256,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21 -- Declaration of interests
 
-**Description:** (a) Declare any potential conflicts of interest, including financial and non-financial. If none exist, this should be stated. (b) List all funding sources and the role of the funder(s) in the design, analysis, and reporting of the study.
+**Description:** (a) Declare any potential conflicts of interest, including financial and nonfinancial. If none exist, this should be stated. (b) List all funding sources (including grant identifier) and the role of the funder(s) in the design, analysis, and reporting of the study.
 
 **What to look for in code/outputs:**
 - Conflict of interest statements in report templates
