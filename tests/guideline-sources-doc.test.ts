@@ -8,7 +8,7 @@ import { renderGuidelineSources } from "../scripts/docs/guideline-sources"
 // `bun run docs:guideline-sources`; never edit the page by hand.
 const repoRoot = process.cwd()
 const registryPath = path.join(
-  repoRoot, "plugins", "ce-datascience", "skills", "ce-code-review", "references", "guideline-registry.yaml",
+  repoRoot, "plugins", "methodsmith", "skills", "method-review", "references", "guideline-registry.yaml",
 )
 const docPath = path.join(repoRoot, "docs", "guideline-sources.md")
 

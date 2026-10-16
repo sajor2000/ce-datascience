@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This repository houses the `ce-datascience` plugin — compound engineering for computational scientists — and the Claude Code marketplace/catalog metadata used to distribute it.
+This repository houses the `methodsmith` plugin — rigorous methods for statistics, machine learning, and meta-analysis, built on Every's Compound Engineering — and the Claude Code marketplace/catalog metadata used to distribute it.
 
 It also contains:
 - the Bun/TypeScript CLI that converts Claude Code plugins into other agent platform formats
@@ -17,7 +17,7 @@ bun run release:validate  # check plugin/marketplace consistency
 ```
 
 For user-facing install and first-run instructions, keep
-`docs/setup.md`, root `README.md`, and `plugins/ce-datascience/README.md`
+`docs/setup.md`, root `README.md`, and `plugins/methodsmith/README.md`
 in sync. `docs/setup.md` is the canonical detailed setup guide.
 
 ## Working Agreement
@@ -26,18 +26,18 @@ in sync. `docs/setup.md` is the canonical detailed setup guide.
 - **Merge policy:** All changes to `main` go through pull requests. Direct pushes and direct merges are not allowed; branch protection on `main` enforces this by requiring the `test` status check to pass. The direct path bypasses `release:validate`, the test suite, and PR title validation — past direct merges have caused version drift requiring multi-PR recovery (see `docs/solutions/workflow/release-please-version-drift-recovery.md`).
 - **Safety:** Do not delete or overwrite user data. Avoid destructive commands.
 - **Testing:** Run `bun test` after changes that affect parsing, conversion, or output.
-- **Release versioning:** Releases are prepared by release automation, not normal feature PRs. The repo has release components (`cli`, `ce-datascience`, `marketplace`). GitHub release PRs and GitHub Releases are the canonical release-notes surface for new releases; root `CHANGELOG.md` is only a pointer to that history. Use conventional titles such as `feat:` and `fix:` so release automation can classify change intent, but do not hand-bump release-owned versions or hand-author release notes in routine PRs.
-- **Linked versions (cli + ce-datascience):** The `linked-versions` release-please plugin keeps `cli` and `ce-datascience` at the same version. This is intentional -- it simplifies version tracking across the CLI and the plugin it ships. A consequence is that a release with only plugin changes will still bump the CLI version (and vice versa). The CLI changelog may also include commits that `exclude-paths` would normally filter, because `linked-versions` overrides exclusion logic when forcing a synced bump. This is a known upstream release-please limitation, not a misconfiguration. Do not flag linked-version bumps as unnecessary.
+- **Release versioning:** Releases are prepared by release automation, not normal feature PRs. The repo has release components (`cli`, `methodsmith`, `marketplace`). GitHub release PRs and GitHub Releases are the canonical release-notes surface for new releases; root `CHANGELOG.md` is only a pointer to that history. Use conventional titles such as `feat:` and `fix:` so release automation can classify change intent, but do not hand-bump release-owned versions or hand-author release notes in routine PRs.
+- **Linked versions (cli + methodsmith):** The `linked-versions` release-please plugin keeps `cli` and `methodsmith` at the same version. This is intentional -- it simplifies version tracking across the CLI and the plugin it ships. A consequence is that a release with only plugin changes will still bump the CLI version (and vice versa). The CLI changelog may also include commits that `exclude-paths` would normally filter, because `linked-versions` overrides exclusion logic when forcing a synced bump. This is a known upstream release-please limitation, not a misconfiguration. Do not flag linked-version bumps as unnecessary.
 - **Output Paths:** Keep OpenCode output at `opencode.json` and `.opencode/{agents,skills,plugins}`. For OpenCode, command go to `~/.config/opencode/commands/<name>.md`; `opencode.json` is deep-merged (never overwritten wholesale).
 - **Scratch Space:** Default to OS temp. Use `.context/` only when explicitly justified by the rules below.
   - **Default: OS temp** — covers most scratch, including per-run throwaway AND cross-invocation reusable, regardless of whether a repo is present or whether other skills may read the files. A stable OS-temp prefix handles cross-skill and cross-invocation coordination equally well as an in-repo path; repo-adjacency is rarely the relevant property.
     - **Per-run throwaway**: `mktemp -d -t <prefix>-XXXXXX` (OS handles cleanup). Use for files consumed once and discarded — captured screenshots, stitched GIFs, intermediate build outputs, recordings, delegation prompts/results, single-run checkpoints. The resulting path is opaque (on macOS it resolves under `$TMPDIR`/`/var/folders/...`) — that is appropriate for throwaway files users are not meant to access.
-    - **Cross-invocation reusable**: stable path `/tmp/ce-datascience/<skill-name>/<run-id>/` — **not** `mktemp -d` — so later invocations of the same skill can discover sibling run-ids. Use `/tmp` directly rather than `$TMPDIR` so paths stay accessible: `$TMPDIR` on macOS resolves to `/var/folders/64/.../T/`, which is hostile for users who want to inspect checkpoints, grep them, or copy them out. The per-user isolation `$TMPDIR` provides is not valuable for cross-invocation reusable scratch where users are the intended audience. Use for caches keyed by session, checkpoints meant to survive context compaction within a loose session, or any state where later runs of the same skill need to locate prior outputs.
+    - **Cross-invocation reusable**: stable path `/tmp/methodsmith/<skill-name>/<run-id>/` — **not** `mktemp -d` — so later invocations of the same skill can discover sibling run-ids. Use `/tmp` directly rather than `$TMPDIR` so paths stay accessible: `$TMPDIR` on macOS resolves to `/var/folders/64/.../T/`, which is hostile for users who want to inspect checkpoints, grep them, or copy them out. The per-user isolation `$TMPDIR` provides is not valuable for cross-invocation reusable scratch where users are the intended audience. Use for caches keyed by session, checkpoints meant to survive context compaction within a loose session, or any state where later runs of the same skill need to locate prior outputs.
   - **Exception: `.context/`** — use only when the artifact is genuinely bound to the CWD repo AND meets at least one of:
     - (a) **User-curated**: the user is expected to inspect, manipulate, or manually curate the artifact outside the skill (e.g., a per-repo TODO database, a per-spec optimization log that survives across sessions on the same checkout).
     - (b) **Repo+branch-inseparable**: the artifact's meaning is inseparable from this specific repo or branch (e.g., branch-specific resume state that a user expects to pick up again in the same checkout).
     - (c) **Path is core UX**: surfacing the artifact path back to the user is a core part of the skill's output and that path is easier to communicate as a repo-relative location than an OS-temp one.
-    Namespace under `.context/ce-datascience/<workflow-or-skill-name>/`, add a per-run subdirectory when concurrent runs are plausible, and decide cleanup behavior per the artifact's lifecycle (per-run scratch clears on success; user-curated state persists). "Shared between skills" is not by itself sufficient — OS temp handles that equally well.
+    Namespace under `.context/methodsmith/<workflow-or-skill-name>/`, add a per-run subdirectory when concurrent runs are plausible, and decide cleanup behavior per the artifact's lifecycle (per-run scratch clears on success; user-curated state persists). "Shared between skills" is not by itself sufficient — OS temp handles that equally well.
   - **Durable outputs** (plans, specs, learnings, docs, final deliverables) belong in `docs/` or another repo-tracked location, not in either scratch tier.
   - **Cross-platform note:** `/tmp` is writable on macOS (symlink to `/private/tmp`), Linux, and WSL. `mktemp -d -t <prefix>-XXXXXX` also works on all three. Skills authored here assume Unix-like shells; native Windows is not a current target.
 - **Character encoding:**
@@ -49,7 +49,7 @@ in sync. `docs/setup.md` is the canonical detailed setup guide.
 
 ```
 src/              CLI entry point, parsers, converters, target writers
-plugins/          Plugin workspaces (ce-datascience)
+plugins/          Plugin workspaces (methodsmith)
 .claude-plugin/   Claude marketplace catalog metadata
 tests/            Converter, writer, and CLI tests + fixtures
 docs/             Requirements, plans, solutions, and target specs
@@ -59,7 +59,7 @@ docs/             Requirements, plans, solutions, and target specs
 
 Changes in this repo may affect one or more of these surfaces:
 
-- `ce-datascience` under `plugins/ce-datascience/`
+- `methodsmith` under `plugins/methodsmith/`
 - the Claude marketplace catalog under `.claude-plugin/`
 - the converter/install CLI in `src/` and `package.json`
 
@@ -67,26 +67,26 @@ Do not assume a repo change is "just CLI" or "just plugin" without checking whic
 
 ## Plugin Maintenance
 
-When changing `plugins/ce-datascience/` content:
+When changing `plugins/methodsmith/` content:
 
 - For maintainable, portable skill prose, follow [`docs/solutions/skill-design/predictable-skill-authoring.md`](docs/solutions/skill-design/predictable-skill-authoring.md). It is maintainer guidance only; runtime skills must remain self-contained.
-- Update substantive docs like `plugins/ce-datascience/README.md` when the plugin behavior, inventory, or usage changes.
+- Update substantive docs like `plugins/methodsmith/README.md` when the plugin behavior, inventory, or usage changes.
 - Do not hand-bump release-owned versions in plugin or marketplace manifests.
 - Do not hand-add release entries to `CHANGELOG.md` or treat it as the canonical source for new releases.
 - Run `bun run release:validate` if agents, commands, skills, MCP servers, or release-owned descriptions/counts may have changed.
-- **Guideline source documents stay local.** Reporting-guideline source documents (PDFs, Word files, supplements, articles) are never committed (enforced by `tests/source-document-guard.test.ts` and `.gitignore`). Encode them as checklist rules in `plugins/ce-datascience/skills/ce-code-review/references/<name>-checklist.md` with the official item IDs and a source and licence header. Copy text verbatim only from CC BY or CC0 sources; otherwise paraphrase faithfully. Record the verification (source, date, status) in `guideline-registry.yaml`.
+- **Guideline source documents stay local.** Reporting-guideline source documents (PDFs, Word files, supplements, articles) are never committed (enforced by `tests/source-document-guard.test.ts` and `.gitignore`). Encode them as checklist rules in `plugins/methodsmith/skills/method-review/references/<name>-checklist.md` with the official item IDs and a source and licence header. Copy text verbatim only from CC BY or CC0 sources; otherwise paraphrase faithfully. Record the verification (source, date, status) in `guideline-registry.yaml`.
 - **Newest guideline version only.** When a new version of a reporting guideline is published, replace the old checklist in the same PR: delete the old `<name>-checklist.md` and its registry entry, add the old name as an alias of the successor in `guideline-registry.yaml`, and record the supersession (old citation and date) in the successor's `supersedes` note. Never keep two versions loadable; a superseded version is never routed, recommended, or cited as current. Enforced by `tests/newest-guideline-version.test.ts`.
 - After changing any skill or agent `description:`, run `bun run legacy:fingerprints` and commit `src/data/shipped-description-fingerprints.json`. Upgrades use it to recognize files an older release wrote; a user's own same-named file never matches, so it is left alone. Enforced by `tests/description-fingerprints.test.ts`.
 - When removing a skill, agent, or command, add its name to both cleanup registries so stale flat-install artifacts are swept on upgrade:
   - `STALE_SKILL_DIRS` / `STALE_AGENT_NAMES` / `STALE_PROMPT_FILES` in `src/utils/legacy-cleanup.ts`
-  - `EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN["ce-datascience"]` in `src/data/plugin-legacy-artifacts.ts`
+  - `EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN["methodsmith"]` in `src/data/plugin-legacy-artifacts.ts`
 
 Useful validation commands:
 
 ```bash
 bun run release:validate
 cat .claude-plugin/marketplace.json | jq .
-cat plugins/ce-datascience/.claude-plugin/plugin.json | jq .
+cat plugins/methodsmith/.claude-plugin/plugin.json | jq .
 ```
 
 ## Validating Agent and Skill Changes
@@ -95,7 +95,7 @@ Behavioral changes to a plugin agent or skill (anything under `plugins/*/agents/
 
 - **Use the `skill-creator` skill to test changes.** Skill-creator is purpose-built for this: it spawns a generic subagent and injects the agent or skill content into the subagent's prompt at dispatch time, so each run reads the current source from disk. Invoke `/skill-creator` and use its eval workflow rather than reaching for ad-hoc workarounds.
 
-- **Plugin agent and skill definitions both cache at session start.** Once a Claude Code session is open, dispatching a typed agent (e.g., `Agent({subagent_type: "ce-datascience:ce-session-historian"})`) runs the in-memory copy that was loaded when the session began. The same applies to skills: invoking `Skill ce-session-inventory` goes through the cached skill loader, so edits to skill scripts are also not tested via that path. File edits to either layer after session start do not propagate within the same session. Any iteration loop built around typed-agent dispatch or Skill-tool invocation in the same session is testing pre-edit content, not your changes.
+- **Plugin agent and skill definitions both cache at session start.** Once a Claude Code session is open, dispatching a typed agent (e.g., `Agent({subagent_type: "methodsmith:method-session-historian"})`) runs the in-memory copy that was loaded when the session began. The same applies to skills: invoking `Skill method-session-inventory` goes through the cached skill loader, so edits to skill scripts are also not tested via that path. File edits to either layer after session start do not propagate within the same session. Any iteration loop built around typed-agent dispatch or Skill-tool invocation in the same session is testing pre-edit content, not your changes.
 
 - **Do NOT edit `~/.claude/plugins/cache/` or `~/.claude/plugins/marketplaces/` to try to force a reload.** Those paths are user machine state, not repo-managed. Modifying them does not reliably bypass the in-session cache (it didn't, in observed behavior), risks being silently overwritten by plugin updates, and is the wrong layer to test from. The skill-creator pattern is the proper approach; if you genuinely need fresh-loaded behavior of the typed-agent dispatch path, restart the Claude Code session — but skill-creator is preferred for fast iteration.
 
@@ -104,9 +104,9 @@ Behavioral changes to a plugin agent or skill (anything under `plugins/*/agents/
 ### Repository-Owned Behavioral Evaluations
 
 For covered behavioral surfaces, use the versioned cases under
-`evals/ce-datascience/cases/` in addition to the `skill-creator` workflow above.
+`evals/methodsmith/cases/` in addition to the `skill-creator` workflow above.
 Run `bun run eval:validate` for deterministic case validation. Save live runs
-under `/tmp/ce-datascience/behavioral-evals/<run-id>/`, then score them with
+under `/tmp/methodsmith/behavioral-evals/<run-id>/`, then score them with
 `bun run eval:score --case <id> --run-dir <path>`.
 Before dispatch, record the case, prompt, and target SHA-256 digests in
 `run.json`; scoring fails closed if those inputs drift.
@@ -122,7 +122,7 @@ Before dispatch, record the case, prompt, and target SHA-256 digests in
   fixtures and sanitized evidence summaries.
 
 Every skill also has an Anthropic skill-creator eval set under
-`evals/ce-datascience/skill-creator/<skill>/`. `evals.json` holds three realistic
+`evals/methodsmith/skill-creator/<skill>/`. `evals.json` holds three realistic
 prompts with verifiable expectations; `trigger-evals.json` holds 10
 should-trigger and 10 near-miss should-not-trigger queries for skill-creator's
 description loop (`scripts/run_loop.py`). Update both when a skill's behavior
@@ -147,7 +147,7 @@ for the contract, run layout, acceptance policy, and interpretation limits.
 
 - **Prefix is based on intent, not file type.** Use conventional prefixes (`feat:`, `fix:`, `docs:`, `refactor:`, etc.) but classify by what the change does, not the file extension. Files under `plugins/*/skills/`, `plugins/*/agents/`, and `.claude-plugin/` are product code even though they are Markdown or JSON. Reserve `docs:` for files whose sole purpose is documentation (`README.md`, `docs/`, `CHANGELOG.md`).
 - **Type selection — classify by intent, not diff shape.** Where `fix:` and `feat:` could both seem to fit, default to `fix:`: a change that remedies broken or missing behavior is `fix:` even when implemented by adding code, and net additions do not turn a fix into a `feat:`. Reserve `feat:` for capabilities the user could not previously accomplish where nothing was broken. Other conventional types (`chore:`, `refactor:`, `docs:`, `perf:`, `test:`, `ci:`, `build:`, `style:`) remain primary when they describe the change more precisely than either. Heuristic: if a regression test you could write today would have failed *before* the change, it's `fix:`. The user may override this default for a specific change.
-- **Include a component scope.** The scope appears verbatim in the changelog. Pick the narrowest useful label: skill/agent name (`document-review`, `learnings-researcher`), plugin or CLI area (`cli`), or shared area when cross-cutting (`review`, `research`, `converters`). Never use `ce-datascience` — it's the entire plugin and tells the reader nothing. Omit scope only when no single label adds clarity.
+- **Include a component scope.** The scope appears verbatim in the changelog. Pick the narrowest useful label: skill/agent name (`document-review`, `learnings-researcher`), plugin or CLI area (`cli`), or shared area when cross-cutting (`review`, `research`, `converters`). Never use `methodsmith` — it's the entire plugin and tells the reader nothing. Omit scope only when no single label adds clarity.
 - **Never use `!` or a `BREAKING CHANGE:` footer without explicit user confirmation.** These markers trigger release-please's automatic major version bump — a decision the user may not want even when a change is technically breaking. If a change appears breaking, surface that to the user and let them decide whether to apply the marker.
 
 ## Adding a New Target Provider
@@ -178,11 +178,11 @@ Only add a provider when the target format is stable, documented, and has a clea
 
 ## Agent References in Skills
 
-When referencing agents from within skill SKILL.md files (e.g., via the `Agent` or `Task` tool), use the bare `ce-<agent-name>` form. The `ce-` prefix identifies the agent as a ce-datascience component and is sufficient for uniqueness across plugins.
+When referencing agents from within skill SKILL.md files (e.g., via the `Agent` or `Task` tool), use the bare `method-<agent-name>` form. The `method-` prefix identifies the agent as a methodsmith component and is sufficient for uniqueness across plugins.
 
 Example:
-- `ce-learnings-researcher` (correct)
-- `learnings-researcher` (wrong — the `ce-` prefix is required; it's what prevents collisions with agents from other plugins that might share a short name)
+- `method-learnings-researcher` (correct)
+- `learnings-researcher` (wrong — the `method-` prefix is required; it's what prevents collisions with agents from other plugins that might share a short name)
 
 ## File References in Skills
 
@@ -191,8 +191,8 @@ Each skill directory is a self-contained unit. A SKILL.md file must only referen
 Broken patterns:
 
 - `../other-skill/references/schema.yaml` — relative traversal into a sibling skill
-- `/home/user/plugins/ce-datascience/skills/other-skill/file.md` — absolute path to another skill
-- `~/.claude/plugins/cache/marketplace/ce-datascience/0.1.0/skills/other-skill/file.md` — absolute path to an installed plugin location
+- `/home/user/plugins/methodsmith/skills/other-skill/file.md` — absolute path to another skill
+- `~/.claude/plugins/cache/marketplace/methodsmith/0.1.0/skills/other-skill/file.md` — absolute path to an installed plugin location
 
 Why this matters:
 
@@ -246,4 +246,4 @@ This repo builds a plugin *for* developers. Categorize solutions from the perspe
 - **`integrations/`** — Issues where plugin output doesn't work correctly on a target platform or OS. Cross-platform bugs, target writer output problems, and converter compatibility issues go here.
 - **`workflow/`**, **`skill-design/`** — Plugin skill and agent design patterns, workflow improvements.
 
-When in doubt: if the bug affects someone running `bun install ce-datascience` or `bun convert`, it's an integration or product issue, not developer-experience.
+When in doubt: if the bug affects someone running `bun install methodsmith` or `bun convert`, it's an integration or product issue, not developer-experience.

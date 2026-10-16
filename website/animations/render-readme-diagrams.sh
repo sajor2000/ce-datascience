@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 scene="$repo_root/website/animations/readme_diagrams.py"
-render_dir="$(mktemp -d -t ce-datascience-readme-diagrams-XXXXXX)"
+render_dir="$(mktemp -d -t methodsmith-readme-diagrams-XXXXXX)"
 trap 'rm -rf "$render_dir"' EXIT
 
 render_scene() {
@@ -18,5 +18,5 @@ render_scene() {
 }
 
 render_scene ResearchWorkflow workflow-diagram.png
-render_scene PackageWorkflow ce-datascience-package-workflow.png
-render_scene SkillCommands ce-datascience-skill-commands.png
+render_scene PackageWorkflow methodsmith-package-workflow.png
+render_scene SkillCommands methodsmith-skill-commands.png

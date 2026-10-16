@@ -44,7 +44,7 @@ export function transformContentForCodex(
         : `${prefix}Spawn the custom agent \`${agentTarget}\``
     }
 
-    // For namespaced calls like "ce-datascience:research:repo-research-analyst",
+    // For namespaced calls like "methodsmith:research:repo-research-analyst",
     // use only the final segment as the skill name when no custom agent target exists.
     const finalSegment = agentName.split(":").pop()!
     const skillName = normalizeCodexName(finalSegment)

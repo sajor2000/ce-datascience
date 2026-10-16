@@ -11,11 +11,11 @@ import {
 describe("release component detection", () => {
   test("maps plugin-only changes to the matching plugin component", () => {
     const components = detectComponentsFromFiles([
-      "plugins/ce-datascience/skills/ce-plan/SKILL.md",
+      "plugins/methodsmith/skills/method-plan/SKILL.md",
     ])
 
-    expect(components.get("ce-datascience")).toEqual([
-      "plugins/ce-datascience/skills/ce-plan/SKILL.md",
+    expect(components.get("methodsmith")).toEqual([
+      "plugins/methodsmith/skills/method-plan/SKILL.md",
     ])
     expect(components.get("cli")).toEqual([])
     expect(components.get("marketplace")).toEqual([])
@@ -40,14 +40,14 @@ describe("release component detection", () => {
     const components = detectComponentsFromFiles([".claude-plugin/marketplace.json"])
     expect(components.get("marketplace")).toEqual([".claude-plugin/marketplace.json"])
     expect(components.get("cursor-marketplace")).toEqual([])
-    expect(components.get("ce-datascience")).toEqual([])
+    expect(components.get("methodsmith")).toEqual([])
   })
 
   test("maps cursor marketplace metadata to cursor-marketplace component", () => {
     const components = detectComponentsFromFiles([".cursor-plugin/marketplace.json"])
     expect(components.get("cursor-marketplace")).toEqual([".cursor-plugin/marketplace.json"])
     expect(components.get("marketplace")).toEqual([])
-    expect(components.get("ce-datascience")).toEqual([])
+    expect(components.get("methodsmith")).toEqual([])
   })
 })
 
@@ -61,7 +61,7 @@ describe("release intent parsing", () => {
   })
 
   test("supports conventional titles without scope", () => {
-    const parsed = parseReleaseIntent("fix: adjust ce-plan wording")
+    const parsed = parseReleaseIntent("fix: adjust method-plan wording")
     expect(parsed.type).toBe("fix")
     expect(parsed.scope).toBeNull()
     expect(parsed.breaking).toBe(false)
@@ -96,7 +96,7 @@ describe("scope mismatch warnings", () => {
   test("does not require scope when omitted", () => {
     const warnings = resolveComponentWarnings(
       parseReleaseIntent("fix: update ce plan copy"),
-      ["ce-datascience"],
+      ["methodsmith"],
     )
     expect(warnings).toEqual([])
   })
@@ -104,7 +104,7 @@ describe("scope mismatch warnings", () => {
   test("warns when explicit scope contradicts detected files", () => {
     const warnings = resolveComponentWarnings(
       parseReleaseIntent("fix(cli): update plugin text"),
-      ["ce-datascience"],
+      ["methodsmith"],
     )
     expect(warnings[0]).toContain('Optional scope "cli" does not match')
   })

@@ -4,6 +4,13 @@ import path from "path"
 import os from "os"
 import { parseFrontmatter } from "../src/utils/frontmatter"
 import { cleanupStaleSkillDirs, cleanupStaleAgents, cleanupStalePrompts } from "../src/utils/legacy-cleanup"
+import { toPreRebrandText } from "../src/utils/rebrand-names"
+import { rewritePath } from "../scripts/rebrand/rename"
+
+// This file seeds installs written by pre-Methodsmith releases, so it keeps the
+// old ce-* names and is excluded from scripts/rebrand. Paths below are
+// pre-rebrand plugin paths; they resolve to the renamed files, and the
+// description is returned as the pre-rebrand release shipped it.
 
 async function createDir(dir: string, content = "placeholder") {
   await fs.mkdir(dir, { recursive: true })
@@ -25,12 +32,15 @@ async function exists(p: string): Promise<boolean> {
 }
 
 async function pluginDescription(relativePath: string): Promise<string> {
-  const raw = await fs.readFile(path.join(import.meta.dir, "..", relativePath), "utf8")
+  const repoRoot = path.join(import.meta.dir, "..")
+  const renamed = rewritePath(relativePath)
+  const current = await fs.access(path.join(repoRoot, renamed)).then(() => renamed, () => relativePath)
+  const raw = await fs.readFile(path.join(repoRoot, current), "utf8")
   const { data } = parseFrontmatter(raw, relativePath)
   if (typeof data.description !== "string") {
     throw new Error(`Missing description in ${relativePath}`)
   }
-  return data.description
+  return toPreRebrandText(data.description)
 }
 
 function skillContent(name: string, description: string): string {

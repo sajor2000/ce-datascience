@@ -7,9 +7,9 @@ const skillRoot = path.join(
   import.meta.dir,
   "..",
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-resolve-pr-feedback",
+  "method-resolve-feedback",
 )
 
 const getPrCommentsScript = path.join(skillRoot, "scripts", "get-pr-comments")
@@ -77,7 +77,7 @@ printf '%s\\n' '{"review_threads":[],"pr_comments":[],"review_bodies":[],"cross_
   return binDir
 }
 
-describe("ce-resolve-pr-feedback repository resolution", () => {
+describe("method-resolve-feedback repository resolution", () => {
   test("get-pr-comments fails loudly when owner/repo auto-detection fails", async () => {
     const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "resolve-pr-feedback-cwd-"))
     const binDir = await createFailingGhBin()
@@ -140,7 +140,7 @@ describe("ce-resolve-pr-feedback repository resolution", () => {
   })
 })
 
-describe("ce-resolve-pr-feedback thread safety guidance", () => {
+describe("method-resolve-feedback thread safety guidance", () => {
   test("full mode verifies authoritative thread ID before reply or resolve", async () => {
     const body = await fs.readFile(fullModeReference, "utf8")
 

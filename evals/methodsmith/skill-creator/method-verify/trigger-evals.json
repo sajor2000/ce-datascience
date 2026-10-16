@@ -1,0 +1,82 @@
+[
+  {
+    "query": "I just finished the Cox models for SAP-5.2 -- do a quick sanity check on N, effect direction, missingness and PHI before I call it done",
+    "should_trigger": true
+  },
+  {
+    "query": "verify output/ before I mark this task complete: leakage, seeds, renv.lock, figures",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you run the mid-workflow verification gate on analysis/output/models/a3/? Expected N comes from the data-QA report",
+    "should_trigger": true
+  },
+  {
+    "query": "sanity check pls -- my OR came out 0.6 but hypothesis said harmful exposure, plus I want to make sure no PHI slipped into outputs",
+    "should_trigger": true
+  },
+  {
+    "query": "Before moving to the next SAP section, check the prediction pipeline for train/test leakage and patient overlap across splits",
+    "should_trigger": true
+  },
+  {
+    "query": "quick check that the analysis N matches the cohort definition and meets the power calculation minimum in analysis/power/",
+    "should_trigger": true
+  },
+  {
+    "query": "Run the PASS/WARN/FAIL verification on the figures and tables I generated this afternoon",
+    "should_trigger": true
+  },
+  {
+    "query": "method-work wants a verify signal before closing the task -- run the checks on output/tables/table2.csv",
+    "should_trigger": true
+  },
+  {
+    "query": "Is missingness in the analytic dataset within the SAP threshold? Check the outputs and flag anything over 5%",
+    "should_trigger": true
+  },
+  {
+    "query": "do a lightweight gate on my notebook outputs: seeds set, lockfile present, figure legends not overlapping data",
+    "should_trigger": true
+  },
+  {
+    "query": "Profile every column in the new extract and decide GO/NO-GO before SAP finalization",
+    "should_trigger": false
+  },
+  {
+    "query": "Which reporting checklist applies and are we compliant with STROBE items before submission?",
+    "should_trigger": false
+  },
+  {
+    "query": "Do a full code review of the PR with reviewer personas and confidence-gated findings",
+    "should_trigger": false
+  },
+  {
+    "query": "Build the PI review pack and validate the signoff ledger",
+    "should_trigger": false
+  },
+  {
+    "query": "Close the sprint and run the audit reviewer against planned outputs",
+    "should_trigger": false
+  },
+  {
+    "query": "Validate the sepsis phenotype definition against chart review and code lists",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the final pre-submission audit on the manuscript Discussion",
+    "should_trigger": false
+  },
+  {
+    "query": "Debug why the Cox model throws a convergence warning on site 4",
+    "should_trigger": false
+  },
+  {
+    "query": "Run sequencing QC on the FASTQ files and check for sample swaps",
+    "should_trigger": false
+  },
+  {
+    "query": "Fit the sensitivity analysis excluding transfers and add it to the outputs",
+    "should_trigger": false
+  }
+]

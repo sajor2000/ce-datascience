@@ -1,0 +1,43 @@
+{
+  "skill_name": "method-brainstorm",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to study whether early mobility in the ICU reduces delirium. We have EHR data from three hospitals. Not sure yet whether this is a cohort study or something fancier. Help me think it through.",
+      "expected_output": "An interactive brainstorm that probes the actual rigor gaps one question at a time (population specificity, comparison/equipoise, prior evidence, design appropriateness), compares 2-3 study design options, confirms a scoping synthesis, and only then writes a requirements doc under docs/brainstorms/.",
+      "files": [],
+      "expectations": [
+        "Asks exactly one question per turn rather than stacking several questions in one message",
+        "Probes the population specificity and comparison/standard-of-care gaps as open prose questions, not as a multiple-choice menu",
+        "When presenting study design approaches, shows all options with pros/cons/risks before stating its recommendation",
+        "Grounds the design comparison in a quick PubMed MCP literature pulse (hit counts and 2-3 PMIDs read at abstract level, labelled abstract) and presents it as a pulse, not a systematic search",
+        "Presents a scoping synthesis and waits for confirmation before writing the requirements document",
+        "Any written document lands at docs/brainstorms/YYYY-MM-DD-<topic>-requirements.md with repo-relative paths only, and contains no R/Python package choices, SQL, or model specifications"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Brainstorm output:html — Retrospective cohort, adults >=18 admitted to ICU at Site A 2019-2024 with sepsis-3, exposure = balanced crystalloids vs normal saline in first 24h, primary outcome = MAKE30, comparator is normal saline (current standard), prior evidence is SMART and BaSICS. Confounders handled by IPTW. I mostly just need this written down for method-plan.",
+      "expected_output": "Because requirements are already clear, the skill keeps the interaction brief, confirms understanding, and writes a compact HTML requirements document (not markdown) suitable as method-plan origin context, then offers method-plan as the next step.",
+      "files": [],
+      "expectations": [
+        "Recognizes requirements are already clear and skips the long probing phases rather than forcing a full brainstorm",
+        "Writes the requirements document as .html only (not both .md and .html) because output:html was passed",
+        "Does not write a SAP or analysis code",
+        "Offers loading method-plan as the recommended next step at handoff",
+        "Does not re-ask for facts already provided (population, exposure, comparator, outcome, prior evidence)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "brainstorm",
+      "expected_output": "With an empty research description, the skill asks the user what they would like to explore and does not proceed or write any file until a description is supplied.",
+      "files": [],
+      "expectations": [
+        "Asks what the user would like to explore (research question, hypothesis, or study idea)",
+        "Does not create any file under docs/brainstorms/",
+        "Does not invent a research topic or propose study designs before the user replies"
+      ]
+    }
+  ]
+}

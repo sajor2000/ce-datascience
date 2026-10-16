@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 
 async function shippedSkillNames(): Promise<Set<string>> {
   const entries = await fs.readdir(skillsRoot, { withFileTypes: true })
@@ -20,33 +20,33 @@ describe("upstream Compound Engineering curation", () => {
   test("ships adapted core workflow skills that fit health data science", async () => {
     const shipped = await shippedSkillNames()
     const adaptedCoreSkills = [
-      "ce-brainstorm",
-      "ce-clean-gone-branches",
-      "ce-code-review",
-      "ce-commit",
-      "ce-commit-push-pr",
-      "ce-compound",
-      "ce-compound-refresh",
-      "ce-debug",
-      "ce-doc-review",
-      "ce-ideate",
-      "ce-optimize",
-      "ce-plan",
-      "ce-release-notes",
-      "ce-report-bug",
-      "ce-resolve-pr-feedback",
-      "ce-sessions",
-      "ce-setup",
-      "ce-update",
-      "ce-work",
-      "ce-worktree",
+      "method-brainstorm",
+      "method-clean-branches",
+      "method-review",
+      "method-commit",
+      "method-pr",
+      "method-compound",
+      "method-compound-refresh",
+      "method-debug",
+      "method-doc-review",
+      "method-ideate",
+      "method-optimize",
+      "method-plan",
+      "method-release-notes",
+      "method-report-bug",
+      "method-resolve-feedback",
+      "method-sessions",
+      "method-setup",
+      "method-update",
+      "method-work",
+      "method-worktree",
     ]
 
     const missing = adaptedCoreSkills.filter((skill) => !shipped.has(skill))
     expect(missing).toEqual([])
   })
 
-  test("does not ship upstream-only core skills as ce-datascience skills", async () => {
+  test("does not ship upstream-only core skills as methodsmith skills", async () => {
     const shipped = await shippedSkillNames()
     const upstreamOnlySkills = [
       "ce-agent-native-architecture",
@@ -76,28 +76,28 @@ describe("upstream Compound Engineering curation", () => {
 
   test("optional core handoffs name core Compound Engineering and provide fallbacks", async () => {
     const files = [
-      await readSkillFile("ce-plan/references/universal-planning.md"),
-      await readSkillFile("ce-plan/references/plan-handoff.md"),
-      await readSkillFile("ce-brainstorm/references/handoff.md"),
-      await readSkillFile("ce-brainstorm/references/universal-brainstorming.md"),
-      await readSkillFile("ce-ideate/references/post-ideation-workflow.md"),
-      await readSkillFile("ce-commit-push-pr/SKILL.md"),
+      await readSkillFile("method-plan/references/universal-planning.md"),
+      await readSkillFile("method-plan/references/plan-handoff.md"),
+      await readSkillFile("method-brainstorm/references/handoff.md"),
+      await readSkillFile("method-brainstorm/references/universal-brainstorming.md"),
+      await readSkillFile("method-ideate/references/post-ideation-workflow.md"),
+      await readSkillFile("method-pr/SKILL.md"),
     ]
     const combined = files.join("\n")
 
     expect(combined).toContain("core Compound Engineering `ce-proof`")
     expect(combined).toContain("Proof review requires the core Compound Engineering plugin")
     expect(combined).toContain("core Compound Engineering `ce-demo-reel`")
-    expect(combined).toContain("do not pretend ce-datascience ships its own demo-capture skill")
+    expect(combined).toContain("do not pretend methodsmith ships its own demo-capture skill")
   })
 
   test("upstream-only workflow references are explicitly external or core", async () => {
     const files = [
-      await readSkillFile("ce-plan/references/plan-handoff.md"),
-      await readSkillFile("ce-brainstorm/references/handoff.md"),
-      await readSkillFile("ce-ideate/references/post-ideation-workflow.md"),
-      await readSkillFile("ce-work/references/shipping-workflow.md"),
-      await readSkillFile("ce-code-review/references/review-output-template.md"),
+      await readSkillFile("method-plan/references/plan-handoff.md"),
+      await readSkillFile("method-brainstorm/references/handoff.md"),
+      await readSkillFile("method-ideate/references/post-ideation-workflow.md"),
+      await readSkillFile("method-work/references/shipping-workflow.md"),
+      await readSkillFile("method-review/references/review-output-template.md"),
     ]
     const combined = files.join("\n")
 
@@ -111,7 +111,7 @@ describe("upstream Compound Engineering curation", () => {
   })
 
   test("worktree workflow detects harness isolation before using git fallback", async () => {
-    const worktree = await readSkillFile("ce-worktree/SKILL.md")
+    const worktree = await readSkillFile("method-worktree/SKILL.md")
 
     expect(worktree).toContain("git rev-parse --absolute-git-dir")
     expect(worktree).toContain("Prefer the harness's native worktree tool")

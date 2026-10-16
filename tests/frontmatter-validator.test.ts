@@ -7,11 +7,11 @@ import path from "node:path"
 const SKILL_DIRS = [
   path.join(
     __dirname,
-    "../plugins/ce-datascience/skills/ce-compound",
+    "../plugins/methodsmith/skills/method-compound",
   ),
   path.join(
     __dirname,
-    "../plugins/ce-datascience/skills/ce-compound-refresh",
+    "../plugins/methodsmith/skills/method-compound-refresh",
   ),
 ] as const
 
@@ -43,7 +43,7 @@ function writeTempDoc(content: string): string {
 const VALID_DOC = `---
 title: "Sample valid doc"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -75,7 +75,7 @@ describe("validate-frontmatter script", () => {
         const docPath = writeTempDoc(`---
 title: "Sample"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -95,7 +95,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: fix: Close gaps from PR #568 feedback
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -116,7 +116,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: -starts-with-dash
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -134,7 +134,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: ?question-mark-prefix
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -172,7 +172,7 @@ Body without closing delimiter.
         const docPath = writeTempDoc(`---
 title: "Sample"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -189,7 +189,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: "Sample"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -208,7 +208,7 @@ Body.
           "---   \n" +
             'title: "Sample"\n' +
             "date: 2026-04-25\n" +
-            "module: ce-compound\n" +
+            "module: method-compound\n" +
             "problem_type: best_practice\n" +
             "component: tooling\n" +
             "severity: low\n" +
@@ -240,7 +240,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: "Sample"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low
@@ -258,7 +258,7 @@ Body.
         const docPath = writeTempDoc(`---
 title: "fix: Close gaps from PR #568 feedback"
 date: 2026-04-25
-module: ce-compound
+module: method-compound
 problem_type: best_practice
 component: tooling
 severity: low

@@ -74,4 +74,4 @@ no runtime impact, write "No additional operational monitoring required" and why
 
 ---
 
-PR template created for the CE Data Science community by [Juan Carlos Rojas](https://github.com/sajor2000), based on the original [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) work by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to).
+PR template created for the Methodsmith community by [Juan Carlos Rojas](https://github.com/sajor2000), based on the original [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) work by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to).

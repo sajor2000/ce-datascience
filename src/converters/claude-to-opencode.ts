@@ -306,10 +306,10 @@ function rewriteClaudePaths(body: string): string {
  *
  * OpenCode resolves agents by flat filename, so fully-qualified agent
  * references must be flattened. Both 3-segment legacy refs
- * (`ce-datascience:document-review:coherence-reviewer` -> `coherence-reviewer`)
- * and 2-segment category-qualified refs (`review:ce-correctness-reviewer` ->
- * `ce-correctness-reviewer`) are handled. 2-segment skill references without
- * `ce-` prefix (e.g. `ce-datascience:document-review`) are left unchanged.
+ * (`methodsmith:document-review:coherence-reviewer` -> `coherence-reviewer`)
+ * and 2-segment category-qualified refs (`review:method-correctness-reviewer` ->
+ * `method-correctness-reviewer`) are handled. 2-segment skill references without
+ * `method-` prefix (e.g. `methodsmith:document-review`) are left unchanged.
  * See #477.
  */
 export function transformSkillContentForOpenCode(body: string): string {
@@ -324,11 +324,11 @@ export function transformSkillContentForOpenCode(body: string): string {
     "$1",
   )
   // Rewrite 2-segment category-qualified agent refs: category:ce-agent -> ce-agent.
-  // Only matches when the agent segment starts with `ce-` AND ends in an agent role
-  // suffix, so identity strings like `ai:ce-datascience` (a plugin name, not an
+  // Only matches when the agent segment starts with `method-` AND ends in an agent role
+  // suffix, so identity strings like `ai:methodsmith` (a plugin name, not an
   // agent) are preserved. Every shipped agent name carries one of these suffixes.
   result = result.replace(
-    /(?<![a-z0-9:/-])[a-z][a-z0-9-]*:(ce-[a-z][a-z0-9-]*-(?:reviewer|researcher|analyst|analyzer|specialist|oracle|sentinel|historian|detector|resolver|strategist|guardian|writer|agent))(?![a-z0-9:-])/g,
+    /(?<![a-z0-9:/-])[a-z][a-z0-9-]*:(method-[a-z][a-z0-9-]*-(?:reviewer|researcher|analyst|analyzer|specialist|oracle|sentinel|historian|detector|resolver|strategist|guardian|writer|agent))(?![a-z0-9:-])/g,
     "$1",
   )
   return result

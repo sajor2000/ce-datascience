@@ -1,0 +1,42 @@
+{
+  "skill_name": "method-genome-build",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Starting the somatic variant study. References are refs/GRCh38.primary_assembly.fa and refs/gencode.v44.annotation.gtf. Pin the build so nobody accidentally mixes in hg19 later.",
+      "expected_output": "Declares the build by hashing the FASTA and annotation, parsing contig naming, and writing analysis/genome-build/manifest.yaml with build, patch, source, md5s, contigs, and annotation version, resolving actual values rather than copying the illustrative example.",
+      "files": [],
+      "expectations": [
+        "Writes analysis/genome-build/manifest.yaml containing build, fasta_md5, contig style, annotation name/version/md5, declared_at, and declared_by",
+        "Computes md5s and counts from the supplied files rather than copying the illustrative GENCODE 44 example values",
+        "Records contig naming style (chr1 vs 1) from the FASTA",
+        "Does not download references, re-align, or call variants"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "method-genome-build --check. we have bams in align/, a joint-called vcf at variants/cohort.vcf.gz, and RNA-seq counts at counts/gene-counts.tsv. reviewer asked us to prove everything is GRCh38 + GENCODE 44.",
+      "expected_output": "Audits each artifact's headers against the manifest, classifies mismatches as P0/P1, writes the per-output traceability table, and exits non-zero with a clear report if any P0 is found.",
+      "files": [],
+      "expectations": [
+        "Inspects BAM @SQ/@PG headers (samtools view -H) and VCF ##contig/##reference headers (bcftools view -h) against analysis/genome-build/manifest.yaml",
+        "Checks counts-matrix gene IDs against the declared annotation version",
+        "Classifies BAM/VCF build mismatch and annotation version drift as P0, and contig naming inconsistency or missing @PG tool version as P1",
+        "Writes analysis/genome-build/traceability.csv with output_file, build, annotation, tool, tool_version, and match_manifest columns",
+        "Reports a non-zero/blocking result if any P0 mismatch is found"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "half our VCFs are hg19 and half hg38, just liftover everything to hg38 with CrossMap and re-run the annotation so I can merge them today",
+      "expected_output": "Does not run liftover or re-annotation without explicit workflow scope; audits and records the build mismatch, and asks for confirmation of the liftover workflow scope (chain file, target build, validation) before any pipeline run.",
+      "files": [],
+      "expectations": [
+        "Does not execute CrossMap/liftover or re-annotation as part of this skill",
+        "Identifies and reports the mixed hg19/hg38 builds as a P0 mismatch",
+        "Asks for explicit workflow scope (chain file source, target manifest, post-liftover validation) before any liftover is run",
+        "Does not download chain files or references automatically"
+      ]
+    }
+  ]
+}

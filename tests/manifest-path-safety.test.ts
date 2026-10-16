@@ -20,7 +20,7 @@ import {
 // An install with no ledger yet, so manifest-listed entries are moved to
 // backups under <tempRoot>/managed rather than deleted.
 function preLedgerOwnership(tempRoot: string): Promise<InstallOwnership> {
-  return InstallOwnership.open(tempRoot, path.join(tempRoot, "managed"), "ce-datascience")
+  return InstallOwnership.open(tempRoot, path.join(tempRoot, "managed"), "methodsmith")
 }
 
 describe("isSafeManagedPath", () => {
@@ -88,7 +88,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     await fs.mkdir(managedDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       groups: {
         skills: [
           "safe-skill",
@@ -103,7 +103,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readManagedInstallManifest(managedDir, "ce-datascience")
+    const result = await readManagedInstallManifest(managedDir, "methodsmith")
     expect(result).not.toBeNull()
     expect(result!.groups.skills).toEqual(["safe-skill", "another-safe"])
     expect(result!.groups.commands).toEqual(["ok.md"])
@@ -119,7 +119,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readManagedInstallManifest(managedDir, "ce-datascience")
+    const result = await readManagedInstallManifest(managedDir, "methodsmith")
     expect(result).toBeNull()
   })
 })
@@ -145,7 +145,7 @@ describe("cleanupRemovedManagedEntries does not escape root (defense in depth)",
     // readManagedInstallManifest's filter.
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       groups: {
         prompts: ["../outside.txt", "/etc/passwd"],
       },
@@ -164,7 +164,7 @@ describe("cleanupRemovedManagedEntries does not escape root (defense in depth)",
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       groups: {
         skills: ["../outside"],
       },
@@ -182,11 +182,11 @@ describe("cleanupRemovedManagedEntries does not escape root (defense in depth)",
 
     await writeManagedInstallManifest(rootDir, {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       groups: { prompts: ["safe-prompt.md"] },
     })
 
-    const manifest = await readManagedInstallManifest(rootDir, "ce-datascience")
+    const manifest = await readManagedInstallManifest(rootDir, "methodsmith")
     expect(manifest).not.toBeNull()
 
     // Simulate a follow-up install where "safe-prompt.md" is no longer
@@ -215,18 +215,18 @@ describe("readCodexInstallManifest filters unsafe entries", () => {
 
   test("drops traversal/absolute entries from skills, prompts, agents", async () => {
     const codexRoot = path.join(tempRoot, ".codex")
-    const pluginDir = path.join(codexRoot, "ce-datascience")
+    const pluginDir = path.join(codexRoot, "methodsmith")
     await fs.mkdir(pluginDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["safe-skill", "../../../etc/passwd", "/etc/passwd"],
       prompts: ["ok.md", "../../evil.md", "foo/../../escape.md"],
       agents: ["safe-agent.toml", "/tmp/abs.toml", "../escape.toml"],
     }
     await fs.writeFile(path.join(pluginDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readCodexInstallManifest(codexRoot, "ce-datascience")
+    const result = await readCodexInstallManifest(codexRoot, "methodsmith")
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["safe-skill"])
     expect(result!.prompts).toEqual(["ok.md"])
@@ -235,18 +235,18 @@ describe("readCodexInstallManifest filters unsafe entries", () => {
 
   test("keeps all entries when all are safe", async () => {
     const codexRoot = path.join(tempRoot, ".codex")
-    const pluginDir = path.join(codexRoot, "ce-datascience")
+    const pluginDir = path.join(codexRoot, "methodsmith")
     await fs.mkdir(pluginDir, { recursive: true })
     const manifest = {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["a", "b", "c"],
       prompts: ["p.md"],
       agents: ["agent.toml"],
     }
     await fs.writeFile(path.join(pluginDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readCodexInstallManifest(codexRoot, "ce-datascience")
+    const result = await readCodexInstallManifest(codexRoot, "methodsmith")
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["a", "b", "c"])
     expect(result!.prompts).toEqual(["p.md"])
@@ -267,7 +267,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
 
   test("drops traversal/absolute entries from skills, prompts, extensions", async () => {
     const piRoot = path.join(tempRoot, ".pi")
-    const managedDir = path.join(piRoot, "ce-datascience")
+    const managedDir = path.join(piRoot, "methodsmith")
     await fs.mkdir(managedDir, { recursive: true })
     const paths = {
       managedDir,
@@ -280,7 +280,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     const manifest = {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["safe-skill", "../../../etc/passwd", "/etc/passwd", "foo/../../escape"],
       prompts: ["ok.md", "../../evil.md", "foo/../bar.md"],
       extensions: ["safe.ext", "/tmp/abs.ext", "..\\escape.ext"],
@@ -288,7 +288,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readPiInstallManifest(managedDir, "ce-datascience", paths)
+    const result = await readPiInstallManifest(managedDir, "methodsmith", paths)
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["safe-skill"])
     expect(result!.prompts).toEqual(["ok.md"])
@@ -297,7 +297,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
 
   test("keeps all entries when all are safe", async () => {
     const piRoot = path.join(tempRoot, ".pi")
-    const managedDir = path.join(piRoot, "ce-datascience")
+    const managedDir = path.join(piRoot, "methodsmith")
     await fs.mkdir(managedDir, { recursive: true })
     const paths = {
       managedDir,
@@ -310,7 +310,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     const manifest = {
       version: 1,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["a", "b", "c"],
       prompts: ["p.md"],
       extensions: ["ext.js"],
@@ -318,7 +318,7 @@ describe("readPiInstallManifest filters unsafe entries", () => {
     }
     await fs.writeFile(path.join(managedDir, "install-manifest.json"), JSON.stringify(manifest))
 
-    const result = await readPiInstallManifest(managedDir, "ce-datascience", paths)
+    const result = await readPiInstallManifest(managedDir, "methodsmith", paths)
     expect(result).not.toBeNull()
     expect(result!.skills).toEqual(["a", "b", "c"])
     expect(result!.prompts).toEqual(["p.md"])
@@ -346,7 +346,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["../outside-skill", "/etc/passwd"],
       prompts: [],
       extensions: [],
@@ -365,7 +365,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: [],
       prompts: ["../outside.txt", "/etc/passwd"],
       extensions: [],
@@ -384,7 +384,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const hostileManifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: [],
       prompts: [],
       extensions: ["../outside-ext", "/etc/passwd", "foo/../../escape"],
@@ -413,7 +413,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
 
     const manifest = {
       version: 1 as const,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       skills: ["stale-skill"],
       prompts: ["stale.md"],
       extensions: ["stale.ext"],

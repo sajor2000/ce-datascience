@@ -33,7 +33,7 @@ describe("writePiBundle", () => {
     const outputRoot = path.join(tempRoot, ".pi")
 
     const sessionHistorianDescription = await pluginDescription(
-      "plugins/ce-datascience/agents/ce-session-historian.md",
+      "plugins/methodsmith/agents/method-session-historian.md",
     )
 
     await fs.mkdir(path.join(outputRoot, "skills", "session-historian"), { recursive: true })
@@ -63,7 +63,7 @@ describe("writePiBundle", () => {
     const outputRoot = path.join(tempRoot, ".pi")
 
     const bundle: PiBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "workflows-plan", content: "Prompt content" }],
       skillDirs: [
         {
@@ -90,12 +90,12 @@ describe("writePiBundle", () => {
     // the `subagent` tool.
     expect(await exists(path.join(outputRoot, "agents", "repo-research-analyst.md"))).toBe(true)
     expect(await exists(path.join(outputRoot, "extensions", "compound-engineering-compat.ts"))).toBe(true)
-    expect(await exists(path.join(outputRoot, "ce-datascience", "mcporter.json"))).toBe(true)
-    expect(await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "methodsmith", "mcporter.json"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "methodsmith", "install-manifest.json"))).toBe(true)
 
     const agentsPath = path.join(outputRoot, "AGENTS.md")
     const agentsContent = await fs.readFile(agentsPath, "utf8")
-    expect(agentsContent).toContain("BEGIN CE DATASCIENCE PI TOOL MAP")
+    expect(agentsContent).toContain("BEGIN METHODSMITH PI TOOL MAP")
     expect(agentsContent).toContain("pi-subagents")
     expect(agentsContent).toContain("pi-ask-user")
   })
@@ -108,7 +108,7 @@ describe("writePiBundle", () => {
     await fs.writeFile(
       path.join(sourceSkillDir, "SKILL.md"),
       `---
-name: ce-plan
+name: method-plan
 description: Planning workflow
 ---
 
@@ -122,7 +122,7 @@ Run these research agents:
 
     const bundle: PiBundle = {
       prompts: [],
-      skillDirs: [{ name: "ce-plan", sourceDir: sourceSkillDir }],
+      skillDirs: [{ name: "method-plan", sourceDir: sourceSkillDir }],
       generatedSkills: [],
       agents: [],
       extensions: [],
@@ -131,7 +131,7 @@ Run these research agents:
     await writePiBundle(outputRoot, bundle)
 
     const installedSkill = await fs.readFile(
-      path.join(outputRoot, "skills", "ce-plan", "SKILL.md"),
+      path.join(outputRoot, "skills", "method-plan", "SKILL.md"),
       "utf8",
     )
 
@@ -162,13 +162,13 @@ Run these research agents:
   test("backs up existing mcporter config before overwriting", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "pi-backup-"))
     const outputRoot = path.join(tempRoot, ".pi")
-    const configPath = path.join(outputRoot, "ce-datascience", "mcporter.json")
+    const configPath = path.join(outputRoot, "methodsmith", "mcporter.json")
 
     await fs.mkdir(path.dirname(configPath), { recursive: true })
     await fs.writeFile(configPath, JSON.stringify({ previous: true }, null, 2))
 
     const bundle: PiBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
@@ -196,7 +196,7 @@ Run these research agents:
     const outputRoot = path.join(tempRoot, ".pi")
 
     await writePiBundle(outputRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "old-prompt", content: "Prompt content" }],
       skillDirs: [
         {
@@ -210,7 +210,7 @@ Run these research agents:
     })
 
     await writePiBundle(outputRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "new-prompt", content: "Prompt content" }],
       skillDirs: [],
       generatedSkills: [],
@@ -232,7 +232,7 @@ Run these research agents:
 
     // Install plugin A first, with a prompt, skill, generated skill, and extension
     await writePiBundle(outputRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [{ name: "ce-prompt", content: "CE prompt" }],
       skillDirs: [
         {
@@ -261,7 +261,7 @@ Run these research agents:
     })
 
     // Both plugins must keep their own namespaced manifest
-    expect(await exists(path.join(outputRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "methodsmith", "install-manifest.json"))).toBe(true)
     expect(await exists(path.join(outputRoot, "coding-tutor", "install-manifest.json"))).toBe(true)
 
     // Reinstall plugin A with no artifacts — it must clean up only its own
@@ -269,7 +269,7 @@ Run these research agents:
     // addresses: a shared manifest path would have lost B's manifest after A
     // was installed, and a later A reinstall would skip B's stale-file cleanup).
     await writePiBundle(outputRoot, {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
@@ -288,10 +288,10 @@ Run these research agents:
     expect(await exists(path.join(outputRoot, "coding-tutor", "install-manifest.json"))).toBe(true)
   })
 
-  test("moves stale ce-datascience mcporter.json to legacy backup when bundle has no mcporterConfig", async () => {
+  test("moves stale methodsmith mcporter.json to legacy backup when bundle has no mcporterConfig", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "pi-legacy-mcporter-"))
     const outputRoot = path.join(tempRoot, ".pi")
-    const staleConfigPath = path.join(outputRoot, "ce-datascience", "mcporter.json")
+    const staleConfigPath = path.join(outputRoot, "methodsmith", "mcporter.json")
 
     await fs.mkdir(path.dirname(staleConfigPath), { recursive: true })
     await fs.writeFile(
@@ -300,13 +300,13 @@ Run these research agents:
     )
 
     const bundle: PiBundle = {
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       prompts: [],
       skillDirs: [],
       generatedSkills: [],
       agents: [],
       extensions: [],
-      // No mcporterConfig — the ce-datascience plugin ships no MCP
+      // No mcporterConfig — the methodsmith plugin ships no MCP
       // servers, so the file written by the removed compat extension should
       // be swept into legacy-backup rather than lingering on disk.
     }
@@ -315,7 +315,7 @@ Run these research agents:
 
     expect(await exists(staleConfigPath)).toBe(false)
 
-    const legacyBackupRoot = path.join(outputRoot, "ce-datascience", "legacy-backup")
+    const legacyBackupRoot = path.join(outputRoot, "methodsmith", "legacy-backup")
     expect(await exists(legacyBackupRoot)).toBe(true)
 
     const timestamps = await fs.readdir(legacyBackupRoot)
@@ -347,7 +347,7 @@ Run these research agents:
     await fs.writeFile(path.join(outputRoot, "prompts", "reproduce-bug.md"), legacyMd("legacy removed prompt"))
     await fs.writeFile(path.join(outputRoot, "prompts", "report-bug.md"), legacyMd("legacy deleted command prompt"))
 
-    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
+    const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "methodsmith"))
     const bundle = convertClaudeToPi(plugin, {
       agentMode: "subagent",
       inferTemperature: true,
@@ -359,10 +359,10 @@ Run these research agents:
     expect(await exists(path.join(outputRoot, "skills", "bug-reproduction-validator"))).toBe(false)
     expect(await exists(path.join(outputRoot, "prompts", "reproduce-bug.md"))).toBe(false)
     expect(await exists(path.join(outputRoot, "prompts", "report-bug.md"))).toBe(false)
-    expect(await exists(path.join(outputRoot, "skills", "ce-plan", "SKILL.md"))).toBe(true)
-    // ce-repo-research-analyst is a Claude agent, so it installs to .pi/agents/<name>.md
+    expect(await exists(path.join(outputRoot, "skills", "method-plan", "SKILL.md"))).toBe(true)
+    // method-repo-research-analyst is a Claude agent, so it installs to .pi/agents/<name>.md
     // (not .pi/skills/<name>/SKILL.md) so nicobailon/pi-subagents can resolve it.
-    expect(await exists(path.join(outputRoot, "agents", "ce-repo-research-analyst.md"))).toBe(true)
-    expect(await exists(path.join(outputRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "agents", "method-repo-research-analyst.md"))).toBe(true)
+    expect(await exists(path.join(outputRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 })

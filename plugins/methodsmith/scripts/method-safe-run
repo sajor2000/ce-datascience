@@ -1,0 +1,378 @@
+#!/usr/bin/env python3
+"""Run a command that may print data values, without showing its output.
+
+Usage: method-safe-run -- <command> [args...]
+
+Full stdout and stderr go to .ce-datascience/runs/<UTC-timestamp>-<pid>.log in
+the project; `.ce-datascience/runs/` is added to .gitignore when git does not
+already ignore it. The terminal gets only the exit code, the duration,
+the log path, the files created or modified under the project (path, size,
+and row count for tabular files), and the last 30 lines of stderr with values
+in the project's identifier index, quoted literals, digit runs of 4 or more,
+emails, phones, and SSNs masked. Traceback frames that name an existing file
+keep that path readable (identifier-shaped or indexed parts masked); any other
+frame-shaped line is masked like the rest. File names are masked against the
+index too. Stdout is never printed. The exit code is the
+command's. Files the run created or modified (except raster images) are listed in
+.ce-datascience/runs/outputs.txt, and the boundary guard treats them as data: the
+run read data, so what it wrote may hold values. Writes outside the project, or
+under .git and dependency trees (node_modules, venvs, renv, caches), are not
+tracked. In schema-only mode the guard requires method-safe-run to run as its own
+command, so nothing in the same call reads a file before it is recorded.
+"""
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+# --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
+HASH_WIDTH = 16
+# Identifier shapes. Keyword-anchored where digits alone are ambiguous.
+IDENTIFIER_PATTERNS = (
+    ("an SSN", re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")),
+    ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
+    ("a phone number", re.compile(r"(?<![\d/.])(?:\+?1[-. ]?)?(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?![\d/])")),
+    ("a record identifier", re.compile(
+        r"\b(?:mrn|medical[\s_-]*record(?:[\s_-]*(?:number|num|no|#))?|patient[\s_-]*(?:id|identifier|number|no)|"
+        r"member[\s_-]*(?:id|number|no)|subscriber[\s_-]*id|claim[\s_-]*(?:number|num|no|id|#)|encounter[\s_-]*id)"
+        r"[\s:=#._-]{0,4}[A-Za-z]{0,6}\d{4,}", re.IGNORECASE)),
+    ("a date of birth", re.compile(
+        r"\b(?:dob|d\.o\.b\.?|date[\s_-]*of[\s_-]*birth|birth[\s_-]*date)\b[\s:=#-]{0,4}"
+        r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
+)
+
+# Identifier-like column headings, by kind.
+HEADER_KINDS = (
+    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
+    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
+    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
+    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
+    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
+    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
+                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
+                      r"|claim_?(?:id|num|number|no|nbr))$")),
+    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
+    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
+)
+
+
+def header_kind(name):
+    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+    for kind, pattern in HEADER_KINDS:
+        if pattern.match(key):
+            return kind
+    return None
+
+
+def id_tokens(text):
+    """Lowercase, fold accents, and split into alphanumeric tokens."""
+    import unicodedata  # lazy: only identifier checks need it
+
+    folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return re.findall(r"[^\W_]+", folded.lower())
+
+
+def id_hash(salt, entry):
+    import hashlib  # lazy: only identifier checks need it
+
+    return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
+
+
+# A present but malformed index: every lookup matches, so callers fail closed.
+INVALID_INDEX = ("", HASH_WIDTH, "")
+
+
+def read_index(path):
+    """(salt, width, sorted hash blob) from an index file, None when absent, INVALID_INDEX when malformed."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (FileNotFoundError, NotADirectoryError):
+        return None
+    except (OSError, ValueError):
+        return INVALID_INDEX
+    if not isinstance(data, dict):
+        return INVALID_INDEX
+    salt, width, blob = data.get("salt"), data.get("width"), data.get("hashes")
+    if (not isinstance(salt, str) or not re.fullmatch(r"[0-9a-f]{32,128}", salt) or type(width) is not int
+            or width != HASH_WIDTH or not isinstance(blob, str) or len(blob) % width
+            or data.get("count") != len(blob) // width or blob != blob.lower()):
+        return INVALID_INDEX
+    try:
+        if len(bytes.fromhex(blob)) * 2 != len(blob):  # fromhex skips whitespace
+            return INVALID_INDEX
+    except ValueError:
+        return INVALID_INDEX
+    count = len(blob) // width  # binary search needs sorted keys: check all, or 4096 evenly spaced
+    keys = [blob[i * width:(i + 1) * width] for i in range(0, count, max(1, count // 4096))] + [blob[-width:]]
+    if any(a >= b for a, b in zip(keys, keys[1:-1])) or (count > 1 and keys[-2] > keys[-1]):
+        return INVALID_INDEX
+    return salt, width, blob
+
+
+def _indexed(index, entry):
+    if index is INVALID_INDEX:
+        return True
+    salt, width, blob = index
+    key = id_hash(salt, entry)[:width]
+    lo, hi = 0, len(blob) // width
+    while lo < hi:
+        mid = (lo + hi) // 2
+        probe = blob[mid * width:(mid + 1) * width]
+        if probe == key:
+            return True
+        if probe < key:
+            lo = mid + 1
+        else:
+            hi = mid
+    return False
+
+
+def index_hit(text, index):
+    """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    if index is INVALID_INDEX:
+        return True
+    tokens = id_tokens(text)
+    grams = {" ".join(tokens)} if len(tokens) > 3 else set()
+    for size in (1, 2, 3):
+        for start in range(len(tokens) - size + 1):
+            gram = tokens[start:start + size]
+            if size == 1 and (len(gram[0]) < 4 or not any(ch.isdigit() for ch in gram[0])):
+                continue
+            grams.add(" ".join(gram))
+    return any(_indexed(index, gram) for gram in grams)
+# --- end identifier index ---
+
+SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+             "renv"}  # VCS and dependency trees; .ce-datascience is walked except runs/ (data already)
+TABULAR = (".csv", ".tsv", ".psv", ".tab")
+RASTER = (".png", ".jpg", ".jpeg", ".gif", ".webp")
+MAX_FILES = 20000
+MAX_LISTED = 50
+TAIL_LINES = 30
+FRAME = re.compile(r'^(\s*File ")([^"\n]+)(", line \d+)(.*)$')
+MASKS = (
+    (re.compile(r"'[^'\n]*'"), "'…'"),
+    (re.compile(r'"[^"\n]*"'), '"…"'),
+    (re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}"), "[email]"),
+    (re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)"), "[ssn]"),
+    (re.compile(r"(?:\+?1[-. ]?)?(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?!\d)"), "[phone]"),
+    (re.compile(r"\d{4,}"), "####"),
+)
+
+
+def project_root(start):
+    probe = os.path.abspath(start)
+    while True:
+        if os.path.isdir(os.path.join(probe, ".ce-datascience")) or os.path.exists(os.path.join(probe, ".git")):
+            return probe
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            return os.path.abspath(start)
+        probe = parent
+
+
+def ensure_ignored(root, pattern, probe):
+    """Append pattern to the project's .gitignore unless git already ignores probe."""
+    try:
+        check = subprocess.run(["git", "-C", root, "check-ignore", "-q", probe], capture_output=True, timeout=5)
+        if check.returncode == 0:
+            return
+        if check.returncode == 128:  # not a git repository
+            return
+    except (OSError, subprocess.SubprocessError):
+        pass
+    path = os.path.join(root, ".gitignore")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            current = fh.read()
+    except OSError:
+        current = ""
+    if pattern in current.splitlines():
+        return
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(("" if not current or current.endswith("\n") else "\n") + pattern + "\n")
+
+
+def snapshot(root):
+    """{relative path: (mtime_ns, size)} for project files, skipping tool and VCS directories."""
+    files = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS
+                       and not (d == "runs" and os.path.basename(dirpath) == ".ce-datascience")]
+        for name in filenames:
+            full = os.path.join(dirpath, name)
+            try:
+                st = os.stat(full)
+            except OSError:
+                continue
+            files[os.path.relpath(full, root)] = (st.st_mtime_ns, st.st_size)
+            if len(files) >= MAX_FILES:
+                return files
+    return files
+
+
+def row_count(path):
+    lower = path.lower()
+    try:
+        if lower.endswith(TABULAR):
+            with open(path, "rb") as fh:
+                lines = sum(1 for line in fh if line.strip())
+            return max(lines - 1, 0)
+        if lower.endswith(".parquet"):
+            import pyarrow.parquet as pq
+            return pq.ParquetFile(path).metadata.num_rows
+    except Exception:  # row counts are best effort
+        return None
+    return None
+
+
+def changed_files(before, after):
+    return [rel for rel in sorted(after) if before.get(rel) != after[rel]]
+
+
+def record_outputs(runs, changed):
+    """Add written files to runs/outputs.txt; the boundary guard treats them as data. Raster figures are exempt."""
+    path = os.path.join(runs, "outputs.txt")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            known = set(fh.read().splitlines())
+    except OSError:
+        known = set()
+    new = [rel for rel in changed if rel not in known and not rel.lower().endswith(RASTER)]
+    if new:
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write("".join(rel + "\n" for rel in new))
+
+
+def changes(before, after, root, index):
+    lines = []
+    for rel in changed_files(before, after):
+        kind = "created " if rel not in before else "modified"
+        rows = row_count(os.path.join(root, rel))
+        line = f"  {kind} {mask_path(rel, index)}  {after[rel][1]} bytes"
+        lines.append(line + (f"  {rows} rows" if rows is not None else ""))
+    return lines
+
+
+def mask_indexed(text, index):
+    """Replace every 1-3 token run that is an identifier-index entry with [masked]."""
+    if not index:
+        return text
+    if index is INVALID_INDEX:
+        return "[masked]"
+    spans = [(m.start(), m.end(), " ".join(id_tokens(m.group()))) for m in re.finditer(r"[^\W_]+", text)]
+    hits = []
+    for i in range(len(spans)):
+        for size in (3, 2, 1):
+            gram = spans[i:i + size]
+            entry = " ".join(g[2] for g in gram)
+            if size == 1 and (len(entry) < 4 or not any(ch.isdigit() for ch in entry)):
+                continue
+            if len(gram) == size and _indexed(index, entry):
+                hits.append([gram[0][0], gram[-1][1]])
+                break
+    merged = []
+    for start, end in sorted(hits):
+        if merged and start <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    for start, end in reversed(merged):
+        text = text[:start] + "[masked]" + text[end:]
+    return text
+
+
+def mask(text, index):
+    text = mask_indexed(text, index)
+    for pattern, replacement in MASKS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+def masked_tail(err, index):
+    lines = err.decode("utf-8", errors="replace").splitlines()[-TAIL_LINES:]
+    out = []
+    for line in lines:
+        frame = FRAME.match(line)
+        if frame and os.path.isfile(frame.group(2)):  # a real file: keep its path readable, minus identifiers
+            out.append(frame.group(1) + mask_path(frame.group(2), index) + frame.group(3) + mask(frame.group(4), index))
+        else:
+            out.append(mask(line, index))
+    return out
+
+
+def mask_path(path, index):
+    shown = mask_indexed(path, index)
+    for _, pattern in IDENTIFIER_PATTERNS:
+        shown = pattern.sub("[masked]", shown)
+    return shown
+
+
+def find_index(root):
+    for base in (root, git_main(root)):
+        index = read_index(os.path.join(base, ".ce-datascience", "identifier-index.local.json")) if base else None
+        if index:
+            return index
+    return None
+
+
+def git_main(top):
+    try:
+        out = subprocess.run(["git", "-C", top, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                             capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    common = out.stdout.strip()
+    return os.path.dirname(common.rstrip(os.sep)) if out.returncode == 0 and common.endswith(".git") else None
+
+
+def main(argv):
+    if "--" not in argv or argv.index("--") == len(argv) - 1:
+        print(__doc__.strip())
+        return 2
+    cmd = argv[argv.index("--") + 1:]
+    root = project_root(os.getcwd())
+    runs = os.path.join(root, ".ce-datascience", "runs")
+    os.makedirs(runs, exist_ok=True)
+    ensure_ignored(root, ".ce-datascience/runs/", ".ce-datascience/runs/probe.log")
+    name = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + f"-{os.getpid()}.log"
+    log_path = os.path.join(runs, name)
+    before = snapshot(root)
+    start = time.monotonic()
+    try:
+        proc = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True)
+        code, out, err = proc.returncode, proc.stdout, proc.stderr
+    except OSError as exc:
+        code, out, err = 127, b"", f"method-safe-run: could not start the command ({type(exc).__name__})\n".encode()
+    duration = time.monotonic() - start
+    fd = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(b"== command ==\n" + " ".join(cmd).encode() + b"\n== stdout ==\n" + out + b"\n== stderr ==\n" + err)
+    print(f"method-safe-run: exit code: {code}, duration: {duration:.1f}s")
+    print(f"Full stdout and stderr (not shown): {os.path.relpath(log_path, root)}")
+    index = find_index(root)
+    after = snapshot(root)
+    record_outputs(runs, changed_files(before, after))
+    changed = changes(before, after, root, index)
+    print("Files created or modified:" if changed else "Files created or modified: none")
+    for line in changed[:MAX_LISTED]:
+        print(line)
+    if len(changed) > MAX_LISTED:
+        print(f"  ... and {len(changed) - MAX_LISTED} more")
+    if index is INVALID_INDEX:
+        print("The identifier index is malformed, so file names and stderr are withheld; "
+              "rebuild it with method-identifier-index.")
+    tail = masked_tail(err, index)
+    if tail:
+        print(f"stderr (last {TAIL_LINES} lines, masked):")
+        for line in tail:
+            print("  " + line)
+    return code
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

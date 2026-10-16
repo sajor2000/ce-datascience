@@ -8,6 +8,12 @@ import type { OpenCodeBundle } from "../types/opencode"
 import type { PiBundle } from "../types/pi"
 import { sanitizePathName } from "../utils/files"
 import { normalizeCodexName } from "../utils/codex-content"
+import {
+  PLUGIN_NAME,
+  PRE_REBRAND_AGENT_NAMES,
+  PRE_REBRAND_PLUGIN_NAME,
+  PRE_REBRAND_SKILL_NAMES,
+} from "../utils/rebrand-names"
 
 type LegacyPluginArtifacts = {
   skills?: string[]
@@ -16,6 +22,7 @@ type LegacyPluginArtifacts = {
 }
 
 export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifacts> = {
+  // rebrand:keep-start -- pre-rebrand names; these stay ce-* on purpose (see scripts/rebrand).
   "compound-engineering": {
     // Historical CE artifacts derived from git history. Keep these explicit so
     // cleanup can remove stale flat installs without touching unrelated skills.
@@ -467,6 +474,16 @@ export const EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN: Record<string, LegacyPluginArtifa
       "xcode-test",
     ],
   },
+  // rebrand:keep-end
+}
+
+// 5.0 renamed the plugin to Methodsmith. Installs under the new name sweep
+// everything the old name ever shipped, including every pre-rebrand name.
+const preRebrandArtifacts = EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN[PRE_REBRAND_PLUGIN_NAME]
+EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN[PLUGIN_NAME] = {
+  skills: [...new Set([...(preRebrandArtifacts.skills ?? []), ...PRE_REBRAND_SKILL_NAMES])],
+  agents: [...new Set([...(preRebrandArtifacts.agents ?? []), ...PRE_REBRAND_AGENT_NAMES])],
+  commands: preRebrandArtifacts.commands,
 }
 
 export type LegacyTargetArtifacts = {
@@ -521,7 +538,7 @@ export function getLegacyCodexArtifacts(bundle: CodexBundle): LegacyTargetArtifa
   // plugin bundle (`bundle.skillDirs`, `bundle.generatedSkills`, `bundle.agents`).
   // That was unsafe: on a first install, any user-authored skill at a flat
   // `~/.codex/skills/<name>` path that happened to share a name with a current
-  // CE skill or agent would be swept into `ce-datascience/legacy-backup`
+  // CE skill or agent would be swept into `methodsmith/legacy-backup`
   // even though it was never part of CE.
   //
   // The historical allow-list already enumerates every skill/agent/command name
@@ -777,8 +794,8 @@ export function getLegacyWindsurfArtifacts(plugin: ClaudePlugin): LegacyWindsurf
   // purpose of this cleanup is backing up stale files from past installs.
   // Any user-authored skill/workflow at a flat Windsurf path that happened to
   // share a name with a current CE skill/agent/command (e.g.
-  // `skills/ce-debug` or `global_workflows/ce-plan.md`) would otherwise be
-  // swept into `ce-datascience/legacy-backup` even though it was never
+  // `skills/method-debug` or `global_workflows/method-plan.md`) would otherwise be
+  // swept into `methodsmith/legacy-backup` even though it was never
   // installed by CE.
   //
   // The historical allow-list already enumerates every skill/agent/command
@@ -821,12 +838,14 @@ function addLegacySkillVariants(
     skills.add(sanitized)
   }
 
+  // rebrand:keep-start -- legacy ce-* semantics (see scripts/rebrand)
   // Deliberately does NOT synthesize a `ce-<name>` variant. Probing a
   // name the plugin never actually wrote would sweep an unrelated user skill
   // at a flat path (e.g. ~/.codex/skills/ce-demo-reel/) into legacy-backup.
   // When a component genuinely shipped `ce-`-prefixed, add that exact spelling
   // to EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN as its own entry — several already are.
   // Enforced by tests/plugin-legacy-artifacts.test.ts.
+  // rebrand:keep-end
 
   // Codex historically accepted raw colon directory names on macOS
   // (for example ~/.codex/skills/ce:plan). Other targets generally sanitized

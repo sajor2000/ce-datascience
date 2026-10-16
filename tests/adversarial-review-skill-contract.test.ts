@@ -2,9 +2,9 @@ import { readFile } from "fs/promises"
 import path from "path"
 import { describe, expect, test } from "bun:test"
 
-const skillRoot = path.join(process.cwd(), "plugins/ce-datascience/skills/ce-adversarial-review")
+const skillRoot = path.join(process.cwd(), "plugins/methodsmith/skills/method-adversarial-review")
 
-describe("ce-adversarial-review contract", () => {
+describe("method-adversarial-review contract", () => {
   test("defines portable code and plan routing with an explicit local fallback", async () => {
     const skill = await readFile(path.join(skillRoot, "SKILL.md"), "utf8")
 
@@ -64,7 +64,7 @@ describe("ce-adversarial-review contract", () => {
     const caseDefinition = await readFile(
       path.join(
         process.cwd(),
-        "evals/ce-datascience/cases/ce-adversarial-review-local-plan/case.yaml",
+        "evals/methodsmith/cases/method-adversarial-review-local-plan/case.yaml",
       ),
       "utf8",
     )

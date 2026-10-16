@@ -9,9 +9,9 @@ import pluginPath from "./commands/plugin-path"
 
 const main = defineCommand({
   meta: {
-    name: "ce-datascience-plugin",
+    name: "methodsmith",
     version: packageJson.version,
-    description: "Convert CE DataScience plugins into other agent formats",
+    description: "Convert Methodsmith plugins into other agent formats",
   },
   subCommands: {
     cleanup: () => cleanup,

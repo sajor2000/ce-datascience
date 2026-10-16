@@ -83,7 +83,7 @@ export function convertClaudeToCodex(
     // treats them as "current" and `cleanupLegacyAgentSkillDirs` doesn't
     // move still-active skills under `.codex/skills/<plugin>/<name>/` into
     // legacy-backup. Without this, re-running `install --to codex` after a
-    // native plugin install would sweep allow-listed names like `ce-plan`
+    // native plugin install would sweep allow-listed names like `method-plan`
     // into backup because `currentSkills` (derived from skillDirs and
     // generatedSkills) would be empty while the legacy allow-list still
     // lists them.
@@ -215,16 +215,16 @@ function isDeprecatedCodexWorkflowAlias(name: string): boolean {
 }
 
 const WORKFLOW_ALIAS_OVERRIDES: Record<string, string> = {
-  "workflows:review": "ce-code-review",
+  "workflows:review": "method-review",
 }
 
 function toCanonicalWorkflowSkillName(name: string): string | null {
   if (!isDeprecatedCodexWorkflowAlias(name)) return null
-  return WORKFLOW_ALIAS_OVERRIDES[name] ?? `ce-${name.slice("workflows:".length)}`
+  return WORKFLOW_ALIAS_OVERRIDES[name] ?? `method-${name.slice("workflows:".length)}`
 }
 
 function shouldApplyCompoundWorkflowModel(plugin: ClaudePlugin): boolean {
-  return plugin.manifest.name === "ce-datascience"
+  return plugin.manifest.name === "methodsmith"
 }
 
 function buildAgentTargets(plugin: ClaudePlugin, agents: CodexAgent[]): Record<string, string> {
@@ -236,11 +236,11 @@ function buildAgentTargets(plugin: ClaudePlugin, agents: CodexAgent[]): Record<s
     const aliases = [
       agent.name,
       normalizeCodexName(agent.name),
-      agent.name.startsWith("ce-") ? agent.name.slice("ce-".length) : "",
+      agent.name.startsWith("method-") ? agent.name.slice("method-".length) : "",
       category ? `${category}:${agent.name}` : "",
-      category && agent.name.startsWith("ce-") ? `${category}:${agent.name.slice("ce-".length)}` : "",
+      category && agent.name.startsWith("method-") ? `${category}:${agent.name.slice("method-".length)}` : "",
       category ? `${plugin.manifest.name}:${category}:${agent.name}` : "",
-      category && agent.name.startsWith("ce-") ? `${plugin.manifest.name}:${category}:${agent.name.slice("ce-".length)}` : "",
+      category && agent.name.startsWith("method-") ? `${plugin.manifest.name}:${category}:${agent.name.slice("method-".length)}` : "",
     ].filter(Boolean)
 
     for (const alias of aliases) {

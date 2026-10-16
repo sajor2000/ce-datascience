@@ -88,7 +88,7 @@ describe("transformContentForCodex", () => {
       }
       expect(
         transformContentForCodex(
-          "Task ce-datascience:research:ce-repo-researcher(find X)",
+          "Task methodsmith:research:ce-repo-researcher(find X)",
           targets,
         ),
       ).toBe("Spawn the custom agent `research-ce-repo-researcher` with task: find X")
@@ -102,7 +102,7 @@ describe("transformContentForCodex", () => {
       }
       expect(
         transformContentForCodex(
-          "Task ce-datascience:research:ce-repo-researcher()",
+          "Task methodsmith:research:ce-repo-researcher()",
           targets,
         ),
       ).toBe("Spawn the custom agent `ce-repo-researcher`")
@@ -111,7 +111,7 @@ describe("transformContentForCodex", () => {
     test("namespaced unknown agent uses the final segment as the skill name", () => {
       expect(
         transformContentForCodex(
-          "Task ce-datascience:research:unknown-agent(find X)",
+          "Task methodsmith:research:unknown-agent(find X)",
           emptyTargets,
         ),
       ).toBe("Use the $unknown-agent skill to: find X")
@@ -204,9 +204,9 @@ describe("transformContentForCodex", () => {
     test("known skill target becomes a skill reference", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
-        skillTargets: { "ce-plan": "ce-plan" },
+        skillTargets: { "method-plan": "method-plan" },
       }
-      expect(transformContentForCodex("Run /ce-plan", targets)).toBe("Run the ce-plan skill")
+      expect(transformContentForCodex("Run /method-plan", targets)).toBe("Run the method-plan skill")
     })
 
     test("unknown slash command defaults to /prompts:<normalized>", () => {
@@ -245,22 +245,22 @@ describe("transformContentForCodex", () => {
 
     test("leaves slash-prefixed routes inside URL queries and fragments untouched", () => {
       const line =
-        "See https://example.com/#/ce-plan or https://example.com?next=/unknown-cmd"
+        "See https://example.com/#/method-plan or https://example.com?next=/unknown-cmd"
       expect(transformContentForCodex(line, emptyTargets)).toBe(line)
     })
 
     test("preserves full URL spans while transforming commands outside them", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
-        skillTargets: { "ce-work": "ce-work" },
+        skillTargets: { "method-work": "method-work" },
       }
       expect(
         transformContentForCodex(
-          "See https://example.com/#!/ce-plan or https://example.com?next=(/unknown-cmd, then /ce-work",
+          "See https://example.com/#!/method-plan or https://example.com?next=(/unknown-cmd, then /method-work",
           targets,
         ),
       ).toBe(
-        "See https://example.com/#!/ce-plan or https://example.com?next=(/unknown-cmd, then the ce-work skill",
+        "See https://example.com/#!/method-plan or https://example.com?next=(/unknown-cmd, then the method-work skill",
       )
     })
 
@@ -273,10 +273,10 @@ describe("transformContentForCodex", () => {
     test("handles multiple slash commands in one line", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
-        skillTargets: { "ce-plan": "ce-plan", "ce-work": "ce-work" },
+        skillTargets: { "method-plan": "method-plan", "method-work": "method-work" },
       }
-      expect(transformContentForCodex("Run /ce-plan, then /ce-work.", targets)).toBe(
-        "Run the ce-plan skill, then the ce-work skill.",
+      expect(transformContentForCodex("Run /method-plan, then /method-work.", targets)).toBe(
+        "Run the method-plan skill, then the method-work skill.",
       )
     })
 
@@ -331,10 +331,10 @@ describe("transformContentForCodex", () => {
     test("handles namespaced slash commands that map to skills", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
-        skillTargets: { "workflows-work": "ce-work" },
+        skillTargets: { "workflows-work": "method-work" },
       }
       expect(transformContentForCodex("Run /workflows:work", targets)).toBe(
-        "Run the ce-work skill",
+        "Run the method-work skill",
       )
     })
   })
@@ -359,7 +359,7 @@ describe("transformContentForCodex", () => {
       }
       expect(
         transformContentForCodex(
-          "`ce-datascience:research:ce-repo-researcher`",
+          "`methodsmith:research:ce-repo-researcher`",
           targets,
         ),
       ).toBe("custom agent `research-ce-repo-researcher`")
@@ -505,14 +505,14 @@ describe("transformContentForCodex", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
         skillTargets: {},
-        agentTargets: { "ce-security-reviewer": "ce-security-reviewer" },
+        agentTargets: { "method-security-reviewer": "method-security-reviewer" },
       }
       expect(
         transformContentForCodex(
-          "@ce-datascience:review:ce-security-reviewer",
+          "@methodsmith:review:method-security-reviewer",
           targets,
         ),
-      ).toBe("@ce-datascience:review:ce-security-reviewer")
+      ).toBe("@methodsmith:review:method-security-reviewer")
     })
   })
 
@@ -559,16 +559,16 @@ describe("transformContentForCodex", () => {
     test("applies Task, slash, and path transforms in order", () => {
       const targets: CodexInvocationTargets = {
         promptTargets: {},
-        skillTargets: { "ce-plan": "ce-plan" },
+        skillTargets: { "method-plan": "method-plan" },
         agentTargets: { "repo-researcher": "repo-researcher" },
       }
       expect(
         transformContentForCodex(
-          "Task repo-researcher(go) then run /ce-plan from ~/.claude/config.",
+          "Task repo-researcher(go) then run /method-plan from ~/.claude/config.",
           targets,
         ),
       ).toBe(
-        "Spawn the custom agent `repo-researcher` with task: go then run the ce-plan skill from ~/.codex/config.",
+        "Spawn the custom agent `repo-researcher` with task: go then run the method-plan skill from ~/.codex/config.",
       )
     })
 
@@ -586,7 +586,7 @@ describe("transformContentForCodex", () => {
   })
 })
 
-describe("transformContentForCodex: ce-datascience platform-enumeration guard", () => {
+describe("transformContentForCodex: methodsmith platform-enumeration guard", () => {
   test("keeps the per-line Claude Code guard when a URL splits the line", () => {
     const body = "Claude Code: see https://example.com/docs then ~/.claude/plugins/"
     expect(transformContentForCodex(body)).toBe(body)

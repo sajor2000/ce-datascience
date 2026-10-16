@@ -1,0 +1,41 @@
+{
+  "skill_name": "method-pubmed",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Pull PubMed for cohort studies on sepsis bundle compliance in the ICU from the last 10 years, max 50, save to analysis/pubmed/sepsis-bundle.csv. I want to see what MeSH terms NCBI actually maps this to.",
+      "expected_output": "Runs the bundled pubmed_search.py (or the connected PubMed MCP path) with cohort filter and 10-year window, surfaces the translated query and hit counts, writes the CSV plus a Markdown summary, and emits the __CE_PUBMED_RESULTS__ handoff.",
+      "files": [],
+      "expectations": [
+        "Surfaces the actual translated query NCBI ran (the [mesh] QueryTranslation line) showing MeSH expansion, and the matched-vs-fetched hit counts",
+        "Writes results to analysis/pubmed/sepsis-bundle.csv and a sibling Markdown summary under analysis/pubmed/ with top-10 list, MeSH-term histogram, study-type histogram, and % with PMC full text",
+        "Emits or surfaces a __CE_PUBMED_RESULTS__ csv=<path> n=<count> query=<...> pmc_pct=<...> line",
+        "Does not claim full-text coverage or extract methods from full text"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I ran the research-question step earlier in this chat (it printed __CE_RESEARCH_QUESTION__ yaml=analysis/research-question.yaml design=cohort checklist=STROBE query=\"(\\\"Sepsis\\\"[Mesh]) AND (\\\"Patient Care Bundles\\\"[Mesh])\"). Now just search pubmed with that.",
+      "expected_output": "Reads analysis/research-question.yaml, uses suggested_pubmed_query as the default query with design-derived filters, prints the [research-question] provenance line, and proceeds without asking for a query.",
+      "files": [],
+      "expectations": [
+        "Uses the suggested_pubmed_query from analysis/research-question.yaml as the query instead of asking the user for search terms",
+        "Prints a provenance line of the form [research-question] using query from analysis/research-question.yaml: \"<query>\"",
+        "Derives a cohort --study-type filter from suggested_design and a default --years window (10 unless otherwise derived)",
+        "Ends with the __CE_PUBMED_RESULTS__ handoff for method-extract"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "search pubmed for me",
+      "expected_output": "With no query terms and no __CE_RESEARCH_QUESTION__ signal or research-question YAML available, asks the user for a query (or recommends method-question first) instead of running an arbitrary search.",
+      "files": [],
+      "expectations": [
+        "Checks chat/repo context for a __CE_RESEARCH_QUESTION__ signal or analysis/research-question.yaml before asking",
+        "Asks the user for a query, or recommends running method-question first, since no query or PICO context exists",
+        "Does not run pubmed_search.py or an MCP search with invented query terms",
+        "Asks at most one decision-changing question at a time"
+      ]
+    }
+  ]
+}

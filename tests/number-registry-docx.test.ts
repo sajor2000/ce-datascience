@@ -3,9 +3,9 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import os from "os"
 import path from "path"
 
-// Synthetic data only. Seam: the ce_numbers.py CLI (render, check) on .docx files.
-const scriptsDir = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-numbers", "scripts")
-const cli = path.join(scriptsDir, "ce_numbers.py")
+// Synthetic data only. Seam: the method_numbers.py CLI (render, check) on .docx files.
+const scriptsDir = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-numbers", "scripts")
+const cli = path.join(scriptsDir, "method_numbers.py")
 const roots: string[] = []
 afterAll(() => {
   for (const root of roots) rmSync(root, { recursive: true, force: true })
@@ -54,7 +54,7 @@ function documentXml(file: string) {
 }
 
 function project() {
-  const root = mkdtempSync(path.join(os.tmpdir(), "ce-numbers-docx-"))
+  const root = mkdtempSync(path.join(os.tmpdir(), "method-numbers-docx-"))
   roots.push(root)
   git(root, "init", "-q")
   mkdirSync(path.join(root, "data"))
@@ -63,7 +63,7 @@ function project() {
   writeFileSync(path.join(root, "data", "synthetic.csv"), "arm,died\nA,0\nB,1\n")
   writeFileSync(path.join(root, "analysis", "model.py"), `import sys
 sys.path.insert(0, ${JSON.stringify(scriptsDir)})
-from ce_numbers import register_number
+from method_numbers import register_number
 register_number("primary.hr", 0.781, kind="estimate", ci=(0.664, 0.918), sources=["data/synthetic.csv"], sap_output="T2")
 register_number("cohort.n", 1412, kind="n", sources=["data/synthetic.csv"], sap_output="F1")
 `)

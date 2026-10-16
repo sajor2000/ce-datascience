@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "fs/promises"
 import os from "os"
 import path from "path"
 
-const script = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-sprint", "scripts", "sprint.py")
+const script = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-sprint", "scripts", "sprint.py")
 
 // JSON is valid YAML, so a JSON-backed stub stands in for PyYAML.
 const YAML_STUB = `
@@ -23,7 +23,7 @@ async function run(cwd: string, stub: string, args: string[]) {
   return { code, stdout: await new Response(proc.stdout).text(), stderr: await new Response(proc.stderr).text() }
 }
 
-describe("ce-sprint signoff", () => {
+describe("method-sprint signoff", () => {
   test("signs off only a closed_pending_signoff sprint, and only as the named reviewer", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "sprint-signoff-"))
     try {

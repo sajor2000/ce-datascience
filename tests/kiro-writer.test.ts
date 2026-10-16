@@ -39,7 +39,7 @@ describe("writeKiroBundle", () => {
     const kiroRoot = path.join(tempRoot, ".kiro")
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
     const sessionHistorianDescription = await pluginDescription(
-      "plugins/ce-datascience/agents/ce-session-historian.md",
+      "plugins/methodsmith/agents/method-session-historian.md",
     )
 
     await fs.writeFile(
@@ -72,7 +72,7 @@ describe("writeKiroBundle", () => {
     await fs.mkdir(sourceSkillDir, { recursive: true })
     await fs.writeFile(
       path.join(sourceSkillDir, "SKILL.md"),
-      "---\nname: ce-plan\ndescription: Plan\n---\n\nPlan.",
+      "---\nname: method-plan\ndescription: Plan\n---\n\nPlan.",
     )
     await fs.mkdir(path.join(kiroRoot, "skills", "reproduce-bug"), { recursive: true })
     await fs.writeFile(path.join(kiroRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy skill"))
@@ -82,15 +82,15 @@ describe("writeKiroBundle", () => {
 
     await writeKiroBundle(kiroRoot, {
       ...emptyBundle,
-      pluginName: "ce-datascience",
-      skillDirs: [{ name: "ce-plan", sourceDir: sourceSkillDir }],
+      pluginName: "methodsmith",
+      skillDirs: [{ name: "method-plan", sourceDir: sourceSkillDir }],
     })
 
     expect(await exists(path.join(kiroRoot, "skills", "reproduce-bug"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "agents", "repo-research-analyst.json"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"))).toBe(false)
-    expect(await exists(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"))).toBe(true)
-    expect(await exists(path.join(kiroRoot, "ce-datascience", "legacy-backup"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "skills", "method-plan", "SKILL.md"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "methodsmith", "legacy-backup"))).toBe(true)
   })
 
   test("removes previously managed Kiro artifacts that disappear on reinstall", async () => {
@@ -105,7 +105,7 @@ describe("writeKiroBundle", () => {
 
     await writeKiroBundle(kiroRoot, {
       ...emptyBundle,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       agents: [
         {
           name: "old-agent",
@@ -132,7 +132,7 @@ describe("writeKiroBundle", () => {
 
     await writeKiroBundle(kiroRoot, {
       ...emptyBundle,
-      pluginName: "ce-datascience",
+      pluginName: "methodsmith",
       agents: [
         {
           name: "new-agent",
@@ -158,7 +158,7 @@ describe("writeKiroBundle", () => {
     expect(await exists(path.join(kiroRoot, "skills", "old-generated-skill", "SKILL.md"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "skills", "old-skill", "SKILL.md"))).toBe(false)
     expect(await exists(path.join(kiroRoot, "steering", "old-steering.md"))).toBe(false)
-    expect(await exists(path.join(kiroRoot, "ce-datascience", "install-manifest.json"))).toBe(true)
+    expect(await exists(path.join(kiroRoot, "methodsmith", "install-manifest.json"))).toBe(true)
   })
 
   test("writes agents, skills, steering, and mcp.json", async () => {
@@ -192,7 +192,7 @@ describe("writeKiroBundle", () => {
         },
       ],
       steeringFiles: [
-        { name: "ce-datascience", content: "# Steering content\n\nFollow these guidelines." },
+        { name: "methodsmith", content: "# Steering content\n\nFollow these guidelines." },
       ],
       mcpServers: {
         playwright: { command: "npx", args: ["-y", "@anthropic/mcp-playwright"] },
@@ -225,7 +225,7 @@ describe("writeKiroBundle", () => {
     expect(await exists(path.join(tempRoot, ".kiro", "skills", "skill-one", "SKILL.md"))).toBe(true)
 
     // Steering file
-    const steeringPath = path.join(tempRoot, ".kiro", "steering", "ce-datascience.md")
+    const steeringPath = path.join(tempRoot, ".kiro", "steering", "methodsmith.md")
     expect(await exists(steeringPath)).toBe(true)
     const steeringContent = await fs.readFile(steeringPath, "utf8")
     expect(steeringContent).toContain("Follow these guidelines.")
@@ -244,7 +244,7 @@ describe("writeKiroBundle", () => {
     await fs.writeFile(
       path.join(sourceSkillDir, "SKILL.md"),
       `---
-name: ce-plan
+name: method-plan
 description: Planning workflow
 ---
 
@@ -258,13 +258,13 @@ Run these research agents:
 
     const bundle: KiroBundle = {
       ...emptyBundle,
-      skillDirs: [{ name: "ce-plan", sourceDir: sourceSkillDir }],
+      skillDirs: [{ name: "method-plan", sourceDir: sourceSkillDir }],
     }
 
     await writeKiroBundle(tempRoot, bundle)
 
     const installedSkill = await fs.readFile(
-      path.join(tempRoot, ".kiro", "skills", "ce-plan", "SKILL.md"),
+      path.join(tempRoot, ".kiro", "skills", "method-plan", "SKILL.md"),
       "utf8",
     )
 

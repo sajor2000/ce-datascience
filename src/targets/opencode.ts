@@ -204,7 +204,7 @@ function resolveOpenCodePaths(outputRoot: string, pluginName?: string, scope?: s
   // installed into the same OpenCode root do not share (and overwrite) each
   // other's install manifests. `resolveManagedSegment` falls back to the
   // legacy "compound-engineering" segment when no plugin name is supplied
-  // (backward compat: old installs used this segment; ce-datascience is the
+  // (backward compat: old installs used this segment; methodsmith is the
   // current name, but LEGACY_MANAGED_SEGMENT preserves the old path).
   const managedSegment = resolveManagedSegment(pluginName)
   const base = path.basename(outputRoot)

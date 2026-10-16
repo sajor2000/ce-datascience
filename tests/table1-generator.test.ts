@@ -7,9 +7,9 @@ const tempRoots: string[] = []
 const scriptPath = path.join(
   process.cwd(),
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-table1",
+  "method-table1",
   "scripts",
   "generate_table1.py",
 )
@@ -231,7 +231,7 @@ describe("Table 1 generator", () => {
 
   test("a filled Table 1 renders from the registry and passes the number gate", async () => {
     const root = await makeProject()
-    const numbers = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-numbers", "scripts")
+    const numbers = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-numbers", "scripts")
     await writeFile(
       path.join(root, "analysis", "sap-tables", "02-outputs.csv"),
       "Output File,Subfolder\ntable1_cohort_characteristics.csv,tables/\n",
@@ -244,7 +244,7 @@ describe("Table 1 generator", () => {
     await writeFile(path.join(root, "analysis", "fill_table1.py"), [
       "import json, sys",
       `sys.path.insert(0, ${JSON.stringify(numbers)})`,
-      "from ce_numbers import register_table",
+      "from method_numbers import register_table",
       "spec = json.load(open('analysis/publication/tables/table1-spec.json'))",
       "register_table('table1', {'age.overall': {'value': 64.23, 'kind': 'estimate', 'sd': 11.84, 'digits': 1},",
       "                          'apache_score.overall': {'value': 18, 'kind': 'estimate', 'iqr': (12, 25), 'digits': 0}},",
@@ -256,7 +256,7 @@ describe("Table 1 generator", () => {
     }
     const fill = Bun.spawnSync(["python3", "analysis/fill_table1.py"], { cwd: root })
     expect(fill.stderr.toString()).toBe("")
-    const cli = path.join(numbers, "ce_numbers.py")
+    const cli = path.join(numbers, "method_numbers.py")
     const render = Bun.spawnSync(["python3", cli, "render", "analysis/publication/tables/table1.md", "--out", "analysis/publication/tables/table1.rendered.md"], { cwd: root })
     expect(render.stdout.toString()).toContain("RENDERED")
     const rendered = await readFile(path.join(root, "analysis", "publication", "tables", "table1.rendered.md"), "utf8")

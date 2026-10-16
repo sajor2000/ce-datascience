@@ -5,7 +5,7 @@ import { parseFrontmatter } from "../src/utils/frontmatter"
 import { descriptionFingerprint } from "../src/utils/legacy-cleanup"
 import shipped from "../src/data/shipped-description-fingerprints.json"
 
-const pluginRoot = path.join(import.meta.dir, "..", "plugins", "ce-datascience")
+const pluginRoot = path.join(import.meta.dir, "..", "plugins", "methodsmith")
 
 async function currentDescriptionFiles(): Promise<string[]> {
   const skills = (await fs.readdir(path.join(pluginRoot, "skills"))).map((name) => path.join(pluginRoot, "skills", name, "SKILL.md"))

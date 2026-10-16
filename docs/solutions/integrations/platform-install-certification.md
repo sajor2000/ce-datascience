@@ -7,7 +7,7 @@ last_verified: 2026-06-07
 
 # Platform Install Certification
 
-`ce-datascience` is authored as a Claude Code plugin and also ships generated
+`methodsmith` is authored as a Claude Code plugin and also ships generated
 layouts for target platforms that do not consume the Claude plugin directly.
 Before releases that touch converters, writers, manifests, or plugin content,
 run temp-root installs for each implemented generated target and verify the
@@ -46,7 +46,7 @@ installed files are self-contained.
   without touching same-named user files or other plugins.
 - Confirm skill instructions invoke bundled scripts through skill-local paths
   such as `python3 scripts/tool.py` or `bash scripts/tool`, never source-repo
-  paths like `plugins/ce-datascience/skills/...`.
+  paths like `plugins/methodsmith/skills/...`.
 
 ## 2026-06-07 RC Certification
 
@@ -63,13 +63,13 @@ Automated checks:
 
 Manual temp-root checks:
 
-- Built `ce-datascience-plugin.zip`,
-  `ce-datascience-claude-aliases.zip`, and
-  `ce-datascience-codex-local.zip`.
+- Built `methodsmith.zip`,
+  `methodsmith-claude-aliases.zip`, and
+  `methodsmith-codex-local.zip`.
 - Verified ZIP contents exclude `__pycache__`, `.pyc`, `.pyo`,
   `node_modules`, `.git`, `tests`, and `.DS_Store`.
 - Installed 49 Claude alias command files into a temp command root and verified
-  `ce-setup.md` delegates to `/ce-datascience:ce-setup $ARGUMENTS`.
+  `method-setup.md` delegates to `/methodsmith:method-setup $ARGUMENTS`.
 - Installed the Codex offline package into a fresh temp profile and verified
   marketplace metadata and generated bridge agents point to the installed
   plugin copy.

@@ -5,9 +5,9 @@ import os from "os"
 import path from "path"
 
 // Synthetic data only. Seams: the Python and R helpers (register_number /
-// register_table -> registry.json) and the ce_numbers.py CLI (check, render).
-const scriptsDir = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-numbers", "scripts")
-const cli = path.join(scriptsDir, "ce_numbers.py")
+// register_table -> registry.json) and the method_numbers.py CLI (check, render).
+const scriptsDir = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-numbers", "scripts")
+const cli = path.join(scriptsDir, "method_numbers.py")
 const roots: string[] = []
 
 afterAll(() => {
@@ -22,7 +22,7 @@ function git(cwd: string, ...args: string[]) {
 
 // A committed synthetic project: a raw aggregate source file and an analysis script.
 function project(analysis: string) {
-  const root = mkdtempSync(path.join(os.tmpdir(), "ce-numbers-"))
+  const root = mkdtempSync(path.join(os.tmpdir(), "method-numbers-"))
   roots.push(root)
   git(root, "init", "-q")
   mkdirSync(path.join(root, "data"))
@@ -47,7 +47,7 @@ const sha256 = (text: string) => createHash("sha256").update(text).digest("hex")
 
 describe("Python register_number", () => {
   test("writes a traceable aggregate entry with JAMA-formatted text", () => {
-    const root = project(`from ce_numbers import register_number
+    const root = project(`from method_numbers import register_number
 register_number("primary.hr", 0.781, kind="estimate", ci=(0.664, 0.918), digits=2,
                 sources=["data/synthetic.csv"], sap_output="T2")
 `)
@@ -79,7 +79,7 @@ describe("Python register_number from a subdirectory", () => {
 
 describe("journal style formatting", () => {
   test("formats P values, counts with percents, and CIs that cross zero per profile", () => {
-    const root = project(`from ce_numbers import register_number as r
+    const root = project(`from method_numbers import register_number as r
 r("p.main", 0.0312, kind="p")
 r("p.tiny", 0.00004, kind="p")
 r("p.generic", 0.0312, kind="p", style="generic-biomedical")
@@ -107,7 +107,7 @@ r("los.median", 6, kind="estimate", iqr=(3, 11), digits=0)
 
 describe("aggregate-only registry", () => {
   test("suppresses counts from 1 to 10 and keeps no value for them", () => {
-    const root = project(`from ce_numbers import register_number as r
+    const root = project(`from method_numbers import register_number as r
 r("arm_a.deaths", 7, kind="count", denominator=40)
 r("arm_b.deaths", 0, kind="count", denominator=40)
 r("arm_c.n", 11, kind="n")
@@ -122,7 +122,7 @@ r("arm_c.n", 11, kind="n")
 
   test("rejects non-numeric values and unknown kinds instead of writing them", () => {
     for (const call of [`r("x", "FAKE0001", kind="count")`, `r("x", 1.5, kind="mrn")`, `r("x", float("nan"), kind="estimate")`]) {
-      const root = project(`from ce_numbers import register_number as r\n${call}\n`)
+      const root = project(`from method_numbers import register_number as r\n${call}\n`)
       const result = run(root, ["python3", "analysis/model.py"])
       expect(result.code).not.toBe(0)
       const message = result.err.trim().split("\n").at(-1) ?? ""
@@ -134,7 +134,7 @@ r("arm_c.n", 11, kind="n")
 
 describe("Python register_table", () => {
   test("registers each cell under the table id with shared provenance", () => {
-    const root = project(`from ce_numbers import register_table
+    const root = project(`from method_numbers import register_table
 register_table("table1", {
     "age.overall": {"value": 64.2, "kind": "estimate", "digits": 1},
     "female.overall": {"value": 212, "kind": "count", "denominator": 412},
@@ -159,7 +159,7 @@ function check(root: string, ...args: string[]) {
   return run(root, ["python3", cli, "check", ...args])
 }
 
-const PRIMARY = `from ce_numbers import register_number
+const PRIMARY = `from method_numbers import register_number
 register_number("primary.hr", 0.781, kind="estimate", ci=(0.664, 0.918), sources=["data/synthetic.csv"], sap_output="T2")
 register_number("cohort.n", 412, kind="n", sources=["data/synthetic.csv"], sap_output="F1")
 `
@@ -337,7 +337,7 @@ describe("numbers gate: registry integrity", () => {
 
 describe("numbers gate: tables", () => {
   test("checks CSV table cells and reports the row line of an untraced cell", () => {
-    const root = project(`from ce_numbers import register_table
+    const root = project(`from method_numbers import register_table
 register_table("table1", {
     "n.overall": {"value": 412, "kind": "n"},
     "age.overall": {"value": 64.2, "kind": "estimate", "digits": 1},
@@ -401,7 +401,7 @@ describe.skipIf(!hasR)("R register_number and register_table", () => {
   test("write the same registry schema the Python gate checks", () => {
     const root = project("")
     write(root, "analysis/model.R", [
-      `source(${JSON.stringify(path.join(scriptsDir, "ce_numbers.R"))})`,
+      `source(${JSON.stringify(path.join(scriptsDir, "method_numbers.R"))})`,
       `register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918), sources = "data/synthetic.csv", sap_output = "T2")`,
       `register_number("p.main", 0.0312, kind = "p", sources = "data/synthetic.csv", sap_output = "T2")`,
       `register_number("interval", -0.5, kind = "ci", ci = c(-1.234, 0.5), sources = "data/synthetic.csv", sap_output = "T3")`,
@@ -459,7 +459,7 @@ describe("numbers trace", () => {
 
 describe("numbers gate: edge cases", () => {
   test("a sign flip does not trace, while ranges and negative CIs do", () => {
-    const root = project(`from ce_numbers import register_number as r
+    const root = project(`from method_numbers import register_number as r
 r("diff", -1.234, kind="estimate", ci=(-2.5, 0.04), digits=1)
 r("hr", 0.781, kind="estimate", ci=(0.664, 0.918))
 `)
@@ -523,7 +523,7 @@ describe("numbers ids", () => {
 describe.skipIf(!hasR)("R register_number from a subdirectory", () => {
   test("records the script path relative to the project root", () => {
     const root = project("")
-    write(root, "analysis/model.R", `source(${JSON.stringify(path.join(scriptsDir, "ce_numbers.R"))})\nregister_number("x", 1.5, kind = "estimate", sources = "data/synthetic.csv")\n`)
+    write(root, "analysis/model.R", `source(${JSON.stringify(path.join(scriptsDir, "method_numbers.R"))})\nregister_number("x", 1.5, kind = "estimate", sources = "data/synthetic.csv")\n`)
     const result = run(path.join(root, "analysis"), ["Rscript", "model.R"])
     expect(result.err).toBe("")
     expect(registry(root).entries["x"].script.path).toBe("analysis/model.R")
@@ -532,11 +532,11 @@ describe.skipIf(!hasR)("R register_number from a subdirectory", () => {
 
 describe("numbers gate: incomplete chains", () => {
   test("fails entries without sources, SAP output, or a script committed when it ran", () => {
-    const root = project(`from ce_numbers import register_number as r
+    const root = project(`from method_numbers import register_number as r
 r("no.sources", 1.5, kind="estimate", sap_output="T2")
 r("no.sap", 2.5, kind="estimate", sources=["data/synthetic.csv"])
 `)
-    write(root, "analysis/uncommitted.py", `import sys\nsys.path.insert(0, ${JSON.stringify(scriptsDir)})\nfrom ce_numbers import register_number as r\nr("dirty", 3.5, kind="estimate", sources=["data/synthetic.csv"], sap_output="T3")\n`)
+    write(root, "analysis/uncommitted.py", `import sys\nsys.path.insert(0, ${JSON.stringify(scriptsDir)})\nfrom method_numbers import register_number as r\nr("dirty", 3.5, kind="estimate", sources=["data/synthetic.csv"], sap_output="T3")\n`)
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
     expect(run(root, ["python3", "analysis/uncommitted.py"]).err).toBe("")
     git(root, "add", "-A")
@@ -553,7 +553,7 @@ r("no.sap", 2.5, kind="estimate", sources=["data/synthetic.csv"])
 
 describe("numbers gate: SAP outputs catalog", () => {
   test("fails entries whose SAP output is not an output in analysis/sap-tables/02-outputs.csv", () => {
-    const root = project(`from ce_numbers import register_number as r
+    const root = project(`from method_numbers import register_number as r
 r("table1.n", 412, kind="n", sources=["data/synthetic.csv"], sap_output="table1_cohort_characteristics.csv")
 r("a3.or", 1.21, kind="estimate", ci=(1.05, 1.4), sources=["data/synthetic.csv"], sap_output="A3_dt_primary_coefs")
 r("typo.or", 1.5, kind="estimate", sources=["data/synthetic.csv"], sap_output="A9_missing.csv")

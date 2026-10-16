@@ -18,20 +18,23 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$PluginName = "ce-datascience"
+$PluginName = "methodsmith"
 $script:BackupStamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ")
-$MarketplaceName = "ce-datascience-plugin"
-$GitHubRepo = "sajor2000/ce-datascience"
-$AliasMarker = "<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "
-$ManagedStart = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
-$ManagedEnd = "# END CE DataScience plugin MCP"
+$MarketplaceName = "methodsmith"
+$GitHubRepo = "sajor2000/methodsmith"
+$AliasMarker = "<!-- METHODSMITH_ALIAS_MANAGED v1 "
+# Aliases written before the rename to Methodsmith carry the old marker and are still ours.
+$LegacyAliasMarker = "<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 "  # rebrand:keep
+$LegacyAliasPrefix = "ce-"  # rebrand:keep
+$ManagedStart = "# BEGIN Methodsmith plugin MCP -- do not edit this block"
+$ManagedEnd = "# END Methodsmith plugin MCP"
 
 function Show-Usage {
   @"
 Usage:
   .\install.ps1 claude [-Aliases] [-Scope user|project|local]
   .\install.ps1 codex [-CodexHome PATH] [-AgentsHome PATH]
-  .\install.ps1 codex -Source C:\approved\ce-datascience-codex-local
+  .\install.ps1 codex -Source C:\approved\methodsmith-codex-local
   .\install.ps1 doctor
 
 Options:
@@ -40,7 +43,7 @@ Options:
                      marketplace so updates reach you.
   -NoAutoUpdate      Claude: do not turn on background auto-update
   -Scope VALUE       Claude marketplace/alias scope: user, project, or local
-  -Aliases           Also install safe bare /ce-* Claude aliases
+  -Aliases           Also install safe bare /method-* Claude aliases
   -CodexHome PATH    Codex profile root (default: CODEX_HOME or ~/.codex)
   -AgentsHome PATH   Codex .agents root for marketplace.json (default: AGENTS_HOME or ~/.agents)
   -DryRun            Print commands without writing files
@@ -121,7 +124,7 @@ function Get-SourceStatus {
 }
 
 function Show-Doctor {
-  Write-Output "CE DataScience install check"
+  Write-Output "Methodsmith install check"
   Write-Output "Source: $Source"
   Write-Output "Source type: $(Get-SourceStatus)"
   Write-Output "Claude Code CLI: $(Get-CommandStatus 'claude')"
@@ -133,10 +136,10 @@ function Show-Doctor {
   Write-Output "  .\install.ps1 codex"
   Write-Output ""
   Write-Output "Locked-down or corporate laptop:"
-  Write-Output "  Claude: claude --plugin-dir C:\approved\ce-datascience.zip"
-  Write-Output "  Codex:  .\install.ps1 codex -Source C:\approved\ce-datascience-codex-local"
+  Write-Output "  Claude: claude --plugin-dir C:\approved\methodsmith.zip"
+  Write-Output "  Codex:  .\install.ps1 codex -Source C:\approved\methodsmith-codex-local"
   Write-Output ""
-  Write-Output "Codex always requires the final host step: restart Codex, open /plugins, install CE DataScience from the local marketplace, then restart once more."
+  Write-Output "Codex always requires the final host step: restart Codex, open /plugins, install Methodsmith from the local marketplace, then restart once more."
 }
 
 function Get-ClaudeCommandsDir {
@@ -148,16 +151,48 @@ function Get-ClaudeCommandsDir {
 
 function Test-ManagedAlias([string]$Path) {
   if (-not (Test-Path $Path)) { return $false }
-  return (Get-Content $Path -Raw).Contains($AliasMarker)
+  $content = Get-Content $Path -Raw
+  return $content.Contains($AliasMarker) -or $content.Contains($LegacyAliasMarker)
+}
+
+function Test-AliasFileName([string]$Name) {
+  return $Name.EndsWith(".md") -and ($Name.StartsWith("method-") -or $Name.StartsWith($LegacyAliasPrefix))
+}
+
+function New-LegacyAliasContent([string]$OldName, [string]$SkillName) {
+  $template = @'
+---
+description: "Deprecated: /__OLD__ is now /__PLUGIN__:__SKILL__ (Methodsmith)."
+---
+<!-- METHODSMITH_ALIAS_MANAGED v1 plugin=__PLUGIN__ skill=__SKILL__ legacy=__OLD__ -->
+Deprecated alias. `/__OLD__` was renamed to `/__PLUGIN__:__SKILL__` when the plugin
+was renamed to Methodsmith. This alias will be removed in the next major release.
+
+Tell the user about the new name once, then delegate to the renamed skill and pass
+the arguments through exactly:
+
+`/__PLUGIN__:__SKILL__ $ARGUMENTS`
+
+$ARGUMENTS
+'@
+  return $template.Replace("__OLD__", $OldName).Replace("__PLUGIN__", $PluginName).Replace("__SKILL__", $SkillName)
+}
+
+# Old -> new skill names from the rebrand mapping, for deprecated aliases.
+function Get-LegacySkillPairs([string]$PluginDir) {
+  $mapping = Join-Path (Split-Path (Split-Path $PluginDir -Parent) -Parent) "scripts/rebrand/mapping.json"
+  if (-not (Test-Path $mapping)) { return @() }
+  $skills = (Get-Content $mapping -Raw | ConvertFrom-Json).skills
+  return $skills.PSObject.Properties | Where-Object { Test-Path (Join-Path $PluginDir "skills/$($_.Value)/SKILL.md") }
 }
 
 function New-AliasContent([string]$SkillName) {
   $template = @'
 ---
-description: "Local alias for /__PLUGIN__:__SKILL__ from CE DataScience."
+description: "Local alias for /__PLUGIN__:__SKILL__ from Methodsmith."
 ---
-<!-- CE_DATASCIENCE_ALIAS_MANAGED v1 plugin=__PLUGIN__ skill=__SKILL__ -->
-This local command is a convenience alias for the CE DataScience plugin skill:
+<!-- METHODSMITH_ALIAS_MANAGED v1 plugin=__PLUGIN__ skill=__SKILL__ -->
+This local command is a convenience alias for the Methodsmith plugin skill:
 
 `/__PLUGIN__:__SKILL__ $ARGUMENTS`
 
@@ -178,9 +213,9 @@ function Install-ClaudeAliases([string]$PluginDir, [string]$PrebuiltCommandsDir 
 
   $sources = @()
   if (-not [string]::IsNullOrWhiteSpace($PrebuiltCommandsDir) -and (Test-Path $PrebuiltCommandsDir)) {
-    $sources = Get-ChildItem $PrebuiltCommandsDir -Filter "ce-*.md" -File
+    $sources = Get-ChildItem $PrebuiltCommandsDir -Filter "*.md" -File | Where-Object { Test-AliasFileName $_.Name }
   } elseif (Test-Path (Join-Path $PluginDir "skills")) {
-    $sources = Get-ChildItem (Join-Path $PluginDir "skills") -Directory -Filter "ce-*" |
+    $sources = Get-ChildItem (Join-Path $PluginDir "skills") -Directory -Filter "method-*" |
       Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") }
   } else {
     Write-Warning "Cannot install aliases because this source is not an unpacked plugin folder: $PluginDir"
@@ -199,14 +234,34 @@ function Install-ClaudeAliases([string]$PluginDir, [string]$PrebuiltCommandsDir 
     }
     if ($DryRun) {
       Write-Output "[dry-run] install $fileName"
+    } elseif ($source.Extension -eq ".md") {
+      Copy-Item $source.FullName $target -Force
     } else {
       New-AliasContent $skillName | Set-Content -Path $target -Encoding UTF8
     }
     Write-Output "installed $fileName"
   }
 
+  if ([string]::IsNullOrWhiteSpace($PrebuiltCommandsDir)) {
+    foreach ($pair in Get-LegacySkillPairs $PluginDir) {
+      $fileName = "$($pair.Name).md"
+      $target = Join-Path $CommandsDir $fileName
+      [void]$managedNames.Add($fileName)
+      if ((Test-Path $target) -and -not (Test-ManagedAlias $target)) {
+        Write-Output "skipped user-owned $fileName"
+        continue
+      }
+      if ($DryRun) {
+        Write-Output "[dry-run] install $fileName"
+      } else {
+        New-LegacyAliasContent $pair.Name $pair.Value | Set-Content -Path $target -Encoding UTF8
+      }
+      Write-Output "installed $fileName (deprecated)"
+    }
+  }
+
   if (Test-Path $CommandsDir) {
-    Get-ChildItem $CommandsDir -Filter "ce-*.md" -File | ForEach-Object {
+    Get-ChildItem $CommandsDir -Filter "*.md" -File | Where-Object { Test-AliasFileName $_.Name } | ForEach-Object {
       if (-not $managedNames.Contains($_.Name) -and (Test-ManagedAlias $_.FullName)) {
         if ($DryRun) { Write-Output "[dry-run] remove stale $($_.Name)" } else { Remove-Item $_.FullName -Force }
         Write-Output "removed stale $($_.Name)"
@@ -236,7 +291,7 @@ function Test-DirectoriesMatch([string]$Left, [string]$Right) {
 
 # Replace a plugin-owned directory with the packaged copy. When the installed
 # copy differs (a user edited or added files), move it to
-# <CodexHome>\ce-datascience\backups\<time>\<Label> first so nothing is lost.
+# <CodexHome>\methodsmith\backups\<time>\<Label> first so nothing is lost.
 function Copy-DirectoryReplace([string]$SourceDir, [string]$DestDir, [string]$Label) {
   if ($DryRun) {
     Write-Output "[dry-run] replace $DestDir from $SourceDir"
@@ -296,7 +351,7 @@ function Remove-CodexMcpConfig {
     return
   }
   if ($DryRun) {
-    Write-Output "[dry-run] remove managed CE DataScience MCP block from $configPath"
+    Write-Output "[dry-run] remove managed Methodsmith MCP block from $configPath"
     return
   }
   $content = Get-Content $configPath -Raw
@@ -374,7 +429,7 @@ function Install-Claude {
     Write-Output "Claude install complete."
     if ($fromGitHub -and -not $NoAutoUpdate) { Enable-ClaudeAutoUpdate } elseif ($fromGitHub) { Show-ClaudeUpdateHelp }
     Write-Output "Start Claude Code in a project and run:"
-    if ($Aliases) { Write-Output "  /ce-setup" } else { Write-Output "  /$PluginName:ce-setup" }
+    if ($Aliases) { Write-Output "  /method-setup" } else { Write-Output "  /$PluginName:method-setup" }
     return
   }
 
@@ -385,7 +440,7 @@ function Install-Claude {
     if ($Aliases) { Install-ClaudeAliases $repoPlugin }
     Write-Output ""
     Write-Output "Claude install complete. Start Claude Code in a project and run:"
-    if ($Aliases) { Write-Output "  /ce-setup" } else { Write-Output "  /$PluginName:ce-setup" }
+    if ($Aliases) { Write-Output "  /method-setup" } else { Write-Output "  /$PluginName:method-setup" }
     return
   }
 
@@ -393,7 +448,7 @@ function Install-Claude {
     if ($Aliases) { Install-ClaudeAliases $Source }
     Write-Output "Launch Claude Code with:"
     Write-Output "  claude --plugin-dir `"$Source`""
-    Write-Output "Then run /$PluginName:ce-setup"
+    Write-Output "Then run /$PluginName:method-setup"
     return
   }
 
@@ -405,11 +460,11 @@ function Install-Claude {
   if ($Source.EndsWith(".zip", [System.StringComparison]::OrdinalIgnoreCase)) {
     Write-Output "Launch Claude Code with:"
     Write-Output "  claude --plugin-dir `"$Source`""
-    Write-Output "Then run /$PluginName:ce-setup"
+    Write-Output "Then run /$PluginName:method-setup"
     return
   }
 
-  throw "Could not find a CE DataScience Claude marketplace, plugin folder, alias package, or plugin ZIP at $Source"
+  throw "Could not find a Methodsmith Claude marketplace, plugin folder, alias package, or plugin ZIP at $Source"
 }
 
 function Install-CodexOffline {
@@ -418,7 +473,7 @@ function Install-CodexOffline {
   } elseif ((Test-Path (Join-Path $Source ".codex-plugin")) -and (Test-Path (Join-Path $Source "skills"))) {
     $Source
   } else {
-    throw "Could not find a ce-datascience plugin directory under $Source"
+    throw "Could not find a methodsmith plugin directory under $Source"
   }
 
   $marketplaceRoot = Split-Path -Parent $AgentsHome
@@ -445,7 +500,7 @@ function Install-CodexOffline {
   Write-Output "Marketplace: $marketplacePath"
   Write-Output "Plugin:      $pluginDest"
   Write-Output "Codex home:  $CodexHome"
-  Write-Output "Restart Codex, open /plugins, install CE DataScience, then restart again."
+  Write-Output "Restart Codex, open /plugins, install Methodsmith, then restart again."
 }
 
 function Install-Codex {
@@ -482,11 +537,11 @@ function Install-Codex {
       }
     } else {
       Write-Output "bun not found; registered the native Codex plugin marketplace only."
-      Write-Output "Install CE DataScience from /plugins, or run the Bun bridge later for generated agents."
+      Write-Output "Install Methodsmith from /plugins, or run the Bun bridge later for generated agents."
     }
     Write-Output ""
     Write-Output "Codex install prepared."
-    Write-Output "Restart Codex, open /plugins, install CE DataScience, then start a new thread."
+    Write-Output "Restart Codex, open /plugins, install Methodsmith, then start a new thread."
     Write-Output ""
     if ($codexMarketplace -eq $GitHubRepo) {
       Write-Output "Codex does not update plugins on its own. To update later, run:"
@@ -496,11 +551,11 @@ function Install-Codex {
       Write-Output "then re-run this installer."
     }
     Write-Output "Refresh the generated agents too with:"
-    Write-Output "  bunx ce-datascience-plugin@latest install $PluginName --to codex --codex-home `"$CodexHome`""
+    Write-Output "  bunx methodsmith@latest install $PluginName --to codex --codex-home `"$CodexHome`""
     return
   }
 
-  throw "Could not find a CE DataScience Codex marketplace or offline package at $Source"
+  throw "Could not find a Methodsmith Codex marketplace or offline package at $Source"
 }
 
 switch ($Target) {

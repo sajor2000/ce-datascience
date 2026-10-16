@@ -41,13 +41,13 @@ type CleanupResult = {
 export default defineCommand({
   meta: {
     name: "cleanup",
-    description: "Back up stale ce-datascience artifacts from previous installs",
+    description: "Back up stale methodsmith artifacts from previous installs",
   },
   args: {
     plugin: {
       type: "positional",
       required: false,
-      description: "Plugin name or local plugin path (default: ce-datascience)",
+      description: "Plugin name or local plugin path (default: methodsmith)",
     },
     target: {
       type: "string",
@@ -111,10 +111,10 @@ export default defineCommand({
     },
   },
   async run({ args }) {
-    const pluginPath = await resolveCleanupPluginPath(args.plugin ? String(args.plugin) : "ce-datascience")
+    const pluginPath = await resolveCleanupPluginPath(args.plugin ? String(args.plugin) : "methodsmith")
     const plugin = await loadClaudePlugin(pluginPath)
-    if (plugin.manifest.name !== "ce-datascience") {
-      throw new Error("Cleanup currently supports only the ce-datascience plugin.")
+    if (plugin.manifest.name !== "methodsmith") {
+      throw new Error("Cleanup currently supports only the methodsmith plugin.")
     }
     const targetNames = resolveCleanupTargets(String(args.target))
     const outputRoot = resolveWorkspaceRoot(args.output)
@@ -284,8 +284,8 @@ async function cleanupCodex(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>
     // Ownership gate: `~/.codex/prompts/` is a shared directory across plugins
     // and user-authored prompts. A filename match against the historical CE
     // allow-list is not a strong enough signal — a user who creates
-    // `~/.codex/prompts/ce-plan.md` for their own workflow would otherwise see
-    // it swept into `ce-datascience/legacy-backup/` on every cleanup run.
+    // `~/.codex/prompts/method-plan.md` for their own workflow would otherwise see
+    // it swept into `methodsmith/legacy-backup/` on every cleanup run.
     // Mirror the body + frontmatter check used by `cleanupStalePrompts` so
     // install-time and standalone cleanup paths treat ownership identically.
     // "unknown" (no prompt fingerprint on record) falls through to
@@ -363,7 +363,7 @@ async function cleanupCodexSharedAgents(
     codexIncludeSkills: true,
   })
   const artifacts = getLegacyCodexArtifacts(bundle)
-  const managedDir = path.join(agentsRoot, "ce-datascience")
+  const managedDir = path.join(agentsRoot, "methodsmith")
   const agentsSkillsDir = path.join(agentsRoot, "skills")
   const managedRoots = await resolveCodexManagedRoots(codexRoot, plugin.manifest.name)
   let moved = 0
@@ -404,7 +404,7 @@ async function cleanupOpenCode(plugin: Awaited<ReturnType<typeof loadClaudePlugi
     permissions: "none",
   })
   const artifacts = getLegacyOpenCodeArtifacts(bundle)
-  const managedDir = path.join(opencodeRoot, "ce-datascience")
+  const managedDir = path.join(opencodeRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(opencodeRoot, "skills"), skillName, "OpenCode")
@@ -425,7 +425,7 @@ async function cleanupPi(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>, p
     permissions: "none",
   })
   const artifacts = getLegacyPiArtifacts(bundle)
-  const managedDir = path.join(piRoot, "ce-datascience")
+  const managedDir = path.join(piRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(piRoot, "skills"), skillName, "Pi")
@@ -443,7 +443,7 @@ async function cleanupGemini(plugin: Awaited<ReturnType<typeof loadClaudePlugin>
     permissions: "none",
   })
   const artifacts = getLegacyGeminiArtifacts(bundle)
-  const managedDir = path.join(geminiRoot, "ce-datascience")
+  const managedDir = path.join(geminiRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(geminiRoot, "skills"), skillName, "Gemini")
@@ -472,7 +472,7 @@ async function cleanupKiro(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>,
   // — and it would relocate a current CE install, turning `install` followed
   // by `cleanup` into a self-uninstall.
   const artifacts = getLegacyKiroArtifacts(bundle)
-  const managedDir = path.join(kiroRoot, "ce-datascience")
+  const managedDir = path.join(kiroRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(kiroRoot, "skills"), skillName, "Kiro")
@@ -490,7 +490,7 @@ async function cleanupCopilot(plugin: Awaited<ReturnType<typeof loadClaudePlugin
   // (see EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN). Mirrors the Codex/Droid/Windsurf
   // cleanup fixes: seeding candidates from the current plugin bundle would
   // sweep up user-authored files at workspace paths like
-  // `.github/skills/ce-plan/SKILL.md` or `.github/agents/<name>.agent.md` that
+  // `.github/skills/method-plan/SKILL.md` or `.github/agents/<name>.agent.md` that
   // happen to share a name with a current CE artifact but were never
   // installed by this plugin. The Copilot writer has been removed — users now
   // install via `copilot plugin install` — so this cleanup exists solely to
@@ -502,7 +502,7 @@ async function cleanupCopilot(plugin: Awaited<ReturnType<typeof loadClaudePlugin
     permissions: "none",
   })
   const artifacts = getLegacyCopilotArtifacts(bundle)
-  const managedDir = path.join(copilotRoot, "ce-datascience")
+  const managedDir = path.join(copilotRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(copilotRoot, "skills"), skillName, "Copilot")
@@ -527,7 +527,7 @@ async function cleanupDroid(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>
     permissions: "none",
   })
   const artifacts = getLegacyDroidArtifacts(bundle)
-  const managedDir = path.join(droidRoot, "ce-datascience")
+  const managedDir = path.join(droidRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(droidRoot, "skills"), skillName, "Droid")
@@ -549,8 +549,8 @@ async function cleanupQwen(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>,
   // `qwen extensions install`, so this cleanup exists solely to back up stale
   // files from legacy manual installs. Seeding from the current plugin bundle
   // (`plugin.skills`, `plugin.agents`, `plugin.commands`) would sweep up
-  // user-authored files at paths like `~/.qwen/skills/ce-debug/SKILL.md` or
-  // `~/.qwen/agents/ce-correctness-reviewer.md` that happen to share a name
+  // user-authored files at paths like `~/.qwen/skills/method-debug/SKILL.md` or
+  // `~/.qwen/agents/method-correctness-reviewer.md` that happen to share a name
   // with a current CE artifact but were never installed by this plugin.
   const managedDir = path.join(qwenRoot, plugin.manifest.name)
   const extras = getLegacyPluginArtifacts(plugin.manifest.name)
@@ -611,7 +611,7 @@ async function isLegacyQwenExtensionInstall(qwenRoot: string, pluginName: string
 
 async function cleanupWindsurf(plugin: Awaited<ReturnType<typeof loadClaudePlugin>>, windsurfRoot: string): Promise<CleanupResult> {
   const artifacts = getLegacyWindsurfArtifacts(plugin)
-  const managedDir = path.join(windsurfRoot, "ce-datascience")
+  const managedDir = path.join(windsurfRoot, "methodsmith")
   let moved = 0
   for (const skillName of artifacts.skills) {
     moved += await moveIfExists(managedDir, "skills", path.join(windsurfRoot, "skills"), skillName, "Windsurf")

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Install CE DataScience through the simplest native path for each agent.
+# Install Methodsmith through the simplest native path for each agent.
 
 set -euo pipefail
 
-PLUGIN_NAME="ce-datascience"
-MARKETPLACE_NAME="ce-datascience-plugin"
-GITHUB_REPO="sajor2000/ce-datascience"
+PLUGIN_NAME="methodsmith"
+MARKETPLACE_NAME="methodsmith"
+GITHUB_REPO="sajor2000/methodsmith"
 
 target=""
 source_root=""
@@ -33,7 +33,7 @@ Options:
                          marketplace so updates reach you.
   --no-auto-update       Claude: do not turn on background auto-update
   --scope user|project   Claude marketplace/alias scope (default: user)
-  --aliases              Also install safe bare /ce-* Claude aliases
+  --aliases              Also install safe bare /method-* Claude aliases
   --codex-home PATH      Codex profile root (default: $CODEX_HOME or ~/.codex)
   --agents-home PATH     Codex .agents root for marketplace.json (default: $AGENTS_HOME or ~/.agents)
   --dry-run              Print commands without running them
@@ -43,7 +43,7 @@ Examples:
   bash install.sh doctor
   bash install.sh claude --aliases
   bash install.sh codex --codex-home "${CODEX_HOME:-$HOME/.codex}"
-  bash install.sh codex --source /approved/path/ce-datascience-codex-local
+  bash install.sh codex --source /approved/path/methodsmith-codex-local
 USAGE
 }
 
@@ -173,7 +173,7 @@ source_status() {
 }
 
 print_doctor() {
-  echo "CE DataScience install check"
+  echo "Methodsmith install check"
   echo "Source: $source_root"
   echo "Source type: $(source_status)"
   echo "Claude Code CLI: $(command_status claude)"
@@ -185,11 +185,11 @@ print_doctor() {
   echo "  bash install.sh codex"
   echo ""
   echo "Locked-down or corporate laptop:"
-  echo "  Claude: claude --plugin-dir /approved/path/ce-datascience.zip"
-  echo "  Codex:  bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local"
+  echo "  Claude: claude --plugin-dir /approved/path/methodsmith.zip"
+  echo "  Codex:  bash install-codex-offline.sh --source /approved/path/methodsmith-codex-local"
   echo ""
   echo "Codex always requires the final host step: restart Codex, open /plugins,"
-  echo "install CE DataScience from the local marketplace, then restart once more."
+  echo "install Methodsmith from the local marketplace, then restart once more."
 }
 
 install_claude_aliases() {
@@ -310,9 +310,9 @@ install_claude() {
     fi
     echo "Start Claude Code in a project and run:"
     if [ "$aliases" = "yes" ]; then
-      echo "  /ce-setup"
+      echo "  /method-setup"
     else
-      echo "  /$PLUGIN_NAME:ce-setup"
+      echo "  /$PLUGIN_NAME:method-setup"
     fi
     return
   fi
@@ -327,9 +327,9 @@ install_claude() {
     echo "This marketplace is the local checkout: update with git pull in $source_root."
     echo "Start Claude Code in a project and run:"
     if [ "$aliases" = "yes" ]; then
-      echo "  /ce-setup"
+      echo "  /method-setup"
     else
-      echo "  /$PLUGIN_NAME:ce-setup"
+      echo "  /$PLUGIN_NAME:method-setup"
     fi
     return
   fi
@@ -338,7 +338,7 @@ install_claude() {
     install_claude_aliases "$source_root"
     echo "Launch Claude Code with:"
     echo "  claude --plugin-dir \"$source_root\""
-    echo "Then run /$PLUGIN_NAME:ce-setup"
+    echo "Then run /$PLUGIN_NAME:method-setup"
     return
   fi
 
@@ -346,12 +346,12 @@ install_claude() {
     *.zip)
       echo "Launch Claude Code with:"
       echo "  claude --plugin-dir \"$source_root\""
-      echo "Then run /$PLUGIN_NAME:ce-setup"
+      echo "Then run /$PLUGIN_NAME:method-setup"
       return
       ;;
   esac
 
-  echo "Could not find a CE DataScience Claude marketplace or plugin folder at $source_root" >&2
+  echo "Could not find a Methodsmith Claude marketplace or plugin folder at $source_root" >&2
   exit 2
 }
 
@@ -366,17 +366,20 @@ install_codex() {
 
   if [ -f "$source_root/.agents/plugins/marketplace.json" ] && [ -d "$source_root/plugins/$PLUGIN_NAME" ]; then
     require_command codex
+    # The codex CLI refuses a CODEX_HOME that does not exist yet, and it must
+    # register the marketplace in the same profile this installer writes to.
+    run_or_echo mkdir -p "$codex_home"
     local codex_marketplace="$source_root"
     if [ "$source_explicit" = "no" ]; then
       # A Git marketplace is what `codex plugin marketplace upgrade` refreshes.
       codex_marketplace="$GITHUB_REPO"
-      if ! run_or_echo codex plugin marketplace add "$GITHUB_REPO"; then
+      if ! run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$GITHUB_REPO"; then
         echo "Could not reach the GitHub marketplace; using the local checkout instead."
         codex_marketplace="$source_root"
-        run_or_echo codex plugin marketplace add "$source_root"
+        run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$source_root"
       fi
     else
-      run_or_echo codex plugin marketplace add "$source_root"
+      run_or_echo env CODEX_HOME="$codex_home" codex plugin marketplace add "$source_root"
     fi
     if command -v bun >/dev/null 2>&1; then
       if [ "$dry_run" = "yes" ]; then
@@ -386,11 +389,11 @@ install_codex() {
       fi
     else
       echo "bun not found; registered the native Codex plugin marketplace only."
-      echo "Install CE DataScience from /plugins, or run the Bun bridge later for generated agents."
+      echo "Install Methodsmith from /plugins, or run the Bun bridge later for generated agents."
     fi
     echo ""
     echo "Codex install prepared."
-    echo "Restart Codex, open /plugins, install CE DataScience, then start a new thread."
+    echo "Restart Codex, open /plugins, install Methodsmith, then start a new thread."
     echo ""
     if [ "$codex_marketplace" = "$GITHUB_REPO" ]; then
       echo "Codex does not update plugins on its own. To update later, run:"
@@ -400,11 +403,11 @@ install_codex() {
       echo "then re-run this installer."
     fi
     echo "Refresh the generated agents too with:"
-    echo "  bunx ce-datascience-plugin@latest install $PLUGIN_NAME --to codex --codex-home \"$codex_home\""
+    echo "  bunx methodsmith@latest install $PLUGIN_NAME --to codex --codex-home \"$codex_home\""
     return
   fi
 
-  echo "Could not find a CE DataScience Codex marketplace or offline package at $source_root" >&2
+  echo "Could not find a Methodsmith Codex marketplace or offline package at $source_root" >&2
   exit 2
 }
 

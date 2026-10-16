@@ -1,0 +1,22 @@
+[
+  {"query": "I have analysis/pubmed/hfpef-readmission-2026-09-30.csv from the PubMed search. Extract sample size, primary outcome, model, covariates and effect sizes from each paper into a comparison table for the SAP.", "should_trigger": true},
+  {"query": "what statistical methods do prior sepsis lactate studies use? i have the pubmed csv already, want the modal method and what software they used", "should_trigger": true},
+  {"query": "Before I set the effect-size assumption for power, pull the reported HRs and CIs from the 30 cohort papers in our PubMed results so I have a prior range.", "should_trigger": true},
+  {"query": "Build a methods-comparison table (method x year, software x method) from the literature CSV so I can justify using a mixed model in SAP-5.2.", "should_trigger": true},
+  {"query": "Using only full-text PMC articles from analysis/pubmed/ards-prone-2026-08-12.csv, extract analysis population (ITT vs per-protocol), multiplicity control, and adjustment sets.", "should_trigger": true},
+  {"query": "Reviewer asked why we chose Cox over Fine-Gray - can you go through the prior papers in our pubmed export and tabulate what methods they used for competing risks?", "should_trigger": true},
+  {"query": "Extract cohort definitions, endpoints and assumptions from the evidence-map papers plus the pubmed csv so method-plan can cite them in the SAP methods rationale.", "should_trigger": true},
+  {"query": "pls go through these 25 pubmed hits on AKI after contrast and tell me how many state a reporting checklist and what outcomes they measured, as a csv", "should_trigger": true},
+  {"query": "Make a structured extraction of study design, N, outcome type and statistical method from the literature results I got earlier (__CE_PUBMED_RESULTS__ above).", "should_trigger": true},
+  {"query": "I need methods grounding for our delirium SAP: what models and covariates did the prior trials in analysis/pubmed/delirium-rct-2026-10-02.csv use?", "should_trigger": true},
+  {"query": "Search PubMed for observational studies of SGLT2 inhibitors and AKI in non-diabetic CKD, 2015-2026, with MeSH expansion, and save the results to CSV.", "should_trigger": false},
+  {"query": "Pool the odds ratios from these 8 studies with a random-effects model and give me I-squared so I can anchor the power calculation.", "should_trigger": false},
+  {"query": "Build a source-backed evidence map on whether early mobilization reduces ICU-acquired weakness, using PubMed and Paperclip full text.", "should_trigger": false},
+  {"query": "Given our estimand and clustered repeated-measures data, choose and justify the primary model (GLMM vs GEE) and write an R scaffold.", "should_trigger": false},
+  {"query": "Which reporting checklist should our retrospective cohort follow, and generate the checklist file for the SAP?", "should_trigger": false},
+  {"query": "Compute the sample size for a two-arm trial with d=0.35, alpha 0.05, 90% power, 15% dropout.", "should_trigger": false},
+  {"query": "Find me some recent papers on machine learning for sepsis prediction - not sure if PubMed or broader web is better.", "should_trigger": false},
+  {"query": "Verify that each citation in manuscript/main.docx actually supports its sentence and insert Zotero fields.", "should_trigger": false},
+  {"query": "Turn my vague idea about statins and post-op delirium into a PICO, FINER assessment, and PubMed query.", "should_trigger": false},
+  {"query": "Write the full SAP for our retrospective delirium cohort, including the primary analysis and sensitivity analyses.", "should_trigger": false}
+]

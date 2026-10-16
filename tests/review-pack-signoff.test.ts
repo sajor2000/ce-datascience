@@ -7,9 +7,9 @@ const tempRoots: string[] = []
 const scriptPath = path.join(
   process.cwd(),
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-review-pack",
+  "method-signoff",
   "scripts",
   "validate_signoff_ledger.py",
 )

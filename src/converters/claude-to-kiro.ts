@@ -166,7 +166,7 @@ export function transformContentForKiro(
   let result = body
   const skillTargets = new Set(knownSkillNames.map((name) => normalizeName(name)))
 
-  // 1. Transform Task agent calls (supports namespaced names like ce-datascience:research:agent-name)
+  // 1. Transform Task agent calls (supports namespaced names like methodsmith:research:agent-name)
   const taskPattern = /^(\s*-?\s*)Task\s+([a-z][a-z0-9:-]*)\(([^)]*)\)/gm
   result = result.replace(taskPattern, (_match, prefix: string, agentName: string, args: string) => {
     const finalSegment = agentName.includes(":") ? agentName.split(":").pop()! : agentName
@@ -264,7 +264,7 @@ function buildSteeringFiles(
   if (!content || content.trim().length === 0) return []
 
   const transformed = transformContentForKiro(content, knownAgentNames, knownSkillNames)
-  return [{ name: "ce-datascience", content: transformed }]
+  return [{ name: "methodsmith", content: transformed }]
 }
 
 function resolveInstructionPath(root: string): string | null {

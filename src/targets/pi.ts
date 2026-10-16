@@ -24,15 +24,15 @@ import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifa
 import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
-const PI_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE PI TOOL MAP -->"
-const PI_AGENTS_BLOCK_END = "<!-- END CE DATASCIENCE PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_START = "<!-- BEGIN METHODSMITH PI TOOL MAP -->"
+const PI_AGENTS_BLOCK_END = "<!-- END METHODSMITH PI TOOL MAP -->"
 const PI_AGENTS_BLOCK_START_PREV = "<!-- BEGIN COMPOUND PI TOOL MAP -->"
 const PI_AGENTS_BLOCK_END_PREV = "<!-- END COMPOUND PI TOOL MAP -->"
 const PI_INSTALL_MANIFEST = "install-manifest.json"
 
-const PI_AGENTS_BLOCK_BODY = `## CE DataScience (Pi compatibility)
+const PI_AGENTS_BLOCK_BODY = `## Methodsmith (Pi compatibility)
 
-This block is managed by ce-datascience.
+This block is managed by methodsmith.
 
 Pi extensions used by this plugin:
 - Required: \`pi-subagents\` (by nicobailon) provides the \`subagent\` tool used by skills that dispatch parallel agents
@@ -181,7 +181,7 @@ function resolvePiPaths(outputRoot: string, pluginName?: string): PiPaths {
   // installed into the same Pi root do not share (and overwrite) each other's
   // install manifests. `resolveManagedSegment` falls back to the legacy
   // "compound-engineering" segment when no plugin name is supplied
-  // (backward compat: old installs used this segment; ce-datascience is the
+  // (backward compat: old installs used this segment; methodsmith is the
   // current name, but resolveManagedSegment preserves the old path as
   // LEGACY_MANAGED_SEGMENT).
   const managedSegment = resolveManagedSegment(pluginName)
@@ -462,14 +462,14 @@ async function cleanupRemovedAgents(
 // on upgrade. This list is the safety net for that case.
 const LEGACY_PI_EXTENSIONS_BY_PLUGIN: Record<string, string[]> = {
   "compound-engineering": ["compound-engineering-compat.ts"],
-  "ce-datascience": ["compound-engineering-compat.ts"],
+  "methodsmith": ["compound-engineering-compat.ts"],
 }
 
 // Plugins that historically shipped an mcporter.json (via the now-removed
 // compat extension) but no longer do when `bundle.mcporterConfig` is absent.
 // The per-plugin guard keeps us from touching mcporter configs owned by
 // plugins that still legitimately emit one.
-const LEGACY_PI_MCPORTER_PLUGINS = new Set<string>(["compound-engineering", "ce-datascience"])
+const LEGACY_PI_MCPORTER_PLUGINS = new Set<string>(["compound-engineering", "methodsmith"])
 
 type LegacyArtifactKind = "skills" | "prompts" | "extensions" | "mcporter"
 

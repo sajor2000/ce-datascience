@@ -3,11 +3,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
 import { SCHEMA_ONLY, bash, expectAll, git, pluginRoot, project } from "./data-boundary-harness"
 
-// Schema-only mode: the analysis reads data, so it runs through ce-safe-run and the
+// Schema-only mode: the analysis reads data, so it runs through method-safe-run and the
 // registry it writes counts as data. The gate is the agent's view of the registry.
-const safeRun = path.join(pluginRoot, "scripts", "ce-safe-run")
-const scripts = path.join(pluginRoot, "skills", "ce-numbers", "scripts")
-const cli = path.join(scripts, "ce_numbers.py")
+const safeRun = path.join(pluginRoot, "scripts", "method-safe-run")
+const scripts = path.join(pluginRoot, "skills", "method-numbers", "scripts")
+const cli = path.join(scripts, "method_numbers.py")
 
 function withFile(root: string, rel: string, content: string) {
   mkdirSync(path.dirname(path.join(root, rel)), { recursive: true })
@@ -15,12 +15,12 @@ function withFile(root: string, rel: string, content: string) {
 }
 
 describe("number registry in schema-only mode", () => {
-  test("an analysis run through ce-safe-run writes the registry and the gate still runs", () => {
+  test("an analysis run through method-safe-run writes the registry and the gate still runs", () => {
     const root = project(SCHEMA_ONLY, { git: "real" })
     withFile(root, "analysis/cohort.py", [
       "import csv, sys",
       `sys.path.insert(0, ${JSON.stringify(scripts)})`,
-      "from ce_numbers import register_number",
+      "from method_numbers import register_number",
       "rows = list(csv.DictReader(open('data/cohort.csv')))",
       "register_number('cohort.n', 410 + len(rows), kind='n', sources=['data/cohort.csv'], sap_output='F1')",
       "",
@@ -54,7 +54,7 @@ describe("the gate is not a way around the boundary", () => {
     withFile(root, "analysis/cohort.py", [
       "import sys",
       `sys.path.insert(0, ${JSON.stringify(scripts)})`,
-      "from ce_numbers import register_number",
+      "from method_numbers import register_number",
       "register_number('cohort.n', 412, kind='n', sources=['data/cohort.csv'], sap_output='F1')",
       "",
     ].join("\n"))

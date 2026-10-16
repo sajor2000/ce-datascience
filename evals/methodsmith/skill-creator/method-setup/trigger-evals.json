@@ -1,0 +1,82 @@
+[
+  {
+    "query": "/method-setup -- fresh clone of our readmission repo, infer the stack and save the project profile",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-setup --no-install -- corporate VDI, no package managers allowed",
+    "should_trigger": true
+  },
+  {
+    "query": "run method-setup for this new repo please, I want the project profile configured",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-setup I switched this project from RStudio to Positron + Quarto, update the profile",
+    "should_trigger": true
+  },
+  {
+    "query": "Invoke the method-setup skill: infer my stack, show the detected profile card, and save .ce-datascience/config.local.yaml",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-setup --locked-down on the research enclave VM; check what tools are available and record the profile",
+    "should_trigger": true
+  },
+  {
+    "query": "please run /method-setup and give me the full survey option, I want to set data root and reporting checklist",
+    "should_trigger": true
+  },
+  {
+    "query": "use method-setup to check my environment health on this locked-down hospital workstation",
+    "should_trigger": true
+  },
+  {
+    "query": "/method-setup -- we just added a verified postgres connection, store it in the profile",
+    "should_trigger": true
+  },
+  {
+    "query": "Run the method-setup command to configure methodsmith for this CLIF repo",
+    "should_trigger": true
+  },
+  {
+    "query": "Which language does this repo use -- R, Python, or both? Just emit the language handoff",
+    "should_trigger": false
+  },
+  {
+    "query": "What should I run next in this observational study? Show the lifecycle card",
+    "should_trigger": false
+  },
+  {
+    "query": "Is my methodsmith plugin up to date in Claude Code?",
+    "should_trigger": false
+  },
+  {
+    "query": "Initialize a new CLIF analysis repository from the official CLIF Project Template",
+    "should_trigger": false
+  },
+  {
+    "query": "Configure Claude Code permissions to allow bun test without prompting",
+    "should_trigger": false
+  },
+  {
+    "query": "Install renv and restore the lockfile so my R project runs",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up an isolated git worktree for the new feature branch",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a SessionStart hook so cloud sessions can run the test suite",
+    "should_trigger": false
+  },
+  {
+    "query": "Activate CLIF-safe guidance for this repo with CLIF 3.0 tables",
+    "should_trigger": false
+  },
+  {
+    "query": "Profile the columns in data/cohort.parquet and run the pre-SAP data QA gate",
+    "should_trigger": false
+  }
+]

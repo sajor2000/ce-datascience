@@ -230,16 +230,16 @@ describe("convertClaudeToCodex", () => {
   test("copies workflow skills as regular skills and omits workflows aliases", () => {
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
-      manifest: { name: "ce-datascience", version: "1.0.0" },
+      manifest: { name: "methodsmith", version: "1.0.0" },
       commands: [],
       agents: [],
       skills: [
         {
-          name: "ce-plan",
+          name: "method-plan",
           description: "Planning workflow",
           argumentHint: "[feature]",
-          sourceDir: "/tmp/plugin/skills/ce-plan",
-          skillPath: "/tmp/plugin/skills/ce-plan/SKILL.md",
+          sourceDir: "/tmp/plugin/skills/method-plan",
+          skillPath: "/tmp/plugin/skills/method-plan/SKILL.md",
         },
         {
           name: "workflows:plan",
@@ -261,8 +261,8 @@ describe("convertClaudeToCodex", () => {
     // No prompt wrappers for workflow skills — they're directly invocable as skills
     expect(bundle.prompts).toHaveLength(0)
 
-    // ce-plan is copied as a regular skill, workflows:plan is omitted
-    expect(bundle.skillDirs.map((skill) => skill.name)).toEqual(["ce-plan"])
+    // method-plan is copied as a regular skill, workflows:plan is omitted
+    expect(bundle.skillDirs.map((skill) => skill.name)).toEqual(["method-plan"])
   })
 
   test("does not apply compound workflow canonicalization to other plugins", () => {
@@ -273,11 +273,11 @@ describe("convertClaudeToCodex", () => {
       agents: [],
       skills: [
         {
-          name: "ce-plan",
+          name: "method-plan",
           description: "Custom CE-namespaced skill",
           argumentHint: "[feature]",
-          sourceDir: "/tmp/plugin/skills/ce-plan",
-          skillPath: "/tmp/plugin/skills/ce-plan/SKILL.md",
+          sourceDir: "/tmp/plugin/skills/method-plan",
+          skillPath: "/tmp/plugin/skills/method-plan/SKILL.md",
         },
         {
           name: "workflows:plan",
@@ -297,7 +297,7 @@ describe("convertClaudeToCodex", () => {
     })
 
     expect(bundle.prompts).toHaveLength(0)
-    expect(bundle.skillDirs.map((skill) => skill.name)).toEqual(["ce-plan", "workflows:plan"])
+    expect(bundle.skillDirs.map((skill) => skill.name)).toEqual(["method-plan", "workflows:plan"])
   })
 
   test("passes through MCP servers", () => {
@@ -382,33 +382,33 @@ Task best-practices-researcher(topic)`,
           description: "Planning with namespaced agents",
           body: `Run these agents in parallel:
 
-- Task compound-engineering:research:ce-repo-research-analyst(feature_description)
-- Task compound-engineering:research:ce-learnings-researcher(feature_description)
+- Task compound-engineering:research:method-repo-research-analyst(feature_description)
+- Task compound-engineering:research:method-learnings-researcher(feature_description)
 
 Then consolidate findings.
 
-Task compound-engineering:review:ce-security-reviewer(code_diff)`,
+Task compound-engineering:review:method-security-reviewer(code_diff)`,
           sourcePath: "/tmp/plugin/commands/plan.md",
         },
       ],
       agents: [
         {
-          name: "ce-repo-research-analyst",
+          name: "method-repo-research-analyst",
           description: "Repo research",
           body: "Research repositories.",
-          sourcePath: "/tmp/plugin/agents/ce-repo-research-analyst.agent.md",
+          sourcePath: "/tmp/plugin/agents/method-repo-research-analyst.agent.md",
         },
         {
-          name: "ce-learnings-researcher",
+          name: "method-learnings-researcher",
           description: "Learning research",
           body: "Search learnings.",
-          sourcePath: "/tmp/plugin/agents/ce-learnings-researcher.agent.md",
+          sourcePath: "/tmp/plugin/agents/method-learnings-researcher.agent.md",
         },
         {
-          name: "ce-security-reviewer",
+          name: "method-security-reviewer",
           description: "Security review",
           body: "Review security.",
-          sourcePath: "/tmp/plugin/agents/ce-security-reviewer.agent.md",
+          sourcePath: "/tmp/plugin/agents/method-security-reviewer.agent.md",
         },
       ],
       skills: [],
@@ -425,9 +425,9 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
     expect(commandSkill).toBeDefined()
     const parsed = parseFrontmatter(commandSkill!.content)
 
-    expect(parsed.body).toContain("Spawn the custom agent `ce-repo-research-analyst` with task: feature_description")
-    expect(parsed.body).toContain("Spawn the custom agent `ce-learnings-researcher` with task: feature_description")
-    expect(parsed.body).toContain("Spawn the custom agent `ce-security-reviewer` with task: code_diff")
+    expect(parsed.body).toContain("Spawn the custom agent `method-repo-research-analyst` with task: feature_description")
+    expect(parsed.body).toContain("Spawn the custom agent `method-learnings-researcher` with task: feature_description")
+    expect(parsed.body).toContain("Spawn the custom agent `method-security-reviewer` with task: code_diff")
 
     // Original namespaced Task syntax should not remain
     expect(parsed.body).not.toContain("Task compound-engineering:")
@@ -436,7 +436,7 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
   test("retains <category>-<agent> naming for nested-layout plugins (dead-code fallback)", () => {
     // This test pins the behavior of getAgentCategory() for any third-party
     // plugin that still uses agents/<category>/<name>.md layout. The
-    // ce-datascience plugin itself is flat, but the converter must keep
+    // methodsmith plugin itself is flat, but the converter must keep
     // working for other plugins passed through the CLI.
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
@@ -444,16 +444,16 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
         {
           name: "plan",
           description: "Planning with agents from a nested-layout plugin",
-          body: `- Task compound-engineering:review:ce-security-reviewer(code_diff)`,
+          body: `- Task compound-engineering:review:method-security-reviewer(code_diff)`,
           sourcePath: "/tmp/plugin/commands/plan.md",
         },
       ],
       agents: [
         {
-          name: "ce-security-reviewer",
+          name: "method-security-reviewer",
           description: "Security review",
           body: "Review security.",
-          sourcePath: "/tmp/plugin/agents/review/ce-security-reviewer.agent.md",
+          sourcePath: "/tmp/plugin/agents/review/method-security-reviewer.agent.md",
         },
       ],
       skills: [],
@@ -470,7 +470,7 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
     expect(commandSkill).toBeDefined()
     const parsed = parseFrontmatter(commandSkill!.content)
 
-    expect(parsed.body).toContain("Spawn the custom agent `review-ce-security-reviewer` with task: code_diff")
+    expect(parsed.body).toContain("Spawn the custom agent `review-method-security-reviewer` with task: code_diff")
   })
 
   test("transforms zero-argument Task calls", () => {
@@ -486,10 +486,10 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
       ],
       agents: [
         {
-          name: "ce-code-simplicity-reviewer",
+          name: "method-code-simplicity-reviewer",
           description: "Simplicity review",
           body: "Review simplicity.",
-          sourcePath: "/tmp/plugin/agents/ce-code-simplicity-reviewer.agent.md",
+          sourcePath: "/tmp/plugin/agents/method-code-simplicity-reviewer.agent.md",
         },
       ],
       skills: [],
@@ -505,7 +505,7 @@ Task compound-engineering:review:ce-security-reviewer(code_diff)`,
     const commandSkill = bundle.generatedSkills.find((s) => s.name === "review")
     expect(commandSkill).toBeDefined()
     const parsed = parseFrontmatter(commandSkill!.content)
-    expect(parsed.body).toContain("Spawn the custom agent `ce-code-simplicity-reviewer`")
+    expect(parsed.body).toContain("Spawn the custom agent `method-code-simplicity-reviewer`")
     expect(parsed.body).not.toContain("compound-engineering:")
     expect(parsed.body).not.toContain("skill to:")
   })
@@ -595,32 +595,32 @@ Don't confuse with file paths like /tmp/output.md or /dev/null.`,
   test("transforms workflow skill slash commands to Codex skill references", () => {
     const plugin: ClaudePlugin = {
       ...fixturePlugin,
-      manifest: { name: "ce-datascience", version: "1.0.0" },
+      manifest: { name: "methodsmith", version: "1.0.0" },
       commands: [
         {
           name: "review",
           description: "Review command",
-          body: `After the brainstorm, run /ce-plan.
+          body: `After the brainstorm, run /method-plan.
 
-If planning is complete, continue with /ce-work.`,
+If planning is complete, continue with /method-work.`,
           sourcePath: "/tmp/plugin/commands/review.md",
         },
       ],
       agents: [],
       skills: [
         {
-          name: "ce-plan",
+          name: "method-plan",
           description: "Planning workflow",
           argumentHint: "[feature]",
-          sourceDir: "/tmp/plugin/skills/ce-plan",
-          skillPath: "/tmp/plugin/skills/ce-plan/SKILL.md",
+          sourceDir: "/tmp/plugin/skills/method-plan",
+          skillPath: "/tmp/plugin/skills/method-plan/SKILL.md",
         },
         {
-          name: "ce-work",
+          name: "method-work",
           description: "Implementation workflow",
           argumentHint: "[feature]",
-          sourceDir: "/tmp/plugin/skills/ce-work",
-          skillPath: "/tmp/plugin/skills/ce-work/SKILL.md",
+          sourceDir: "/tmp/plugin/skills/method-work",
+          skillPath: "/tmp/plugin/skills/method-work/SKILL.md",
         },
         {
           name: "workflows:work",
@@ -644,8 +644,8 @@ If planning is complete, continue with /ce-work.`,
     const parsed = parseFrontmatter(commandSkill!.content)
 
     // Workflow skills are now regular skills, so references use skill syntax
-    expect(parsed.body).toContain("the ce-plan skill")
-    expect(parsed.body).toContain("the ce-work skill")
+    expect(parsed.body).toContain("the method-plan skill")
+    expect(parsed.body).toContain("the method-work skill")
   })
 
   test("excludes commands with disable-model-invocation from prompts and skills", () => {
@@ -694,11 +694,11 @@ If planning is complete, continue with /ce-work.`,
         {
           name: "review",
           description: "Review command",
-          body: `Read \`ce-datascience.local.md\` in the project root.
+          body: `Read \`methodsmith.local.md\` in the project root.
 
 If no settings file exists, auto-detect project type.
 
-Run \`/ce-datascience-setup\` to create a settings file.`,
+Run \`/methodsmith-setup\` to create a settings file.`,
           sourcePath: "/tmp/plugin/commands/review.md",
         },
       ],
@@ -718,7 +718,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
     const parsed = parseFrontmatter(commandSkill!.content)
 
     // Tool-agnostic path in project root — no rewriting needed
-    expect(parsed.body).toContain("ce-datascience.local.md")
+    expect(parsed.body).toContain("methodsmith.local.md")
   })
 
   test("preserves tool-agnostic paths in Codex custom agent instructions", () => {
@@ -730,7 +730,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
         {
           name: "config-reader",
           description: "Reads config",
-          body: "Read `ce-datascience.local.md` for config.",
+          body: "Read `methodsmith.local.md` for config.",
           sourcePath: "/tmp/plugin/agents/config-reader.md",
         },
       ],
@@ -745,7 +745,7 @@ Run \`/ce-datascience-setup\` to create a settings file.`,
 
     const agent = (bundle.agents ?? []).find((s) => s.name === "config-reader")
     expect(agent).toBeDefined()
-    expect(agent!.instructions).toContain("ce-datascience.local.md")
+    expect(agent!.instructions).toContain("methodsmith.local.md")
   })
 
   test("truncates custom agent descriptions to Codex limits and single line", () => {

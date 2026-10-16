@@ -1,15 +1,17 @@
-# Compound Health Data Science
+# Methodsmith
 
-**A practical AI research partner for health and biomedical data.**
+**Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.**
 
-CE DataScience helps you move from an idea to a careful, documented analysis. You
-can ask your coding assistant to help plan a study, find relevant evidence,
+<!-- Hero image and badges: reserved for the branding PR. -->
+
+Methodsmith (formerly ce-datascience) helps you move from an idea to a careful, <!-- rebrand:keep -->
+documented analysis. You can ask your coding assistant to help plan a study, find relevant evidence,
 check a dataset, write analysis code, review the results, and prepare a report.
 
 You stay in control of the scientific decisions. The plugin does not replace a
 researcher, statistician, clinician, data steward, or ethics review.
 
-[Read the public documentation](https://sajor2000.github.io/ce-datascience/) · [Watch the workflow overview](https://sajor2000.github.io/ce-datascience/media/ce-datascience-overview.mp4)
+[Read the public documentation](https://sajor2000.github.io/methodsmith/) · [Watch the workflow overview](https://sajor2000.github.io/methodsmith/media/methodsmith-overview.mp4)
 
 **66 skills, 55 specialist agents, and 39 reporting checklists** help make each project more explicit, reproducible, and reviewable.
 
@@ -40,12 +42,12 @@ do, and the workflow helps identify the next step.
 
 1. Install it for the AI coding tool you already use.
 2. Open the project or study folder where you want to work.
-3. Ask the assistant to set up CE DataScience, then describe your research goal.
+3. Ask the assistant to set up Methodsmith, then describe your research goal.
 
 For example:
 
 ```text
-Use CE DataScience to set up this project, then help me plan a study of
+Use Methodsmith to set up this project, then help me plan a study of
 30-day mortality among ICU patients with sepsis. Show me the decisions I need
 to make before we analyze any data.
 ```
@@ -57,15 +59,130 @@ start with Claude Code or Codex and follow the matching section.
 
 ## How the package works
 
-![CE DataScience package workflow: install, set up a project, run skills, and create research artifacts](docs/ce-datascience-package-workflow.png)
+![Methodsmith package workflow: install, set up a project, run skills, and create research artifacts](docs/methodsmith-package-workflow.png)
 
 ---
+
+<!-- rebrand:keep-start migration-guide -->
+## Moving from ce-datascience
+
+Methodsmith is the same plugin as ce-datascience, renamed in 5.0. Every
+command and agent now starts with `method-` instead of `ce-`. A few names are
+also shorter, for example `/ce-statistical-analysis-plan` is now `/method-sap`.
+
+**What stays the same:** your own skills, your project's `.ce-datascience/`
+folder (including the PHI-boundary settings in `config.local.yaml`), and the
+plan -> work -> review -> compound loop.
+
+**What the switch does:** the first Methodsmith install moves the old plugin's
+files to a `backups/` folder next to the new install. Nothing is deleted, and
+files you created are not touched.
+
+To see what is installed on your machine, run `/method-update` after
+installing Methodsmith, or run the same read-only checker from a checkout. It
+prints exactly the commands below for each harness it finds:
+
+```bash
+bash plugins/methodsmith/skills/method-update/scripts/detect-pre-rename-install.sh
+```
+
+| Harness | Switch to Methodsmith |
+|---|---|
+| Claude Code | `claude plugin uninstall ce-datascience@ce-datascience-plugin`, then `claude plugin marketplace remove ce-datascience-plugin`, `claude plugin marketplace add sajor2000/methodsmith`, `claude plugin install methodsmith@methodsmith`. If you used `--aliases`, re-run `bash install.sh claude --aliases`. |
+| Codex | `codex plugin marketplace remove ce-datascience-plugin`, then `codex plugin marketplace add sajor2000/methodsmith` and `bunx methodsmith@latest install methodsmith --to codex`. Open `/plugins` and install Methodsmith. |
+| OpenCode | `bunx methodsmith@latest install methodsmith --to opencode` |
+| Pi | `bunx methodsmith@latest install methodsmith --to pi --pi-home ~/.pi/agent` |
+| Gemini CLI, Kiro | `bunx methodsmith@latest install methodsmith --to gemini --output .` (or `--to kiro`) in each workspace |
+| Qwen Code | `qwen extensions uninstall ce-datascience`, then `qwen extensions install sajor2000/methodsmith:methodsmith` |
+
+On Claude Code with `--aliases`, the old `/ce-*` commands keep working for one
+release as deprecated aliases that point at the new skills. Elsewhere, use the
+new names.
+
+<details>
+<summary>Every renamed command</summary>
+
+<!-- rebrand:keep-end -->
+<!-- rebrand:keep-start renamed-commands -->
+| Before 5.0 | Methodsmith |
+|---|---|
+| `/ce-adversarial-review` | `/method-adversarial-review` |
+| `/ce-bioinfo-qc` | `/method-omics-qc` |
+| `/ce-brainstorm` | `/method-brainstorm` |
+| `/ce-checklist-match` | `/method-checklist` |
+| `/ce-clean-gone-branches` | `/method-clean-branches` |
+| `/ce-clif` | `/method-clif` |
+| `/ce-clif-project-template` | `/method-clif-template` |
+| `/ce-clinical-research-voice` | `/method-voice` |
+| `/ce-code-review` | `/method-review` |
+| `/ce-cohort-build` | `/method-cohort` |
+| `/ce-commit` | `/method-commit` |
+| `/ce-commit-push-pr` | `/method-pr` |
+| `/ce-compound` | `/method-compound` |
+| `/ce-compound-refresh` | `/method-compound-refresh` |
+| `/ce-data-qa` | `/method-data-qa` |
+| `/ce-debug` | `/method-debug` |
+| `/ce-doc-review` | `/method-doc-review` |
+| `/ce-effect-size` | `/method-meta-analysis` |
+| `/ce-evidence-map` | `/method-evidence-map` |
+| `/ce-fabric` | `/method-fabric` |
+| `/ce-figure` | `/method-figure` |
+| `/ce-genome-build` | `/method-genome-build` |
+| `/ce-grill` | `/method-grill` |
+| `/ce-handoff` | `/method-handoff` |
+| `/ce-ideate` | `/method-ideate` |
+| `/ce-language-detect` | `/method-language-detect` |
+| `/ce-literature-search` | `/method-lit-search` |
+| `/ce-manuscript-citations` | `/method-citations` |
+| `/ce-manuscript-package` | `/method-submission-package` |
+| `/ce-manuscript-section-discipline` | `/method-section-check` |
+| `/ce-marimo` | `/method-marimo` |
+| `/ce-method-extract` | `/method-extract` |
+| `/ce-ml-experiment-track` | `/method-ml-track` |
+| `/ce-model-card` | `/method-model-card` |
+| `/ce-model-strategy` | `/method-model-choice` |
+| `/ce-notebook-edit` | `/method-notebook-edit` |
+| `/ce-notebook-standards` | `/method-notebook-standards` |
+| `/ce-numbers` | `/method-numbers` |
+| `/ce-optimize` | `/method-optimize` |
+| `/ce-phenotype-validate` | `/method-phenotype` |
+| `/ce-plan` | `/method-plan` |
+| `/ce-power` | `/method-power` |
+| `/ce-pre-submission-audit` | `/method-presubmit` |
+| `/ce-prereg` | `/method-prereg` |
+| `/ce-pubmed` | `/method-pubmed` |
+| `/ce-release-notes` | `/method-release-notes` |
+| `/ce-report-bug` | `/method-report-bug` |
+| `/ce-research-question` | `/method-question` |
+| `/ce-resolve-pr-feedback` | `/method-resolve-feedback` |
+| `/ce-review-pack` | `/method-signoff` |
+| `/ce-rstats` | `/method-r` |
+| `/ce-sap-tabular` | `/method-sap-workbook` |
+| `/ce-sas-stata-assess` | `/method-sas-stata` |
+| `/ce-scientific-anti-slop` | `/method-anti-slop` |
+| `/ce-scientific-writing` | `/method-write` |
+| `/ce-sessions` | `/method-sessions` |
+| `/ce-setup` | `/method-setup` |
+| `/ce-sprint` | `/method-sprint` |
+| `/ce-statistical-analysis-plan` | `/method-sap` |
+| `/ce-table1` | `/method-table1` |
+| `/ce-trial-design` | `/method-trial-design` |
+| `/ce-update` | `/method-update` |
+| `/ce-verify` | `/method-verify` |
+| `/ce-work` | `/method-work` |
+| `/ce-workflow` | `/method-workflow` |
+| `/ce-worktree` | `/method-worktree` |
+<!-- rebrand:keep-end -->
+
+Agents keep the rest of their name: `ce-methods-reviewer` is now `method-methods-reviewer`. <!-- rebrand:keep -->
+
+</details>
 
 ## Get started like Compound Engineering
 
 The normal path is intentionally short: install the plugin, start your agent,
 then run setup. For complete platform details, see the
-[public setup guide](https://sajor2000.github.io/ce-datascience/docs/setup).
+[public setup guide](https://sajor2000.github.io/methodsmith/docs/setup).
 
 ### Choose your install route
 
@@ -81,22 +198,22 @@ required for basic use.
 No checkout needed (Claude Code 2.1.275 or later):
 
 ```bash
-claude plugin install ce-datascience --marketplace sajor2000/ce-datascience
+claude plugin install methodsmith --marketplace sajor2000/methodsmith
 claude
 ```
 
 Or, inside a running Claude Code session:
 
 ```text
-/plugin install ce-datascience --marketplace sajor2000/ce-datascience
+/plugin install methodsmith --marketplace sajor2000/methodsmith
 ```
 
-From a source checkout, with the optional bare `/ce-*` aliases, on macOS,
+From a source checkout, with the optional bare `/method-*` aliases, on macOS,
 Linux, WSL, or Git Bash:
 
 ```bash
-git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
-cd ~/ce-datascience
+git clone https://github.com/sajor2000/methodsmith.git ~/methodsmith
+cd ~/methodsmith
 bash install.sh claude --aliases
 claude
 ```
@@ -104,8 +221,8 @@ claude
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
-cd "$HOME\ce-datascience"
+git clone https://github.com/sajor2000/methodsmith.git "$HOME\methodsmith"
+cd "$HOME\methodsmith"
 .\install.ps1 claude -Aliases
 claude
 ```
@@ -113,11 +230,11 @@ claude
 Then open the target project and run the native command:
 
 ```text
-/ce-datascience:ce-setup
+/methodsmith:method-setup
 ```
 
 The `--aliases` flag is optional; it installs safe local aliases so the
-demo-friendly bare `/ce-*` commands work. The namespaced command above is the
+demo-friendly bare `/method-*` commands work. The namespaced command above is the
 reliable default for every native Claude plugin install.
 
 ### Codex, easiest path
@@ -125,8 +242,8 @@ reliable default for every native Claude plugin install.
 macOS, Linux, WSL, or Git Bash:
 
 ```bash
-git clone https://github.com/sajor2000/ce-datascience.git ~/ce-datascience
-cd ~/ce-datascience
+git clone https://github.com/sajor2000/methodsmith.git ~/methodsmith
+cd ~/methodsmith
 bash install.sh codex
 codex
 ```
@@ -134,39 +251,39 @@ codex
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/sajor2000/ce-datascience.git "$HOME\ce-datascience"
-cd "$HOME\ce-datascience"
+git clone https://github.com/sajor2000/methodsmith.git "$HOME\methodsmith"
+cd "$HOME\methodsmith"
 .\install.ps1 codex
 codex
 ```
 
-Inside Codex, open `/plugins`, install **CE DataScience**, restart Codex, then
-start a new thread and ask Codex to use CE DataScience for setup. The helper
+Inside Codex, open `/plugins`, install **Methodsmith**, restart Codex, then
+start a new thread and ask Codex to use Methodsmith for setup. The helper
 also installs the generated agent bridge when Bun is available.
 
 ### Pi, generated install
 
-Install Pi's two workflow extensions once, then generate the CE files into the
+Install Pi's two workflow extensions once, then generate the Methodsmith files into the
 Pi agent root:
 
 ```bash
 pi install npm:pi-subagents
 pi install npm:pi-ask-user
-cd ~/ce-datascience
-bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"
+cd ~/methodsmith
+bun run src/index.ts install ./plugins/methodsmith --to pi --pi-home "$HOME/.pi/agent"
 ```
 
-Restart Pi, open the project, then invoke `ce-setup` with Pi's normal skill
-interface. `pi-subagents` is required for CE review/workflow delegation;
+Restart Pi, open the project, then invoke `method-setup` with Pi's normal skill
+interface. `pi-subagents` is required for Methodsmith review/workflow delegation;
 `pi-ask-user` enables the short setup confirmation UI.
 
 ### Use the plugin after installation
 
-Installation makes CE DataScience available to the agent; setup configures it
+Installation makes Methodsmith available to the agent; setup configures it
 for each individual code or research project. After installing:
 
 1. Restart Claude Code, Codex, or Pi so it loads the new plugin files.
-2. Open the project or study directory you want CE DataScience to work on.
+2. Open the project or study directory you want Methodsmith to work on.
 3. Configure that project with the setup skill.
 4. Run the workflow skill to see the ordered research or engineering lifecycle
    and the next recommended skill.
@@ -174,21 +291,21 @@ for each individual code or research project. After installing:
 In Claude Code, native plugin commands are namespaced:
 
 ```text
-/ce-datascience:ce-setup
-/ce-datascience:ce-workflow
+/methodsmith:method-setup
+/methodsmith:method-workflow
 ```
 
-When `--aliases` or `-Aliases` was used, the shorter `/ce-setup` and
-`/ce-workflow` forms work too. In Codex, start a new task and say:
+When `--aliases` or `-Aliases` was used, the shorter `/method-setup` and
+`/method-workflow` forms work too. In Codex, start a new task and say:
 
 ```text
-Use the CE DataScience ce-setup skill for this project.
-Then use the CE DataScience ce-workflow skill and recommend the next step.
+Use the Methodsmith method-setup skill for this project.
+Then use the Methodsmith method-workflow skill and recommend the next step.
 ```
 
 After that, request a specific skill in plain language or use its displayed
-name, for example `ce-research-question`, `ce-data-qa`, `ce-plan`, or
-`ce-code-review`. The plugin works in the currently open project; repeat setup
+name, for example `method-question`, `method-data-qa`, `method-plan`, or
+`method-review`. The plugin works in the currently open project; repeat setup
 when moving to a different project with a different stack or data layer.
 
 Setup starts with one detected-profile summary instead of a full questionnaire.
@@ -196,7 +313,7 @@ It shows inferred language, environment, reporting format, storage, and data
 domain with evidence, then offers **Continue**, **Adjust**, or **Full survey**.
 It asks only for values that are ambiguous or needed by the current workflow.
 
-![Steps for using CE DataScience setup, workflow, and task-specific slash commands](docs/ce-datascience-skill-commands.png)
+![Steps for using Methodsmith setup, workflow, and task-specific slash commands](docs/methodsmith-skill-commands.png)
 
 ### Locked-down or demo laptop
 
@@ -207,44 +324,44 @@ require Bun, GitHub CLI, or Quarto.
 Claude Code can load the approved plugin folder or ZIP directly:
 
 ```bash
-claude --plugin-dir /approved/path/ce-datascience
-claude --plugin-dir /approved/path/ce-datascience.zip
+claude --plugin-dir /approved/path/methodsmith
+claude --plugin-dir /approved/path/methodsmith.zip
 ```
 
 Native Claude plugin skills are namespaced:
 
 ```text
-/ce-datascience:ce-setup --locked-down
-/ce-datascience:ce-workflow
+/methodsmith:method-setup --locked-down
+/methodsmith:method-workflow
 ```
 
-Bare `/ce-*` commands are an optional local alias layer, not a native plugin
+Bare `/method-*` commands are an optional local alias layer, not a native plugin
 guarantee. Install them only when you want demo-friendly command names:
 
 ```bash
-bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/ce-datascience --scope user
+bash scripts/install/install-claude-aliases.sh --plugin-dir /approved/path/methodsmith --scope user
 ```
 
-For Codex without Bun, unpack `ce-datascience-codex-local.zip` and run:
+For Codex without Bun, unpack `methodsmith-codex-local.zip` and run:
 
 ```bash
-bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "${CODEX_HOME:-$HOME/.codex}"
+bash install-codex-offline.sh --source /approved/path/methodsmith-codex-local --codex-home "${CODEX_HOME:-$HOME/.codex}"
 ```
 
 On Windows PowerShell, use the package's native installer:
 
 ```powershell
-.\install.ps1 codex -Source C:\approved\ce-datascience-codex-local -CodexHome "$HOME\.codex"
+.\install.ps1 codex -Source C:\approved\methodsmith-codex-local -CodexHome "$HOME\.codex"
 ```
 
-Restart Codex, open `/plugins`, install CE DataScience from the local
+Restart Codex, open `/plugins`, install Methodsmith from the local
 marketplace, then restart again. The installer writes the personal marketplace
 file under `.agents/plugins/marketplace.json` and points it at
-`./.codex/plugins/ce-datascience` relative to that marketplace root.
+`./.codex/plugins/methodsmith` relative to that marketplace root.
 
 ### Recommended research add-ons
 
-CE DataScience's bundled `/ce-pubmed` workflow works on its own. For agent-native
+Methodsmith's bundled `/method-pubmed` workflow works on its own. For agent-native
 PubMed, Europe PMC, MeSH, citation, and related-article tools, optionally add
 [cyanheads/pubmed-mcp-server](https://github.com/cyanheads/pubmed-mcp-server).
 For full-text synthesis, claim verification, figures, trials, regulatory
@@ -256,9 +373,9 @@ research planning needs deeper full-text or cross-source evidence. Neither is
 required or installed automatically. Review institutional privacy and network
 policy before connecting a hosted research service. See the
 [optional research add-ons setup](docs/setup.md#8-optional-research-add-ons).
-The Paperclip skill is fetched and maintained by Paperclip, not bundled with CE
-DataScience. CE workflows currently auto-detect the Paperclip CLI only; external
-MCP or provider-skill results are direct agent capabilities, not automatic CE
+The Paperclip skill is fetched and maintained by Paperclip, not bundled with
+Methodsmith. Methodsmith workflows currently auto-detect the Paperclip CLI only; external
+MCP or provider-skill results are direct agent capabilities, not automatic Methodsmith
 artifact handoffs.
 
 ### Source checkout for contributors
@@ -268,8 +385,8 @@ build, validate, or convert the plugin from source:
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
-export CE_DS_REPO="$HOME/ce-datascience"
-git clone https://github.com/sajor2000/ce-datascience.git "$CE_DS_REPO"
+export CE_DS_REPO="$HOME/methodsmith"
+git clone https://github.com/sajor2000/methodsmith.git "$CE_DS_REPO"
 cd "$CE_DS_REPO"
 bun install
 ```
@@ -277,13 +394,13 @@ bun install
 Launch Claude Code from the checkout:
 
 ```bash
-claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"
+claude --plugin-dir "$CE_DS_REPO/plugins/methodsmith"
 ```
 
 **Pro tip** — save yourself typing forever:
 
 ```bash
-printf "\nalias claude-ds='claude --plugin-dir %s/plugins/ce-datascience'\n" "$CE_DS_REPO" >> ~/.zshrc
+printf "\nalias claude-ds='claude --plugin-dir %s/plugins/methodsmith'\n" "$CE_DS_REPO" >> ~/.zshrc
 source ~/.zshrc
 ```
 
@@ -292,17 +409,17 @@ Now just type `claude-ds` in any project.
 ### Configure your stack
 
 ```text
-/ce-datascience:ce-setup
+/methodsmith:method-setup
 ```
 
 Picks up your language (R or Python), IDE, libraries, and data layer automatically.
 It checks project evidence first and only asks questions that change generated
 config or workflow routing.
-If you installed optional aliases, `/ce-setup` works too.
+If you installed optional aliases, `/method-setup` works too.
 
 ### Sensitive-data boundary
 
-Before setup looks at any data, `ce-setup` asks one question and saves the
+Before setup looks at any data, `method-setup` asks one question and saves the
 answer as `phi_environment.mode` in the gitignored, machine-local
 `.ce-datascience/config.local.yaml`:
 
@@ -343,7 +460,7 @@ denies:
   reads the script itself, up to 1 MB. Scripts that do not touch data, or that
   only read aggregate tables that pass the check below, run as before.
 
-**Safe runner.** `scripts/ce-safe-run -- <command>` runs the command and writes
+**Safe runner.** `scripts/method-safe-run -- <command>` runs the command and writes
 its full stdout and stderr to `.ce-datascience/runs/<UTC-timestamp>-<pid>.log`
 (gitignored). It prints only the exit code, the duration, the files created or
 modified under the project (path, size, and row count for tabular files), and
@@ -379,7 +496,7 @@ third-party services such as NCBI or Paperclip.
 
 The same hook enforces this for every `mcp__*` call, for shell uploads, and for
 shell calls to NCBI E-utilities (`curl` or `wget` to
-`eutils.ncbi.nlm.nih.gov`, and the `ce-pubmed` search script). It denies
+`eutils.ncbi.nlm.nih.gov`, and the `method-pubmed` search script). It denies
 arguments that contain an SSN, an email address, a US phone number, a
 keyword-anchored record number (MRN, medical record, patient ID, member ID,
 claim number), a keyword-anchored date of birth, or a value in the identifier
@@ -388,9 +505,9 @@ local data file, and `curl`, `wget`, `scp`, or `rsync` uploads of data files.
 PMIDs, DOIs, PMCIDs, author surnames, and ordinary research queries pass
 silently. The skills carry the same rule.
 
-**Identifier index.** Whenever `data_root` is set, in every mode, `ce-setup`
-builds and `ce-data-qa` refreshes the identifier index with
-`scripts/ce-identifier-index`. It reads identifier-like columns under
+**Identifier index.** Whenever `data_root` is set, in every mode, `method-setup`
+builds and `method-data-qa` refreshes the identifier index with
+`scripts/method-identifier-index`. It reads identifier-like columns under
 `data_root` (names; MRN, patient, member, subscriber, and record IDs; claim
 numbers; SSN; date of birth; address; phone; email) and stores only salted
 hashes in `.ce-datascience/identifier-index.local.json`: local, gitignored,
@@ -415,13 +532,13 @@ problem resolves to schema-only. An unexpected internal error blocks only
 calls that mention a data file or an upload; anything else is allowed with a
 one-line warning, so a hook bug never blocks unrelated work.
 
-**Changing the answer.** Re-run `ce-setup`, or edit or delete the
+**Changing the answer.** Re-run `method-setup`, or edit or delete the
 `phi_environment` block in `.ce-datascience/config.local.yaml`.
 
 ### See your workflow
 
 ```text
-/ce-datascience:ce-workflow
+/methodsmith:method-workflow
 ```
 
 Shows every step for your project type and tells you what to do next.
@@ -433,30 +550,30 @@ command without guessing.
 
 ## What can it do?
 
-The examples below use bare `/ce-*` commands for readability. In native Claude
-plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
+The examples below use bare `/method-*` commands for readability. In native Claude
+plugin installs, use `/methodsmith:method-*` unless local aliases are installed.
 
 ### Run an observational study
 
 ```
-/ce-grill "sepsis bundles and 30-day mortality in ICU, target Critical Care Medicine"
-/ce-research-question "sepsis bundles and 30-day mortality in ICU"
-/ce-pubmed
-/ce-evidence-map
-/ce-method-extract
-/ce-checklist-match
-/ce-effect-size
-/ce-power
-/ce-cohort-build
-/ce-data-qa
-/ce-model-strategy
-/ce-plan
-/ce-sap-tabular
-/ce-sprint
-/ce-work
-/ce-verify
-/ce-code-review
-/ce-compound
+/method-grill "sepsis bundles and 30-day mortality in ICU, target Critical Care Medicine"
+/method-question "sepsis bundles and 30-day mortality in ICU"
+/method-pubmed
+/method-evidence-map
+/method-extract
+/method-checklist
+/method-meta-analysis
+/method-power
+/method-cohort
+/method-data-qa
+/method-model-choice
+/method-plan
+/method-sap-workbook
+/method-sprint
+/method-work
+/method-verify
+/method-review
+/method-compound
 ```
 
 ### Keep analysis decisions explicit
@@ -464,16 +581,16 @@ plugin installs, use `/ce-datascience:ce-*` unless local aliases are installed.
 The lifecycle now makes the most consequential analytical assumptions visible
 before code is written or trusted:
 
-- `/ce-data-qa` reconciles row counts and joins, checks keys and type stability,
+- `/method-data-qa` reconciles row counts and joins, checks keys and type stability,
   records missing-data handling, and returns GO, WARN, or NO-GO rather than
   silently substituting fallback data.
-- `/ce-model-strategy` resolves nontrivial model, estimand, dependence, and
+- `/method-model-choice` resolves nontrivial model, estimand, dependence, and
   diagnostic choices after QA and before SAP finalization.
-- `/ce-plan` owns the canonical versioned SAP. Add
-  `/ce-statistical-analysis-plan` only when a complex clinical or observational
+- `/method-plan` owns the canonical versioned SAP. Add
+  `/method-sap` only when a complex clinical or observational
   design needs a claim-to-dataset schema, explicit estimands, and decision evidence; use
-  `/ce-sap-tabular` for the workbook rather than creating a competing plan.
-- `/ce-work` fails loudly at missing or corrupt inputs. `/ce-code-review`
+  `/method-sap-workbook` for the workbook rather than creating a competing plan.
+- `/method-work` fails loudly at missing or corrupt inputs. `/method-review`
   checks integrity and causal timing, and requires censoring-aware,
   decision-aligned time-dependent AUC for dynamic survival models.
 
@@ -482,7 +599,7 @@ the canonical SAP needs linked claims, datasets, variables, analyses,
 diagnostics, outputs, and decision evidence:
 
 ```text
-/ce-statistical-analysis-plan
+/method-sap
 ```
 
 ### Statistical correctness
@@ -490,18 +607,18 @@ diagnostics, outputs, and decision evidence:
 The statistical methods behind the skills and reviewers were audited against
 primary sources. What that means in practice:
 
-- **Estimands first.** SAPs from `/ce-plan` and `/ce-statistical-analysis-plan`
+- **Estimands first.** SAPs from `/method-plan` and `/method-sap`
   state ICH E9(R1) estimands (population, treatment, endpoint, intercurrent
-  events, summary measure), and `ce-sap-drift-detector` flags estimand,
+  events, summary measure), and `method-sap-drift-detector` flags estimand,
   missing-data, and inference drift in code.
-- **Sample size and pooling.** `/ce-power` covers two-proportion,
+- **Sample size and pooling.** `/method-power` covers two-proportion,
   non-inferiority (one-sided 0.025), survival, cluster, and Riley-criteria
-  `pmsampsize` designs. `/ce-effect-size` pools with REML, a Hartung-Knapp CI,
-  and a k-1 df prediction interval. `/ce-trial-design` computes type I error
+  `pmsampsize` designs. `/method-meta-analysis` pools with REML, a Hartung-Knapp CI,
+  and a k-1 df prediction interval. `/method-trial-design` computes type I error
   under non-binding futility without the futility bound.
-- **Tables and registration.** `/ce-table1 --design rct|observational|descriptive`
+- **Tables and registration.** `/method-table1 --design rct|observational|descriptive`
   adds an SMD column for observational comparisons and never shows baseline
-  p-values for randomized trials. `/ce-prereg` blocks a draft SAP, unblinded
+  p-values for randomized trials. `/method-prereg` blocks a draft SAP, unblinded
   data, and late PROSPERO registration.
 - **Reporting routes.** All prediction models route to TRIPOD+AI (it supersedes
   TRIPOD 2015), target trial emulation to the standalone 21-item TARGET
@@ -510,30 +627,30 @@ primary sources. What that means in practice:
   data-leakage, and methods reviewers follow current guidance (for example,
   the calibration hierarchy, M-bias, co-primary endpoints needing no alpha
   correction, and random splits not being leakage by themselves).
-- **Data and validation.** `/ce-phenotype-validate` reweights sensitivity and
+- **Data and validation.** `/method-phenotype` reweights sensitivity and
   specificity for verification bias under algorithm-stratified chart review;
-  `/ce-data-qa` drops mean imputation and LOCF advice; `/ce-pubmed` keeps
+  `/method-data-qa` drops mean imputation and LOCF advice; `/method-pubmed` keeps
   unindexed and non-English records by default.
 
 ### Prepare a manuscript for handoff
 
 ```text
-/ce-manuscript-package
-/ce-manuscript-citations
-/ce-scientific-writing
-/ce-pre-submission-audit
-/ce-review-pack
+/method-submission-package
+/method-citations
+/method-write
+/method-presubmit
+/method-signoff
 ```
 
-Use `/ce-clinical-research-voice`, `/ce-manuscript-section-discipline`, or
-`/ce-scientific-anti-slop` directly only for a focused prose pass. The combined
+Use `/method-voice`, `/method-section-check`, or
+`/method-anti-slop` directly only for a focused prose pass. The combined
 pre-submission audit is the final editing gate; required Methods rationale is
 preserved, while retrospective interpretation remains in Discussion.
 
 ### Numbers locked to raw data
 
 Clinical journals, reviewers, and data-sharing audits ask where each number in a
-paper came from. `/ce-numbers` makes that answer checkable: a rigor signal, not a
+paper came from. `/method-numbers` makes that answer checkable: a rigor signal, not a
 style rule. Analysis code registers aggregates in
 `analysis/numbers/registry.json` (R or Python; counts from 1 to 10 are stored
 suppressed). The manuscript cites them as `{{num:<id>}}`. A gate fails the
@@ -544,7 +661,7 @@ Worked example (synthetic):
 
 ```r
 # analysis/primary_cox.R, committed before it runs
-source("analysis/numbers/ce_numbers.R")
+source("analysis/numbers/method_numbers.R")
 register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918),
                 sources = "data/analytic.parquet", sap_output = "A3_cox_primary.csv")
 ```
@@ -560,8 +677,8 @@ The gate also fails on unknown ids, unsuppressed small cells, entries without a
 SAP output or committed script, and when it found nothing to check. It allows
 years, citation markers, figure, table, and item numbers, dates, quoted
 guideline text, and the doses or units you declare. Table 1, figure captions,
-model cards, and scientific writing cite the registry; `ce-verify`,
-`ce-pre-submission-audit`, and `ce-manuscript-package` run the gate and fail
+model cards, and scientific writing cite the registry; `method-verify`,
+`method-presubmit`, and `method-submission-package` run the gate and fail
 closed. Word manuscripts keep each number as a registry-owned field
 (`ADDIN CE_NUM <id>`, beside Zotero's citation fields);
 the gate fails a field whose text was hand-edited, and a number typed into a
@@ -570,15 +687,15 @@ Word table. It does not read numbers inside images.
 ### Build a prediction model
 
 ```
-/ce-research-question
-/ce-checklist-match
-/ce-cohort-build
-/ce-plan
-/ce-ml-experiment-track
-/ce-optimize
-/ce-work
-/ce-model-card
-/ce-code-review
+/method-question
+/method-checklist
+/method-cohort
+/method-plan
+/method-ml-track
+/method-optimize
+/method-work
+/method-model-card
+/method-review
 ```
 
 ### Work with CLIF consortium data
@@ -586,47 +703,47 @@ Word table. It does not read numbers inside images.
 ```
 # Anchored to clif-icu.com; setup can infer a declared matching family.
 # Use an explicit call when choosing the family for this task:
-/ce-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
+/method-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
 # or
-/ce-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
-/ce-workflow
-/ce-work
+/method-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+/method-workflow
+/method-work
 ```
 
-If a direct call conflicts with an explicitly declared project pair, CE asks
+If a direct call conflicts with an explicitly declared project pair, Methodsmith asks
 which source is intended before it validates categories or generates filters.
 
 ### Analyze omics data
 
 ```
-/ce-bioinfo-qc
-/ce-genome-build
-/ce-plan
-/ce-work
-/ce-code-review
+/method-omics-qc
+/method-genome-build
+/method-plan
+/method-work
+/method-review
 ```
 
 ### Ship a software fix
 
 ```
-/ce-brainstorm
-/ce-plan
-/ce-work
-/ce-code-review
+/method-brainstorm
+/method-plan
+/method-work
+/method-review
 ```
 
 ### Maintain the plugin professionally
 
 ```
-/ce-sessions
-/ce-resolve-pr-feedback
-/ce-release-notes
-/ce-report-bug
+/method-sessions
+/method-resolve-feedback
+/method-release-notes
+/method-report-bug
 ```
 
 These workflow utilities are adapted from the original compound-engineering plugin so the public plugin can support release questions, bug reports, cross-session debugging, and statistical-methodology PR feedback without pulling in unrelated Rails, frontend, Xcode, Slack, product-pulse, dogfood, LFG, or agent-native workflows.
 
-Repository maintenance is reported weekly through [Weekly Branch Maintenance](.github/workflows/branch-maintenance.yml). It identifies remote candidates only; inspect local worktrees and confirm any deletion with `/ce-clean-gone-branches`.
+Repository maintenance is reported weekly through [Weekly Branch Maintenance](.github/workflows/branch-maintenance.yml). It identifies remote candidates only; inspect local worktrees and confirm any deletion with `/method-clean-branches`.
 
 ---
 
@@ -648,26 +765,26 @@ Repository maintenance is reported weekly through [Weekly Branch Maintenance](.g
 | **Custom EHR** | Default | PHI scanning, generic cohort building |
 | **Bioinformatics** | `.fastq`, `.bam`, `Snakefile` | FastQC/MultiQC, genome build, batch-effect screen |
 
-## Upstream CE features now included
+## Upstream Compound Engineering features now included
 
 This fork tracks useful infrastructure and workflow improvements from the original [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) plugin while keeping the product scoped to health data science.
 
 | Area | What changed for data scientists |
 |---|---|
-| Planning and brainstorming | `/ce-plan` keeps SAP/implementation dual mode and now starts summaries with an implementation-independent objective, supports upstream output modes, preserves format on resume, and strengthens synthesis and research routing. `/ce-brainstorm` keeps study-design framing while adding grouped requirements, output-mode handling, and visual communication behavior. |
-| Safe execution and optimization | `/ce-work` verifies that parallel workers can start from a complete tracked snapshot and keeps uncommitted dependencies inline. `/ce-optimize` gives parallel Codex experiments separate directories and requires measurable baselines and outcomes. |
-| Debugging | `/ce-debug` covers correctness and performance investigations, records a baseline before tuning, redacts secrets from captured evidence, and repeats the original measurement after a fix. |
-| PR and review workflow | `/ce-resolve-pr-feedback` carries upstream GraphQL pagination and split-reference handling, then restores statistical methodology and SAP-aware response language. `/ce-code-review` applies path-scoped `CODING_STANDARDS.md` criteria without replacing binding repo instructions. `/ce-commit` and `/ce-commit-push-pr` use a temporary Git index so named-file commits do not absorb unrelated staged or later working-tree changes. |
-| Setup health | `/ce-setup` detects obsolete Codex tool-map blocks and offers bounded cleanup guidance instead of silently rewriting user configuration. |
-| Session history | `/ce-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
-| Distribution and installation | The converter supports current `ce-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
-| Public support | `/ce-release-notes` and `/ce-report-bug` are included as curated support skills for a professional public plugin surface. |
+| Planning and brainstorming | `/method-plan` keeps SAP/implementation dual mode and now starts summaries with an implementation-independent objective, supports upstream output modes, preserves format on resume, and strengthens synthesis and research routing. `/method-brainstorm` keeps study-design framing while adding grouped requirements, output-mode handling, and visual communication behavior. |
+| Safe execution and optimization | `/method-work` verifies that parallel workers can start from a complete tracked snapshot and keeps uncommitted dependencies inline. `/method-optimize` gives parallel Codex experiments separate directories and requires measurable baselines and outcomes. |
+| Debugging | `/method-debug` covers correctness and performance investigations, records a baseline before tuning, redacts secrets from captured evidence, and repeats the original measurement after a fix. |
+| PR and review workflow | `/method-resolve-feedback` carries upstream GraphQL pagination and split-reference handling, then restores statistical methodology and SAP-aware response language. `/method-review` applies path-scoped `CODING_STANDARDS.md` criteria without replacing binding repo instructions. `/method-commit` and `/method-pr` use a temporary Git index so named-file commits do not absorb unrelated staged or later working-tree changes. |
+| Setup health | `/method-setup` detects obsolete Codex tool-map blocks and offers bounded cleanup guidance instead of silently rewriting user configuration. |
+| Session history | `/method-sessions` uses upstream cross-platform discovery improvements for Claude Code, Codex, and Cursor sessions, with repo-root pre-resolution and structured extraction scripts. |
+| Distribution and installation | The converter supports current `method-*.md` agent source files while still parsing legacy `*.agent.md`, respects `CODEX_HOME`, writes Codex roots correctly, and manages `.codex/hooks.json` without clobbering manual hooks. |
+| Public support | `/method-release-notes` and `/method-report-bug` are included as curated support skills for a professional public plugin surface. |
 
 Core-only Compound Engineering skills such as Proof review, demo-reel capture,
 frontend/Rails/iOS helpers, LFG, simplify-code, strategy, promote, and polish
 remain external. When the core Compound Engineering plugin is also installed,
-ce-datascience handoffs can use those skills with a visible fallback; they are
-not packaged as ce-datascience slash skills.
+methodsmith handoffs can use those skills with a visible fallback; they are
+not packaged as methodsmith slash skills.
 
 ## Reviews against 39 reporting checklists
 
@@ -691,27 +808,27 @@ The checklist registry records publication evidence, current versus legacy versi
 ## Also works with Codex, Pi, Gemini, and more
 
 Run generated installs from the repo root (`cd "$CE_DS_REPO"`). Use
-`./plugins/ce-datascience` with the leading `./` for local installs.
+`./plugins/methodsmith` with the leading `./` for local installs.
 
 | Platform | Easiest command |
 |---|---|
-| Claude Code, no checkout | `claude plugin install ce-datascience --marketplace sajor2000/ce-datascience` then `/ce-datascience:ce-setup` |
-| Claude Code, one-command setup | `bash install.sh claude --aliases` then `/ce-setup` |
-| Claude Code, Windows PowerShell | `.\install.ps1 claude -Aliases` then `/ce-setup` |
-| Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/ce-datascience"` then `/ce-datascience:ce-setup` |
-| Claude Code, offline | `claude --plugin-dir /approved/path/ce-datascience.zip` |
-| Claude bare aliases | `bash scripts/install/install-claude-aliases.sh --plugin-dir "$CE_DS_REPO/plugins/ce-datascience" --scope user` |
-| Codex, one-command setup | `bash install.sh codex` then install CE DataScience from `/plugins` |
-| Codex, Windows PowerShell | `.\install.ps1 codex` then install CE DataScience from `/plugins` |
-| Codex native + agent bridge | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"` |
-| Codex offline local marketplace | `bash install-codex-offline.sh --source /approved/path/ce-datascience-codex-local --codex-home "$CODEX_HOME"` |
-| Codex standalone | `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` |
-| Pi | `bun run src/index.ts install ./plugins/ce-datascience --to pi --pi-home "$HOME/.pi/agent"` |
-| Gemini CLI | `bun run src/index.ts install ./plugins/ce-datascience --to gemini --output /path/to/gemini-workspace` |
-| OpenCode | `bun run src/index.ts install ./plugins/ce-datascience --to opencode --output /path/to/workspace` |
-| Kiro | `bun run src/index.ts install ./plugins/ce-datascience --to kiro --output /path/to/kiro-workspace` |
-| Qwen Code | `qwen extensions install sajor2000/ce-datascience:ce-datascience` |
-| All generated targets | `bun run src/index.ts install ./plugins/ce-datascience --to all` |
+| Claude Code, no checkout | `claude plugin install methodsmith --marketplace sajor2000/methodsmith` then `/methodsmith:method-setup` |
+| Claude Code, one-command setup | `bash install.sh claude --aliases` then `/method-setup` |
+| Claude Code, Windows PowerShell | `.\install.ps1 claude -Aliases` then `/method-setup` |
+| Claude Code | `claude --plugin-dir "$CE_DS_REPO/plugins/methodsmith"` then `/methodsmith:method-setup` |
+| Claude Code, offline | `claude --plugin-dir /approved/path/methodsmith.zip` |
+| Claude bare aliases | `bash scripts/install/install-claude-aliases.sh --plugin-dir "$CE_DS_REPO/plugins/methodsmith" --scope user` |
+| Codex, one-command setup | `bash install.sh codex` then install Methodsmith from `/plugins` |
+| Codex, Windows PowerShell | `.\install.ps1 codex` then install Methodsmith from `/plugins` |
+| Codex native + agent bridge | `bun run src/index.ts install ./plugins/methodsmith --to codex --codex-home "$CODEX_HOME"` |
+| Codex offline local marketplace | `bash install-codex-offline.sh --source /approved/path/methodsmith-codex-local --codex-home "$CODEX_HOME"` |
+| Codex standalone | `bun run src/index.ts install ./plugins/methodsmith --to codex --codex-home "$CODEX_HOME" --include-skills` |
+| Pi | `bun run src/index.ts install ./plugins/methodsmith --to pi --pi-home "$HOME/.pi/agent"` |
+| Gemini CLI | `bun run src/index.ts install ./plugins/methodsmith --to gemini --output /path/to/gemini-workspace` |
+| OpenCode | `bun run src/index.ts install ./plugins/methodsmith --to opencode --output /path/to/workspace` |
+| Kiro | `bun run src/index.ts install ./plugins/methodsmith --to kiro --output /path/to/kiro-workspace` |
+| Qwen Code | `qwen extensions install sajor2000/methodsmith:methodsmith` |
+| All generated targets | `bun run src/index.ts install ./plugins/methodsmith --to all` |
 
 Pi also needs `pi install npm:pi-subagents` first.
 Qwen Code uses its native extension installer; it is not a generated `--to qwen` converter target. Cursor, Copilot, and Droid are also native plugin ecosystems, not `--to` targets. `--to all` only writes generated targets detected on the machine and skips native-only plugin ecosystems.
@@ -722,16 +839,16 @@ For a non-default Codex profile, point both Codex and the installer at the same 
 export CODEX_HOME="$HOME/.codex/profiles/research"
 codex plugin marketplace add "$CE_DS_REPO"
 cd "$CE_DS_REPO"
-bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME"
+bun run src/index.ts install ./plugins/methodsmith --to codex --codex-home "$CODEX_HOME"
 CODEX_HOME="$CODEX_HOME" codex
 ```
 
-Inside Codex, run `/plugins`, select this local marketplace, install `ce-datascience`, then restart. Codex's native plugin install provides the skills; the Bun command above adds generated agents until Codex supports plugin-defined agents natively.
+Inside Codex, run `/plugins`, select this local marketplace, install `methodsmith`, then restart. Codex's native plugin install provides the skills; the Bun command above adds generated agents until Codex supports plugin-defined agents natively.
 
 Codex installs have two supported modes:
 
 - **Native plugin + agent bridge (recommended):** install the plugin inside Codex with `/plugins`, then run `install --to codex --codex-home "$CODEX_HOME"` to add generated agents to the same profile.
-- **Standalone generated install:** run `bun run src/index.ts install ./plugins/ce-datascience --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills and agents. Managed `.codex/hooks.json` entries and MCP configuration are written only for plugins that actually declare hooks or servers; CE DataScience currently declares neither.
+- **Standalone generated install:** run `bun run src/index.ts install ./plugins/methodsmith --to codex --codex-home "$CODEX_HOME" --include-skills` when native plugin install is unavailable. This writes generated skills and agents. Managed `.codex/hooks.json` entries and MCP configuration are written only for plugins that actually declare hooks or servers; Methodsmith currently declares neither.
 
 Managed Codex hooks are tagged with plugin metadata so upgrades can replace this plugin's hook entries without deleting manual hooks or hooks owned by another plugin. If an existing `hooks.json` is malformed, the installer backs it up before writing a managed replacement.
 
@@ -740,16 +857,16 @@ See [the setup guide](docs/setup.md) for exact Claude, Codex, OpenCode, Gemini, 
 
 ---
 
-## Keep CE DataScience updated
+## Keep Methodsmith updated
 
 How a new version reaches you depends on the agent.
 
 | Agent | Automatic? | Update by hand |
 |---|---|---|
-| Claude Code | Yes, once auto-update is on for the `ce-datascience-plugin` marketplace. `bash install.sh claude` and `.\install.ps1 claude` turn it on (add `--no-auto-update` or `-NoAutoUpdate` to skip). After a one-line `claude plugin install ... --marketplace sajor2000/ce-datascience`, turn it on yourself: run `/plugin`, open **Marketplaces**, select `ce-datascience-plugin`, and choose **Enable auto-update**. | `claude plugin update ce-datascience@ce-datascience-plugin`, then `/reload-plugins` |
-| Codex | No. Codex has no documented automatic plugin update. | `codex plugin marketplace upgrade ce-datascience-plugin`, then restart Codex. Refresh the generated agents with `bunx ce-datascience-plugin@latest install ce-datascience --to codex` |
-| OpenCode, Pi, Gemini CLI, Kiro | No. These use generated files. | `bunx ce-datascience-plugin@latest install ce-datascience --to opencode` (or `--to pi`, `--to gemini`, `--to kiro`; add `--output <workspace>` for a project install) |
-| Qwen Code | No. | `qwen extensions update ce-datascience` |
+| Claude Code | Yes, once auto-update is on for the `methodsmith` marketplace. `bash install.sh claude` and `.\install.ps1 claude` turn it on (add `--no-auto-update` or `-NoAutoUpdate` to skip). After a one-line `claude plugin install ... --marketplace sajor2000/methodsmith`, turn it on yourself: run `/plugin`, open **Marketplaces**, select `methodsmith`, and choose **Enable auto-update**. | `claude plugin update methodsmith@methodsmith`, then `/reload-plugins` |
+| Codex | No. Codex has no documented automatic plugin update. | `codex plugin marketplace upgrade methodsmith`, then restart Codex. Refresh the generated agents with `bunx methodsmith@latest install methodsmith --to codex` |
+| OpenCode, Pi, Gemini CLI, Kiro | No. These use generated files. | `bunx methodsmith@latest install methodsmith --to opencode` (or `--to pi`, `--to gemini`, `--to kiro`; add `--output <workspace>` for a project install) |
+| Qwen Code | No. | `qwen extensions update methodsmith` |
 | Local checkout or offline package | No. | `git pull` in the checkout (or unpack the new package), then re-run the installer |
 
 With auto-update on, Claude Code checks in the background a few minutes after
@@ -761,7 +878,7 @@ pass `--source`. Setting `DISABLE_AUTOUPDATER=1`, `DISABLE_UPDATES=1`, or
 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` turns the background update off
 unless you also set `FORCE_AUTOUPDATE_PLUGINS=1`.
 
-Not sure which command applies? Run the `ce-update` skill (`/ce-update` in
+Not sure which command applies? Run the `method-update` skill (`/method-update` in
 Claude Code). It prints the exact command for the agent you are in.
 
 ## Your own skills are safe
@@ -771,18 +888,18 @@ created.
 
 - Generated installs (Codex agents, OpenCode, Pi, Gemini CLI, Kiro) record
   every file they write, with a content hash, in
-  `<agent folder>/ce-datascience/owned-files.json`. An update deletes only
+  `<agent folder>/methodsmith/owned-files.json`. An update deletes only
   unchanged files on that list.
 - Files from an install made before ownership tracking are not on the list.
   The installer treats one as the plugin's only when its install record or its
-  exact description shows ce-datascience wrote it, and then moves it to
-  `<agent folder>/ce-datascience/backups/` or `legacy-backup/` instead of
-  deleting it. This includes Codex's retired `~/.codex/ce-datascience/skills`
+  exact description shows methodsmith wrote it, and then moves it to
+  `<agent folder>/methodsmith/backups/` or `legacy-backup/` instead of
+  deleting it. This includes Codex's retired `~/.codex/methodsmith/skills`
   folder.
 - If you edited a file the plugin installed, the update copies your version to
-  `<agent folder>/ce-datascience/backups/<time>/` before replacing it.
+  `<agent folder>/methodsmith/backups/<time>/` before replacing it.
 - A file the plugin did not write is left alone, even when it has the name of
-  an old ce-datascience skill such as `setup` or `skill-creator`. The installer
+  an old methodsmith skill such as `setup` or `skill-creator`. The installer
   prints one line saying it kept the file.
 - Claude Code keeps the plugin in its own plugin cache under `~/.claude/plugins/`,
   replaces that copy on every update, and deletes old versions later, so never
@@ -800,14 +917,14 @@ Keep your own skills here:
 | Kiro | Not covered here | `.kiro/skills/<name>/SKILL.md` |
 | Qwen Code | `~/.qwen/skills/<name>/SKILL.md` | `.qwen/skills/<name>/SKILL.md` |
 
-Do not start your own skill names with `ce-`. That prefix belongs to the
+Do not start your own skill names with `method-`. That prefix belongs to the
 plugin; if a name is already taken by your own skill, the installer skips the
 plugin's version and tells you.
 
 ### Update a source checkout
 
 ```bash
-cd ~/ce-datascience && git pull && bun install
+cd ~/methodsmith && git pull && bun install
 ```
 
 Then restart your coding agent.
@@ -822,19 +939,19 @@ bun run package:corporate
 
 ## Troubleshooting
 
-**"Unknown command" on `/ce-setup`:** Native Claude plugin commands are namespaced. Use `/ce-datascience:ce-setup`, or install the optional local aliases into `.claude/commands`.
+**"Unknown command" on `/method-setup`:** Native Claude plugin commands are namespaced. Use `/methodsmith:method-setup`, or install the optional local aliases into `.claude/commands`.
 
 **`bun install` fails:** Run `bun --version`. If missing: `curl -fsSL https://bun.sh/install | bash`
 
 **Corporate laptop blocks Bun, GitHub CLI, Git, or Quarto:** Use the offline Claude folder/ZIP or Codex local marketplace package. Bun and Git are for source builds; GitHub CLI is only for GitHub helpers; Quarto is only required for Quarto render/manuscript workflows.
 
-**Plugin seems outdated:** `cd ~/ce-datascience && git pull && bun install`, then restart.
+**Plugin seems outdated:** `cd ~/methodsmith && git pull && bun install`, then restart.
 
 **Codex installed into the wrong profile:** Set `CODEX_HOME` on both the `codex` command and the Bun installer. The installer defaults to `$CODEX_HOME` when set, otherwise `~/.codex`.
 
 **Codex hooks stopped loading after a broken edit:** Re-run the standalone install with `--include-skills`. The installer backs up malformed `.codex/hooks.json` before writing managed hook entries.
 
-**CLIF activating on a non-CLIF project:** `/ce-clif --off` disables it for the session.
+**CLIF activating on a non-CLIF project:** `/method-clif --off` disables it for the session.
 
 ---
 
@@ -846,13 +963,17 @@ bun run package:corporate
 | Agents | 55 |
 | Reporting checklists | 39 |
 
-[See every skill and agent](plugins/ce-datascience/README.md)
+[See every skill and agent](plugins/methodsmith/README.md)
 
 ---
 
 ## Built on
 
-Fork of [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to). Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers).
+Methodsmith started as a fork of [Every](https://every.to)'s
+[Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
+plugin by [Kieran Klaassen](https://github.com/kieranklaassen). The
+plan -> work -> review -> compound loop, the review personas, and the
+cross-platform converter come from that work. Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers).
 
 ## License
 

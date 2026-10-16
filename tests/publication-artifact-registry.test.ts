@@ -4,7 +4,7 @@ import path from "path"
 import { load } from "js-yaml"
 
 const repoRoot = path.join(import.meta.dir, "..")
-const table1SkillRoot = path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-table1")
+const table1SkillRoot = path.join(repoRoot, "plugins", "methodsmith", "skills", "method-table1")
 
 type StyleProfiles = {
   profiles: Record<string, {
@@ -18,14 +18,14 @@ type StyleProfiles = {
 }
 
 describe("journal style profiles", () => {
-  test("ships with ce-table1 and keeps README claims aligned", async () => {
+  test("ships with method-table1 and keeps README claims aligned", async () => {
     const profiles = load(
       await fs.readFile(
         path.join(table1SkillRoot, "references", "journal-style-profiles.yaml"),
         "utf8",
       ),
     ) as StyleProfiles
-    const readme = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "README.md"), "utf8")
+    const readme = await fs.readFile(path.join(repoRoot, "plugins", "methodsmith", "README.md"), "utf8")
 
     expect(Object.keys(profiles.profiles).sort()).toEqual(["clinical-standard", "generic-biomedical", "jama"])
     expect(readme).toContain("publication profiles")
@@ -44,13 +44,13 @@ describe("journal style profiles", () => {
     }
   })
 
-  test("ce-figure's clinical-standard figure settings match ce-table1's", async () => {
+  test("method-figure's clinical-standard figure settings match method-table1's", async () => {
     const table1 = load(
       await fs.readFile(path.join(table1SkillRoot, "references", "journal-style-profiles.yaml"), "utf8"),
     ) as StyleProfiles
     const figure = load(
       await fs.readFile(
-        path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-figure", "references", "figure-style-profiles.yaml"),
+        path.join(repoRoot, "plugins", "methodsmith", "skills", "method-figure", "references", "figure-style-profiles.yaml"),
         "utf8",
       ),
     ) as { profiles: Record<string, { figures?: Record<string, unknown> }> }

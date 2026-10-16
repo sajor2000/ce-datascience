@@ -1,0 +1,22 @@
+[
+  {"query": "Commit my changes, push the branch, and open a PR. The diff adds the multiple-imputation sensitivity analysis and updates the SAP.", "should_trigger": true},
+  {"query": "ship it. feature/km-figures is ready, make the PR with a good description", "should_trigger": true},
+  {"query": "Write a PR description for https://github.com/example-lab/readmit/pull/212 — don't commit or push anything, just give me the text.", "should_trigger": true},
+  {"query": "Update the description on my open PR to reflect the new calibration results and the removed subgroup analysis.", "should_trigger": true},
+  {"query": "push and open pr for the cohort fixes, but leave the derived parquet files out of the commit", "should_trigger": true},
+  {"query": "I'm on main with a finished fix to the bootstrap CI code. Get it into a PR properly — branch, commit, push, PR.", "should_trigger": true},
+  {"query": "Create a pull request for this branch; everything's already committed and pushed, there's just no PR yet.", "should_trigger": true},
+  {"query": "I added two more commits to the Table 1 branch. Push them to the existing PR and ask me whether the description should be rewritten.", "should_trigger": true},
+  {"query": "commit + push + PR please. the change produces new forest plots, maybe include a screenshot of the output in the PR if that's possible", "should_trigger": true},
+  {"query": "Open a PR whose description explains why we switched from Cox to Fine-Gray, covering all commits on the branch, not just the last one.", "should_trigger": true},
+  {"query": "Commit my changes locally with a good message — no push, I'm still iterating.", "should_trigger": false},
+  {"query": "Monitor my open PR for 30 minutes and handle CI or reviewer feedback that comes in.", "should_trigger": false},
+  {"query": "Reviewers left comments on my PR about the imputation model; resolve the threads and reply.", "should_trigger": false},
+  {"query": "Review my branch for correctness, SAP drift, and PHI before I open a PR.", "should_trigger": false},
+  {"query": "Draft the release notes summarizing what changed in the latest methodsmith plugin release.", "should_trigger": false},
+  {"query": "File a bug report for the methodsmith plugin: the method-table1 skill crashes on factor columns.", "should_trigger": false},
+  {"query": "Clean up local branches whose remote branches were deleted after merge.", "should_trigger": false},
+  {"query": "Write the cover letter to accompany our manuscript submission to JAMA Network Open.", "should_trigger": false},
+  {"query": "Create an isolated worktree attached to PR #212 so I can test it locally.", "should_trigger": false},
+  {"query": "Write the response to reviewers for the manuscript revision describing what changed in the analysis.", "should_trigger": false}
+]

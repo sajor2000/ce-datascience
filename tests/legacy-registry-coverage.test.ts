@@ -64,13 +64,13 @@ function deletedPaths(pathspec: string): string[] {
  * or agent whose file was recreated under the same name) as a phantom orphan.
  */
 function componentStillExists(name: string): boolean {
-  const skill = Bun.file(path.join(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))
-  const agent = Bun.file(path.join(repoRoot, "plugins/ce-datascience/agents", `${name}.md`))
+  const skill = Bun.file(path.join(repoRoot, "plugins/methodsmith/skills", name, "SKILL.md"))
+  const agent = Bun.file(path.join(repoRoot, "plugins/methodsmith/agents", `${name}.md`))
   return skill.size + agent.size > 0
 }
 
 function registeredNames(): Set<string> {
-  const extras = EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN["ce-datascience"] ?? {}
+  const extras = EXTRA_LEGACY_ARTIFACTS_BY_PLUGIN["methodsmith"] ?? {}
   return new Set([
     ...STALE_SKILL_DIRS,
     ...STALE_AGENT_NAMES,
@@ -83,7 +83,7 @@ function registeredNames(): Set<string> {
 describe("cleanup registry coverage", () => {
   test("every deleted skill is registered for cleanup or exempted", () => {
     const registered = registeredNames()
-    const missing = deletedPaths("plugins/ce-datascience/skills/*/SKILL.md")
+    const missing = deletedPaths("plugins/methodsmith/skills/*/SKILL.md")
       .map((p) => p.split("/").at(-2))
       .filter((name): name is string => Boolean(name))
       .filter(
@@ -98,7 +98,7 @@ describe("cleanup registry coverage", () => {
 
   test("every deleted agent is registered for cleanup or exempted", () => {
     const registered = registeredNames()
-    const missing = deletedPaths("plugins/ce-datascience/agents/*.md")
+    const missing = deletedPaths("plugins/methodsmith/agents/*.md")
       .map((p) => path.basename(p).replace(/\.agent\.md$|\.md$/, ""))
       .filter(Boolean)
       .filter(
@@ -115,8 +115,8 @@ describe("cleanup registry coverage", () => {
     // An exemption for a component that still ships would silently disable
     // coverage for it if it were later removed.
     for (const name of NEVER_RELEASED_EXEMPTIONS) {
-      const skill = Bun.file(path.join(repoRoot, "plugins/ce-datascience/skills", name, "SKILL.md"))
-      const agent = Bun.file(path.join(repoRoot, "plugins/ce-datascience/agents", `${name}.md`))
+      const skill = Bun.file(path.join(repoRoot, "plugins/methodsmith/skills", name, "SKILL.md"))
+      const agent = Bun.file(path.join(repoRoot, "plugins/methodsmith/agents", `${name}.md`))
       expect(skill.size + agent.size).toBe(0)
     }
   })

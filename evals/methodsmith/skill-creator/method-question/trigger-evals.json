@@ -1,0 +1,22 @@
+[
+  {"query": "Turn this into a proper PICO with FINER scores: 'early mobilization in mechanically ventilated adults and ICU-acquired weakness'. I need the YAML so we can search PubMed next.", "should_trigger": true},
+  {"query": "my question is kinda vague - 'do sepsis bundles help?' - can you tighten it up into population/exposure/comparator/outcome and suggest a design before i do the lit search", "should_trigger": true},
+  {"query": "Harden the survivor idea from docs/ideation/2026-09-12-ideation-doc.md (#2: deprescribing in SNF residents) into a structured research question with a suggested PubMed query.", "should_trigger": true},
+  {"query": "method-pubmed returned 4,800 hits with no MeSH alignment for 'AI sepsis outcomes'. Help me narrow the actual research question first.", "should_trigger": true},
+  {"query": "Is this feasible/novel/relevant enough to pursue? 'Statin initiation after age 75 and incident dementia in Medicare.' Score it FINER and suggest the study design and likely reporting checklist.", "should_trigger": true},
+  {"query": "pico + hypothesis for: does a pharmacist-led anticoagulation clinic reduce major bleeding vs usual care in AF patients on DOACs? write analysis/research-question.yaml", "should_trigger": true},
+  {"query": "We want to emulate a target trial of SGLT2i vs DPP-4i on AKI in older adults. Define eligibility, treatment strategies, time zero, follow-up, and outcome ascertainment as a structured question.", "should_trigger": true},
+  {"query": "Before we pick a checklist, I need the design nailed down for: 'predicting 30-day readmission after heart failure discharge using EHR vitals and labs'. Frame it properly.", "should_trigger": true},
+  {"query": "new fellow here, PI said 'figure out the research question for the delirium project' - we think haloperidol vs no antipsychotic and ICU delirium duration? help me structure it", "should_trigger": true},
+  {"query": "Structure a diagnostic-accuracy question: point-of-care lactate vs lab lactate for sepsis triage in the ED; I need PICO, design suggestion, and a PubMed query string.", "should_trigger": true},
+  {"query": "Brainstorm and write a full requirements document for our sepsis bundle study: scope, rationale, stakeholders, open assumptions.", "should_trigger": false},
+  {"query": "Generate 10 ranked research ideas from our ICU EHR data and recent literature on delirium.", "should_trigger": false},
+  {"query": "Run the PubMed query from analysis/research-question.yaml with a cohort filter, last 10 years, max 50.", "should_trigger": false},
+  {"query": "Which reporting checklist applies to our retrospective claims cohort with target trial emulation framing? Pre-fill from the research question YAML.", "should_trigger": false},
+  {"query": "Write the SAP for the GLP-1RA fracture study: estimands, models, missing data, sensitivity analyses.", "should_trigger": false},
+  {"query": "Compute sample size for detecting HR 0.80 for hip fracture with 5-year follow-up and 2% annual event rate.", "should_trigger": false},
+  {"query": "Define the cohort with inclusion/exclusion criteria, index date, and ICD/NDC concept sets in OMOP SQL with waterfall counts.", "should_trigger": false},
+  {"query": "Build a claim-focused evidence map with full-text verification for our Introduction's statements about bundle mortality benefit.", "should_trigger": false},
+  {"query": "Register our locked SAP for the target trial emulation on OSF.", "should_trigger": false},
+  {"query": "Choose the statistical model for clustered repeated delirium assessments across ICUs: GEE vs mixed effects vs ordinal.", "should_trigger": false}
+]

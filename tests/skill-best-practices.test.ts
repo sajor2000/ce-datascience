@@ -6,7 +6,7 @@ import { load } from "js-yaml"
 // Checkable rules from Anthropic's skill authoring best practices:
 // https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 const MAX_NAME_CHARS = 64
 const MAX_DESCRIPTION_CHARS = 1024
 const MAX_LISTED_DESCRIPTION_CHARS = 300
@@ -166,7 +166,7 @@ describe("skill bodies follow Anthropic progressive-disclosure rules", () => {
 describe("skill cross-references resolve", () => {
   const pluginRoot = path.join(skillsRoot, "..")
   // Optional external skills (guarded with "when installed"), the plugin's own name, and a name skills say never to dispatch.
-  const EXTERNAL_NAMES = new Set(["ce-proof", "ce-demo-reel", "ce-datascience", "ce-datascience-plugin", "ce-clif-reviewer"])
+  const EXTERNAL_NAMES = new Set(["ce-proof", "ce-demo-reel", "methodsmith", "methodsmith", "method-clif-reviewer"])
 
   test("backtick references/, assets/, and scripts/ paths exist inside the skill", async () => {
     const missing: string[] = []
@@ -183,7 +183,7 @@ describe("skill cross-references resolve", () => {
     expect(missing).toEqual([])
   })
 
-  test("backtick ce-* names refer to a shipped skill or agent", async () => {
+  test("backtick method-* names refer to a shipped skill or agent", async () => {
     const skillNames = new Set(skills.map((s) => s.name))
     const agentNames = new Set(
       (await fs.readdir(path.join(pluginRoot, "agents"))).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)),
@@ -192,7 +192,7 @@ describe("skill cross-references resolve", () => {
     for (const skill of skills) {
       for (const file of [path.join(skill.dir, "SKILL.md"), ...(await markdownFiles(skill.dir))]) {
         const content = await fs.readFile(file, "utf8")
-        for (const [, name] of content.matchAll(/`(ce-[a-z0-9-]*[a-z0-9])`/g)) {
+        for (const [, name] of content.matchAll(/`(method-[a-z0-9-]*[a-z0-9])`/g)) {
           if (!skillNames.has(name) && !agentNames.has(name) && !EXTERNAL_NAMES.has(name)) {
             unknown.push(`${path.relative(skillsRoot, file)}: ${name}`)
           }

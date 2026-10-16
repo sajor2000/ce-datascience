@@ -6,7 +6,7 @@ import path from "node:path"
 
 // Runs the shipped rpact example when rpact 4.4.0 and jsonlite are installed
 // locally; CI has no R, so r-script-guards.test.ts pins the same fixes.
-const refs = path.join(process.cwd(), "plugins", "ce-datascience", "skills", "ce-trial-design", "references")
+const refs = path.join(process.cwd(), "plugins", "methodsmith", "skills", "method-trial-design", "references")
 const hasRpact =
   spawnSync("Rscript", ["-e", "quit(status = !(requireNamespace('jsonlite', quietly = TRUE) && requireNamespace('rpact', quietly = TRUE) && packageVersion('rpact') == '4.4.0'))"]).status === 0
 
@@ -20,7 +20,7 @@ function maxInformation(shift: (spec: any) => void): string[] {
   return readFileSync(path.join(dir, "engine-results.csv"), "utf8").trim().split("\n").slice(1).map((row) => row.split(",")[7])
 }
 
-describe.skipIf(!hasRpact)("ce-trial-design engine-run example", () => {
+describe.skipIf(!hasRpact)("method-trial-design engine-run example", () => {
   test("sizes against the declared null, in either direction", () => {
     const upper = maxInformation((spec) => {
       spec.endpoint.null = 0.5

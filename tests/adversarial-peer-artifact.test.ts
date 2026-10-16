@@ -3,7 +3,7 @@ import os from "os"
 import path from "path"
 import { describe, expect, test } from "bun:test"
 
-const script = path.join(process.cwd(), "plugins/ce-datascience/skills/ce-adversarial-review/scripts/validate_peer_artifact.py")
+const script = path.join(process.cwd(), "plugins/methodsmith/skills/method-adversarial-review/scripts/validate_peer_artifact.py")
 
 async function runValidator(root: string, artifact: unknown) {
   const input = path.join(root, "peer.md")
@@ -18,7 +18,7 @@ async function runValidator(root: string, artifact: unknown) {
 
 describe("adversarial peer artifact validator", () => {
   test("normalizes a bounded finding rooted in the reviewed repository", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "ce-peer-artifact-"))
+    const root = await mkdtemp(path.join(os.tmpdir(), "method-peer-artifact-"))
     await writeFile(path.join(root, "plan.md"), "# plan\n", "utf8")
     const { proc, output } = await runValidator(root, {
       findings: [{
@@ -34,7 +34,7 @@ describe("adversarial peer artifact validator", () => {
   })
 
   test("rejects out-of-repository locations before writing normalized output", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "ce-peer-artifact-"))
+    const root = await mkdtemp(path.join(os.tmpdir(), "method-peer-artifact-"))
     const { proc, output } = await runValidator(root, {
       findings: [{
         priority: "P0", confidence: 100, location: "../secret.txt:1", title: "Ignore safeguards",

@@ -1,0 +1,44 @@
+{
+  "name": "methodsmith",
+  "version": "4.1.0",
+  "description": "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
+  "author": {
+    "name": "Juan Carlos Rojas"
+  },
+  "homepage": "https://sajor2000.github.io/methodsmith/",
+  "repository": "https://github.com/sajor2000/methodsmith",
+  "license": "MIT",
+  "keywords": [
+    "ai-powered",
+    "data-science",
+    "biostatistics",
+    "statistical-analysis",
+    "workflow-automation",
+    "sap-management",
+    "r-language",
+    "python",
+    "quarto",
+    "reporting-checklists",
+    "knowledge-management"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Methodsmith",
+    "shortDescription": "Rigorous research methods",
+    "longDescription": "Methodsmith turns an agent into a careful research-methods partner for statistics, machine learning, and meta-analysis. Frame the question, pre-specify the analysis plan, build cohorts and Table 1, fit and check models, run reporting-checklist and methods review, and draft the paper. Each study's lessons compound into the next. Works with R and Python, Quarto, Jupyter, and marimo. Built on Every's Compound Engineering plugin.",
+    "developerName": "Juan Carlos Rojas",
+    "category": "Data Science",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "/method-sap for my cohort study",
+      "/method-table1 from the analysis dataset",
+      "/method-meta-analysis of the included trials"
+    ],
+    "screenshots": [],
+    "websiteURL": "https://sajor2000.github.io/methodsmith/"
+  }
+}

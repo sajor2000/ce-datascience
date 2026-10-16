@@ -6,9 +6,9 @@ import { load } from "js-yaml"
 const referencesRoot = path.join(
   process.cwd(),
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-code-review",
+  "method-review",
   "references",
 )
 
@@ -172,9 +172,9 @@ describe("reporting guideline registry", () => {
       path.join(
         process.cwd(),
         "plugins",
-        "ce-datascience",
+        "methodsmith",
         "skills",
-        "ce-checklist-match",
+        "method-checklist",
         "references",
         "routing-map.md",
       ),
@@ -193,9 +193,9 @@ describe("reporting guideline registry", () => {
       path.join(
         process.cwd(),
         "plugins",
-        "ce-datascience",
+        "methodsmith",
         "skills",
-        "ce-research-question",
+        "method-question",
         "references",
         "checklist-routing-hints.md",
       ),

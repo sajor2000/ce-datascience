@@ -10,7 +10,7 @@ import type {
 
 const RELEASE_COMPONENTS: ReleaseComponent[] = [
   "cli",
-  "ce-datascience",
+  "methodsmith",
   "coding-tutor",
   "marketplace",
   "cursor-marketplace",
@@ -22,8 +22,8 @@ const FILE_COMPONENT_MAP: Array<{ component: ReleaseComponent; prefixes: string[
     prefixes: ["src/", "package.json", "bun.lock", "tests/cli.test.ts"],
   },
   {
-    component: "ce-datascience",
-    prefixes: ["plugins/ce-datascience/"],
+    component: "methodsmith",
+    prefixes: ["plugins/methodsmith/"],
   },
   {
     component: "coding-tutor",
@@ -41,8 +41,8 @@ const FILE_COMPONENT_MAP: Array<{ component: ReleaseComponent; prefixes: string[
 
 const SCOPES_TO_COMPONENTS: Record<string, ReleaseComponent> = {
   cli: "cli",
-  compound: "ce-datascience",
-  "compound-engineering": "ce-datascience",
+  compound: "methodsmith",
+  "compound-engineering": "methodsmith",
   marketplace: "marketplace",
   "cursor-marketplace": "cursor-marketplace",
 }
@@ -176,14 +176,14 @@ export function bumpVersion(version: string, bump: BumpLevel | null): string | n
 
 export async function loadCurrentVersions(cwd = process.cwd()): Promise<VersionSources> {
   const root = await readJson<RootPackageJson>(`${cwd}/package.json`)
-  const ce = await readJson<PluginManifest>(`${cwd}/plugins/ce-datascience/.claude-plugin/plugin.json`)
+  const ce = await readJson<PluginManifest>(`${cwd}/plugins/methodsmith/.claude-plugin/plugin.json`)
   const codingTutor = await readJson<PluginManifest>(`${cwd}/plugins/coding-tutor/.claude-plugin/plugin.json`)
   const marketplace = await readJson<MarketplaceManifest>(`${cwd}/.claude-plugin/marketplace.json`)
   const cursorMarketplace = await readJson<MarketplaceManifest>(`${cwd}/.cursor-plugin/marketplace.json`)
 
   return {
     cli: root.version,
-    "ce-datascience": ce.version,
+    "methodsmith": ce.version,
     "coding-tutor": codingTutor.version,
     marketplace: marketplace.metadata.version,
     "cursor-marketplace": cursorMarketplace.metadata.version,

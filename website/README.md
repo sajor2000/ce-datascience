@@ -1,7 +1,7 @@
 # Documentation site
 
 The site publishes `docs/setup.md` and the Docusaurus landing page to
-<https://sajor2000.github.io/ce-datascience/>.
+<https://sajor2000.github.io/methodsmith/>.
 
 ```bash
 cd website

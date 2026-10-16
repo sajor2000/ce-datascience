@@ -9,8 +9,8 @@ import { classifyCodexLegacyPromptOwnership, cleanupStaleSkillDirs, isKnownPlugi
 import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
-const MANAGED_START_MARKER = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
-const MANAGED_END_MARKER = "# END CE DataScience plugin MCP"
+const MANAGED_START_MARKER = "# BEGIN Methodsmith plugin MCP -- do not edit this block"
+const MANAGED_END_MARKER = "# END Methodsmith plugin MCP"
 const PREV_START_MARKER = "# BEGIN compound-plugin Claude Code MCP"
 const PREV_END_MARKER = "# END compound-plugin Claude Code MCP"
 const PREV_CE_START_MARKER = "# BEGIN Compound Engineering plugin MCP -- do not edit this block"
@@ -74,7 +74,7 @@ export async function writeCodexBundle(
   // `--to codex`) treat skills installed via Codex's native plugin flow as
   // "current" for cleanup purposes. Without this, `cleanupLegacyAgentSkillDirs`
   // would see an empty `currentSkills` set and sweep allow-listed names such
-  // as `ce-plan` out of `.codex/skills/<plugin>/` into legacy-backup on every
+  // as `method-plan` out of `.codex/skills/<plugin>/` into legacy-backup on every
   // re-run of `install --to codex`.
   const currentSkills = Array.from(new Set([
     ...bundle.skillDirs.map((skill) => sanitizePathName(skill.name)),
@@ -356,8 +356,8 @@ async function cleanupKnownLegacyCodexArtifacts(codexRoot: string, bundle: Codex
     // Ownership gate: `~/.codex/prompts/` is a shared directory across plugins
     // and user-authored prompts. A filename match against the legacy allow-list
     // is not a strong enough signal to move a file — a user who creates
-    // `~/.codex/prompts/ce-plan.md` for their own workflow would otherwise see
-    // it swept into `ce-datascience/legacy-backup/` on every install.
+    // `~/.codex/prompts/method-plan.md` for their own workflow would otherwise see
+    // it swept into `methodsmith/legacy-backup/` on every install.
     // Mirror the body + frontmatter check used by the standalone
     // `cleanupStalePrompts` helper. "unknown" (no prompt fingerprint on record,
     // e.g. fully-retired wrappers like `reproduce-bug.md`) falls through to
@@ -378,6 +378,7 @@ async function cleanupLegacyAgentSkillDirs(
   const legacySkillNames = new Set<string>()
   for (const agent of bundle.agents ?? []) {
     legacySkillNames.add(sanitizePathName(agent.name))
+    // rebrand:keep-start -- legacy ce-* semantics (see scripts/rebrand)
     // Cross-layout cleanup for plugins with nested agent directories: if the
     // Codex-built agent name contains an embedded `-ce-` (e.g. `review-ce-foo`
     // for `agents/review/ce-foo.md`), the same logical agent may have
@@ -390,6 +391,7 @@ async function cleanupLegacyAgentSkillDirs(
       const finalSegment = agent.name.split("-ce-").pop()
       if (finalSegment) legacySkillNames.add(`ce-${sanitizePathName(finalSegment)}`)
     }
+    // rebrand:keep-end
   }
   for (const name of getLegacyCodexArtifacts({
     pluginName,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Regenerate src/data/shipped-description-fingerprints.json: a short hash of
- * every frontmatter `description:` that any ce-datascience skill, agent, or
+ * every frontmatter `description:` that any methodsmith skill, agent, or
  * command has shipped, read from git history. Legacy cleanup uses it as the
  * second ownership signal for files from installs that predate the install
  * ledger, so an old plugin file is recognized even after its description was
@@ -18,11 +18,17 @@ import { descriptionFingerprint } from "../../src/utils/legacy-cleanup"
 const repoRoot = path.join(import.meta.dir, "..", "..")
 const outputPath = path.join(repoRoot, "src", "data", "shipped-description-fingerprints.json")
 const pathspecs = [
-  "plugins/ce-datascience/skills/*/SKILL.md",
-  "plugins/ce-datascience/agents/*.md",
-  "plugins/ce-datascience/agents/*/*.md",
-  "plugins/ce-datascience/commands/*.md",
-  "plugins/ce-datascience/commands/*/*.md",
+  "plugins/methodsmith/skills/*/SKILL.md",
+  "plugins/methodsmith/agents/*.md",
+  "plugins/methodsmith/agents/*/*.md",
+  "plugins/methodsmith/commands/*.md",
+  "plugins/methodsmith/commands/*/*.md",
+  // Releases before 5.0 shipped from the pre-rebrand plugin folder.
+  "plugins/ce-datascience/skills/*/SKILL.md", // rebrand:keep
+  "plugins/ce-datascience/agents/*.md", // rebrand:keep
+  "plugins/ce-datascience/agents/*/*.md", // rebrand:keep
+  "plugins/ce-datascience/commands/*.md", // rebrand:keep
+  "plugins/ce-datascience/commands/*/*.md", // rebrand:keep
 ]
 
 function git(args: string[], input?: string): Buffer {

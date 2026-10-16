@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Open an auditable analysis sprint for SAP-5.1 and SAP-5.2 with Dr. Patel as the named reviewer",
+    "should_trigger": true
+  },
+  {
+    "query": "method-sprint start sprint-03 reviewer=mk scope=SAP-3.1,SAP-3.2",
+    "should_trigger": true
+  },
+  {
+    "query": "we're done with the Table 2 and KM outputs -- close the sprint and run the audit against planned outputs",
+    "should_trigger": true
+  },
+  {
+    "query": "where am I in the current sprint? show status and any audit findings pending signoff",
+    "should_trigger": true
+  },
+  {
+    "query": "Our biostat core needs bounded, signed-off chunks of SAP execution. Set up the first sprint with planned outputs from 02-outputs.csv",
+    "should_trigger": true
+  },
+  {
+    "query": "close out sprint-01: check planned vs actual outputs, out-of-scope edits, and write the summary for the reviewer",
+    "should_trigger": true
+  },
+  {
+    "query": "start a new sprint scoped to table:T1,T3 -- reviewer is jcr. data wave is locked",
+    "should_trigger": true
+  },
+  {
+    "query": "I need human signoff gates around the analysis work for this regulated study; open a sprint with entry criteria checks",
+    "should_trigger": true
+  },
+  {
+    "query": "jcr just signed the sprint-02 summary, record the sign-off in the sprint log",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you check whether we can open the next sprint -- is the previous one signed off and is the data wave still locked?",
+    "should_trigger": true
+  },
+  {
+    "query": "Execute the plan in docs/plans/2026-09-aki-plan.md and produce the outputs",
+    "should_trigger": false
+  },
+  {
+    "query": "Build the PI review pack and validate the signoff ledger for the manuscript package",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate the tabular SAP workbook with Overview, Outputs and Master Variables from analysis/sap.md",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a quick verification of sample size, leakage, and PHI on the outputs I just generated",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the statistical analysis plan for the readmission study",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this PR for the mortality model code before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "Show me the ordered lifecycle and the next skill to run for this observational study",
+    "should_trigger": false
+  },
+  {
+    "query": "Register a new data wave from the August extract with row counts and hash",
+    "should_trigger": false
+  },
+  {
+    "query": "Plan the next two weeks of engineering work for the converter CLI",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a handoff note so another analyst can resume the KM figure work",
+    "should_trigger": false
+  }
+]

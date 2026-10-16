@@ -7,9 +7,9 @@ const tempRoots: string[] = []
 const scriptPath = path.join(
   process.cwd(),
   "plugins",
-  "ce-datascience",
+  "methodsmith",
   "skills",
-  "ce-sas-stata-assess",
+  "method-sas-stata",
   "scripts",
   "assess_sas_stata.py",
 )

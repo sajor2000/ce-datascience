@@ -3,6 +3,7 @@ import fs from "fs/promises"
 import path from "path"
 import { ensureDir, isSafeManagedPath, pathExists, writeJson } from "../utils/files"
 import { isKnownPluginArtifact } from "../utils/legacy-cleanup"
+import { retirePreRenameInstall } from "./pre-rename-install"
 
 export const OWNERSHIP_LEDGER_FILE = "owned-files.json"
 
@@ -97,6 +98,8 @@ export class InstallOwnership {
   readonly hasLedger: boolean
 
   static async open(rootDir: string, managedDir: string, pluginName: string): Promise<InstallOwnership> {
+    // First methodsmith install over a pre-5.0 install: back up the old plugin files.
+    await retirePreRenameInstall(rootDir, managedDir, pluginName)
     return new InstallOwnership(rootDir, managedDir, pluginName, await readOwnershipLedger(managedDir, rootDir, pluginName))
   }
 
@@ -129,7 +132,7 @@ export class InstallOwnership {
       return true
     }
     console.warn(
-      `Skipped ${absolutePath}: it already exists and ce-datascience did not create it. Rename it to also get the plugin's version.`,
+      `Skipped ${absolutePath}: it already exists and methodsmith did not create it. Rename it to also get the plugin's version.`,
     )
     return false
   }
@@ -206,7 +209,7 @@ export class InstallOwnership {
 
     if (this.backedUp.length > 0) {
       console.warn(
-        `Backed up ${this.backedUp.length} item(s) to ${path.join(this.managedDir, "backups", this.stamp)}: plugin files you edited, or plugin folders from an install made before ce-datascience tracked file ownership. Copy back anything you still need.`,
+        `Backed up ${this.backedUp.length} item(s) to ${path.join(this.managedDir, "backups", this.stamp)}: plugin files you edited, or plugin folders from an install made before methodsmith tracked file ownership. Copy back anything you still need.`,
       )
     }
   }

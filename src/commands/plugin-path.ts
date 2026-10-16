@@ -12,7 +12,7 @@ export default defineCommand({
     plugin: {
       type: "positional",
       required: true,
-      description: "Plugin name (e.g. ce-datascience)",
+      description: "Plugin name (e.g. methodsmith)",
     },
     branch: {
       type: "string",
@@ -41,7 +41,7 @@ export default defineCommand({
       .replace(/\//g, "~")
       .replace(/[^a-zA-Z0-9._~-]/g, (ch) => `%${ch.charCodeAt(0).toString(16).padStart(2, "0")}`)
     const dirName = `${pluginName}-${sanitized}`
-    const cacheRoot = path.join(os.homedir(), ".cache", "ce-datascience", "branches")
+    const cacheRoot = path.join(os.homedir(), ".cache", "methodsmith", "branches")
     await fs.mkdir(cacheRoot, { recursive: true })
     const targetDir = path.join(cacheRoot, dirName)
     const source = resolveGitHubSource()
@@ -113,5 +113,5 @@ async function fetchAndCheckout(repoDir: string, branch: string): Promise<void> 
 function resolveGitHubSource(): string {
   const override = process.env.COMPOUND_PLUGIN_GITHUB_SOURCE
   if (override && override.trim()) return override.trim()
-  return "https://github.com/sajor2000/ce-datascience"
+  return "https://github.com/sajor2000/methodsmith"
 }

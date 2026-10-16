@@ -1,0 +1,42 @@
+{
+  "skill_name": "method-update",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/method-update -- is my methodsmith plugin current? I installed it from the marketplace a couple months ago.",
+      "expected_output": "Compares the loaded marketplace-cache version against upstream plugin.json on main and either confirms it is up to date or gives the claude plugin update command with the derived marketplace name.",
+      "files": [],
+      "expectations": [
+        "Compares the currently loaded version (from the skill directory path) with the upstream plugins/methodsmith/.claude-plugin/plugin.json version on main, not a release tag",
+        "If versions match, reports 'methodsmith vX is installed and up to date'",
+        "If stale, recommends 'claude plugin update methodsmith@<marketplace-name>' with the marketplace name derived from the path, then restart",
+        "Does not modify files under ~/.claude/plugins/cache/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/method-update -- I'm in Codex. I installed Methodsmith with bash install.sh codex last month. How do I get the latest version?",
+      "expected_output": "Recognizes a non-Claude harness, does not claim a version comparison, and gives the Codex marketplace upgrade command plus the bunx command that refreshes the generated agents.",
+      "files": [],
+      "expectations": [
+        "Does not claim to compare installed and upstream versions, since Codex does not expose the installed version to the skill",
+        "Gives 'codex plugin marketplace upgrade methodsmith' and says to restart Codex",
+        "Gives 'bunx methodsmith@latest install methodsmith --to codex' for the generated agents",
+        "States that updating keeps the user's own skills and does not tell them to move or delete anything"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/method-update -- I still have the plugin from before it was renamed to Methodsmith (the old ce datascience one) in Claude Code and OpenCode. What do I run to switch, and will I lose my own skills?",
+      "expected_output": "Runs the bundled read-only detector, shows the exact per-harness switch commands it prints and the old -> new command table, says old plugin files are backed up rather than deleted and the user's own skills stay, and does not run the commands itself.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/detect-pre-rename-install.sh through the SKILL_DIR anchor before the version check",
+        "Shows the Claude Code switch: uninstall the old plugin id, remove the old marketplace, add sajor2000/methodsmith, install methodsmith@methodsmith",
+        "Shows 'bunx methodsmith@latest install methodsmith --to opencode' for OpenCode",
+        "States that the new install moves old plugin files to backups and leaves the user's own skills in place",
+        "Does not run the uninstall or install commands for the user"
+      ]
+    }
+  ]
+}

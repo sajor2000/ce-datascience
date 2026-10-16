@@ -4,7 +4,7 @@ import path from "path"
 import { load } from "js-yaml"
 
 const repoRoot = path.join(import.meta.dir, "..")
-const checklistRoot = path.join(repoRoot, "plugins", "ce-datascience", "skills", "ce-code-review", "references")
+const checklistRoot = path.join(repoRoot, "plugins", "methodsmith", "skills", "method-review", "references")
 const registryPath = path.join(checklistRoot, "guideline-registry.yaml")
 
 type GuidelineRegistry = {
@@ -40,8 +40,8 @@ describe("reporting guideline registry", () => {
 
   test("public docs and reviewer descriptions agree on the registry count", async () => {
     const rootReadme = await fs.readFile(path.join(repoRoot, "README.md"), "utf8")
-    const pluginReadme = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "README.md"), "utf8")
-    const reviewer = await fs.readFile(path.join(repoRoot, "plugins", "ce-datascience", "agents", "ce-reporting-checklist-reviewer.md"), "utf8")
+    const pluginReadme = await fs.readFile(path.join(repoRoot, "plugins", "methodsmith", "README.md"), "utf8")
+    const reviewer = await fs.readFile(path.join(repoRoot, "plugins", "methodsmith", "agents", "method-reporting-checklist-reviewer.md"), "utf8")
     const routingMap = await fs.readFile(path.join(checklistRoot, "guideline-routing.md"), "utf8")
 
     const count = Object.keys((load(await fs.readFile(registryPath, "utf8")) as GuidelineRegistry).guidelines).length

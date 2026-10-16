@@ -3,7 +3,7 @@ import { promises as fs } from "fs"
 import path from "path"
 
 const repoRoot = path.join(import.meta.dir, "..")
-const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+const pluginRoot = path.join(repoRoot, "plugins", "methodsmith")
 const skillsRoot = path.join(pluginRoot, "skills")
 
 async function readTree(root: string): Promise<string> {
@@ -29,8 +29,8 @@ describe("skill routing contracts", () => {
 
   test("keeps literature acquisition lawful and specialist-owned", async () => {
     const [literature, pubmed, publicDocs, pluginContent] = await Promise.all([
-      fs.readFile(path.join(skillsRoot, "ce-literature-search", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillsRoot, "ce-pubmed", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillsRoot, "method-lit-search", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillsRoot, "method-pubmed", "SKILL.md"), "utf8"),
       Promise.all([
         fs.readFile(path.join(repoRoot, "README.md"), "utf8"),
         fs.readFile(path.join(pluginRoot, "README.md"), "utf8"),
@@ -39,25 +39,25 @@ describe("skill routing contracts", () => {
       readTree(pluginRoot),
     ])
 
-    expect(literature).toContain("Load `ce-pubmed`")
-    expect(literature).toContain("Load `ce-evidence-map`")
+    expect(literature).toContain("Load `method-pubmed`")
+    expect(literature).toContain("Load `method-evidence-map`")
     expect(pubmed).toContain("canonical biomedical metadata")
     expect(`${publicDocs}\n${pluginContent}`).not.toMatch(/PyPaperBot|SciHub/i)
   })
 
   test("keeps one SAP owner and no retired CE MCP data-lock commands", async () => {
     const [plan, specialist, rstats, pluginContent] = await Promise.all([
-      fs.readFile(path.join(skillsRoot, "ce-plan", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillsRoot, "ce-statistical-analysis-plan", "SKILL.md"), "utf8"),
-      fs.readFile(path.join(skillsRoot, "ce-rstats", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillsRoot, "method-plan", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillsRoot, "method-sap", "SKILL.md"), "utf8"),
+      fs.readFile(path.join(skillsRoot, "method-r", "SKILL.md"), "utf8"),
       readTree(pluginRoot),
     ])
 
     expect(plan).toContain("owns the canonical versioned SAP")
     expect(specialist).toContain("Do not do:** Create a competing SAP")
     expect(rstats).toContain("Use the shared R workflow below")
-    expect(pluginContent).not.toContain("ce-plan` skill or `ce-statistical-analysis-plan")
-    expect(pluginContent).not.toContain("ce-plan` SAP or the `ce-statistical-analysis-plan")
+    expect(pluginContent).not.toContain("method-plan` skill or `method-sap")
+    expect(pluginContent).not.toContain("method-plan` SAP or the `method-sap")
     expect(pluginContent).not.toContain("data_wave_register")
     expect(pluginContent).not.toContain("data_lock` MCP")
   })

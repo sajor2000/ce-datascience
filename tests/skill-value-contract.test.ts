@@ -3,7 +3,7 @@ import { promises as fs } from "fs"
 import path from "path"
 import { load } from "js-yaml"
 
-const skillsRoot = path.join(process.cwd(), "plugins", "ce-datascience", "skills")
+const skillsRoot = path.join(process.cwd(), "plugins", "methodsmith", "skills")
 const MAX_DESCRIPTION_CHARS = 720
 
 async function skillFiles(): Promise<string[]> {
@@ -30,7 +30,7 @@ function parseFrontmatter(raw: string): Record<string, unknown> {
   return (load(lines.slice(1, end).join("\n")) as Record<string, unknown> | null) ?? {}
 }
 
-describe("ce-datascience skill value contract", () => {
+describe("methodsmith skill value contract", () => {
   test("all skills declare value, output, Q/A boundary, and non-goal", async () => {
     const missing: string[] = []
 
@@ -100,10 +100,10 @@ describe("ce-datascience skill value contract", () => {
     const offenders: string[] = []
     // These skills must carry the cross-platform interaction contract at runtime.
     const explicitInteractionSkills = new Set([
-      "ce-fabric/SKILL.md",
-      "ce-model-strategy/SKILL.md",
-      "ce-notebook-standards/SKILL.md",
-      "ce-trial-design/SKILL.md",
+      "method-fabric/SKILL.md",
+      "method-model-choice/SKILL.md",
+      "method-notebook-standards/SKILL.md",
+      "method-trial-design/SKILL.md",
     ])
     const forbidden = [
       "AskUserQuestion",
@@ -126,7 +126,7 @@ describe("ce-datascience skill value contract", () => {
   })
 
   test("trial design keeps blocking questions portable", async () => {
-    const skill = await fs.readFile(path.join(skillsRoot, "ce-trial-design", "SKILL.md"), "utf8")
+    const skill = await fs.readFile(path.join(skillsRoot, "method-trial-design", "SKILL.md"), "utf8")
 
     for (const required of [
       "AskUserQuestion",

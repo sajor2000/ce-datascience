@@ -1,0 +1,43 @@
+{
+  "skill_name": "method-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm picking this project back up after a month. It's an OMOP study -- there's analysis/research-question.yaml, analysis/pubmed/ with a PubMed results CSV, and analysis/cohort/ has SQL referencing person and observation_period. Python/Jupyter. What should I run next?",
+      "expected_output": "Auto-detects an observational OMOP study, emits the lifecycle card with done/in-progress/not-started steps based on artifacts, and recommends the next safe skill without running anything.",
+      "files": [],
+      "expectations": [
+        "Prints an auto-detected banner naming Observational study with the OMOP data layer and the evidence",
+        "Emits a numbered lifecycle card marking method-question and method-pubmed done based on existing artifacts",
+        "Recommends a single next step (e.g., method-extract) with a one-line rationale",
+        "Does not run any lifecycle skill or create/modify project files",
+        "Appends a note to run method-setup if no stack profile exists",
+        "When analysis/numbers/registry.json exists, adds a Numbers line with the method-numbers gate status (PASS, FAIL, or not run) to the lifecycle card"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "what's next for this repo? there's no data, no biomedical stuff -- it's a TypeScript converter CLI",
+      "expected_output": "Defaults to the Technical/software path without asking, labeling the route as a fallback with no biomedical evidence.",
+      "files": [],
+      "expectations": [
+        "Routes to the Technical / software path without asking the project-type question",
+        "Labels the route 'fallback: no biomedical project evidence'",
+        "Does not recommend biomedical lifecycle skills like method-cohort or method-data-qa for this repo",
+        "Does not modify project state"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "New ICU project. Repo has a WORKFLOW.md and a vitals.parquet, nothing else yet. Is this CLIF? Show me the lifecycle and just apply CLIF 2.1 if it is.",
+      "expected_output": "Does not route to CLIF on WORKFLOW.md alone (one weak signal) and does not silently apply CLIF 2.1; asks project type if still ambiguous.",
+      "files": [],
+      "expectations": [
+        "Does not route to the CLIF overlay from WORKFLOW.md and vitals.parquet alone",
+        "Does not silently apply CLIF 2.1 or infer a CLIF version",
+        "If project type remains ambiguous, asks 'What type of project is this?' with the four numbered options",
+        "Does not create files or run other skills"
+      ]
+    }
+  ]
+}

@@ -92,7 +92,7 @@ describe("ensureCodexAgentsFile legacy migration", () => {
     expect(content).toContain(CODEX_AGENTS_BLOCK_END)
   })
 
-  test("the managed block is not the block ce-setup check-health reports as retired", async () => {
+  test("the managed block is not the block method-setup check-health reports as retired", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-agents-health-"))
     await ensureCodexAgentsFile(tempRoot)
 
@@ -100,9 +100,9 @@ describe("ensureCodexAgentsFile legacy migration", () => {
       import.meta.dir,
       "..",
       "plugins",
-      "ce-datascience",
+      "methodsmith",
       "skills",
-      "ce-setup",
+      "method-setup",
       "scripts",
       "check-health",
     )

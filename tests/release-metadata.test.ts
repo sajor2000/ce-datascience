@@ -3,8 +3,8 @@ import os from "os"
 import path from "path"
 import { afterEach, describe, expect, test } from "bun:test"
 import {
-  buildCeDatascienceDescription,
-  getCeDatascienceCounts,
+  buildMethodsmithDescription,
+  getMethodsmithCounts,
   syncReleaseMetadata,
 } from "../src/release/metadata"
 
@@ -20,19 +20,19 @@ async function makeFixtureRoot(): Promise<string> {
   const root = await mkdtemp(path.join(os.tmpdir(), "release-metadata-"))
   tempRoots.push(root)
 
-  await mkdir(path.join(root, "plugins", "ce-datascience", "agents", "review"), {
+  await mkdir(path.join(root, "plugins", "methodsmith", "agents", "review"), {
     recursive: true,
   })
-  await mkdir(path.join(root, "plugins", "ce-datascience", "skills", "ce-plan"), {
+  await mkdir(path.join(root, "plugins", "methodsmith", "skills", "method-plan"), {
     recursive: true,
   })
-  await mkdir(path.join(root, "plugins", "ce-datascience", ".claude-plugin"), {
+  await mkdir(path.join(root, "plugins", "methodsmith", ".claude-plugin"), {
     recursive: true,
   })
-  await mkdir(path.join(root, "plugins", "ce-datascience", ".cursor-plugin"), {
+  await mkdir(path.join(root, "plugins", "methodsmith", ".cursor-plugin"), {
     recursive: true,
   })
-  await mkdir(path.join(root, "plugins", "ce-datascience", ".codex-plugin"), {
+  await mkdir(path.join(root, "plugins", "methodsmith", ".codex-plugin"), {
     recursive: true,
   })
   await mkdir(path.join(root, "plugins", "coding-tutor", "skills", "coding-tutor"), {
@@ -52,23 +52,23 @@ async function makeFixtureRoot(): Promise<string> {
   await mkdir(path.join(root, ".agents", "plugins"), { recursive: true })
 
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", "agents", "review", "agent.md"),
+    path.join(root, "plugins", "methodsmith", "agents", "review", "agent.md"),
     "# Review Agent\n",
   )
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", "skills", "ce-plan", "SKILL.md"),
-    "# ce-plan\n",
+    path.join(root, "plugins", "methodsmith", "skills", "method-plan", "SKILL.md"),
+    "# method-plan\n",
   )
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", ".mcp.json"),
+    path.join(root, "plugins", "methodsmith", ".mcp.json"),
     JSON.stringify({ mcpServers: { context7: { command: "ctx7" } } }, null, 2),
   )
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", ".claude-plugin", "plugin.json"),
+    path.join(root, "plugins", "methodsmith", ".claude-plugin", "plugin.json"),
     JSON.stringify({ version: "2.42.0", description: "old" }, null, 2),
   )
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", ".cursor-plugin", "plugin.json"),
+    path.join(root, "plugins", "methodsmith", ".cursor-plugin", "plugin.json"),
     JSON.stringify({ version: "2.33.0", description: "old" }, null, 2),
   )
   await writeFile(
@@ -80,10 +80,10 @@ async function makeFixtureRoot(): Promise<string> {
     JSON.stringify({ version: "1.2.1" }, null, 2),
   )
   await writeFile(
-    path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"),
+    path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json"),
     JSON.stringify(
       {
-        name: "ce-datascience",
+        name: "methodsmith",
         version: "2.42.0",
         description: "old",
         skills: "./skills/",
@@ -104,8 +104,8 @@ async function makeFixtureRoot(): Promise<string> {
     path.join(root, ".agents", "plugins", "marketplace.json"),
     JSON.stringify(
       {
-        name: "ce-datascience-plugin",
-        plugins: [{ name: "ce-datascience" }, { name: "coding-tutor" }],
+        name: "methodsmith",
+        plugins: [{ name: "methodsmith" }, { name: "coding-tutor" }],
       },
       null,
       2,
@@ -117,7 +117,7 @@ async function makeFixtureRoot(): Promise<string> {
       {
         metadata: { version: "1.0.0", description: "marketplace" },
         plugins: [
-          { name: "ce-datascience", version: "2.41.0", description: "old" },
+          { name: "methodsmith", version: "2.41.0", description: "old" },
           { name: "coding-tutor", version: "1.2.0", description: "old" },
         ],
       },
@@ -131,7 +131,7 @@ async function makeFixtureRoot(): Promise<string> {
       {
         metadata: { version: "1.0.0", description: "marketplace" },
         plugins: [
-          { name: "ce-datascience", version: "2.41.0", description: "old" },
+          { name: "methodsmith", version: "2.41.0", description: "old" },
           { name: "coding-tutor", version: "1.2.0", description: "old" },
         ],
       },
@@ -144,8 +144,8 @@ async function makeFixtureRoot(): Promise<string> {
 }
 
 describe("release metadata", () => {
-  test("reports current ce-datascience counts from the repo", async () => {
-    const counts = await getCeDatascienceCounts(process.cwd())
+  test("reports current methodsmith counts from the repo", async () => {
+    const counts = await getMethodsmithCounts(process.cwd())
 
     expect(counts).toEqual({
       agents: expect.any(Number),
@@ -157,11 +157,11 @@ describe("release metadata", () => {
     expect(counts.mcpServers).toBeGreaterThanOrEqual(0)
   })
 
-  test("builds a stable ce-datascience manifest description", async () => {
-    const description = await buildCeDatascienceDescription(process.cwd())
+  test("builds a stable methodsmith manifest description", async () => {
+    const description = await buildMethodsmithDescription(process.cwd())
 
     expect(description).toBe(
-      "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+      "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
     )
   })
 
@@ -170,7 +170,7 @@ describe("release metadata", () => {
     const result = await syncReleaseMetadata({ root, write: false })
     const changedPaths = result.updates.filter((update) => update.changed).map((update) => update.path)
 
-    expect(changedPaths).toContain(path.join(root, "plugins", "ce-datascience", ".cursor-plugin", "plugin.json"))
+    expect(changedPaths).toContain(path.join(root, "plugins", "methodsmith", ".cursor-plugin", "plugin.json"))
     expect(changedPaths).toContain(path.join(root, ".claude-plugin", "marketplace.json"))
     expect(changedPaths).toContain(path.join(root, ".cursor-plugin", "marketplace.json"))
   })
@@ -179,15 +179,15 @@ describe("release metadata", () => {
     const root = await makeFixtureRoot()
     // Claude is at 2.42.0; fixture Codex is also 2.42.0 — drift Codex to 2.41.0.
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json"),
       JSON.stringify(
-        { name: "ce-datascience", version: "2.41.0", skills: "./skills/" },
+        { name: "methodsmith", version: "2.41.0", skills: "./skills/" },
         null,
         2,
       ),
     )
     const result = await syncReleaseMetadata({ root, write: true })
-    const codexPath = path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json")
+    const codexPath = path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json")
     const codexUpdate = result.updates.find((u) => u.path === codexPath)
 
     expect(codexUpdate).toBeDefined()
@@ -203,7 +203,7 @@ describe("release metadata", () => {
     const root = await makeFixtureRoot()
     // Fixture Claude description is "old"; Codex starts at "old" too. Give Claude a canonical description and drift Codex.
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".claude-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".claude-plugin", "plugin.json"),
       JSON.stringify(
         {
           version: "2.42.0",
@@ -214,10 +214,10 @@ describe("release metadata", () => {
       ),
     )
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json"),
       JSON.stringify(
         {
-          name: "ce-datascience",
+          name: "methodsmith",
           version: "2.42.0",
           description: "stale codex description",
           skills: "./skills/",
@@ -226,18 +226,18 @@ describe("release metadata", () => {
         2,
       ),
     )
-    const codexPath = path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json")
+    const codexPath = path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json")
     await syncReleaseMetadata({ root, write: true })
 
     const afterContents = JSON.parse(await Bun.file(codexPath).text())
     expect(afterContents.description).toBe(
-      "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+      "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
     )
   })
 
   test("reports missing Codex manifest as a structural error", async () => {
     const root = await makeFixtureRoot()
-    await Bun.$`rm ${path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json")}`.quiet()
+    await Bun.$`rm ${path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json")}`.quiet()
 
     const result = await syncReleaseMetadata({ root, write: false })
 
@@ -247,7 +247,7 @@ describe("release metadata", () => {
   test("reports Codex plugin.json name mismatch as structural error", async () => {
     const root = await makeFixtureRoot()
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json"),
       JSON.stringify(
         { name: "wrong-name", version: "2.42.0", skills: "./skills/" },
         null,
@@ -258,7 +258,7 @@ describe("release metadata", () => {
 
     expect(
       result.errors.some((err) =>
-        err.includes('name "wrong-name" does not match expected "ce-datascience"'),
+        err.includes('name "wrong-name" does not match expected "methodsmith"'),
       ),
     ).toBe(true)
   })
@@ -303,8 +303,8 @@ describe("release metadata", () => {
       path.join(root, ".agents", "plugins", "marketplace.json"),
       JSON.stringify(
         {
-          name: "ce-datascience-plugin",
-          plugins: [{ name: "ce-datascience" }],
+          name: "methodsmith",
+          plugins: [{ name: "methodsmith" }],
         },
         null,
         2,
@@ -325,9 +325,9 @@ describe("release metadata", () => {
       path.join(root, ".agents", "plugins", "marketplace.json"),
       JSON.stringify(
         {
-          name: "ce-datascience-plugin",
+          name: "methodsmith",
           plugins: [
-            { name: "ce-datascience" },
+            { name: "methodsmith" },
             { name: "coding-tutor" },
             { name: "rogue-plugin" },
           ],
@@ -349,14 +349,14 @@ describe("release metadata", () => {
     const root = await makeFixtureRoot()
     // Align Claude <-> Codex versions and descriptions so there's no drift.
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".claude-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".claude-plugin", "plugin.json"),
       JSON.stringify({ version: "2.42.0", description: "aligned description" }, null, 2),
     )
     await writeFile(
-      path.join(root, "plugins", "ce-datascience", ".codex-plugin", "plugin.json"),
+      path.join(root, "plugins", "methodsmith", ".codex-plugin", "plugin.json"),
       JSON.stringify(
         {
-          name: "ce-datascience",
+          name: "methodsmith",
           version: "2.42.0",
           description: "aligned description",
           skills: "./skills/",

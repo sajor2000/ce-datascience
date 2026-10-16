@@ -1,0 +1,24 @@
+{
+  "name": "methodsmith",
+  "version": "4.1.0",
+  "description": "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
+  "author": {
+    "name": "Juan Carlos Rojas"
+  },
+  "homepage": "https://sajor2000.github.io/methodsmith/",
+  "repository": "https://github.com/sajor2000/methodsmith",
+  "license": "MIT",
+  "keywords": [
+    "ai-powered",
+    "data-science",
+    "biostatistics",
+    "statistical-analysis",
+    "workflow-automation",
+    "sap-management",
+    "r-language",
+    "python",
+    "quarto",
+    "reporting-checklists",
+    "knowledge-management"
+  ]
+}

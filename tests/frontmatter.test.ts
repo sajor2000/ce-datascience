@@ -76,7 +76,7 @@ function collectFrontmatterFiles(pluginRoot: string): [string, string][] {
 describe("frontmatter YAML validity", () => {
   const MAX_SKILL_DESCRIPTION_LENGTH = 1024
   const pluginRoots = [
-    "plugins/ce-datascience",
+    "plugins/methodsmith",
     "plugins/coding-tutor",
   ]
 
@@ -113,7 +113,7 @@ describe("frontmatter YAML validity", () => {
 
         // Pi rejects skill names that don't match the parent directory or contain
         // characters outside [a-z0-9-]. Upgrading from a pre-v3 install with
-        // `name: ce:brainstorm` frontmatter in a renamed `ce-brainstorm` directory
+        // `name: ce:brainstorm` frontmatter in a renamed `method-brainstorm` directory
         // triggered issue #449. Catch any reintroduction at the source.
         test(`${pluginRoot}/${rel} skill frontmatter name matches directory and uses valid characters`, () => {
           const parsed = load(yaml) as Record<string, unknown> | null

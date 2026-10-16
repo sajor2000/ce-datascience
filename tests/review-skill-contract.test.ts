@@ -7,11 +7,11 @@ async function readRepoFile(relativePath: string): Promise<string> {
   return readFile(path.join(process.cwd(), relativePath), "utf8")
 }
 
-// ce-code-review uses progressive disclosure: SKILL.md is the router and each stage's
+// method-review uses progressive disclosure: SKILL.md is the router and each stage's
 // procedure lives in a reference file that SKILL.md links directly. Contract strings may
 // live in SKILL.md or in any of these stage references; the structure test in
-// tests/ce-code-review-structure.test.ts locks in that SKILL.md links each one directly.
-const REVIEW_SKILL_DIR = "plugins/ce-datascience/skills/ce-code-review"
+// tests/method-review-structure.test.ts locks in that SKILL.md links each one directly.
+const REVIEW_SKILL_DIR = "plugins/methodsmith/skills/method-review"
 const REVIEW_STAGE_REFERENCES = [
   "references/scope.md",
   "references/intent-and-plan.md",
@@ -29,7 +29,7 @@ async function readReviewSkill(): Promise<string> {
   return parts.join("\n")
 }
 
-describe("ce-code-review contract", () => {
+describe("method-review contract", () => {
   test("documents explicit modes and orchestration boundaries", async () => {
     const content = await readReviewSkill()
 
@@ -40,7 +40,7 @@ describe("ce-code-review contract", () => {
     expect(content).toContain("mode:non-interactive")
     expect(content).toContain("depth:auto")
     expect(content).toContain("depth:full")
-    expect(content).toContain("/tmp/ce-datascience/ce-code-review/<run-id>/")
+    expect(content).toContain("/tmp/methodsmith/method-review/<run-id>/")
     expect(content).toContain("Do not write run artifacts.")
     expect(content).toContain(
       "Do not start a mutating review round concurrently with browser testing on the same checkout.",
@@ -142,11 +142,11 @@ describe("ce-code-review contract", () => {
 
     // Tracker fallback chain still exists for defer actions.
     const trackerDefer = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/tracker-defer.md",
+      "plugins/methodsmith/skills/method-review/references/tracker-defer.md",
     )
     expect(trackerDefer).toContain("Named tracker")
     expect(trackerDefer).toContain("GitHub Issues via `gh`")
-    expect(trackerDefer).not.toContain(".context/ce-datascience/todos/")
+    expect(trackerDefer).not.toContain(".context/methodsmith/todos/")
     expect(content).not.toMatch(/harness task primitive|task-tracking primitive/)
 
     // Harness task-tracking primitive is no longer a fallback tier — it was removed
@@ -164,7 +164,7 @@ describe("ce-code-review contract", () => {
     // rejected synthesis-time rewrite pass. Assert presence of the observable-behavior
     // rule and the required-field reminder without pinning exact prose.
     const subagentTemplate = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md",
+      "plugins/methodsmith/skills/method-review/references/subagent-template.md",
     )
     expect(subagentTemplate).toMatch(/observable behavior/i)
     expect(subagentTemplate).toMatch(/required/i)
@@ -174,7 +174,7 @@ describe("ce-code-review contract", () => {
     // word so renaming an option breaks the test. Exact label wording may be refined for
     // clarity — these assertions check the structural contract, not the prose.
     const walkthrough = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/walkthrough.md",
+      "plugins/methodsmith/skills/method-review/references/walkthrough.md",
     )
     expect(walkthrough).toContain("Apply the proposed fix")
     expect(walkthrough).toContain("Defer — file a [TRACKER] ticket")
@@ -183,7 +183,7 @@ describe("ce-code-review contract", () => {
 
     // bulk-preview.md contract: exactly Proceed / Cancel, no third option.
     const bulkPreview = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/bulk-preview.md",
+      "plugins/methodsmith/skills/method-review/references/bulk-preview.md",
     )
     expect(bulkPreview).toContain("Proceed")
     expect(bulkPreview).toContain("Cancel")
@@ -200,7 +200,7 @@ describe("ce-code-review contract", () => {
 
   test("keeps findings schema and downstream docs aligned", async () => {
     const rawSchema = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/findings-schema.json",
+      "plugins/methodsmith/skills/method-review/references/findings-schema.json",
     )
     const schema = JSON.parse(rawSchema) as {
       _meta: {
@@ -260,7 +260,7 @@ describe("ce-code-review contract", () => {
 
   test("subagent template carries verbatim 5-anchor rubric and lint-ignore suppression", async () => {
     const template = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md",
+      "plugins/methodsmith/skills/method-review/references/subagent-template.md",
     )
 
     // Anchored rubric: each anchor named with behavioral criterion
@@ -287,7 +287,7 @@ describe("ce-code-review contract", () => {
 
   test("autofix_class decision guide includes safe_auto operational test and boundary cases", async () => {
     const template = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md",
+      "plugins/methodsmith/skills/method-review/references/subagent-template.md",
     )
 
     // Symmetry-of-error framing: classifying a mechanical fix as gated_auto has cost
@@ -339,7 +339,7 @@ describe("ce-code-review contract", () => {
   test("Stage 5b validation pass dispatches conditionally and bounds parallelism", async () => {
     const content = await readReviewSkill()
     const validatorTemplate = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/validator-template.md",
+      "plugins/methodsmith/skills/method-review/references/validator-template.md",
     )
 
     // Stage 5b exists between Stage 5 and Stage 6
@@ -494,26 +494,26 @@ describe("ce-code-review contract", () => {
 
   test("personas use anchored rubric language and no float references remain", async () => {
     const personas = [
-      "ce-correctness-reviewer",
-      "ce-testing-reviewer",
-      "ce-maintainability-reviewer",
-      "ce-project-standards-reviewer",
-      "ce-security-reviewer",
-      "ce-performance-reviewer",
-      "ce-reliability-reviewer",
-      "ce-adversarial-reviewer",
-      "ce-previous-comments-reviewer",
-      "ce-kieran-python-reviewer",
-      "ce-r-code-reviewer",
-      "ce-r-pipeline-reviewer",
-      "ce-python-ds-reviewer",
-      "ce-methods-reviewer",
-      "ce-reproducibility-reviewer",
-      "ce-reporting-checklist-reviewer",
+      "method-correctness-reviewer",
+      "method-testing-reviewer",
+      "method-maintainability-reviewer",
+      "method-project-standards-reviewer",
+      "method-security-reviewer",
+      "method-performance-reviewer",
+      "method-reliability-reviewer",
+      "method-adversarial-reviewer",
+      "method-previous-comments-reviewer",
+      "method-kieran-python-reviewer",
+      "method-r-code-reviewer",
+      "method-r-pipeline-reviewer",
+      "method-python-ds-reviewer",
+      "method-methods-reviewer",
+      "method-reproducibility-reviewer",
+      "method-reporting-checklist-reviewer",
     ]
 
     for (const persona of personas) {
-      const content = await readRepoFile(`plugins/ce-datascience/agents/${persona}.md`)
+      const content = await readRepoFile(`plugins/methodsmith/agents/${persona}.md`)
 
       // Anchored language appears
       expect(content).toMatch(/Anchor (75|100)/)
@@ -529,8 +529,8 @@ describe("ce-code-review contract", () => {
   test("project standards prefer scoped CODING_STANDARDS criteria", async () => {
     const [skill, persona, catalog] = await Promise.all([
       readReviewSkill(),
-      readRepoFile("plugins/ce-datascience/agents/ce-project-standards-reviewer.md"),
-      readRepoFile("plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md"),
+      readRepoFile("plugins/methodsmith/agents/method-project-standards-reviewer.md"),
+      readRepoFile("plugins/methodsmith/skills/method-review/references/persona-catalog.md"),
     ])
 
     for (const content of [skill, persona]) {
@@ -545,13 +545,13 @@ describe("ce-code-review contract", () => {
     expect(persona).toMatch(/content is the contract, not the format/i)
     expect(catalog).toMatch(/designated criteria/i)
     expect(
-      await readRepoFile("plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md"),
+      await readRepoFile("plugins/methodsmith/skills/method-review/references/subagent-template.md"),
     ).toMatch(/mapped project criteria/i)
   })
 
   test("compact reviewer returns reject schema-like key drift", async () => {
     const template = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/subagent-template.md",
+      "plugins/methodsmith/skills/method-review/references/subagent-template.md",
     )
     expect(template).toMatch(/Use exactly those keys/)
     expect(template).toMatch(/`pre_existing` as a boolean/)
@@ -561,14 +561,14 @@ describe("ce-code-review contract", () => {
   test("documents stack-specific conditional reviewers for the JSON pipeline", async () => {
     const content = await readReviewSkill()
     const catalog = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md",
+      "plugins/methodsmith/skills/method-review/references/persona-catalog.md",
     )
 
     for (const agent of [
-      "ce-r-code-reviewer",
-      "ce-r-pipeline-reviewer",
-      "ce-python-ds-reviewer",
-      "ce-kieran-python-reviewer",
+      "method-r-code-reviewer",
+      "method-r-pipeline-reviewer",
+      "method-python-ds-reviewer",
+      "method-kieran-python-reviewer",
     ]) {
       expect(content).toContain(agent)
       expect(catalog).toContain(agent)
@@ -581,19 +581,19 @@ describe("ce-code-review contract", () => {
   test("stack-specific reviewer agents follow the structured findings contract", async () => {
     const reviewers = [
       {
-        path: "plugins/ce-datascience/agents/ce-kieran-python-reviewer.md",
+        path: "plugins/methodsmith/agents/method-kieran-python-reviewer.md",
         reviewer: "kieran-python",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-r-code-reviewer.md",
+        path: "plugins/methodsmith/agents/method-r-code-reviewer.md",
         reviewer: "r-code",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-r-pipeline-reviewer.md",
+        path: "plugins/methodsmith/agents/method-r-pipeline-reviewer.md",
         reviewer: "r-pipeline",
       },
       {
-        path: "plugins/ce-datascience/agents/ce-python-ds-reviewer.md",
+        path: "plugins/methodsmith/agents/method-python-ds-reviewer.md",
         reviewer: "python-ds",
       },
     ]
@@ -631,7 +631,7 @@ describe("ce-code-review contract", () => {
     // The script itself emits ERROR: when the base is unresolved.
     expect(content).toContain("references/resolve-base.sh")
     const resolveScript = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/resolve-base.sh",
+      "plugins/methodsmith/skills/method-review/references/resolve-base.sh",
     )
     expect(resolveScript).toContain("ERROR:")
 
@@ -641,9 +641,9 @@ describe("ce-code-review contract", () => {
     )
   })
 
-  test("ce-work shipping-workflow enforces a residual-work gate after Tier 2 review", async () => {
+  test("method-work shipping-workflow enforces a residual-work gate after Tier 2 review", async () => {
     for (const path of [
-      "plugins/ce-datascience/skills/ce-work/references/shipping-workflow.md",
+      "plugins/methodsmith/skills/method-work/references/shipping-workflow.md",
     ]) {
       const workflow = await readRepoFile(path)
       await expect(readRepoFile(path.replace("shipping-workflow.md", "tracker-defer.md"))).resolves.toContain(
@@ -666,12 +666,12 @@ describe("ce-code-review contract", () => {
       // Accept-and-proceed path threads findings into the PR description.
       expect(workflow).toContain("Known Residuals")
       expect(workflow).toContain("docs/residual-review-findings/<branch-or-head-sha>.md")
-      expect(workflow).toContain("If the user later chooses the no-PR `ce-commit` path")
+      expect(workflow).toContain("If the user later chooses the no-PR `method-commit` path")
       expect(workflow).toContain("must not live only in the transient session")
     }
   })
 
-  test("ce-code-review autofix emits a residual-work summary in-chat, not only in the artifact", async () => {
+  test("method-review autofix emits a residual-work summary in-chat, not only in the artifact", async () => {
     const content = await readReviewSkill()
     expect(content).toMatch(/Emit a compact Residual Actionable Work summary/)
     expect(content).toContain("Residual actionable work: none.")
@@ -680,7 +680,7 @@ describe("ce-code-review contract", () => {
 
 describe("testing-reviewer contract", () => {
   test("includes behavioral-changes-with-no-test-additions check", async () => {
-    const content = await readRepoFile("plugins/ce-datascience/agents/ce-testing-reviewer.md")
+    const content = await readRepoFile("plugins/methodsmith/agents/method-testing-reviewer.md")
 
     // New check exists in "What you're hunting for" section
     expect(content).toContain("Behavioral changes with no test additions")
@@ -696,10 +696,10 @@ describe("testing-reviewer contract", () => {
 describe("data-science and causal reviewer guardrails", () => {
   test("requires evidence-backed integrity and causal-design findings with risk-based severity", async () => {
     const pythonReviewer = await readRepoFile(
-      "plugins/ce-datascience/agents/ce-python-ds-reviewer.md",
+      "plugins/methodsmith/agents/method-python-ds-reviewer.md",
     )
     const causalReviewer = await readRepoFile(
-      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+      "plugins/methodsmith/agents/method-causal-inference-reviewer.md",
     )
 
     expect(pythonReviewer).toMatch(/unvalidated joins/i)
@@ -723,7 +723,7 @@ describe("data-science and causal reviewer guardrails", () => {
 
   test("keeps demonstrated integrity defects blocking and contextual causal concerns in analyst resolution", async () => {
     const causalReviewer = await readRepoFile(
-      "plugins/ce-datascience/agents/ce-causal-inference-reviewer.md",
+      "plugins/methodsmith/agents/method-causal-inference-reviewer.md",
     )
     const evidenceBoundary = causalReviewer.match(
       /## Evidence and severity boundary[\s\S]*?(?=## Confidence calibration)/,
@@ -743,10 +743,10 @@ describe("data-science and causal reviewer guardrails", () => {
 
   test("requires decision-aligned time-dependent AUC for dynamic survival models", async () => {
     const calibrationReviewer = await readRepoFile(
-      "plugins/ce-datascience/agents/ce-calibration-reviewer.md",
+      "plugins/methodsmith/agents/method-calibration-reviewer.md",
     )
     const catalog = await readRepoFile(
-      "plugins/ce-datascience/skills/ce-code-review/references/persona-catalog.md",
+      "plugins/methodsmith/skills/method-review/references/persona-catalog.md",
     )
 
     expect(calibrationReviewer).toContain("Cumulative/dynamic AUC")

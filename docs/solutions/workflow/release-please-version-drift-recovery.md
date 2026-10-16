@@ -18,12 +18,12 @@ date: 2026-05-29
 Routine feature PRs must not hand-bump release-owned versions. Release automation owns versions and changelogs for:
 
 - CLI package metadata.
-- `plugins/ce-datascience/.claude-plugin/plugin.json`.
-- `plugins/ce-datascience/.cursor-plugin/plugin.json`.
-- `plugins/ce-datascience/.codex-plugin/plugin.json`.
+- `plugins/methodsmith/.claude-plugin/plugin.json`.
+- `plugins/methodsmith/.cursor-plugin/plugin.json`.
+- `plugins/methodsmith/.codex-plugin/plugin.json`.
 - Marketplace plugin version entries.
 
-The CLI and `ce-datascience` versions are linked intentionally. A plugin-only change can still bump the CLI version, and a CLI-only change can still bump the plugin version.
+The CLI and `methodsmith` versions are linked intentionally. A plugin-only change can still bump the CLI version, and a CLI-only change can still bump the plugin version.
 
 ## Detection
 
