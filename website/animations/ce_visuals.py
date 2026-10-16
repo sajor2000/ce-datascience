@@ -39,7 +39,7 @@ EMBER_DEEP = "#A63F1C"  # brand accent for text on paper
 
 
 def _register_brand_fonts():
-    font_dir = Path(os.environ.get("BRAND_FONT_DIR", "/tmp/ce-datascience/brand/manim-fonts"))
+    font_dir = Path(os.environ.get("BRAND_FONT_DIR", "/tmp/methodsmith/brand/manim-fonts"))
     files = sorted(font_dir.glob("*.[ot]tf")) if font_dir.is_dir() else []
     if not files:
         return False

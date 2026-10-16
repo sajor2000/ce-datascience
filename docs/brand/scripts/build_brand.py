@@ -20,7 +20,7 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
-FONT_DIR = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/ce-datascience/brand/fonts")
+FONT_DIR = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/methodsmith/brand/fonts")
 OUT = Path(sys.argv[2] if len(sys.argv) > 2 else "website/static/brand")
 
 # Palette. Contrast ratios against the background they are used on are listed

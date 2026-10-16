@@ -10,7 +10,7 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 scripts="$repo_root/docs/brand/scripts"
 out="$repo_root/website/static/brand"
-fonts="/tmp/ce-datascience/brand/fonts"
+fonts="/tmp/methodsmith/brand/fonts"
 chrome="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 gf="https://github.com/google/fonts/raw/bf7c667ae010c0ffb39944ae85097021478cb91d/ofl"
 py=(uv run --python 3.12 --with fonttools==4.67.0 --with uharfbuzz==0.56.3 --with pillow==12.3.0 python)
