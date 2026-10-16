@@ -6,9 +6,9 @@ import { isSafeManagedPath } from "../src/utils/files"
 import {
   readManagedInstallManifest,
   writeManagedInstallManifest,
-  cleanupRemovedManagedDirectories,
-  cleanupRemovedManagedFiles,
+  cleanupRemovedManagedEntries,
 } from "../src/targets/managed-artifacts"
+import { InstallOwnership } from "../src/targets/install-ownership"
 import { readCodexInstallManifest } from "../src/targets/codex"
 import {
   cleanupRemovedPiExtensions,
@@ -16,6 +16,12 @@ import {
   cleanupRemovedPiSkills,
   readPiInstallManifest,
 } from "../src/targets/pi"
+
+// An install with no ledger yet, so manifest-listed entries are moved to
+// backups under <tempRoot>/managed rather than deleted.
+function preLedgerOwnership(tempRoot: string): Promise<InstallOwnership> {
+  return InstallOwnership.open(tempRoot, path.join(tempRoot, "managed"), "ce-datascience")
+}
 
 describe("isSafeManagedPath", () => {
   const root = "/tmp/managed-root"
@@ -118,7 +124,7 @@ describe("readManagedInstallManifest filters unsafe entries", () => {
   })
 })
 
-describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", () => {
+describe("cleanupRemovedManagedEntries does not escape root (defense in depth)", () => {
   let tempRoot: string
 
   beforeEach(async () => {
@@ -145,7 +151,7 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
       },
     }
 
-    await cleanupRemovedManagedFiles(rootDir, hostileManifest, "prompts", [])
+    await cleanupRemovedManagedEntries(await preLedgerOwnership(tempRoot), rootDir, hostileManifest, "prompts", [])
     expect(await fs.readFile(outsideFile, "utf8")).toBe("keep me")
   })
 
@@ -164,7 +170,7 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
       },
     }
 
-    await cleanupRemovedManagedDirectories(rootDir, hostileManifest, "skills", [])
+    await cleanupRemovedManagedEntries(await preLedgerOwnership(tempRoot), rootDir, hostileManifest, "skills", [])
     expect(await fs.readFile(path.join(outsideDir, "file.txt"), "utf8")).toBe("keep me")
   })
 
@@ -185,7 +191,7 @@ describe("cleanupRemovedManagedFiles does not escape root (defense in depth)", (
 
     // Simulate a follow-up install where "safe-prompt.md" is no longer
     // in the current bundle — cleanup should remove it.
-    await cleanupRemovedManagedFiles(rootDir, manifest, "prompts", [])
+    await cleanupRemovedManagedEntries(await preLedgerOwnership(tempRoot), rootDir, manifest, "prompts", [])
     let exists = true
     try {
       await fs.stat(safeFile)
@@ -347,7 +353,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       agents: [],
     }
 
-    await cleanupRemovedPiSkills(skillsDir, hostileManifest, [])
+    await cleanupRemovedPiSkills(await preLedgerOwnership(tempRoot), skillsDir, hostileManifest, [])
     expect(await fs.readFile(path.join(outsideDir, "file.txt"), "utf8")).toBe("keep me")
   })
 
@@ -366,7 +372,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       agents: [],
     }
 
-    await cleanupRemovedPiPrompts(promptsDir, hostileManifest, [])
+    await cleanupRemovedPiPrompts(await preLedgerOwnership(tempRoot), promptsDir, hostileManifest, [])
     expect(await fs.readFile(outsideFile, "utf8")).toBe("keep me")
   })
 
@@ -385,7 +391,7 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       agents: [],
     }
 
-    await cleanupRemovedPiExtensions(extensionsDir, hostileManifest, [])
+    await cleanupRemovedPiExtensions(await preLedgerOwnership(tempRoot), extensionsDir, hostileManifest, [])
     expect(await fs.readFile(outsideFile, "utf8")).toBe("keep me")
   })
 
@@ -414,9 +420,9 @@ describe("Pi cleanup helpers do not escape root (defense in depth)", () => {
       agents: [],
     }
 
-    await cleanupRemovedPiSkills(skillsDir, manifest, [])
-    await cleanupRemovedPiPrompts(promptsDir, manifest, [])
-    await cleanupRemovedPiExtensions(extensionsDir, manifest, [])
+    await cleanupRemovedPiSkills(await preLedgerOwnership(tempRoot), skillsDir, manifest, [])
+    await cleanupRemovedPiPrompts(await preLedgerOwnership(tempRoot), promptsDir, manifest, [])
+    await cleanupRemovedPiExtensions(await preLedgerOwnership(tempRoot), extensionsDir, manifest, [])
 
     for (const p of [staleSkillDir, stalePrompt, staleExt]) {
       let exists = true

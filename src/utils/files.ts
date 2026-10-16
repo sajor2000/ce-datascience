@@ -186,7 +186,25 @@ export async function resolveCommandPath(dir: string, name: string, ext: string)
   return path.join(dir, `${name}${ext}`)
 }
 
-export async function copyDir(sourceDir: string, targetDir: string): Promise<void> {
+/**
+ * Destination for files a target writer installs. The default writes
+ * straight to disk; an install ledger (`InstallOwnership`) records ownership
+ * and backs up user-edited files before replacing them.
+ */
+export type FileWriter = {
+  writeFile(targetPath: string, content: string): Promise<void>
+  copyFile(sourcePath: string, targetPath: string): Promise<void>
+}
+
+export const directWriter: FileWriter = {
+  writeFile: (targetPath, content) => writeText(targetPath, content),
+  async copyFile(sourcePath, targetPath) {
+    await ensureDir(path.dirname(targetPath))
+    await fs.copyFile(sourcePath, targetPath)
+  },
+}
+
+export async function copyDir(sourceDir: string, targetDir: string, writer: FileWriter = directWriter): Promise<void> {
   await ensureDir(targetDir)
   const entries = await fs.readdir(sourceDir, { withFileTypes: true })
   for (const entry of entries) {
@@ -194,10 +212,9 @@ export async function copyDir(sourceDir: string, targetDir: string): Promise<voi
     const sourcePath = path.join(sourceDir, entry.name)
     const targetPath = path.join(targetDir, entry.name)
     if (entry.isDirectory()) {
-      await copyDir(sourcePath, targetPath)
+      await copyDir(sourcePath, targetPath, writer)
     } else if (entry.isFile()) {
-      await ensureDir(path.dirname(targetPath))
-      await fs.copyFile(sourcePath, targetPath)
+      await writer.copyFile(sourcePath, targetPath)
     }
   }
 }
@@ -239,6 +256,7 @@ export async function copySkillDir(
   targetDir: string,
   transformSkillContent?: (content: string) => string,
   transformAllMarkdown?: boolean,
+  writer: FileWriter = directWriter,
 ): Promise<void> {
   await ensureDir(targetDir)
   const entries = await fs.readdir(sourceDir, { withFileTypes: true })
@@ -249,17 +267,16 @@ export async function copySkillDir(
     const targetPath = path.join(targetDir, entry.name)
 
     if (entry.isDirectory()) {
-      await copySkillDir(sourcePath, targetPath, transformSkillContent, transformAllMarkdown)
+      await copySkillDir(sourcePath, targetPath, transformSkillContent, transformAllMarkdown, writer)
     } else if (entry.isFile()) {
       const shouldTransform = transformSkillContent && (
         entry.name === "SKILL.md" || (transformAllMarkdown && entry.name.endsWith(".md"))
       )
       if (shouldTransform) {
         const content = await readText(sourcePath)
-        await writeText(targetPath, transformSkillContent(content))
+        await writer.writeFile(targetPath, transformSkillContent(content))
       } else {
-        await ensureDir(path.dirname(targetPath))
-        await fs.copyFile(sourcePath, targetPath)
+        await writer.copyFile(sourcePath, targetPath)
       }
     }
   }

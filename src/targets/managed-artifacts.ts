@@ -1,6 +1,7 @@
 import fs from "fs/promises"
 import path from "path"
 import { isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
+import type { InstallOwnership } from "./install-ownership"
 import { ensureDir, isSafeManagedPath, pathExists, readText, sanitizePathName, writeJson } from "../utils/files"
 
 const MANAGED_INSTALL_MANIFEST = "install-manifest.json"
@@ -149,47 +150,44 @@ export async function writeManagedInstallManifest(
   await writeJson(path.join(managedDir, MANAGED_INSTALL_MANIFEST), manifest)
 }
 
-export async function cleanupRemovedManagedDirectories(
+/**
+ * Pre-ledger installs recorded only names. When such a manifest lists an
+ * entry the current bundle no longer ships, move it to backups (there are no
+ * hashes to prove it is unedited). Once an install ledger exists this is a
+ * no-op: `InstallOwnership.finish` removes dropped files by hash instead.
+ */
+export async function cleanupRemovedManagedEntries(
+  ownership: InstallOwnership | null,
   rootDir: string,
   manifest: ManagedInstallManifest | null,
   group: string,
   currentEntries: string[],
 ): Promise<void> {
-  if (!manifest) return
+  if (!manifest || !ownership) return
   const current = new Set(currentEntries)
   for (const relativePath of manifest.groups[group] ?? []) {
     if (current.has(relativePath)) continue
     // Defense in depth: `readManagedInstallManifest` already drops unsafe
     // entries, but re-check here so any future caller that bypasses the
-    // read layer cannot trigger out-of-tree deletes.
+    // read layer cannot trigger out-of-tree moves.
     if (!isSafeManagedPath(rootDir, relativePath)) continue
-    await fs.rm(resolveArtifactPath(rootDir, relativePath), { recursive: true, force: true })
+    await ownership.removeLegacyUnit(resolveArtifactPath(rootDir, relativePath))
   }
 }
 
-export async function cleanupRemovedManagedFiles(
-  rootDir: string,
-  manifest: ManagedInstallManifest | null,
-  group: string,
-  currentEntries: string[],
-): Promise<void> {
-  if (!manifest) return
-  const current = new Set(currentEntries)
-  for (const relativePath of manifest.groups[group] ?? []) {
-    if (current.has(relativePath)) continue
-    if (!isSafeManagedPath(rootDir, relativePath)) continue
-    await fs.rm(resolveArtifactPath(rootDir, relativePath), { force: true })
-  }
-}
-
-export async function cleanupCurrentManagedDirectory(
-  targetDir: string,
+/**
+ * Whether the writer may (re)write a unit. Without an install ledger (no
+ * plugin name) the writer keeps its historical overwrite behavior.
+ */
+export async function claimManagedUnit(
+  ownership: InstallOwnership | null,
+  targetPath: string,
   manifest: ManagedInstallManifest | null,
   group: string,
   entryName: string,
-): Promise<void> {
-  if (!manifest?.groups[group]?.includes(entryName)) return
-  await fs.rm(targetDir, { recursive: true, force: true })
+): Promise<boolean> {
+  if (!ownership) return true
+  return ownership.claim(targetPath, manifest?.groups[group]?.includes(entryName) ?? false)
 }
 
 /**

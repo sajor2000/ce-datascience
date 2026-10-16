@@ -1,11 +1,12 @@
 import fs from "fs/promises"
 import path from "path"
-import { assertSafeArtifactName, backupFile, copyDir, copySkillDir, ensureDir, injectManualInvocationGuard, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeText, writeTextSecure } from "../utils/files"
+import { assertSafeArtifactName, backupFile, copyDir, copySkillDir, directWriter, ensureDir, injectManualInvocationGuard, isSafeManagedPath, pathExists, sanitizePathName, writeJson, writeTextSecure } from "../utils/files"
 import type { CodexBundle } from "../types/codex"
 import type { ClaudeMcpServer } from "../types/claude"
 import { transformContentForCodex } from "../utils/codex-content"
 import { getLegacyCodexArtifacts } from "../data/plugin-legacy-artifacts"
 import { classifyCodexLegacyPromptOwnership, cleanupStaleSkillDirs, isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
+import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const MANAGED_START_MARKER = "# BEGIN CE DataScience plugin MCP -- do not edit this block"
@@ -40,6 +41,10 @@ export async function writeCodexBundle(
 
   const pluginName = bundle.pluginName ? sanitizeCodexPathComponent(bundle.pluginName) : undefined
   const manifest = pluginName ? await readInstallManifest(codexRoot, pluginName) : null
+  const ownership = pluginName
+    ? await InstallOwnership.open(codexRoot, path.join(codexRoot, pluginName), pluginName)
+    : null
+  const writer = ownership ?? directWriter
   const currentPrompts = bundle.prompts.map((prompt) => `${sanitizePathName(prompt.name)}.md`)
   const agents = bundle.agents ?? []
   const agentsRoot = pluginName
@@ -50,13 +55,16 @@ export async function writeCodexBundle(
 
   if (bundle.prompts.length > 0) {
     const promptsDir = path.join(codexRoot, "prompts")
-    await cleanupRemovedPrompts(promptsDir, manifest, currentPrompts)
+    await cleanupRemovedPrompts(ownership, promptsDir, manifest, currentPrompts)
     for (const prompt of bundle.prompts) {
       assertSafeArtifactName(sanitizePathName(prompt.name), "prompt")
-      await writeText(path.join(promptsDir, `${sanitizePathName(prompt.name)}.md`), prompt.content + "\n")
+      const promptFile = `${sanitizePathName(prompt.name)}.md`
+      const promptPath = path.join(promptsDir, promptFile)
+      if (!(await claimCodexUnit(ownership, promptPath, manifest?.prompts.includes(promptFile) ?? false))) continue
+      await writer.writeFile(promptPath, prompt.content + "\n")
     }
   } else if (pluginName) {
-    await cleanupRemovedPrompts(path.join(codexRoot, "prompts"), manifest, [])
+    await cleanupRemovedPrompts(ownership, path.join(codexRoot, "prompts"), manifest, [])
   }
 
   const skillsRoot = pluginName
@@ -75,19 +83,26 @@ export async function writeCodexBundle(
   ]))
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
   await cleanupStaleSkillDirs(skillsRoot)
-  await cleanupRemovedSkills(skillsRoot, manifest, currentSkills)
+  await cleanupRemovedSkills(ownership, skillsRoot, manifest, currentSkills)
+  // Skills installed by Codex's native plugin flow are not rewritten here;
+  // keep their ledger records so finish() does not sweep them.
+  for (const name of bundle.externallyManagedSkillNames ?? []) {
+    ownership?.retain(path.join(skillsRoot, sanitizePathName(name)))
+  }
 
   if (bundle.skillDirs.length > 0) {
     for (const skill of bundle.skillDirs) {
       assertSafeArtifactName(sanitizePathName(skill.name), "skill")
       const targetDir = path.join(skillsRoot, sanitizePathName(skill.name))
-      await cleanupCurrentManagedSkillDir(targetDir, manifest, sanitizePathName(skill.name))
+      if (!(await claimCodexUnit(ownership, targetDir, manifest?.skills.includes(sanitizePathName(skill.name)) ?? false))) continue
       await copySkillDir(
         skill.sourceDir,
         targetDir,
         (content) => transformContentForCodex(content, bundle.invocationTargets, {
           unknownSlashBehavior: "preserve",
         }),
+        false,
+        writer,
       )
       if (skill.disableModelInvocation) {
         await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
@@ -99,15 +114,15 @@ export async function writeCodexBundle(
     for (const skill of bundle.generatedSkills) {
       assertSafeArtifactName(sanitizePathName(skill.name), "skill")
       const skillDir = path.join(skillsRoot, sanitizePathName(skill.name))
-      await cleanupCurrentManagedSkillDir(skillDir, manifest, sanitizePathName(skill.name))
-      await writeText(path.join(skillDir, "SKILL.md"), skill.content + "\n")
+      if (!(await claimCodexUnit(ownership, skillDir, manifest?.skills.includes(sanitizePathName(skill.name)) ?? false))) continue
+      await writer.writeFile(path.join(skillDir, "SKILL.md"), skill.content + "\n")
       for (const sidecar of skill.sidecarDirs ?? []) {
-        await copyDir(sidecar.sourceDir, path.join(skillDir, sidecar.targetName))
+        await copyDir(sidecar.sourceDir, path.join(skillDir, sidecar.targetName), writer)
       }
     }
   }
 
-  await cleanupRemovedAgents(agentsRoot, manifest, currentAgents)
+  await cleanupRemovedAgents(ownership, agentsRoot, manifest, currentAgents)
   if (agents.length > 0) {
     for (const agent of agents) {
       const agentBaseName = sanitizePathName(agent.name)
@@ -118,12 +133,15 @@ export async function writeCodexBundle(
       // cleanupRemovedAgents sweep above only removes the sibling dir when the
       // TOML itself is being removed; a same-name agent that loses its sidecar
       // would otherwise leave an orphan directory.
-      if ((agent.sidecarDirs ?? []).length === 0 && isSafeManagedPath(agentsRoot, agentBaseName)) {
+      // With an install ledger, finish() removes those files by hash instead.
+      if (!ownership && (agent.sidecarDirs ?? []).length === 0 && isSafeManagedPath(agentsRoot, agentBaseName)) {
         await fs.rm(path.join(agentsRoot, agentBaseName), { recursive: true, force: true })
       }
-      await writeText(path.join(agentsRoot, agentFile), renderCodexAgentToml(agent) + "\n")
+      const agentPath = path.join(agentsRoot, agentFile)
+      if (!(await claimCodexUnit(ownership, agentPath, manifest?.agents.includes(agentFile) ?? false))) continue
+      await writer.writeFile(agentPath, renderCodexAgentToml(agent) + "\n")
       for (const sidecar of agent.sidecarDirs ?? []) {
-        await copyDir(sidecar.sourceDir, path.join(agentsRoot, agentBaseName, sidecar.targetName))
+        await copyDir(sidecar.sourceDir, path.join(agentsRoot, agentBaseName, sidecar.targetName), writer)
       }
     }
   }
@@ -142,6 +160,7 @@ export async function writeCodexBundle(
     await cleanupLegacyAgentsSkillSymlinks(codexRoot, pluginName, currentSkills, manifest)
     await cleanupPreviousManagedCodexSkillStore(codexRoot, pluginName)
   }
+  await ownership?.finish()
 
   const configPath = path.join(codexRoot, "config.toml")
   const existingConfig = await readFileSafe(configPath)
@@ -258,59 +277,66 @@ async function writeInstallManifest(codexRoot: string, manifest: CodexInstallMan
   await writeJson(path.join(codexRoot, manifest.pluginName, MANAGED_INSTALL_MANIFEST), manifest)
 }
 
+async function claimCodexUnit(
+  ownership: InstallOwnership | null,
+  targetPath: string,
+  manifestListed: boolean,
+): Promise<boolean> {
+  if (!ownership) return true
+  return ownership.claim(targetPath, manifestListed)
+}
+
+// The three helpers below handle installs that predate the ownership ledger:
+// a name-only manifest entry the bundle dropped is moved to backups. Once a
+// ledger exists they do nothing and InstallOwnership.finish() removes dropped
+// files by hash. Without a plugin name there is no manifest, so nothing runs.
 async function cleanupRemovedSkills(
+  ownership: InstallOwnership | null,
   skillsRoot: string,
   manifest: CodexInstallManifest | null,
   currentSkills: string[],
 ): Promise<void> {
-  if (!manifest) return
+  if (!manifest || !ownership) return
   const current = new Set(currentSkills)
   for (const skillName of manifest.skills) {
     if (current.has(skillName)) continue
     // Defense in depth: `readInstallManifest` already drops unsafe entries,
-    // but re-check before any out-of-tree fs.rm can be issued from a future
+    // but re-check before any out-of-tree move can be issued from a future
     // caller that bypasses the read layer.
     if (!isSafeManagedPath(skillsRoot, skillName)) continue
-    await fs.rm(path.join(skillsRoot, skillName), { recursive: true, force: true })
+    await ownership.removeLegacyUnit(path.join(skillsRoot, skillName))
   }
 }
 
 async function cleanupRemovedPrompts(
+  ownership: InstallOwnership | null,
   promptsDir: string,
   manifest: CodexInstallManifest | null,
   currentPrompts: string[],
 ): Promise<void> {
-  if (!manifest) return
+  if (!manifest || !ownership) return
   const current = new Set(currentPrompts)
   for (const promptFile of manifest.prompts) {
     if (current.has(promptFile)) continue
     if (!isSafeManagedPath(promptsDir, promptFile)) continue
-    await fs.rm(path.join(promptsDir, promptFile), { force: true })
+    await ownership.removeLegacyUnit(path.join(promptsDir, promptFile))
   }
 }
 
 async function cleanupRemovedAgents(
+  ownership: InstallOwnership | null,
   agentsRoot: string,
   manifest: CodexInstallManifest | null,
   currentAgents: string[],
 ): Promise<void> {
-  if (!manifest) return
+  if (!manifest || !ownership) return
   const current = new Set(currentAgents)
   for (const agentFile of manifest.agents) {
     if (current.has(agentFile)) continue
     if (!isSafeManagedPath(agentsRoot, agentFile)) continue
-    await fs.rm(path.join(agentsRoot, agentFile), { force: true })
-    await fs.rm(path.join(agentsRoot, path.basename(agentFile, ".toml")), { recursive: true, force: true })
+    await ownership.removeLegacyUnit(path.join(agentsRoot, agentFile))
+    await ownership.removeLegacyUnit(path.join(agentsRoot, path.basename(agentFile, ".toml")))
   }
-}
-
-async function cleanupCurrentManagedSkillDir(
-  targetDir: string,
-  manifest: CodexInstallManifest | null,
-  skillName: string,
-): Promise<void> {
-  if (!manifest?.skills.includes(skillName)) return
-  await fs.rm(targetDir, { recursive: true, force: true })
 }
 
 async function cleanupKnownLegacyCodexArtifacts(codexRoot: string, bundle: CodexBundle): Promise<void> {
