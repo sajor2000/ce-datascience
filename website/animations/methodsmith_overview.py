@@ -17,7 +17,7 @@ from manim import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from method_visuals import MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
+from method_visuals import EMBER_DEEP, MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
 
 
 class MethodsmithOverview(Scene):
@@ -26,7 +26,8 @@ class MethodsmithOverview(Scene):
 
         header = heading(
             "Methodsmith",
-            "Rigorous methods, from question to paper. Every study compounds.",
+            "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper",
+            mark=True,
         )
         header.to_edge(UP, buff=0.32)
         columns = skill_map()
@@ -60,7 +61,10 @@ class MethodsmithOverview(Scene):
         self.play(FadeIn(strip, shift=UP * 0.15), run_time=0.8)
         self.wait(2.2)
 
-        close = text("Researcher judgment remains the decision point.", 26, color=MUTED)
+        close = VGroup(
+            text("Researcher judgment remains the decision point.", 26, color=MUTED),
+            text("Every study compounds.", 30, color=EMBER_DEEP, weight="BOLD"),
+        ).arrange(DOWN, buff=0.3)
         self.play(FadeOut(body, shift=UP * 0.2), run_time=0.8)
         self.play(FadeIn(close, shift=UP * 0.12), run_time=0.8)
         self.wait(1.6)

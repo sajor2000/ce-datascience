@@ -2,7 +2,7 @@
 
 **Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.**
 
-SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 39 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates. [Guideline sources](../../docs/guideline-sources.md) lists each checklist's primary citation, PMID, DOI, verification status, and superseded versions; it is generated from the registry.
+A plugin for Claude Code and Codex. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 39 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates. [Guideline sources](../../docs/guideline-sources.md) lists each checklist's primary citation, PMID, DOI, verification status, and superseded versions; it is generated from the registry.
 
 ## How It Works
 

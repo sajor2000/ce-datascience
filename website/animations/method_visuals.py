@@ -1,8 +1,14 @@
 """Shared design system and content for the README diagrams and the site video.
 
-Render on macOS: the type pairs Avenir Next (prose) with Menlo (skill names).
-Other systems fall back to their default sans and mono faces.
+Type follows the Methodsmith brand (docs/brand/brand.md): Source Serif 4 for
+titles, IBM Plex Sans for prose, IBM Plex Mono for skill names. The render
+scripts download the OFL fonts with fetch-brand-fonts.sh and this module
+registers them for the render process only. Without them it falls back to
+Avenir Next and Menlo on macOS, or the system faces elsewhere.
 """
+
+import os
+from pathlib import Path
 
 from manim import (
     DOWN,
@@ -11,6 +17,7 @@ from manim import (
     UP,
     Circle,
     Line,
+    Polygon,
     RoundedRectangle,
     Text,
     VGroup,
@@ -25,9 +32,24 @@ MUTED = "#5B6370"
 FAINT = "#9AA1AB"
 RULE = "#DCD8CF"
 SHADOW = "#1B1F27"
+EMBER = "#C2502A"  # brand accent: graphics only
+EMBER_DEEP = "#A63F1C"  # brand accent for text on paper
 
-SANS = "Avenir Next"
-MONO = "Menlo"
+
+def _register_brand_fonts():
+    font_dir = Path(os.environ.get("BRAND_FONT_DIR", "/tmp/methodsmith/brand/manim-fonts"))
+    files = sorted(font_dir.glob("*.[ot]tf")) if font_dir.is_dir() else []
+    if not files:
+        return False
+    import manimpango
+
+    return all(manimpango.register_font(str(f)) for f in files)
+
+
+if _register_brand_fonts():
+    SANS, MONO, SERIF = "IBM Plex Sans", "IBM Plex Mono", "Source Serif 4"
+else:
+    SANS, MONO, SERIF = "Avenir Next", "Menlo", "Avenir Next"
 
 # (phase, purpose, color, [(skill, what it does)])
 PHASES = (
@@ -130,10 +152,38 @@ def shadowed(box, offset=0.045, opacity=0.08):
     return VGroup(shadow, box)
 
 
-def heading(title, subtitle, width=12.6, top_buff=0.38):
-    head = text(title, 40, weight="BOLD")
+def brand_mark(height=0.62, ink=INK, accent=EMBER, ground=PAPER):
+    """The Methodsmith hallmark: an ink M struck into an ember plate with
+    chamfered corners. Rebuilt from filled shapes on the brand's 64-unit grid
+    (see docs/brand/scripts/build_brand.py); `ground` fills the plate's inside
+    so the stroke reads as a ring on any background."""
+
+    def pt(x, y):
+        return [x, -y, 0]
+
+    def plate(inset):
+        x0, y0, x1, y1, c = 7 + inset, 12 + inset, 57 - inset, 52 - inset, 4 - inset * 0.414
+        return Polygon(*(pt(x, y) for x, y in (
+            (x0 + c, y0), (x1 - c, y0), (x1, y0 + c), (x1, y1 - c),
+            (x1 - c, y1), (x0 + c, y1), (x0, y1 - c), (x0, y0 + c))))
+
+    outer = plate(-1.7).set_fill(accent, 1).set_stroke(width=0)
+    inner = plate(1.7).set_fill(ground, 1).set_stroke(width=0)
+    stem, dv = 6.2, 6.2 * 1.35
+    l0, l1, r0, r1, top, base, v = 18, 18 + stem, 46 - stem, 46, 20.5, 43.5, 37
+    m = Polygon(*(pt(x, y) for x, y in (
+        (l0, base), (l0, top), (l1, top), (32, v - dv), (r0, top), (r1, top), (r1, base),
+        (r0, base), (r0, top + dv * 1.05), (32, v), (l1, top + dv * 1.05), (l1, base))))
+    m.set_fill(ink, 1).set_stroke(width=0)
+    return VGroup(outer, inner, m).set_height(height)
+
+
+def heading(title, subtitle, width=12.6, top_buff=0.38, mark=False):
+    head = text(title, 42, weight="SEMIBOLD", font=SERIF)
+    if mark:
+        head = VGroup(brand_mark(head.height * 1.2), head).arrange(RIGHT, buff=0.26)
     sub = text(subtitle, 20, color=MUTED)
-    group = VGroup(head, sub).arrange(DOWN, buff=0.16)
+    group = VGroup(head, sub).arrange(DOWN, buff=0.18)
     fit(group, width)
     return group
 

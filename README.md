@@ -1,50 +1,115 @@
 # Methodsmith
 
-**Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.**
+<!-- brand:hero:start (presentation block; install, migration and command tables live below) -->
+<div align="center">
 
-<!-- Hero image and badges: reserved for the branding PR. -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="website/static/brand/hero-dark.svg">
+  <img src="website/static/brand/hero-light.svg" width="100%" alt="The Methodsmith hallmark. Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds. A plugin for Claude Code and Codex. The loop: /method-plan, /method-work, /method-review, /method-compound, with learnings feeding the next plan.">
+</picture>
 
-Methodsmith (formerly ce-datascience) helps you move from an idea to a careful, <!-- rebrand:keep -->
-documented analysis. You can ask your coding assistant to help plan a study, find relevant evidence,
-check a dataset, write analysis code, review the results, and prepare a report.
+[![Release](https://img.shields.io/github/v/release/sajor2000/methodsmith?display_name=release&label=release&color=1B1F27)](https://github.com/sajor2000/methodsmith/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1B1F27)](LICENSE)
+[![CI](https://github.com/sajor2000/methodsmith/actions/workflows/ci.yml/badge.svg)](https://github.com/sajor2000/methodsmith/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-sajor2000.github.io%2Fmethodsmith-A63F1C?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48dGl0bGU%2BTWV0aG9kc21pdGg8L3RpdGxlPjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjAiIGZpbGw9IiMxQjFGMjciLz48cGF0aCBkPSJNMTAuMzAgNTAuODMgTDEwLjMwIDE1LjE4IEwxOS45MSAxNS4xOCBMMzIuMDAgMjcuNzggTDQ0LjA5IDE1LjE4IEw1My43MCAxNS4xOCBMNTMuNzAgNTAuODMgTDQ0LjA5IDUwLjgzIEw0NC4wOSAyOC44MCBMMzIuMDAgNDAuNzUgTDE5LjkxIDI4LjgwIEwxOS45MSA1MC44MyBaIiBmaWxsPSIjRjdGNUYwIi8%2BPC9zdmc%2BCg%3D%3D)](https://sajor2000.github.io/methodsmith/)
 
-You stay in control of the scientific decisions. The plugin does not replace a
-researcher, statistician, clinician, data steward, or ethics review.
+</div>
 
-[Read the public documentation](https://sajor2000.github.io/methodsmith/) · [Watch the workflow overview](https://sajor2000.github.io/methodsmith/media/methodsmith-overview.mp4)
+**Methodsmith** (formerly ce-datascience) is a plugin for Claude Code and Codex that gives your coding <!-- rebrand:keep -->
+agent the habits of a careful methods team. It plans the analysis before it
+runs, reviews it before anyone reads the results, and writes down what each
+study taught you so the next one starts ahead. Clinical statistics, Python and
+ML papers, and meta-analysis; R or Python.
 
-**66 skills, 55 specialist agents, and 39 reporting checklists** help make each project more explicit, reproducible, and reviewable.
+**66 skills, 55 specialist agents, and 39 reporting checklists.** You stay in
+control of the scientific decisions: Methodsmith drafts and checks, and does not
+replace a researcher, statistician, clinician, data steward, or ethics review.
 
-## In plain English
+## Install
 
-If you work with health data, this plugin gives your AI assistant a set of
-specialized workflows for the work around the code — the questions, decisions,
-checks, documentation, and reviews that make an analysis more trustworthy.
+**Claude Code** (2.1.275 or later):
 
-It can help you:
+```bash
+claude plugin install methodsmith --marketplace sajor2000/methodsmith
+```
 
-- turn a broad research idea into a clear question and study plan;
-- search and organize published evidence;
-- build a study group from R or Python data;
-- check whether data, joins, missing values, and variables make sense;
-- keep important statistical choices visible before analysis;
-- review a manuscript or report against common research checklists; and
-- leave behind reusable notes and artifacts so the next analysis is easier.
+**Codex**:
 
-## Who is it for?
+```bash
+git clone https://github.com/sajor2000/methodsmith.git ~/methodsmith
+bash ~/methodsmith/install.sh codex
+```
 
-Researchers, analysts, students, clinicians, and data teams who use R or
-Python for health, biomedical, clinical, claims, EHR, omics, or related data.
-You do not need to memorize the right command: describe what you are trying to
-do, and the workflow helps identify the next step.
+Then open your project and run `/methodsmith:method-setup` (in Codex, ask it to
+use the Methodsmith `method-setup` skill). **Pi**, Windows, locked-down laptops
+and other agents: see [Get started](#get-started-like-compound-engineering) below
+or the [setup guide](https://sajor2000.github.io/methodsmith/docs/setup).
 
-## Try it in three steps
+## See it work
 
-1. Install it for the AI coding tool you already use.
-2. Open the project or study folder where you want to work.
-3. Ask the assistant to set up Methodsmith, then describe your research goal.
+<img src="website/static/brand/demo.svg" width="100%" alt="Terminal replay on synthetic data. /method-workflow detects an observational study and recommends method-sap. /method-sap links claim C1 to an ICH E9(R1) estimand and lists two decisions that block finalization. /method-review reports two P1, one P2 and one P3 finding, applies small-cell suppression, and returns Not ready.">
 
-For example:
+<sub>Scripted replay on synthetic data, abridged from the output formats the skills define; it is not a recording of a live run. Source: <a href="docs/brand/scripts/demo_transcript.py">docs/brand/scripts/demo_transcript.py</a>.</sub>
+
+## The loop
+
+Every study runs the same four steps. The loop comes from Every's
+[Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin);
+Methodsmith adapts each step for research methods.
+
+| Step | What it does |
+|---|---|
+| **Plan**<br>`/method-plan` | Writes the analysis plan first: a versioned SAP with ICH E9(R1) estimands, endpoints and decisions |
+| **Work**<br>`/method-work` | Runs the plan with SAP traceability, tests and a real-data gate |
+| **Review**<br>`/method-review` | Specialist reviewers check methods, leakage, PHI and the reporting checklist; findings are confidence-gated |
+| **Compound**<br>`/method-compound` | Records what the study taught you in `docs/solutions/`, so the next plan starts from it |
+
+Not sure where you are? `/method-workflow` reads the project and recommends the
+next safe step.
+
+## Built for three kinds of study
+
+| Clinical statistics | Python and ML papers | Meta-analysis |
+|---|---|---|
+| `/method-question` PICO, FINER, hypothesis | `/method-model-choice` justify the model after the estimand | `/method-lit-search` PubMed, full text or authoritative sources |
+| `/method-power` sample size and power, with a script | `/method-ml-track` data hashes, splits and metrics | `/method-evidence-map` a source-backed evidence map |
+| `/method-sap` claims linked to estimands and decision evidence | `/method-verify` leakage, effect direction and PHI gate | `/method-prereg` PROSPERO, OSF or ClinicalTrials.gov |
+| `/method-cohort` reproducible cohort and waterfall counts | `/method-model-card` calibration, fairness and limits | `/method-meta-analysis` random effects, REML with Hartung-Knapp |
+| `/method-table1` traceable Table 1 | `/method-marimo` reactive, reproducible notebooks | `/method-checklist` PRISMA 2020 and its extensions |
+| `/method-numbers` every reported number traced to the analysis | `/method-figure` calibration, ROC and forest plots | `/method-write` evidence-bound manuscript drafts |
+
+## Why you can check its work
+
+- **39 EQUATOR reporting checklists**, encoded with their official item IDs
+  (CONSORT, STROBE, PRISMA, TRIPOD+AI, TARGET and more). Only the newest version
+  of each guideline can load, and a test enforces it. Sources are listed in
+  [Guideline sources](https://sajor2000.github.io/methodsmith/docs/guideline-sources).
+- **A PHI guard.** A pre-tool hook keeps data values out of the model in
+  schema-only projects and keeps identifiers out of MCP tools and uploads in
+  every mode. Outputs are aggregate, with small cells suppressed. Details in
+  [Sensitive-data boundary](#sensitive-data-boundary).
+- **55 specialist reviewers**: methods, causal inference, multiplicity, leakage,
+  calibration, fairness, reproducibility, PHI and more, run in parallel and
+  deduplicated before you see them.
+- **Numbers locked to raw data.** `/method-numbers` has manuscripts, tables,
+  captions and abstracts cite numbers from a registry written by the analysis
+  code, and a fail-closed gate traces each one to its SAP output, script commit
+  and source hash.
+
+## How it compares
+
+From each project's public documentation, checked 2026-10-15.
+
+| | Methodsmith | [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin) | [Superpowers](https://github.com/obra/superpowers) | [Scientific Agent Skills](https://github.com/K-Dense-AI/scientific-agent-skills) | [MedSci Skills](https://github.com/Aperivue/medsci-skills) |
+|---|---|---|---|---|---|
+| Built for | Biostatistics, clinical and ML research | Software engineers | Software engineers | Scientists across fields | Physician-researchers |
+| Plan -> review -> compound loop | Yes | Yes | Plans and TDD | No | Router, no compound step |
+| SAP with estimands | Yes | No | No | Power only | Not SAP-centred |
+| Reporting checklists | 39, item IDs, newest version only | No | No | Writing aids | 46 guidelines |
+| PHI guard hook | Yes | No | No | No | De-identification skill |
+| Hosts | Claude Code, Codex, Pi, more | 14 hosts | 16 hosts | Many | Claude Code, Codex, Cursor, Copilot |
+
+## Try it
 
 ```text
 Use Methodsmith to set up this project, then help me plan a study of
@@ -52,14 +117,12 @@ Use Methodsmith to set up this project, then help me plan a study of
 to make before we analyze any data.
 ```
 
-The quickest install paths are below. If you are not sure which one applies,
-start with Claude Code or Codex and follow the matching section.
-
 ![Skill map: 30 key skills across six phases (Frame, Design, Data, Plan, Execute, Review), with guardrails for ICH E9(R1) estimands, 39 reporting checklists, 55 specialist reviewers, and PHI-safe outputs](docs/workflow-diagram.png)
 
 ## How the package works
 
 ![Methodsmith package workflow: install, set up a project, run skills, and create research artifacts](docs/methodsmith-package-workflow.png)
+<!-- brand:hero:end -->
 
 ---
 
@@ -969,13 +1032,41 @@ bun run package:corporate
 
 ---
 
+<!-- brand:faq:start -->
+## FAQ
+
+**Is this an AI statistician?** No. It is a set of workflows and reviewers that
+make an analysis explicit and checkable. The researcher chooses the methods,
+reads the review, and is accountable for every result, as ICMJE and the ASA
+expect.
+
+**Does my data leave my machine?** Methodsmith has no server of its own; it runs
+inside your coding agent. Literature skills query public services such as
+PubMed when you ask them to, and your agent's model provider sees what the agent
+reads. That is why the PHI guard keeps data values out of the model in
+schema-only projects and keeps identifiers out of MCP tools. See [Sensitive-data boundary](#sensitive-data-boundary)
+and [What MCP tools receive](#what-mcp-tools-receive).
+
+**R or Python?** Either. Setup detects the language, notebook format and data
+layer from the project and only asks about what it cannot infer.
+
+**Which agents does it run on?** Claude Code and Codex natively, Pi through a
+generated install, and others through the converter CLI. See
+[Also works with Codex, Pi, Gemini, and more](#also-works-with-codex-pi-gemini-and-more).
+
+**How is it related to Compound Engineering?** It is an MIT-licensed fork. The
+loop, the review architecture and much of the engineering workflow come from
+Every's plugin; Methodsmith adds the research-methods skills, reviewers,
+checklists and guards.
+<!-- brand:faq:end -->
+
 ## Built on
 
 Methodsmith started as a fork of [Every](https://every.to)'s
 [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
 plugin by [Kieran Klaassen](https://github.com/kieranklaassen). The
 plan -> work -> review -> compound loop, the review personas, and the
-cross-platform converter come from that work. Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers).
+cross-platform converter come from that work. Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers). Brand assets and their sources are in [docs/brand](docs/brand/brand.md).
 
 ## License
 

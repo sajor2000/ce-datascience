@@ -25,7 +25,7 @@
   "interface": {
     "displayName": "Methodsmith",
     "shortDescription": "Rigorous research methods",
-    "longDescription": "Methodsmith turns an agent into a careful research-methods partner for statistics, machine learning, and meta-analysis. Frame the question, pre-specify the analysis plan, build cohorts and Table 1, fit and check models, run reporting-checklist and methods review, and draft the paper. Each study's lessons compound into the next. Works with R and Python, Quarto, Jupyter, and marimo. Built on Every's Compound Engineering plugin.",
+    "longDescription": "Methodsmith is a plugin for Claude Code and Codex that turns your agent into a careful research-methods partner for statistics, machine learning, and meta-analysis. Frame the question, pre-specify the analysis plan, build cohorts and Table 1, fit and check models, run reporting-checklist and methods review, and draft the paper. Each study's lessons compound into the next. Works with R and Python, Quarto, Jupyter, and marimo. Built on Every's Compound Engineering plugin.",
     "developerName": "Juan Carlos Rojas",
     "category": "Data Science",
     "capabilities": [
@@ -38,7 +38,13 @@
       "/method-table1 from the analysis dataset",
       "/method-meta-analysis of the included trials"
     ],
-    "screenshots": [],
+    "screenshots": [
+      "./assets/screenshot.png"
+    ],
+    "brandColor": "#C2502A",
+    "brandColorDark": "#E57A50",
+    "composerIcon": "./assets/icon-small.svg",
+    "logo": "./assets/icon.png",
     "websiteURL": "https://sajor2000.github.io/methodsmith/"
   }
 }
