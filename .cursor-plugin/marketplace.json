@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Methodsmith: rigorous research methods, from question to paper",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "pluginRoot": "plugins"
   },
   "plugins": [
