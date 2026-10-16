@@ -79,7 +79,7 @@ Demotion is intentionally narrow. The conservative scope (testing/maintainabilit
 9. **Sort.** Order by severity (P0 first) -> anchor (descending) -> file path -> line number.
 10. **Collect coverage data.** Union residual_risks and testing_gaps across reviewers.
 11. **Apply blinded-EDA and Protected Artifacts rules.** Add the SKILL.md blinded-EDA P0 finding when it applies, and discard any finding that recommends deleting or gitignoring a SKILL.md Protected Artifact.
-12. **Preserve CE agent artifacts.** Keep the learnings researcher output alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
+12. **Preserve Methodsmith agent artifacts.** Keep the learnings researcher output alongside the merged finding set. Do not drop unstructured agent output just because it does not match the persona JSON schema.
 
 ## Stage 5b: Validation pass (externalizing modes only)
 

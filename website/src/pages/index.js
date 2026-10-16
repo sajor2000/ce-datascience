@@ -6,15 +6,15 @@ import workflowImage from '../../../docs/methodsmith-package-workflow.png';
 export default function Home() {
   return (
     <Layout
-      title="Health data science workflows"
-      description="Methodsmith adds careful, documented research workflows to AI coding assistants.">
+      title="Rigorous research methods"
+      description="Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.">
       <header className="hero hero--primary">
         <div className="container">
           <Heading as="h1" className="hero__title">
             Methodsmith
           </Heading>
           <p className="hero__subtitle">
-            A practical AI research partner for health and biomedical data.
+            Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.
           </p>
           <div className="hero-actions">
             <Link className="button button--secondary button--lg" to="/docs/setup">

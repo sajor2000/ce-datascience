@@ -3,7 +3,7 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Methodsmith',
-  tagline: 'A practical AI research partner for health and biomedical data',
+  tagline: 'Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.',
   url: 'https://sajor2000.github.io',
   baseUrl: '/methodsmith/',
   organizationName: 'sajor2000',

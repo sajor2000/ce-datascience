@@ -8,7 +8,7 @@ argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|pe
 
 ## Skill Value
 
-- **Problem it solves:** R projects need language-specific workflow guidance without bypassing CE design, data-QA, and reporting gates.
+- **Problem it solves:** R projects need language-specific workflow guidance without bypassing Methodsmith design, data-QA, and reporting gates.
 - **Use when:** The project uses R, RStudio, `.R`, `.Rmd`, `.qmd`, `renv`, `DESCRIPTION`, or `_targets.R`.
 - **Output:** A selected R workflow with the relevant analytical contract and validation plan.
 - **Ask only if:** The task could reasonably belong to more than one R workflow.
