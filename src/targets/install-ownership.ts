@@ -201,7 +201,7 @@ export class InstallOwnership {
 
     if (this.backedUp.length > 0) {
       console.warn(
-        `Backed up ${this.backedUp.length} file(s) you changed or that predate the install ledger to ${path.join(this.managedDir, "backups", this.stamp)}`,
+        `Backed up ${this.backedUp.length} item(s) to ${path.join(this.managedDir, "backups", this.stamp)}: plugin files you edited, or plugin folders from an install made before ce-datascience tracked file ownership. Copy back anything you still need.`,
       )
     }
   }
