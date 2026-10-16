@@ -209,6 +209,80 @@ privacy and network policy before connecting hosted services. The canonical
 configuration examples and selection guidance are in
 [`../../docs/setup.md`](../../docs/setup.md#8-optional-research-add-ons).
 
+## Sensitive-data boundary
+
+Before setup looks at any data, `ce-setup` asks one question and saves the
+answer as `phi_environment.mode` in the gitignored, machine-local
+`.ce-datascience/config.local.yaml`:
+
+| Answer | Saved as | What happens |
+|---|---|---|
+| **Approved endpoint: full access** (HIPAA-compliant with a BAA, or institution-approved) | `mode: approved` | No restrictions on the model for the rest of the session. The agent never raises the boundary again. You are responsible for that approval. |
+| **Not approved or unsure: schema-only** (also used when no answer is saved, or the saved value cannot be read) | `mode: schema-only` | The agent sees column headings, types, row counts, and % missing, never data values such as names, MRNs, or claim numbers. It writes scripts that print only aggregates, with counts under 11 suppressed. It cannot inspect example rows, debug value-level parsing or join mismatches by example, read free text, or spot individual entry errors. |
+| **No sensitive data: public or synthetic** | `mode: no-sensitive-data` | No restrictions, never raised again. |
+
+Older configs keep working: `compliant: true` reads as `approved`,
+`compliant: false` as `schema-only`, and `sensitive_data: false` as
+`no-sensitive-data`. If the keys disagree, any schema-only signal wins.
+
+**What enforces it.** In Claude Code, a plugin `PreToolUse` hook
+(`hooks/data-boundary-guard.py`) runs only inside projects that have a
+`.ce-datascience/` directory, in the working tree or the main checkout of a
+linked worktree. It is silent unless it blocks a call. In schema-only mode it
+denies:
+
+- `Read`, `NotebookRead`, and content-mode `Grep` on data files. Data files are
+  `.csv`, `.tsv`, `.parquet`, `.xlsx`, `.sas7bdat`, `.dta`, `.rds`, `.sqlite`,
+  `.jsonl`, and similar, including compressed or backup copies (`.csv.gz`,
+  `.csv.bak`), plus anything under the configured `data_root`. A notebook
+  with saved outputs also counts; clear its outputs first.
+- Any shell command (`Bash`, `Monitor`, `PowerShell`) whose text names a data
+  path, an extension glob, or `data_root`, whatever the program, unless it only
+  lists metadata (`ls`, `wc`, `du`, `find`, `git status`/`log`) or runs an
+  existing script file or the schema helper. Inline code (`python -c`,
+  `Rscript -e`, heredocs) that opens data or globs a data directory, writing a
+  script and running it in the same command, copying a data file to a non-data
+  name, and recursive `grep`/`rg` without an `--include`/`-g`/`-t` limited to
+  code are denied too.
+
+The schema helper `scripts/schema-peek.py` prints headings, types, counts, and
+% missing, never a cell value. It prints `col_1..col_n` when a file has no
+header row.
+
+### What MCP tools receive
+
+PubMed, Paperclip, and every other MCP tool receive search terms, MeSH terms,
+PMIDs, DOIs, and paper titles. They never receive data values, identifiers,
+row text, or data files. This holds in **every mode, including after you
+approve the endpoint**: approving the model endpoint does not cover
+third-party services such as NCBI or Paperclip.
+
+The same hook enforces this for every `mcp__*` call and for shell uploads. It
+denies MCP arguments that contain an SSN, an email address, a US phone number,
+a keyword-anchored record number (MRN, medical record, patient ID, member ID,
+claim number), or a keyword-anchored date of birth. It also denies Paperclip
+upload, import, or share calls that name a local data file, and `curl`, `wget`,
+`scp`, or `rsync` uploads of data files. PMIDs, DOIs, PMCIDs, and ordinary
+research queries pass silently. Limits: the patterns catch common identifier
+shapes, not every possible one (a bare name is not detected), and shell calls
+to NCBI that are not uploads are not scanned. The skills carry the same rule.
+
+**Limits.** The hook is defense in depth, not a sandbox. A script file the
+agent writes and later runs can still print values, so in schema-only mode
+the skills write scripts that print aggregates only. Programs it cannot parse
+(deliberate obfuscation) and column names that are themselves sensitive are
+out of scope. Aggregate tables saved as `.csv` count as data files, so print
+them or save them as Markdown. A config problem resolves to schema-only. An
+unexpected internal error blocks only calls that mention a data file or an
+upload; anything else is allowed with a one-line warning, so a hook bug never
+blocks unrelated work. Enforcement is Claude Code only: Codex and OpenCode
+installs carry the hook entry but it exits immediately there, and Gemini,
+Kiro, Copilot, and Pi skip hooks, so those harnesses rely on the skill
+instructions alone.
+
+**Changing the answer.** Re-run `ce-setup`, or edit or delete the
+`phi_environment` block in `.ce-datascience/config.local.yaml`.
+
 ## Components
 
 | Component | Count |
@@ -226,7 +300,7 @@ The plugin is authored once and distributed across Claude Code, Codex, Pi, Gemin
 - Claude Code plugin commands and skills are namespaced as `/ce-datascience:ce-*`; install optional local aliases for bare `/ce-*` demo UX.
 - Codex should use native plugin install for skills plus the Bun `--to codex` agent bridge for generated agents. Set `CODEX_HOME` and pass the same value to `--codex-home` when installing into a non-default Codex profile.
 - Codex locked-down installs can use `ce-datascience-codex-local.zip` plus `install-codex-offline.sh` to copy local marketplace metadata, the native plugin under `.codex/plugins/ce-datascience`, and bridge agents without Bun.
-- Full standalone Codex installs are supported with `--include-skills`; this mode writes generated skills and agents, plus managed `.codex/hooks.json` entries for plugins that declare hooks (CE DataScience currently declares none), without deleting manual or other-plugin hooks.
+- Full standalone Codex installs are supported with `--include-skills`; this mode writes generated skills and agents, plus managed `.codex/hooks.json` entries for plugins that declare hooks (CE DataScience declares only the Claude Code data-boundary guard, which exits immediately under Codex), without deleting manual or other-plugin hooks.
 - Pi, Gemini CLI, OpenCode, and Kiro are generated by the shared converter. Use `--output /path/to/workspace` for workspace-based targets, and avoid naming an OpenCode workspace output directory literally `opencode` unless a flat global-style layout is intended.
 - Qwen Code uses its native extension installer, which can consume Claude marketplace plugins directly; it is not a generated `--to qwen` converter target.
 
@@ -341,7 +415,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 
 | Skill | Description |
 |-------|-------------|
-| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; asks once whether the data environment and model endpoint are PHI/PII-compliant, keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off; IPTW examples use stabilized weights with balance checks |
+| `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; honors the saved sensitive-data boundary (asks once only if none is saved), keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off; IPTW examples use stabilized weights with balance checks |
 | `/ce-clif-project-template` | Initialize or audit a CLIF project against the official Project Template, with explicit version selection, site-local configuration, and aggregate-only final-output safeguards |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup, reweighting sensitivity and specificity for verification bias under algorithm-stratified sampling |
@@ -432,6 +506,7 @@ Plain shell utilities for things that don't need a skill:
 
 | Script | Purpose |
 |--------|---------|
+| `scripts/schema-peek.py <file>` | Print a data file's column headings, inferred types, row count, non-null count, and % missing, never a cell value; small counts are suppressed and headerless files show `col_1..col_n`. Used in schema-only mode. |
 | `scripts/freeze-submission.sh <tag>` | Tag the current commit as a submission freeze. Refuses on a dirty tree; writes `submissions/<tag>/manifest.yaml` with commit sha, SAP version, locked-wave hash, and env-lock-file hashes. Does not push the tag and does not copy data. |
 
 ## Agents
@@ -448,7 +523,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 40 guidelines — auto-routes by study type, resolves superseded and protocol-stage guidelines (TRIPOD 2015 -> TRIPOD+AI, SPIRIT 2025, PRISMA-P), layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code, including estimand, missing-data, and inference-method drift; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
-| `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output after a one-time PHI/PII environment and endpoint confirmation |
+| `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output after the saved sensitive-data boundary (or a one-time confirmation) allows it |
 | `ce-targets-pipeline-reviewer` | targets pipeline correctness — hidden file deps, format hints, branch-count drift, disabled automatic seeding, superseded launchers |
 | `ce-quarto-render-reviewer` | Quarto / RMarkdown render-time correctness — committed output, cache traps, params drift, bibliography paths, accessibility |
 | `ce-r-code-reviewer` | R code quality — tidyverse, dplyr, ggplot2, data.table patterns |

@@ -101,11 +101,11 @@ When Stage 5b does not run, the merged finding set from Stage 5 flows through to
    - The finding's title, severity, file, line, suggested_fix, original reviewer name, and confidence anchor
    - `why_it_matters` when available — loaded from the per-agent artifact file at `/tmp/ce-datascience/ce-code-review/{run_id}/{reviewer_name}.json`; omit when the file is absent or the artifact write failed. The validator proceeds without it, using the diff and cited code directly.
    - The preflight-approved diff and relevant surrounding code
-   - Read-tool access only within preflight-approved paths. In PHI-risk reviews,
-     validator prompts must prohibit broad checkout-reading commands including
+   - Read-tool access only within preflight-approved paths. In PHI-risk reviews
+     without `PHI authorization: confirmed`, validator prompts must prohibit broad checkout-reading commands including
      `git diff`, `git show`, `git blame`, `git log`, and `gh`; validators inspect
-     only the supplied PHI-free context. Patient-level inspection remains
-     exclusive to `ce-phi-leak-reviewer` after confirmed authorization.
+     only the supplied PHI-free context. With confirmed authorization, validators
+     have no content limits.
 4. **Collect verdicts.** Each validator returns `{ "validated": true | false, "reason": "<one sentence>" }`.
    - `validated: true` -> finding survives unchanged into the next phase (Stage 6 for agent/headless/autofix, dispatch for interactive)
    - `validated: false` -> finding is dropped; record the validator's reason in Coverage

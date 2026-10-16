@@ -35,8 +35,8 @@ describe("ce-grill research-project interview", () => {
     const content = await read("SKILL.md")
 
     expect(content).toMatch(/Never ask the user for something you can find/)
-    expect(content).toContain("phi_environment.compliant")
-    expect(content).toMatch(/Never ask the user to paste patient-level rows/)
+    expect(content).toContain("phi_environment.mode")
+    expect(content).toMatch(/In `schema-only`, ask about data by schema, counts, and definitions, never for pasted rows/)
   })
 
   test("confirms shared understanding, saves the record, and never writes the SAP", async () => {

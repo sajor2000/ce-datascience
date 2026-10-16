@@ -1,0 +1,15 @@
+record_id,patient_name,age,admit_date,free_text_note
+SYNTH-ID-0001,Synthname Alpha,61,2031-01-10,synthetic note 00 lorem
+SYNTH-ID-0002,Synthname Bravo,62,2031-02-11,synthetic note 01 lorem
+SYNTH-ID-0003,Synthname Charlie,63,2031-03-12,synthetic note 02 lorem
+SYNTH-ID-0004,Synthname Delta,64,2031-04-13,
+SYNTH-ID-0005,Synthname Echo,65,2031-05-14,
+SYNTH-ID-0006,Synthname Foxtrot,66,2031-06-15,
+SYNTH-ID-0007,Synthname Golf,67,2031-07-16,
+SYNTH-ID-0008,Synthname Hotel,68,2031-08-17,
+SYNTH-ID-0009,Synthname India,69,2031-09-18,
+SYNTH-ID-0010,Synthname Juliet,70,2031-01-19,
+SYNTH-ID-0011,Synthname Kilo,71,2031-02-10,
+SYNTH-ID-0012,Synthname Lima,72,2031-03-11,
+SYNTH-ID-0013,Synthname Mike,73,2031-04-12,
+SYNTH-ID-0014,Synthname November,74,2031-05-13,

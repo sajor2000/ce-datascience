@@ -73,10 +73,11 @@ describe("CLIF guidance", () => {
   })
 
   test("asks once for PHI authorization and preserves the official output boundary", async () => {
-    const [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer, verifyCatalog] = await Promise.all([
+    const [rules, clifSkill, workSkill, workGate, codeReviewSkill, phiReviewer, verifyCatalog] = await Promise.all([
       readClif("references/clif-rules.md"),
       readClif("SKILL.md"),
       readSkill("ce-work/SKILL.md"),
+      readSkill("ce-work/references/phi-environment.md"),
       readSkill("ce-code-review/SKILL.md"),
       readFile(path.join(agentsRoot, "ce-phi-leak-reviewer.md"), "utf8"),
       readSkill("ce-verify/references/check-catalog.md"),
@@ -84,29 +85,27 @@ describe("CLIF guidance", () => {
     const combined = [rules, clifSkill, workSkill, codeReviewSkill, phiReviewer].join("\n")
 
     expectContainsAll(rules, [
-      "both the data environment and active model endpoint",
+      "`approved` or `no-sensitive-data`: proceed silently and never mention the boundary again",
       "ask once",
-      "Are both this data environment and the active model endpoint compliant for PHI/PII?",
-      "request_user_input",
-      "Do not reproduce PHI in responses",
+      "`Approved endpoint: full access`",
+      "`PHI authorization: confirmed` marker counts as `approved`",
+      "**Never** share, commit, upload",
       "declared approved restricted data root",
       "approved, local, non-synced",
       "output/intermediate_phi/",
       "output/final_no_phi/",
     ])
     expectContainsAll(clifSkill, [
-      "proceed without repeating",
-      "agent, autofix,",
-      "report-only, or headless mode",
-      "do not ask or wait",
-      "Preserve an exact",
-      "marker supplied by the orchestrator",
-      "PHI authorization: not confirmed",
+      "sensitive-data boundary in `references/clif-rules.md`",
+      "apply\nin every mode",
     ])
     expectContainsAll(workSkill, [
       "Common-Longitudinal-ICU-data-Format",
+      "read `references/phi-environment.md` and apply its gate",
+    ])
+    expectContainsAll(workGate, [
+      "Unset, headless: schema-only.",
       "agent, autofix, report-only, or headless mode",
-      "do not ask or wait",
       "PHI authorization: not confirmed",
     ])
     expectContainsAll(codeReviewSkill, [
@@ -114,15 +113,14 @@ describe("CLIF guidance", () => {
       "PHI authorization: confirmed",
       "PHI authorization: not confirmed",
       "PHI-safe scope preflight",
-      "Never pass patient-level content to any other reviewer",
       "inherit the active session model with no model override",
       "preflight-approved paths and PHI-free",
-      "`ce-phi-leak-reviewer`, after `PHI authorization: confirmed`",
+      "With `PHI authorization: confirmed`, no reviewer has content limits",
     ])
     expectContainsAll(phiReviewer, [
-      "complete the metadata-only review without waiting",
-      "interactively as a standalone reviewer",
-      "never downgrade it to `PHI authorization: not confirmed`",
+      "`PHI authorization: confirmed` counts as `approved` (never downgrade it)",
+      "without a marker, treat the run as headless",
+      "never commit PHI to Git",
     ])
     expect(combined).not.toContain("Never give an agent PHI or RHI")
     expect(combined).not.toContain("when in doubt, flag at 100")

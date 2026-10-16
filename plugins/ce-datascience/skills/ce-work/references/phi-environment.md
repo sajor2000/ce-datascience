@@ -1,43 +1,78 @@
-# PHI Environment Gate
+# Sensitive-Data Boundary Gate
 
-Ask once whether this environment may handle PHI, save the answer in the project's machine-local config, and reuse it on later runs instead of asking again.
+The `ce-setup` skill normally records the boundary. Apply this gate before opening data files or patient-level outputs.
 
-## 1. Read the saved answer
+## Gate
 
-Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool and look for:
+**Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only. In agent, autofix, report-only, or headless mode, retain `PHI authorization: not confirmed` for sub-agents; with `approved` or `no-sensitive-data`, pass `PHI authorization: confirmed`.
 
-```yaml
-phi_environment:
-  compliant: true          # true = yes, false = no
-  confirmed_on: 2026-10-10 # date the user answered
+<!-- ask-and-save:start -->
+## Ask once and save
+
+Ask exactly one question with the platform's blocking question tool (`AskUserQuestion` in Claude Code, loaded first with `ToolSearch` and `select:AskUserQuestion` when its schema is not loaded; `request_user_input` in Codex; `ask_user` in Gemini and Pi). If no blocking tool exists or the call errors, show the three options as a numbered list and wait.
+
+- Stem: "Will this project use sensitive data (PHI, PII, or other restricted records)? If so, is the model endpoint the agent runs on approved for it, for example HIPAA-compliant under a BAA or approved by your institution?"
+- Options, in this order:
+  1. `Approved endpoint: full access` - the endpoint is approved for this project's sensitive data.
+  2. `Not approved or unsure: schema-only` - the data is sensitive and the endpoint is not approved, or the user does not know.
+  3. `No sensitive data: public or synthetic` - nothing in the project is restricted.
+
+| Answer | Write to `phi_environment` | Show the user |
+|---|---|---|
+| `Approved endpoint: full access` | `mode: approved`, `confirmed_on: <today>` | One line: `Saved: approved endpoint, no data restrictions. Confirming that approval (BAA or institutional sign-off) is your responsibility.` Never mention the boundary again. |
+| `Not approved or unsure: schema-only` | `mode: schema-only`, `confirmed_on: <today>` | The schema-only explainer below, once. |
+| `No sensitive data: public or synthetic` | `mode: no-sensitive-data`, `confirmed_on: <today>` | One line: `Saved: no sensitive data, no restrictions.` Never mention the boundary again. |
+
+Resolve `<today>` at runtime, then save:
+
+1. Run `git check-ignore -q .ce-datascience/config.local.yaml`. Exit 0 means ignored. Outside a git repository, skip to step 3.
+2. If it is not ignored, add `.ce-datascience/*.local.yaml` to `.gitignore` and say so in the confirmation line.
+3. Merge the block into `.ce-datascience/config.local.yaml`, creating the file if needed. Keep every other key, and drop any legacy `compliant` or `sensitive_data` key from the block so it cannot conflict with `mode`. Never write data values, identifiers, or credentials to the config.
+
+In headless or non-interactive runs, do not ask or save. Work in schema-only mode for the run.
+
+### Schema-only explainer (show once after that answer)
+
+```text
+Schema-only mode is on. The model endpoint is not approved for this data, so no
+data values (names, MRNs, claim numbers, dates, notes, or any other cell) go to
+the agent.
+
+The agent CAN see:  column headings, column types, row counts, % missing, and
+                    aggregate results your own runs produce.
+The agent CANNOT:   look at example rows; debug value-level parsing, recoding,
+                    or join mismatches by example; read free text or notes;
+                    spot individual data-entry errors.
+
+How work proceeds:  the agent writes the code; scripts print only aggregates,
+                    with counts under 11 suppressed. For structure, the agent
+                    runs the schema helper, which prints headings, types,
+                    counts, and % missing only.
+
+In Claude Code a guard hook blocks tool calls that would read data files. It
+cannot see what a script prints, so keep scripts aggregate-only.
+To change this later, re-run the ce-setup skill or edit phi_environment.mode
+in .ce-datascience/config.local.yaml.
+```
+<!-- ask-and-save:end -->
+
+## Schema-only mode
+
+- Never read, grep, print, or paste data-file contents (names, MRNs, claim numbers, dates, notes, or any cell value) into the conversation. Use file names and column headings only.
+- Write analysis code as script files. Scripts the agent runs must print only aggregates (counts, rates, model estimates) with cells under 11 suppressed, never rows, `head()`, examples, or distinct values. Print aggregate tables or save them as Markdown; the guard treats `.csv` outputs as data files.
+- When a task needs value-level inspection (debugging a parse, a recode, or a join mismatch by example), say so, and give the user a script to run and summarize instead.
+
+## Schema helper
+
+`scripts/schema-peek.py` in this skill's directory prints headings, inferred types, row count, non-null counts, and % missing for CSV/TSV (Parquet/Feather with pyarrow, XLSX header with openpyxl). It never prints a cell value, prints `col_1..col_n` when the first row looks like data, and suppresses counts below 11. Check that the file exists, then run it with the first interpreter found among `python3`, then `python`, then `py`:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/schema-peek.py" <data-file>
 ```
 
-| Saved value | Action |
-|---|---|
-| `compliant: true` | Proceed without asking. Record `PHI authorization: confirmed (saved <confirmed_on>)` in the run notes. |
-| `compliant: false` | Do not open patient-level data or outputs. Work only from schemas, code, metadata, synthetic fixtures the user requested, and reviewed aggregates. Say so in one line. |
-| missing, empty, or unreadable | Go to step 2. |
-
-Ask again, and overwrite the saved value, only when the user says the data environment or the model endpoint has changed, or asks to reset it.
-
-## 2. Ask once (interactive mode only)
-
-Ask exactly one question with the current harness's blocking question UI. If no blocking question UI exists or the call errors, show the two options as a numbered list in chat and wait.
-
-- Question: "Are both this data environment and the active model endpoint compliant for PHI/PII?"
-- Options: "Yes, both are compliant" and "No or unsure"
-
-Treat "No or unsure" as `compliant: false`.
-
-In agent, autofix, report-only, or headless mode, do not ask, wait, or write the config. Use `PHI authorization: not confirmed` and continue only from paths, code, schemas, metadata, and reviewed aggregates.
-
-## 3. Save the answer
-
-1. Check that the config file is gitignored: `git check-ignore -q .ce-datascience/config.local.yaml`. Exit 0 means ignored.
-2. If it is ignored (or the project is not a git repository), write or merge the `phi_environment` block above into `.ce-datascience/config.local.yaml`, creating the directory and file if needed. Keep every other key unchanged. Set `confirmed_on` to today's date, resolved at runtime.
-3. If it is not ignored, do not save. A committed answer would let another machine inherit "yes" without its own approval. Use the answer for this session only and tell the user to add `.ce-datascience/config.local.yaml` to `.gitignore` (or run the `ce-setup` skill) so the answer can be remembered.
-4. Confirm in one line, for example: `Saved: PHI-compliant environment = yes (.ce-datascience/config.local.yaml). Edit or delete phi_environment to change it.`
+If no Python interpreter exists, ask the user to paste only the header row, and state that types and counts are unknown.
 
 ## Always
 
-The saved answer records an approval decision only; never write patient data, identifiers, or credentials to the config. Whatever the answer, do not reproduce PHI in responses or persist it in Git, logs, screenshots, issues, or unrestricted exports, and keep small-cell suppression and the output boundaries of the active project profile.
+In every mode, never commit patient-level data to Git, issues, or public exports.

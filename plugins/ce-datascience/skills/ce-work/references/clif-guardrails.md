@@ -1,6 +1,6 @@
 # CLIF Guardrails for Execution
 
-Load this when the CLIF profile is active (see the CLIF discovery stub in `SKILL.md`). The PHI authorization gate in `SKILL.md` applies first and is not repeated here.
+Load this when the CLIF profile is active (see the CLIF discovery stub in `SKILL.md`). The sensitive-data boundary gate in `SKILL.md` applies first and is not repeated here.
 
 ## Source of truth and versions
 

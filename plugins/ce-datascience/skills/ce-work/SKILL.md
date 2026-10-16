@@ -12,7 +12,7 @@ argument-hint: "[Plan doc path or description of work. Blank to auto use latest 
 - **Problem it solves:** Plans need disciplined execution that respects scope, tests behavior, and finishes complete work.
 - **Use when:** The user asks to work, implement, execute a plan, or continue from the latest plan document.
 - **Output:** Implemented changes, passing validation, updated task status, and shipping-ready summary.
-- **Ask only if:** Only when plan scope, branch choice, or execution-blocking ambiguity cannot be resolved from the plan and repo, when PHI environment approval is unset in interactive mode, or at the shipping residual-work gate.
+- **Ask only if:** Only when plan scope, branch choice, or execution-blocking ambiguity cannot be resolved from the plan and repo, when the sensitive-data boundary is unset in interactive mode, or at the shipping residual-work gate.
 - **Do not do:** Do not edit plan progress state, skip tests for behavior changes, or commit to default branch without permission.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
@@ -21,7 +21,7 @@ argument-hint: "[Plan doc path or description of work. Blank to auto use latest 
 The repository root is pre-resolved at skill load:
 !`git rev-parse --show-toplevel 2>/dev/null || true`
 
-Use it as `<repo-root>` if absolute, else run `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool (in a linked worktree without it, try the main checkout from the absolute common Git directory). Parse `language`, `ide`, `libraries`, and `notebook_format` to drive `references/scaffolding-templates.md` (without config, infer the stack from project files), and `phi_environment` for the PHI gate below; do not open data files before that gate.
+Use it as `<repo-root>` if absolute, else run `git rev-parse --show-toplevel`. Read `<repo-root>/.ce-datascience/config.local.yaml` with the native file-read tool (in a linked worktree without it, try the main checkout from the absolute common Git directory). Parse `language`, `ide`, `libraries`, and `notebook_format` to drive `references/scaffolding-templates.md` (without config, infer the stack from project files), and `phi_environment` for the boundary gate below; do not open data files before that gate.
 
 ## Input Document
 
@@ -58,7 +58,7 @@ Use it as `<repo-root>` if absolute, else run `git rev-parse --show-toplevel`. R
 - **Real-data execution gate:** Before any notebook, script, or interactive run that reads, creates, transforms, validates, or renders analytical data or output, resolve the declared restricted data root for file-backed data (or the registered verified data connection) and confirm its provenance against the QA evidence. Do not generate or substitute synthetic, mock, sample, or fake-study data unless the user explicitly requests a clearly labeled test or demonstration. If the real source is unavailable or provenance cannot be confirmed, do not run the analytical work and do not persist output; report the run as blocked. Persisted study artifacts must identify their real source location or registered extract ID/hash and the validation evidence used. An explicitly requested synthetic test/demo may persist only as a clearly labeled non-study artifact with synthetic fixture or generator provenance, never in a study-output location or as a study result.
 - **Tabular catalog / open sprint:** if `analysis/sap-tables/02-outputs.csv` or `analysis/sprint-log.yaml` exists, read `references/catalog-and-sprint-scope.md` (catalog rows seed tasks; an open sprint's `scope` hard-filters edits and tasks).
 - **CLIF discovery:** activate when chat context contains `__CE_CLIF__ active=true` or the repo has strong CLIF signals (`CLIF_CLAUDE.md` at root, or a git remote containing `clif-icu`, `clif-consortium`, or `Common-Longitudinal-ICU-data-Format`; never from `mCIDE/` or `WORKFLOW.md` alone). When active, read `references/clif-guardrails.md` (protected paths need `POC: @<handle> approved`; load the `ce-language-detect` skill when `__CE_LANG__` is absent). Print one banner before the task list: `[ce-clif] CLIF profile active; protected paths read-only without POC sign-off.`
-- **PHI environment gate (all projects):** before opening patient-level data or outputs, read `phi_environment.compliant` from the config: `true`: proceed without asking again; `false`: use only schemas, code, metadata, and reviewed aggregates. If unset in interactive mode, ask once (yes/no) and save the answer per `references/phi-environment.md`. In agent, autofix, report-only, or headless mode, do not ask or wait; retain `PHI authorization: not confirmed` and continue only from paths, code, schemas, metadata, and reviewed aggregates. Regardless of authorization, do not reproduce PHI in responses or persist it in Git, logs, screenshots, issues, or unrestricted exports.
+- **Sensitive-data boundary (all projects):** before opening data files or patient-level outputs, read `references/phi-environment.md` and apply its gate. Never commit patient-level data to Git.
 
 ### 2. Setup Environment
 

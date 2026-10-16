@@ -50,6 +50,7 @@ Read the stack profile for language and data paths. Check for:
 - `analysis/power/` — for minimum sample size from power calculation
 - `analysis/signoff/signoff-ledger.json` — for unresolved human signoffs surfaced by `ce-review-pack`
 - `__CE_CLIF__ active=true` in context — for CLIF-specific checks
+- **Sensitive-data boundary.** Resolve `phi_environment.mode` in `.ce-datascience/config.local.yaml` (worktree, then main checkout; legacy `compliant: true` = `approved`, `compliant: false` = `schema-only`, `sensitive_data: false` = `no-sensitive-data`; any schema-only signal wins; unreadable = `schema-only`). `approved` or `no-sensitive-data`: proceed silently and never mention the boundary again. `schema-only`: headings, types, counts, and aggregates only; never open, print, or paste data values; run only scripts that print aggregates with counts under 11 suppressed. Unset, interactive: ask once with the blocking question tool (else a numbered list) offering `Approved endpoint: full access`, `Not approved or unsure: schema-only`, and `No sensitive data: public or synthetic`; save the answer as `phi_environment.mode` there once `git check-ignore -q .ce-datascience/config.local.yaml` passes (else first add `.ce-datascience/*.local.yaml` to `.gitignore`) so the guard hook sees it. Unset, headless: schema-only. In `schema-only`, run every check (including the PHI scan) through scripts that return only file names, column headings, counts, and categories, never rows or matched values.
 
 ### Step 2: Run check catalog
 

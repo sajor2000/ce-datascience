@@ -2,11 +2,24 @@
 # Copy to .ce-datascience/config.local.yaml in your project root.
 # All settings are optional. Uncomment and edit only what you need.
 
-# --- PHI environment (asked once by ce-work and ce-clif, then remembered) ---
-# Machine-local approval decision; keep this file gitignored so another machine
-# never inherits it. Delete the block or set compliant: false to be asked again.
+# --- Sensitive-data boundary (asked once by ce-setup, then remembered) ---
+# Machine-local decision; keep this file gitignored so another machine never
+# inherits it. mode is one of:
+#   approved           -> the model endpoint is approved for this project's
+#                         sensitive data (e.g. HIPAA-compliant with a BAA, or
+#                         institution-approved). No restrictions; never re-asked.
+#   schema-only        -> sensitive data, endpoint not approved or unsure. The
+#                         agent sees headings, types, counts, and % missing,
+#                         never data values. In Claude Code a hook blocks
+#                         reading data files.
+#   no-sensitive-data  -> public or synthetic data only. No restrictions.
+# Legacy keys still work: compliant: true -> approved,
+# compliant: false -> schema-only, sensitive_data: false -> no-sensitive-data.
+# Any schema-only signal wins a conflict; an unreadable value means schema-only.
+# MCP tools never receive data values or identifiers, in any mode.
+# Delete the block (or re-run ce-setup) to be asked again.
 # phi_environment:
-#   compliant: true            # true = this data environment AND the active model endpoint are approved for PHI/PII
+#   mode: approved | schema-only | no-sensitive-data
 #   confirmed_on: 2026-10-10   # date the user answered
 
 # --- Stack profile ---
