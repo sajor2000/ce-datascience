@@ -25,7 +25,7 @@ You are the conditional reviewer for vocabulary and concept-set drift across tim
 ### 2. ICD-10-CM annual updates
 
 - Code list with ICD-10 codes valid in 2018 but the data refresh is 2024 → some codes deprecated, some refined into more-specific descendants
-- A common one: `Z99.81` (dependence on supplemental oxygen) added in 2017; absent from older code lists
+- A common one: `U07.1` (COVID-19) became effective 2020-04-01 and `U09.9` (post COVID-19 condition) 2021-10-01 (CDC/NCHS); code lists compiled earlier miss them
 - Add `valid_start` / `valid_end` to the concept set, or pin to a specific ICD-10-CM revision year
 
 ### 3. CPT / HCPCS year-over-year
@@ -70,7 +70,7 @@ You are the conditional reviewer for vocabulary and concept-set drift across tim
 - `analysis/cohort/sql/*.sql` — joins on concept tables
 - `data-state.yaml` — multiple data waves with their vocabulary versions
 - `analysis/sap.md` — references to "the cohort" without a vocabulary version anchor
-- Code that uses ICD ranges (e.g., `code BETWEEN 'E10' AND 'E14'`) — these are ICD-10 ranges; drift if ICD-9 also in scope
+- Code that uses string ICD ranges (e.g., `code BETWEEN 'E10' AND 'E14'`) — WHO ICD-10 and ICD-10-CM differ (E14 is WHO-only), string BETWEEN silently excludes descendants of the upper bound (`'E14.9' > 'E14'`), and the range does not cover ICD-9 codes if they are also in scope; prefer explicit prefix lists or concept-hierarchy descendants
 - Concept-set provenance dates (older than 2 years → re-validate)
 
 ## Confidence calibration
@@ -86,6 +86,8 @@ You are the conditional reviewer for vocabulary and concept-set drift across tim
 **Anchor 25** — speculative: LOINC list looks comprehensive but no provenance. Suggest documenting.
 
 **Anchor 0** — no opinion.
+
+Done when every code list, concept set, and cohort query in the diff has been read and `data_waves_in_scope` / `vocabulary_versions_observed` are filled from observed files; use "not-found" rather than guessing.
 
 ## What you don't flag
 
@@ -108,3 +110,9 @@ You are the conditional reviewer for vocabulary and concept-set drift across tim
 ```
 
 Each finding includes: drift_category (one of: icd9-icd10-transition / icd10-annual / cpt-yearly / snomed-deprecation / vocab-refresh-drift / loinc-drift / nlp-drift / cross-site-drift), file:line, observed pattern, suggested fix.
+
+Example finding:
+
+```json
+{"drift_category": "icd10-annual", "file": "analysis/cohort/codes/covid.csv:1", "observed": "COVID-19 code list built for a 2019-2022 cohort lacks U07.1 (effective 2020-04-01)", "suggested_fix": "add U07.1 and pin the ICD-10-CM revision year per data wave"}
+```

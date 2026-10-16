@@ -85,7 +85,7 @@ Apply when the study evaluates chatbot-generated health advice. Use the primary 
 **Description:** Assess whether model performance disparities across subgroups could lead to inequitable outcomes.
 
 **What to look for in code/outputs:**
-- Disparity quantification using fairness metrics (equalized odds, predictive parity)
+- Disparity quantification using a named fairness metric (e.g., equalized odds, predictive parity) with its rationale; these criteria conflict when outcome prevalence differs between groups, so one should be chosen to match the harm
 - Clinical impact assessment of performance disparities on patient outcomes
 - Bias mitigation strategies implemented or recommended
 - Intersectional analysis across multiple demographic dimensions
