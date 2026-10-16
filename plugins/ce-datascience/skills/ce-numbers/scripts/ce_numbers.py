@@ -21,6 +21,8 @@ import os
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
+import zipfile
 
 REGISTRY_REL = os.path.join("analysis", "numbers", "registry.json")
 ALLOWLIST_REL = os.path.join("analysis", "numbers", "allowlist.txt")
@@ -311,7 +313,7 @@ def registry_tokens(entries):
     return {token for entry in entries.values() for _, token in numbers(str(entry.get("text", "")))}
 
 
-CHECKED_EXTS = {"md", "qmd", "rmd", "markdown", *TABLE_EXTS}
+CHECKED_EXTS = {"md", "qmd", "rmd", "markdown", "docx", *TABLE_EXTS}
 
 
 # The data-boundary guard trusts plugin scripts, so this script keeps data out itself: it never reads a
@@ -460,6 +462,11 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_pa
         if os.path.exists(rel) and ext not in CHECKED_EXTS:
             failures.append((rel, "unsupported file type", f".{ext}" if ext else "no extension"))
             continue
+        if ext == "docx" and os.path.exists(rel):
+            found, count = check_docx(rel, entries, produced, declared)
+            failures.extend(found)
+            checked += count
+            continue
         text = _read(rel)
         if text is None:
             failures.append((rel, "unreadable file", "missing" if not os.path.exists(rel) else "not readable"))
@@ -497,10 +504,298 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_pa
     return failures, checked
 
 
+# ------------------------------------------------------------------ Word (DOCX)
+
+W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+XML_SPACE = "{http://www.w3.org/XML/1998/namespace}space"
+DOCX_PARTS = ("word/document.xml", "word/footnotes.xml", "word/endnotes.xml")
+FIELD = "CE_NUM"  # Word field: { ADDIN CE_NUM <id> }, the way Zotero keeps citations as ADDIN fields
+FIELD_INSTR = re.compile(r"^\s*ADDIN\s+" + FIELD + r"\s+(\S+)\s*$")
+
+
+def _w(tag):
+    return f"{{{W}}}{tag}"
+
+
+def _xml_load(data):
+    """(root, prolog, root start tag). The original start tag is kept so namespace declarations
+    ElementTree would drop (those named only in mc:Ignorable) survive the round trip."""
+    text = data.decode("utf-8")
+    start = re.search(r"<(?!\?|!)[^>]+>", text)
+    for prefix, uri in re.findall(r'xmlns:([\w.-]+)="([^"]+)"', start.group(0)):
+        ET.register_namespace(prefix, uri)
+    return ET.fromstring(data), text[:start.start()], start.group(0)
+
+
+def _xml_dump(root, prolog, start_tag):
+    body = ET.tostring(root, encoding="unicode")
+    return (prolog + start_tag + body[re.search(r"<[^>]+>", body).end():]).encode("utf-8")
+
+
+def _docx_parts(path):
+    with zipfile.ZipFile(path) as archive:
+        return {info.filename: archive.read(info.filename) for info in archive.infolist()}
+
+
+def _owned_runs(paragraph, parents):
+    """Runs whose nearest enclosing paragraph is this one (text-box paragraphs own their own runs)."""
+    for run in paragraph.iter(_w("r")):
+        node = parents.get(run)
+        while node is not None and node.tag != _w("p"):
+            node = parents.get(node)
+        if node is paragraph:
+            yield run
+
+
+def _simple(run):
+    """A run holding only optional formatting and one text node."""
+    kids = [k for k in run if k.tag != _w("rPr")]
+    return len(kids) == 1 and kids[0].tag == _w("t")
+
+
+def _run(rpr, child):
+    run = ET.Element(_w("r"))
+    if rpr is not None:
+        run.append(_copy(rpr))
+    run.append(child)
+    return run
+
+
+def _copy(element):
+    return ET.fromstring(ET.tostring(element))
+
+
+def _text(value):
+    node = ET.Element(_w("t"))
+    node.set(XML_SPACE, "preserve")
+    node.text = value
+    return node
+
+
+def _field(rpr, id, result):
+    begin, separate, end = (ET.Element(_w("fldChar")) for _ in range(3))
+    begin.set(_w("fldCharType"), "begin")
+    separate.set(_w("fldCharType"), "separate")
+    end.set(_w("fldCharType"), "end")
+    instr = ET.Element(_w("instrText"))
+    instr.set(XML_SPACE, "preserve")
+    instr.text = f" ADDIN {FIELD} {id} "
+    return [_run(rpr, begin), _run(rpr, instr), _run(rpr, separate), _run(rpr, _text(result)), _run(rpr, end)]
+
+
+def _groups(paragraph, parents):
+    """Consecutive simple runs that share a parent: the spans a placeholder may cross."""
+    group = []
+    for run in _owned_runs(paragraph, parents):
+        if _simple(run) and (not group or parents[group[-1]] is parents[run]):
+            group.append(run)
+            continue
+        if group:
+            yield group
+        group = [run] if _simple(run) else []
+    if group:
+        yield group
+
+
+def _replace_one(paragraph, parents, entries):
+    """Replace the first placeholder in the paragraph with a field. Returns the id, or None."""
+    for group in _groups(paragraph, parents):
+        texts = [run.find(_w("t")).text or "" for run in group]
+        match = PLACEHOLDER.search("".join(texts))
+        if not match:
+            continue
+        id = match.group(1)
+        offsets, total = [], 0
+        for text in texts:
+            offsets.append(total)
+            total += len(text)
+        first = max(i for i, off in enumerate(offsets) if off <= match.start())
+        last = max(i for i, off in enumerate(offsets) if off < match.end())
+        rpr = group[first].find(_w("rPr"))
+        new = []
+        before = texts[first][:match.start() - offsets[first]]
+        after = texts[last][match.end() - offsets[last]:]
+        if before:
+            new.append(_run(rpr, _text(before)))
+        new += _field(rpr, id, entries[id]["text"])
+        if after:
+            new.append(_run(group[last].find(_w("rPr")), _text(after)))
+        parent = parents[group[first]]
+        index = list(parent).index(group[first])
+        for run in group[first:last + 1]:
+            parent.remove(run)
+        for offset, element in enumerate(new):
+            parent.insert(index + offset, element)
+        return id
+    return None
+
+
+def _paragraph_text(paragraph, parents):
+    return "".join(node.text or "" for run in _owned_runs(paragraph, parents) for node in run.iter(_w("t")))
+
+
+def _location(path, part, number):
+    """file.docx:p12 for the body, file.docx:footnotes:p3 for other parts."""
+    label = "" if part == "word/document.xml" else f"{os.path.basename(part)[:-4]}:"
+    return f"{path}:{label}p{number}"
+
+
+def _owner(element, parents):
+    node = parents.get(element)
+    while node is not None and node.tag != _w("p"):
+        node = parents.get(node)
+    return node
+
+
+def _pieces(paragraph, parents):
+    """(plain text, [(field id or None, cached result)]) for one paragraph. Field instructions and
+    deleted text are not text; results of other fields (citations, cross-references, page numbers) are
+    kept apart from the plain text and reported with id None."""
+    plain, fields, stack, inside_simple = [], [], [], set()
+    for node in paragraph.iter():
+        if node is paragraph or _owner(node, parents) is not paragraph or node in inside_simple:
+            continue
+        if node.tag == _w("fldSimple"):
+            inside_simple.update(node.iter())
+            match = FIELD_INSTR.match(node.get(_w("instr"), ""))
+            fields.append((match.group(1) if match else None, "".join(t.text or "" for t in node.iter(_w("t")))))
+        elif node.tag == _w("fldChar"):
+            kind = node.get(_w("fldCharType"))
+            if kind == "begin":
+                stack.append({"instr": "", "result": "", "separated": False})
+            elif kind == "separate" and stack:
+                stack[-1]["separated"] = True
+            elif kind == "end" and stack:
+                done = stack.pop()
+                match = FIELD_INSTR.match(done["instr"])
+                fields.append((match.group(1) if match else None, done["result"]))
+        elif node.tag == _w("instrText") and stack:
+            stack[-1]["instr"] += node.text or ""
+        elif node.tag == _w("t"):
+            if stack:
+                if stack[-1]["separated"]:
+                    stack[-1]["result"] += node.text or ""
+            else:
+                plain.append(node.text or "")
+        elif node.tag in (_w("tab"), _w("br"), _w("cr")) and not stack:
+            plain.append(" ")
+    return "".join(plain), fields
+
+
+def docx_paragraphs(path):
+    """(location, plain text, fields) for each paragraph of the body, footnotes, and endnotes."""
+    parts = _docx_parts(path)
+    for name in DOCX_PARTS:
+        if name not in parts:
+            continue
+        root = _xml_load(parts[name])[0]
+        parents = {child: parent for parent in root.iter() for child in parent}
+        for number, paragraph in enumerate(root.iter(_w("p")), 1):
+            yield (_location(path, name, number), *_pieces(paragraph, parents))
+
+
+def check_docx(rel, entries, produced, declared):
+    """(failures, checked) for a Word file: CE_NUM fields must hold their entry's current text."""
+    failures, checked = [], 0
+    try:
+        paragraphs = list(docx_paragraphs(rel))
+    except (OSError, zipfile.BadZipFile, ET.ParseError):
+        return [(rel, "unreadable file", "not a DOCX")], 0
+    for location, text, fields in paragraphs:
+        for id, result in fields:
+            if id is None:
+                continue
+            checked += 1
+            if id not in entries:
+                failures.append((location, "unknown registry id", f"{{{{num:{id}}}}}"))
+            elif result != entries[id].get("text"):
+                failures.append((location, "field result differs from registry", f"{{{{num:{id}}}}}"))
+        for match in PLACEHOLDER.finditer(text):
+            checked += 1
+            if match.group(1) not in entries:
+                failures.append((location, "unknown registry id", match.group(0)))
+        for _, token in numbers(mask(text, declared)):
+            checked += 1
+            if token not in produced:
+                failures.append((location, "untraced number", token))
+    return failures, checked
+
+
+def _refresh_fields(paragraph, parents, entries):
+    """Set each CE_NUM field's cached result to its entry's current text."""
+    stack = []
+    for node in paragraph.iter():
+        if _owner(node, parents) is not paragraph:
+            continue
+        if node.tag == _w("fldChar"):
+            kind = node.get(_w("fldCharType"))
+            if kind == "begin":
+                stack.append({"instr": "", "separated": False, "texts": []})
+            elif kind == "separate" and stack:
+                stack[-1]["separated"] = True
+            elif kind == "end" and stack:
+                done = stack.pop()
+                match = FIELD_INSTR.match(done["instr"])
+                if match and match.group(1) in entries and done["texts"]:
+                    done["texts"][0].text = entries[match.group(1)]["text"]
+                    for extra in done["texts"][1:]:
+                        extra.text = ""
+        elif node.tag == _w("instrText") and stack:
+            stack[-1]["instr"] += node.text or ""
+        elif node.tag == _w("t") and stack and stack[-1]["separated"]:
+            stack[-1]["texts"].append(node)
+
+
+def render_docx(source, out, registry_path):
+    """Placeholders become CE_NUM fields whose result is the entry's text; the source is never modified."""
+    entries = load_registry(registry_path) or {}
+    try:
+        parts = _docx_parts(source)
+    except (OSError, zipfile.BadZipFile):
+        return [(source, "unreadable file", "not a DOCX")]
+    failures, used, trees = [], set(), {}
+    for name in DOCX_PARTS:
+        if name not in parts:
+            continue
+        root, prolog, start = trees[name] = _xml_load(parts[name])
+        parents = {child: parent for parent in root.iter() for child in parent}
+        for number, paragraph in enumerate(root.iter(_w("p")), 1):
+            text, fields = _pieces(paragraph, parents)
+            ids = [m.group(1) for m in PLACEHOLDER.finditer(text)] + [id for id, _ in fields if id]
+            for id in ids:
+                used.add(id)
+                if id not in entries:
+                    failures.append((_location(source, name, number), "unknown registry id", f"{{{{num:{id}}}}}"))
+    if not used:
+        return [(source, "nothing to render", "no {{num:<id>}} placeholders or CE_NUM fields")]
+    failures.extend(stale({id: entries[id] for id in used if id in entries}, _project_root()))
+    if failures:
+        return failures
+    for name, (root, prolog, start) in trees.items():
+        for number, paragraph in enumerate(root.iter(_w("p")), 1):
+            parents = {child: parent for parent in root.iter() for child in parent}
+            _refresh_fields(paragraph, parents, entries)
+            while _replace_one(paragraph, parents, entries):
+                parents = {child: parent for parent in root.iter() for child in parent}
+            left = PLACEHOLDER.search(_paragraph_text(paragraph, parents))
+            if left:
+                failures.append((_location(source, name, number), "placeholder split across formatting", left.group(0)))
+        parts[name] = _xml_dump(root, prolog, start)
+    if failures:
+        return failures
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, data in parts.items():
+            archive.writestr(name, data)
+    return []
+
+
 def render(source, out, registry_path):
     """Substitute each placeholder with its entry's text. Fails (writes nothing) on unknown or stale ids."""
     if is_data_path(source, _project_root()):
         return [(source, "refused", "data path")]
+    if source.lower().endswith(".docx"):
+        return render_docx(source, out, registry_path)
     entries = load_registry(registry_path) or {}
     text = _read(source)
     if text is None:
@@ -523,27 +818,41 @@ def render(source, out, registry_path):
     return []
 
 
+def _uses(rel):
+    """(location, id) for each placeholder, and each CE_NUM field in a Word file. None when unreadable."""
+    if rel.lower().endswith(".docx"):
+        try:
+            return [(location, id) for location, text, fields in docx_paragraphs(rel)
+                    for id in [m.group(1) for m in PLACEHOLDER.finditer(text)] + [f for f, _ in fields if f]]
+        except (OSError, zipfile.BadZipFile, ET.ParseError):
+            return None
+    text = _read(rel)
+    if text is None:
+        return None
+    return [(f"{rel}:{number}", m.group(1)) for number, line in enumerate(text.splitlines(), 1)
+            for m in PLACEHOLDER.finditer(line)]
+
+
 def trace(files, registry_path):
     """One line per placeholder: sentence <- entry <- script@commit <- source#hash <- SAP output. No values."""
     entries = load_registry(registry_path) or {}
     out, failures = [], []
     for rel in expand(files):
-        text = _read(rel)
-        if text is None:
-            failures.append((rel, "unreadable file", "missing"))
+        uses = _uses(rel)
+        if uses is None:
+            failures.append((rel, "unreadable file", "missing or not readable"))
             continue
-        for number, line in enumerate(text.splitlines(), 1):
-            for match in PLACEHOLDER.finditer(line):
-                entry = entries.get(match.group(1))
-                if entry is None:
-                    failures.append((f"{rel}:{number}", "unknown registry id", match.group(0)))
-                    continue
-                script = entry.get("script") or {}
-                chain = [f"{rel}:{number} {match.group(0)}", f"registry {match.group(1)} ({entry.get('kind')})",
-                         f"{script.get('path', 'no script')}@{(script.get('commit') or 'uncommitted')[:12]}"]
-                chain += [f"{s.get('path')}#{str(s.get('sha256'))[:12]}" for s in entry.get("sources") or []]
-                chain.append(f"SAP {entry.get('sap_output') or 'unmapped'}")
-                out.append(" <- ".join(chain))
+        for location, id in uses:
+            entry = entries.get(id)
+            if entry is None:
+                failures.append((location, "unknown registry id", f"{{{{num:{id}}}}}"))
+                continue
+            script = entry.get("script") or {}
+            chain = [f"{location} {{{{num:{id}}}}}", f"registry {id} ({entry.get('kind')})",
+                     f"{script.get('path', 'no script')}@{(script.get('commit') or 'uncommitted')[:12]}"]
+            chain += [f"{s.get('path')}#{str(s.get('sha256'))[:12]}" for s in entry.get("sources") or []]
+            chain.append(f"SAP {entry.get('sap_output') or 'unmapped'}")
+            out.append(" <- ".join(chain))
     return out, failures
 
 

@@ -562,7 +562,10 @@ years, citation markers, figure, table, and item numbers, dates, quoted
 guideline text, and the doses or units you declare. Table 1, figure captions,
 model cards, and scientific writing cite the registry; `ce-verify`,
 `ce-pre-submission-audit`, and `ce-manuscript-package` run the gate and fail
-closed. It does not read numbers inside images or hand-edited Word tables.
+closed. Word manuscripts keep each number as a registry-owned field
+(`ADDIN CE_NUM <id>`, beside Zotero's citation fields);
+the gate fails a field whose text was hand-edited, and a number typed into a
+Word table. It does not read numbers inside images.
 
 ### Build a prediction model
 

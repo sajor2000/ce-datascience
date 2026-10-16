@@ -12,7 +12,8 @@
         "Resolves sources by purpose with the connected PubMed tools (pubmed_search_articles/pubmed_fetch_articles or search_articles/get_article_metadata) and applies Vancouver style through Zotero, not through pubmed_format_citations or a typed string",
         "Inserts citations as Zotero Word fields and does not type numeric superscripts or a static bibliography as the final representation",
         "Does not promote partially_supported, unsupported, or unverified claims into finished citations without flagging them for author review",
-        "Ends with an audit report and the __CE_CITATION_LEDGER__ handoff line including supported, unresolved, and fields_verified counts"
+        "Ends with an audit report and the __CE_CITATION_LEDGER__ handoff line including supported, unresolved, and fields_verified counts",
+        "When the manuscript reports results, renders {{num:<id>}} placeholders in the field-bearing master into ADDIN CE_NUM fields with the ce-numbers skill and runs its check before delivery"
       ]
     },
     {
