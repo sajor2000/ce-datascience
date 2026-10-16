@@ -103,14 +103,21 @@ describe("reporting guideline registry", () => {
     const deal = await readReference(registry.guidelines.DEAL.file)
     const pdsqi = await readReference(registry.guidelines["PDSQI-9"].file)
 
-    expect(registry.evidence.DEAL.status).toBe("unverified")
+    expect(registry.evidence.DEAL.status).toBe("verified")
+    expect(registry.evidence.DEAL.doi).toBe("10.1056/AIp2401106")
     expect(registry.evidence["PDSQI-9"].status).toBe("verified")
-    expect(deal).toContain("Evidence status:** Unverified")
+    expect(deal).toContain("doi:10.1056/AIp2401106")
+    expect(deal).toContain("Supplementary Table 2")
+    expect(deal).not.toContain("UNVERIFIED")
     expect(pdsqi).toContain("PMID: 40323321")
-    expect(deal).not.toContain("**Primary reference:**")
-    // Main article confirms pathways and sections only; item IDs live in Supplementary Table S2.
-    expect(deal).toContain("Table S2")
-    expect(deal).not.toMatch(/DEAL-[AB]\s*(item\s*)?\d/i)
+
+    // Pin the official DEAL item IDs (Supplementary Table 2) so no item can be invented or dropped.
+    const ids = (part: string) =>
+      [...part.matchAll(/^\| (\d+\.\d+)\\?\*? \|/gm)].map((match) => match[1])
+    const [partA, partB] = deal.split("## DEAL-B items").map((part) => part.split("## How to review")[0])
+    const sections = (counts: number[]) => counts.flatMap((n, s) => Array.from({ length: n }, (_, i) => `${s + 1}.${i + 1}`))
+    expect(ids(partA.split("## DEAL-A items")[1])).toEqual(sections([9, 5, 5, 5, 2, 5, 4, 4]))
+    expect(ids(partB)).toEqual(sections([10, 4, 3, 3, 2]))
   })
 
   test("records current replacements and final publications", async () => {
@@ -182,7 +189,7 @@ describe("reporting guideline registry", () => {
     expect(routing).not.toContain("else TRIPOD")
     expect(routing).toContain("primary = CHART")
     expect(routing).toContain("do not add PDSQI-9 automatically")
-    expect(routing).toContain("require verified-source override before DEAL")
+    expect(routing).toContain("require explicit request before DEAL")
     expect(routing).not.toContain("primary = CHART\n    extension += PDSQI-9")
 
     const hints = await fs.readFile(
