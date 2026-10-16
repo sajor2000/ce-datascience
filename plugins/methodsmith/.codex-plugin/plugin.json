@@ -1,10 +1,12 @@
 {
   "name": "methodsmith",
   "version": "4.1.0",
-  "description": "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance.",
+  "description": "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds.",
   "author": {
     "name": "Juan Carlos Rojas"
   },
+  "homepage": "https://sajor2000.github.io/methodsmith/",
+  "repository": "https://github.com/sajor2000/methodsmith",
   "license": "MIT",
   "keywords": [
     "ai-powered",
@@ -22,8 +24,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Methodsmith",
-    "shortDescription": "Compound engineering for computational scientists. SAP management, statistical review, and reporting checklists for R and Python workflows.",
-    "longDescription": "Methodsmith adapts the compound engineering loop for computational scientists and biostatisticians. Brainstorm study designs, create versioned Statistical Analysis Plans, execute analyses with SAP tracking, review methods and reporting checklist compliance, and compound institutional knowledge. Supports R and Python workflows with Quarto, Jupyter, and RMarkdown.",
+    "shortDescription": "Rigorous research methods",
+    "longDescription": "Methodsmith turns an agent into a careful research-methods partner for statistics, machine learning, and meta-analysis. Frame the question, pre-specify the analysis plan, build cohorts and Table 1, fit and check models, run reporting-checklist and methods review, and draft the paper. Each study's lessons compound into the next. Works with R and Python, Quarto, Jupyter, and marimo. Built on Every's Compound Engineering plugin.",
     "developerName": "Juan Carlos Rojas",
     "category": "Data Science",
     "capabilities": [
@@ -32,10 +34,11 @@
       "Write"
     ],
     "defaultPrompt": [
-      "/method-brainstorm a study design",
-      "/method-plan a statistical analysis",
-      "/method-review my analysis"
+      "/method-sap for my cohort study",
+      "/method-table1 from the analysis dataset",
+      "/method-meta-analysis of the included trials"
     ],
-    "screenshots": []
+    "screenshots": [],
+    "websiteURL": "https://sajor2000.github.io/methodsmith/"
   }
 }

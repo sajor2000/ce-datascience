@@ -63,10 +63,10 @@ export type MethodsmithCounts = {
 }
 
 const METHODSMITH_DESCRIPTION =
-  "Compound engineering for computational scientists: agentic coding workflows adapted for data science, statistical review, and reporting compliance."
+  "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds."
 
 const METHODSMITH_MARKETPLACE_DESCRIPTION =
-  "Compound engineering for computational scientists: reproducible, compliant, compound research automation with R/Python statistical review and SAP tracking."
+  "Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper: pre-specified SAPs, statistical and reporting-checklist review, and reproducible R and Python workflows. Every study compounds."
 
 function resolveExpectedVersion(
   explicitVersion: string | undefined,
