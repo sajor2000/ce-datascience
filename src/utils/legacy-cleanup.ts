@@ -13,10 +13,12 @@
  * TODO(cleanup): Remove this file after the v3 transition (circa Q3 2026).
  */
 
+import { createHash } from "crypto"
 import fs from "fs/promises"
 import path from "path"
 import { fileURLToPath } from "url"
 import { parseFrontmatter } from "./frontmatter"
+import shippedDescriptionFingerprints from "../data/shipped-description-fingerprints.json"
 
 /** Old skill directory names that no longer exist after the v3 rename. */
 export const STALE_SKILL_DIRS = [
@@ -526,6 +528,106 @@ async function loadLegacyFingerprints(): Promise<LegacyFingerprints> {
   return legacyFingerprintsPromise
 }
 
+let knownDescriptionsPromise: Promise<Set<string>> | null = null
+
+function normalizeDescriptionFingerprint(value: string): string {
+  return normalizeLegacyWorkflowReferences(value)
+    .replace(/[/$](ce-[a-z0-9-]+)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+/**
+ * Short hash of a normalized description. `src/data/shipped-description-fingerprints.json`
+ * holds one per description any ce-datascience release shipped, generated from
+ * git history by `scripts/maintenance/description-fingerprints.ts`.
+ */
+export function descriptionFingerprint(value: string): string {
+  return createHash("sha256").update(normalizeDescriptionFingerprint(value)).digest("hex").slice(0, 16)
+}
+
+const shippedFingerprints = new Set<string>(shippedDescriptionFingerprints.fingerprints)
+
+/**
+ * Every `description:` value ce-datascience has shipped that this checkout
+ * knows about: current skills and agents, plus the historical maps above.
+ * A file's description is the second ownership signal for legacy artifacts
+ * that predate the install ledger; the name alone is never enough.
+ */
+async function loadKnownDescriptions(): Promise<Set<string>> {
+  if (!knownDescriptionsPromise) {
+    knownDescriptionsPromise = (async () => {
+      const known = new Set<string>()
+      const add = (value: string | null | undefined) => {
+        if (value) known.add(normalizeDescriptionFingerprint(value))
+      }
+      const repoRoot = await findRepoRoot(path.dirname(fileURLToPath(import.meta.url)))
+      if (repoRoot) {
+        const pluginRoot = path.join(repoRoot, "plugins", "ce-datascience")
+        const [skillIndex, agentIndex] = await Promise.all([
+          buildSkillIndex(path.join(pluginRoot, "skills")),
+          buildAgentIndex(path.join(pluginRoot, "agents")),
+        ])
+        for (const filePath of [...skillIndex.values(), ...agentIndex.values()]) {
+          add(await readDescription(filePath))
+        }
+      }
+      for (const map of [LEGACY_ONLY_SKILL_DESCRIPTIONS, LEGACY_ONLY_AGENT_DESCRIPTIONS]) {
+        Object.values(map).forEach(add)
+      }
+      for (const map of [LEGACY_SKILL_DESCRIPTION_ALIASES, LEGACY_PROMPT_DESCRIPTION_ALIASES]) {
+        Object.values(map).flat().forEach(add)
+      }
+      return known
+    })()
+  }
+  return knownDescriptionsPromise
+}
+
+async function readArtifactDescription(targetPath: string): Promise<string | null> {
+  try {
+    const stat = await fs.stat(targetPath)
+    if (stat.isDirectory()) return readDescription(path.join(targetPath, "SKILL.md"))
+    if (targetPath.endsWith(".json")) {
+      const parsed = JSON.parse(await fs.readFile(targetPath, "utf8")) as Record<string, unknown>
+      return typeof parsed.description === "string" ? parsed.description : null
+    }
+    if (targetPath.endsWith(".toml")) {
+      const match = (await fs.readFile(targetPath, "utf8")).match(/^description\s*=\s*"((?:[^"\\]|\\.)*)"/m)
+      return match ? JSON.parse(`"${match[1]}"`) as string : null
+    }
+    return readDescription(targetPath)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Second ownership signal for an artifact found at a legacy allow-listed name
+ * with no install-ledger record: its description must exactly match one that
+ * ce-datascience has shipped. A user's own `skill-creator`, `setup`, or
+ * `review.md` fails this check and is left in place.
+ */
+export async function isKnownPluginArtifact(
+  targetPath: string,
+  extraDescriptions: Iterable<string> = [],
+): Promise<boolean> {
+  const description = await readArtifactDescription(targetPath)
+  if (!description) return false
+  if (shippedFingerprints.has(descriptionFingerprint(description))) return true
+  const fingerprint = normalizeDescriptionFingerprint(description)
+  if ((await loadKnownDescriptions()).has(fingerprint)) return true
+  for (const extra of extraDescriptions) {
+    if (normalizeDescriptionFingerprint(extra) === fingerprint) return true
+  }
+  return false
+}
+
+/** One-line notice for a same-named item that ce-datascience leaves alone. */
+export function noticeKeptUserArtifact(targetPath: string): void {
+  console.warn(`Kept ${targetPath}: it has the name of an old ce-datascience file but ce-datascience did not create it.`)
+}
+
 function promptSkillNamesForLegacy(fileName: string): string[] {
   switch (fileName) {
     case "ce-review.md":
@@ -668,10 +770,21 @@ async function isLegacyKiroPrompt(
   return isLegacyKiroAgentConfig(siblingConfigPath, expectedDescription)
 }
 
-async function removeIfExists(targetPath: string): Promise<boolean> {
+/**
+ * Remove a fingerprint-matched legacy artifact. With `backupDir` (the target's
+ * managed directory) it is moved to `<backupDir>/legacy-backup/` instead, so
+ * any file a user added inside an old plugin skill directory survives.
+ */
+async function removeIfExists(targetPath: string, backupDir?: string, kind = "items"): Promise<boolean> {
   try {
     const stat = await fs.stat(targetPath)
-    if (stat.isDirectory()) {
+    if (backupDir) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
+      const backupPath = path.join(backupDir, "legacy-backup", timestamp, kind, path.basename(targetPath))
+      await fs.mkdir(path.dirname(backupPath), { recursive: true })
+      await fs.rename(targetPath, backupPath)
+      console.warn(`Moved legacy ${kind.replace(/s$/, "")} artifact to ${backupPath}`)
+    } else if (stat.isDirectory()) {
       await fs.rm(targetPath, { recursive: true })
     } else {
       await fs.unlink(targetPath)
@@ -687,13 +800,18 @@ async function removeIfExists(targetPath: string): Promise<boolean> {
  * Remove stale skill directories from a target's skills root.
  * Call before writing new skills.
  */
-export async function cleanupStaleSkillDirs(skillsRoot: string): Promise<number> {
+export async function cleanupStaleSkillDirs(skillsRoot: string, backupDir?: string): Promise<number> {
   const { skills } = await loadLegacyFingerprints()
   let removed = 0
   for (const name of STALE_SKILL_DIRS) {
     const targetPath = path.join(skillsRoot, name)
-    if (!(await isLegacyPluginOwned(targetPath, skills.get(name), null))) continue
-    if (await removeIfExists(targetPath)) removed++
+    if (!(await isLegacyPluginOwned(targetPath, skills.get(name), null))) {
+      if (backupDir && (await pathExists(targetPath)) && !(await isKnownPluginArtifact(targetPath))) {
+        noticeKeptUserArtifact(targetPath)
+      }
+      continue
+    }
+    if (await removeIfExists(targetPath, backupDir, "skills")) removed++
   }
   return removed
 }
@@ -707,6 +825,7 @@ export async function cleanupStaleAgents(
   dir: string,
   extension: string | null,
   namePrefix = "",
+  backupDir?: string,
 ): Promise<number> {
   const { agents } = await loadLegacyFingerprints()
   let removed = 0
@@ -715,7 +834,7 @@ export async function cleanupStaleAgents(
       ? path.join(dir, `${namePrefix}${name}${extension}`)
       : path.join(dir, `${namePrefix}${name}`)
     if (!(await isLegacyPluginOwned(target, agents.get(name), extension))) continue
-    if (await removeIfExists(target)) removed++
+    if (await removeIfExists(target, backupDir, "agents")) removed++
   }
   return removed
 }
@@ -732,13 +851,13 @@ export async function cleanupStaleAgents(
  * shared `~/.codex/prompts/` directory when both plugins happen to use the
  * `ce-*` namespace.
  */
-export async function cleanupStalePrompts(promptsDir: string): Promise<number> {
+export async function cleanupStalePrompts(promptsDir: string, backupDir?: string): Promise<number> {
   const { prompts } = await loadLegacyFingerprints()
   let removed = 0
   for (const file of STALE_PROMPT_FILES) {
     const targetPath = path.join(promptsDir, file)
     if (!(await isLegacyPromptWrapper(targetPath, prompts.get(file)))) continue
-    if (await removeIfExists(targetPath)) removed++
+    if (await removeIfExists(targetPath, backupDir, "prompts")) removed++
   }
   return removed
 }

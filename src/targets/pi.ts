@@ -4,6 +4,7 @@ import {
   assertSafeArtifactName,
   backupFile,
   copySkillDir,
+  directWriter,
   ensureDir,
   injectManualInvocationGuard,
   isSafeManagedPath,
@@ -18,8 +19,9 @@ import { warnServersWithPotentialSecrets } from "../utils/secrets"
 import { transformContentForPi } from "../converters/claude-to-pi"
 import type { PiBundle } from "../types/pi"
 import { getLegacyPiArtifacts } from "../data/plugin-legacy-artifacts"
-import { cleanupStaleAgents, cleanupStaleSkillDirs } from "../utils/legacy-cleanup"
+import { cleanupStaleAgents, cleanupStaleSkillDirs, isKnownPluginArtifact, noticeKeptUserArtifact } from "../utils/legacy-cleanup"
 import { resolveLegacyManagedDir, resolveManagedSegment } from "./managed-artifacts"
+import { InstallOwnership } from "./install-ownership"
 import { rewriteMcpServerPaths } from "./mcp-paths"
 
 const PI_AGENTS_BLOCK_START = "<!-- BEGIN CE DATASCIENCE PI TOOL MAP -->"
@@ -79,26 +81,35 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
   await ensureDir(paths.promptsDir)
   await ensureDir(paths.extensionsDir)
   await ensureDir(paths.agentsDir)
+  const ownership = pluginName
+    ? await InstallOwnership.open(path.dirname(paths.managedDir), paths.managedDir, pluginName)
+    : null
+  const writer = ownership ?? directWriter
+  const claim = (targetPath: string, manifestListed: boolean) =>
+    ownership ? ownership.claim(targetPath, manifestListed) : Promise.resolve(true)
 
-  await cleanupStaleAgents(paths.skillsDir, null)
+  await cleanupStaleAgents(paths.skillsDir, null, "", pluginName ? paths.managedDir : undefined)
   // TODO(cleanup): Remove after v3 transition (circa Q3 2026)
-  await cleanupStaleSkillDirs(paths.skillsDir)
-  await cleanupRemovedPrompts(paths.promptsDir, manifest, currentPrompts)
-  await cleanupRemovedSkills(paths.skillsDir, manifest, currentSkills)
-  await cleanupRemovedAgents(paths.agentsDir, manifest, currentAgents)
-  await cleanupRemovedExtensions(paths.extensionsDir, manifest, currentExtensions)
+  await cleanupStaleSkillDirs(paths.skillsDir, pluginName ? paths.managedDir : undefined)
+  await cleanupRemovedPrompts(ownership, paths.promptsDir, manifest, currentPrompts)
+  await cleanupRemovedSkills(ownership, paths.skillsDir, manifest, currentSkills)
+  await cleanupRemovedAgents(ownership, paths.agentsDir, manifest, currentAgents)
+  await cleanupRemovedExtensions(ownership, paths.extensionsDir, manifest, currentExtensions)
 
   for (const prompt of bundle.prompts) {
     assertSafeArtifactName(sanitizePathName(prompt.name), "prompt")
-    await writeText(path.join(paths.promptsDir, `${sanitizePathName(prompt.name)}.md`), prompt.content + "\n")
+    const promptFile = `${sanitizePathName(prompt.name)}.md`
+    const promptPath = path.join(paths.promptsDir, promptFile)
+    if (!(await claim(promptPath, manifest?.prompts.includes(promptFile) ?? false))) continue
+    await writer.writeFile(promptPath, prompt.content + "\n")
   }
 
   for (const skill of bundle.skillDirs) {
     const skillName = sanitizePathName(skill.name)
     assertSafeArtifactName(skillName, "skill")
     const targetDir = path.join(paths.skillsDir, skillName)
-    await cleanupCurrentManagedSkillDir(targetDir, manifest, skillName)
-    await copySkillDir(skill.sourceDir, targetDir, transformContentForPi)
+    if (!(await claim(targetDir, manifest?.skills.includes(skillName) ?? false))) continue
+    await copySkillDir(skill.sourceDir, targetDir, transformContentForPi, false, writer)
     if (skill.disableModelInvocation) {
       await injectManualInvocationGuard(path.join(targetDir, "SKILL.md"))
     }
@@ -108,22 +119,24 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     const skillName = sanitizePathName(skill.name)
     assertSafeArtifactName(skillName, "skill")
     const targetDir = path.join(paths.skillsDir, skillName)
-    await cleanupCurrentManagedSkillDir(targetDir, manifest, skillName)
-    await writeText(path.join(targetDir, "SKILL.md"), skill.content + "\n")
+    if (!(await claim(targetDir, manifest?.skills.includes(skillName) ?? false))) continue
+    await writer.writeFile(path.join(targetDir, "SKILL.md"), skill.content + "\n")
   }
 
   for (const agent of bundle.agents) {
     assertSafeArtifactName(sanitizePathName(agent.name), "agent")
     const agentFileName = `${sanitizePathName(agent.name)}.md`
     const targetPath = path.join(paths.agentsDir, agentFileName)
-    await cleanupCurrentManagedAgentFile(targetPath, manifest, agentFileName)
-    await writeText(targetPath, agent.content + "\n")
+    if (!(await claim(targetPath, manifest?.agents.includes(agentFileName) ?? false))) continue
+    await writer.writeFile(targetPath, agent.content + "\n")
   }
 
   for (const extension of bundle.extensions) {
     const extensionName = sanitizePathName(extension.name)
     assertSafeArtifactName(extensionName, "extension")
-    await writeText(path.join(paths.extensionsDir, extensionName), extension.content + "\n")
+    const extensionPath = path.join(paths.extensionsDir, extensionName)
+    if (!(await claim(extensionPath, manifest?.extensions.includes(extensionName) ?? false))) continue
+    await writer.writeFile(extensionPath, extension.content + "\n")
   }
 
   const mcporterConfig = bundle.mcporterConfig
@@ -160,6 +173,7 @@ export async function writePiBundle(outputRoot: string, bundle: PiBundle): Promi
     await archiveLegacyInstallManifestIfOwned(paths.managedDir, pluginName)
     await cleanupKnownLegacyPiArtifacts(paths, bundle)
   }
+  await ownership?.finish()
 }
 
 function resolvePiPaths(outputRoot: string, pluginName?: string): PiPaths {
@@ -374,81 +388,71 @@ async function writeInstallManifest(managedDir: string, manifest: PiInstallManif
   await writeJson(path.join(managedDir, PI_INSTALL_MANIFEST), manifest)
 }
 
+// Pre-ledger installs recorded only names. A dropped name-manifest entry is
+// moved to backups; once a ledger exists these are no-ops and
+// InstallOwnership.finish() removes dropped files by hash.
 async function cleanupRemovedSkills(
+  ownership: InstallOwnership | null,
   skillsDir: string,
   manifest: PiInstallManifest | null,
-  currentSkills: string[],
+  currentEntries: string[],
 ): Promise<void> {
-  if (!manifest) return
-  const current = new Set(currentSkills)
-  for (const skillName of manifest.skills) {
-    if (current.has(skillName)) continue
-    // Defense in depth: `readInstallManifest` already drops unsafe entries,
-    // but re-check before any out-of-tree fs.rm can be issued from a future
-    // caller that bypasses the read layer.
-    if (!isSafeManagedPath(skillsDir, skillName)) continue
-    await fs.rm(path.join(skillsDir, skillName), { recursive: true, force: true })
+  if (!manifest || !ownership) return
+  const current = new Set(currentEntries)
+  for (const entry of manifest.skills) {
+    if (current.has(entry)) continue
+    // Defense in depth: `readInstallManifest` already drops unsafe entries.
+    if (!isSafeManagedPath(skillsDir, entry)) continue
+    await ownership.removeLegacyUnit(path.join(skillsDir, entry))
   }
 }
 
 async function cleanupRemovedPrompts(
+  ownership: InstallOwnership | null,
   promptsDir: string,
   manifest: PiInstallManifest | null,
-  currentPrompts: string[],
+  currentEntries: string[],
 ): Promise<void> {
-  if (!manifest) return
-  const current = new Set(currentPrompts)
-  for (const promptFile of manifest.prompts) {
-    if (current.has(promptFile)) continue
-    if (!isSafeManagedPath(promptsDir, promptFile)) continue
-    await fs.rm(path.join(promptsDir, promptFile), { force: true })
+  if (!manifest || !ownership) return
+  const current = new Set(currentEntries)
+  for (const entry of manifest.prompts) {
+    if (current.has(entry)) continue
+    // Defense in depth: `readInstallManifest` already drops unsafe entries.
+    if (!isSafeManagedPath(promptsDir, entry)) continue
+    await ownership.removeLegacyUnit(path.join(promptsDir, entry))
   }
 }
 
 async function cleanupRemovedExtensions(
+  ownership: InstallOwnership | null,
   extensionsDir: string,
   manifest: PiInstallManifest | null,
-  currentExtensions: string[],
+  currentEntries: string[],
 ): Promise<void> {
-  if (!manifest) return
-  const current = new Set(currentExtensions)
-  for (const extensionFile of manifest.extensions) {
-    if (current.has(extensionFile)) continue
-    if (!isSafeManagedPath(extensionsDir, extensionFile)) continue
-    await fs.rm(path.join(extensionsDir, extensionFile), { force: true })
+  if (!manifest || !ownership) return
+  const current = new Set(currentEntries)
+  for (const entry of manifest.extensions) {
+    if (current.has(entry)) continue
+    // Defense in depth: `readInstallManifest` already drops unsafe entries.
+    if (!isSafeManagedPath(extensionsDir, entry)) continue
+    await ownership.removeLegacyUnit(path.join(extensionsDir, entry))
   }
 }
 
 async function cleanupRemovedAgents(
+  ownership: InstallOwnership | null,
   agentsDir: string,
   manifest: PiInstallManifest | null,
-  currentAgents: string[],
+  currentEntries: string[],
 ): Promise<void> {
-  if (!manifest) return
-  const current = new Set(currentAgents)
-  for (const agentFile of manifest.agents) {
-    if (current.has(agentFile)) continue
-    if (!isSafeManagedPath(agentsDir, agentFile)) continue
-    await fs.rm(path.join(agentsDir, agentFile), { force: true })
+  if (!manifest || !ownership) return
+  const current = new Set(currentEntries)
+  for (const entry of manifest.agents) {
+    if (current.has(entry)) continue
+    // Defense in depth: `readInstallManifest` already drops unsafe entries.
+    if (!isSafeManagedPath(agentsDir, entry)) continue
+    await ownership.removeLegacyUnit(path.join(agentsDir, entry))
   }
-}
-
-async function cleanupCurrentManagedSkillDir(
-  targetDir: string,
-  manifest: PiInstallManifest | null,
-  skillName: string,
-): Promise<void> {
-  if (!manifest?.skills.includes(skillName)) return
-  await fs.rm(targetDir, { recursive: true, force: true })
-}
-
-async function cleanupCurrentManagedAgentFile(
-  targetPath: string,
-  manifest: PiInstallManifest | null,
-  agentFileName: string,
-): Promise<void> {
-  if (!manifest?.agents.includes(agentFileName)) return
-  await fs.rm(targetPath, { force: true })
 }
 
 // Explicit legacy Pi extension names this plugin has historically shipped and
@@ -520,6 +524,13 @@ async function moveLegacyArtifactToBackup(
   artifactPath: string,
 ): Promise<void> {
   if (!(await pathExists(artifactPath))) return
+  // Skills and prompts share directories with user content, so a legacy name
+  // match also needs a content fingerprint. Extensions and mcporter.json are
+  // plugin-branded or live inside the plugin's own managed directory.
+  if ((kind === "skills" || kind === "prompts") && !(await isKnownPluginArtifact(artifactPath))) {
+    noticeKeptUserArtifact(artifactPath)
+    return
+  }
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
   const backupDir = path.join(managedDir, "legacy-backup", timestamp, kind)
   const backupPath = path.join(backupDir, path.basename(artifactPath))

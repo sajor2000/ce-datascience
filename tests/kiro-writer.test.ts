@@ -5,6 +5,7 @@ import os from "os"
 import { writeKiroBundle } from "../src/targets/kiro"
 import { parseFrontmatter } from "../src/utils/frontmatter"
 import type { KiroBundle } from "../src/types/kiro"
+import { legacyJson, legacyMd } from "./legacy-fixtures"
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -74,10 +75,10 @@ describe("writeKiroBundle", () => {
       "---\nname: ce-plan\ndescription: Plan\n---\n\nPlan.",
     )
     await fs.mkdir(path.join(kiroRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(kiroRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), "{}")
-    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), "legacy prompt")
+    await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), legacyJson("{}"))
+    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), legacyMd("legacy prompt"))
 
     await writeKiroBundle(kiroRoot, {
       ...emptyBundle,

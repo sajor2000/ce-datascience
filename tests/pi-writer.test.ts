@@ -7,6 +7,7 @@ import { parseFrontmatter } from "../src/utils/frontmatter"
 import type { PiBundle } from "../src/types/pi"
 import { loadClaudePlugin } from "../src/parsers/claude"
 import { convertClaudeToPi } from "../src/converters/claude-to-pi"
+import { legacyMd } from "./legacy-fixtures"
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -339,12 +340,12 @@ Run these research agents:
     const outputRoot = path.join(tempRoot, ".pi")
 
     await fs.mkdir(path.join(outputRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy removed skill")
+    await fs.writeFile(path.join(outputRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy removed skill"))
     await fs.mkdir(path.join(outputRoot, "skills", "bug-reproduction-validator"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "skills", "bug-reproduction-validator", "SKILL.md"), "legacy removed agent skill")
+    await fs.writeFile(path.join(outputRoot, "skills", "bug-reproduction-validator", "SKILL.md"), legacyMd("legacy removed agent skill"))
     await fs.mkdir(path.join(outputRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(outputRoot, "prompts", "reproduce-bug.md"), "legacy removed prompt")
-    await fs.writeFile(path.join(outputRoot, "prompts", "report-bug.md"), "legacy deleted command prompt")
+    await fs.writeFile(path.join(outputRoot, "prompts", "reproduce-bug.md"), legacyMd("legacy removed prompt"))
+    await fs.writeFile(path.join(outputRoot, "prompts", "report-bug.md"), legacyMd("legacy deleted command prompt"))
 
     const plugin = await loadClaudePlugin(path.join(import.meta.dir, "..", "plugins", "ce-datascience"))
     const bundle = convertClaudeToPi(plugin, {

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { promises as fs } from "fs"
 import path from "path"
 import os from "os"
+import { legacyJson, legacyMd, legacyToml } from "./legacy-fixtures"
 
 // These tests spawn the CLI and clone or install a full plugin tree; under
 // full-suite load they can exceed bun's 5 s default.
@@ -241,11 +242,11 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(codexRoot, "skills", "ce:plan"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), "legacy raw colon skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce:plan", "SKILL.md"), legacyMd("legacy raw colon skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce:review-beta"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce:review-beta", "SKILL.md"), "legacy raw colon beta skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce:review-beta", "SKILL.md"), legacyMd("legacy raw colon beta skill"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce-update"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "skills", "ce-update", "SKILL.md"), "legacy pre-namespaced flat skill")
+    await fs.writeFile(path.join(codexRoot, "skills", "ce-update", "SKILL.md"), legacyMd("legacy pre-namespaced flat skill"))
     // A user-authored skill at a flat path whose name happens to collide with
     // a current CE skill name (ce-debug is a current CE skill that has never
     // been on the historical flat-path allow-list). The cleanup MUST NOT move
@@ -256,7 +257,7 @@ describe("CLI", () => {
     const userOwnedSkillContent = "# user-authored skill, not from CE"
     await fs.writeFile(path.join(userOwnedSkillDir, "SKILL.md"), userOwnedSkillContent)
     await fs.mkdir(path.join(codexRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), "legacy prompt")
+    await fs.writeFile(path.join(codexRoot, "prompts", "report-bug.md"), legacyMd("legacy prompt"))
     // CE emits entries under `.agents/skills/` as symlinks into its own
     // managed Codex install root. Simulate that exact shape so cleanup sees
     // an ownership-valid symlink and backs it up. A plain directory here
@@ -269,13 +270,13 @@ describe("CLI", () => {
       "ce-plan",
     )
     await fs.mkdir(sharedAgentSymlinkTarget, { recursive: true })
-    await fs.writeFile(path.join(sharedAgentSymlinkTarget, "SKILL.md"), "legacy shared skill")
+    await fs.writeFile(path.join(sharedAgentSymlinkTarget, "SKILL.md"), legacyMd("legacy shared skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
     await fs.symlink(sharedAgentSymlinkTarget, path.join(agentsRoot, "skills", "ce-plan"))
     await fs.mkdir(path.join(codexRoot, "skills", "ce-datascience", "repo-research-analyst"), { recursive: true })
     await fs.writeFile(
       path.join(codexRoot, "skills", "ce-datascience", "repo-research-analyst", "SKILL.md"),
-      "legacy namespaced generated agent skill",
+      legacyMd("legacy namespaced generated agent skill"),
     )
     await fs.mkdir(path.join(codexRoot, "skills", "ce-datascience", "ce-plan"), { recursive: true })
     await fs.writeFile(
@@ -350,7 +351,7 @@ describe("CLI", () => {
     // (1) CE-owned symlink: points inside `<codex>/skills/<plugin>/ce-plan`.
     const ceOwnedTarget = path.join(codexRoot, "skills", "ce-datascience", "ce-plan")
     await fs.mkdir(ceOwnedTarget, { recursive: true })
-    await fs.writeFile(path.join(ceOwnedTarget, "SKILL.md"), "ce-owned skill")
+    await fs.writeFile(path.join(ceOwnedTarget, "SKILL.md"), legacyMd("ce-owned skill"))
     await fs.mkdir(path.join(agentsRoot, "skills"), { recursive: true })
     await fs.symlink(ceOwnedTarget, path.join(agentsRoot, "skills", "ce-plan"))
 
@@ -445,7 +446,7 @@ describe("CLI", () => {
     )
     // Stale prompt from the prior install.
     await fs.mkdir(path.join(codexRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(codexRoot, "prompts", "ce-plan.md"), "stale prompt from prior CE version")
+    await fs.writeFile(path.join(codexRoot, "prompts", "ce-plan.md"), legacyMd("stale prompt from prior CE version"))
 
     // Install manifest listing all the prior-install artifacts.
     const managedDir = path.join(codexRoot, "ce-datascience")
@@ -508,11 +509,11 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(opencodeRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(opencodeRoot, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(opencodeRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(opencodeRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(opencodeRoot, "agents", "bug-reproduction-validator.md"), "legacy deleted agent")
+    await fs.writeFile(path.join(opencodeRoot, "agents", "bug-reproduction-validator.md"), legacyMd("legacy deleted agent"))
     await fs.mkdir(path.join(opencodeRoot, "commands", "compound"), { recursive: true })
-    await fs.writeFile(path.join(opencodeRoot, "commands", "compound", "plan.md"), "legacy command")
+    await fs.writeFile(path.join(opencodeRoot, "commands", "compound", "plan.md"), legacyMd("legacy command"))
 
     const proc = Bun.spawn([
       "bun",
@@ -554,9 +555,9 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(piRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(piRoot, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(piRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(piRoot, "prompts"), { recursive: true })
-    await fs.writeFile(path.join(piRoot, "prompts", "compound-plan.md"), "legacy command prompt")
+    await fs.writeFile(path.join(piRoot, "prompts", "compound-plan.md"), legacyMd("legacy command prompt"))
 
     const proc = Bun.spawn([
       "bun",
@@ -597,11 +598,11 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(geminiRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(geminiRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(geminiRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"), "legacy deleted agent")
+    await fs.writeFile(path.join(geminiRoot, "agents", "bug-reproduction-validator.md"), legacyMd("legacy deleted agent"))
     await fs.mkdir(path.join(geminiRoot, "commands", "compound"), { recursive: true })
-    await fs.writeFile(path.join(geminiRoot, "commands", "compound", "plan.toml"), "legacy command")
+    await fs.writeFile(path.join(geminiRoot, "commands", "compound", "plan.toml"), legacyToml("legacy command"))
 
     const proc = Bun.spawn([
       "bun",
@@ -650,7 +651,7 @@ describe("CLI", () => {
     await fs.mkdir(path.join(workspaceGemini, "skills", "creating-agent-skills"), { recursive: true })
     await fs.writeFile(
       path.join(workspaceGemini, "skills", "creating-agent-skills", "SKILL.md"),
-      "legacy deleted skill",
+      legacyMd("legacy deleted skill"),
     )
 
     const proc = Bun.spawn([
@@ -691,9 +692,9 @@ describe("CLI", () => {
     const githubRoot = path.join(tempRoot, ".github")
 
     await fs.mkdir(path.join(githubRoot, "skills", "git-commit-push-pr"), { recursive: true })
-    await fs.writeFile(path.join(githubRoot, "skills", "git-commit-push-pr", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(githubRoot, "skills", "git-commit-push-pr", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(githubRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(githubRoot, "agents", "repo-research-analyst.agent.md"), "legacy agent")
+    await fs.writeFile(path.join(githubRoot, "agents", "repo-research-analyst.agent.md"), legacyMd("legacy agent"))
 
     // User-authored artifacts whose names match current CE bundle output but
     // are NOT on the historical allow-list. The Copilot writer has been
@@ -750,11 +751,11 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(droidRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(droidRoot, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(droidRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(droidRoot, "droids"), { recursive: true })
-    await fs.writeFile(path.join(droidRoot, "droids", "bug-reproduction-validator.md"), "legacy deleted droid")
+    await fs.writeFile(path.join(droidRoot, "droids", "bug-reproduction-validator.md"), legacyMd("legacy deleted droid"))
     await fs.mkdir(path.join(droidRoot, "commands"), { recursive: true })
-    await fs.writeFile(path.join(droidRoot, "commands", "plan.md"), "legacy flattened command")
+    await fs.writeFile(path.join(droidRoot, "commands", "plan.md"), legacyMd("legacy flattened command"))
 
     // User-authored artifacts whose names match current CE bundle output (via
     // the Droid converter) but are NOT on the historical allow-list. These
@@ -811,11 +812,11 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(windsurfRoot, "skills", "reproduce-bug"), { recursive: true })
-    await fs.writeFile(path.join(windsurfRoot, "skills", "reproduce-bug", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(windsurfRoot, "skills", "reproduce-bug", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(windsurfRoot, "skills", "repo-research-analyst"), { recursive: true })
-    await fs.writeFile(path.join(windsurfRoot, "skills", "repo-research-analyst", "SKILL.md"), "legacy agent skill")
+    await fs.writeFile(path.join(windsurfRoot, "skills", "repo-research-analyst", "SKILL.md"), legacyMd("legacy agent skill"))
     await fs.mkdir(path.join(windsurfRoot, "global_workflows"), { recursive: true })
-    await fs.writeFile(path.join(windsurfRoot, "global_workflows", "workflows-plan.md"), "legacy workflow")
+    await fs.writeFile(path.join(windsurfRoot, "global_workflows", "workflows-plan.md"), legacyMd("legacy workflow"))
 
     // User-authored artifacts whose names match current CE bundle output but
     // are NOT on the historical allow-list. Windsurf's writer has been
@@ -883,16 +884,16 @@ describe("CLI", () => {
       }),
     )
     await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"), "legacy agent")
+    await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.yaml"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "commands", "compound-plan.md"), "legacy command")
+    await fs.writeFile(path.join(qwenRoot, "commands", "compound-plan.md"), legacyMd("legacy command"))
     // Legacy Bun-install commands for colon-namespaced names (e.g. `compound:plan`)
     // landed at nested paths via resolveCommandPath; cleanup must back those up
     // too so they don't shadow native plugin commands after migration.
     await fs.mkdir(path.join(qwenRoot, "commands", "compound"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "commands", "compound", "plan.md"), "legacy nested command")
+    await fs.writeFile(path.join(qwenRoot, "commands", "compound", "plan.md"), legacyMd("legacy nested command"))
 
     const proc = Bun.spawn([
       "bun",
@@ -939,12 +940,12 @@ describe("CLI", () => {
     // to `ce-plan`, `compound:plan` flattens to `compound-plan.md` and nests to
     // `compound/plan.md`). These MUST be backed up.
     await fs.mkdir(path.join(qwenRoot, "skills", "ce-plan"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), "legacy skill")
+    await fs.writeFile(path.join(qwenRoot, "skills", "ce-plan", "SKILL.md"), legacyMd("legacy skill"))
     await fs.mkdir(path.join(qwenRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.md"), "legacy agent")
+    await fs.writeFile(path.join(qwenRoot, "agents", "repo-research-analyst.md"), legacyMd("legacy agent"))
     await fs.mkdir(path.join(qwenRoot, "commands", "compound"), { recursive: true })
-    await fs.writeFile(path.join(qwenRoot, "commands", "compound-plan.md"), "legacy flat command")
-    await fs.writeFile(path.join(qwenRoot, "commands", "compound", "plan.md"), "legacy nested command")
+    await fs.writeFile(path.join(qwenRoot, "commands", "compound-plan.md"), legacyMd("legacy flat command"))
+    await fs.writeFile(path.join(qwenRoot, "commands", "compound", "plan.md"), legacyMd("legacy nested command"))
 
     // User-authored artifacts at names that match the CURRENT CE bundle but
     // are NOT on the historical allow-list. The Qwen writer is native
@@ -1018,7 +1019,7 @@ describe("CLI", () => {
     await fs.mkdir(path.join(sharedGemini, "skills", "creating-agent-skills"), { recursive: true })
     await fs.writeFile(
       path.join(sharedGemini, "skills", "creating-agent-skills", "SKILL.md"),
-      "legacy deleted skill",
+      legacyMd("legacy deleted skill"),
     )
 
     const proc = Bun.spawn([
@@ -1068,11 +1069,11 @@ describe("CLI", () => {
     await fs.mkdir(path.join(kiroRoot, "skills", "ce-plan"), { recursive: true })
     await fs.writeFile(path.join(kiroRoot, "skills", "ce-plan", "SKILL.md"), "current skill install")
     await fs.mkdir(path.join(kiroRoot, "skills", "compound-plan"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "skills", "compound-plan", "SKILL.md"), "legacy generated command skill")
+    await fs.writeFile(path.join(kiroRoot, "skills", "compound-plan", "SKILL.md"), legacyMd("legacy generated command skill"))
     await fs.mkdir(path.join(kiroRoot, "agents", "prompts"), { recursive: true })
-    await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), "{}")
-    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), "legacy agent prompt")
-    await fs.writeFile(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"), "{}")
+    await fs.writeFile(path.join(kiroRoot, "agents", "repo-research-analyst.json"), legacyJson("{}"))
+    await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "repo-research-analyst.md"), legacyMd("legacy agent prompt"))
+    await fs.writeFile(path.join(kiroRoot, "agents", "ce-repo-research-analyst.json"), legacyJson("{}"))
     await fs.writeFile(path.join(kiroRoot, "agents", "prompts", "ce-repo-research-analyst.md"), "current agent prompt")
 
     const proc = Bun.spawn([
@@ -1749,9 +1750,9 @@ describe("CLI", () => {
     const repoRoot = path.join(import.meta.dir, "..")
 
     await fs.mkdir(path.join(customRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(customRoot, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(customRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(customRoot, "agents"), { recursive: true })
-    await fs.writeFile(path.join(customRoot, "agents", "bug-reproduction-validator.md"), "legacy deleted agent")
+    await fs.writeFile(path.join(customRoot, "agents", "bug-reproduction-validator.md"), legacyMd("legacy deleted agent"))
 
     const proc = Bun.spawn([
       "bun",
@@ -1799,14 +1800,14 @@ describe("CLI", () => {
 
     // Stale artifacts in the workspace install — these must be cleaned up.
     await fs.mkdir(path.join(workspaceOpenCode, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(workspaceOpenCode, "skills", "creating-agent-skills", "SKILL.md"), "legacy deleted skill")
+    await fs.writeFile(path.join(workspaceOpenCode, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("legacy deleted skill"))
     await fs.mkdir(path.join(workspaceOpenCode, "agents"), { recursive: true })
-    await fs.writeFile(path.join(workspaceOpenCode, "agents", "bug-reproduction-validator.md"), "legacy deleted agent")
+    await fs.writeFile(path.join(workspaceOpenCode, "agents", "bug-reproduction-validator.md"), legacyMd("legacy deleted agent"))
 
     // A lookalike stale artifact in the global root — this must be UNTOUCHED
     // because the user scoped the cleanup to the workspace via `--output`.
     await fs.mkdir(path.join(globalRoot, "skills", "creating-agent-skills"), { recursive: true })
-    await fs.writeFile(path.join(globalRoot, "skills", "creating-agent-skills", "SKILL.md"), "global stale skill")
+    await fs.writeFile(path.join(globalRoot, "skills", "creating-agent-skills", "SKILL.md"), legacyMd("global stale skill"))
 
     const proc = Bun.spawn([
       "bun",

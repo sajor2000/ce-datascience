@@ -1,6 +1,6 @@
 ---
 name: ce-numbers
-description: "Locks manuscript, table, caption, and abstract numbers to a registry of aggregates written by the analysis code, with a fail-closed gate tracing each to its SAP output, script commit, and source hash. Use when reporting results or checking numbers before submission."
+description: "Locks manuscript numbers to an analysis-written registry; a fail-closed gate traces each to its SAP output, script commit, and source hash. Use when reporting or checking results."
 argument-hint: "[check|render|trace|ids] [manuscript or table paths]"
 ---
 
