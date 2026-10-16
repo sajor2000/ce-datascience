@@ -49,8 +49,10 @@ export async function writeKiroBundle(outputRoot: string, bundle: KiroBundle): P
       const agentName = sanitizePathName(agent.name)
       const configPath = path.join(paths.agentsDir, `${agentName}.json`)
       const promptPath = path.join(paths.agentsDir, "prompts", `${agentName}.md`)
+      // The config and its prompt are one unit: once the config is claimed,
+      // the prompt it points at belongs to the plugin too.
       if (!(await claimManagedUnit(ownership, configPath, manifest, "agents", `${agentName}.json`))) continue
-      if (!(await claimManagedUnit(ownership, promptPath, manifest, "agentPrompts", `${agentName}.md`))) continue
+      if (ownership && !(await ownership.claim(promptPath, true))) continue
 
       // Write agent JSON config
       await writer.writeFile(configPath, JSON.stringify(agent.config, null, 2) + "\n")
