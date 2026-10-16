@@ -22,7 +22,7 @@ Current core checklist for randomized trials: 30 numbered items (42 rows countin
 
 **Superseded:** CONSORT 2010 (Schulz KF, et al. BMJ. 2010;340:c332. PMID: 20332509) is replaced by CONSORT 2025 and should not be used as the current standard. Its 25-item numbering does not map one-to-one onto 2025 numbers; cite 2025 numbers in findings.
 
-Extensions exist for cluster-randomized, non-inferiority, crossover, adaptive, and other designs, and most were written against CONSORT 2010. Apply the CONSORT 2025 core together with the relevant design-specific extension.
+Extensions exist for cluster-randomized, non-inferiority, crossover, adaptive, and other designs, and most were written against CONSORT 2010, which CONSORT 2025 supersedes. Apply the CONSORT 2025 core together with the relevant design-specific extension.
 
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.

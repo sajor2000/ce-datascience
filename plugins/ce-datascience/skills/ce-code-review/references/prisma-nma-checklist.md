@@ -17,7 +17,7 @@ Extension of PRISMA for systematic reviews that include a network meta-analysis.
 
 **Source and licence:** Item IDs and order follow the official PRISMA-NMA checklist (https://www.prisma-statement.org/s/PRISMA-NMA-checklist.pdf). The checklist and article are copyright of the American College of Physicians and carry no open licence, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. The "What to look for" cues are added by this plugin.
 
-PRISMA-NMA is a modified 32-item checklist: the 27 PRISMA 2009 items, with NMA-specific wording added to several, plus five new items S1-S5. Use it in place of the base PRISMA checklist. Apply it to systematic reviews that use indirect or mixed treatment comparisons (network meta-analysis). An updated PRISMA-NMA is in development (protocol: Veroniki et al. JBI Evid Synth 2025, PMID 39829235). Until it is published, this 2015 checklist is current.
+PRISMA-NMA is a modified 32-item checklist: the 27 items of PRISMA 2009 (since superseded by PRISMA 2020), with NMA-specific wording added to several, plus five new items S1-S5. Use it in place of the base PRISMA checklist. Apply it to systematic reviews that use indirect or mixed treatment comparisons (network meta-analysis). An updated PRISMA-NMA is in development (protocol: Veroniki et al. JBI Evid Synth 2025, PMID 39829235). Until it is published, this 2015 checklist is current.
 
 ---
 

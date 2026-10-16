@@ -87,7 +87,7 @@ If the description already answers some of these, skip those questions. When a t
 
 ### Step 2: Apply the routing rules
 
-Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (TRIPOD 2015 is superseded); SPIRIT 2025 covers RCT protocols and PRISMA-P systematic-review protocols; DECIDE-AI covers early clinical AI evaluation; TARGET, STROBE-MR, STARD-AI, and the PRISMA subtype checklists (DTA, NMA, IPD, ScR) are stand-alone and replace their base checklist; QUADAS-3 is the DTA-review appraisal tool.
+Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (it supersedes TRIPOD 2015); always route to the newest version of a guideline, and resolve any old version name to the successor that replaced it; SPIRIT 2025 covers RCT protocols and PRISMA-P systematic-review protocols; DECIDE-AI covers early clinical AI evaluation; TARGET, STROBE-MR, STARD-AI, and the PRISMA subtype checklists (DTA, NMA, IPD, ScR) are stand-alone and replace their base checklist; QUADAS-3 is the DTA-review appraisal tool.
 
 If the answers don't fit a branch, ask a clarifying question rather than guessing.
 

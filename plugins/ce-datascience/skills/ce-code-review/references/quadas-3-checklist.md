@@ -18,7 +18,7 @@ Tool for assessing the risk of bias and the applicability of primary diagnostic 
 
 **Source and licence:** Phases, domains, and signalling-question IDs follow the official QUADAS-3 tool, version 1.2 (https://www.bristol.ac.uk/media-library/sites/social-community-medicine/quadas/QUADAS-3%201.2.docx, checked on 2026-10-15). Signalling-question numbers and order for all four domains were checked on 2026-10-15 against the explanation and elaboration (Tables 4-7 and its example form), which numbers them 1.1-1.4, 2.1-2.4, 3.1-3.8, and 4.1-4.4. The tool states no open licence and the explanation and elaboration is copyright the American College of Physicians, so the signalling questions and descriptions are faithful paraphrases that keep the meaning of each question. Use the official form for verbatim wording and read the explanation and elaboration paper before applying the tool. QUADAS is a risk-of-bias appraisal tool, not an EQUATOR reporting guideline. For comparative accuracy reviews, use QUADAS-C in addition to QUADAS-3. The "What to look for" cues are added by this plugin.
 
-Main changes from QUADAS-2:
+Main changes from QUADAS-2, which QUADAS-3 replaces:
 - Assessment is done for each selected accuracy estimate, not once per study.
 - Each synthesis question gets an "ideal test accuracy trial".
 - The Flow and Timing domain is replaced by an Analysis domain.

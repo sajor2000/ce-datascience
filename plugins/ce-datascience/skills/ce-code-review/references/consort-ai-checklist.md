@@ -10,9 +10,9 @@
 - Other Information (item 25)
 
 AI EXTENSION checklist for reporting clinical trial reports that evaluate interventions with an artificial intelligence component.
-CONSORT-AI adds 14 items to the core CONSORT 2010 items, keyed to CONSORT 2010 item numbers. Items marked "Elaboration" expand on an existing CONSORT item; items marked "Extension" are new.
+CONSORT-AI adds 14 items to the core items of CONSORT 2010 (now superseded by CONSORT 2025), keyed to the old item numbers. Items marked "Elaboration" expand on an existing CONSORT item; items marked "Extension" are new.
 
-**Base guideline:** Current CONSORT core (CONSORT 2025); this extension was published against CONSORT 2010 and should be interpreted with the current core.
+**Base guideline:** Current CONSORT core (CONSORT 2025); this extension was published against CONSORT 2010, which CONSORT 2025 supersedes, and should be interpreted with the current core.
 
 **Primary reference:** Liu X, Cruz Rivera S, Moher D, Calvert MJ, Denniston AK; SPIRIT-AI and CONSORT-AI Working Group. Reporting guidelines for clinical trial reports for interventions involving artificial intelligence: the CONSORT-AI extension. Lancet Digit Health. 2020;2(10):e537-e548. doi:10.1016/S2589-7500(20)30218-1. PMID: 33328048. Published simultaneously in BMJ. 2020;370:m3164 (doi:10.1136/bmj.m3164; PMID: 32909959; PMCID: PMC7490784) and Nat Med. 2020;26(9):1364-1374 (PMID: 32908283).
 
@@ -20,7 +20,7 @@ CONSORT-AI adds 14 items to the core CONSORT 2010 items, keyed to CONSORT 2010 i
 
 **Licence:** Checklist text reproduced verbatim from the BMJ publication (Liu et al., BMJ 2020;370:m3164) under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CONSORT-AI text.
 
-**Numbering:** Item IDs are the CONSORT 2010 numbers used by CONSORT-AI. Each item gives the nearest CONSORT 2025 core item as a plugin mapping; cite CONSORT 2025 numbers for core items.
+**Numbering:** Item IDs are the numbers CONSORT-AI uses, keyed to CONSORT 2010, which CONSORT 2025 supersedes. Each item gives the nearest CONSORT 2025 core item as a plugin mapping; cite CONSORT 2025 numbers for core items.
 
 This checklist supplements the current CONSORT core. Apply both checklists together.
 

@@ -9,7 +9,7 @@
 - Other Information (item 24b)
 
 Adaptive designs CONSORT Extension (ACE).
-Supplements the current CONSORT core with items specific to randomised trials that use an adaptive design (pre-planned adaptations based on accumulating data). ACE comprises seven new items, nine modified items, and six unchanged items that carry additional explanatory text, all keyed to CONSORT 2010 item numbers; the remaining CONSORT 2010 items apply unchanged. The abstract checklist adds one new item and modifies one item.
+Supplements the current CONSORT core with items specific to randomised trials that use an adaptive design (pre-planned adaptations based on accumulating data). ACE comprises seven new items, nine modified items, and six unchanged items that carry additional explanatory text, all keyed to the item numbers of CONSORT 2010 (now superseded by CONSORT 2025); the remaining core items apply as in the CONSORT 2025 core. The abstract checklist adds one new item and modifies one item.
 
 **Primary reference:** Dimairo M, Pallmann P, Wason J, et al. The Adaptive designs CONSORT Extension (ACE) statement: a checklist with explanation and elaboration guideline for reporting randomised trials that use an adaptive design. BMJ. 2020;369:m115. doi:10.1136/bmj.m115. PMID: 32554564. PMCID: PMC7298567. Published simultaneously in Trials. 2020;21(1):528 (PMID: 32546273).
 
@@ -17,7 +17,7 @@ Supplements the current CONSORT core with items specific to randomised trials th
 
 **Licence:** Checklist text reproduced verbatim from Dimairo et al., BMJ 2020, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not ACE text.
 
-**Numbering:** Item IDs are the CONSORT 2010 numbers used by ACE. ACE was written against CONSORT 2010; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item below gives the nearest CONSORT 2025 core item as a plugin mapping. Renumbered CONSORT 2010 items: 3b becomes 3c, 12b becomes 12c, 15 becomes 15a, 24 becomes 24a.
+**Numbering:** Item IDs are the numbers ACE uses, keyed to CONSORT 2010, which CONSORT 2025 supersedes; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item below gives the nearest CONSORT 2025 core item as a plugin mapping. Renumbered core items (as formerly numbered in CONSORT 2010): 3b becomes 3c, 12b becomes 12c, 15 becomes 15a, 24 becomes 24a.
 
 ---
 
@@ -55,7 +55,7 @@ CONSORT 2025 core: 9.
 - Sample size re-estimation, if used: algorithm, blinding status at re-estimation, and minimum and maximum sample size bounds
 - Code or statistical software implementation of the adaptation rules (gsDesign, rpact, ADDPLAN, East) referenced or included
 
-### Item 3c -- Changes outside the pre-planned adaptations (modified; CONSORT 2010 item 3b)
+### Item 3c -- Changes outside the pre-planned adaptations (modified; formerly core item 3b)
 
 **Description:** Important changes to the design or methods after trial commencement (such as eligibility criteria) outside the scope of the pre-planned adaptive design features, with reasons
 
@@ -141,7 +141,7 @@ CONSORT 2025 core: 21a.
 - Interim and final analysis models specified for every outcome that drives an adaptation
 - Conditional power formula or computational approach documented in the SAP when used at interim
 
-### Item 12b -- Estimation and inference for adaptive features (new; CONSORT 2010 item 12b becomes 12c)
+### Item 12b -- Estimation and inference for adaptive features (new; formerly core item 12b becomes 12c)
 
 **Description:** For the implemented adaptive design features, statistical methods used to estimate treatment effects for key endpoints and to make inferences
 
@@ -196,7 +196,7 @@ CONSORT 2025 core: 23b.
 - Documentation confirming whether each interim result triggered an adaptation or resulted in continuation
 - Reasons for any departure from the decision rules documented with rationale
 
-### Item 15a -- Baseline data (unchanged; additional ACE explanation; CONSORT 2010 item 15)
+### Item 15a -- Baseline data (unchanged; additional ACE explanation; formerly core item 15)
 
 **Description:** A table showing baseline demographic and clinical characteristics for each group
 
@@ -273,7 +273,7 @@ CONSORT 2025 core: 30.
 
 ## Other Information
 
-### Item 24b -- SAP and other trial documents (new; CONSORT 2010 item 24 becomes 24a)
+### Item 24b -- SAP and other trial documents (new; formerly core item 24 becomes 24a)
 
 **Description:** Where the full statistical analysis plan and other relevant trial documents can be accessed
 

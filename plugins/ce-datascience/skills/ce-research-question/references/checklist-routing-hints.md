@@ -18,7 +18,7 @@ Default mapping from `suggested_design` → primary EQUATOR checklist. This is a
 | Prediction model — development | TRIPOD+AI | TRIPOD-Cluster if clustered/multisite data; REFORMS if `ai-primary` or `llm-based`; CHARMS only for systematic reviews of prediction models |
 | Prediction model — external validation | TRIPOD+AI | — |
 | Prediction model — clinical impact / RCT of model | CONSORT (2025) | CONSORT-AI; TRIPOD+AI for the model itself |
-| Diagnostic accuracy (no AI) | STARD | QUADAS-3 if doing a SR (QUADAS-2 only if pre-specified) |
+| Diagnostic accuracy (no AI) | STARD | QUADAS-3 if doing a SR |
 | Diagnostic accuracy (AI) | STARD-AI (stand-alone; replaces STARD) | CLAIM if imaging |
 | Imaging AI | STARD-AI or TRIPOD+AI depending on aim | CLAIM (not radiomics/pathomics) |
 | ML-based science (AI prediction model) | TRIPOD+AI (or the underlying design's primary) | REFORMS |

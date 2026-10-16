@@ -26,7 +26,7 @@ IF design == RCT:
   IF cluster_design: extension += CONSORT-CLUSTER  # Campbell et al., BMJ 2012, PMID 22951546
   IF adaptive_design: extension += CONSORT-ADAPTIVE  # ACE, Dimairo et al., BMJ 2020, PMID 32554564
   IF n_of_1_design: extension += CONSORT-NOF1  # CENT 2015, Vohra et al., BMJ 2015, PMID 25976398
-  # design extensions were written against CONSORT 2010; map their core items to CONSORT 2025 numbers. Never add REFORMS to an RCT.
+  # design extensions were written against CONSORT 2010, now superseded by CONSORT 2025; map their core items to CONSORT 2025 numbers. Never add REFORMS to an RCT.
 
 ELIF design == target_trial_emulation:  # observational data explicitly emulating a target trial
   primary = TARGET
@@ -55,12 +55,12 @@ ELIF design == diagnostic_accuracy:
 
 ELIF design == systematic_review:
   primary = PRISMA  # PRISMA 2020
-  IF subtype == diagnostic_accuracy: primary = PRISMA-DTA; appraisal += QUADAS-3 (QUADAS-2 only if pre-specified)  # QUADAS-3, Whiting et al., Ann Intern Med 2026, PMID 41698208
+  IF subtype == diagnostic_accuracy: primary = PRISMA-DTA; appraisal += QUADAS-3  # QUADAS-3, Whiting et al., Ann Intern Med 2026, PMID 41698208
   IF subtype == network_meta: primary = PRISMA-NMA
   IF subtype == individual_patient_data: primary = PRISMA-IPD
   IF subtype == scoping_review: primary = PRISMA-SCR
   IF subtype == prediction_model: extension += CHARMS as data extraction and appraisal  # Moons et al., PLoS Med 2014, PMID 25314315; TRIPOD-SRMA (PMID 37137496) and PROBAST+AI (PMID 40127903) are the dedicated reporting and risk-of-bias tools but are not yet in the registry
-  # DTA, NMA, IPD, and ScR are stand-alone checklists built on PRISMA 2009; also check PRISMA 2020 items 24-27 (registration, support, competing interests, data/code availability)
+  # DTA, NMA, IPD, and ScR are stand-alone checklists built on PRISMA 2009, now superseded by PRISMA 2020; also check PRISMA 2020 items 24-27 (registration, support, competing interests, data/code availability)
   IF protocol_stage == true: protocol = PRISMA-P  # PRISMA-P 2015 (Moher et al., Syst Rev 2015, PMID 25554246)
 
 ELIF design == qualitative: primary = COREQ
@@ -90,7 +90,7 @@ OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat 
 ## Worked examples
 
 - "Retrospective EHR cohort emulating a trial of early vs delayed dialysis" -> `__CE_CHECKLIST__ primary=TARGET extensions=[RECORD]` (STROBE only if the journal asks).
-- "Logistic-regression risk score for 30-day readmission" -> `__CE_CHECKLIST__ primary=TRIPOD+AI extensions=[]` (TRIPOD 2015 is superseded).
+- "Logistic-regression risk score for 30-day readmission" -> `__CE_CHECKLIST__ primary=TRIPOD+AI extensions=[]` (TRIPOD+AI supersedes TRIPOD 2015).
 - "Protocol for an RCT of an AI triage tool" -> protocol SPIRIT 2025 + SPIRIT-AI; at results, `primary=CONSORT extensions=[CONSORT-AI]`.
 
 ## Selection Rules

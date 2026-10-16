@@ -21,7 +21,7 @@ Current primary checklist for transparent reporting of studies developing or eva
 
 **Correction:** BMJ. 2024;385:q902. doi:10.1136/bmj.q902. PMID: 38636956.
 
-**Licence and wording:** The statement is open access under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); © the authors, published by BMJ. Item text is verbatim with attribution; the "What to look for" cues are added by this plugin. The full TRIPOD+AI explanation and elaboration paper is not yet published; EQUATOR directs users to the TRIPOD 2015 E&E (PMID 25560730) and the TRIPOD+AI Expanded Checklist (Supplementary Table 1) meanwhile.
+**Licence and wording:** The statement is open access under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); © the authors, published by BMJ. Item text is verbatim with attribution; the "What to look for" cues are added by this plugin. The full TRIPOD+AI explanation and elaboration paper is not yet published; EQUATOR directs users to the E&E of TRIPOD 2015, which TRIPOD+AI supersedes (PMID 25560730), and the TRIPOD+AI Expanded Checklist (Supplementary Table 1) meanwhile.
 
 **Original TRIPOD reference:** Moons KGM, Altman DG, Reitsma JB, Ioannidis JPA, Macaskill P, Steyerberg EW, Vickers AJ, Ransohoff DF, Collins GS. Transparent Reporting of a multivariable prediction model for Individual Prognosis or Diagnosis (TRIPOD): explanation and elaboration. Ann Intern Med. 2015;162(1):W1-73. doi:10.7326/M14-0698. PMID: 25560730.
 

@@ -9,9 +9,9 @@
 - Ethics and Dissemination -- Access to data (item 29)
 
 AI EXTENSION checklist for reporting clinical trial protocols that evaluate interventions with an artificial intelligence component.
-SPIRIT-AI adds 15 items, keyed to SPIRIT 2013 item numbers. Items marked "Elaboration" expand on an existing SPIRIT item; items marked "Extension" are new.
+SPIRIT-AI adds 15 items, keyed to the item numbers of SPIRIT 2013 (now superseded by SPIRIT 2025). Items marked "Elaboration" expand on an existing SPIRIT item; items marked "Extension" are new.
 
-**Base guideline:** SPIRIT 2025 (Chan AW, et al. BMJ. 2025;389:e081477. PMID: 40294953; `spirit-checklist.md`). SPIRIT-AI (2020) was written against SPIRIT 2013; apply its AI items alongside the current SPIRIT 2025 core and cite 2025 numbers for core items.
+**Base guideline:** SPIRIT 2025 (Chan AW, et al. BMJ. 2025;389:e081477. PMID: 40294953; `spirit-checklist.md`). SPIRIT-AI (2020) was written against SPIRIT 2013, which SPIRIT 2025 supersedes; apply its AI items alongside the current SPIRIT 2025 core and cite 2025 numbers for core items.
 
 **Primary reference:** Cruz Rivera S, Liu X, Chan AW, Denniston AK, Calvert MJ; SPIRIT-AI and CONSORT-AI Working Group. Guidelines for clinical trial protocols for interventions involving artificial intelligence: the SPIRIT-AI extension. Lancet Digit Health. 2020;2(10):e549-e560. doi:10.1016/S2589-7500(20)30219-3. PMID: 33328049. Published simultaneously in BMJ. 2020;370:m3210 (doi:10.1136/bmj.m3210; PMID: 32907797; PMCID: PMC7490785) and Nat Med. 2020;26(9):1351-1363 (PMID: 32908284).
 
@@ -19,7 +19,7 @@ SPIRIT-AI adds 15 items, keyed to SPIRIT 2013 item numbers. Items marked "Elabor
 
 **Licence:** Checklist text reproduced verbatim from the BMJ publication (Cruz Rivera et al., BMJ 2020;370:m3210) under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The Lancet Digital Health copy is CC BY-NC-ND 4.0 and was used only for cross-checking. The "What to look for" bullets and the SPIRIT 2025 mapping lines are added by this plugin and are not SPIRIT-AI text.
 
-**Numbering:** Item IDs are the SPIRIT 2013 numbers used by SPIRIT-AI (SPIRIT 2013 item 22 is harms; item 29 is access to data). Each item gives the nearest SPIRIT 2025 core item as a plugin mapping.
+**Numbering:** Item IDs are the numbers SPIRIT-AI uses, keyed to SPIRIT 2013, which SPIRIT 2025 supersedes (in that old numbering, item 22 is harms and item 29 is access to data). Each item gives the nearest SPIRIT 2025 core item as a plugin mapping.
 
 This checklist supplements the SPIRIT 2025 core checklist. Apply both together.
 

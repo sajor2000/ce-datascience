@@ -8,7 +8,7 @@
 - Results (items 13a.1-19)
 
 Consolidated Standards of Reporting Trials (CONSORT) extension for N-of-1 trials (CENT 2015).
-Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series. CENT adds guidance to 14 of the 25 CONSORT 2010 items; the CONSORT 2010 items not listed below apply unchanged, and items 2a.1, 6a.1 and 13b keep the CONSORT 2010 text. CENT also recommends a diagram depicting an individual N-of-1 trial and a modified CONSORT flow diagram for a series.
+Supplements the current CONSORT core with items specific to single-patient multiple-crossover trials (N-of-1 trials) conducted individually or as a series. CENT adds guidance to 14 of the 25 items of CONSORT 2010 (now superseded by CONSORT 2025); core items not listed below follow the CONSORT 2025 core, and items 2a.1, 6a.1 and 13b keep the wording of the core item they were keyed to. CENT also recommends a diagram depicting an individual N-of-1 trial and a modified CONSORT flow diagram for a series.
 
 **Primary reference:** Vohra S, Shamseer L, Sampson M, et al.; CENT Group. CONSORT extension for reporting N-of-1 trials (CENT) 2015 Statement. BMJ. 2015;350:h1738. doi:10.1136/bmj.h1738. PMID: 25976398. Erratum: BMJ. 2016;355:i5381 (PMID: 27758798). Also published in J Clin Epidemiol. 2016;76:9-17 (doi:10.1016/j.jclinepi.2015.05.004; PMID: 26272792; e-published 2015).
 
@@ -18,7 +18,7 @@ Supplements the current CONSORT core with items specific to single-patient multi
 
 **Licence:** Checklist text reproduced verbatim (including its original punctuation) from the CENT 2015 checklist, which states: "The copyright for CENT (including checklist) is held by the CENT Group and is distributed under a Creative Commons Attribution (CC-BY 4.0) license." (https://creativecommons.org/licenses/by/4.0/). The BMJ article itself is CC BY-NC 4.0. The CC BY statement is a footnote to the checklist (Table 1), so the abstract guidance (Table 2) is treated as part of the CC BY-NC article and paraphrased. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CENT text.
 
-**Numbering:** Item IDs are the CENT 2015 numbers, keyed to CONSORT 2010. Apply CENT alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items; each item gives the nearest CONSORT 2025 core item as a plugin mapping.
+**Numbering:** Item IDs are the CENT 2015 numbers, keyed to CONSORT 2010, which CONSORT 2025 supersedes. Apply CENT alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items; each item gives the nearest CONSORT 2025 core item as a plugin mapping.
 
 **Privacy (checklist footnote):** Caution should be taken when reporting potentially identifying information pertaining to CENT items 4a, 4b, 14a, and 15.
 

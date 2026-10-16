@@ -19,7 +19,7 @@ Stand-alone extension of PRISMA for systematic reviews and meta-analyses of diag
 
 **Source and licence:** Item IDs and order follow the official PRISMA-DTA checklist (https://www.prisma-statement.org/s/PRISMA-DTA-Checklist-xh5j.pdf). That checklist carries no open licence, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. Abstracts follow the separate PRISMA-DTA for Abstracts checklist. The "What to look for" cues are added by this plugin.
 
-PRISMA-DTA has 27 items. It was built on the 2009 PRISMA statement: 8 items unchanged, 17 modified, 2 added (D1, D2), and 2 omitted (PRISMA 2009 items 15 and 22, risk of bias across studies). Items are numbered as in the official checklist, so the sequence runs 1-14, D1-D2 placed as shown, 16-21, then 23-27. Apply it when the review's primary aim is to assess the accuracy of one or more index tests against a reference standard. Appraise the included studies with QUADAS-3 (or QUADAS-2 when pre-specified).
+PRISMA-DTA has 27 items. It was built on the 2009 PRISMA statement: 8 items unchanged, 17 modified, 2 added (D1, D2), and 2 omitted (items 15 and 22 of PRISMA 2009, since superseded by PRISMA 2020: risk of bias across studies). Items are numbered as in the official checklist, so the sequence runs 1-14, D1-D2 placed as shown, 16-21, then 23-27. Apply it when the review's primary aim is to assess the accuracy of one or more index tests against a reference standard. Appraise the included studies with QUADAS-3.
 
 ---
 
@@ -133,7 +133,7 @@ PRISMA-DTA has 27 items. It was built on the 2009 PRISMA statement: 8 items unch
 **Description:** Describe the methods used to assess risk of bias in individual studies and concerns about applicability to the review question.
 
 **What to look for in code/outputs:**
-- QUADAS-3 (or QUADAS-2) assessment fields recording risk-of-bias and applicability judgments separately
+- QUADAS-3 assessment fields recording risk-of-bias and applicability judgments separately
 - Review-specific tailoring of signalling questions documented
 
 ### Item 13 -- Diagnostic accuracy measures
