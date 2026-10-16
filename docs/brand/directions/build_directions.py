@@ -32,19 +32,6 @@ RULE = "#DCD8CF"
 # --- geometry helpers ---------------------------------------------------------
 
 
-def squircle(size, x=0, y=0, n=5):
-    """Superellipse path (Apple-style continuous corners) of width `size`."""
-    a = size / 2
-    pts = []
-    for i in range(0, 361, 3):
-        t = math.radians(i)
-        c, s = math.cos(t), math.sin(t)
-        px = a * math.copysign(abs(c) ** (2 / n), c)
-        py = a * math.copysign(abs(s) ** (2 / n), s)
-        pts.append(f"{x + a + px:.2f} {y + a + py:.2f}")
-    return "M" + " L".join(pts) + " Z"
-
-
 def arc(cx, cy, r, a0, a1):
     """SVG arc path from angle a0 to a1 (degrees, clockwise from 12 o'clock)."""
     def p(a):
@@ -69,7 +56,7 @@ def fill(d, colour):
 
 # --- directions ---------------------------------------------------------------
 # glyph(fg, accent) -> SVG inner markup on the 64 grid, unframed.
-# icon(): the glyph inside its app-icon tile.
+# app_icon(): the glyph inside its square directory tile.
 
 
 def current_glyph(fg, accent):
@@ -114,24 +101,26 @@ def loop_glyph(fg, accent):
     return stroke(m, fg, w) + stroke(ret, accent, w)
 
 
+def _m_flat(fg, scale=1.0, cy=32.0):
+    stem, dv = 6.2, 6.2 * 1.35
+    l0, l1, r0, r1, top, base, v = 18, 18 + stem, 46 - stem, 46, 20.5, 43.5, 37
+    pts = [(l0, base), (l0, top), (l1, top), (32, v - dv), (r0, top), (r1, top), (r1, base),
+           (r0, base), (r0, top + dv * 1.05), (32, v), (l1, top + dv * 1.05), (l1, base)]
+    pts = [(32 + (x - 32) * scale, cy + (y - 32) * scale) for x, y in pts]
+    return fill("M" + " L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + " Z", fg)
+
+
 def hallmark_glyph(fg, accent):
     """(c) A maker's mark. Smiths punch a hallmark into finished work to vouch
-    for it; here an M is struck into a punch with concave corners, the shape
-    of an assay stamp."""
-    r = 7  # concave corner radius
-    x0, y0, x1, y1 = 7, 12, 57, 52
-    cart = (
-        f"M{x0 + r} {y0} H{x1 - r} A{r} {r} 0 0 0 {x1} {y0 + r} V{y1 - r} "
-        f"A{r} {r} 0 0 0 {x1 - r} {y1} H{x0 + r} A{r} {r} 0 0 0 {x0} {y1 - r} "
-        f"V{y0 + r} A{r} {r} 0 0 0 {x0 + r} {y0} Z"
-    )
-    m = "M20 43 V21 L32 34.5 L44 21 V43"
-    return stroke(cart, accent, 3.6, join="miter") + stroke(m, fg, 6.4, cap="butt", join="miter")
+    for it; here a flat-topped geometric M is struck into a plate with
+    chamfered corners (refined after the corner study)."""
+    plate = "M11 12 H53 L57 16 V48 L53 52 H11 L7 48 V16 Z"
+    return stroke(plate, accent, 3.4, join="miter") + _m_flat(fg)
 
 
 def hallmark_icon_glyph(fg, accent):
-    """Small-size form of (c): the struck M alone, heavier, for 16-32 px."""
-    return stroke("M17 46 V18 L32 35 L47 18 V46", fg, 8.2, cap="butt", join="miter")
+    """Small-size form of (c): the M alone, enlarged, for 16-32 px."""
+    return _m_flat(fg, 1.55, 33)
 
 
 DIRECTIONS = {
@@ -163,7 +152,7 @@ DIRECTIONS = {
         "word": ("IBM Plex Sans", 600, "-0.025em", "methodsmith", "none"),
     },
     "c-hallmark": {
-        "title": "C. Hallmark monogram",
+        "title": "C. Hallmark monogram (chosen, refined)",
         "glyph": hallmark_glyph,
         "small": hallmark_icon_glyph,
         "accent": "#C2502A",
@@ -183,21 +172,12 @@ def svg(inner, size=64, view=64, extra=""):
 
 
 def app_icon(d, small=False):
+    """Square directory tile (Claude `icon`, Codex `logo`): square, at least
+    48 px, per the directories' specs; they apply their own corner masks."""
     glyph = (d.get("small") if small and d.get("small") else d["glyph"])(d["tile_fg"], d["accent_dark"])
-    return f'<path d="{squircle(64)}" fill="{d["tile"]}"/>' + f'<g transform="translate(6.4 6.4) scale(0.8)">{glyph}</g>'
-
-
-def macos_icon(d):
-    """macOS grid: 824 px squircle centred on a 1024 canvas, with a soft shadow."""
-    glyph = d["glyph"](d["tile_fg"], d["accent_dark"])
-    s = 824 / 1024 * 64
-    o = (64 - s) / 2
-    return (
-        '<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%">'
-        '<feDropShadow dx="0" dy="0.9" stdDeviation="0.9" flood-opacity="0.28"/></filter></defs>'
-        f'<path d="{squircle(s, o, o)}" fill="{d["tile"]}" filter="url(#sh)"/>'
-        f'<g transform="translate({o + s * 0.1:.2f} {o + s * 0.1:.2f}) scale({s * 0.8 / 64:.4f})">{glyph}</g>'
-    )
+    if small and d.get("small"):
+        return f'<rect width="64" height="64" fill="{d["tile"]}"/>' + glyph
+    return f'<rect width="64" height="64" fill="{d["tile"]}"/>' + f'<g transform="translate(5.12 5.12) scale(0.84)">{glyph}</g>'
 
 
 # --- contact sheet ------------------------------------------------------------
@@ -245,7 +225,6 @@ def sheet(key, d):
     small = bool(d.get("small"))
     tile = svg(app_icon(d), size=150)
     tile_small = svg(app_icon(d, small=True), size=150) if small else ""
-    mac = svg(macos_icon(d), size=180)
     fav = svg(app_icon(d, small=True), size=16)
     nav_mark = svg(d["glyph"](INK, accent), size=30)
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
@@ -304,10 +283,9 @@ figcaption {{ font-size:12px; color:{MUTED}; margin-top:8px; }}
   <div class="cell dark" style="padding:28px 34px">{lockup(d, "dark")}</div>
 </div>
 
-<h2>App icon, monochrome</h2>
+<h2>Directory tile, monochrome</h2>
 <div class="row">
-  <figure><div class="cell" style="padding:10px">{mac}</div><figcaption>macOS grid (824 on 1024)</figcaption></figure>
-  <figure>{tile}<figcaption>iOS / directory tile</figcaption></figure>
+  <figure>{tile}<figcaption>Claude / Codex directory tile</figcaption></figure>
   {f'<figure>{tile_small}<figcaption>small-size form</figcaption></figure>' if small else ''}
   <figure><div class="cell">{mono_ink}</div><figcaption>one colour</figcaption></figure>
   <figure><div class="cell" style="background:{INK}">{mono_rev}</div><figcaption>reversed</figcaption></figure>
@@ -348,7 +326,7 @@ def main(keys):
         (out / "mark.svg").write_text(svg(d["glyph"](INK, d["accent"])) + "\n")
         (out / "mark-dark.svg").write_text(svg(d["glyph"](NIGHT_TEXT, d["accent_dark"])) + "\n")
         (out / "mark-mono.svg").write_text(svg(d["glyph"](INK, INK)) + "\n")
-        (out / "app-icon.svg").write_text(svg(app_icon(d)) + "\n")
+        (out / "tile.svg").write_text(svg(app_icon(d)) + "\n")
         html = out / "sheet.html"
         html.write_text(sheet(key, d))
         png = out / "contact-sheet.png"
