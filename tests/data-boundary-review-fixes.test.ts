@@ -45,3 +45,25 @@ describe("#86: MCP identifier checks have no key-name exemption (every mode)", (
     ])
   })
 })
+
+describe("#86: edit tools return a snippet of the file, so they follow the Read rules (schema-only)", () => {
+  test("Edit/MultiEdit on a data file and NotebookEdit on a notebook with outputs are denied; code edits pass", () => {
+    const root = project(SCHEMA_ONLY)
+    expectAll(root, "deny", [
+      ["Edit", { file_path: "data/cohort.csv", old_string: "record_id", new_string: "rid" }],
+      ["Edit", { file_path: "data/notes.txt", old_string: "x", new_string: "y" }],
+      ["MultiEdit", { file_path: "data/cohort.csv", edits: [{ old_string: "dob", new_string: "d" }] }],
+      ["NotebookEdit", { notebook_path: "notebooks/with_out.ipynb", new_source: "x = 1" }],
+    ])
+    expectAll(root, "allow", [
+      ["Edit", { file_path: "src/load.py", old_string: "pd", new_string: "pandas" }],
+      ["NotebookEdit", { notebook_path: "notebooks/clean.ipynb", new_source: "x = 1" }],
+    ])
+  })
+
+  test("the PreToolUse matcher routes Edit, MultiEdit, and NotebookEdit to the guard", () => {
+    const hooks = JSON.parse(require("fs").readFileSync(path.join(pluginRoot, "hooks", "hooks.json"), "utf8"))
+    const matcher = new RegExp(`^(?:${hooks.hooks.PreToolUse[0].matcher})$`)
+    for (const tool of ["Edit", "MultiEdit", "NotebookEdit", "Read", "Grep", "Bash"]) expect({ tool, routed: matcher.test(tool) }).toEqual({ tool, routed: true })
+  })
+})

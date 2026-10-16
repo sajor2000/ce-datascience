@@ -26,7 +26,8 @@ claim IDs, DOB, or a value in the project's hashed identifier index), MCP tools
 must not receive data files, and Bash must not upload data files. An endpoint
 approval does not cover third-party services.
 
-Schema-only access: Read/Grep/NotebookRead on data files (including data_root
+Schema-only access: Read/Grep/NotebookRead and Edit/MultiEdit/NotebookEdit
+(they return a snippet) on data files (including data_root
 and ce-safe-run logs), Bash/Monitor/PowerShell commands whose text references
 a data path (any program except a metadata allowlist), inline interpreter code
 that opens data, and recursive content searches are denied. Script files run
@@ -1229,7 +1230,7 @@ def classify(call, mode):
     if mode["mode"] != "schema-only":
         return None
     reason = access
-    if tool in ("Read", "NotebookRead"):
+    if tool in ("Read", "NotebookRead", "Edit", "MultiEdit", "NotebookEdit"):  # edits return a snippet
         path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         resolved = _resolve(path, cwd) if path else ""
         if path and aggregate_file(path, cwd, mode):
