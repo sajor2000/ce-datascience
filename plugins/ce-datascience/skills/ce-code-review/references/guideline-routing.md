@@ -65,7 +65,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | `llm-based` | any study that develops, fine-tunes, prompt-engineers, or evaluates an LLM, on any task (classification, generation, summarization, QA, extraction) | TRIPOD-LLM (TRIPOD+AI stays primary when the LLM is a prediction model; CHART stays primary for chatbot health-advice studies) | `references/tripod-llm-checklist.md` |
 | `llm-based` | ML-based scientific claims (never for chatbot-advice studies or RCTs) | REFORMS | `references/reforms-checklist.md` |
 | `llm-based` | chatbot health-advice study | CHART (primary for chatbot health-advice studies; replaces the design-based primary) | `references/chart-checklist.md` |
-| `llm-based` | LLM development or fine-tuning (DEAL-A) or applied pretrained-LLM study (DEAL-B) | DEAL only with verified-source override (item text not yet transcribed); use TRIPOD-LLM meanwhile | `references/deal-checklist.md` |
+| `llm-based` | LLM development or fine-tuning (DEAL-A) or applied pretrained-LLM study (DEAL-B) | DEAL only with verified-source override (pathways and sections confirmed; item text in Supplementary Table S2 not yet transcribed); use TRIPOD-LLM meanwhile | `references/deal-checklist.md` |
 | `llm-based` | study generating or evaluating LLM summaries of clinical documentation | PDSQI-9 as an evaluation instrument (not a reporting guideline); never auto-routed | `references/pdsqi-checklist.md` |
 | `none` | any | _(no extensions)_ | _(skip AI layer)_ |
 
@@ -134,6 +134,6 @@ When the primary is STROBE or TARGET, add RECORD for routinely collected data (E
 | MI-CLAIM | Minimum Information about Clinical AI Modeling | 6 parts | Model documentation |
 | REFORMS | Recommendations for machine-learning-based science | 32 (8 modules, 1a-8b) | ML-based science (never RCTs) |
 | CLAIM | Checklist for AI in Medical Imaging (2024 update) | 44 | AI + imaging (not radiomics/pathomics) |
-| DEAL | Development, Evaluation, and Assessment of Large Language Models (DEAL-A / DEAL-B; items unverified) | -- | LLM studies |
+| DEAL | Development, Evaluation, and Assessment of Large Language Models (DEAL-A / DEAL-B; sections confirmed, items unverified) | -- | LLM studies |
 | CHART | Chatbot Health Advice reporting | 12 (39 subitems) | Chatbot health-advice studies |
 | PDSQI-9 | Provider Documentation Summarization Quality Instrument | 9 attributes | LLM clinical-note summaries |

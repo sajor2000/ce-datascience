@@ -108,6 +108,9 @@ describe("reporting guideline registry", () => {
     expect(deal).toContain("Evidence status:** Unverified")
     expect(pdsqi).toContain("PMID: 40323321")
     expect(deal).not.toContain("**Primary reference:**")
+    // Main article confirms pathways and sections only; item IDs live in Supplementary Table S2.
+    expect(deal).toContain("Table S2")
+    expect(deal).not.toMatch(/DEAL-[AB]\s*(item\s*)?\d/i)
   })
 
   test("records current replacements and final publications", async () => {
