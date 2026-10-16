@@ -214,3 +214,19 @@ describe("#87: identifier checks cover every HTTP client call and wrapped shells
     }
   })
 })
+
+describe("#87: aggregate_dirs entries must stay inside their own project (schema-only)", () => {
+  test("absolute, '..', and symlinked entries outside the project are ignored, including from a decoy project", () => {
+    const real = withFile(project(SCHEMA_ONLY), "scratch/ok.csv", CLEAN_TABLE)
+    const decoy = project(`phi_environment:\n  mode: schema-only\n  aggregate_dirs: [${path.join(real, "scratch")}, /, ../${path.basename(real)}/scratch, outside]\n`)
+    require("fs").symlinkSync(path.join(real, "scratch"), path.join(decoy, "outside"))
+    for (const cwd of [decoy, real]) {
+      const run = Bun.spawnSync([aggregateReader, path.join(real, "scratch", "ok.csv")], { cwd })
+      expect({ cwd, code: run.exitCode, out: run.stdout.toString() }).toEqual({ cwd, code: 1, out: "" })
+    }
+    const viaLink = Bun.spawnSync([aggregateReader, "outside/ok.csv"], { cwd: decoy })
+    expect({ code: viaLink.exitCode, out: viaLink.stdout.toString() }).toEqual({ code: 1, out: "" })
+    const inside = withFile(project("phi_environment:\n  mode: schema-only\n  aggregate_dirs: [tables, ../]\n"), "tables/t.csv", CLEAN_TABLE)
+    expect(Bun.spawnSync([aggregateReader, "tables/t.csv"], { cwd: inside }).stdout.toString()).toBe(CLEAN_TABLE)
+  })
+})

@@ -442,9 +442,13 @@ def _project_mode(ce_root, main):
             data_roots.update({path, os.path.realpath(path)})
     aggregate = set()
     configured = (phi or {}).get("aggregate_dirs")
+    inside = [ce_root, os.path.realpath(ce_root)]
     for rel in (configured if isinstance(configured, list) else AGGREGATE_DIRS):
-        path = os.path.normpath(os.path.join(ce_root, rel))
-        aggregate.update({path, os.path.realpath(path)})
+        path = os.path.normpath(os.path.join(ce_root, os.path.expanduser(rel)))
+        real = os.path.realpath(path)
+        if path in inside or real in inside or not _under(path, inside) or not _under(real, inside):
+            continue  # an aggregate directory must be a subdirectory of its own project
+        aggregate.update({path, real})
     aggregate = sorted(aggregate)
     index_paths = [os.path.join(base, INDEX_REL) for base in [ce_root] + ([main] if main else [])]
     return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots),
