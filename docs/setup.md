@@ -668,7 +668,9 @@ estimands, and `ce-sap-drift-detector` flags estimand, missing-data, and
 inference drift. `/ce-effect-size` pools with REML, a Hartung-Knapp CI, and a
 prediction interval. `/ce-checklist-match` routes every prediction model to
 TRIPOD+AI, target trial emulation to standalone TARGET, and protocols to SPIRIT
-2025 or PRISMA-P. `/ce-pubmed` keeps unindexed and non-English records unless
+2025 or PRISMA-P. It always routes to the newest version of each guideline;
+old names such as TRIPOD 2015 or QUADAS-2 resolve to the successor that
+replaced them. `/ce-pubmed` keeps unindexed and non-English records unless
 you pass `--english-only`. The root README's "Statistical correctness" section
 lists the rest.
 
