@@ -21,27 +21,29 @@ saved answer, also resolves to schema-only, with a deny reason that says why.
 
 Egress (every mode except off): MCP tool arguments and Bash HTTP requests
 (curl/wget/httpie/xh to any host, so NCBI E-utilities by name or IP, and the
-ce-pubmed script, also inside sh -c or eval) must not carry identifiers (SSN, email, phone, keyword-anchored MRN/patient/member/
-claim IDs, DOB, or a value in the project's hashed identifier index), MCP tools
-must not receive data files, and Bash must not upload data files. An endpoint
-approval does not cover third-party services.
+ce-pubmed script, also inside sh -c or eval) must not carry identifiers (SSN,
+email, phone, keyword-anchored MRN/patient/member/claim IDs, DOB, or a value
+in the project's hashed identifier index), MCP tools must not receive data
+files, and Bash must not upload data files. An endpoint approval does not
+cover third-party services.
 
 Schema-only access: Read/Grep/NotebookRead and Edit/MultiEdit/NotebookEdit
-(they return a snippet) on data files (including data_root
-and ce-safe-run logs), Bash/Monitor/PowerShell commands whose text references
-a data path (any program except a metadata allowlist), inline interpreter code
-that opens data, and recursive content searches are denied. Script files run
-by python/Rscript/bash/sh/quarto render/jupyter nbconvert --execute are read
+(they return a snippet) on data files (including data_root and ce-safe-run
+logs), Bash/Monitor/PowerShell commands whose text references a data path (any
+program except a metadata allowlist), inline interpreter code that opens data,
+and recursive content searches are denied. Script files run by
+python/Rscript/bash/sh/quarto render/jupyter nbconvert --execute are read
 statically (1 MB cap) and denied when they name a data path or call a reader
 on a variable path, unless the command runs through the plugin's ce-safe-run.
 Inside ce-safe-run only the copy rule still applies (output stays in the log),
-and files a run wrote (runs/outputs.txt) are data afterwards.
-Tables under phi_environment.aggregate_dirs print through the plugin's
-ce-aggregate-read, which reads once and checks the bytes it prints (no
-identifier headers or indexed cells, no counts 1-10, at most 500 rows); a
-hook-time check of a later shell or script read could be raced. Markdown
-tables, which are not data files, are also checked on Read and cat. Limits: the script check is heuristic; obfuscation the parser
-cannot see is out of scope; this is defense in depth, not a sandbox.
+and files a run wrote (runs/outputs.txt) are data afterwards. Tables under
+phi_environment.aggregate_dirs print through the plugin's ce-aggregate-read,
+which reads once and checks the bytes it prints (no identifier headers or
+indexed cells, no counts 1-10, at most 500 rows); a hook-time check of a later
+shell or script read could be raced. Markdown tables, which are not data
+files, are also checked on Read and cat. Limits: the script check is
+heuristic; obfuscation the parser cannot see is out of scope; this is defense
+in depth, not a sandbox.
 
 Fail mode: config problems resolve to schema-only. An unexpected internal error
 denies only calls that mention a data-like path or an upload; anything else is
