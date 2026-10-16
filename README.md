@@ -78,8 +78,9 @@ plan -> work -> review -> compound loop.
 files to a `backups/` folder next to the new install. Nothing is deleted, and
 files you created are not touched.
 
-To see what is installed on your machine, run the read-only checker from a
-checkout. It prints exactly the commands below for each harness it finds:
+To see what is installed on your machine, run `/method-update` after
+installing Methodsmith, or run the same read-only checker from a checkout. It
+prints exactly the commands below for each harness it finds:
 
 ```bash
 bash plugins/methodsmith/skills/method-update/scripts/detect-pre-rename-install.sh
