@@ -41,14 +41,14 @@ async function readReference(name: string): Promise<string> {
 }
 
 describe("reporting guideline registry", () => {
-  test("keeps the 40-entry registry and checklist files in parity", async () => {
+  test("keeps the 41-entry registry and checklist files in parity", async () => {
     const raw = await readReference("guideline-registry.yaml")
     const registry = load(raw) as Registry
     const files = (await fs.readdir(referencesRoot))
       .filter((file) => file.endsWith("-checklist.md"))
       .sort()
 
-    expect(Object.keys(registry.guidelines)).toHaveLength(40)
+    expect(Object.keys(registry.guidelines)).toHaveLength(41)
     expect(Object.keys(registry.evidence).sort()).toEqual(Object.keys(registry.guidelines).sort())
     expect(Object.values(registry.guidelines).map((entry) => entry.file).sort()).toEqual(files)
   })
@@ -104,11 +104,10 @@ describe("reporting guideline registry", () => {
     const pdsqi = await readReference(registry.guidelines["PDSQI-9"].file)
 
     expect(registry.evidence.DEAL.status).toBe("unverified")
-    expect(registry.evidence["PDSQI-9"].status).toBe("unverified")
+    expect(registry.evidence["PDSQI-9"].status).toBe("verified")
     expect(deal).toContain("Evidence status:** Unverified")
-    expect(pdsqi).toContain("Evidence status:** Unverified")
+    expect(pdsqi).toContain("PMID: 40323321")
     expect(deal).not.toContain("**Primary reference:**")
-    expect(pdsqi).not.toContain("**Primary reference:**")
   })
 
   test("records current replacements and final publications", async () => {

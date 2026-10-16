@@ -10,7 +10,9 @@
 - Other Information
 
 Strengthening the Reporting of Observational Studies in Epidemiology (STROBE).
-22-item checklist applicable to cohort, case-control, and cross-sectional studies.
+22-item checklist applicable to cohort, case-control, and cross-sectional studies (18 items common to all three designs; 4 design-specific).
+
+**Source and licence:** Item text is quoted verbatim from the STROBE Statement checklist v4 (combined), https://www.equator-network.org/wp-content/uploads/2015/10/STROBE_checklist_v4_combined.pdf, also published open access under CC BY in PLoS Med 2007;4(10):e296 (PMID: 17941714). The "What to look for in code/outputs" bullets are review cues added by this plugin, not checklist text.
 
 **Primary reference:** von Elm E, Altman DG, Egger M, Pocock SJ, Gotzsche PC, Vandenbroucke JP; STROBE Initiative. Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. Ann Intern Med. 2007;147(8):573-577. doi:10.7326/0003-4819-147-8-200710160-00010. PMID: 17938396.
 
@@ -19,13 +21,15 @@ Strengthening the Reporting of Observational Studies in Epidemiology (STROBE).
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
 
+(*) Items 8, 13, 14, and 15: give information separately for cases and controls in case-control studies and, if applicable, for exposed and unexposed groups in cohort and cross-sectional studies.
+
 ---
 
 ## Title and Abstract
 
 ### Item 1 -- Title and abstract
 
-**Description:** Indicate the study's design with a commonly used term in the title or abstract. Provide an informative and balanced summary including what was done and what was found.
+**Description:** (a) Indicate the study's design with a commonly used term in the title or the abstract. (b) Provide in the abstract an informative and balanced summary of what was done and what was found.
 
 **What to look for in code/outputs:**
 - Output documents, report templates, or manuscript drafts that include a title referencing the study design (cohort, case-control, cross-sectional)
@@ -69,7 +73,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 5 -- Setting
 
-**Description:** Describe the setting, locations, and relevant dates including periods of recruitment, exposure, follow-up, and data collection.
+**Description:** Describe the setting, locations, and relevant dates, including periods of recruitment, exposure, follow-up, and data collection.
 
 **What to look for in code/outputs:**
 - Date filters in data loading or cohort definition code (index dates, enrollment windows, follow-up cutoffs)
@@ -79,7 +83,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 6 -- Participants
 
-**Description:** (a) Give the eligibility criteria and the sources and methods of selection of participants. Describe methods of follow-up. (b) For matched studies, give matching criteria and number of exposed and unexposed. (c) For case-control, give case and control definitions and selection rationale.
+**Description:** (a) Cohort study -- Give the eligibility criteria, and the sources and methods of selection of participants. Describe methods of follow-up. Case-control study -- Give the eligibility criteria, and the sources and methods of case ascertainment and control selection. Give the rationale for the choice of cases and controls. Cross-sectional study -- Give the eligibility criteria, and the sources and methods of selection of participants. (b) Cohort study -- For matched studies, give matching criteria and number of exposed and unexposed. Case-control study -- For matched studies, give matching criteria and the number of controls per case.
 
 **What to look for in code/outputs:**
 - Inclusion/exclusion filter logic applied to the source population
@@ -91,7 +95,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 7 -- Variables
 
-**Description:** Clearly define all outcomes, exposures, predictors, potential confounders, and effect modifiers. Give diagnostic criteria when applicable.
+**Description:** Clearly define all outcomes, exposures, predictors, potential confounders, and effect modifiers. Give diagnostic criteria, if applicable.
 
 **What to look for in code/outputs:**
 - Variable derivation code with clear naming (outcome, exposure, covariate labels)
@@ -102,7 +106,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 8 -- Data sources/measurement
 
-**Description:** For each variable of interest, give sources of data and details of methods of assessment (measurement). Describe comparability of assessment methods if there is more than one group.
+**Description:** (*) For each variable of interest, give sources of data and details of methods of assessment (measurement). Describe comparability of assessment methods if there is more than one group.
 
 **What to look for in code/outputs:**
 - Data source documentation (EHR system, registry, survey instrument, claims database)
@@ -145,7 +149,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 12 -- Statistical methods
 
-**Description:** (a) Describe all statistical methods including those for confounders. (b) Describe methods for subgroups and interactions. (c) Explain handling of missing data. (d) Describe methods for loss to follow-up (cohort). (e) Describe any sensitivity analyses.
+**Description:** (a) Describe all statistical methods, including those used to control for confounding. (b) Describe any methods used to examine subgroups and interactions. (c) Explain how missing data were addressed. (d) Cohort study -- If applicable, explain how loss to follow-up was addressed. Case-control study -- If applicable, explain how matching of cases and controls was addressed. Cross-sectional study -- If applicable, describe analytical methods taking account of sampling strategy. (e) Describe any sensitivity analyses.
 
 **What to look for in code/outputs:**
 - Model specification code: regression family, link function, random effects, robust standard errors
@@ -162,7 +166,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 13 -- Participants
 
-**Description:** (a) Report numbers of individuals at each stage of study -- numbers potentially eligible, examined for eligibility, confirmed eligible, included in the study, completing follow-up, and analyzed. (b) Give reasons for non-participation at each stage. (c) Consider use of a flow diagram.
+**Description:** (*) (a) Report numbers of individuals at each stage of study -- eg numbers potentially eligible, examined for eligibility, confirmed eligible, included in the study, completing follow-up, and analysed. (b) Give reasons for non-participation at each stage. (c) Consider use of a flow diagram.
 
 **What to look for in code/outputs:**
 - Cohort attrition tables or flowchart generation code (consort-style diagrams)
@@ -173,7 +177,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 14 -- Descriptive data
 
-**Description:** (a) Give characteristics of study participants and information on exposures and potential confounders. (b) Indicate number of participants with missing data for each variable. (c) Summarize follow-up time (cohort).
+**Description:** (*) (a) Give characteristics of study participants (eg demographic, clinical, social) and information on exposures and potential confounders. (b) Indicate number of participants with missing data for each variable of interest. (c) Cohort study -- Summarise follow-up time (eg, average and total amount).
 
 **What to look for in code/outputs:**
 - Table 1 generation code (tableone, gtsummary, CreateTableOne)
@@ -184,7 +188,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 15 -- Outcome data
 
-**Description:** Report numbers of outcome events or summary measures over time (cohort), numbers in each exposure category (case-control), or numbers of outcome events or summary measures (cross-sectional).
+**Description:** (*) Cohort study -- Report numbers of outcome events or summary measures over time. Case-control study -- Report numbers in each exposure category, or summary measures of exposure. Cross-sectional study -- Report numbers of outcome events or summary measures.
 
 **What to look for in code/outputs:**
 - Event counts, incidence rates, or prevalence calculations
@@ -195,7 +199,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 16 -- Main results
 
-**Description:** (a) Give unadjusted estimates and, if applicable, confounder-adjusted estimates and their precision (e.g., 95% CI). Make clear which confounders were adjusted for and why. (b) Report category boundaries when continuous variables were categorized. (c) If relevant, consider translating relative measures into absolute risk.
+**Description:** (a) Give unadjusted estimates and, if applicable, confounder-adjusted estimates and their precision (eg, 95% confidence interval). Make clear which confounders were adjusted for and why they were included. (b) Report category boundaries when continuous variables were categorized. (c) If relevant, consider translating estimates of relative risk into absolute risk for a meaningful time period.
 
 **What to look for in code/outputs:**
 - Both crude and adjusted effect estimates (OR, RR, HR, RD) with confidence intervals
@@ -206,7 +210,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 17 -- Other analyses
 
-**Description:** Report other analyses done -- e.g., analyses of subgroups and interactions, and sensitivity analyses.
+**Description:** Report other analyses done -- eg analyses of subgroups and interactions, and sensitivity analyses.
 
 **What to look for in code/outputs:**
 - Subgroup analysis code and output tables
@@ -221,7 +225,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 18 -- Key results
 
-**Description:** Summarize key results with reference to study objectives.
+**Description:** Summarise key results with reference to study objectives.
 
 **What to look for in code/outputs:**
 - Summary sections in rendered reports that reference stated objectives
@@ -240,7 +244,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 20 -- Interpretation
 
-**Description:** Give a cautious overall interpretation considering objectives, limitations, multiplicity of analyses, results from similar studies, and other relevant evidence.
+**Description:** Give a cautious overall interpretation of results considering objectives, limitations, multiplicity of analyses, results from similar studies, and other relevant evidence.
 
 **What to look for in code/outputs:**
 - Conclusion statements in reports that appropriately qualify findings
@@ -250,7 +254,7 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 21 -- Generalizability
 
-**Description:** Discuss the generalizability (external validity) of the study results.
+**Description:** Discuss the generalisability (external validity) of the study results.
 
 **What to look for in code/outputs:**
 - Description of the source population and how it compares to the target population

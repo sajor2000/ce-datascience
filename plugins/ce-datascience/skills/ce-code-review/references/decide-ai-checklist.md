@@ -12,7 +12,11 @@ DECIDE-AI: 27 items -- 17 AI-specific reporting items (numbered 1-17, made of 28
 
 **Current primary reference:** Vasey B, Nagendran M, Campbell B, et al. Reporting guideline for the early-stage clinical evaluation of decision support systems driven by artificial intelligence: DECIDE-AI. Nat Med. 2022;28(5):924-933. doi:10.1038/s41591-022-01772-9. PMID: 35585198. Simultaneously published in BMJ. 2022;377:e070904. doi:10.1136/bmj-2022-070904. PMID: 35584845. PMCID: PMC9116198.
 
-**Verified against:** DECIDE-AI Table 2 in the BMJ PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC9116198/.
+**Verified against:** DECIDE-AI Table 2 in the BMJ PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC9116198/, checked 2026-10-15. EQUATOR record: https://www.equator-network.org/reporting-guidelines/reporting-guideline-for-the-early-stage-clinical-evaluation-of-decision-support-systems-driven-by-artificial-intelligence-decide-ai/ (a Spanish translation is listed there).
+
+**Publisher correction (Nat Med version):** Nat Med. 2022;28(10):2218. doi:10.1038/s41591-022-01951-8. PMID: 35962208.
+
+**Licence and wording:** The BMJ version is CC BY-NC 4.0 (no commercial reuse), so items are faithful paraphrases of Table 2; item numbers and themes are exact.
 
 DECIDE-AI is a standalone, stage-specific guideline for small-scale, live clinical evaluation of an AI decision-support system (after offline validation, before a comparative trial). Use TRIPOD+AI or STARD-AI for offline model evaluation and CONSORT-AI for randomised trials.
 

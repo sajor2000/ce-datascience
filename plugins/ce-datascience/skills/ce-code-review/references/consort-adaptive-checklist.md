@@ -2,213 +2,283 @@
 
 ## Contents
 
-- Title and Abstract
-- Introduction
-- Methods
-- Results
-- Discussion
-- Other Information
+- Title and Abstract (items 1b, abstract items)
+- Methods (items 3b-12b)
+- Results (items 13a-17c)
+- Discussion (items 20-21)
+- Other Information (item 24b)
 
 Adaptive designs CONSORT Extension (ACE).
-Supplements the current CONSORT core with items specific to randomized controlled trials that use pre-planned adaptations based on accumulating data.
+Supplements the current CONSORT core with items specific to randomised trials that use an adaptive design (pre-planned adaptations based on accumulating data). ACE comprises seven new items, nine modified items, and six unchanged items that carry additional explanatory text, all keyed to CONSORT 2010 item numbers; the remaining CONSORT 2010 items apply unchanged. The abstract checklist adds one new item and modifies one item.
 
-**Primary reference:** Dimairo M, Pallmann P, Wason J, et al. The Adaptive designs CONSORT Extension (ACE) statement: a checklist with explanation and elaboration guideline for reporting randomised trials that use an adaptive design. BMJ. 2020;369:m115. doi:10.1136/bmj.m115. PMID: 32554564.
+**Primary reference:** Dimairo M, Pallmann P, Wason J, et al. The Adaptive designs CONSORT Extension (ACE) statement: a checklist with explanation and elaboration guideline for reporting randomised trials that use an adaptive design. BMJ. 2020;369:m115. doi:10.1136/bmj.m115. PMID: 32554564. PMCID: PMC7298567. Published simultaneously in Trials. 2020;21(1):528 (PMID: 32546273).
 
-Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for adaptive trial designs. Each item describes what must be reported and what to look for in analysis code and outputs.
+**Verified against:** ACE Table 2 (main report checklist) and Table 3 (abstract checklist) in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC7298567/, and the ACE main checklist (Word) linked from https://www.consort-spirit.org/extensions (verified 2026-10-15).
+
+**Licence:** Checklist text reproduced verbatim from Dimairo et al., BMJ 2020, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not ACE text.
+
+**Numbering:** Item IDs are the CONSORT 2010 numbers used by ACE. ACE was written against CONSORT 2010; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item below gives the nearest CONSORT 2025 core item as a plugin mapping. Renumbered CONSORT 2010 items: 3b becomes 3c, 12b becomes 12c, 15 becomes 15a, 24 becomes 24a.
 
 ---
 
 ## Title and Abstract
 
-### Item 1 -- Identification as an adaptive design trial
+### Item 1b -- Structured summary (modified)
 
-**Description:** Identify the study as a randomized adaptive design trial in the title and abstract, naming the specific type of adaptation used.
+**Description:** Structured summary of trial design, methods, results, and conclusions (for specific guidance see ACE for abstracts, table 3)
+
+ACE abstract checklist additions:
+- Trial design (modified): Description of the trial design (for example, parallel, cluster, non-inferiority); include the word "adaptive" in the content or at least as a keyword
+- Adaptation decisions made (new): Specify what trial adaptation decisions were made in light of the pre-planned decision-making criteria and observed accrued data
+- Outcome (unchanged, additional explanatory text): Clearly defined primary outcome for this report
+
+CONSORT 2025 core: 1b.
 
 **What to look for in code/outputs:**
 - Report title or rendered document header explicitly stating "adaptive" and naming the design (e.g., "group sequential," "response-adaptive randomization," "seamless phase II/III")
-- Abstract text naming the type of adaptation and summarizing the pre-specified adaptation rules
+- Abstract text naming the type of adaptation and the adaptation decisions actually taken
 - Report metadata confirming the adaptive design designation and the primary adaptation type
-
----
-
-## Introduction
-
-### Item 2 -- Rationale for adaptive design*
-
-**Description:** Explain the scientific and statistical rationale for using an adaptive design, including why a non-adaptive design was insufficient to meet the objectives.
-
-**What to look for in code/outputs:**
-- Documentation explicitly justifying the adaptive design over a fixed-sample design
-- Report sections explaining the specific operational or scientific advantage gained (e.g., ethical imperative to stop early for harm, uncertainty about effect size requiring sample size re-estimation)
-- Protocol or SAP text describing the adaptive design within the context of the overall development program
 
 ---
 
 ## Methods
 
-### Item 3 -- Type of adaptation*
+### Item 3b -- Pre-planned adaptive design features (new)
 
-**Description:** State the type(s) of adaptive design used, including the number of planned interim analyses, and describe each pre-specified adaptation rule in full operational detail.
+**Description:** Type of adaptive design used, with details of the pre-planned trial adaptations and the statistical information informing the adaptations
+
+CONSORT 2025 core: 9.
 
 **What to look for in code/outputs:**
 - Adaptation type clearly named: group sequential stopping (for efficacy or futility), sample size re-estimation, arm dropping, biomarker-adaptive enrichment, response-adaptive randomization, seamless phase II/III, or platform trial adaptation
-- All planned interim looks listed with their timing (information fraction or calendar time)
 - Each adaptation rule specified completely (stopping boundary values, enrichment criteria, re-estimation algorithm, arm-dropping criteria)
+- Sample size re-estimation, if used: algorithm, blinding status at re-estimation, and minimum and maximum sample size bounds
 - Code or statistical software implementation of the adaptation rules (gsDesign, rpact, ADDPLAN, East) referenced or included
 
-### Item 4 -- Pre-specified adaptation rules*
+### Item 3c -- Changes outside the pre-planned adaptations (modified; CONSORT 2010 item 3b)
 
-**Description:** Provide complete pre-specified decision rules for each adaptation, including the criteria that trigger adaptation, the decision algorithm, and the possible outcomes at each interim.
+**Description:** Important changes to the design or methods after trial commencement (such as eligibility criteria) outside the scope of the pre-planned adaptive design features, with reasons
 
-**What to look for in code/outputs:**
-- Decision rules documented in the SAP with exact threshold values (e.g., conditional power below 20% triggers futility stopping)
-- Code implementing the decision boundaries with the exact parameter values from the SAP
-- Documentation confirming rules were pre-specified before any unblinded data were accessed
-- Version-controlled SAP files with timestamps confirming pre-specification relative to data access
-- Possible outcomes at each interim analysis stage enumerated (continue unchanged, adapt allocation, stop for efficacy, stop for futility, enrich population)
-
-### Item 5 -- Interim analysis schedule*
-
-**Description:** Specify the timing of each planned interim analysis in terms of information fraction, sample size, or calendar time, and describe the process for conducting each interim analysis.
+CONSORT 2025 core: 10.
 
 **What to look for in code/outputs:**
-- Information fractions or sample size milestones for each interim analysis stated in the SAP and analysis code
-- Code that triggers or flags interim analyses at pre-specified data maturity thresholds
-- Documentation of who conducts each interim analysis and their access to unblinded data
-- Procedures for data lock and data transfer to the independent data monitoring committee (DMC) at each interim
+- Protocol or SAP amendment log separating unplanned changes from pre-planned adaptations
+- Reasons and dates for each unplanned change, with documentation confirming no post-hoc changes to adaptation rules
 
-### Item 6 -- Type I error control across adaptations*
+### Item 6a -- Outcomes, including those informing adaptations (modified)
 
-**Description:** Describe the method used to control the overall type I error rate across all planned interim analyses and adaptations, including the alpha-spending function or group-sequential boundary used.
+**Description:** Completely define pre-specified primary and secondary outcome measures, including how and when they were assessed. Any other outcome measures used to inform pre-planned adaptations should be described with the rationale
+
+CONSORT 2025 core: 14.
+
+**What to look for in code/outputs:**
+- Endpoint derivation code for primary, secondary, and adaptation-informing outcomes (for example, an early surrogate used at interim)
+- Rationale for each adaptation-informing outcome stated in the SAP
+
+### Item 6b -- Unplanned changes to outcomes (modified)
+
+**Description:** Any unplanned changes to trial outcomes after the trial commenced, with reasons
+
+CONSORT 2025 core: 10.
+
+**What to look for in code/outputs:**
+- Registered vs analysed outcomes compared, with unplanned changes flagged and justified
+
+### Item 7a -- Sample size and operating characteristics (modified)
+
+**Description:** How sample size and operating characteristics were determined
+
+CONSORT 2025 core: 16a.
 
 **What to look for in code/outputs:**
 - Alpha-spending function named and its parameters specified: O'Brien-Fleming, Pocock, Lan-DeMets with exact spending function parameters
 - Code implementing the spending function (gsDesign `sfLDOF`, `sfHSD`, or custom function; rpact `getDesignGroupSequential`)
-- Cumulative alpha spent at each interim analysis stated alongside the boundary
-- Documentation confirming the overall one-sided or two-sided alpha level and how it is apportioned across interims
-- Simulation results or analytic derivations confirming family-wise type I error control if non-standard adaptations are used
+- Overall one-sided or two-sided alpha level, power, and expected sample size under the design
+- Simulation results or analytic derivations confirming family-wise type I error control and other operating characteristics if non-standard adaptations are used
 
-### Item 7 -- Information fraction at each interim*
+### Item 7b -- Interim decision-making criteria and timing (modified)
 
-**Description:** Provide the information fraction (proportion of maximum information) at each planned interim analysis and explain how information is defined and measured for the primary endpoint.
+**Description:** Pre-planned interim decision-making criteria to guide the trial adaptation process; whether decision-making criteria were binding or non-binding; pre-planned and actual timing and frequency of interim data looks to inform trial adaptations
 
-**What to look for in code/outputs:**
-- Information fraction defined (e.g., number of events for time-to-event endpoints, number of participants for continuous endpoints) in the SAP
-- Code that computes the information fraction at each interim as a function of observed data
-- Planned vs. observed information fractions compared in the results
-- Documentation of how information was measured when the maximum information was unknown at design time (e.g., in sample size re-estimation designs)
-
-### Item 8 -- Conditional power and futility rules*
-
-**Description:** If futility stopping is included, describe the conditional power calculation method, the threshold below which the trial will stop for futility, and whether stopping is binding or non-binding.
+CONSORT 2025 core: 16b.
 
 **What to look for in code/outputs:**
-- Conditional power formula or computational approach documented in the SAP
-- Threshold for futility stopping stated as a conditional power value (e.g., stop if conditional power < 20%)
-- Code computing conditional power at each interim under the current observed treatment effect and under the assumed effect at design
-- Documentation of whether futility boundaries are binding (protocol-specified mandatory stopping) or non-binding (advisory)
-- DMC charter references confirming futility stopping authority and process
+- Decision rules documented in the SAP with exact threshold values (e.g., conditional power below 20% triggers futility stopping)
+- Documentation of whether futility and efficacy boundaries are binding or non-binding
+- Information fractions or sample size milestones for each interim analysis, with planned vs actual timing compared
+- Code implementing the decision boundaries with the exact parameter values from the SAP
+- Version-controlled SAP files with timestamps confirming pre-specification relative to data access
 
-### Item 9 -- Sample size re-estimation method*
+### Item 8b -- Randomisation and allocation-rule updates (modified)
 
-**Description:** If sample size re-estimation is used, describe the re-estimation algorithm, the blinding status during re-estimation, the timing, and the minimum and maximum sample size bounds.
+**Description:** Type of randomisation; details of any restriction (such as blocking and block size); any changes to the allocation rule after trial adaptation decisions; any pre-planned allocation rule or algorithm to update randomisation with timing and frequency of updates
 
-**What to look for in code/outputs:**
-- Re-estimation algorithm fully specified: internal pilot, conditional power-based re-estimation, promising zone design
-- Blinding status at re-estimation: blinded (using pooled variance) vs. unblinded (using observed treatment effect)
-- Minimum and maximum allowable sample sizes after re-estimation defined in the SAP and coded as hard constraints
-- Code that enforces the bounds and records the pre- and post-re-estimation sample sizes
-- Documentation of the timing of re-estimation relative to information fraction
-
-### Item 10 -- Independence of DMC*
-
-**Description:** Describe the independence and operating procedures of the data monitoring committee (DMC) or analogous body that oversees interim analyses and adaptation decisions.
+CONSORT 2025 core: 17b.
 
 **What to look for in code/outputs:**
-- DMC charter referenced in the analysis documentation
-- Documentation of DMC independence from the trial sponsor and investigators
-- Description of the blinding firewall between the DMC statistician and the trial team
-- Procedures for communicating DMC recommendations to the trial team without revealing unblinded interim data
+- Response-adaptive randomisation algorithm and update schedule in code or config
+- Allocation ratios before and after each adaptation decision (for example, after arm dropping)
+
+### Item 11c -- Confidentiality of interim information (new)
+
+**Description:** Measures to safeguard the confidentiality of interim information and minimise potential operational bias during the trial
+
+CONSORT 2025 core: 20a.
+
+**What to look for in code/outputs:**
+- DMC charter referenced in the analysis documentation, with DMC independence from the sponsor and investigators
+- Description of the firewall between the unblinded DMC statistician and the trial team
+- Procedures for communicating DMC recommendations without revealing unblinded interim data
 - Code or workflow isolating unblinded analysis code from the main analysis repository
 
-### Item 11 -- Statistical analysis after adaptation*
+### Item 12a -- Statistical methods, including adaptation-informing outcomes (modified)
 
-**Description:** Describe how the primary analysis accounts for the adaptive nature of the design, including any bias correction, conditional inference, or ordering of results across stages.
+**Description:** Statistical methods used to compare groups for primary and secondary outcomes, and any other outcomes used to make pre-planned adaptations
+
+CONSORT 2025 core: 21a.
 
 **What to look for in code/outputs:**
-- Final analysis code that combines data across all stages using the correct combining function (e.g., weighted inverse normal, Fisher combination)
-- Bias-corrected point estimates or median unbiased estimates reported alongside naive estimates
-- Confidence intervals and p-values adjusted for the sequential design (not standard fixed-sample intervals)
-- Documentation confirming the primary analysis method was specified before any unblinded data were reviewed
-- Stage-wise ordering of results for sequential trials or confidence interval computation method specified
+- Interim and final analysis models specified for every outcome that drives an adaptation
+- Conditional power formula or computational approach documented in the SAP when used at interim
+
+### Item 12b -- Estimation and inference for adaptive features (new; CONSORT 2010 item 12b becomes 12c)
+
+**Description:** For the implemented adaptive design features, statistical methods used to estimate treatment effects for key endpoints and to make inferences
+
+CONSORT 2025 core: 21a.
+
+**What to look for in code/outputs:**
+- Final analysis code that combines data across stages using the correct combining function (e.g., weighted inverse normal, Fisher combination)
+- Bias-corrected or median unbiased estimates reported alongside naive estimates
+- Confidence intervals and p-values adjusted for the sequential design, not standard fixed-sample intervals
+- Stage-wise ordering or other confidence interval computation method specified
 
 ---
 
 ## Results
 
-### Item 12 -- Participant flow through adaptive stages*
+### Item 13a -- Participant flow, including adaptation-informing outcomes (modified)
 
-**Description:** Report the flow of participants through each stage of the adaptive trial, including the number at each interim, any adaptations implemented, and the reasons for stopping or continuing.
+**Description:** For each group, the numbers of participants who were randomly assigned, received intended treatment, and were analysed for the primary outcome and any other outcomes used to inform pre-planned adaptations, if applicable
+
+CONSORT 2025 core: 22a.
 
 **What to look for in code/outputs:**
-- CONSORT flow diagram extended to show the number of participants at each stage and the outcome of each interim analysis
+- CONSORT flow diagram extended to show participants at each stage and the outcome of each interim analysis
+- Code tracking participant counts at each stage boundary, including denominators for adaptation-informing outcomes
+
+### Item 14a -- Recruitment and follow-up dates by group (modified)
+
+**Description:** Dates defining the periods of recruitment and follow-up, for each group
+
+CONSORT 2025 core: 23a.
+
+**What to look for in code/outputs:**
+- Recruitment and follow-up dates reported per arm, including arms added or dropped mid-trial
+
+### Item 14b -- Why the trial ended or was stopped (unchanged; additional ACE explanation)
+
+**Description:** Why the trial ended or was stopped
+
+CONSORT 2025 core: 23b.
+
+**What to look for in code/outputs:**
+- Stopping reason tied to a pre-planned decision rule (efficacy, futility, harm) or documented as unplanned
+
+### Item 14c -- Adaptation decisions made (new)
+
+**Description:** Specify what trial adaptation decisions were made in light of the pre-planned decision-making criteria and observed accrued data
+
+CONSORT 2025 core: 23b.
+
+**What to look for in code/outputs:**
 - Adaptation decisions documented at each interim: continuation unchanged, sample size increase, arm dropped, population enriched, or stopping
-- Code tracking and reporting participant counts at each stage boundary
-- Reasons for any unplanned deviations from the adaptation rules documented with rationale
+- Documentation confirming whether each interim result triggered an adaptation or resulted in continuation
+- Reasons for any departure from the decision rules documented with rationale
 
-### Item 13 -- Results of interim analyses*
+### Item 15a -- Baseline data (unchanged; additional ACE explanation; CONSORT 2010 item 15)
 
-**Description:** Report the results of each interim analysis, including the test statistic, boundary value, information fraction, and the adaptation decision made.
+**Description:** A table showing baseline demographic and clinical characteristics for each group
+
+CONSORT 2025 core: 25.
 
 **What to look for in code/outputs:**
-- Table of interim analysis results: interim number, timing, observed statistic, boundary value (efficacy and/or futility), conditional power, and decision
-- Code that records and outputs interim results in a reproducible log
-- Documentation confirming whether each interim result triggered an adaptation or resulted in continuation
-- Blinded vs. unblinded interim results clearly distinguished in reporting
+- Baseline table by arm covering all randomised participants, including those in dropped arms
 
-### Item 14 -- Final analysis results accounting for adaptation*
+### Item 15b -- Similarity of the population between interim stages (new)
 
-**Description:** For each primary and secondary outcome, present the final analysis results including estimates, confidence intervals, and p-values that appropriately account for the adaptive design.
+**Description:** Summary of data to enable the assessment of similarity in the trial population between interim stages
+
+CONSORT 2025 core: 25.
+
+**What to look for in code/outputs:**
+- Baseline characteristics tabulated by stage (before and after each adaptation)
+- Comparison of the enrolled population pre- and post-adaptation, especially after enrichment
+
+### Item 16 -- Numbers analysed (unchanged; additional ACE explanation)
+
+**Description:** For each group, number of participants (denominator) included in each analysis and whether the analysis was by original assigned groups
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Denominators by arm and stage for interim and final analyses
+
+### Item 17a -- Outcomes and estimation (unchanged; additional ACE explanation)
+
+**Description:** For each primary and secondary outcome, results for each group, and the estimated effect size and its precision (such as 95% confidence interval)
+
+CONSORT 2025 core: 26.
 
 **What to look for in code/outputs:**
 - Adjusted (stage-combining or bias-corrected) estimates alongside naive final estimates
-- Confidence intervals derived from the sequential or adaptive analysis procedure, not standard fixed-sample formulas
 - Adjusted p-values consistent with the alpha-spending or combination test used
 - Software and version used for the adaptive analysis reported (gsDesign, rpact, ADDPLAN, East, or custom code)
+
+### Item 17c -- Interim results (new)
+
+**Description:** Report interim results used to inform interim decision-making
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Table of interim results: interim number, timing, observed statistic, boundary value (efficacy and/or futility), conditional power, and decision
+- Code that records and outputs interim results in a reproducible log
 
 ---
 
 ## Discussion
 
-### Item 15 -- Limitations specific to adaptive design
+### Item 20 -- Limitations (unchanged; additional ACE explanation)
 
-**Description:** Discuss limitations related to the adaptive design, including potential for operational bias, deviations from the adaptation plan, and how the adaptation may affect interpretation.
+**Description:** Trial limitations, addressing sources of potential bias, imprecision, and, if relevant, multiplicity of analyses
+
+CONSORT 2025 core: 30.
 
 **What to look for in code/outputs:**
-- Limitation sections addressing operational bias risks (e.g., unblinded information leaking to the trial team, sample size changes revealing interim results)
-- Documentation of any deviations from the pre-specified adaptation rules with explanation and impact assessment
-- Discussion of how the adaptation affects generalizability or interpretation of the results
+- Limitation sections addressing operational bias risks (e.g., interim information leaking to the trial team, sample size changes revealing interim results)
 - Sensitivity analyses comparing adaptive analysis estimates to naive estimates that ignore the adaptive nature
 
-### Item 16 -- Generalizability after adaptation
+### Item 21 -- Generalisability (unchanged; additional ACE explanation)
 
-**Description:** Discuss the generalizability of the results in light of any population enrichment, arm selection, or other adaptation that changed the study population or design during the trial.
+**Description:** Generalisability (external validity, applicability) of the trial findings
+
+CONSORT 2025 core: 30.
 
 **What to look for in code/outputs:**
 - Explicit discussion of how population enrichment or arm dropping affects the population to which results apply
-- Comparison of the enrolled population pre- and post-adaptation to contextualize generalizability
 - Description of the final study population relative to the original target population
 
 ---
 
 ## Other Information
 
-### Item 17 -- Adaptive design registration and protocol
+### Item 24b -- SAP and other trial documents (new; CONSORT 2010 item 24 becomes 24a)
 
-**Description:** State where the adaptive design protocol, SAP, and DMC charter can be accessed, confirming they were finalized before the first interim analysis.
+**Description:** Where the full statistical analysis plan and other relevant trial documents can be accessed
+
+CONSORT 2025 core: 3.
 
 **What to look for in code/outputs:**
-- Registration number referencing an adaptive trial registry entry (ClinicalTrials.gov, EudraCT) that includes the adaptive design details
-- Version-controlled SAP and DMC charter with timestamps pre-dating the first interim analysis
-- DOI or URL for the published adaptive design protocol if available
-- Documentation confirming no post-hoc changes to adaptation rules
+- DOI or URL for the SAP, DMC charter, and simulation report
+- Version-controlled SAP with timestamps pre-dating the first interim analysis

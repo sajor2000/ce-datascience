@@ -4,9 +4,11 @@ PRISMA-P (Preferred Reporting Items for Systematic review and Meta-Analysis Prot
 
 **Current primary reference:** Moher D, Shamseer L, Clarke M, et al. Preferred reporting items for systematic review and meta-analysis protocols (PRISMA-P) 2015 statement. Syst Rev. 2015;4:1. doi:10.1186/2046-4053-4-1. PMID: 25554246. PMCID: PMC4320440.
 
-**Explanation and elaboration:** Shamseer L, Moher D, Clarke M, et al. PRISMA-P 2015: elaboration and explanation. BMJ. 2015;350:g7647. doi:10.1136/bmj.g7647. PMID: 25555855.
+**Explanation and elaboration:** Shamseer L, Moher D, Clarke M, et al. PRISMA-P 2015: elaboration and explanation. BMJ. 2015;350:g7647. doi:10.1136/bmj.g7647. PMID: 25555855. Erratum: BMJ. 2016;354:i4086. PMID: 27444514.
 
-**Verified against:** PRISMA-P Table 3 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC4320440/.
+**Verified against:** PRISMA-P Table 3 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC4320440/. Cross-checked on 2026-10-15 against the official checklist, https://www.prisma-statement.org/s/PRISMA-P-checklist.pdf.
+
+**Licence:** The PRISMA-P checklist is distributed by the PRISMA-P Group under CC BY 4.0. The wording here is a shortened paraphrase; use the official checklist for verbatim text.
 
 ---
 

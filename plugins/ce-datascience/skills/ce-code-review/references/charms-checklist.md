@@ -2,6 +2,7 @@
 
 ## Contents
 
+- Review Framing (CHARMS Table 1)
 - Domain 1: Source of Data
 - Domain 2: Participants
 - Domain 3: Outcome to be Predicted
@@ -13,14 +14,36 @@
 - Domain 9: Model Evaluation
 - Domain 10: Results
 - Domain 11: Interpretation and Discussion
-- Presentation and Summary for Systematic Reviews
+- Presentation and Summary for Systematic Reviews (plugin addition)
 
 CHecklist for critical Appraisal and data extraction for systematic Reviews of prediction Modelling Studies (CHARMS).
-11-domain framework for data extraction and critical appraisal of studies reporting development, validation, or updating of clinical prediction models in systematic reviews.
+Seven items to frame the review question (Table 1) and 11 domains to extract and critically appraise the primary studies (Table 2), for systematic reviews of studies that develop, validate, or update diagnostic or prognostic prediction models. CHARMS is a data-extraction and appraisal checklist, not a reporting guideline.
 
-**Primary reference:** Moons KGM, de Groot JAH, Bouwmeester W, et al. Critical appraisal and data extraction for systematic reviews of prediction modelling studies: the CHARMS checklist. PLoS Med. 2014;11(10):e1001744. doi:10.1371/journal.pmed.1001744. PMID: 25314315.
+**Primary reference:** Moons KGM, de Groot JAH, Bouwmeester W, et al. Critical appraisal and data extraction for systematic reviews of prediction modelling studies: the CHARMS checklist. PLoS Med. 2014;11(10):e1001744. doi:10.1371/journal.pmed.1001744. PMID: 25314315. PMCID: PMC4196729.
+
+**Source and licence:** Framing items and domain key items are quoted verbatim from Tables 1 and 2 of the PLoS Med article (CC BY 4.0, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4196729/). Table 2 also marks each key item as relevant to applicability and/or risk of bias; those flags are not reproduced here. The "What to look for in code/outputs" bullets are review cues added by this plugin, not checklist text.
+
+For the reporting of the review itself, CHARMS refers to PRISMA; TRIPOD-SRMA (Snell et al. BMJ 2023, PMID 37137496) is the dedicated reporting checklist for systematic reviews of prediction models, and PROBAST+AI (Moons et al. BMJ 2025, PMID 40127903) is the dedicated risk-of-bias and applicability tool.
 
 CHARMS is used alongside PRISMA when conducting systematic reviews of studies that develop, validate, or update prediction models. It guides both data extraction and critical appraisal. Each domain below describes the information to extract and appraise, and what to look for in analysis code and outputs when evaluating compliance during a code or analytic review of a prediction modelling systematic review.
+
+---
+
+## Review Framing (CHARMS Table 1)
+
+Key items to guide the framing of the review aim, search strategy, and study inclusion and exclusion criteria:
+
+1. **Prognostic versus diagnostic prediction model** -- Define whether the aim is to review models to predict future events (prognostic prediction models) or current (disease) status (diagnostic prediction models).
+2. **Intended scope of the review** -- Define intended scope of the review and intended purpose of the models reviewed in it.
+3. **Type of prediction modelling studies** -- Define the type of prediction modelling studies to include: prediction model development without external validation in independent data; prediction model development with external validation in independent data; external model validation, possibly with model updating.
+4. **Target population to whom the prediction model applies** -- Define the target population relevant to the review scope.
+5. **Outcome to be predicted** -- Define the outcome of interest to be predicted.
+6. **Time span of prediction** -- Define over what specific time period the outcome is predicted (prognostic models only).
+7. **Intended moment of using the model** -- The systematic review may focus on models to be used at a specific moment in time.
+
+**What to look for in code/outputs:**
+- Review protocol or screening code records each framing item (e.g., PICOTS fields) before data extraction begins
+- Inclusion and exclusion logic in screening code matches the framing items
 
 ---
 
@@ -28,7 +51,8 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Source of Data
 
-**Description:** Extract details about the data source used to develop or validate the prediction model, including study design, data collection method, and whether the data were collected prospectively or retrospectively.
+**Description (CHARMS key items):**
+- Source of data (e.g., cohort, case-control, randomised trial participants, or registry data)
 
 **What to look for in code/outputs:**
 - Data extraction fields recording the data source type (randomized trial, prospective cohort, retrospective cohort, registry, electronic health record database, administrative claims)
@@ -43,7 +67,11 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Participants
 
-**Description:** Extract the participant eligibility criteria, recruitment method, and key baseline characteristics of the study population, and assess whether the study population is appropriate for the prediction model's intended use setting.
+**Description (CHARMS key items):**
+- Participant eligibility and recruitment method (e.g., consecutive participants, location, number of centres, setting, inclusion and exclusion criteria)
+- Participant description
+- Details of treatments received, if relevant
+- Study dates
 
 **What to look for in code/outputs:**
 - Inclusion and exclusion criteria for participants extracted and coded per study
@@ -58,7 +86,13 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Outcome to be Predicted
 
-**Description:** Extract the outcome variable being predicted, including its definition, measurement method, time horizon, and the handling of competing events.
+**Description (CHARMS key items):**
+- Definition and method for measurement of outcome
+- Was the same outcome definition (and method for measurement) used in all patients?
+- Type of outcome (e.g., single or combined endpoints)
+- Was the outcome assessed without knowledge of the candidate predictors (i.e., blinded)?
+- Were candidate predictors part of the outcome (e.g., in panel or consensus diagnosis)?
+- Time of outcome occurrence or summary of duration of follow-up
 
 **What to look for in code/outputs:**
 - Outcome variable definition extracted per study: clinical event, diagnosis, composite endpoint, or continuous measure
@@ -74,7 +108,12 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Candidate Predictors
 
-**Description:** Extract the candidate predictor variables considered during model development, including how they were measured, whether they were pre-specified or selected from the data, and any transformations applied.
+**Description (CHARMS key items):**
+- Number and type of predictors (e.g., demographics, patient history, physical examination, additional testing, disease characteristics)
+- Definition and method for measurement of candidate predictors
+- Timing of predictor measurement (e.g., at patient presentation, at diagnosis, at treatment initiation)
+- Were predictors assessed blinded for outcome, and for each other (if relevant)?
+- Handling of predictors in the modelling (e.g., continuous, linear, non-linear transformations or categorised)
 
 **What to look for in code/outputs:**
 - Full list of candidate predictors considered during development extracted and coded per study
@@ -90,7 +129,9 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Sample Size
 
-**Description:** Extract and critically appraise the number of participants and outcome events in each study, and assess whether the sample size was adequate for the number of predictors included in the model.
+**Description (CHARMS key items):**
+- Number of participants and number of outcomes/events
+- Number of outcomes/events in relation to the number of candidate predictors (Events Per Variable)
 
 **What to look for in code/outputs:**
 - Number of participants, number of events, and events-per-variable (EPV) ratio extracted per study
@@ -105,7 +146,10 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Missing Data
 
-**Description:** Extract how missing data were handled in each included study and assess whether the approach is appropriate given the extent and likely mechanism of missingness.
+**Description (CHARMS key items):**
+- Number of participants with any missing value (include predictors and outcomes)
+- Number of participants with missing data for each predictor
+- Handling of missing data (e.g., complete-case analysis, imputation, or other methods)
 
 **What to look for in code/outputs:**
 - Missing data handling method extracted per study: complete case analysis, single imputation, multiple imputation (and number of imputations), missing indicator method
@@ -120,7 +164,12 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Model Development
 
-**Description:** Extract and appraise the statistical method used to develop the prediction model, including predictor selection strategy, shrinkage or penalization, and the final model specification.
+**Description (CHARMS key items):**
+- Modelling method (e.g., logistic, survival, neural networks, or machine learning techniques)
+- Modelling assumptions satisfied
+- Method for selection of predictors for inclusion in multivariable modelling (e.g., all candidate predictors, pre-selection based on unadjusted association with the outcome)
+- Method for selection of predictors during multivariable modelling (e.g., full model approach, backward or forward selection) and criteria used (e.g., p-value, Akaike Information Criterion)
+- Shrinkage of predictor weights or regression coefficients (e.g., no shrinkage, uniform shrinkage, penalized estimation)
 
 **What to look for in code/outputs:**
 - Modeling method extracted: logistic regression, Cox proportional hazards, Fine-Gray subdistribution hazard, random forest, gradient boosting, neural network, or other machine learning approach
@@ -136,7 +185,9 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Model Performance
 
-**Description:** Extract performance metrics reported for the prediction model, including discrimination, calibration, and overall performance, and assess whether the reported measures are appropriate and correctly computed.
+**Description (CHARMS key items):**
+- Calibration (calibration plot, calibration slope, Hosmer-Lemeshow test) and Discrimination (C-statistic, D-statistic, log-rank) measures with confidence intervals
+- Classification measures (e.g., sensitivity, specificity, predictive values, net reclassification improvement) and whether a priori cut points were used
 
 **What to look for in code/outputs:**
 - Discrimination metrics extracted per study: C-statistic (AUC for binary outcomes, Harrell's C for survival), sensitivity and specificity at a reported threshold, D-statistic
@@ -152,7 +203,9 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Model Evaluation
 
-**Description:** Extract and appraise the type of validation performed, including internal validation (bootstrap, cross-validation), temporal validation, geographic validation, or independent external validation, and the extent of optimism correction applied.
+**Description (CHARMS key items):**
+- Method used for testing model performance: development dataset only (random split of data, resampling methods, e.g., bootstrap or cross-validation, none) or separate external validation (e.g., temporal, geographical, different setting, different investigators)
+- In case of poor validation, whether model was adjusted or updated (e.g., intercept recalibrated, predictor effects adjusted, or new predictors added)
 
 **What to look for in code/outputs:**
 - Validation type extracted per study: apparent performance only, internal validation (bootstrap or cross-validation), internal-external cross-validation, temporal external validation, geographic external validation, independent external validation
@@ -168,7 +221,10 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Results
 
-**Description:** Extract the final model equation or scoring algorithm, reported predictor effects, and performance statistics in a format that enables inclusion in a meta-analysis of discrimination or calibration.
+**Description (CHARMS key items):**
+- Final and other multivariable models (e.g., basic, extended, simplified) presented, including predictor weights or regression coefficients, intercept, baseline survival, model performance measures (with standard errors or confidence intervals)
+- Any alternative presentation of the final prediction models, e.g., sum score, nomogram, score chart, predictions for specific risk subgroups with performance
+- Comparison of the distribution of predictors (including missing data) for development and validation datasets
 
 **What to look for in code/outputs:**
 - Final model equation, regression coefficients, or score weights extracted per study (enables model reproduction and meta-analysis of effects)
@@ -184,7 +240,9 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ### Interpretation and Discussion
 
-**Description:** Extract and appraise whether the study authors' conclusions are appropriately qualified by the validation evidence, whether clinical utility was assessed, and whether model limitations are addressed.
+**Description (CHARMS key items):**
+- Interpretation of presented models (confirmatory, i.e., model useful for practice versus exploratory, i.e., more research needed)
+- Comparison with other studies, discussion of generalizability, strengths and limitations
 
 **What to look for in code/outputs:**
 - Documentation of whether the included studies assessed clinical utility: decision curve analysis, net reclassification improvement (NRI), integrated discrimination improvement (IDI)
@@ -198,9 +256,9 @@ CHARMS is used alongside PRISMA when conducting systematic reviews of studies th
 
 ## Presentation and Summary for Systematic Reviews
 
-### Risk of Bias Assessment Across Domains*
+### Risk of Bias Assessment Across Domains (plugin addition, not a CHARMS item)
 
-**Description:** Summarize critical appraisal findings across CHARMS domains for all included studies, identifying the prevalence of methodological concerns and their likely direction of bias on reported model performance.
+**Description:** For formal risk-of-bias and applicability judgements use PROBAST+AI (Moons et al., BMJ 2025, PMID 40127903); CHARMS supports extraction. Summarize critical appraisal findings across CHARMS domains for all included studies, identifying the prevalence of methodological concerns and their likely direction of bias on reported model performance.
 
 **What to look for in code/outputs:**
 - Risk of bias or methodological concern coded per domain per study using a structured appraisal table (commonly using PROBAST alongside CHARMS for formal bias ratings)

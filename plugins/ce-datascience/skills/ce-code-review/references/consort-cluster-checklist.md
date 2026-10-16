@@ -2,195 +2,244 @@
 
 ## Contents
 
-- Title and Abstract
-- Introduction
-- Methods
-- Results
-- Discussion
+- Title and Abstract (items 1a-1b)
+- Introduction (items 2a-2b)
+- Methods (items 3a-12a)
+- Results (items 13a-17a)
+- Discussion (item 21)
 
 Consolidated Standards of Reporting Trials (CONSORT) extension for cluster randomized trials (CRTs).
-Supplements the current CONSORT core with items specific to trials in which intact groups rather than individuals are randomized.
+Supplements the current CONSORT core with items specific to trials in which intact groups rather than individuals are randomized. The extension adds cluster-specific text to CONSORT 2010 items 1a, 1b, 2a, 2b, 3a, 4a, 5, 6a, 7a, 8b, 9, 12a, 13a, 13b, 15, 16, 17a and 21, and replaces item 10 with 10a, 10b and 10c. All other CONSORT 2010 items apply unchanged.
 
 **Primary reference:** Campbell MK, Piaggio G, Elbourne DR, Altman DG; CONSORT Group. Consort 2010 statement: extension to cluster randomised trials. BMJ. 2012;345:e5661. doi:10.1136/bmj.e5661. PMID: 22951546.
 
-Apply this checklist alongside the current CONSORT core. Items below represent additions or modifications to base CONSORT items required for cluster randomized trials. Each item includes the base CONSORT item number where applicable, the description, and what to look for in analysis code and outputs.
+**Verified against:** "CONSORT Extension for Cluster Trials 2012 Checklist" (Word), linked from https://www.consort-spirit.org/extensions, and the EQUATOR record https://www.equator-network.org/reporting-guidelines/consort-cluster/ (verified 2026-10-15).
+
+**Licence:** The BMJ article and the checklist file state no open licence, so the item descriptions below are close paraphrases of the official extension text. They keep each item's meaning and qualifiers but are not verbatim; consult the source for exact wording. The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin.
+
+**Numbering:** Item IDs are the CONSORT 2010 numbers used by the extension. This extension was written against CONSORT 2010; apply it alongside the CONSORT 2025 core and cite CONSORT 2025 numbers for core items. Each item gives the nearest CONSORT 2025 core item as a plugin mapping.
 
 ---
 
 ## Title and Abstract
 
-### Item 1 -- Identification as a cluster randomized trial
+### Item 1a -- Identification as a cluster randomised trial
 
-**Description:** Identify the study as a cluster randomized trial in the title and abstract. Specify the unit of randomization (e.g., clinic, school, community).
+**Description:** Identify the trial as cluster randomised in the title.
+
+CONSORT 2025 core: 1a.
 
 **What to look for in code/outputs:**
 - Report title or rendered document header explicitly stating "cluster randomized trial" or "cluster randomised trial"
-- Abstract text identifying the unit of randomization and the type of cluster (hospital, practice, village, etc.)
-- Report metadata or template confirming the cluster design designation
+
+### Item 1b -- Abstract
+
+**Description:** Structured summary following the extension's abstract checklist, which asks the abstract to: identify the study as cluster randomised; give the eligibility criteria for clusters; say whether the objective or hypothesis and the primary outcome pertain to the cluster level, the individual participant level, or both; say how clusters were allocated to interventions; give the number of clusters randomised and analysed in each group; and report the primary outcome result at the cluster or individual level as applicable.
+
+CONSORT 2025 core: 1b.
+
+**What to look for in code/outputs:**
+- Abstract text naming the unit of randomization and the type of cluster (hospital, practice, village, etc.)
+- Cluster counts randomised and analysed per arm in the abstract
 
 ---
 
 ## Introduction
 
-### Item 2 -- Rationale for cluster design*
+### Item 2a -- Rationale for a cluster design
 
-**Description:** Explain why a cluster randomized design was chosen rather than individual randomization, including the scientific, logistical, or ethical justification.
+**Description:** Explain the rationale for using a cluster design.
+
+CONSORT 2025 core: 6.
 
 **What to look for in code/outputs:**
-- Documentation explicitly justifying cluster randomization (e.g., intervention delivered at the group level, contamination prevention, administrative feasibility)
-- Report sections distinguishing the unit of randomization from the unit of analysis
+- Documentation justifying cluster randomization (e.g., intervention delivered at the group level, contamination prevention, administrative feasibility)
 - Protocol or SAP text describing why individual randomization was not appropriate
+
+### Item 2b -- Level of the objectives
+
+**Description:** State whether the objectives pertain to the cluster level, the individual participant level, or both.
+
+CONSORT 2025 core: 7.
+
+**What to look for in code/outputs:**
+- Objectives or estimands in the SAP labelled as cluster-level or individual-level
 
 ---
 
 ## Methods
 
-### Item 3 -- How clusters were defined*
+### Item 3a -- Definition of cluster and design features
 
-**Description:** Define the clusters used in the trial, including their nature (geographic, organizational, social) and how boundaries were determined.
+**Description:** Define the cluster and describe how the trial's design features apply to the clusters.
+
+CONSORT 2025 core: 9.
 
 **What to look for in code/outputs:**
-- Cluster definition documented in data dictionary, protocol, or analysis header (e.g., general practices defined by unique practice identifier)
+- Cluster definition documented in the data dictionary, protocol, or analysis header (e.g., general practices defined by a unique practice identifier)
 - Code that assigns individuals to clusters using the cluster identifier variable
-- Documentation of how cluster boundaries were established and whether clusters were pre-existing or defined for the trial
 - Summary statistics describing cluster size distribution (mean, range, coefficient of variation)
 
-### Item 4 -- Eligibility criteria: clusters and individuals
+### Item 4a -- Eligibility criteria for clusters
 
-**Description:** Specify eligibility criteria for clusters and, where applicable, eligibility criteria for individuals within clusters.
+**Description:** State the eligibility criteria for clusters.
 
-**What to look for in code/outputs:**
-- Separate inclusion and exclusion criteria documented for clusters and for individuals within clusters
-- Code applying cluster-level filters (e.g., minimum cluster size, geographic region) prior to individual-level filters
-- Documentation of the two-stage eligibility process and the number excluded at each level
-- Participant flowchart or attrition table distinguishing cluster-level from individual-level exclusions
-
-### Item 5 -- Rationale for cluster size and recruitment within clusters
-
-**Description:** Describe how many individuals were to be recruited within each cluster and how.
+CONSORT 2025 core: 12a, 12b.
 
 **What to look for in code/outputs:**
-- Target number of participants per cluster documented in the SAP or protocol
-- Recruitment strategy within clusters described (consecutive enrollment, random sampling within cluster)
-- Actual cluster size distribution in the data compared to the target in the sample size documentation
-- Sensitivity analyses examining the effect of variable cluster sizes on the primary analysis
+- Cluster-level inclusion and exclusion criteria documented separately from individual-level criteria
+- Code applying cluster-level filters (e.g., minimum cluster size, region) before individual-level filters
 
-### Item 6 -- Sample size accounting for clustering*
+### Item 5 -- Level of the interventions
 
-**Description:** Describe how the sample size was calculated, including the intracluster correlation coefficient (ICC), the average cluster size, and the resulting design effect used to inflate the simple random sample size.
+**Description:** State whether the interventions pertain to the cluster level, the individual participant level, or both.
 
-**What to look for in code/outputs:**
-- Sample size calculation code specifying the assumed ICC, average cluster size, and design effect (variance inflation factor)
-- Formula or function used to compute the design effect: `1 + (m - 1) * ICC` where m is mean cluster size
-- Source of the ICC estimate (prior literature, pilot data) documented with a citation or reference
-- Sensitivity analyses varying the ICC assumption across plausible values
-- Resulting inflated sample size and number of clusters stated alongside simple random sample equivalent
-
-### Item 7 -- Unit of randomization*
-
-**Description:** State the unit of randomization (i.e., the cluster) and the unit of analysis (i.e., individuals or clusters).
+CONSORT 2025 core: 13.
 
 **What to look for in code/outputs:**
-- Clear documentation distinguishing unit of randomization from unit of analysis
-- Code confirming that treatment assignment is at the cluster level (not individual level)
-- Analysis code that treats the cluster as the unit of randomization for variance estimation
-- Documentation of any cross-level analysis (e.g., cluster-level outcomes computed from individual-level data)
+- Intervention components labelled as delivered to clusters (e.g., staff training) or to individuals
 
-### Item 8 -- Randomization: method and level
+### Item 6a -- Level of the outcome measures
 
-**Description:** Describe the method used to generate the random allocation sequence for clusters and any stratification or restriction at the cluster level.
+**Description:** State whether the outcome measures pertain to the cluster level, the individual participant level, or both.
+
+CONSORT 2025 core: 14.
 
 **What to look for in code/outputs:**
-- Randomization code operating on cluster identifiers, not individual patient identifiers
-- Stratification factors applied at the cluster level (e.g., cluster size stratum, geographic region, baseline outcome rate)
-- Block or restricted randomization within strata of clusters documented
+- Outcome derivation code showing whether each outcome is measured on clusters or on individuals
+- Cluster-level outcomes computed from individual-level data documented as such
+
+### Item 7a -- Sample size
+
+**Description:** Report the method of calculation, the number of clusters (and whether equal or unequal cluster sizes are assumed), the cluster size, an intracluster correlation coefficient (ICC or k), and an indication of its uncertainty.
+
+CONSORT 2025 core: 16a.
+
+**What to look for in code/outputs:**
+- Sample size code specifying the assumed ICC, cluster size, number of clusters, and design effect (e.g., `1 + (m - 1) * ICC` for equal cluster sizes, or an unequal-size adjustment)
+- Source of the ICC estimate (prior literature, pilot data) and its uncertainty, with sensitivity analyses across plausible ICC values
+
+### Item 8b -- Stratification or matching
+
+**Description:** Give details of any stratification or matching used.
+
+CONSORT 2025 core: 17b.
+
+**What to look for in code/outputs:**
+- Randomization code operating on cluster identifiers, with cluster-level strata or matched pairs documented
 - Random seed and allocation method recorded for reproducibility
 
-### Item 9 -- Blinding: which parties were blinded*
+### Item 9 -- Allocation at the cluster level and concealment
 
-**Description:** State whether participants, care providers, and outcome assessors were aware of the intervention assignment at the cluster level, and whether individual-level blinding was implemented.
+**Description:** Specify that allocation was based on clusters rather than individuals, and whether allocation concealment (if any) was at the cluster level, the individual participant level, or both.
 
-**What to look for in code/outputs:**
-- Documentation specifying blinding status for clusters and for individuals within clusters separately
-- Discussion of the practical constraints on blinding in cluster trials (e.g., open-label cluster-level intervention)
-- Outcome assessor blinding procedures documented, especially for subjective outcomes
-- Sensitivity analyses exploring the potential influence of unblinded outcome assessment
-
-### Item 10 -- Statistical methods for clustered data*
-
-**Description:** Describe the statistical methods used to account for clustering in the primary analysis, including the approach to handling the hierarchical structure of the data (individuals within clusters).
+CONSORT 2025 core: 18.
 
 **What to look for in code/outputs:**
-- Primary analysis model explicitly accounting for clustering: mixed-effects models (lme4, nlme, lmer), generalized estimating equations (GEE), or cluster-robust standard errors
-- Model specification distinguishing fixed effects (treatment, covariates) from random effects (cluster-level random intercept, random slope)
-- GEE working correlation structure specified (exchangeable, independent, unstructured) with justification
-- Sensitivity analysis comparing results from different approaches (e.g., GEE vs. mixed model, cluster-level analysis)
-- Documentation that standard regression without clustering adjustment was NOT used as the primary analysis
+- Code confirming treatment assignment is at the cluster level
+- Documentation of when individuals were recruited relative to cluster allocation, and whether recruiters knew the allocation
 
-### Item 11 -- ICC reporting*
+### Item 10a -- Who generated the sequence and enrolled and assigned clusters
 
-**Description:** Report the estimated intracluster correlation coefficient (ICC) for the primary outcome and its confidence interval.
+**Description:** State who generated the random allocation sequence, who enrolled clusters, and who assigned clusters to interventions. (Replaces CONSORT 2010 item 10.)
+
+CONSORT 2025 core: 17a, 19.
 
 **What to look for in code/outputs:**
-- ICC estimation code for the primary outcome (e.g., from the null model or primary mixed model)
-- Reported ICC value with 95% confidence interval in results tables or output
-- Between-cluster and within-cluster variance components from the mixed model reported
-- Comparison of estimated ICC to the value assumed in the sample size calculation
+- Role documentation separating sequence generation, cluster enrolment, and cluster assignment
+
+### Item 10b -- How individuals were included in clusters
+
+**Description:** Describe the mechanism by which individual participants were included in clusters for the trial (such as complete enumeration or random sampling).
+
+CONSORT 2025 core: 19.
+
+**What to look for in code/outputs:**
+- Recruitment strategy within clusters (complete enumeration, consecutive enrolment, random sampling within cluster)
+- Target and actual number of participants per cluster compared
+
+### Item 10c -- Consent
+
+**Description:** State from whom consent was sought (cluster representatives, individual cluster members, or both) and whether consent was sought before or after randomisation.
+
+CONSORT 2025 core: 19.
+
+**What to look for in code/outputs:**
+- Consent procedures for gatekeepers and for individuals, with timing relative to randomisation
+
+### Item 12a -- How clustering was taken into account
+
+**Description:** Describe how clustering was taken into account in the statistical methods.
+
+CONSORT 2025 core: 21a.
+
+**What to look for in code/outputs:**
+- Primary analysis model accounting for clustering: mixed-effects models, generalized estimating equations (GEE), or cluster-robust standard errors
+- GEE working correlation structure or random-effects structure specified with justification
+- Small-sample corrections when the number of clusters is small
+- No primary analysis that ignores clustering
 
 ---
 
 ## Results
 
-### Item 12 -- Participant flow: clusters and individuals*
+### Item 13a -- Flow of clusters
 
-**Description:** For each group, provide the number of clusters allocated and the number of individuals recruited, followed by the numbers receiving the intended intervention, completing follow-up, and included in the primary analysis, all reported at both the cluster and individual level.
+**Description:** For each group, report the numbers of clusters that were randomly assigned, received the intended treatment, and were analysed for the primary outcome.
 
-**What to look for in code/outputs:**
-- CONSORT flow diagram reporting cluster counts and individual counts at every stage separately
-- Post-randomization exclusions documented at both the cluster and individual level with reasons
-- Number of clusters and individuals analyzed for the primary outcome stated explicitly
-- Code tracking attrition at the cluster level (e.g., cluster dropout, cluster contamination) alongside individual-level attrition
-
-### Item 13 -- Baseline characteristics: clusters and individuals*
-
-**Description:** Present baseline demographic and clinical characteristics for clusters and for individuals within clusters, by treatment arm.
+CONSORT 2025 core: 22a.
 
 **What to look for in code/outputs:**
-- Table 1 code generating cluster-level characteristics (cluster size, cluster-level outcome rates, cluster-level covariates) by arm
-- Individual-level baseline characteristics table stratified by treatment arm
-- Standardized mean differences or balance statistics reported at both levels
-- No p-values for baseline comparisons (randomization makes differences due to chance)
+- CONSORT flow diagram reporting cluster counts and individual counts at every stage
 
-### Item 14 -- Numbers analyzed: clusters and individuals*
+### Item 13b -- Losses and exclusions of clusters and individuals
 
-**Description:** Report the number of clusters and individuals analyzed for each outcome and confirm that the analysis accounted for the cluster design.
+**Description:** For each group, report losses and exclusions for both clusters and individual cluster members.
 
-**What to look for in code/outputs:**
-- Denominators stated at the cluster and individual level for each analysis
-- Confirmation that the analysis population is consistent with the stated analysis plan (e.g., intention-to-treat)
-- Documentation that all randomized clusters were included in the primary analysis unless exclusion was pre-specified
-- Sensitivity analysis results for per-protocol or complete-case analyses alongside the primary analysis
-
-### Item 15 -- Treatment effects with clustering accounted for*
-
-**Description:** For each primary and secondary outcome, present results for each group, the estimated effect size, and its precision (confidence interval), confirming that the estimate accounts for the clustered design.
+CONSORT 2025 core: 22b.
 
 **What to look for in code/outputs:**
-- Treatment effect estimates with confidence intervals derived from cluster-adjusted models (not unadjusted individual-level analysis)
-- Model output confirming the clustering structure was included (random effects or robust SE specification)
-- Cluster-level effect estimates alongside individual-level estimates when both are informative
-- Design effect or effective sample size reported alongside treatment effect to contextualize precision
+- Code tracking attrition at the cluster level (cluster dropout) alongside individual-level attrition, with reasons
+
+### Item 15 -- Baseline data at both levels
+
+**Description:** Report baseline characteristics for each group at the individual and cluster levels, as applicable.
+
+CONSORT 2025 core: 25.
+
+**What to look for in code/outputs:**
+- Table 1 code generating cluster-level characteristics (cluster size, cluster-level covariates) and individual-level characteristics by arm
+- No p-values for baseline comparisons
+
+### Item 16 -- Number of clusters analysed
+
+**Description:** For each group, report the number of clusters included in each analysis.
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Cluster and individual denominators stated for each analysis
+
+### Item 17a -- Results and ICC
+
+**Description:** Report results at the individual or cluster level, as applicable, and an intracluster correlation coefficient (ICC or k) for each primary outcome.
+
+CONSORT 2025 core: 26.
+
+**What to look for in code/outputs:**
+- Treatment effect estimates with confidence intervals from cluster-adjusted models
+- ICC estimation code for each primary outcome, with the reported value (and its confidence interval) compared to the value assumed in the sample size calculation
 
 ---
 
 ## Discussion
 
-### Item 16 -- Generalizability of cluster findings
+### Item 21 -- Generalisability to clusters and individuals
 
-**Description:** Discuss the generalizability of the trial findings, including whether the results apply to the clusters studied, to individuals within those clusters, or to both.
+**Description:** Discuss generalisability to clusters and/or individual participants, as relevant.
+
+CONSORT 2025 core: 30.
 
 **What to look for in code/outputs:**
-- Discussion distinguishing generalizability at the cluster level from generalizability at the individual level
-- Description of the clusters and whether they represent the target population of clusters
-- Acknowledgment of any unusual cluster characteristics that may limit generalizability
-- Comment on how cluster size variability or cluster-level heterogeneity affects interpretation
+- Discussion distinguishing generalizability at the cluster level from the individual level
+- Description of whether the clusters represent the target population of clusters

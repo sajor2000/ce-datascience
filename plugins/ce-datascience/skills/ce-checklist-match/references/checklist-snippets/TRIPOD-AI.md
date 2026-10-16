@@ -10,7 +10,7 @@ Current primary checklist for studies developing or evaluating (validating) a cl
 
 | # | Section | D/E | Item | Status | Note |
 |---|---------|-----|------|--------|------|
-| 1 | Title | D;E | Identify the study as developing or evaluating a multivariable prediction model, the target population, and the outcome | ☐ | |
+| 1 | Title | D;E | Identify the study as developing or evaluating the performance of a multivariable prediction model, the target population, and the outcome to be predicted | ☐ | |
 | 2 | Abstract | D;E | Follow the TRIPOD+AI for Abstracts checklist (13 items) | ☐ | |
 | 3a | Introduction | D;E | Healthcare context (diagnostic or prognostic) and rationale, with references to existing models | ☐ | |
 | 3b | Introduction | D;E | Target population, intended purpose in the care pathway, and intended users | ☐ | |

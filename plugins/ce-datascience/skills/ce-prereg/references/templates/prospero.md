@@ -139,7 +139,7 @@ Not in the SAP template; take from the systematic-review protocol.
 
 Not in the SAP template; take from the systematic-review protocol.
 
-{{ protocol: risk-of-bias tools }} -- e.g., Cochrane RoB 2 for RCTs, ROBINS-I for non-randomized, QUADAS-2 for diagnostic accuracy.
+{{ protocol: risk-of-bias tools }} -- e.g., Cochrane RoB 2 for RCTs, ROBINS-I for non-randomized, QUADAS-3 for diagnostic accuracy.
 
 ## 24. Strategy for data synthesis
 

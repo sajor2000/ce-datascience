@@ -8,16 +8,19 @@
 - Methods
 - Results
 - Discussion
-- Funding
+- Other information
 
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA 2020).
-Current checklist applicable to systematic reviews and meta-analyses.
+Current checklist applicable to systematic reviews, with or without meta-analysis. PRISMA 2020 replaces the 2009 statement.
+27 items (42 rows counting the lettered sub-items 10a-b, 13a-f, 16a-b, 20a-d, 23a-d, and 24a-c) in seven sections.
 
 **Current primary reference:** Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71. PMID: 33782057.
 
-**Legacy reference:** Moher D, Liberati A, Tetzlaff J, Altman DG; PRISMA Group. Preferred reporting items for systematic reviews and meta-analyses: the PRISMA statement. PLoS Med. 2009;6(7):e1000097. doi:10.1371/journal.pmed.1000097. PMID: 19621072.
+**Explanation and elaboration:** Page MJ, Moher D, Bossuyt PM, et al. PRISMA 2020 explanation and elaboration: updated guidance and exemplars for reporting systematic reviews. BMJ. 2021;372:n160. doi:10.1136/bmj.n160. PMID: 33781993.
 
-**Explanation and elaboration:** Liberati A, Altman DG, Tetzlaff J, et al. The PRISMA statement for reporting systematic reviews and meta-analyses of studies that evaluate health care interventions: explanation and elaboration. PLoS Med. 2009;6(7):e1000100. doi:10.1371/journal.pmed.1000100. PMID: 19621070.
+**Legacy reference (superseded):** Moher D, Liberati A, Tetzlaff J, Altman DG; PRISMA Group. Preferred reporting items for systematic reviews and meta-analyses: the PRISMA statement. PLoS Med. 2009;6(7):e1000097. doi:10.1371/journal.pmed.1000097. PMID: 19621072.
+
+**Source and licence:** Item numbers and descriptions are reproduced verbatim from Table 1 of the PRISMA 2020 statement (BMJ 2021;372:n71, PMC8005924), published under CC BY 4.0. Official checklist: https://www.prisma-statement.org/prisma-2020-checklist. The abstract item (2) refers to the 12-item PRISMA 2020 for Abstracts checklist (Table 2 of the same article). The "What to look for" cues are added by this plugin.
 
 Each item includes the checklist number, section, description, and what to look for
 in analysis code and outputs when evaluating compliance.
@@ -28,26 +31,24 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 1 -- Title
 
-**Description:** Identify the report as a systematic review, meta-analysis, or both.
+**Description:** Identify the report as a systematic review.
 
 **What to look for in code/outputs:**
-- Report title or rendered document header explicitly stating "systematic review," "meta-analysis," or both
+- Report title or rendered document header explicitly stating "systematic review" (and "meta-analysis" where one was done)
 - Title generation code or manuscript template that includes the study type designation
-- Output documents or compiled reports whose title clearly identifies the review methodology
 
 ---
 
 ## Abstract
 
-### Item 2 -- Structured summary
+### Item 2 -- Abstract
 
-**Description:** Provide a structured summary including, as applicable: background, objectives, data sources, study eligibility criteria, participants, interventions, study appraisal and synthesis methods, results, limitations, conclusions and implications of key findings, and systematic review registration number.
+**Description:** See the PRISMA 2020 for Abstracts checklist.
 
 **What to look for in code/outputs:**
-- Abstract template or generation code with structured sections (background, objectives, methods, results, conclusions)
-- Registration number (e.g., PROSPERO) referenced in the abstract or document metadata
-- Rendered summary sections that cover eligibility criteria, data sources, and synthesis approach
-- Key quantitative findings (pooled estimates, heterogeneity measures) included in the abstract output
+- Abstract covering the 12 PRISMA 2020 for Abstracts items: title, objectives, eligibility criteria, information sources with last-search dates, risk-of-bias methods, synthesis methods, included studies, synthesis results, limitations of evidence, interpretation, funding, and registration
+- Registration number (e.g., PROSPERO) in the abstract or document metadata
+- Key quantitative findings (summary estimates with confidence/credible intervals, direction of effect) in the abstract output
 
 ---
 
@@ -55,263 +56,328 @@ in analysis code and outputs when evaluating compliance.
 
 ### Item 3 -- Rationale
 
-**Description:** Describe the rationale for the review in the context of what is already known.
+**Description:** Describe the rationale for the review in the context of existing knowledge.
 
 **What to look for in code/outputs:**
-- Introductory markdown cells or report sections citing prior reviews or knowledge gaps
+- Introductory report sections citing prior reviews or knowledge gaps
 - Documentation linking the review to a specific clinical or policy question
-- References to existing evidence that motivates the current systematic review
 
 ### Item 4 -- Objectives
 
-**Description:** Provide an explicit statement of questions being addressed with reference to participants, interventions, comparisons, outcomes, and study design (PICOS).
+**Description:** Provide an explicit statement of the objective(s) or question(s) the review addresses.
 
 **What to look for in code/outputs:**
-- PICOS framework documented in protocol, report preamble, or config file
-- Explicit research question statements mapping to population, intervention, comparator, outcome, and study design
+- Explicit review question(s) in the protocol, report preamble, or config file (a PICO-style framing is common but not required)
 - Search strategy documentation that operationalizes the stated objectives
 
 ---
 
 ## Methods
 
-### Item 5 -- Protocol and registration
+### Item 5 -- Eligibility criteria
 
-**Description:** Indicate if a review protocol exists, if and where it can be accessed (e.g., Web address), and, if available, provide registration information including registration number.
-
-**What to look for in code/outputs:**
-- PROSPERO registration number or protocol DOI referenced in documentation
-- Link to a published or deposited protocol document
-- Protocol file included in the project repository or referenced in analysis metadata
-
-### Item 6 -- Eligibility criteria
-
-**Description:** Specify study characteristics (e.g., PICOS, length of follow-up) and report characteristics (e.g., years considered, language, publication status) used as criteria for eligibility, giving rationale.
+**Description:** Specify the inclusion and exclusion criteria for the review and how studies were grouped for the syntheses.
 
 **What to look for in code/outputs:**
 - Inclusion/exclusion criteria documented in screening code, config files, or protocol
 - Filter logic applied to search results (publication year range, language, study design)
-- PICOS-based eligibility criteria operationalized in screening tool configuration
-- Rationale for each criterion documented alongside the filter specification
+- A grouping variable or mapping that assigns each study to a synthesis (e.g., intervention or comparison groups)
 
-### Item 7 -- Information sources
+### Item 6 -- Information sources
 
-**Description:** Describe all information sources (e.g., databases with dates of coverage, contact with study authors to identify additional studies) in the search and date last searched.
-
-**What to look for in code/outputs:**
-- Database names and date ranges documented (e.g., MEDLINE, Embase, Cochrane, CINAHL)
-- Search execution dates recorded in code comments, logs, or metadata files
-- Documentation of supplementary sources (grey literature, trial registries, reference list screening, expert consultation)
-- API query logs or search history exports from bibliographic databases
-
-### Item 8 -- Search
-
-**Description:** Present full electronic search strategy for at least one database, including any limits used, such that it could be repeated.
+**Description:** Specify all databases, registers, websites, organisations, reference lists and other sources searched or consulted to identify studies. Specify the date when each source was last searched or consulted.
 
 **What to look for in code/outputs:**
-- Complete search strings with Boolean operators, MeSH terms, and field tags
-- Search strategy files or appendix documents included in the project
-- Database-specific syntax documented for reproducibility
-- Search filters and limits (date, language, publication type) explicitly recorded
+- Database, register, and website names documented (e.g., MEDLINE, Embase, CENTRAL, ClinicalTrials.gov)
+- Last-search date recorded for each source in logs or metadata files
+- Documentation of supplementary sources (reference lists, organisations, contact with experts)
 
-### Item 9 -- Study selection
+### Item 7 -- Search strategy
 
-**Description:** State the process for selecting studies (i.e., screening, eligibility, included in systematic review, and, if applicable, included in meta-analysis).
+**Description:** Present the full search strategies for all databases, registers and websites, including any filters and limits used.
 
 **What to look for in code/outputs:**
-- Screening workflow code or tool configuration (Covidence, Rayyan, custom scripts)
-- Dual-reviewer screening process documented with inter-rater agreement metrics
-- PRISMA flow diagram generation code or rendered flow diagram output
-- Counts at each screening stage (identified, screened, assessed for eligibility, included)
+- Complete search strings for every database, register, and website, with Boolean operators, controlled vocabulary, and field tags
+- Search strategy files or appendix documents stored verbatim in the project
+- Filters and limits (date, language, publication type) explicitly recorded
 
-### Item 10 -- Data collection process
+### Item 8 -- Selection process
 
-**Description:** Describe method of data extraction from reports (e.g., piloted forms, independently, in duplicate) and any processes for obtaining and confirming data from investigators.
+**Description:** Specify the methods used to decide whether a study met the inclusion criteria of the review, including how many reviewers screened each record and each report retrieved, whether they worked independently, and if applicable, details of automation tools used in the process.
+
+**What to look for in code/outputs:**
+- Screening workflow code or tool configuration (Covidence, Rayyan, ASReview, custom scripts)
+- Number of screeners per record and per report, and whether screening was independent
+- Configuration and version of any automation or machine-learning screening tool
+
+### Item 9 -- Data collection process
+
+**Description:** Specify the methods used to collect data from reports, including how many reviewers collected data from each report, whether they worked independently, any processes for obtaining or confirming data from study investigators, and if applicable, details of automation tools used in the process.
 
 **What to look for in code/outputs:**
 - Data extraction form templates or structured extraction tools
-- Code for parsing or importing extracted data from standardized forms
-- Documentation of dual extraction and discrepancy resolution procedures
-- Correspondence logs or scripts for contacting study authors
+- Documentation of the number of extractors and how discrepancies were resolved
+- Correspondence logs or scripts for contacting study investigators
+- Configuration of any automated extraction tool
 
-### Item 11 -- Data items
+### Item 10a -- Data items: outcomes
 
-**Description:** List and define all variables for which data were sought (e.g., PICOS, funding sources) and any assumptions and simplifications made.
-
-**What to look for in code/outputs:**
-- Data dictionary defining all extracted variables with definitions and coding rules
-- Variable list in extraction code or database schema
-- Documentation of assumptions for missing or ambiguous data fields
-- PICOS elements mapped to specific extracted variables
-
-### Item 12 -- Risk of bias in individual studies
-
-**Description:** Describe methods used for assessing risk of bias of individual studies (including specification of whether this was done at the study or outcome level), and how this information is to be used in any data synthesis.
+**Description:** List and define all outcomes for which data were sought. Specify whether all results that were compatible with each outcome domain in each study were sought (e.g. for all measures, time points, analyses), and if not, the methods used to decide which results to collect.
 
 **What to look for in code/outputs:**
-- Risk of bias assessment tool specified (Cochrane RoB 2, ROBINS-I, Newcastle-Ottawa Scale, etc.)
-- Domain-level bias ratings coded in extraction data
-- Code that incorporates risk of bias into sensitivity analyses or subgroup analyses
-- Summary risk of bias tables or traffic-light plots generated in outputs
+- Outcome dictionary defining each outcome domain
+- Documented rules for selecting among multiple measures, time points, or analyses per study
 
-### Item 13 -- Summary measures
+### Item 10b -- Data items: other variables
 
-**Description:** State the principal summary measures (e.g., risk ratio, difference in means).
+**Description:** List and define all other variables for which data were sought (e.g. participant and intervention characteristics, funding sources). Describe any assumptions made about any missing or unclear information.
 
 **What to look for in code/outputs:**
-- Effect measure specification in meta-analysis code (OR, RR, HR, MD, SMD)
-- Documentation of rationale for chosen summary measure
+- Data dictionary defining all non-outcome extracted variables with coding rules
+- Documentation of assumptions for missing or ambiguous fields
+
+### Item 11 -- Study risk of bias assessment
+
+**Description:** Specify the methods used to assess risk of bias in the included studies, including details of the tool(s) used, how many reviewers assessed each study and whether they worked independently, and if applicable, details of automation tools used in the process.
+
+**What to look for in code/outputs:**
+- Risk-of-bias tool specified (RoB 2, ROBINS-I, QUADAS-3, etc.)
+- Number of assessors per study and whether they worked independently
+- Domain-level ratings coded in extraction data
+
+### Item 12 -- Effect measures
+
+**Description:** Specify for each outcome the effect measure(s) (e.g. risk ratio, mean difference) used in the synthesis or presentation of results.
+
+**What to look for in code/outputs:**
+- Effect measure specified per outcome in meta-analysis code (OR, RR, HR, MD, SMD)
 - Code that calculates or transforms effect estimates into the specified metric
-- Output tables or forest plots displaying the chosen summary measure with confidence intervals
 
-### Item 14 -- Synthesis of results
+### Item 13a -- Synthesis methods: eligibility for each synthesis
 
-**Description:** Describe the methods of handling data and combining results of studies, if done, including measures of consistency (e.g., I-squared) for each meta-analysis.
-
-**What to look for in code/outputs:**
-- Meta-analysis code using established packages (metafor, meta, RevMan, metan)
-- Fixed-effect vs. random-effects model specification with justification
-- Heterogeneity statistics computed (I-squared, Q statistic, tau-squared, prediction intervals)
-- Forest plot generation code with pooled estimates and heterogeneity annotations
-
-### Item 15 -- Risk of bias across studies
-
-**Description:** Specify any assessment of risk of bias that may affect the cumulative evidence (e.g., publication bias, selective reporting within studies).
+**Description:** Describe the processes used to decide which studies were eligible for each synthesis (e.g. tabulating the study intervention characteristics and comparing against the planned groups for each synthesis (item #5)).
 
 **What to look for in code/outputs:**
-- Funnel plot generation code for visual assessment of publication bias
-- Statistical tests for publication bias (Egger test, Begg test, Peters test)
-- Trim-and-fill analysis or selection model code
-- Assessment of selective outcome reporting across included studies
+- Table or code mapping each study to the syntheses it contributes to
+- Documented comparison of study characteristics against the planned synthesis groups
 
-### Item 16 -- Additional analyses
+### Item 13b -- Synthesis methods: data preparation
 
-**Description:** Describe methods of additional analyses (e.g., sensitivity or subgroup analyses, meta-regression), if done, indicating which were pre-specified.
+**Description:** Describe any methods required to prepare the data for presentation or synthesis, such as handling of missing summary statistics, or data conversions.
 
 **What to look for in code/outputs:**
-- Subgroup analysis code with pre-specified moderator variables
-- Meta-regression models with covariates documented
-- Sensitivity analysis code (leave-one-out, influence diagnostics, alternative model specifications)
-- Documentation distinguishing pre-specified from post-hoc additional analyses
+- Code imputing missing SDs or converting medians/IQRs, SEs, or CIs to the analysis scale
+- Documentation of each conversion formula and its source
+
+### Item 13c -- Synthesis methods: tabulation and display
+
+**Description:** Describe any methods used to tabulate or visually display results of individual studies and syntheses.
+
+**What to look for in code/outputs:**
+- Table and plotting code (forest plots, harvest plots, effect direction plots) with documented layout choices
+
+### Item 13d -- Synthesis methods: synthesis
+
+**Description:** Describe any methods used to synthesise results and provide a rationale for the choice(s). If meta-analysis was performed, describe the model(s), method(s) to identify the presence and extent of statistical heterogeneity, and software package(s) used.
+
+**What to look for in code/outputs:**
+- Meta-analysis code using established packages (metafor, meta, RevMan, metan) with versions recorded
+- Model specification (common-effect or random-effects; tau-squared estimator; CI method) with rationale
+- Heterogeneity statistics computed (I-squared, Q, tau-squared, prediction intervals)
+- Synthesis without meta-analysis (e.g., SWiM vote counting by direction) documented when pooling was not done
+
+### Item 13e -- Synthesis methods: heterogeneity exploration
+
+**Description:** Describe any methods used to explore possible causes of heterogeneity among study results (e.g. subgroup analysis, meta-regression).
+
+**What to look for in code/outputs:**
+- Subgroup analysis or meta-regression code with pre-specified moderators flagged
+
+### Item 13f -- Synthesis methods: sensitivity analyses
+
+**Description:** Describe any sensitivity analyses conducted to assess robustness of the synthesised results.
+
+**What to look for in code/outputs:**
+- Sensitivity analysis code (leave-one-out, restriction to low risk of bias, alternative models)
+
+### Item 14 -- Reporting bias assessment
+
+**Description:** Describe any methods used to assess risk of bias due to missing results in a synthesis (arising from reporting biases).
+
+**What to look for in code/outputs:**
+- Funnel plot or small-study effect test code (Egger, Peters), selection models, or trim-and-fill
+- Assessment of missing results using trial registers or protocols
+
+### Item 15 -- Certainty assessment
+
+**Description:** Describe any methods used to assess certainty (or confidence) in the body of evidence for an outcome.
+
+**What to look for in code/outputs:**
+- GRADE (or equivalent) approach specified, with domains and downgrading rules documented
 
 ---
 
 ## Results
 
-### Item 17 -- Study selection
+### Item 16a -- Study selection: flow
 
-**Description:** Give numbers of studies screened, assessed for eligibility, and included in the review, with reasons for exclusions at each stage, ideally with a flow diagram.
+**Description:** Describe the results of the search and selection process, from the number of records identified in the search to the number of studies included in the review, ideally using a flow diagram.
 
 **What to look for in code/outputs:**
-- PRISMA flow diagram rendered as a figure (using PRISMA2020, PRISMAstatement, or custom plotting code)
-- Counts at each stage: records identified, duplicates removed, screened, excluded, full-text assessed, included
-- Exclusion reasons tabulated at the full-text review stage
+- PRISMA 2020 flow diagram rendered as a figure (e.g., PRISMA2020 R package or Shiny app, or custom plotting code)
+- Counts at each stage: records identified per source, duplicates removed, screened, excluded, reports sought and assessed, studies included
 - Flow diagram data exported or logged programmatically
 
-### Item 18 -- Study characteristics
+### Item 16b -- Study selection: excluded studies
 
-**Description:** For each study, present characteristics for which data were extracted (e.g., study size, PICOS, follow-up period) and provide the citations.
-
-**What to look for in code/outputs:**
-- Characteristics of included studies table generated in code (study ID, design, sample size, population, intervention, comparator, outcomes, follow-up)
-- Citation list or bibliography of included studies
-- Summary statistics across included studies (range of sample sizes, follow-up durations)
-- Data frame or structured output containing per-study extracted characteristics
-
-### Item 19 -- Risk of bias within studies
-
-**Description:** Present data on risk of bias of each study and, if available, any outcome-level assessment.
+**Description:** Cite studies that might appear to meet the inclusion criteria, but which were excluded, and explain why they were excluded.
 
 **What to look for in code/outputs:**
-- Risk of bias summary figure (traffic-light plot or summary bar chart)
-- Per-study, per-domain risk of bias ratings in tabular output
-- Code generating risk of bias visualizations (robvis, custom plotting functions)
-- Outcome-level bias assessments when applicable
+- Table of near-miss excluded studies with citations and exclusion reasons
 
-### Item 20 -- Results of individual studies
+### Item 17 -- Study characteristics
 
-**Description:** For all outcomes considered (benefits or harms), present, for each study: (a) simple summary data for each intervention group and (b) effect estimates and confidence intervals, ideally with a forest plot.
+**Description:** Cite each included study and present its characteristics.
 
 **What to look for in code/outputs:**
-- Forest plot code displaying individual study estimates with confidence intervals and pooled effect
-- Per-study effect estimates tabulated with numerators, denominators, or means and standard deviations
-- Data extraction tables with raw counts or continuous outcome summaries by arm
-- Forest plots generated for each outcome (primary and secondary)
+- Characteristics-of-included-studies table generated in code
+- Citation list of included studies
 
-### Item 21 -- Synthesis of results
+### Item 18 -- Risk of bias in studies
 
-**Description:** Present results of each meta-analysis done, including confidence intervals and measures of consistency.
+**Description:** Present assessments of risk of bias for each included study.
 
 **What to look for in code/outputs:**
-- Pooled effect estimates with 95% confidence intervals in output tables or forest plots
-- Heterogeneity measures reported alongside each pooled result (I-squared, tau-squared, Q p-value)
-- Prediction intervals reported for random-effects models
-- Multiple meta-analyses clearly delineated by outcome or subgroup
+- Per-study, per-domain risk-of-bias ratings in tabular output
+- Risk-of-bias figures (e.g., robvis traffic-light plots)
 
-### Item 22 -- Risk of bias across studies
+### Item 19 -- Results of individual studies
 
-**Description:** Present results of any assessment of risk of bias across studies.
+**Description:** For all outcomes, present, for each study: (a) summary statistics for each group (where appropriate) and (b) an effect estimate and its precision (e.g. confidence/credible interval), ideally using structured tables or plots.
 
 **What to look for in code/outputs:**
-- Funnel plots rendered with symmetry assessment annotations
-- Publication bias test results (Egger p-value, Begg p-value) reported in output
-- Trim-and-fill adjusted estimates displayed alongside primary results
-- GRADE assessment of certainty of evidence incorporating publication bias domain
+- Per-study summary statistics by group and effect estimates with intervals, for every outcome
+- Forest plots or structured tables generated for each outcome
 
-### Item 23 -- Additional analysis
+### Item 20a -- Results of syntheses: characteristics and risk of bias
 
-**Description:** Give results of additional analyses, if done (e.g., sensitivity or subgroup analyses, meta-regression).
+**Description:** For each synthesis, briefly summarise the characteristics and risk of bias among contributing studies.
 
 **What to look for in code/outputs:**
-- Subgroup forest plots or meta-regression coefficient tables in output
-- Leave-one-out sensitivity analysis plots or tables
-- Influence diagnostic results (Cook's distance, DFBETAS for meta-regression)
-- Comparison of results across pre-specified and exploratory analyses
+- Per-synthesis summary of contributing studies and their risk-of-bias profile
+
+### Item 20b -- Results of syntheses: statistical results
+
+**Description:** Present results of all statistical syntheses conducted. If meta-analysis was done, present for each the summary estimate and its precision (e.g. confidence/credible interval) and measures of statistical heterogeneity. If comparing groups, describe the direction of the effect.
+
+**What to look for in code/outputs:**
+- Summary estimates with 95% intervals for every synthesis
+- Heterogeneity measures and prediction intervals reported alongside each pooled result
+- Direction of effect stated for each comparison
+
+### Item 20c -- Results of syntheses: heterogeneity investigations
+
+**Description:** Present results of all investigations of possible causes of heterogeneity among study results.
+
+**What to look for in code/outputs:**
+- Subgroup forest plots or meta-regression coefficient tables
+
+### Item 20d -- Results of syntheses: sensitivity analyses
+
+**Description:** Present results of all sensitivity analyses conducted to assess the robustness of the synthesised results.
+
+**What to look for in code/outputs:**
+- Leave-one-out or alternative-model results presented next to the primary estimates
+
+### Item 21 -- Reporting biases
+
+**Description:** Present assessments of risk of bias due to missing results (arising from reporting biases) for each synthesis assessed.
+
+**What to look for in code/outputs:**
+- Funnel plots, small-study test results, or missing-results assessments reported per synthesis
+
+### Item 22 -- Certainty of evidence
+
+**Description:** Present assessments of certainty (or confidence) in the body of evidence for each outcome assessed.
+
+**What to look for in code/outputs:**
+- Summary of findings table or GRADE evidence profile with a certainty rating per outcome and downgrading reasons
 
 ---
 
 ## Discussion
 
-### Item 24 -- Summary of evidence
+### Item 23a -- Discussion: interpretation
 
-**Description:** Summarize the main findings including the strength of evidence for each main outcome; consider their relevance to key groups (e.g., healthcare providers, users, and policy makers).
-
-**What to look for in code/outputs:**
-- Summary of findings table (e.g., GRADE evidence profile) generated in outputs
-- Key results section in rendered reports mapping findings to each outcome
-- Strength of evidence ratings (high, moderate, low, very low) alongside pooled estimates
-- Interpretation contextualized for relevant stakeholders
-
-### Item 25 -- Limitations
-
-**Description:** Discuss limitations at the study and outcome level (e.g., risk of bias), and at the review level (e.g., incomplete retrieval of identified research, reporting bias).
+**Description:** Provide a general interpretation of the results in the context of other evidence.
 
 **What to look for in code/outputs:**
-- Limitation sections in report templates addressing both study-level and review-level concerns
-- Sensitivity analysis results referenced in limitation discussion
-- Documentation of search limitations, language restrictions, or missing data
-- GRADE downgrading rationale documented for each domain
+- Discussion text relating findings to prior evidence
 
-### Item 26 -- Conclusions
+### Item 23b -- Discussion: limitations of the evidence
 
-**Description:** Provide a general interpretation of the results in the context of other evidence, and implications for future research.
+**Description:** Discuss any limitations of the evidence included in the review.
 
 **What to look for in code/outputs:**
-- Conclusion statements in rendered reports that link findings to the stated objectives
-- Recommendations for future research based on identified evidence gaps
-- Language appropriately qualifying certainty of conclusions based on evidence quality
-- Implications for clinical practice or policy framed by the strength of evidence
+- Limitations tied to risk of bias, inconsistency, imprecision, and indirectness of the included evidence
+
+### Item 23c -- Discussion: limitations of the review processes
+
+**Description:** Discuss any limitations of the review processes used.
+
+**What to look for in code/outputs:**
+- Discussion of search, language, screening, or extraction limitations of the review itself
+
+### Item 23d -- Discussion: implications
+
+**Description:** Discuss implications of the results for practice, policy, and future research.
+
+**What to look for in code/outputs:**
+- Implications framed by the certainty of evidence
 
 ---
 
-## Funding
+## Other information
 
-### Item 27 -- Funding
+### Item 24a -- Registration and protocol: registration
 
-**Description:** Describe sources of funding for the systematic review and other support (e.g., supply of data); role of funders for the systematic review.
+**Description:** Provide registration information for the review, including register name and registration number, or state that the review was not registered.
 
 **What to look for in code/outputs:**
-- Funding acknowledgment sections in report templates
-- Grant numbers or funding source documentation
-- Statement describing the role (or lack thereof) of funders in review conduct
-- Conflict of interest disclosures for review authors
+- PROSPERO or OSF registration number in documentation, or an explicit "not registered" statement
+
+### Item 24b -- Registration and protocol: protocol
+
+**Description:** Indicate where the review protocol can be accessed, or state that a protocol was not prepared.
+
+**What to look for in code/outputs:**
+- Link to the protocol or the protocol file in the repository
+
+### Item 24c -- Registration and protocol: amendments
+
+**Description:** Describe and explain any amendments to information provided at registration or in the protocol.
+
+**What to look for in code/outputs:**
+- Dated amendment log comparing the analysis code against the registered protocol
+
+### Item 25 -- Support
+
+**Description:** Describe sources of financial or non-financial support for the review, and the role of the funders or sponsors in the review.
+
+**What to look for in code/outputs:**
+- Funding acknowledgment and grant numbers, with a statement on the role of funders
+
+### Item 26 -- Competing interests
+
+**Description:** Declare any competing interests of review authors.
+
+**What to look for in code/outputs:**
+- Competing interest declarations for all review authors
+
+### Item 27 -- Availability of data, code, and other materials
+
+**Description:** Report which of the following are publicly available and where they can be found: template data collection forms; data extracted from included studies; data used for all analyses; analytic code; any other materials used in the review.
+
+**What to look for in code/outputs:**
+- Public repository links for extraction forms, extracted data, analysis datasets, and analytic code
+- A data and code availability statement in the report

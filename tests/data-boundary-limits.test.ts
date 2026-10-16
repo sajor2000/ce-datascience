@@ -237,13 +237,18 @@ describe("limit 2b: identifier index checks on MCP arguments (every mode)", () =
       "json.dump({'version': 1, 'salt': secrets.token_hex(16), 'width': 16, 'count': len(hs), 'hashes': ''.join(hs)}, open(sys.argv[1], 'w'))"
     expect(Bun.spawnSync(["python3", "-c", make, indexPath(root)]).exitCode).toBe(0)
     const query = { query: "propensity score overlap weighting ICU delirium sepsis bundle 2015 to 2025 mortality Hernan" }
+    // Each run loads the guard afresh and decides, as a hook call does. Two warm-up runs, then the
+    // median of seven, so one run slowed by machine load cannot fail the 100 ms bound.
     const timing = "import importlib.util, json, sys, time\n" +
-      "t = time.perf_counter()\nspec = importlib.util.spec_from_file_location('guard', sys.argv[1])\n" +
-      "g = importlib.util.module_from_spec(spec); spec.loader.exec_module(g)\ncall = json.loads(sys.argv[2])\n" +
-      "result = g.classify(call, g.resolve_mode(call))\nprint(json.dumps({'ms': (time.perf_counter() - t) * 1000, 'result': result}))"
+      "def run():\n" +
+      "    t = time.perf_counter()\n    spec = importlib.util.spec_from_file_location('guard', sys.argv[1])\n" +
+      "    g = importlib.util.module_from_spec(spec); spec.loader.exec_module(g)\n    call = json.loads(sys.argv[2])\n" +
+      "    result = g.classify(call, g.resolve_mode(call))\n    return (time.perf_counter() - t) * 1000, result\n" +
+      "for _ in range(2): run()\nruns = [run() for _ in range(7)]\n" +
+      "print(json.dumps({'ms': sorted(ms for ms, _ in runs)[3], 'results': [r for _, r in runs]}))"
     const payload = JSON.stringify({ cwd: root, tool_name: "mcp__paperclip__search", tool_input: query })
     const inProcess = JSON.parse(Bun.spawnSync(["python3", "-I", "-S", "-c", timing, guard, payload]).stdout.toString())
-    expect(inProcess.result).toBeNull()
+    expect(inProcess.results).toEqual(Array(7).fill(null))
     expect(inProcess.ms).toBeLessThan(100)
     const timed = (cwd: string) => {
       const start = performance.now()

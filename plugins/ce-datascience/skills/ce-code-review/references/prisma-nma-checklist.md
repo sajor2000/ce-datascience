@@ -15,7 +15,9 @@ Extension of PRISMA for systematic reviews that include a network meta-analysis.
 
 **Primary reference:** Hutton B, Salanti G, Caldwell DM, Chaimani A, Schmid CH, Cameron C, Ioannidis JPA, Straus S, Thorlund K, Jansen JP, Mulrow C, Catala-Lopez F, Gotzsche PC, Dickersin K, Boutron I, Altman DG, Moher D. The PRISMA Extension Statement for Reporting of Systematic Reviews Incorporating Network Meta-analyses of Health Care Interventions: Checklist and Explanations. Ann Intern Med. 2015;162(11):777-784. doi:10.7326/M14-2385. PMID: 26030634.
 
-This checklist extends base PRISMA with items specific to network meta-analysis. Items marked with an asterisk (*) are new additions or modifications from base PRISMA. Apply when reporting a systematic review incorporating indirect or mixed treatment comparisons via network meta-analysis (NMA). The base 27-item PRISMA 2009 checklist remains applicable alongside these extensions.
+**Source and licence:** Item IDs and order follow the official PRISMA-NMA checklist (https://www.prisma-statement.org/s/PRISMA-NMA-checklist.pdf). The checklist and article are copyright of the American College of Physicians and carry no open licence, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. The "What to look for" cues are added by this plugin.
+
+PRISMA-NMA is a modified 32-item checklist: the 27 PRISMA 2009 items, with NMA-specific wording added to several, plus five new items S1-S5. Use it in place of the base PRISMA checklist. Apply it to systematic reviews that use indirect or mixed treatment comparisons (network meta-analysis). An updated PRISMA-NMA is in development (protocol: Veroniki et al. JBI Evid Synth 2025, PMID 39829235). Until it is published, this 2015 checklist is current.
 
 ---
 
@@ -23,13 +25,10 @@ This checklist extends base PRISMA with items specific to network meta-analysis.
 
 ### Item 1 -- Title
 
-**Description:** Identify the report as a systematic review incorporating a network meta-analysis. *
+**Description:** Identify the report as a systematic review incorporating a network meta-analysis (or a related form of meta-analysis).
 
 **What to look for in code/outputs:**
-- Report title specifying network meta-analysis or indirect treatment comparison
-- Title naming the condition, intervention class, or decision context
-- Structured abstract consistent with NMA scope and network geometry
-- Keywords including "network meta-analysis," "indirect comparisons," and the therapeutic area
+- Report title naming the review as including a network meta-analysis
 
 ---
 
@@ -37,13 +36,15 @@ This checklist extends base PRISMA with items specific to network meta-analysis.
 
 ### Item 2 -- Structured summary
 
-**Description:** Provide a structured summary including, as applicable: background, objectives, data sources, study eligibility criteria, participants, interventions, study appraisal and synthesis methods (including any assumptions about transitivity and consistency), results (including the network geometry and ranking of interventions), and conclusions. *
+**Description:** Give a structured summary including, as applicable:
+- **Background:** main objectives.
+- **Methods:** data sources; study eligibility criteria, participants, and interventions; study appraisal; and synthesis methods, such as network meta-analysis.
+- **Results:** numbers of studies and participants identified; summary estimates with their confidence or credible intervals. Treatment rankings may also be discussed, and for brevity authors may summarize pairwise comparisons against a chosen treatment included in their analyses.
+- **Discussion/Conclusions:** limitations; conclusions and implications of the findings.
+- **Other:** primary source of funding; systematic review registration number and registry name.
 
 **What to look for in code/outputs:**
-- Abstract reporting the number of treatments in the network and number of studies per comparison
-- Summary of ranking results (e.g., SUCRA or P-scores) or selected pairwise estimates
-- Transitivity and consistency assessment methods named in abstract
-- Network plot or reference to it in abstract
+- Abstract output with summary estimates and intervals, and any rankings reported
 
 ---
 
@@ -51,23 +52,17 @@ This checklist extends base PRISMA with items specific to network meta-analysis.
 
 ### Item 3 -- Rationale
 
-**Description:** Describe the rationale for the review in the context of what is already known and specifically why a network meta-analysis is appropriate, including justification that transitivity assumption is likely to hold. *
+**Description:** Describe why the review was done, in the context of what is already known, including why a network meta-analysis was conducted.
 
 **What to look for in code/outputs:**
-- Justification for indirect comparisons (absence of head-to-head trials, decision-making need)
-- Argument for transitivity based on shared effect modifiers across comparisons
-- Documentation of clinical homogeneity across the treatment network
-- Reference to existing pairwise meta-analyses and their limitations for decision-making
+- Introductory sections explaining the need to compare multiple treatments
 
 ### Item 4 -- Objectives
 
-**Description:** Provide an explicit statement of questions being addressed with reference to participants, interventions, comparators, outcomes, and study design (PICOS). Include the perspective of the network meta-analysis (e.g., decision-making, research synthesis).
+**Description:** Give an explicit statement of the questions addressed, with reference to participants, interventions, comparisons, outcomes, and study design (PICOS).
 
 **What to look for in code/outputs:**
-- PICOS framework specified for the network
-- All treatments (nodes) in the planned network listed
-- Primary and secondary outcomes defined
-- Target comparisons or decision context specified (e.g., ranking, which treatment is best)
+- PICOS question in the protocol or config
 
 ---
 
@@ -75,124 +70,101 @@ This checklist extends base PRISMA with items specific to network meta-analysis.
 
 ### Item 5 -- Protocol and registration
 
-**Description:** Indicate if a review protocol exists, if and where it can be accessed (e.g., Web address), and, if available, provide registration information including registration number.
+**Description:** State whether a review protocol exists and whether and where it can be accessed (e.g., web address). If available, give registration information, including the registration number.
 
 **What to look for in code/outputs:**
-- PROSPERO registration number or other review registry reference
-- Published protocol DOI or URL
-- Deviation log documenting changes from the protocol
-- Date of registration relative to data collection
+- Registration number and protocol link
 
 ### Item 6 -- Eligibility criteria
 
-**Description:** Specify study characteristics (e.g., PICOS, length of follow-up) and report characteristics (e.g., years considered, language, publication status) used as criteria for eligibility, giving rationale.
+**Description:** Specify the study characteristics (e.g., PICOS, length of follow-up) and report characteristics (e.g., years considered, language, publication status) used as eligibility criteria, with rationale. Clearly describe the eligible treatments included in the treatment network, and state whether any were clustered or merged into the same node (with justification).
 
 **What to look for in code/outputs:**
-- Inclusion criteria specifying which comparisons are eligible (active vs. active, active vs. placebo)
-- Outcome measurement time point standardization across the network
-- Study design restrictions (RCTs only, or including observational)
-- Minimum follow-up or sample size thresholds with rationale
+- Node definitions mapping each intervention, dose, or regimen to a network node, with justification for any merged nodes
 
 ### Item 7 -- Information sources
 
-**Description:** Describe all information sources (e.g., databases with dates of coverage, contact with study authors to identify additional studies) in the search and the date last searched.
+**Description:** Describe all information sources searched (e.g., databases with dates of coverage, contact with study authors to identify additional studies) and the date of the last search.
 
 **What to look for in code/outputs:**
-- Database list with coverage dates (MEDLINE, EMBASE, Cochrane CENTRAL, others)
-- Grey literature and conference abstract searches documented
-- Date last searched for each database
-- Author or manufacturer contact for unpublished data
+- Sources, coverage dates, and last-search dates documented
 
 ### Item 8 -- Search
 
-**Description:** Present the full electronic search strategy for at least one database, including any limits used, such that it could be repeated.
+**Description:** Present the full electronic search strategy for at least one database, including any limits used, so that it could be repeated.
 
 **What to look for in code/outputs:**
-- Full reproducible search string for at least one database
-- MeSH terms, free-text terms, and Boolean operators documented
-- All relevant intervention terms included to capture the full network
-- Search strategy peer-reviewed or validated
+- Complete search string for at least one database stored verbatim
 
 ### Item 9 -- Study selection
 
-**Description:** State the process for selecting studies (i.e., screening, eligibility, included in systematic review, and, if applicable, included in the meta-analysis).
+**Description:** State the process for selecting studies (screening, eligibility, inclusion in the systematic review, and, if applicable, inclusion in the meta-analysis).
 
 **What to look for in code/outputs:**
-- Two-stage screening process with counts at each stage
-- Number of independent screeners and conflict resolution method
-- PRISMA flow diagram generated with counts
-- Separate reporting of studies excluded from NMA vs. narrative synthesis
+- Screening workflow and counts per stage
 
 ### Item 10 -- Data collection process
 
-**Description:** Describe the method of data extraction from reports and any process for obtaining and confirming data from investigators.
+**Description:** Describe the method of data extraction from reports (e.g., piloted forms, independently, in duplicate) and any processes for obtaining and confirming data from investigators.
 
 **What to look for in code/outputs:**
-- Data extraction form for arm-level data (treatment, sample size, events, means, SDs)
-- Dual extraction with reconciliation documented
-- Author contact log for multi-arm trial data needed for NMA
-- Handling of multi-arm trials in extraction (all arms captured)
+- Extraction forms and dual-extraction documentation, including arm-level data for multi-arm trials
 
 ### Item 11 -- Data items
 
-**Description:** List and define all variables for which data were sought (e.g., PICOS, funding sources) and any assumptions made. *
+**Description:** List and define all variables for which data were sought (e.g., PICOS, funding sources) and any assumptions and simplifications made.
 
 **What to look for in code/outputs:**
-- Complete variable list including arm-level outcome data (events/n for binary, mean/SD for continuous)
-- Treatment coding scheme with reference treatment designated
-- Study-level potential effect modifier variables extracted for transitivity assessment
-- Multi-arm trial flag for appropriate handling in analysis
+- Data dictionary, including potential effect modifiers used to assess transitivity
 
-### Item 12 -- Risk of bias in individual studies
+### Item S1 -- Geometry of the network
 
-**Description:** Describe methods used for assessing risk of bias of individual studies (including specification of whether this was done at the study or outcome level) and how this information is to be used in data synthesis.
+**Description:** Describe the methods used to explore the geometry of the treatment network and any potential biases related to it. Include how the evidence base was graphically summarized for presentation and which characteristics were compiled and used to describe the evidence base to readers.
 
 **What to look for in code/outputs:**
-- Cochrane RoB 2.0 or RoB 1.0 domain ratings per study
-- Risk of bias judgments coded (low, some concerns, high) per domain
-- Sensitivity analysis excluding high-risk-of-bias studies planned
-- Risk of bias summary figures or tables generated
+- Network plot code (e.g., R netmeta::netgraph, multinma, BUGSnet) and the network characteristics computed (nodes, edges, studies and patients per comparison)
+
+### Item 12 -- Risk of bias within individual studies
+
+**Description:** Describe the methods used to assess the risk of bias of individual studies (including whether this was done at the study or outcome level), and how this information is to be used in any data synthesis.
+
+**What to look for in code/outputs:**
+- Risk-of-bias tool and how ratings feed into the synthesis (e.g., CINeMA)
 
 ### Item 13 -- Summary measures
 
-**Description:** State the principal summary measures (e.g., risk ratio, difference in means) including the network meta-analysis summary measures (e.g., odds ratio, mean difference, relative risk, absolute risk difference). *
+**Description:** State the principal summary measures (e.g., risk ratio, difference in means). Also describe any additional summary measures assessed, such as treatment rankings and surface under the cumulative ranking curve (SUCRA) values, and any modified approaches used to present summary findings from the meta-analyses.
 
 **What to look for in code/outputs:**
-- Effect measure specified (odds ratio, relative risk, mean difference, hazard ratio)
-- Reference treatment for all pairwise comparisons defined
-- Absolute and relative effect measures both specified where relevant
-- Ranking measures defined (SUCRA, P-score, probability of being best)
+- Effect measures per outcome; ranking metrics (SUCRA, P-scores, rank probabilities) computed
 
 ### Item 14 -- Planned methods of analysis
 
-**Description:** Describe the methods of handling data and combining results of studies including any planned exploration of heterogeneity and inconsistency. Describe the statistical model used (e.g., Bayesian or frequentist), the specific model used for the network meta-analysis (e.g., consistency model), any assumptions made in the analysis, and the methods used to assess transitivity (comparability across treatment comparisons). *
+**Description:** Describe the methods of handling data and combining study results for each network meta-analysis. This should include, but not be limited to: handling of multi-arm trials; selection of the variance structure; selection of prior distributions in Bayesian analyses; and assessment of model fit.
 
 **What to look for in code/outputs:**
-- Statistical framework specified (Bayesian with prior distributions, or frequentist)
-- Consistency model specified (common heterogeneity vs. comparison-specific)
-- Transitivity assessment method coded (comparison of effect modifier distributions across comparisons)
-- Inconsistency tests planned (node-splitting, design-by-treatment interaction, loop-specific inconsistency)
-- Network geometry description method (network plot, contribution matrix)
+- Multi-arm correlation handling; common vs random heterogeneity variance; priors stated; model fit (DIC, residual deviance)
 
-### Item 15 -- Assessment of risk of bias across studies
+### Item S2 -- Assessment of inconsistency
+
+**Description:** Describe the statistical methods used to evaluate agreement between direct and indirect evidence in the treatment network(s) studied, and the steps taken to address inconsistency when it was found.
+
+**What to look for in code/outputs:**
+- Node-splitting, design-by-treatment interaction, or loop-specific inconsistency code, and the planned response to inconsistency
+
+### Item 15 -- Risk of bias across studies
 
 **Description:** Specify any assessment of risk of bias that may affect the cumulative evidence (e.g., publication bias, selective reporting within studies).
 
 **What to look for in code/outputs:**
-- Comparison-adjusted funnel plots generated for publication bias assessment
-- Selective reporting assessment using registered vs. reported outcomes
-- Small-study effects assessment in network context
-- Sensitivity analyses for potential publication bias
+- Comparison-adjusted funnel plots or other small-study assessments
 
 ### Item 16 -- Additional analyses
 
-**Description:** Describe methods of additional analyses (e.g., sensitivity or subgroup analyses, meta-regression), if done, indicating which were pre-specified.
+**Description:** Describe the methods of any additional analyses, indicating which were pre-specified. These may include, but are not limited to: sensitivity or subgroup analyses; meta-regression analyses; alternative formulations of the treatment network; and alternative prior distributions for Bayesian analyses (if applicable).
 
 **What to look for in code/outputs:**
-- Subgroup and meta-regression analyses prespecified with effect modifier rationale
-- Sensitivity analyses for key assumptions (consistency, heterogeneity priors)
-- Network meta-regression code with treatment-covariate interaction terms
-- Pre-specified vs. post-hoc analysis designation in code comments
+- Network meta-regression, alternative node definitions, and prior-sensitivity runs, labelled pre-specified or post hoc
 
 ---
 
@@ -200,129 +172,106 @@ This checklist extends base PRISMA with items specific to network meta-analysis.
 
 ### Item 17 -- Study selection
 
-**Description:** Give numbers of studies screened, assessed for eligibility, and included in the review, with reasons for exclusions at each stage, ideally with a flow diagram.
+**Description:** Give the numbers of studies screened, assessed for eligibility, and included in the review, with reasons for exclusion at each stage, ideally with a flow diagram.
 
 **What to look for in code/outputs:**
-- PRISMA flow diagram with counts at each stage
-- Studies by comparison (pairwise breakdown of included studies)
-- Reasons for exclusion of full-text articles tabulated
-- Multi-arm trials identified and counted
+- Flow diagram with counts and exclusion reasons
+
+### Item S3 -- Presentation of network structure
+
+**Description:** Provide a network graph of the included studies so that the geometry of the treatment network can be visualized.
+
+**What to look for in code/outputs:**
+- Rendered network graph with node size and edge width reflecting the amount of evidence
+
+### Item S4 -- Summary of network geometry
+
+**Description:** Give a brief overview of the characteristics of the treatment network. This may include commentary on the number of trials and randomized patients for the different interventions and pairwise comparisons, gaps in the evidence, and potential biases reflected by the network structure.
+
+**What to look for in code/outputs:**
+- Table of studies and patients per node and per comparison; noted evidence gaps
 
 ### Item 18 -- Study characteristics
 
-**Description:** For each study, present characteristics for which data were extracted (e.g., study size, PICOS, follow-up period) and provide the citations. *
+**Description:** For each study, present the characteristics for which data were extracted (e.g., study size, PICOS, follow-up period) and give the citation.
 
 **What to look for in code/outputs:**
-- Summary table with study-level characteristics (design, sample size, comparisons, outcomes)
-- Treatment arms and dosing for each study
-- Effect modifiers (e.g., baseline risk, disease severity, duration) tabulated per study
-- Multi-arm trial indicator noted in study characteristics table
+- Characteristics table with citations
 
 ### Item 19 -- Risk of bias within studies
 
-**Description:** Present data on risk of bias of each included study and, if available, any outcome-level assessment.
+**Description:** Present data on the risk of bias of each study and, if available, any outcome-level assessment.
 
 **What to look for in code/outputs:**
-- Risk of bias table or traffic light plot per study and per domain
-- Overall risk of bias judgment per study
-- Proportion of studies with high or unclear risk per domain summarized
-- Sensitivity analysis results for high-risk-of-bias studies
+- Per-study risk-of-bias ratings in tables or figures
 
 ### Item 20 -- Results of individual studies
 
-**Description:** For all outcomes considered, present, for each study: (a) simple summary data for each intervention group and (b) effect estimates and confidence intervals, ideally with a forest plot.
+**Description:** For all outcomes considered (benefits or harms), present for each study: (1) simple summary data for each intervention group, and (2) effect estimates and confidence intervals. Modified approaches may be needed for information from larger networks.
 
 **What to look for in code/outputs:**
-- Arm-level event rates or means per study tabulated
-- Pairwise effect estimates with CIs displayed in forest plots
-- Direct evidence forest plots by comparison pair generated
-- Multi-arm trial data displayed with all arms reported
+- Arm-level data and per-study effect estimates, possibly in an appendix for large networks
 
 ### Item 21 -- Synthesis of results
 
-**Description:** Present the results of each analysis, the network geometry (including a network plot), results of the network meta-analysis (including a summary treatment effect for each pairwise comparison, with credible or confidence intervals), and the results for ranking of interventions. *
+**Description:** Present the results of each meta-analysis, including confidence or credible intervals. In larger networks, authors may focus on comparisons against a particular comparator (e.g., placebo or standard care) and give the full findings in an appendix. League tables and forest plots may be used to summarize pairwise comparisons. If additional summary measures were explored (such as treatment rankings), present these too.
 
 **What to look for in code/outputs:**
-- Network plot generated with nodes sized by sample size and edges by study count
-- League table or matrix of all pairwise treatment effects with 95% CrI/CI
-- SUCRA values or P-scores with uncertainty quantification reported
-- Rankograms or cumulative ranking plots generated for primary outcome
-- Contribution matrix showing direct vs. indirect evidence weights
+- League table of all pairwise estimates with intervals; forest plot against a common comparator; ranking outputs
 
-### Item 22 -- Exploration of inconsistency
+### Item S5 -- Exploration for inconsistency
 
-**Description:** Present the results of any investigation of inconsistency (see Item 14). *
+**Description:** Describe the results of the investigations of inconsistency. These may include measures of model fit comparing consistency and inconsistency models, P values from statistical tests, or summaries of inconsistency estimates from different parts of the treatment network.
 
 **What to look for in code/outputs:**
-- Node-splitting results with direct, indirect, and network estimates compared
-- Design-by-treatment inconsistency test (chi-squared, p-value) reported
-- Loop-specific inconsistency factors for identified loops reported
-- Overall inconsistency test result (Cochran's Q for design-by-treatment interaction)
+- Node-split results, global inconsistency test, consistency vs inconsistency model fit
 
-### Item 23 -- Assessment of risk of bias across studies
+### Item 22 -- Risk of bias across studies
 
-**Description:** Present results of any assessment of publication bias across studies (see Item 15).
+**Description:** Present the results of any assessment of risk of bias across studies for the evidence base being studied.
 
 **What to look for in code/outputs:**
-- Comparison-adjusted funnel plot displayed
-- Egger's test or rank correlation test results for asymmetry
-- Qualitative discussion of small-study effects in the network
-- Sensitivity analysis results for scenarios with selective reporting
+- Comparison-adjusted funnel plots or small-study results
 
-### Item 24 -- Additional analyses
+### Item 23 -- Results of additional analyses
 
-**Description:** Give results of additional analyses, if done (e.g., sensitivity or subgroup analyses, meta-regression [see Item 16]).
+**Description:** Give the results of any additional analyses (e.g., sensitivity or subgroup analyses, meta-regression analyses, alternative network geometries studied, alternative choices of prior distributions for Bayesian analyses).
 
 **What to look for in code/outputs:**
-- Subgroup and meta-regression estimates tabulated
-- Sensitivity analyses (excluding studies, alternative priors, alternative heterogeneity assumptions) reported
-- Pre-specified vs. exploratory labeling for each additional analysis
-- Comparison of rankings across sensitivity scenarios
+- Sensitivity and meta-regression outputs presented next to the primary results
 
 ---
 
 ## Discussion
 
-### Item 25 -- Summary of evidence
+### Item 24 -- Summary of evidence
 
-**Description:** Summarize the main findings including the strength of evidence for each main outcome, and considering its relevance to key groups (e.g., healthcare providers, users, and policy makers). Interpret the results in the context of the transitivity assumption. *
-
-**What to look for in code/outputs:**
-- Summary of NMA estimates with clinical interpretation
-- Transitivity evaluation results discussed (similarity of effect modifier distributions)
-- Consistency assessment findings integrated into conclusions
-- Certainty of evidence (GRADE for NMA) assessed and reported
-
-### Item 26 -- Limitations
-
-**Description:** Discuss limitations at study and outcome level (e.g., risk of bias), and at review-level (e.g., incomplete retrieval of identified research, reporting bias). Describe any limitations of the network meta-analysis (e.g., assumptions about transitivity and consistency). *
+**Description:** Summarize the main findings, including the strength of the evidence for each main outcome, and consider their relevance to key groups (e.g., healthcare providers, users, and policy makers).
 
 **What to look for in code/outputs:**
-- Transitivity assumption limitations discussed with supporting evidence
-- Inconsistency sources identified and their impact discussed
-- Sparse network limitations (few studies per comparison, disconnected nodes) addressed
-- Heterogeneity impact on ranking uncertainty discussed
+- Key results with certainty ratings (e.g., CINeMA or GRADE for NMA)
 
-### Item 27 -- Conclusions
+### Item 25 -- Limitations
 
-**Description:** Provide a general interpretation of the results in the context of other evidence, and implications for future research.
+**Description:** Discuss limitations at the study and outcome level (e.g., risk of bias) and at the review level (e.g., incomplete retrieval of identified research, reporting bias). Comment on the validity of the assumptions, such as transitivity and consistency, and on any concerns about network geometry (e.g., avoidance of certain comparisons).
 
 **What to look for in code/outputs:**
-- Conclusion referencing summary estimates and ranking with appropriate uncertainty language
-- Implications for clinical decision-making and guideline development
-- Recommended future research (direct head-to-head trials for key comparisons)
-- Explicit statement on conditions under which transitivity assumption holds
+- Discussion of transitivity, consistency, and network-geometry concerns
+
+### Item 26 -- Conclusions
+
+**Description:** Give a general interpretation of the results in the context of other evidence, and implications for future research.
+
+**What to look for in code/outputs:**
+- Conclusions qualified by the certainty of evidence
 
 ---
 
 ## Funding
 
-### Item 28 -- Funding
+### Item 27 -- Funding
 
-**Description:** Describe sources of funding for the systematic review and other support; role of funders for the systematic review.
+**Description:** Describe the sources of funding for the systematic review and other support (e.g., supply of data), and the role of the funders. Also state whether funding was received from manufacturers of treatments in the network and/or whether any authors are content experts with professional conflicts of interest that could affect use of treatments in the network.
 
 **What to look for in code/outputs:**
-- Funding acknowledgment section in report
-- Conflict of interest disclosures for all authors
-- Role of funder in search, selection, analysis, or reporting stated
-- Independence of review from pharmaceutical or device industry stated
+- Funding statement covering manufacturer funding and authors' professional conflicts relevant to the network

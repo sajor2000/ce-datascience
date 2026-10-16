@@ -98,11 +98,11 @@ This is a hint to `ce-checklist-match`. Map the design to the most likely primar
 |--------|-------------------|-------------------------|
 | RCT (`ai_involvement: none`) | CONSORT (2025) | -- |
 | RCT (AI intervention; `ai-primary` or `llm-based`) | CONSORT (2025) | CONSORT-AI |
-| Observational cohort | STROBE | RECORD if EHR/claims/registry; RECORD-PE if claims pharmacoepidemiology |
+| Observational cohort | STROBE (STROBE-MR replaces it for Mendelian randomization) | RECORD if EHR/claims/registry; RECORD-PE if pharmacoepidemiology on those data |
 | Target trial emulation | TARGET (standalone) | RECORD if routinely collected EHR/claims/registry data |
 | Prediction model (regression or ML) | TRIPOD+AI | TRIPOD-Cluster if clustered/multisite data; REFORMS if `ai-primary` or `llm-based` |
-| Diagnostic accuracy | STARD | STARD-AI if AI index test; CLAIM if imaging AI |
-| Systematic review | PRISMA | PRISMA-DTA / PRISMA-NMA by subtype |
+| Diagnostic accuracy | STARD (STARD-AI replaces it for an AI index test) | CLAIM if imaging AI |
+| Systematic review | PRISMA (PRISMA-DTA / -NMA / -IPD / -ScR replace it by subtype) | QUADAS-3 for DTA appraisal |
 | Early clinical evaluation of an AI decision-support system (`early-clinical-ai-evaluation`) | DECIDE-AI | -- |
 
 When the next deliverable is a protocol rather than a results paper, set `protocol_stage: true`: trial protocols route to SPIRIT 2025 (plus SPIRIT-AI for AI interventions) and systematic-review protocols to PRISMA-P.

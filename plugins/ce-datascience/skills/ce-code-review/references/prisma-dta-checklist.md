@@ -11,13 +11,15 @@
 - Funding
 
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Diagnostic Test Accuracy (PRISMA-DTA).
-Extension of PRISMA for systematic reviews and meta-analyses of diagnostic test accuracy studies.
+Stand-alone extension of PRISMA for systematic reviews and meta-analyses of diagnostic test accuracy studies.
 
-**Primary reference:** McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM; and the PRISMA-DTA Group. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: The PRISMA-DTA Statement. JAMA. 2018;319(4):388-396. doi:10.1001/jama.2017.19163. PMID: 29362800.
+**Primary reference:** McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM; and the PRISMA-DTA Group. Preferred Reporting Items for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: The PRISMA-DTA Statement. JAMA. 2018;319(4):388-396. doi:10.1001/jama.2017.19163. PMID: 29362800. Erratum: JAMA. 2019;322(20):2026. doi:10.1001/jama.2019.18307. PMID: 31769809.
 
 **Explanation and elaboration:** Salameh JP, Bossuyt PM, McGrath TA, et al. Preferred reporting items for systematic review and meta-analysis of diagnostic test accuracy studies (PRISMA-DTA): explanation, elaboration, and checklist. BMJ. 2020;370:m2632. doi:10.1136/bmj.m2632. PMID: 32816740.
 
-This checklist extends the 2009 PRISMA statement with items specific to diagnostic accuracy reviews. Items marked with an asterisk (*) are new additions or modifications from base PRISMA. Apply when reporting a systematic review or meta-analysis where the primary aim is to assess the accuracy of one or more index tests against a reference standard.
+**Source and licence:** Item IDs and order follow the official PRISMA-DTA checklist (https://www.prisma-statement.org/s/PRISMA-DTA-Checklist-xh5j.pdf). That checklist carries no open licence, so the descriptions are faithful paraphrases: every element of each official item is kept and nothing is added. Use the official PDF for verbatim wording. Abstracts follow the separate PRISMA-DTA for Abstracts checklist. The "What to look for" cues are added by this plugin.
+
+PRISMA-DTA has 27 items. It was built on the 2009 PRISMA statement: 8 items unchanged, 17 modified, 2 added (D1, D2), and 2 omitted (PRISMA 2009 items 15 and 22, risk of bias across studies). Items are numbered as in the official checklist, so the sequence runs 1-14, D1-D2 placed as shown, 16-21, then 23-27. Apply it when the review's primary aim is to assess the accuracy of one or more index tests against a reference standard. Appraise the included studies with QUADAS-3 (or QUADAS-2 when pre-specified).
 
 ---
 
@@ -25,27 +27,23 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 1 -- Title
 
-**Description:** Identify the report as a systematic review and/or meta-analysis of diagnostic test accuracy. *
+**Description:** Identify the report as a systematic review (with or without meta-analysis) of diagnostic test accuracy (DTA) studies.
 
 **What to look for in code/outputs:**
-- Report title specifying systematic review or meta-analysis and naming the index test
-- Title identifying the target condition or the clinical question
-- Keywords including "diagnostic accuracy," "sensitivity," "specificity," and the test name
-- Structured abstract consistent with the DTA review scope
+- Report title naming the review as a systematic review of diagnostic test accuracy
+- Title generation code or template including "diagnostic test accuracy" or "diagnostic accuracy"
 
 ---
 
 ## Abstract
 
-### Item 2 -- Structured summary
+### Item 2 -- Abstract
 
-**Description:** Provide a structured summary including, as applicable: background, objectives, data sources, study eligibility criteria, participants, index test(s), reference standard(s), synthesis methods, results (including estimates of sensitivity and specificity), and conclusions. *
+**Description:** For the abstract, see the PRISMA-DTA for Abstracts checklist.
 
 **What to look for in code/outputs:**
-- Abstract reporting pooled sensitivity and specificity with confidence intervals
-- Index test and reference standard named explicitly in abstract
-- Number of studies and total participant count in abstract
-- Summary ROC or HSROC point estimates reported
+- Abstract covering the PRISMA-DTA for Abstracts items, including summary sensitivity and specificity with confidence intervals
+- Registration number in the abstract or metadata
 
 ---
 
@@ -53,23 +51,25 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 3 -- Rationale
 
-**Description:** Describe the rationale for the review in the context of what is already known, specifically including mention of why accurate diagnosis is important in the context of this clinical question.
+**Description:** Describe why the review was done, in the context of what is already known.
 
 **What to look for in code/outputs:**
-- Documentation of clinical context and importance of accurate diagnosis
-- Literature review of existing accuracy estimates or prior systematic reviews
-- Articulation of the knowledge gap motivating the review
-- Description of consequences of false-positive and false-negative results in this context
+- Introductory report sections citing prior evidence and gaps
+
+### Item D1 -- Clinical role of index test
+
+**Description:** State the scientific and clinical background, including the intended use and clinical role of the index test. Where applicable, give the rationale for the minimally acceptable test accuracy (or, for comparative designs, the minimum difference in accuracy).
+
+**What to look for in code/outputs:**
+- Documented intended use (diagnosis, screening, staging) and role (triage, replacement, add-on) of the index test
+- Pre-specified minimally acceptable accuracy targets or comparative margins, with justification
 
 ### Item 4 -- Objectives
 
-**Description:** Provide an explicit statement of questions being addressed with reference to participants, index test(s), reference standard, and target condition (PIRT). *
+**Description:** Give an explicit statement of the question(s) being addressed in terms of participants, index test(s), and target condition(s).
 
 **What to look for in code/outputs:**
-- PIRT framework (Participants, Index test, Reference standard, Target condition) specified
-- Primary and secondary research questions documented
-- Subgroup or threshold-specific questions prespecified
-- Study outcomes (sensitivity, specificity, likelihood ratios, AUC) named
+- Review question naming participants, index test(s), and target condition(s) in the protocol or config
 
 ---
 
@@ -77,124 +77,96 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 5 -- Protocol and registration
 
-**Description:** Indicate if a review protocol exists, if and where it can be accessed (e.g., Web address), and, if available, provide registration information including registration number.
+**Description:** State whether a review protocol exists and whether and where it can be accessed (e.g., web address). If available, give registration information including the registration number.
 
 **What to look for in code/outputs:**
-- PROSPERO registration number or other review registry reference
-- Published protocol DOI or URL
-- Deviation log or amendment documentation if protocol was modified
-- Date of registration relative to data collection
+- PROSPERO registration number or protocol link in documentation
 
 ### Item 6 -- Eligibility criteria
 
-**Description:** Specify study characteristics (e.g., PIRT, minimum sample size, length of follow-up) and report characteristics (e.g., years considered, language, publication status) used as criteria for eligibility, giving rationale. *
+**Description:** Specify the study characteristics (participants, setting, index test(s), reference standard(s), target condition(s), and study design) and report characteristics (e.g., years considered, language, publication status) used as eligibility criteria, with rationale.
 
 **What to look for in code/outputs:**
-- Eligibility criteria documented including study design restrictions
-- Index test specification (modality, technology, threshold if fixed)
-- Reference standard specification and acceptability criteria
-- Language, publication status, and date restrictions with rationale
+- Inclusion/exclusion criteria covering participants, setting, index test, reference standard, target condition, and design
+- Filter logic for report characteristics (years, language, publication status) with rationale
 
 ### Item 7 -- Information sources
 
-**Description:** Describe all information sources (e.g., databases with dates of coverage, contact with study authors to identify additional studies) in the search and the date last searched.
+**Description:** Describe all information sources searched (e.g., databases with dates of coverage, contact with study authors to identify additional studies) and the date of the last search.
 
 **What to look for in code/outputs:**
-- Database list with coverage dates (MEDLINE, EMBASE, Cochrane, others)
-- Grey literature and conference abstract searches documented
-- Date last searched specified
-- Supplementary search strategies (reference lists, citation tracking, expert contact)
+- Database names, coverage dates, and last-search dates recorded in logs or metadata
+- Supplementary sources documented
 
 ### Item 8 -- Search
 
-**Description:** Present the full electronic search strategy for at least one database, including any limits used, such that it could be repeated.
+**Description:** Present the full search strategies for all electronic databases and other sources searched, including any limits used, so that they could be repeated.
 
 **What to look for in code/outputs:**
-- Full reproducible search string for at least one database in supplementary materials
-- MeSH terms, free-text terms, and Boolean operators documented
-- Search filters applied (date, language, human subjects) specified
-- Search strategy peer-reviewed or validated using known-item testing
+- Complete search strings for every database and other source (not just one), with limits recorded
 
 ### Item 9 -- Study selection
 
-**Description:** State the process for selecting studies (i.e., screening, eligibility, included in systematic review, and, if applicable, included in the meta-analysis).
+**Description:** State the process for selecting studies (screening, eligibility, inclusion in the systematic review, and, if applicable, inclusion in the meta-analysis).
 
 **What to look for in code/outputs:**
-- Two-stage screening process (title/abstract then full-text) documented
-- Number of independent screeners and conflict resolution method described
-- PRISMA flow diagram generation code with counts at each stage
-- Cohen's kappa or percent agreement between screeners reported
+- Screening workflow configuration with dual screening and disagreement resolution documented
+- Counts at each selection stage
 
 ### Item 10 -- Data collection process
 
-**Description:** Describe the method of data extraction from reports (e.g., piloted forms, independently, in duplicate) and any process for obtaining and confirming data from investigators.
+**Description:** Describe the method of data extraction from reports (e.g., piloted forms, independently, in duplicate) and any processes for obtaining and confirming data from investigators.
 
 **What to look for in code/outputs:**
-- Data extraction form template or codebook
-- Dual extraction with reconciliation process documented
-- Author contact log for missing or unclear data
-- Standardized variable names for TP, FP, FN, TN counts
+- Extraction form templates and dual-extraction documentation
+- Logs of author contact to obtain 2x2 data
 
-### Item 11 -- Data items
+### Item 11 -- Definitions for data extraction
 
-**Description:** List and define all variables for which data were sought (e.g., PIRT, study characteristics, index test and reference standard details, sources of variability, risk of bias) and any assumptions made. *
+**Description:** Give the definitions used in data extraction and the classifications of target condition(s), index test(s), reference standard(s), and other characteristics (e.g., study design, clinical setting).
 
 **What to look for in code/outputs:**
-- Complete extraction variable list including TP, FP, FN, TN for each threshold
-- Index test technical parameters extracted (manufacturer, protocol, reader training)
-- Reference standard procedure and interpretation criteria extracted
-- Threshold or cutoff values extracted per study
+- Data dictionary defining target condition, index test, reference standard, study design, and setting categories
 
-### Item 12 -- Risk of bias in individual studies
+### Item 12 -- Risk of bias and applicability
 
-**Description:** Describe methods used for assessing the risk of bias of individual studies (including specification of whether this was done at the study or outcome level) and how this information is to be used in any data synthesis. *
+**Description:** Describe the methods used to assess risk of bias in individual studies and concerns about applicability to the review question.
 
 **What to look for in code/outputs:**
-- QUADAS-2 implementation with domain ratings (Patient selection, Index test, Reference standard, Flow and timing)
-- Risk of bias judgments (low, high, unclear) coded per domain per study
-- Applicability concerns assessed separately from risk of bias
-- Risk of bias summary plots or tables generated
+- QUADAS-3 (or QUADAS-2) assessment fields recording risk-of-bias and applicability judgments separately
+- Review-specific tailoring of signalling questions documented
 
-### Item 13 -- Summary measures
+### Item 13 -- Diagnostic accuracy measures
 
-**Description:** State the principal summary measures (e.g., sensitivity and specificity, likelihood ratios, diagnostic odds ratio, area under the ROC curve). Describe the rationale for the choice of cut-points of the index test, where applicable. *
+**Description:** State the principal diagnostic accuracy measure(s) reported (e.g., sensitivity, specificity) and the unit of assessment (e.g., per patient, per lesion).
 
 **What to look for in code/outputs:**
-- Primary accuracy measures specified (paired sensitivity/specificity vs. DOR vs. AUC)
-- Threshold selection rationale documented (prespecified vs. study-reported vs. optimal)
-- Secondary measures (likelihood ratios, predictive values) defined
-- AUC or SROC curve as a planned synthesis output
+- Accuracy measures specified in analysis code
+- Unit of analysis (patient, lesion, sample) recorded per study, with handling of clustered units
 
 ### Item 14 -- Synthesis of results
 
-**Description:** Describe the methods of handling data and combining results of studies, including measures of consistency (for each meta-analysis). Describe any planned exploration of between-study heterogeneity, including subgroup analyses and meta-regression analyses in relation to the index test, reference standard, and clinical characteristics of the included studies. *
+**Description:** Describe the methods for handling data, combining study results, and describing variability between studies. This may include, but is not limited to, handling of: (a) multiple definitions of the target condition; (b) multiple thresholds of test positivity; (c) multiple index test readers; (d) indeterminate test results; (e) grouping and comparing tests; and (f) different reference standards.
 
 **What to look for in code/outputs:**
-- Bivariate model or HSROC (Hierarchical Summary ROC) implementation specified
-- Random-effects meta-analysis code for sensitivity and specificity
-- Heterogeneity quantification (I-squared, tau-squared for sensitivity and specificity)
-- Subgroup analyses prespecified by index test variation, reference standard, or population
-- Meta-regression code for covariates hypothesized to explain heterogeneity
+- Rules selecting one 2x2 table per study when several definitions, thresholds, or readers are reported
+- Handling of indeterminate results and of differing reference standards
+- Methods for describing between-study variability (e.g., forest plots of sensitivity and specificity, ROC space plots)
 
-### Item 15 -- Risk of bias across studies
+### Item D2 -- Meta-analysis
 
-**Description:** Specify any assessment of risk of bias that may affect the cumulative evidence (e.g., publication bias, selective reporting within studies).
+**Description:** Report the statistical methods used for meta-analysis, if one was performed.
 
 **What to look for in code/outputs:**
-- Publication bias assessment code (Deeks' funnel plot asymmetry test for DTA)
-- Selective threshold reporting assessment
-- Comparison of registered vs. reported outcomes where applicable
-- Sensitivity analyses excluding high-risk-of-bias studies
+- Bivariate random-effects or HSROC model code (e.g., R mada, metandi, meqrlogit, Stan) with software versions
+- Model specification, estimation method, and handling of zero cells
 
 ### Item 16 -- Additional analyses
 
-**Description:** Describe methods of additional analyses (e.g., sensitivity analyses, subgroup analyses, meta-regression), if done, indicating which were pre-specified.
+**Description:** Describe the methods of any additional analyses (e.g., sensitivity or subgroup analyses, meta-regression), indicating which were pre-specified.
 
 **What to look for in code/outputs:**
-- Sensitivity analysis code excluding studies with high risk of bias
-- Subgroup analysis by index test modality, patient setting, or reference standard
-- Meta-regression implementation with covariate definitions
-- Pre-specified vs. post-hoc analysis labeling in code comments
+- Meta-regression or subgroup code with covariates, labelled pre-specified or post hoc
 
 ---
 
@@ -202,73 +174,49 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 17 -- Study selection
 
-**Description:** Give numbers of studies screened, assessed for eligibility, and included in the review, with reasons for exclusions at each stage, ideally with a flow diagram.
+**Description:** Give the numbers of studies screened, assessed for eligibility, and included in the review (and in the meta-analysis, if applicable), with reasons for exclusion at each stage, ideally with a flow diagram.
 
 **What to look for in code/outputs:**
-- PRISMA flow diagram generated with counts at each stage
-- Exclusion reasons tabulated with frequencies
-- Total studies included in qualitative synthesis vs. meta-analysis reported
-- Studies included in each subgroup or threshold analysis counted
+- Flow diagram with counts including the number entering the meta-analysis
+- Exclusion reasons tabulated at the full-text stage
 
 ### Item 18 -- Study characteristics
 
-**Description:** For each study, present characteristics for which data were extracted (e.g., study size, PIRT, index test details, reference standard, and prevalence of target condition) and provide the citations. *
+**Description:** For each included study, give the citation and key characteristics, including: (a) participant characteristics (presentation, prior testing); (b) clinical setting; (c) study design; (d) target condition definition; (e) index test; (f) reference standard; (g) sample size; and (h) funding sources.
 
 **What to look for in code/outputs:**
-- Summary table of included studies with PIRT characteristics
-- Index test technical parameters per study (modality, threshold, operator)
-- Reference standard procedure and criteria per study
-- Target condition prevalence per study reported
+- Characteristics table with all eight elements (a)-(h) per study, plus citations
 
-### Item 19 -- Risk of bias within studies
+### Item 19 -- Risk of bias and applicability
 
-**Description:** Present data on risk of bias of each included study and, if available, any outcome-level assessment. *
+**Description:** Present the evaluation of risk of bias and of concerns about applicability for each study.
 
 **What to look for in code/outputs:**
-- QUADAS-2 domain ratings displayed per study (traffic light plot or table)
-- Applicability concerns reported alongside risk of bias judgments
-- Proportion of studies with high/unclear risk of bias per domain summarized
-- Sensitivity analysis results comparing high vs. low risk-of-bias studies
+- Per-study, per-domain risk-of-bias and applicability judgments in tables or figures
 
 ### Item 20 -- Results of individual studies
 
-**Description:** For all outcomes considered (benefits or harms), present, for each study: (a) simple summary data for each intervention group, and (b) effect estimates and confidence intervals, ideally with a forest plot. *
+**Description:** For each analysis in each study (e.g., each unique combination of index test, reference standard, and positivity threshold), report the 2x2 data (TP, FP, FN, TN) with estimates of diagnostic accuracy and confidence intervals, ideally with a forest plot or receiver operating characteristic (ROC) plot.
 
 **What to look for in code/outputs:**
-- 2x2 table data (TP, FP, FN, TN) or sensitivity/specificity per study with 95% CIs
-- Forest plots of sensitivity and specificity across studies generated
-- Study-level data displayed at each threshold analyzed
-- Confidence intervals computed using exact binomial or score methods
+- Per-study 2x2 counts with sensitivity and specificity and their CIs
+- Paired forest plots or ROC-space plots for each analysis
 
 ### Item 21 -- Synthesis of results
 
-**Description:** Present results of each meta-analysis done, including confidence intervals and measures of consistency. *
+**Description:** Describe test accuracy, including its variability. If meta-analysis was done, include the results and confidence intervals.
 
 **What to look for in code/outputs:**
-- Pooled sensitivity and specificity with 95% confidence and prediction regions
-- SROC curve with confidence and prediction ellipses generated as figure
-- Heterogeneity statistics (I-squared, tau-squared) reported for both sensitivity and specificity
-- Bivariate model parameter estimates (mu, sigma, rho) reported
+- Summary sensitivity and specificity (or SROC curve) with confidence and prediction regions
+- Description of between-study variability
 
-### Item 22 -- Risk of bias across studies
+### Item 23 -- Additional analysis
 
-**Description:** Present results of any assessment of risk of bias across studies (see Item 15).
+**Description:** Give the results of any additional analyses (e.g., sensitivity or subgroup analyses, meta-regression; analyses of the index test such as failure rates, proportion of inconclusive results, and adverse events).
 
 **What to look for in code/outputs:**
-- Deeks' funnel plot asymmetry test result reported
-- Egger's or related test for small-study effects implemented
-- Sensitivity analysis results comparing subsets by risk-of-bias rating
-- Publication bias discussion contextualizing test limitations for DTA reviews
-
-### Item 23 -- Additional analyses
-
-**Description:** Give results of additional analyses, if done (e.g., sensitivity or subgroup analyses, meta-regression [see Item 16]).
-
-**What to look for in code/outputs:**
-- Subgroup and meta-regression results tabulated or plotted
-- Pre-specified vs. exploratory status labeled for each additional analysis
-- Comparison of pooled estimates across subgroups reported
-- Covariate coefficients and confidence intervals from meta-regression reported
+- Subgroup or meta-regression outputs
+- Index test failure rates, inconclusive-result proportions, and adverse events summarized
 
 ---
 
@@ -276,33 +224,24 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 24 -- Summary of evidence
 
-**Description:** Summarize the main findings including the strength of evidence for each main outcome; consider their relevance to key groups (e.g., healthcare providers, users, and policy makers).
+**Description:** Summarize the main findings, including the strength of the evidence.
 
 **What to look for in code/outputs:**
-- Summary of pooled sensitivity and specificity with clinical interpretation
-- Strength-of-evidence statement referencing heterogeneity and risk-of-bias findings
-- Clinical utility framed in terms of false-positive and false-negative rates
-- Comparison with prior systematic reviews or manufacturer-reported accuracy claims
+- Key results section with certainty of evidence for each accuracy estimate
 
 ### Item 25 -- Limitations
 
-**Description:** Discuss limitations at study and outcome level (e.g., risk of bias), and at review level (e.g., incomplete retrieval of identified research, reporting bias).
+**Description:** Discuss limitations arising from the included studies (e.g., risk of bias and concerns about applicability) and from the review process (e.g., incomplete retrieval of identified research).
 
 **What to look for in code/outputs:**
-- Limitation discussion referencing QUADAS-2 domain findings
-- Grey literature and language restriction impact acknowledged
-- Threshold heterogeneity across studies discussed as limitation
-- Between-study heterogeneity sources that could not be explained
+- Limitations covering both study-level (QUADAS) concerns and review-process gaps
 
 ### Item 26 -- Conclusions
 
-**Description:** Provide a general interpretation of the results in the context of other evidence, and implications for future research.
+**Description:** Give a general interpretation of the results in the context of other evidence, and discuss implications for future research and clinical practice (e.g., the intended use and clinical role of the index test).
 
 **What to look for in code/outputs:**
-- Conclusion referencing both summary accuracy and certainty of evidence
-- Implications for clinical use at the tested threshold(s)
-- Recommended future research (prospective validation, threshold standardization, head-to-head comparisons)
-- Explicit statement on readiness for clinical implementation
+- Conclusions tied to the intended use and clinical role stated under D1
 
 ---
 
@@ -310,10 +249,7 @@ This checklist extends the 2009 PRISMA statement with items specific to diagnost
 
 ### Item 27 -- Funding
 
-**Description:** Describe sources of funding for the systematic review and other support (e.g., supply of data); role of funders for the systematic review.
+**Description:** For the systematic review, describe the sources of funding and other support, and the role of the funders.
 
 **What to look for in code/outputs:**
-- Funding acknowledgment section in report
-- Conflict of interest disclosures for all authors
-- Role of funder in search, selection, analysis, or reporting stated
-- Independence of review from test manufacturer or commercial interest
+- Funding acknowledgment with grant numbers and the role of funders

@@ -4,34 +4,35 @@ Default mapping from `suggested_design` → primary EQUATOR checklist. This is a
 
 | Design | Primary | Common extensions |
 |--------|---------|-------------------|
-| RCT (no AI) | CONSORT (2025) | SPIRIT 2025 (protocol), CONSORT-CLUSTER (cluster RCT), CONSORT-NPT (non-pharmacological), CONSORT-Harms |
+| RCT (no AI) | CONSORT (2025) | SPIRIT 2025 (protocol), CONSORT-CLUSTER (cluster RCT), CONSORT-ADAPTIVE (adaptive), CONSORT-NOF1 (N-of-1), CONSORT-NPT (non-pharmacological), CONSORT-Harms |
 | RCT (AI intervention; `ai_involvement: ai-primary` or `llm-based`) | CONSORT (2025) | CONSORT-AI; SPIRIT 2025 + SPIRIT-AI (protocol) |
 | RCT — pilot or feasibility | CONSORT extension for pilot trials | — |
 | Pragmatic trial | CONSORT extension for pragmatic trials | — |
-| Observational cohort (general) | STROBE | STROBE-MR if Mendelian randomization |
+| Observational cohort (general) | STROBE | — |
+| Mendelian randomization | STROBE-MR (stand-alone; replaces STROBE) | — |
 | Observational cohort (EHR data) | STROBE | RECORD |
-| Observational cohort (claims / pharmacoepi) | STROBE | RECORD-PE |
+| Observational cohort (pharmacoepi on EHR, registry, or claims data) | STROBE | RECORD + RECORD-PE |
 | Case-control | STROBE | RECORD if EHR-derived |
 | Cross-sectional | STROBE | RECORD if EHR-derived |
-| Target trial emulation | TARGET (standalone) | RECORD for routinely collected EHR/claims/registry data; RECORD-PE if claims pharmacoepi |
+| Target trial emulation | TARGET (standalone) | RECORD for routinely collected EHR/claims/registry data; RECORD-PE if pharmacoepi on EHR, registry, or claims data |
 | Prediction model — development | TRIPOD+AI | TRIPOD-Cluster if clustered/multisite data; REFORMS if `ai-primary` or `llm-based`; CHARMS only for systematic reviews of prediction models |
 | Prediction model — external validation | TRIPOD+AI | — |
 | Prediction model — clinical impact / RCT of model | CONSORT (2025) | CONSORT-AI; TRIPOD+AI for the model itself |
-| Diagnostic accuracy (no AI) | STARD | QUADAS-2 if doing a SR |
-| Diagnostic accuracy (AI) | STARD | STARD-AI; CLAIM if imaging |
-| Imaging AI | STARD or TRIPOD+AI depending on aim | CLAIM; STARD-AI if diagnostic accuracy |
+| Diagnostic accuracy (no AI) | STARD | QUADAS-3 if doing a SR (QUADAS-2 only if pre-specified) |
+| Diagnostic accuracy (AI) | STARD-AI (stand-alone; replaces STARD) | CLAIM if imaging |
+| Imaging AI | STARD-AI or TRIPOD+AI depending on aim | CLAIM (not radiomics/pathomics) |
 | ML-based science (AI prediction model) | TRIPOD+AI (or the underlying design's primary) | REFORMS |
-| Generative AI / LLM paper | Ask whether the study is chatbot health advice, a trial, a diagnostic test, or a prediction model | Apply CHART only to chatbot health-advice reporting; do not auto-route provisional or unverified DEAL/PDSQI-9 |
+| Generative AI / LLM paper | Ask whether the study is chatbot health advice, a trial, a diagnostic test, or a prediction model | Apply CHART only to chatbot health-advice reporting; add TRIPOD-LLM for any LLM development or evaluation; do not auto-route unverified DEAL or the PDSQI-9 evaluation instrument |
 | Early clinical evaluation of an AI decision-support system (`early-clinical-ai-evaluation`) | DECIDE-AI | — |
-| Systematic review / meta-analysis | PRISMA | PRISMA-DTA (diagnostic), PRISMA-NMA (network) |
+| Systematic review / meta-analysis | PRISMA 2020; PRISMA-DTA, PRISMA-NMA, or PRISMA-IPD replace it for those subtypes | QUADAS-3 for DTA appraisal; CHARMS for reviews of prediction models |
 | Scoping review | PRISMA-ScR | — |
 | Case report | CARE | — |
 | Qualitative | COREQ | SRQR if alternative preferred |
-| Mixed-methods | Primary of the quantitative strand | GRAMMS (provisional; never primary) |
+| Mixed-methods | Primary of the quantitative strand | GRAMMS (never primary) |
 | Animal study | ARRIVE 2.0 | — |
-| Economic evaluation | CHEERS 2022 | — |
+| Economic evaluation | CHEERS 2022 | CHEERS-AI for AI interventions |
 | Quality improvement | SQUIRE 2.0 | — |
-| Real-world evidence (regulatory) | STaRT-RWE | RECORD-PE if claims |
+| Real-world evidence (regulatory) | STaRT-RWE (planning/reporting template, not a checklist) | RECORD-PE if pharmacoepi |
 
 AI involvement uses the canonical `ai_involvement` values `none`, `ai-assisted`, `ai-primary`, and `llm-based`; an AI extension applies only when its scope matches the study.
 
@@ -50,6 +51,6 @@ AI involvement uses the canonical `ai_involvement` values `none`, `ai-assisted`,
 - **Picking PRISMA for a primary research study** — PRISMA is for systematic reviews. A primary cohort study uses STROBE.
 - **Picking CONSORT for an observational study** — CONSORT is for randomized trials. An observational study uses STROBE.
 - **Picking STARD for a prediction model** — STARD is for diagnostic accuracy of a single index test. A multivariable prediction model uses TRIPOD+AI.
-- **Making an extension the primary** — CONSORT-AI, STARD-AI, CLAIM, REFORMS, and GRAMMS layer on a primary checklist; they never replace it.
+- **Making a layered extension the primary** — CONSORT-AI, CLAIM, REFORMS, and GRAMMS layer on a primary checklist; they never replace it. Stand-alone extensions are the exception: STROBE-MR, STARD-AI, and the PRISMA subtype checklists (PRISMA-DTA, -NMA, -IPD, -ScR) replace their base for their study type.
 - **Treating TARGET as an add-on** — for a target trial emulation, TARGET is the primary and is designed as a standalone guideline (Cashin et al. 2025); do not make STROBE the primary.
 - **No checklist for AI papers** — all AI / ML clinical papers map to *some* extension. If the routing here doesn't fit, ask `ce-checklist-match` directly.

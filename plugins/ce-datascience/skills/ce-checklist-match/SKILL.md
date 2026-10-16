@@ -87,7 +87,7 @@ If the description already answers some of these, skip those questions. When a t
 
 ### Step 2: Apply the routing rules
 
-Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (TRIPOD 2015 is superseded); SPIRIT 2025 covers RCT protocols and PRISMA-P systematic-review protocols; DECIDE-AI covers early clinical AI evaluation; TARGET is standalone for target-trial emulation.
+Apply `references/routing-map.md` (authoritative, inlined below) to map the answers to a primary checklist, extensions, and any protocol-stage checklist. Apply only evidence-backed entries and preserve provisional or unverified status instead of presenting it as authoritative. Key current rules: TRIPOD+AI is primary for every prediction-model study (TRIPOD 2015 is superseded); SPIRIT 2025 covers RCT protocols and PRISMA-P systematic-review protocols; DECIDE-AI covers early clinical AI evaluation; TARGET, STROBE-MR, STARD-AI, and the PRISMA subtype checklists (DTA, NMA, IPD, ScR) are stand-alone and replace their base checklist; QUADAS-3 is the DTA-review appraisal tool.
 
 If the answers don't fit a branch, ask a clarifying question rather than guessing.
 
@@ -111,7 +111,7 @@ The string form (`reporting_checklist: STROBE`) is what `ce-code-review` Stage 3
 
 ### Step 4: Drop the checklist into the project
 
-For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. Head it with the guideline statement's citation (PMID/DOI confirmed with the metadata tool) and the version, taken from the matching snippet when one exists (`references/checklist-snippets/CONSORT.md`, `STROBE.md`, `TRIPOD-AI.md`, and the plan-time placeholders `SPIRIT.md`, `TRIPOD-LLM.md`, `DECIDE-AI.md`, `PRISMA-P.md` in the same folder; load only the selected guidelines' snippets). For a guideline without a snippet, write the confirmed citation and an empty table to be filled from the published checklist; never invent items. The user (or `ce-work`) fills these as the SAP and analysis develop.
+For each selected guideline, write a placeholder file at `analysis/checklists/<guideline>.md` containing the checklist items as a fillable table. Head it with the guideline statement's citation (PMID/DOI confirmed with the metadata tool) and the version, taken from the matching snippet when one exists (`references/checklist-snippets/CONSORT.md`, `STROBE.md`, `TRIPOD-AI.md`, `SPIRIT.md`, and the plan-time placeholders `TRIPOD-LLM.md`, `DECIDE-AI.md`, `PRISMA-P.md` in the same folder; load only the selected guidelines' snippets). For a guideline without a snippet, write the confirmed citation and an empty table to be filled from the published checklist; never invent items. The user (or `ce-work`) fills these as the SAP and analysis develop.
 
 ### Step 5: Emit signal for downstream skills
 

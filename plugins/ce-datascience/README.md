@@ -1,6 +1,6 @@
 # CE DataScience
 
-Compound engineering for computational scientists. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 40 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates.
+Compound engineering for computational scientists. SAP management, statistical review, and evidence-backed reporting-guideline review for R and Python workflows — covering 41 standards across all study types and AI extensions. The registry distinguishes reporting guidelines from appraisal tools, planning templates, data-quality tools, and provisional candidates.
 
 ## How It Works
 
@@ -564,7 +564,7 @@ Agents are specialized subagents invoked by skills.
 | `ce-methods-reviewer` | Statistical test selection and assumption verification, preferring model diagnostics over normality pre-tests |
 | `ce-multiplicity-reviewer` | Multiple comparisons, p-hacking, and selective reporting; co-primary endpoints that must all succeed need no alpha correction |
 | `ce-reproducibility-reviewer` | Seeds, package versions, paths, and environment specs |
-| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 40 guidelines — auto-routes by study type, resolves superseded and protocol-stage guidelines (TRIPOD 2015 -> TRIPOD+AI, SPIRIT 2025, PRISMA-P), layers AI extensions, writes append-only compliance report (opt-in) |
+| `ce-reporting-checklist-reviewer` | Reporting guideline compliance across 41 guidelines — auto-routes by study type, resolves superseded and protocol-stage guidelines (TRIPOD 2015 -> TRIPOD+AI, SPIRIT 2025, PRISMA-P), layers AI extensions, writes append-only compliance report (opt-in) |
 | `ce-sap-drift-detector` | Structural and semantic drift between SAP and analysis code, including estimand, missing-data, and inference-method drift; also flags blinding-state violations, missing amendment log entries, primary-endpoint changes after data lock, and code drift after amendments |
 | `ce-data-mapping-reviewer` | Codebook / SAP / extract column-mapping correctness — name drift, unit mismatches, level-set drift, derived-variable formulae, PHI in codebook |
 | `ce-phi-leak-reviewer` | HIPAA Safe Harbor identifier scan across data files, codebooks, notebooks, manuscripts, figure captions, and rendered output after the saved sensitive-data boundary (or a one-time confirmation) allows it |

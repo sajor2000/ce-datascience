@@ -1,153 +1,47 @@
-# PDSQI-9 Candidate Tool for Prediction Model Dataset Quality
+# PDSQI-9: Provider Documentation Summarization Quality Instrument
 
 ## Contents
 
-- Data Source
-- Temporal Coverage
-- Missing Data
-- Variable Definitions
-- Outcome Ascertainment
-- Data Linkage
-- Data Dictionaries
-- Data Version Control
+- Scope
+- Attributes
+- How to use in review
 
-AI EXTENSION checklist for assessing the quality of datasets used in predictive model studies, particularly those built from electronic health records (EHR) and administrative data.
+PDSQI-9 is an evaluation instrument, not a reporting guideline. It is never auto-routed.
 
-**Base guideline:** TRIPOD+AI (when building prediction models from EHR or administrative data)
+**Primary reference:** Croxford E, Gao Y, Pellegrino N, et al. Development and validation of the provider documentation summarization quality instrument for large language models. J Am Med Inform Assoc. 2025;32(6):1050-1060. doi:10.1093/jamia/ocaf068. PMID: 40323321. PMCID: PMC12089781. Follow-on use as an LLM-as-a-judge rubric: Croxford E, et al. NPJ Digit Med. 2025;8:640. doi:10.1038/s41746-025-02005-2. PMID: 41193667.
 
-**Evidence status:** Unverified. The repository has not identified a primary publication establishing the PDSQI-9 acronym and checklist represented here. Do not present this file as a published reporting guideline or route it automatically.
+**Source and licence:** Attribute names follow Table 1 of Croxford et al. 2025. The article is copyright Oxford University Press (all rights reserved), so each definition below is a faithful paraphrase, not a verbatim copy. Consult the publication for the exact rating instructions and scales.
 
-**Related reference (acronym collision):** in PubMed, PDSQI-9 denotes the Provider Documentation Summarization Quality Instrument, a clinician-rated scale for LLM clinical-note summaries (for example Croxford E, et al. NPJ Digit Med. 2025;8:640. doi:10.1038/s41746-025-02005-2. PMID: 41193667), not a prediction-model dataset-quality checklist. Resolve the intended source before using this file's name in any output.
-
-This candidate may be used only as an explicitly labeled local data-quality aid after the study team verifies the intended source. It does not replace TRIPOD or TRIPOD+AI.
+**Correction note:** Earlier versions of this file described a "PDSQI-9 candidate tool for prediction-model dataset quality" (data source, cohort, missingness, linkage, and similar items). No such published instrument exists; those items have been removed.
 
 ---
 
-## Data Source
+## Scope
 
-### Item 1 -- Data source documentation
+PDSQI-9 rates the quality of LLM-generated summaries of clinical (provider) documentation, such as multi-document patient summaries. Physician raters, or an LLM acting as judge, score each summary on nine attributes. The instrument adapts the Physician Documentation Quality Instrument (PDQI-9): it drops PDQI-9's Up-to-Date and Consistent attributes and adds attributes for LLM-specific failure modes, including hallucination, omission, and stigmatizing language. It combines 5-point Likert and binary scales; Stigmatizing is rated as binary. In the development study it showed high internal consistency (Cronbach's alpha 0.879) and inter-rater reliability (ICC 0.867).
 
-**Description:** Document the data source including the type of system (EHR, claims, registry), vendor, and data model.
+Use it when a study generates or evaluates clinical-note summaries. Do not use it for prediction-model datasets or as a reporting checklist; for reporting an LLM study, use TRIPOD-LLM (and the primary guideline for the design).
 
-**What to look for in code/outputs:**
-- Data source specification (Epic, Cerner, claims database, national registry)
-- Common data model documentation if applicable (OMOP CDM, PCORnet, i2b2)
-- Data extraction method (SQL queries, API calls, flat file exports)
-- Data governance and access control documentation
-- Database version and extraction date logged
+## Attributes
 
-### Item 2 -- Cohort definition
+| # | Attribute | What it assesses (paraphrased) |
+|---|---|---|
+| 1 | Cited | Citations to the source notes are present and appropriate |
+| 2 | Accurate | Content is true, with no incorrect or fabricated information |
+| 3 | Thorough | All pertinent patient issues are covered (no important omissions) |
+| 4 | Useful | Content is relevant and provides valuable information or analysis |
+| 5 | Organized | Structure helps the reader follow the patient's clinical course |
+| 6 | Comprehensible | Text is clear and unambiguous |
+| 7 | Succinct | Brief and to the point, without redundancy |
+| 8 | Synthesized | Reflects an understanding of the patient's status and supports developing a plan of care |
+| 9 | Stigmatizing | Whether the summary is free of stigmatizing language (binary) |
 
-**Description:** Clearly define the study cohort including the index event, eligibility criteria, and how patients were identified in the data.
+## How to use in review
 
-**What to look for in code/outputs:**
-- Index event definition code (admission date, diagnosis date, procedure date)
-- Inclusion and exclusion criteria implemented in SQL or data processing code
-- Patient identification methodology (diagnosis codes, encounter types, problem lists)
-- Cohort construction flowchart with patient counts at each step
-- Sensitivity analysis for alternative cohort definitions
+When a study reports PDSQI-9 scores, check in code and outputs:
 
----
-
-## Temporal Coverage
-
-### Item 3 -- Temporal coverage and granularity
-
-**Description:** Report the time period covered by the dataset, the granularity of time stamps, and any temporal gaps.
-
-**What to look for in code/outputs:**
-- Date range of the dataset specified in data extraction code
-- Temporal granularity documentation (date-level, hour-level, encounter-level)
-- Assessment of temporal gaps or missing periods in data collection
-- Documentation of system changes (EHR transitions, coding system updates) during the study period
-- Calendar-time distribution of observations shown
-
----
-
-## Missing Data
-
-### Item 4 -- Missing data characterization
-
-**Description:** Characterize the extent and patterns of missing data, including the missing data mechanism and its potential impact on the prediction model.
-
-**What to look for in code/outputs:**
-- Missing data summary by variable (count, percentage, pattern visualization)
-- Missing data mechanism assessment (MCAR, MAR, MNAR with clinical reasoning)
-- Comparison of patients with vs. without missing data on key characteristics
-- Missing data pattern analysis (monotone, arbitrary, variable-specific)
-- Documentation of whether missingness is informative (e.g., lab not ordered implies low clinical suspicion)
-
----
-
-## Variable Definitions
-
-### Item 5 -- Variable definitions and coding
-
-**Description:** Provide precise definitions for all variables, including the code sets used, look-back windows, and any composite variable construction.
-
-**What to look for in code/outputs:**
-- Variable derivation code with ICD-10, CPT, LOINC, RxNorm, or SNOMED code lists
-- Look-back window specifications for each variable (e.g., comorbidities within 1 year)
-- Composite variable construction logic (e.g., Charlson score calculation)
-- Documentation of code set validation against chart review when available
-- Variable data dictionary with definitions, data types, and value ranges
-
----
-
-## Outcome Ascertainment
-
-### Item 6 -- Outcome ascertainment
-
-**Description:** Describe how the outcome was ascertained in the data, including the code sets or algorithms used and any validation of outcome accuracy.
-
-**What to look for in code/outputs:**
-- Outcome definition code using specified algorithms or code sets
-- Validation of outcome ascertainment against gold standard (chart review, registry linkage)
-- Sensitivity and PPV of the outcome algorithm if available from published validation studies
-- Censoring rules for time-to-event outcomes (transfer, death, loss to follow-up)
-- Documentation of outcome completeness (capture rate, follow-up rate)
-
----
-
-## Data Linkage
-
-### Item 7 -- Data linkage
-
-**Description:** If multiple data sources were linked, describe the linkage method, match rate, and potential linkage errors.
-
-**What to look for in code/outputs:**
-- Linkage method documentation (deterministic, probabilistic, unique identifiers)
-- Match rate and unmatched case analysis
-- Linkage variable specification (MRN, SSN, name/DOB matching)
-- Assessment of differential linkage rates across subgroups
-- Documentation of linkage error rates and their potential impact
-
----
-
-## Data Dictionaries
-
-### Item 8 -- Data dictionary availability
-
-**Description:** Provide or reference a comprehensive data dictionary defining every variable in the analytic dataset.
-
-**What to look for in code/outputs:**
-- Data dictionary file (CSV, Excel, or documentation) listing all variables
-- Variable name, definition, data type, units, and value range for each field
-- Derivation logic for computed variables cross-referenced to source fields
-- Documentation of coding system versions (ICD-9 to ICD-10 transitions)
-- Data dictionary version control and update history
-
----
-
-## Data Version Control
-
-### Item 9 -- Data version control and reproducibility
-
-**Description:** Document the dataset version, extraction date, and any changes to the dataset over the course of the study.
-
-**What to look for in code/outputs:**
-- Dataset version identifier or extraction timestamp logged in code
-- Documentation of any data corrections or updates applied during the study
-- Data freeze date specification and protocol for handling late-arriving data
-- Extraction query versioning (stored SQL queries with timestamps)
-- Checksums or row counts logged at each stage of data processing for reproducibility
+- All nine attributes are scored, with the instrument version and scale per attribute stated
+- Rater qualifications, training or calibration, number of raters per summary, and blinding to the summary source are reported
+- Inter-rater reliability is reported (e.g., ICC, Krippendorff's alpha) for the study's own ratings
+- When an LLM is the judge: model name and version, prompt, decoding settings, and agreement with human raters are reported
+- Source documents and summaries are handled under the project's PHI rules; only aggregate scores leave the restricted boundary
