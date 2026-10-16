@@ -1,0 +1,76 @@
+schema_version: "1.0"
+id: ce-phenotype-validate-stratified-weighting
+target:
+  kind: skill
+  name: ce-phenotype-validate
+  source: plugins/ce-datascience/skills/ce-phenotype-validate/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-phenotype-validate-stratified-weighting/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-phenotype-validate-stratified-weighting/fixtures/synthetic-merged-chart-review.csv
+    destination: workspace/synthetic-merged-chart-review.csv
+    sha256: 303481639aa7f48d31aa2d162a666aa7f47a51d4fc1bb6b5da9c1a3a4777ed25
+required_behaviors:
+  - report-exists
+  - weighted-sensitivity
+  - weighted-specificity
+  - names-weighting
+prohibited_behaviors:
+  - naive-sensitivity-signal
+  - echoes-subject-id
+  - response-echoes-subject-id
+criteria:
+  - id: report-exists
+    description: The requested phenotype validation report is created.
+    type: file_exists
+    path: workspace/reports/phenotype-validation/T2DM.md
+    expected: true
+    weight: 2
+    hard_gate: true
+  - id: weighted-sensitivity
+    description: The handoff signal carries the inverse-sampling-fraction weighted sensitivity (0.61), not the raw-cell value.
+    type: regex
+    path: response.md
+    pattern: '__CE_PHENOTYPE_VALIDATE__[^\n]*\bsens=0\.61\b'
+    weight: 4
+    hard_gate: true
+  - id: weighted-specificity
+    description: The handoff signal carries the weighted specificity (0.98).
+    type: regex
+    path: response.md
+    pattern: '__CE_PHENOTYPE_VALIDATE__[^\n]*\bspec=0\.98\b'
+    weight: 3
+    hard_gate: true
+  - id: names-weighting
+    description: The report states that sensitivity and specificity were reweighted for the stratified sampling design.
+    type: regex
+    path: workspace/reports/phenotype-validation/T2DM.md
+    pattern: '([Ww]eight|[Vv]erification bias|[Ss]ampling fraction)'
+    weight: 2
+    hard_gate: true
+  - id: naive-sensitivity-signal
+    description: The raw stratified-cell sensitivity (0.86) is not emitted as the result.
+    type: regex_not
+    path: response.md
+    pattern: '__CE_PHENOTYPE_VALIDATE__[^\n]*\bsens=0\.86\b'
+    weight: 4
+    hard_gate: true
+  - id: echoes-subject-id
+    description: No synthetic subject identifier is written to the report.
+    type: text_not_contains
+    path: workspace/reports/phenotype-validation/T2DM.md
+    value: "SYN-00"
+    weight: 3
+    hard_gate: true
+  - id: response-echoes-subject-id
+    description: No synthetic subject identifier is echoed in the response.
+    type: text_not_contains
+    path: response.md
+    value: "SYN-00"
+    weight: 3
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - All rows are synthetic; this is not a privacy audit.
+  - The case checks the verification-bias correction and identifier hygiene, not subgroup interpretation.
+  - Scoring is offline and unattested; a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

@@ -3,15 +3,17 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Validate our T2DM phenotype. Chart review (n=200, stratified 100 algo+/100 algo-, two adjudicators) is in output/intermediate_phi/chart-review-T2DM.csv with subject_id, chart_label, sex, age_band; algorithm output is output/intermediate_phi/algo-T2DM.csv with algo_label. Concept set is analysis/cohort/concept-sets/T2DM.yaml.",
-      "expected_output": "Merges on subject_id, computes the 2x2 and PPV/NPV/sensitivity/specificity/F1/kappa with Wilson CIs overall and by subgroup, applies small-cell suppression, writes the report and aggregate CSV under reports/phenotype-validation/, updates the concept-set YAML, and emits the signal.",
+      "prompt": "Validate our T2DM phenotype. Chart review (n=200, stratified 100 algo+/100 algo-, two adjudicators) is in output/intermediate_phi/chart-review-T2DM.csv with subject_id, chart_label, sex, age_band; algorithm output is output/intermediate_phi/algo-T2DM.csv with algo_label. The full cohort has 2,000 algorithm-positive and 8,000 algorithm-negative patients. Concept set is analysis/cohort/concept-sets/T2DM.yaml.",
+      "expected_output": "Merges on subject_id, computes the 2x2, PPV/NPV with Wilson CIs, and sensitivity/specificity reweighted by the inverse stratum sampling fractions (not raw cells), overall and by subgroup; applies small-cell suppression; writes the report and aggregate CSV under reports/phenotype-validation/; updates the concept-set YAML; and emits the signal.",
       "files": [],
       "expectations": [
         "Reports N matched and N dropped from the subject_id inner join",
-        "Reports PPV, NPV, sensitivity, specificity, F1, and kappa with Wilson 95% CIs, noting that stratified sampling may bias sensitivity",
+        "Reports PPV and NPV with Wilson 95% CIs estimated directly from the algorithm strata",
+        "Computes sensitivity and specificity with inverse-sampling-fraction weights from the 2,000/8,000 cohort counts (passing --n-algo-pos-pop/--n-algo-neg-pop or equivalent), not from the raw stratified cells",
+        "Reports kappa only for inter-adjudicator agreement, not as an algorithm validity metric",
         "Writes reports/phenotype-validation/T2DM-<date>.md and a .csv containing only suppressed aggregate counts (no subject_id rows)",
-        "Adds a validation block (ppv, ppv_ci, sens, spec, npv, by_subgroup) to analysis/cohort/concept-sets/T2DM.yaml",
-        "Emits '__CE_PHENOTYPE_VALIDATE__ name=T2DM n=<n> ppv=<v> sens=<v> report=<path> yaml=<path>'",
+        "Adds a validation block (sampling_design, ppv, ppv_ci, npv, sens, spec, by_subgroup) to analysis/cohort/concept-sets/T2DM.yaml",
+        "Emits '__CE_PHENOTYPE_VALIDATE__ name=T2DM n=<n> design=algo-stratified ppv=<v> npv=<v> sens=<v> spec=<v> report=<path> csv=<path> yaml=<path>'",
         "Any published PPV/sensitivity benchmark used for comparison is cited by PMID with an evidence label, and any assumed or default PPV is marked as an assumption"
       ]
     },

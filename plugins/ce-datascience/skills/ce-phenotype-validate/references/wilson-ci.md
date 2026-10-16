@@ -1,6 +1,10 @@
 # Wilson 95% Confidence Interval
 
-Use Wilson interval (not Wald) for proportions. Wald collapses at p=0 or p=1 and is poor for small N.
+Use Wilson interval (not Wald) for proportions. Wald collapses at p=0 or p=1 and is poor for small N (Newcombe, Stat Med 1998, PMID 9595616).
+
+Report Clopper-Pearson (exact; `binom.test(x, n)$conf.int` in R, `statsmodels.stats.proportion.proportion_confint(x, n, method="beta")` in Python) when a journal or regulator requires guaranteed coverage; it is conservative.
+
+Wilson applies to directly estimated proportions only (PPV and NPV under any design; all four metrics under a simple random sample). Weighted sensitivity/specificity from an algo-stratified sample use the logit delta-method interval in `sampling-strategies.md`.
 
 ## Formula
 
