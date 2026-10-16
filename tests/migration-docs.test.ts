@@ -23,7 +23,7 @@ describe("Methodsmith docs", () => {
       expect(text).toMatch(/^#{2,3} Moving from ce-datascience$/m) // rebrand:keep
       expect(text).toContain("claude plugin marketplace add sajor2000/methodsmith")
       expect(text).toContain("claude plugin install methodsmith@methodsmith")
-      expect(text).toContain("bunx methodsmith@latest install methodsmith --to opencode")
+      expect(text).toContain("bunx github:sajor2000/methodsmith install methodsmith --to opencode")
       expect(text).toContain("codex plugin marketplace add sajor2000/methodsmith")
       expect(text).toContain(renamedCommandsTable())
       expect(text).toContain(".ce-datascience/") // rebrand:keep

@@ -61,25 +61,25 @@ if grep -q "^\[marketplaces\.$OLD_MARKETPLACE\]" "$codex_home/config.toml" 2>/de
     echo "codex plugin marketplace remove $OLD_MARKETPLACE"
   fi
   echo "codex plugin marketplace add $REPO"
-  echo "bunx methodsmith@latest install methodsmith --to codex --codex-home \"$codex_home\""
+  echo "bunx github:sajor2000/methodsmith install methodsmith --to codex --codex-home \"$codex_home\""
   echo "Then open /plugins in Codex, install Methodsmith, and restart Codex."
 fi
 
 if [ -d "$opencode_dir/$OLD" ]; then
   section "OpenCode"
-  echo "bunx methodsmith@latest install methodsmith --to opencode"
+  echo "bunx github:sajor2000/methodsmith install methodsmith --to opencode"
 fi
 
 if [ -d "$pi_dir/$OLD" ]; then
   section "Pi"
-  echo "bunx methodsmith@latest install methodsmith --to pi --pi-home \"$pi_dir\""
+  echo "bunx github:sajor2000/methodsmith install methodsmith --to pi --pi-home \"$pi_dir\""
 fi
 
 for workspace_target in gemini kiro; do
   if [ -d "./.$workspace_target/$OLD" ]; then
     case "$workspace_target" in gemini) label="Gemini CLI" ;; *) label="Kiro" ;; esac
     section "$label (this workspace)"
-    echo "bunx methodsmith@latest install methodsmith --to $workspace_target --output ."
+    echo "bunx github:sajor2000/methodsmith install methodsmith --to $workspace_target --output ."
   fi
 done
 

@@ -225,7 +225,7 @@ describe(`6. migration from a ${OLD_PLUGIN} 4.1.0 install`, () => {
     const report = run(["bash", detector])
     expect(report.status).toBe(0)
     expect(report.out).toContain("Found a ce-datascience install") // rebrand:keep
-    expect(report.out).toContain("bunx methodsmith@latest install methodsmith --to opencode")
+    expect(report.out).toContain("bunx github:sajor2000/methodsmith install methodsmith --to opencode")
     expect(report.out).toContain("/method-plan")
 
     expect(run(["bun", "run", cli, "install", pluginDir, "--to", "opencode"]).status).toBe(0)

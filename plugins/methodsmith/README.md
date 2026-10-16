@@ -34,10 +34,10 @@ each harness it finds.
 | Harness | Switch to Methodsmith |
 |---|---|
 | Claude Code | `claude plugin uninstall ce-datascience@ce-datascience-plugin`, then `claude plugin marketplace remove ce-datascience-plugin`, `claude plugin marketplace add sajor2000/methodsmith`, `claude plugin install methodsmith@methodsmith`. If you used `--aliases`, re-run `bash install.sh claude --aliases`. |
-| Codex | `codex plugin marketplace remove ce-datascience-plugin`, then `codex plugin marketplace add sajor2000/methodsmith` and `bunx methodsmith@latest install methodsmith --to codex`. Open `/plugins` and install Methodsmith. |
-| OpenCode | `bunx methodsmith@latest install methodsmith --to opencode` |
-| Pi | `bunx methodsmith@latest install methodsmith --to pi --pi-home ~/.pi/agent` |
-| Gemini CLI, Kiro | `bunx methodsmith@latest install methodsmith --to gemini --output .` (or `--to kiro`) in each workspace |
+| Codex | `codex plugin marketplace remove ce-datascience-plugin`, then `codex plugin marketplace add sajor2000/methodsmith` and `bunx github:sajor2000/methodsmith install methodsmith --to codex`. Open `/plugins` and install Methodsmith. |
+| OpenCode | `bunx github:sajor2000/methodsmith install methodsmith --to opencode` |
+| Pi | `bunx github:sajor2000/methodsmith install methodsmith --to pi --pi-home ~/.pi/agent` |
+| Gemini CLI, Kiro | `bunx github:sajor2000/methodsmith install methodsmith --to gemini --output .` (or `--to kiro`) in each workspace |
 | Qwen Code | `qwen extensions uninstall ce-datascience`, then `qwen extensions install sajor2000/methodsmith:methodsmith` |
 
 On Claude Code with `--aliases`, the old `/ce-*` commands keep working for one
@@ -212,8 +212,8 @@ How a new version reaches you depends on the agent.
 | Agent | Automatic? | Update by hand |
 |---|---|---|
 | Claude Code | Yes, once auto-update is on for the `methodsmith` marketplace. `bash install.sh claude` and `.\install.ps1 claude` turn it on (add `--no-auto-update` or `-NoAutoUpdate` to skip). After a one-line `claude plugin install ... --marketplace sajor2000/methodsmith`, turn it on yourself: run `/plugin`, open **Marketplaces**, select `methodsmith`, and choose **Enable auto-update**. | `claude plugin update methodsmith@methodsmith`, then `/reload-plugins` |
-| Codex | No. Codex has no documented automatic plugin update. | `codex plugin marketplace upgrade methodsmith`, then restart Codex. Refresh the generated agents with `bunx methodsmith@latest install methodsmith --to codex` |
-| OpenCode, Pi, Gemini CLI, Kiro | No. These use generated files. | `bunx methodsmith@latest install methodsmith --to opencode` (or `--to pi`, `--to gemini`, `--to kiro`; add `--output <workspace>` for a project install) |
+| Codex | No. Codex has no documented automatic plugin update. | `codex plugin marketplace upgrade methodsmith`, then restart Codex. Refresh the generated agents with `bunx github:sajor2000/methodsmith install methodsmith --to codex` |
+| OpenCode, Pi, Gemini CLI, Kiro | No. These use generated files. | `bunx github:sajor2000/methodsmith install methodsmith --to opencode` (or `--to pi`, `--to gemini`, `--to kiro`; add `--output <workspace>` for a project install) |
 | Qwen Code | No. | `qwen extensions update methodsmith` |
 | Local checkout or offline package | No. | `git pull` in the checkout (or unpack the new package), then re-run the installer |
 
