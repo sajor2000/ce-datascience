@@ -2,117 +2,123 @@
 
 ## Contents
 
+- Introduction
 - Methods
 - Results
-- Discussion
 
 STrengthening the REporting of Genetic Association Studies (STREGA).
-Extension of STROBE for observational studies reporting on gene-disease associations.
+Extension of STROBE for observational studies reporting on gene-disease associations. STREGA adds recommendations to 12 of the 22 STROBE items: 3, 6(a), 7(b), 8(b), 9(b), 11, 12(a) and 12(f)-(j), 13(a), 14(a), 15, 16(d), 17(b)-(c). Items without a STREGA addition use the STROBE text unchanged.
 
 **Primary reference:** Little J, Higgins JP, Ioannidis JP, Moher D, Gagnon F, von Elm E, Khoury MJ, Cohen B, Davey Smith G, Grimshaw J, Scheet P, Gwinn M, Williamson RE, Zou GY, Hutchings K, Johnson CY, Tait V, Wiens M, Golding J, van Duijn C, McLaughlin J, Paterson A, Wells G, Fortier I, Freedman M, Zecevic M, King R, Infante-Rivard C, Stewart A, Birkett N. STrengthening the REporting of Genetic Association Studies (STREGA)--an extension of the STROBE statement. Genet Epidemiol. 2009;33(7):581-598. doi:10.1002/gepi.20410. PMID: 19278015.
 
-**Also published in:** Eur J Epidemiol. 2009;24(1):37-55. doi:10.1007/s10654-008-9302-y. PMID: 19189221. PMCID: PMC2764094.
+**Also published in:** PLoS Med. 2009;6(2):e22. doi:10.1371/journal.pmed.1000022. PMID: 19192942. PMCID: PMC2634792. Eur J Epidemiol. 2009;24(1):37-55. doi:10.1007/s10654-008-9302-y. PMID: 19189221. PMCID: PMC2764094.
+
+**Source and licence:** Item text is quoted verbatim from Table 1 ("STREGA reporting recommendations, extended from STROBE Statement"). The PLoS Med publication is dedicated to the public domain (CC0, https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2634792/); the text was transcribed from the identical table in the Eur J Epidemiol copy because the PLoS Med table is an image. The "What to look for in code/outputs" bullets are review cues added by this plugin, not checklist text.
 
 This checklist supplements STROBE. Apply alongside the base STROBE 22-item checklist when reporting genetic association studies (GWAS, candidate gene, or gene-environment interaction).
 
 ---
 
-## Methods
+## Introduction
 
 ### STREGA 3 -- Objectives (genetic-specific)
 
-**Description:** State whether the study is a discovery (hypothesis-generating) or replication (hypothesis-testing) study. If replication, identify the original study.
+**Description:** State if the study is the first report of a genetic association, a replication effort, or both.
 
 **What to look for in code/outputs:**
-- Study classified as discovery GWAS, candidate gene, replication, or meta-analysis
-- If replication: original study cited, same SNPs and outcome definitions used
-- Hypothesis stated if candidate gene study
+- Discovery and replication stages labelled in analysis code and outputs
+- Criteria for claiming successful replication documented
 
-### STREGA 6 -- Participants (genetic-specific)
+---
 
-**Description:** Describe the source population, sampling strategy, and any population stratification concerns. Report ancestry/ethnicity of participants.
+## Methods
 
-**What to look for in code/outputs:**
-- Ancestry or ethnicity of study participants reported
-- Population stratification assessment (genomic inflation factor, principal components)
-- Sample recruitment strategy described (population-based, clinic-based, family-based)
-- Related individuals handling documented (kinship pruning, mixed models)
+### STREGA 6(a) -- Participants (genetic-specific)
 
-### STREGA 7 -- Variables (genetic-specific)
-
-**Description:** Report the genotyping platform, SNP selection criteria, quality control filters, and imputation methods.
+**Description:** Give information on the criteria and methods for selection of subsets of participants from a larger study, when relevant.
 
 **What to look for in code/outputs:**
-- Genotyping platform and array specified (e.g., Illumina Global Screening Array, Affymetrix Axiom)
-- SNP selection: candidate gene rationale, or genome-wide with significance threshold
-- Quality control filters: call rate (per-sample and per-SNP), HWE threshold, MAF threshold, heterozygosity, sex check
-- Imputation: reference panel (1000 Genomes, TOPMed, HRC), software (IMPUTE2, Minimac4, BEAGLE), imputation quality filter (INFO > 0.3 or R2 > 0.3)
+- Sub-sampling logic (which participants were genotyped) and whether it was a priori or post hoc
 
-### STREGA 8 -- Data sources (genetic-specific)
+### STREGA 7(b) -- Variables (genetic-specific)
 
-**Description:** Describe the laboratory methods for genotyping, including DNA extraction, genotyping protocol, and quality assurance.
+**Description:** Clearly define genetic exposures (genetic variants) using a widely used nomenclature system. Identify variables likely to be associated with population stratification (confounding by ethnic origin).
 
 **What to look for in code/outputs:**
-- DNA source (blood, saliva, buccal) documented
-- Genotyping batch and plate design documented
-- Genotype calling algorithm specified (GenomeStudio, zCall, optiCall)
-- Quality control concordance for duplicated samples
+- Variants identified by dbSNP rsIDs or HGVS nomenclature, with genome build
+- Ancestry or ethnicity variables and genetic principal components defined
+- Rationale for the genes and variants studied (for GWAS: platform and how variants were taken forward to later stages)
+
+### STREGA 8(b) -- Data sources/measurement (genetic-specific)
+
+**Description:** Describe laboratory methods, including source and storage of DNA, genotyping methods and platforms (including the allele calling algorithm used, and its version), error rates and call rates. State the laboratory/centre where genotyping was done. Describe comparability of laboratory methods if there is more than one group. Specify whether genotypes were assigned using all of the data from the study simultaneously or in smaller batches.
+
+**What to look for in code/outputs:**
+- Genotyping platform, calling algorithm and version, call-rate and error-rate QC thresholds
+- Batch structure of genotype calling; whether genotyping was blind to case-control status
+
+### STREGA 9(b) -- Bias (genetic-specific)
+
+**Description:** For quantitative outcome variables, specify if any investigation of potential bias resulting from pharmacotherapy was undertaken. If relevant, describe the nature and magnitude of the potential bias, and explain what approach was used to deal with this.
+
+**What to look for in code/outputs:**
+- Treatment-adjusted phenotypes (e.g., adding a constant for lipid-lowering medication users) or sensitivity analyses excluding treated participants
 
 ### STREGA 11 -- Quantitative variables (genetic-specific)
 
-**Description:** Describe how genetic variants were modeled: additive, dominant, recessive, or genotypic model.
+**Description:** If applicable, describe how effects of treatment were dealt with.
 
 **What to look for in code/outputs:**
-- Genetic model specified (additive coding per-allele, dominant, recessive, or all three tested)
-- Rationale for model choice if not additive (which is standard for GWAS)
-- Haplotype analysis methods if used
+- Treatment-effect correction code for quantitative traits
 
 ### STREGA 12 -- Statistical methods (genetic-specific)
 
-**Description:** (a) Describe methods for multiple testing correction. (b) Report methods for population stratification adjustment. (c) Report methods for gene-environment interaction testing.
+**Description:** (a) State software version used and options (or settings) chosen. (f) State whether Hardy-Weinberg equilibrium was considered and, if so, how. (g) Describe any methods used for inferring genotypes or haplotypes. (h) Describe any methods used to assess or address population stratification. (i) Describe any methods used to address multiple comparisons or to control risk of false positive findings. (j) Describe any methods used to address and correct for relatedness among subjects.
 
 **What to look for in code/outputs:**
-- Multiple testing correction: Bonferroni, FDR (Benjamini-Hochberg), permutation testing, or genome-wide significance threshold (5e-8)
-- Population stratification: principal component adjustment, genomic control, mixed models (BOLT-LMM, SAIGE, REGENIE)
-- Gene-environment interaction: interaction terms, stratified analyses, G x E testing framework
-- Software documented (PLINK, REGENIE, SAIGE, BOLT-LMM, GCTA)
+- Software and versions pinned (PLINK, REGENIE, SAIGE, BOLT-LMM) with settings; genetic model coding (additive, dominant, recessive)
+- HWE test and exclusion threshold
+- Imputation or phasing method and reference panel; imputation quality filter (INFO/R2)
+- Principal components, mixed models, or genomic control for stratification
+- Multiple-testing threshold (e.g., 5e-8, Bonferroni, FDR)
+- Relatedness estimation (kinship, IBD) and how related individuals were handled
 
 ---
 
 ## Results
 
-### STREGA 13 -- Participants (genetic-specific)
+### STREGA 13(a) -- Participants (genetic-specific)
 
-**Description:** Report the number of participants with genotype data available after quality control, and the number of SNPs analyzed.
-
-**What to look for in code/outputs:**
-- Sample size before and after QC
-- Number of genotyped SNPs, number after QC, number after imputation
-- Genomic inflation factor (lambda) reported
-- QQ plot included
-
-### STREGA 16 -- Main results (genetic-specific)
-
-**Description:** Report effect estimates (odds ratios, beta coefficients) with confidence intervals for each genetic variant. Report allele frequencies in cases and controls.
+**Description:** Report numbers of individuals in whom genotyping was attempted and numbers of individuals in whom genotyping was successful.
 
 **What to look for in code/outputs:**
-- Per-SNP effect estimates with 95% CI and p-values
-- Effect allele and other allele specified for each reported SNP
-- Allele frequencies in cases and controls (or exposed and unexposed)
-- Manhattan plot and QQ plot included
-- Regional association plots (LocusZoom) for significant loci
+- Sample QC waterfall: attempted, passed call-rate, sex-check, heterozygosity, and relatedness filters
 
----
+### STREGA 14(a) -- Descriptive data (genetic-specific)
 
-## Discussion
-
-### STREGA 19 -- Limitations (genetic-specific)
-
-**Description:** Discuss limitations specific to genetic studies: winner's curse, population stratification residual, cryptic relatedness, and genotyping error.
+**Description:** Consider giving information by genotype.
 
 **What to look for in code/outputs:**
-- Winner's curse (effect size inflation in discovery) acknowledged
-- Residual population stratification discussed
-- Linkage disequilibrium patterns and fine-mapping limitations
-- Generalizability to other ancestries discussed
-- Functional annotation of associated variants (or lack thereof)
+- Baseline characteristics stratified by genotype
+
+### STREGA 15 -- Outcome data (genetic-specific)
+
+**Description:** Cohort study -- Report outcomes (phenotypes) for each genotype category over time. Case-control study -- Report numbers in each genotype category. Cross-sectional study -- Report outcomes (phenotypes) for each genotype category.
+
+**What to look for in code/outputs:**
+- Genotype counts or phenotype summaries per genotype category (by case-control status where relevant)
+
+### STREGA 16(d) -- Main results (genetic-specific)
+
+**Description:** Report results of any adjustments for multiple comparisons.
+
+**What to look for in code/outputs:**
+- Adjusted p-values or significance thresholds reported alongside effect estimates
+
+### STREGA 17 -- Other analyses (genetic-specific)
+
+**Description:** (b) If numerous genetic exposures (genetic variants) were examined, summarize results from all analyses undertaken. (c) If detailed results are available elsewhere, state how they can be accessed.
+
+**What to look for in code/outputs:**
+- Full summary statistics, Manhattan and QQ plots, or distributions of p-values and effect sizes
+- Summary statistics deposited (e.g., GWAS Catalog) with accession reported
