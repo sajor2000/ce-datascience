@@ -591,5 +591,11 @@ describe("Codex offline installer keeps user files on update", () => {
     const replace = ps1.slice(ps1.indexOf("function Copy-DirectoryReplace"), ps1.indexOf("function Merge-CodexMarketplace"))
     expect(replace).toContain("Test-DirectoriesMatch $SourceDir $DestDir")
     expect(replace).toContain("Move-Item -LiteralPath $DestDir -Destination $backupDir")
+    // Without -Force, Get-ChildItem skips hidden files, so a hidden user file
+    // would compare as "matching" and be deleted without a backup.
+    const match = ps1.slice(ps1.indexOf("function Test-DirectoriesMatch"), ps1.indexOf("function Copy-DirectoryReplace"))
+    const listings = match.match(/Get-ChildItem[^|]*/g) ?? []
+    expect(listings).toHaveLength(2)
+    for (const listing of listings) expect(listing).toContain("-Force")
   })
 })

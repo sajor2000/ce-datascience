@@ -224,8 +224,9 @@ function Set-JsonProperty([object]$Object, [string]$Name, [object]$Value) {
 }
 
 function Test-DirectoriesMatch([string]$Left, [string]$Right) {
-  $leftFiles = @(Get-ChildItem -Recurse -File $Left | ForEach-Object { $_.FullName.Substring($Left.Length) } | Sort-Object)
-  $rightFiles = @(Get-ChildItem -Recurse -File $Right | ForEach-Object { $_.FullName.Substring($Right.Length) } | Sort-Object)
+  # -Force includes hidden files, so a hidden user file makes the copies differ.
+  $leftFiles = @(Get-ChildItem -Recurse -File -Force -LiteralPath $Left | ForEach-Object { $_.FullName.Substring($Left.Length) } | Sort-Object)
+  $rightFiles = @(Get-ChildItem -Recurse -File -Force -LiteralPath $Right | ForEach-Object { $_.FullName.Substring($Right.Length) } | Sort-Object)
   if (Compare-Object $leftFiles $rightFiles) { return $false }
   foreach ($relative in $leftFiles) {
     if ((Get-FileHash -LiteralPath ($Left + $relative)).Hash -ne (Get-FileHash -LiteralPath ($Right + $relative)).Hash) { return $false }
