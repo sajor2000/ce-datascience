@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ideation: Keiji Trial-Design Feature Audit</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --surface: #fffdf8;
+      --ink: #182326;
+      --muted: #56666a;
+      --line: #d7d2c6;
+      --accent: #0b6b68;
+      --accent-soft: #dcefed;
+      --accent-text: #084d4b;
+      --warn-soft: #f6e8c9;
+      --warn-text: #71480a;
+      --cut-soft: #f0e1df;
+      --cut-text: #733632;
+      --shadow: 0 14px 40px rgba(30, 42, 45, .08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12191b;
+        --surface: #192326;
+        --ink: #edf3f1;
+        --muted: #b7c4c1;
+        --line: #344346;
+        --accent: #64c8c2;
+        --accent-soft: #183d3c;
+        --accent-text: #b7eee9;
+        --warn-soft: #46391f;
+        --warn-text: #f4dca6;
+        --cut-soft: #422c2b;
+        --cut-text: #f0c5c1;
+        --shadow: 0 14px 40px rgba(0, 0, 0, .2);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15.5px/1.65 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 56px 24px 80px; }
+    h1, h2, h3 { line-height: 1.18; letter-spacing: -.02em; }
+    h1 { margin: 8px 0 16px; font-size: clamp(2rem, 5vw, 3.8rem); max-width: 16ch; }
+    h2 { margin: 58px 0 18px; font-size: 1.65rem; }
+    h3 { margin: 0; font-size: 1.28rem; }
+    p, li { max-width: 76ch; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+    .eyebrow { color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { color: var(--muted); font-size: 1.1rem; max-width: 72ch; }
+    .meta, .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0; }
+    .pill { border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 6px 11px; font-size: .82rem; }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+    .stat b { display: block; font-size: 1.7rem; }
+    .stat span { color: var(--muted); font-size: .8rem; }
+    .callout { background: var(--accent-soft); color: var(--accent-text); border-radius: 16px; padding: 18px 20px; margin: 24px 0; }
+    .axes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; list-style: none; padding: 0; }
+    .axes li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: .86rem; }
+    .jump-list { columns: 2; gap: 30px; padding-left: 22px; }
+    .jump-list li { margin-bottom: 7px; break-inside: avoid; }
+    .idea { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px; margin: 20px 0; box-shadow: var(--shadow); }
+    .idea-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+    .rank { flex: 0 0 auto; min-width: 42px; text-align: center; background: var(--accent-soft); color: var(--accent-text); border-radius: 999px; padding: 7px 10px; font-weight: 800; }
+    dl { display: grid; grid-template-columns: 120px 1fr; gap: 8px 18px; margin: 18px 0 0; }
+    dt { color: var(--muted); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    dd { margin: 0; }
+    .diagram { margin: 22px 0 4px; overflow-x: auto; }
+    .diagram svg { width: 100%; min-width: 700px; height: auto; display: block; }
+    .diagram figcaption { color: var(--muted); font-size: .82rem; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 14px; overflow: hidden; }
+    th, td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: var(--cut-soft); color: var(--cut-text); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+    footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+    @media (max-width: 760px) {
+      main { padding: 34px 16px 60px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .axes { grid-template-columns: 1fr 1fr; }
+      .jump-list { columns: 1; }
+      dl { grid-template-columns: 1fr; gap: 4px; }
+      dd { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Competitive feature audit</div>
+    <h1>Keiji trial-design patterns worth adding to CE DataScience</h1>
+    <p class="lede">A selective audit of Keiji's biostatistics and trial-design offering against the package's current evidence, power, SAP, provenance, review, and amendment workflows. The aim is to adopt distinct statistical workflow value without importing an opaque platform or overstating regulatory validation.</p>
+    <div class="meta">
+      <span class="pill">Date: <time datetime="2026-09-06">2026-09-06</time></span>
+      <span class="pill">Topic: keiji-trial-design-feature-audit</span>
+      <span class="pill">Focus: features to add to our package</span>
+      <span class="pill">Mode: repo-grounded</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>43</b><span>raw ideas</span></div>
+      <div class="stat"><b>18</b><span>deduplicated candidates</span></div>
+      <div class="stat"><b>6</b><span>surviving directions</span></div>
+      <div class="stat"><b>5</b><span>topic axes covered</span></div>
+    </div>
+  </header>
+
+  <section id="grounding-context">
+    <h2>Grounding Context</h2>
+    <p><strong>Codebase Context.</strong> CE DataScience already supports literature search and method extraction, evidence maps, effect-size pooling, analytic power and sensitivity sweeps, estimand-first model strategy, canonical and tabular SAPs, output catalogs, QA gates, drift detection, reproducible scripts, and scoped human signoff. The clearest gap is not basic sample-size calculation. It is a structured bridge from evidence and estimands to simulation-based operating characteristics, reviewable design regions, and downstream change tracing.</p>
+    <p>Keiji explicitly presents estimand-led assumption grids, power and sample-size evaluation over effect, dropout, and interim-rule scenarios, a feasible design region, literature-derived survival reconstruction, a SAP-to-regulatory-artifact chain, and amendment impact tracing. The independently supported external pattern is <strong>evidence to assumptions to scenario grid to rerunnable computation to impact analysis</strong>. Keiji's security, validation, and time-savings claims were not independently verified.</p>
+    <div class="callout"><strong>Adoption boundary.</strong> Prefer version-pinned adapters around established statistical engines and explicit review states. Do not reimplement adaptive-design mathematics, label reconstructed observations as genuine IPD, generate regulated submission datasets, or imply statistical, clinical, regulatory, or organizational approval.</div>
+  </section>
+
+  <section id="topic-axes">
+    <h2>Topic Axes</h2>
+    <ol class="axes">
+      <li>Estimand and assumption specification</li>
+      <li>Simulation and feasible design regions</li>
+      <li>Literature-derived design inputs</li>
+      <li>Regulatory programming artifacts</li>
+      <li>Amendment impact traceability</li>
+    </ol>
+  </section>
+
+  <section id="ranked-ideas">
+    <h2>Ranked Ideas</h2>
+    <ol class="jump-list">
+      <li><a href="#idea-1">External-Engine Design Frontier</a></li>
+      <li><a href="#idea-2">Executable Trial Estimand Contract</a></li>
+      <li><a href="#idea-3">Evidence-to-Scenario Registry</a></li>
+      <li><a href="#idea-4">Amendment Blast-Radius Graph</a></li>
+      <li><a href="#idea-5">Regulatory Readiness Shadow Build</a></li>
+      <li><a href="#idea-6">Published-Curve Reconstruction Quarantine</a></li>
+    </ol>
+
+    <article class="idea" id="idea-1">
+      <div class="idea-head"><span class="rank">1</span><div><div class="eyebrow">Highest-leverage gap</div><h3>External-Engine Design Frontier</h3></div></div>
+      <p><strong>Description:</strong> Add a bounded adapter workflow around a version-pinned engine such as <code>rpact</code> or <code>gsDesign</code>. CE DataScience would own the design specification, scenario grid, provenance, seed and package manifest, rerun receipt, operating-characteristic table, feasible-region or Pareto-frontier presentation, and SAP handoff. It would not reimplement or claim to validate the engine's statistical mathematics.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 900 180" role="img" aria-labelledby="flow-title flow-desc">
+          <title id="flow-title">Conceptual design-frontier flow</title>
+          <desc id="flow-desc">Evidence and estimand assumptions form a scenario specification, an established engine computes operating characteristics, and CE DataScience returns a reviewable frontier and SAP handoff.</desc>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b6b68"/></marker></defs>
+          <g fill="none" stroke="#0b6b68" stroke-width="2" marker-end="url(#arrow)">
+            <path d="M165 72 H235"/><path d="M415 72 H485"/><path d="M665 72 H735"/>
+          </g>
+          <g font-family="ui-sans-serif, sans-serif" font-size="14" text-anchor="middle">
+            <rect x="15" y="35" width="150" height="74" rx="14" fill="#dcefed" stroke="#0b6b68"/><text x="90" y="65" fill="#084d4b"><tspan x="90">Evidence +</tspan><tspan x="90" dy="20">estimand contract</tspan></text>
+            <rect x="235" y="35" width="180" height="74" rx="14" fill="#fffdf8" stroke="#6f7e81"/><text x="325" y="65" fill="#182326"><tspan x="325">Versioned scenario</tspan><tspan x="325" dy="20">specification</tspan></text>
+            <rect x="485" y="35" width="180" height="74" rx="14" fill="#f6e8c9" stroke="#9a6a20"/><text x="575" y="65" fill="#71480a"><tspan x="575">Established engine</tspan><tspan x="575" dy="20">+ simulation receipt</tspan></text>
+            <rect x="735" y="35" width="150" height="74" rx="14" fill="#dcefed" stroke="#0b6b68"/><text x="810" y="65" fill="#084d4b"><tspan x="810">Design frontier</tspan><tspan x="810" dy="20">+ SAP handoff</tspan></text>
+          </g>
+        </svg>
+        <figcaption>Directional overview of the product boundary: CE DataScience owns the auditable specification and review surface, while an established engine performs the specialized computation.</figcaption>
+      </figure>
+      <dl>
+        <dt>Axis</dt><dd>Simulation and feasible design regions</dd>
+        <dt>Basis</dt><dd><strong>direct:</strong> <code>ce-power</code> explicitly excludes complex adaptive designs and directs users to <code>gsDesign</code>, <code>rpact</code>, or <code>BayesianTools</code>. FDA adaptive-design guidance supports simulation-based design evaluation, and <code>rpact</code> supplies mature prior art.</dd>
+        <dt>Rationale</dt><dd>This converts an existing handoff gap into a reproducible design-decision artifact and makes the feasible region, not one nominal sample-size answer, the primary result.</dd>
+        <dt>Downsides</dt><dd>High statistical and testing burden; engine conventions differ; reproducibility does not equal independent validation; initial scope should support one engine and a narrow design family.</dd>
+        <dt>Confidence</dt><dd>94%</dd>
+        <dt>Complexity</dt><dd>High</dd>
+      </dl>
+    </article>
+
+    <article class="idea" id="idea-2">
+      <div class="idea-head"><span class="rank">2</span><div><div class="eyebrow">Foundational contract</div><h3>Executable Trial Estimand Contract</h3></div></div>
+      <p><strong>Description:</strong> Add a typed, versioned trial-estimand object that links population, treatment conditions, endpoint, summary measure, every anticipated intercurrent event and chosen strategy, missingness and censoring assumptions, sensitivity analyses, and review status to existing <code>Claim</code>, <code>Analysis</code>, <code>Diagnostic</code>, and <code>Decision_Evidence</code> records. Missing or contradictory choices produce <code>blocked</code>; complete but unapproved objects remain <code>ready_for_review</code>.</p>
+      <dl>
+        <dt>Axis</dt><dd>Estimand and assumption specification</dd>
+        <dt>Basis</dt><dd><strong>direct:</strong> Current workflows say “Create one decision per outcome-estimand pair” and require linked SAP objects, but the repository has no dedicated schema for treatment-policy, composite, while-on-treatment, hypothetical, or principal-stratum strategies.</dd>
+        <dt>Rationale</dt><dd>It makes ICH E9(R1)-style alignment mechanically inspectable and supplies a stable upstream contract for simulation, SAP rendering, sensitivity analysis, and amendment review.</dd>
+        <dt>Downsides</dt><dd>Ontology design is delicate; a rigid schema can misrepresent edge cases; the workflow must surface unresolved choices without selecting the scientific strategy.</dd>
+        <dt>Confidence</dt><dd>93%</dd>
+        <dt>Complexity</dt><dd>Medium</dd>
+      </dl>
+    </article>
+
+    <article class="idea" id="idea-3">
+      <div class="idea-head"><span class="rank">3</span><div><div class="eyebrow">Evidence bridge</div><h3>Evidence-to-Scenario Registry</h3></div></div>
+      <p><strong>Description:</strong> Extend evidence-map and effect-size outputs into provenance-bearing scenario inputs. Each entry records the parameter role, plausible range or distribution, included and excluded studies, metric compatibility, heterogeneity and prediction interval, verification status, transportability limitations, whether the value is evidence-derived or investigator-selected, and the design artifacts that consume it. The registry feeds multiple scenarios into power or simulation rather than laundering one pooled estimate into certainty.</p>
+      <dl>
+        <dt>Axis</dt><dd>Literature-derived design inputs</dd>
+        <dt>Basis</dt><dd><strong>direct:</strong> Existing workflows prohibit pooling fewer than three comparable studies, silent metric mixing, and false point precision, and state that literature never overrides observed grain, estimand, design constraints, QA, or human approval.</dd>
+        <dt>Rationale</dt><dd>This makes uncertainty operational and reusable across power, feasible-region simulation, SAP rationale, and later amendment review.</dd>
+        <dt>Downsides</dt><dd>Ranges can appear more objective than their elicitation warrants; distributions require careful justification; transportability often remains a human judgment.</dd>
+        <dt>Confidence</dt><dd>91%</dd>
+        <dt>Complexity</dt><dd>Medium</dd>
+      </dl>
+    </article>
+
+    <article class="idea" id="idea-4">
+      <div class="idea-head"><span class="rank">4</span><div><div class="eyebrow">Workflow leverage</div><h3>Amendment Blast-Radius Graph</h3></div></div>
+      <p><strong>Description:</strong> Use stable SAP identifiers, analysis-variable mappings, output ownership, script references, data-wave and lock metadata, power assumptions, review scopes, and evidence links to compute an explainable impact manifest for a proposed or approved amendment. Affected items become <em>impacted</em>, <em>possibly impacted</em>, or <em>unaffected with rationale</em>, producing a bounded rerun and re-review queue without modifying code, rerunning analyses, or transferring approval.</p>
+      <dl>
+        <dt>Axis</dt><dd>Amendment impact traceability</dd>
+        <dt>Basis</dt><dd><strong>direct:</strong> The package already records stable SAP IDs, analysis-to-variable mappings, output owners, data locks, drift checks, and review packages, but no current workflow automatically fans an amendment out to downstream artifacts.</dd>
+        <dt>Rationale</dt><dd>This activates relationships already present in the package and moves amendment handling from manual scavenger hunt and retrospective drift detection toward prospective, evidence-preserving review.</dd>
+        <dt>Downsides</dt><dd>False negatives are dangerous; semantic dependencies are harder than path references; the graph must explain uncertainty and never silently mark an artifact safe.</dd>
+        <dt>Confidence</dt><dd>89%</dd>
+        <dt>Complexity</dt><dd>Medium-High</dd>
+      </dl>
+    </article>
+
+    <article class="idea" id="idea-5">
+      <div class="idea-head"><span class="rank">5</span><div><div class="eyebrow">Bounded regulatory value</div><h3>Regulatory Readiness Shadow Build</h3></div></div>
+      <p><strong>Description:</strong> Implement the already contemplated <code>ce-regulatory-tfl</code> direction as a fail-closed assessment. Compile the SAP and output catalog into a manifest of expected dataset interfaces, TFL shells, QC obligations, owners, standards versions, unresolved dependencies, and required human validation. Generate no SDTM or ADaM records, Define-XML, reviewer guides, validated programs, or submission-readiness claims.</p>
+      <dl>
+        <dt>Axis</dt><dd>Regulatory programming artifacts</dd>
+        <dt>Basis</dt><dd><strong>direct:</strong> CE DataScience already has a tabular SAP and output catalog, and prior repository work specifies a regulatory-TFL readiness assessment while explicitly deferring full SDTM/ADaM generation and validated regulatory programming.</dd>
+        <dt>Rationale</dt><dd>It captures Keiji's traceability and handoff value at the layer this package can credibly own, while making missing regulated components visible rather than implied.</dd>
+        <dt>Downsides</dt><dd>“Readiness” can be mistaken for conformance; CDISC and sponsor requirements change; usefulness depends on clear ownership and version-pinned references.</dd>
+        <dt>Confidence</dt><dd>87%</dd>
+        <dt>Complexity</dt><dd>Medium</dd>
+      </dl>
+    </article>
+
+    <article class="idea" id="idea-6">
+      <div class="idea-head"><span class="rank">6</span><div><div class="eyebrow">Guarded expansion</div><h3>Published-Curve Reconstruction Quarantine</h3></div></div>
+      <p><strong>Description:</strong> Start with a source-eligibility and validation dossier for published Kaplan-Meier curves rather than an automatic pseudo-IPD pipeline. Preserve digitized coordinates, risk-table constraints, event counts, censoring assumptions, reconstruction method, curve-fit error, event reconciliation, licensing, intended use, and an explicit approximate-data label. Permit only a provenance-linked, aggregate design-scenario handoff after named methodological review, and prohibit representing reconstructed records as genuine IPD.</p>
+      <dl>
+        <dt>Axis</dt><dd>Literature-derived design inputs</dd>
+        <dt>Basis</dt><dd><strong>external:</strong> Guyot et al. establish the reconstruction method as genuine prior art. <strong>direct:</strong> the current package has no validated method for published-curve reconstruction, digitization-error correction, or mixing reconstructed and genuine IPD.</dd>
+        <dt>Rationale</dt><dd>A quarantine-first workflow tests demand and source suitability while preserving CE DataScience's strongest provenance boundary.</dd>
+        <dt>Downsides</dt><dd>High methodological burden and error risk; source figures may be unusable; licensing and reproducibility vary; this should follow, not precede, the scenario registry and design frontier.</dd>
+        <dt>Confidence</dt><dd>76%</dd>
+        <dt>Complexity</dt><dd>High</dd>
+      </dl>
+    </article>
+  </section>
+
+  <section id="rejection-summary">
+    <h2>Rejection Summary</h2>
+    <table>
+      <thead><tr><th>#</th><th>Idea</th><th>Reason Rejected</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Assumption Debt Ledger</td><td>Useful only as fields inside the estimand contract or amendment graph; not independently decision-changing.</td></tr>
+        <tr><td>2</td><td>One-Hour Reviewer Capsule</td><td>The time limit is arbitrary, and the capsule is presentation of stronger capabilities rather than a capability itself.</td></tr>
+        <tr><td>3</td><td>Simulation Receipt Gate</td><td>Required acceptance evidence inside the design frontier, not a standalone feature.</td></tr>
+        <tr><td>4</td><td>Assumption Chaos Harness</td><td>The simulation gap is real, but calibrated perturbation models and failure thresholds are not yet grounded; retain as a future scenario library.</td></tr>
+        <tr><td>5</td><td>Cross-Engine Disagreement Gate</td><td>Refuted: engines may encode different estimands, defaults, or conventions, so disagreement is not a valid automatic blocker.</td></tr>
+        <tr><td>6</td><td>Standards-Version Migration Scanner</td><td>Premature without a current standards and terminology dependency model; possible later shadow-build extension.</td></tr>
+        <tr><td>7</td><td>Counterfactual Amendment Preflight</td><td>Valuable interaction within the blast-radius graph, not a separate foundation.</td></tr>
+        <tr><td>8</td><td>Event-Sourced Amendment Replay</td><td>Duplicates version control and amendment history without demonstrated incremental impact-analysis value.</td></tr>
+        <tr><td>9</td><td>Design Assurance Dossier</td><td>A useful combined review surface, but packaging rather than a distinct capability.</td></tr>
+        <tr><td>10</td><td>Change-Aware Design Memory</td><td>Premature composition that depends on a separate assumption-debt object not justified by current evidence.</td></tr>
+        <tr><td>11</td><td>Literature Ensemble Design Frontier</td><td>Sound, but it belongs in the integration between the surviving evidence registry and design frontier.</td></tr>
+        <tr><td>12</td><td>Regulatory Change Shadow Build</td><td>Plausible later integration, but current evidence does not establish regulatory-interface dependency semantics.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="sources">
+    <h2>Sources &amp; References</h2>
+    <ul>
+      <li><a href="https://keiji.ai/solutions/biostatistics-trial-design">Keiji: Biostatistics &amp; Trial Design</a> — audited product claims and workflow structure.</li>
+      <li><a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/e9r1-statistical-principles-clinical-trials-addendum-estimands-and-sensitivity-analysis-clinical">FDA ICH E9(R1) estimands guidance</a>.</li>
+      <li><a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adaptive-design-clinical-trials-drugs-and-biologics-guidance-industry">FDA adaptive-design guidance</a>.</li>
+      <li><a href="https://github.com/rpact-com/rpact">rpact project</a> — established R engine for confirmatory adaptive designs and simulation.</li>
+      <li><a href="https://bmcmedresmethodol.biomedcentral.com/counter/pdf/10.1186/1471-2288-12-9.pdf">Guyot et al.: reconstructing data from published Kaplan-Meier curves</a>.</li>
+      <li><a href="https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/skills/ce-power/SKILL.md">Current <code>ce-power</code> contract</a>.</li>
+      <li><a href="https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/skills/ce-statistical-analysis-plan/SKILL.md">Current statistical-analysis-plan contract</a>.</li>
+      <li><a href="https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/skills/ce-sap-tabular/SKILL.md">Current tabular SAP contract</a>.</li>
+    </ul>
+  </section>
+
+  <footer class="composition-signal">Composed 2026-09-06T23:51:39-05:00 by <code>ce-ideate</code> from the user-requested Keiji feature audit and the current CE DataScience repository.</footer>
+</main>
+</body>
+</html>
