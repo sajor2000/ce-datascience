@@ -10,6 +10,7 @@ required_fields:
   - registry_packages
   - reproducibility
   - readiness
+  - number_gate  # status PASS/FAIL and the checked manuscript/table inputs
 # Filled by the agent after the final script run (SKILL.md workflow step 7);
 # a rerun drops them, so re-add them after any rerun.
 optional_fields:

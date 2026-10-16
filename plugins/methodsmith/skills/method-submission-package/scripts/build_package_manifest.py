@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
+import tempfile
 import sys
 from pathlib import Path
 
@@ -35,6 +37,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--sap", default="analysis/sap.md")
     parser.add_argument("--table1-spec", default="analysis/publication/tables/table1-spec.json")
     parser.add_argument("--figure-manifest", default="analysis/publication/figures/figure-manifest.json")
+    parser.add_argument("--number-gate", help="method-numbers CLI path; default: the project-local analysis/numbers/method_numbers.py helper")
+    parser.add_argument("--number-input", action="append", help="project-relative manuscript or aggregate table; repeat for multiple inputs")
     args = parser.parse_args(argv[1:])
 
     for field_name in ("out_dir", "sap", "table1_spec", "figure_manifest"):
@@ -67,6 +71,38 @@ def main(argv: list[str]) -> int:
     if not figures:
         warnings.append("No figures listed in the figure manifest.")
 
+    number_gate = Path(args.number_gate).resolve() if args.number_gate else root / "analysis/numbers/method_numbers.py"
+    inputs = args.number_input
+    if inputs is None:
+        inputs = [repo_relative(p, root) for directory in (out_dir, table1_path.parent, figure_path.parent)
+                  if directory.exists() for p in sorted(directory.rglob("*"))
+                  if p.is_file() and p.suffix.lower() in {".md", ".qmd", ".rmd", ".csv", ".tsv", ".docx"}
+                  and p.name != "package-readiness-report.md"]
+    number_status = "FAIL"
+    if not number_gate.is_file():
+        blockers.append("Number gate unavailable: install the project helper or pass --number-gate.")
+    elif any(not safe_relative(value) for value in inputs):
+        blockers.append("Number gate inputs must be project-relative without '..'.")
+    else:
+        try:
+            with tempfile.TemporaryDirectory(prefix="method-package-captions-") as scratch:
+                caption_inputs = []
+                for index, figure in enumerate(figures):
+                    text = "\n".join(str(figure.get(key, "")) for key in ("caption", "alt_text"))
+                    if text.strip():
+                        caption = Path(scratch) / f"caption-{index}.md"
+                        caption.write_text(text, encoding="utf-8")
+                        caption_inputs.append(str(caption))
+                gate = subprocess.run([sys.executable, str(number_gate), "check", *inputs, *caption_inputs],
+                                      cwd=root, capture_output=True, text=True, timeout=120)
+            # Exit status and the PASS summary must both agree; absence is never a pass.
+            if gate.returncode == 0 and any(line.startswith("PASS:") for line in gate.stdout.splitlines()):
+                number_status = "PASS"
+            else:
+                blockers.append("Number gate failed; correct the manuscript sources and rerun method-numbers check.")
+        except (OSError, subprocess.SubprocessError, UnicodeError):
+            blockers.append("Number gate could not run; package remains blocked.")
+
     manifest = {
         "package_id": out_dir.name,
         "format": args.format,
@@ -76,6 +112,7 @@ def main(argv: list[str]) -> int:
         "checklists": [],
         "registry_packages": [],
         "reproducibility": [],
+        "number_gate": {"status": number_status, "inputs": inputs},
         "readiness": "blocked" if blockers else "ready-with-review",
         "blockers": blockers,
         "warnings": warnings,

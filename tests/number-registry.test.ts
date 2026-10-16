@@ -29,6 +29,7 @@ function project(analysis: string) {
   mkdirSync(path.join(root, "analysis", "numbers"), { recursive: true })
   writeFileSync(path.join(root, "data", "synthetic.csv"), "arm,died\nA,0\nB,1\n")
   writeFileSync(path.join(root, "analysis", "model.py"), `import sys\nsys.path.insert(0, ${JSON.stringify(scriptsDir)})\n${analysis}`)
+  write(root, "analysis/sap-tables/02-outputs.csv", "Output File\nT1\nT2\nT3\nF1\n")
   git(root, "add", "-A")
   git(root, "commit", "-qm", "synthetic")
   return root
@@ -85,7 +86,7 @@ r("p.tiny", 0.00004, kind="p")
 r("p.generic", 0.0312, kind="p", style="generic-biomedical")
 r("deaths", 148, kind="count", denominator=412)
 r("diff", -1.234, kind="estimate", ci=(-2.5, 0.04), digits=1)
-r("pct", 35.92, kind="percent", digits=1)
+r("pct", 35.92, kind="percent", digits=1, denominator=10000)
 r("interval", 0.781, kind="ci", ci=(0.664, 0.918))
 r("age.mean", 64.23, kind="estimate", sd=11.84, digits=1)
 r("los.median", 6, kind="estimate", iqr=(3, 11), digits=0)
@@ -144,8 +145,8 @@ register_table("table1", {
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
     const e = registry(root).entries
     expect(Object.keys(e).sort()).toEqual(["table1.age.overall", "table1.female.overall", "table1.female.small_site"])
-    expect(e["table1.female.overall"]).toMatchObject({ text: "212 (51.5%)", sap_output: "T1", table: "table1" })
-    expect(e["table1.female.small_site"]).toMatchObject({ text: "<11", suppressed: true })
+    expect(e["table1.female.overall"]).toMatchObject({ text: "Suppressed", sap_output: "T1", table: "table1" })
+    expect(e["table1.female.small_site"]).toMatchObject({ text: "Suppressed", suppressed: true })
     expect(e["table1.age.overall"].script.path).toBe("analysis/model.py")
   })
 })
@@ -200,7 +201,7 @@ describe("numbers gate: untraced numbers", () => {
     write(root, "manuscript/rendered.md", [
       "# Results",
       "",
-      "Among 412 patients, the HR was 0.78 (95% CI, 0.66-0.92).",
+      "Among {{num:cohort.n}} patients, the HR was {{num:primary.hr}}.",
       "Mortality was 23.4% at day 28.",
     ].join("\n"))
     const result = check(root, "manuscript/rendered.md")
@@ -243,7 +244,7 @@ describe("numbers gate: allowlist", () => {
     const root = project(PRIMARY)
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
     write(root, "manuscript/methods.md", MANUSCRIPT)
-    write(root, "analysis/numbers/allowlist.txt", "# declared by the study team\nunit: mg\nunit: mg/kg\nphrase: two-sided P < .05\n")
+    write(root, "analysis/numbers/allowlist.txt", "# declared by the study team\nunit: mg\nunit: mg/kg\nphrase: two-sided P < .05\nphrase: between 2015 and 2023\nphrase: report 2 decimal places\nphrase: use 3 significant digits\ncitation: [12]\ncitation: [3,4]\ncitation: [1-3]\n")
     const result = check(root, "manuscript/methods.md")
     expect(result.out).toContain("PASS")
     expect(result.code).toBe(0)
@@ -258,7 +259,7 @@ describe("numbers gate: allowlist", () => {
     expect(result.out).toContain("manuscript/methods.md:10: untraced number: 5")
     expect(result.out).toContain("manuscript/methods.md:10: untraced number: 10")
     expect(result.out).toContain("manuscript/methods.md:11: untraced number: .05")
-    expect(result.out).not.toMatch(/methods\.md:(?:[1-9]|1[2-9]|2\d):/)
+    expect(result.out).not.toMatch(/methods\.md:(?:[1-7]|9|1[2-4]|1[6-9]|2\d):/)
   })
 })
 
@@ -325,7 +326,7 @@ describe("numbers gate: registry integrity", () => {
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
     const file = path.join(root, "analysis", "numbers", "registry.json")
     const data = JSON.parse(readFileSync(file, "utf8"))
-    data.entries["arm_a.deaths"] = { ...data.entries["cohort.n"], id: "arm_a.deaths", kind: "count", value: 7, text: "7 (17.5%)", suppressed: false }
+    data.entries["arm_a.deaths"] = { ...data.entries["cohort.n"], id: "arm_a.deaths", kind: "count", value: 7, text: "7 (17.5%)", suppressed: false, format: { ...data.entries["cohort.n"].format, denominator: 40 } }
     writeFileSync(file, JSON.stringify(data))
     write(root, "manuscript/results.md", "Among {{num:cohort.n}} patients, {{num:arm_a.deaths}} died.\n")
     const result = check(root, "manuscript/results.md")
@@ -346,9 +347,9 @@ register_table("table1", {
 `)
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
     write(root, "analysis/publication/tables/table1.csv", [
-      "Characteristic,Overall (N = 412)",
+      "Characteristic,Overall (N = {{num:table1.n.overall}})",
       "\"Age, mean (SD), y\",64.2 (11.8)",
-      "\"Female, No. (%)\",\"212 (51.5%)\"",
+      "\"Female, No. (%)\",{{num:table1.female.overall}}",
       "\"Male, No. (%)\",\"200 (48.5%)\"",
     ].join("\n"))
     const result = check(root, "analysis/publication/tables/table1.csv")
@@ -432,9 +433,9 @@ describe.skipIf(!hasR)("R register_number and register_table", () => {
     expect(e["interval"].text).toBe("-1.23 to 0.50")
     expect(e["age.mean"].text).toBe("64.2 (11.8)")
     expect(e["los.median"].text).toBe("6 (3-11)")
-    expect(e["table1.n.overall"]).toMatchObject({ text: "1,412", table: "table1", sap_output: "T1" })
-    expect(e["table1.female.overall"].text).toBe("212 (51.5%)")
-    expect(e["table1.female.small_site"]).toMatchObject({ value: null, text: "<11", suppressed: true })
+    expect(e["table1.n.overall"]).toMatchObject({ text: "Suppressed", table: "table1", sap_output: "T1" })
+    expect(e["table1.female.overall"].text).toBe("Suppressed")
+    expect(e["table1.female.small_site"]).toMatchObject({ value: null, text: "Suppressed", suppressed: true })
 
     write(root, "manuscript/results.md", "Among {{num:table1.n.overall}} patients the HR was {{num:primary.hr}} ({{num:p.main}}).\n")
     expect(check(root, "manuscript/results.md").code).toBe(0)
@@ -464,7 +465,7 @@ r("diff", -1.234, kind="estimate", ci=(-2.5, 0.04), digits=1)
 r("hr", 0.781, kind="estimate", ci=(0.664, 0.918))
 `)
     expect(run(root, ["python3", "analysis/model.py"]).err).toBe("")
-    write(root, "manuscript/a.md", "Difference -1.2 (95% CI, -2.5 to 0.0); HR 0.78 (95% CI, 0.66-0.92).\nThe reverse, 1.2 and −0.78, is wrong.\n")
+    write(root, "manuscript/a.md", "Difference {{num:diff}}; HR {{num:hr}}.\nThe reverse, 1.2 and −0.78, is wrong.\n")
     const result = check(root, "manuscript/a.md")
     expect(result.code).toBe(1)
     expect(result.out).not.toContain("manuscript/a.md:1:")
@@ -575,4 +576,173 @@ r("typo.or", 1.5, kind="estimate", sources=["data/synthetic.csv"], sap_output="A
     const missing = check(root, "--sap-outputs", "analysis/sap-tables/nope.csv", "manuscript/a.md")
     expect(missing.out).toContain("analysis/sap-tables/nope.csv: unreadable file: missing")
   })
+})
+
+describe("occurrence provenance", () => {
+  test("rejects a typed matching value but accepts and traces a rendered occurrence", () => {
+    const root = project(PRIMARY)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    write(root, "manuscript/typed.md", "HR 0.78.\n")
+    expect(check(root, "manuscript/typed.md").code).toBe(1)
+    write(root, "manuscript/source.md", "HR {{num:primary.hr}}.\n")
+    expect(run(root, ["python3", cli, "render", "manuscript/source.md", "--out", "manuscript/out.md"]).code).toBe(0)
+    expect(check(root, "manuscript/out.md").code).toBe(0)
+    expect(run(root, ["python3", cli, "trace", "manuscript/out.md"]).out).toContain("registry primary.hr")
+    write(root, "manuscript/out.md", "HR 0.78. Manually copied: 0.78.\n")
+    expect(check(root, "manuscript/out.md").code).toBe(1)
+  })
+})
+
+describe("quoted result coverage", () => {
+  test("quotes and block quotes do not hide reportable numbers", () => {
+    const root = project(PRIMARY)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    for (const text of ['"9999"', '> 9999']) {
+      write(root, "manuscript/quoted.md", `HR {{num:primary.hr}}.\n${text}\n`)
+      expect(check(root, "manuscript/quoted.md").code).toBe(1)
+    }
+  })
+})
+
+describe("registry schema and fail-closed coverage", () => {
+  test("invalid registry shapes, malformed placeholders and suppressed-only input cannot pass", () => {
+    const root = project(PRIMARY)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    const original = registry(root)
+    write(root, "manuscript/ok.md", "HR {{num:primary.hr}}.\n")
+    for (const invalid of [
+      { ...original, version: 999 },
+      { version: 1, entries: { "primary.hr": null } },
+      { version: 1, entries: { "primary.hr": { ...original.entries["primary.hr"], value: "patient-data" } } },
+      { version: 1, entries: { "primary.hr": { ...original.entries["primary.hr"], sources: [{}] } } },
+    ]) {
+      write(root, "analysis/numbers/registry.json", JSON.stringify(invalid))
+      const result = check(root, "manuscript/ok.md")
+      expect(result.code).toBe(1)
+      expect(result.err).not.toContain("Traceback")
+    }
+    write(root, "analysis/numbers/registry.json", JSON.stringify(original))
+    write(root, "manuscript/ok.md", "HR {{num:primary.hr}}; {{num:}}.\n")
+    expect(check(root, "manuscript/ok.md").code).toBe(1)
+    original.entries["primary.hr"] = { ...original.entries["primary.hr"], value: null, kind: "count", text: "<11", suppressed: true }
+    write(root, "analysis/numbers/registry.json", JSON.stringify(original))
+    write(root, "manuscript/ok.md", "{{num:primary.hr}}\n")
+    expect(check(root, "manuscript/ok.md").out).toContain("nothing to check")
+  })
+})
+
+describe("disclosure support", () => {
+  test("suppresses complements and respects a stricter floor in both helpers", () => {
+    const root = project(`from method_numbers import register_number as r
+r("near.total", 95, kind="count", denominator=100)
+r("stricter", 15, kind="count", disclosure_floor=20)
+r("safe", 0.78, kind="estimate")
+r("small.rate", 5, kind="percent", denominator=100)
+from method_numbers import register_table
+register_table("pairs", {"total": {"value": 100, "kind": "n"}, "remaining": {"value": 95, "kind": "count"}}, sources=["data/synthetic.csv"], sap_output="T1")
+`)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    const e = registry(root).entries
+    expect(e["near.total"]).toMatchObject({ value: null, text: "Suppressed", suppressed: true })
+    expect(e["small.rate"].value).toBeNull()
+    expect(e["pairs.total"].value).toBeNull()
+    expect(e["pairs.remaining"].value).toBeNull()
+    expect(e.stricter).toMatchObject({ value: null, text: "<20", suppressed: true })
+    expect(e.safe.value).toBe(0.78)
+    if (hasR) {
+      write(root, "analysis/model.R", `source(${JSON.stringify(path.join(scriptsDir, "method_numbers.R"))})
+register_number("r.complement", 95, kind="count", denominator=100)
+register_number("r.stricter", 15, kind="count", disclosure_floor=20)
+`)
+      expect(run(root, ["Rscript", "analysis/model.R"]).code).toBe(0)
+      expect(registry(root).entries["r.complement"].value).toBeNull()
+      expect(registry(root).entries["r.stricter"].text).toBe("<20")
+    }
+  })
+})
+
+test("formatted text cannot introduce a value the producer did not register", () => {
+  const root = project(PRIMARY)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  const e = registry(root)
+  e.entries["primary.hr"].text = "0.81 (95% CI, 0.66-0.92)"
+  e.entries["primary.hr"].format = null
+  write(root, "analysis/numbers/registry.json", JSON.stringify(e))
+  write(root, "manuscript/results.md", "HR {{num:primary.hr}}.\n")
+  expect(check(root, "manuscript/results.md").code).toBe(1)
+  expect(run(root, ["python3", cli, "render", "manuscript/results.md", "--out", "manuscript/out.md"]).code).toBe(1)
+})
+
+test("a year-shaped count and an undeclared bracketed result are not years or citations", () => {
+  const root = project(PRIMARY)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  for (const text of ["We included 2020 patients.", "The count was [412].", "Mortality fell from 2020 to 1980 deaths."]) {
+    write(root, "manuscript/result.md", `HR {{num:primary.hr}}. ${text}\n`)
+    expect(check(root, "manuscript/result.md").code).toBe(1)
+  }
+})
+
+test("conflicting registration requires an explicit update and missing SAP mapping blocks", () => {
+  const root = project(PRIMARY)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  write(root, "analysis/conflict.py", `import sys\nsys.path.insert(0, ${JSON.stringify(scriptsDir)})\nfrom method_numbers import register_number\nregister_number("primary.hr", 0.99, kind="estimate", sources=["data/synthetic.csv"], sap_output="T2")\n`)
+  expect(run(root, ["python3", "analysis/conflict.py"]).code).not.toBe(0)
+  expect(registry(root).entries["primary.hr"].value).toBe(0.781)
+  write(root, "manuscript/result.md", "HR {{num:primary.hr}}.\n")
+  rmSync(path.join(root, "analysis/sap-tables"), { recursive: true, force: true })
+  expect(check(root, "manuscript/result.md").code).toBe(1)
+})
+
+test("CSV rendering preserves cells containing thousands separators and intervals", () => {
+  const root = project(PRIMARY)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  write(root, "manuscript/table.csv", "Characteristic,Overall\nHR,{{num:primary.hr}}\n")
+  expect(run(root, ["python3", cli, "render", "manuscript/table.csv", "--out", "manuscript/out.csv"]).code).toBe(0)
+  expect(readFileSync(path.join(root, "manuscript/out.csv"), "utf8")).toBe('Characteristic,Overall\nHR,"0.78 (95% CI, 0.66-0.92)"\n')
+  expect(check(root, "manuscript/out.csv").code).toBe(0)
+})
+
+test("independent gate disclosure checks reject unsafe percentage metadata", () => {
+  const root = project(PRIMARY + '\nregister_number("rate", 50, kind="percent", denominator=100, sources=["data/synthetic.csv"], sap_output="T1")\n')
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  const original = registry(root)
+  write(root, "manuscript/results.md", "HR {{num:primary.hr}}; mortality {{num:rate}}.\n")
+  original.entries.rate.value = 5
+  original.entries.rate.text = "5.00%"
+  write(root, "analysis/numbers/registry.json", JSON.stringify(original))
+  expect(check(root, "manuscript/results.md").code).toBe(1)
+  original.entries.rate.format = {}
+  write(root, "analysis/numbers/registry.json", JSON.stringify(original))
+  expect(check(root, "manuscript/results.md").code).toBe(1)
+})
+
+test("suppression is recalculated across sequential intentional reruns", () => {
+  const root = project(`from method_numbers import register_number as r
+kw=dict(kind="count", sources=["data/synthetic.csv"], sap_output="T1", update=True)
+r("total",100,**kw)
+r("remaining",95,**kw)
+r("total",100,**kw)
+r("remaining",50,**kw)
+`)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  expect(registry(root).entries.total.value).toBe(100)
+  expect(registry(root).entries.remaining.value).toBe(50)
+  if (hasR) {
+    write(root, "analysis/recovery.R", `source(${JSON.stringify(path.join(scriptsDir, "method_numbers.R"))})
+for (remaining in c(95, 50)) {
+ register_number("r.total",100,kind="count",sources="data/synthetic.csv",sap_output="T2",update=TRUE)
+ register_number("r.remaining",remaining,kind="count",sources="data/synthetic.csv",sap_output="T2",update=TRUE)
+}
+`)
+    expect(run(root, ["Rscript", "analysis/recovery.R"]).code).toBe(0)
+    expect(registry(root).entries["r.total"].value).toBe(100)
+    expect(registry(root).entries["r.remaining"].value).toBe(50)
+  }
+})
+
+test("scientific notation is a reportable number rather than a digit-bearing name", () => {
+  const root = project(PRIMARY)
+  expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+  write(root, "manuscript/exponents.md", "HR {{num:primary.hr}}; unregistered P = 7e-12.\n")
+  expect(check(root, "manuscript/exponents.md").code).toBe(1)
 })

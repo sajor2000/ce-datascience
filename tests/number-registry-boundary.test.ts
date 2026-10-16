@@ -17,6 +17,7 @@ function withFile(root: string, rel: string, content: string) {
 describe("number registry in schema-only mode", () => {
   test("an analysis run through method-safe-run writes the registry and the gate still runs", () => {
     const root = project(SCHEMA_ONLY, { git: "real" })
+    withFile(root, "analysis/sap-tables/02-outputs.csv", "Output File\nF1\n")
     withFile(root, "analysis/cohort.py", [
       "import csv, sys",
       `sys.path.insert(0, ${JSON.stringify(scripts)})`,
@@ -51,6 +52,7 @@ describe("number registry in schema-only mode", () => {
 describe("the gate is not a way around the boundary", () => {
   function registered() {
     const root = project(SCHEMA_ONLY, { git: "real" })
+    withFile(root, "analysis/sap-tables/02-outputs.csv", "Output File\nF1\n")
     withFile(root, "analysis/cohort.py", [
       "import sys",
       `sys.path.insert(0, ${JSON.stringify(scripts)})`,

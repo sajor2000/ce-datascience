@@ -11,7 +11,10 @@
         "Adds a register_number call in analysis/primary_cox.R with kind \"estimate\", a ci, sources including data/analytic.parquet, and sap_output \"T2\"",
         "Replaces the typed hazard ratio in manuscript/results.qmd with a {{num:<id>}} placeholder instead of a number",
         "Runs method_numbers.py check on the manuscript and reports PASS or FAIL from the script's exit status and lines",
-        "Does not edit analysis/numbers/registry.json by hand"
+        "Does not edit analysis/numbers/registry.json by hand",
+        "Keeps the .numbers.json provenance sidecar with rendered text and rejects typed matching values and quoted result numbers",
+        "Requires the SAP output catalog before a passing check and explicit update=True/update=TRUE for conflicting reruns",
+        "Supplies supporting denominators for percentages and preserves Suppressed markers for complementary disclosure protection"
       ]
     },
     {

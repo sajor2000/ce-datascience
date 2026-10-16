@@ -12,7 +12,7 @@ fixtures:
     sha256: e23c374f8454ea55af13cd616b5034cab722fcb245028cc0432ee94bfd81955e
   - path: evals/methodsmith/cases/method-numbers-untraced-gate/fixtures/registry.json
     destination: workspace/analysis/numbers/registry.json
-    sha256: 1291a8434c14aa701b5536514eaf715bccea4ffb4e136f99ad9c11fb681d4035
+    sha256: 0376c794027d4a4a8598e830991dedb8a199ab6a351e6d4c4dd499c9e32d6ff5
 required_behaviors:
   - reports-untraced-token
   - reports-fail

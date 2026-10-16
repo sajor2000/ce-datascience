@@ -12,6 +12,7 @@ ID, and a timestamp. Aggregates only.
 
 import argparse
 import csv
+import copy
 import datetime
 import hashlib
 import io
@@ -27,6 +28,7 @@ import zipfile
 REGISTRY_REL = os.path.join("analysis", "numbers", "registry.json")
 ALLOWLIST_REL = os.path.join("analysis", "numbers", "allowlist.txt")
 OUTPUTS_REL = os.path.join("analysis", "sap-tables", "02-outputs.csv")
+_PENDING = {}  # Current-process registrations only; hidden aggregates are never persisted here.
 
 
 def _project_root():
@@ -132,18 +134,37 @@ def format_number(value, kind, ci=None, digits=2, denominator=None, style="jama"
 
 
 def _entry(root, script, id, value, kind, ci=None, digits=2, denominator=None, style="jama", sources=(),
-           sap_output=None, table=None, sd=None, iqr=None):
+           sap_output=None, table=None, sd=None, iqr=None, disclosure_floor=SMALL_CELL):
     if kind not in KINDS:
         raise ValueError(f"unknown kind; expected one of {', '.join(KINDS)}")
     if not all(_finite(v) for v in (value, *(ci or ()), *(iqr or ()), *([] if sd is None else [sd]))):
         raise ValueError(f"{id}: the registry holds finite numeric aggregates only")
-    suppressed = kind in COUNT_KINDS and 1 <= value < SMALL_CELL
+    if not isinstance(disclosure_floor, int) or isinstance(disclosure_floor, bool):
+        raise ValueError("disclosure floor must be an integer")
+    floor = max(SMALL_CELL, disclosure_floor)
+    if kind in COUNT_KINDS and (value < 0 or int(value) != value):
+        raise ValueError("counts must be nonnegative integers")
+    if denominator is not None and (not _finite(denominator) or denominator <= 0 or int(denominator) != denominator):
+        raise ValueError("denominator must be a positive integer")
+    if kind in COUNT_KINDS and denominator is not None and value > denominator:
+        raise ValueError("count exceeds denominator")
+    if kind == "p" and not 0 <= value <= 1 or kind == "percent" and not 0 <= value <= 100:
+        raise ValueError("invalid probability or percentage")
+    if kind == "percent" and denominator is None:
+        raise ValueError("percent requires its supporting denominator")
+    count = value if kind in COUNT_KINDS else value * denominator / 100 if kind == "percent" else None
+    suppressed = count is not None and (0 < count < floor or
+                  denominator is not None and 0 < denominator - count < floor)
+    marker = f"<{floor}" if kind in COUNT_KINDS and value < floor else "Suppressed"
     entry = {
         "id": id,
         "value": None if suppressed else value,
         "kind": kind,
-        "text": f"<{SMALL_CELL}" if suppressed else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
+        "text": marker if suppressed else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
         "suppressed": suppressed,
+        "disclosure_floor": floor,
+        "format": None if suppressed else {"ci": ci, "digits": digits, "denominator": denominator,
+                                              "style": style, "sd": sd, "iqr": iqr},
         "sources": [{"path": _rel(root, s), "sha256": _sha256(os.path.join(root, s))} for s in sources],
         "script": {"path": _rel(root, script), "sha256": _sha256(script), "commit": _commit(root),
                    "committed": _committed(root, _rel(root, script))} if script else None,
@@ -155,14 +176,42 @@ def _entry(root, script, id, value, kind, ci=None, digits=2, denominator=None, s
     return entry
 
 
-def _write(root, registry, entries):
+def _suppress_related(entries):
+    """Conservatively suppress related counts/rates when their difference exposes a small count."""
+    candidates = [e for e in entries.values() if e["kind"] in (*COUNT_KINDS, "percent")]
+    suppressed = set()
+    for left in candidates:
+        for right in candidates:
+            if left is right:
+                continue
+            related = (left.get("table") and left.get("table") == right.get("table") or
+                       left.get("sap_output") and left.get("sap_output") == right.get("sap_output")
+                       and left.get("sources") == right.get("sources"))
+            floor = max(SMALL_CELL, left.get("disclosure_floor", SMALL_CELL), right.get("disclosure_floor", SMALL_CELL))
+            if related and (left["suppressed"] or right["suppressed"] or
+                            left["kind"] in COUNT_KINDS and right["kind"] in COUNT_KINDS
+                            and 0 < abs(left["value"] - right["value"]) < floor):
+                suppressed.update((left["id"], right["id"]))
+    for id in suppressed:
+        entries[id].update(value=None, text="Suppressed", suppressed=True, format=None)
+
+
+def _write(root, registry, entries, update=False):
     path = os.path.join(root, registry or REGISTRY_REL)
     data = {"version": 1, "entries": {}}
     if os.path.exists(path):
         with open(path, encoding="utf-8") as fh:
             data = json.load(fh)
+    pending = _PENDING.setdefault(os.path.realpath(path), {})
     for entry in entries:
-        data["entries"][entry["id"]] = entry
+        existing = pending.get(entry["id"], data["entries"].get(entry["id"]))
+        if existing and not update:
+            comparable = lambda item: {key: value for key, value in item.items() if key != "timestamp"}
+            if comparable(existing) != comparable(entry):
+                raise ValueError("conflicting registry ID; rerun intentionally with update=True")
+        pending[entry["id"]] = copy.deepcopy(entry)
+    data["entries"].update(copy.deepcopy(pending))
+    _suppress_related(data["entries"])
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = f"{path}.{os.getpid()}.tmp"
     with open(tmp, "w", encoding="utf-8") as fh:
@@ -172,30 +221,30 @@ def _write(root, registry, entries):
 
 
 def register_number(id, value, kind, ci=None, digits=2, denominator=None, style="jama", sources=(),
-                    sap_output=None, script=None, registry=None, sd=None, iqr=None):
+                    sap_output=None, script=None, registry=None, sd=None, iqr=None, disclosure_floor=SMALL_CELL, update=False):
     """Register one aggregate. Counts from 1 to 10 are stored suppressed, without their value."""
     root = _project_root()
     entry = _entry(root, _script(script), id, value, kind, ci, digits, denominator, style,
-                   sources, sap_output, sd=sd, iqr=iqr)
-    _write(root, registry, [entry])
+                   sources, sap_output, sd=sd, iqr=iqr, disclosure_floor=disclosure_floor)
+    _write(root, registry, [entry], update)
     return entry
 
 
-def register_table(table_id, cells, style="jama", sources=(), sap_output=None, script=None, registry=None):
+def register_table(table_id, cells, style="jama", sources=(), sap_output=None, script=None, registry=None, disclosure_floor=SMALL_CELL, update=False):
     """Register every cell of a table as "<table_id>.<cell>"; cells map a cell id to register_number arguments."""
     root = _project_root()
     script = _script(script)
     entries = [_entry(root, script, f"{table_id}.{cell}", **{"style": style, **spec}, sources=sources,
-                      sap_output=sap_output, table=table_id)
+                      sap_output=sap_output, table=table_id, disclosure_floor=disclosure_floor)
                for cell, spec in cells.items()]
-    _write(root, registry, entries)
+    _write(root, registry, entries, update)
     return [entry["id"] for entry in entries]
 
 
 # ------------------------------------------------------------------ gate (CLI)
 
 PLACEHOLDER = re.compile(r"\{\{\s*num:([^}\s]+)\s*\}\}")
-NUMBER = re.compile(r"(?<![\w.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)(?:\s?%)?")
+NUMBER = re.compile(r"(?<![\w.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?(?:\s?%)?")
 SIGN_BEFORE = re.compile(r"(?:^|[\s(\[,;:=<>])[-\u2212]$")
 
 
@@ -236,14 +285,13 @@ ALLOWED = [re.compile(p, f) for p, f in (
     (r"\]\([^)\s]*(?:\s+\"[^\"]*\")?\)|<?https?://[^\s>)]+>?", 0),              # link targets, URLs
     (r"^[ \t]*>.*$", re.M),                                                 # block quotes (quoted guideline text)
     (QUOTED, 0),                                                            # quoted text
-    (r"\[\s*\d+(?:\s*[-\u2013,]\s*\d+)*\s*\]|\[@[^\]]*\]|\^[\d,\s\u2013-]+\^|<sup>[^<]*</sup>", 0),  # citations
+    (r"\[@[^\]]*\]|\^[\d,\s\u2013-]+\^|<sup>[^<]*</sup>", 0),  # citations
     (r"^[ \t]*#{1,6}[ \t]+[\d.]+|^[ \t]*\d+[.)][ \t]", re.M),                     # heading and list numbers
     (r"\b" + REFERENCE + r"[ \t]*\d+(?:\.\d+)*[A-Za-z]?(?:[ \t]*(?:,|and|to|-|\u2013)[ \t]*\d+(?:\.\d+)*[A-Za-z]?)*",
      re.I),                                                                 # figure, table, item, section numbers
     (r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}/\d{1,2}/\d{2,4}\b", 0),                       # numeric dates
     (r"\b" + MONTH + r"[ \t]+\d{1,2}(?:st|nd|rd|th)?,?[ \t]+\d{4}\b|\b\d{1,2}[ \t]+" + MONTH + r"[ \t]+\d{4}\b"
      r"|\b" + MONTH + r"[ \t]+\d{4}\b", 0),                                  # written dates
-    (r"(?<![\d,.])\b(?:19|20)\d{2}\b(?![,.]?\d)", 0),                           # years
     (r"\b(?:90|95|99)%[ \t]*(?:CIs?|confidence intervals?|credible intervals?|prediction intervals?)\b", re.I),
 )]
 
@@ -270,7 +318,7 @@ def read_allowlist(path):
         value = value.strip()
         if kind.strip() == "unit" and value:
             patterns.append(re.compile(r"(?<![\w.])[\d.,]+[ \t]?" + re.escape(value) + r"(?![\w/])"))
-        elif kind.strip() == "phrase" and value:
+        elif kind.strip() in ("phrase", "citation") and value:
             patterns.append(re.compile(re.escape(value)))
     return patterns
 
@@ -287,6 +335,8 @@ def mask(text, declared=(), quotes=True):
     """The text with allowlisted spans blanked (line numbers kept) and placeholders removed."""
     text = PLACEHOLDER.sub(_blank, text)
     for pattern in [*declared, *ALLOWED]:
+        if pattern.pattern == QUOTED or pattern.pattern == r"^[ \t]*>.*$":
+            continue  # Quoting a result does not change its provenance.
         if quotes or pattern.pattern != QUOTED:
             text = pattern.sub(_blank, text)
     return text
@@ -363,20 +413,64 @@ def expand(paths, root=None):
 
 def _read(path):
     try:
-        with open(path, encoding="utf-8", errors="replace") as fh:
+        with open(path, encoding="utf-8") as fh:
             return fh.read()
-    except OSError:
+    except (OSError, UnicodeError):
         return None
 
 
 def load_registry(path):
-    """The registry's entries, or None when the file is missing or unreadable."""
+    """Validate the structural contract before any consumer handles registry content."""
     try:
         with open(path, encoding="utf-8") as fh:
-            entries = json.load(fh).get("entries")
-    except (OSError, ValueError, AttributeError):
+            data = json.load(fh)
+        if not isinstance(data, dict) or data.get("version") != 1 or not isinstance(data.get("entries"), dict):
+            return None
+        entries = data["entries"]
+        def file_record(item):
+            return (isinstance(item, dict) and isinstance(item.get("path"), str) and bool(item["path"])
+                    and isinstance(item.get("sha256"), str)
+                    and re.fullmatch(r"[a-f0-9]{64}", item["sha256"]) is not None)
+        for id, entry in entries.items():
+            if (not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]*", id) or not isinstance(entry, dict)
+                    or entry.get("id") != id or entry.get("kind") not in KINDS
+                    or not isinstance(entry.get("text"), str) or not entry["text"]
+                    or not isinstance(entry.get("suppressed"), bool)
+                    or not isinstance(entry.get("sources"), list)
+                    or not all(file_record(record) for record in entry["sources"])):
+                return None
+            value = entry.get("value")
+            if entry["suppressed"]:
+                if value is not None or not (re.fullmatch(r"<\d+", entry["text"]) or entry["text"] == "Suppressed"):
+                    return None
+            elif not _finite(value):
+                return None
+            if value is not None and entry["kind"] in COUNT_KINDS and (value < 0 or int(value) != value):
+                return None
+            if not entry["suppressed"] and not isinstance(entry.get("format"), dict):
+                return None
+            floor = entry.get("disclosure_floor", SMALL_CELL)
+            if not isinstance(floor, int) or isinstance(floor, bool) or floor < SMALL_CELL:
+                return None
+            if entry.get("format") is not None:
+                options = entry["format"]
+                if (not isinstance(options, dict) or entry["suppressed"]
+                        or set(options) != {"ci", "digits", "denominator", "style", "sd", "iqr"}):
+                    return None
+                denominator = options["denominator"]
+                if denominator is not None and (not _finite(denominator) or denominator <= 0 or int(denominator) != denominator):
+                    return None
+                if entry["kind"] == "percent" and denominator is None:
+                    return None
+                if entry["kind"] in COUNT_KINDS and denominator is not None and value > denominator:
+                    return None
+                if entry["text"] != format_number(value, entry["kind"], **options):
+                    return None
+            if entry.get("script") is not None and not file_record(entry["script"]):
+                return None
+        return entries
+    except (OSError, ValueError, TypeError, UnicodeError):
         return None
-    return entries if isinstance(entries, dict) else None
 
 
 def stale(entries, root):
@@ -439,19 +533,32 @@ def unknown_sap_outputs(entries, declared):
 
 
 def small_cells(entries, threshold=SMALL_CELL):
-    """Registered counts from 1 to threshold - 1 that are not suppressed. Never yields the value."""
+    """Independently check support and complementary disclosure without printing values."""
+    related = copy.deepcopy(entries)
+    _suppress_related(related)
     for id, entry in sorted(entries.items()):
-        value = entry.get("value")
-        if entry.get("kind") in COUNT_KINDS and _finite(value) and 1 <= value < threshold:
-            yield f"registry:{id}", "small cell", f"a count from 1 to {threshold - 1} is not suppressed"
+        if entry["suppressed"]:
+            continue
+        value, kind = entry["value"], entry["kind"]
+        floor = max(threshold, entry.get("disclosure_floor", SMALL_CELL))
+        denominator = entry["format"]["denominator"]
+        count = value if kind in COUNT_KINDS else value * denominator / 100 if kind == "percent" else None
+        if kind in COUNT_KINDS and 1 <= value < floor:
+            yield f"registry:{id}", "small cell", f"a count from 1 to {floor - 1} is not suppressed"
+        elif (count is not None and (0 < count < floor or denominator is not None and 0 < denominator - count < floor)
+              or related[id]["suppressed"]):
+            yield f"registry:{id}", "small cell", "unsafe support or complementary disclosure; rerun with suppression"
 
 
-def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_path=None, outputs_required=False):
+def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_path=None, outputs_required=True):
     """(failures, checked): failures are (location, reason, token) and never carry registry values."""
-    entries = load_registry(registry_path) or {}
-    produced = registry_tokens(entries)
+    loaded = load_registry(registry_path)
+    entries = loaded or {}
+    produced = set()  # Literal equality never proves an occurrence came from the registry.
     declared = read_allowlist(allowlist_path)
-    failures, checked = [], 0
+    threshold = max(SMALL_CELL, threshold)
+    failures = [] if loaded is not None else [(registry_path, "invalid registry", "missing, unsupported or malformed")]
+    checked = 0
     root = _project_root()
     written = run_outputs(root)
     for rel in expand(files, root):
@@ -468,9 +575,17 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_pa
             checked += count
             continue
         text = _read(rel)
+        if text is not None and os.path.exists(rel + ".numbers.json"):
+            try:
+                text = rendered_source(rel, registry_path, entries)
+            except (OSError, ValueError, KeyError, TypeError):
+                failures.append((rel, "invalid render provenance", "re-render from the placeholder source"))
+                continue
         if text is None:
             failures.append((rel, "unreadable file", "missing" if not os.path.exists(rel) else "not readable"))
             continue
+        if "{{num:" in PLACEHOLDER.sub("", text):
+            failures.append((rel, "malformed placeholder", "expected {{num:id}}"))
         for number, code in inline_computed(text):
             checked += 1
             failures.append((f"{rel}:{number}", "inline computed value", code))
@@ -478,7 +593,8 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL, outputs_pa
         for number, cells in lines(rel, text, declared):
             for column, line, masked in cells:
                 for match in PLACEHOLDER.finditer(line):
-                    checked += 1
+                    if not entries.get(match.group(1), {}).get("suppressed"):
+                        checked += 1
                     if match.group(1) not in entries:
                         failures.append((f"{rel}:{number}", "unknown registry id", match.group(0)))
                 untraced = []
@@ -522,6 +638,8 @@ def _xml_load(data):
     ElementTree would drop (those named only in mc:Ignorable) survive the round trip."""
     text = data.decode("utf-8")
     start = re.search(r"<(?!\?|!)[^>]+>", text)
+    if start is None:
+        raise ValueError("missing XML root")
     for prefix, uri in re.findall(r'xmlns:([\w.-]+)="([^"]+)"', start.group(0)):
         ET.register_namespace(prefix, uri)
     return ET.fromstring(data), text[:start.start()], start.group(0)
@@ -535,6 +653,17 @@ def _xml_dump(root, prolog, start_tag):
 def _docx_parts(path):
     with zipfile.ZipFile(path) as archive:
         return {info.filename: archive.read(info.filename) for info in archive.infolist()}
+
+
+def _text_parts(parts):
+    # Include every Word XML part containing text, including headers, footers and comments.
+    return sorted(name for name, data in parts.items() if name.startswith("word/")
+                  and name.endswith(".xml") and (name in DOCX_PARTS or b":t" in data or b":p" in data))
+
+
+def _structural_field(instruction):
+    return re.match(r"^\s*(?:ADDIN\s+ZOTERO_(?:ITEM|BIBL)\b|SEQ\b|REF\b|PAGEREF\b|PAGE\b|NUMPAGES\b)",
+                    instruction, re.I) is not None
 
 
 def _owned_runs(paragraph, parents):
@@ -647,18 +776,24 @@ def _owner(element, parents):
     return node
 
 
-def _pieces(paragraph, parents):
+def _pieces(paragraph, parents, field_stack=None):
     """(plain text, [(field id or None, cached result)]) for one paragraph. Field instructions and
     deleted text are not text; results of other fields (citations, cross-references, page numbers) are
     kept apart from the plain text and reported with id None."""
-    plain, fields, stack, inside_simple = [], [], [], set()
+    own_stack = field_stack is None
+    plain, fields, stack, inside_simple = [], [], [] if own_stack else field_stack, set()
     for node in paragraph.iter():
         if node is paragraph or _owner(node, parents) is not paragraph or node in inside_simple:
             continue
         if node.tag == _w("fldSimple"):
             inside_simple.update(node.iter())
-            match = FIELD_INSTR.match(node.get(_w("instr"), ""))
-            fields.append((match.group(1) if match else None, "".join(t.text or "" for t in node.iter(_w("t")))))
+            instruction = node.get(_w("instr"), "")
+            match = FIELD_INSTR.match(instruction)
+            result = "".join(t.text or "" for t in node.iter(_w("t")))
+            if match or _structural_field(instruction):
+                fields.append((match.group(1) if match else None, result))
+            else:
+                plain.append(result)
         elif node.tag == _w("fldChar"):
             kind = node.get(_w("fldCharType"))
             if kind == "begin":
@@ -668,7 +803,10 @@ def _pieces(paragraph, parents):
             elif kind == "end" and stack:
                 done = stack.pop()
                 match = FIELD_INSTR.match(done["instr"])
-                fields.append((match.group(1) if match else None, done["result"]))
+                if match or _structural_field(done["instr"]):
+                    fields.append((match.group(1) if match else None, done["result"]))
+                else:
+                    plain.append(done["result"])
         elif node.tag == _w("instrText") and stack:
             stack[-1]["instr"] += node.text or ""
         elif node.tag == _w("t"):
@@ -679,19 +817,27 @@ def _pieces(paragraph, parents):
                 plain.append(node.text or "")
         elif node.tag in (_w("tab"), _w("br"), _w("cr")) and not stack:
             plain.append(" ")
+    if stack and (own_stack or any(FIELD_INSTR.match(field["instr"]) for field in stack)):
+        raise ValueError("unclosed numeric Word field")
     return "".join(plain), fields
 
 
 def docx_paragraphs(path):
     """(location, plain text, fields) for each paragraph of the body, footnotes, and endnotes."""
     parts = _docx_parts(path)
-    for name in DOCX_PARTS:
+    for name in _text_parts(parts):
         if name not in parts:
             continue
         root = _xml_load(parts[name])[0]
         parents = {child: parent for parent in root.iter() for child in parent}
+        for node in root.iter():
+            if node.tag.endswith("}t") and node.text and (node.tag != _w("t") or _owner(node, parents) is None):
+                raise ValueError("unsupported text-bearing Word structure")
+        field_stack = []
         for number, paragraph in enumerate(root.iter(_w("p")), 1):
-            yield (_location(path, name, number), *_pieces(paragraph, parents))
+            yield (_location(path, name, number), *_pieces(paragraph, parents, field_stack))
+        if field_stack:
+            raise ValueError("unclosed Word field")
 
 
 def check_docx(rel, entries, produced, declared):
@@ -699,25 +845,28 @@ def check_docx(rel, entries, produced, declared):
     failures, checked = [], 0
     try:
         paragraphs = list(docx_paragraphs(rel))
-    except (OSError, zipfile.BadZipFile, ET.ParseError):
+    except (OSError, ValueError, zipfile.BadZipFile, ET.ParseError):
         return [(rel, "unreadable file", "not a DOCX")], 0
     for location, text, fields in paragraphs:
         for id, result in fields:
             if id is None:
                 continue
-            checked += 1
+            if not entries.get(id, {}).get("suppressed"):
+                checked += 1
             if id not in entries:
                 failures.append((location, "unknown registry id", f"{{{{num:{id}}}}}"))
             elif result != entries[id].get("text"):
                 failures.append((location, "field result differs from registry", f"{{{{num:{id}}}}}"))
+        if "{{num:" in PLACEHOLDER.sub("", text):
+            failures.append((location, "malformed placeholder", "expected {{num:id}}"))
         for match in PLACEHOLDER.finditer(text):
-            checked += 1
+            if not entries.get(match.group(1), {}).get("suppressed"):
+                checked += 1
             if match.group(1) not in entries:
                 failures.append((location, "unknown registry id", match.group(0)))
         for _, token in numbers(mask(text, declared)):
             checked += 1
-            if token not in produced:
-                failures.append((location, "untraced number", token))
+            failures.append((location, "untraced number", token))
     return failures, checked
 
 
@@ -754,18 +903,21 @@ def render_docx(source, out, registry_path):
     except (OSError, zipfile.BadZipFile):
         return [(source, "unreadable file", "not a DOCX")]
     failures, used, trees = [], set(), {}
-    for name in DOCX_PARTS:
+    for name in _text_parts(parts):
         if name not in parts:
             continue
         root, prolog, start = trees[name] = _xml_load(parts[name])
         parents = {child: parent for parent in root.iter() for child in parent}
+        field_stack = []
         for number, paragraph in enumerate(root.iter(_w("p")), 1):
-            text, fields = _pieces(paragraph, parents)
+            text, fields = _pieces(paragraph, parents, field_stack)
             ids = [m.group(1) for m in PLACEHOLDER.finditer(text)] + [id for id, _ in fields if id]
             for id in ids:
                 used.add(id)
                 if id not in entries:
                     failures.append((_location(source, name, number), "unknown registry id", f"{{{{num:{id}}}}}"))
+        if field_stack:
+            raise ValueError("unclosed Word field")
     if not used:
         return [(source, "nothing to render", "no {{num:<id>}} placeholders or CE_NUM fields")]
     failures.extend(stale({id: entries[id] for id in used if id in entries}, _project_root()))
@@ -790,12 +942,57 @@ def render_docx(source, out, registry_path):
     return []
 
 
+def render_text(source, text, entries):
+    replace = lambda value: PLACEHOLDER.sub(lambda m: entries[m.group(1)]["text"], value)
+    delimiter = TABLE_EXTS.get(source.rsplit(".", 1)[-1].lower())
+    if delimiter is None:
+        return replace(text)
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=delimiter, lineterminator="\n")
+    for row in csv.reader(io.StringIO(text), delimiter=delimiter):
+        writer.writerow([replace(cell) for cell in row])
+    return output.getvalue()
+
+
+def rendered_source(path, registry_path, entries):
+    """Verify a rendered text copy against its source, registry and occurrence map."""
+    with open(path + ".numbers.json", encoding="utf-8") as fh:
+        provenance = json.load(fh)
+    if provenance.get("version") != 1 or provenance.get("registry_sha256") != _sha256(registry_path):
+        raise ValueError("stale render registry")
+    source = os.path.join(_project_root(), provenance["source"])
+    if is_data_path(source, _project_root()) or os.path.realpath(source) == os.path.realpath(path):
+        raise ValueError("invalid render source")
+    if provenance["source_sha256"] != _sha256(source) or provenance["output_sha256"] != _sha256(path):
+        raise ValueError("stale render files")
+    text = _read(source)
+    if text is None:
+        raise ValueError("missing render source")
+    ids = [m.group(1) for m in PLACEHOLDER.finditer(text)]
+    if not ids or ids != provenance["ids"]:
+        raise ValueError("missing occurrences")
+    expected = render_text(source, text, entries)
+    if _read(path) != expected:
+        raise ValueError("rendered text differs")
+    return text
+
+
 def render(source, out, registry_path):
     """Substitute each placeholder with its entry's text. Fails (writes nothing) on unknown or stale ids."""
-    if is_data_path(source, _project_root()):
+    if os.path.realpath(source) == os.path.realpath(out):
+        return [(source, "refused", "render requires a separate output")]
+    if is_data_path(source, _project_root()) or is_data_path(out, _project_root()):
         return [(source, "refused", "data path")]
     if source.lower().endswith(".docx"):
-        return render_docx(source, out, registry_path)
+        try:
+            failures, _ = check([source], registry_path, os.path.join(_project_root(), ALLOWLIST_REL),
+                                outputs_path=os.path.join(_project_root(), OUTPUTS_REL))
+            failures = [failure for failure in failures if failure[1] != "field result differs from registry"]
+            if failures:
+                return failures
+            return render_docx(source, out, registry_path)
+        except (OSError, ValueError, zipfile.BadZipFile, ET.ParseError):
+            return [(source, "unreadable file", "not a supported DOCX")]
     entries = load_registry(registry_path) or {}
     text = _read(source)
     if text is None:
@@ -811,22 +1008,39 @@ def render(source, out, registry_path):
     failures.extend(stale({id: entries[id] for id in used if id in entries}, _project_root()))
     if failures:
         return failures
-    rendered = PLACEHOLDER.sub(lambda m: entries[m.group(1)]["text"], text)
+    failures, _ = check([source], registry_path, os.path.join(_project_root(), ALLOWLIST_REL),
+                        outputs_path=os.path.join(_project_root(), OUTPUTS_REL))
+    if failures:
+        return failures
+    rendered = render_text(source, text, entries)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(rendered)
+    provenance = {"version": 1, "source": _rel(_project_root(), source),
+                  "source_sha256": _sha256(source), "registry_sha256": _sha256(registry_path),
+                  "output_sha256": _sha256(out),
+                  "ids": [m.group(1) for m in PLACEHOLDER.finditer(text)]}
+    with open(out + ".numbers.json", "w", encoding="utf-8") as fh:
+        json.dump(provenance, fh, indent=2)
+        fh.write("\n")
     return []
 
 
-def _uses(rel):
+def _uses(rel, registry_path=None):
     """(location, id) for each placeholder, and each CE_NUM field in a Word file. None when unreadable."""
     if rel.lower().endswith(".docx"):
         try:
             return [(location, id) for location, text, fields in docx_paragraphs(rel)
                     for id in [m.group(1) for m in PLACEHOLDER.finditer(text)] + [f for f, _ in fields if f]]
-        except (OSError, zipfile.BadZipFile, ET.ParseError):
+        except (OSError, ValueError, zipfile.BadZipFile, ET.ParseError):
             return None
     text = _read(rel)
+    if os.path.exists(rel + ".numbers.json"):
+        try:
+            text = rendered_source(rel, registry_path or os.path.join(_project_root(), REGISTRY_REL),
+                                   load_registry(registry_path or os.path.join(_project_root(), REGISTRY_REL)) or {})
+        except (OSError, ValueError, KeyError, TypeError):
+            return None
     if text is None:
         return None
     return [(f"{rel}:{number}", m.group(1)) for number, line in enumerate(text.splitlines(), 1)
@@ -838,7 +1052,7 @@ def trace(files, registry_path):
     entries = load_registry(registry_path) or {}
     out, failures = [], []
     for rel in expand(files):
-        uses = _uses(rel)
+        uses = _uses(rel, registry_path)
         if uses is None:
             failures.append((rel, "unreadable file", "missing or not readable"))
             continue
@@ -894,7 +1108,7 @@ def main(argv=None):
         return 0
     if args.command == "check":
         args.allowlist = args.allowlist or os.path.join(root, ALLOWLIST_REL)
-        args.outputs_required = bool(args.sap_outputs)
+        args.outputs_required = True
         args.sap_outputs = args.sap_outputs or os.path.join(root, OUTPUTS_REL)
     if args.command == "trace":
         out, failures = trace(args.files, args.registry)

@@ -745,7 +745,9 @@ model cards, and scientific writing cite the registry; `method-verify`,
 closed. Word manuscripts keep each number as a registry-owned field
 (`ADDIN CE_NUM <id>`, beside Zotero's citation fields);
 the gate fails a field whose text was hand-edited, and a number typed into a
-Word table. It does not read numbers inside images.
+Word table. Rendered text copies keep an adjacent `.numbers.json` provenance map; typed matching numbers and quoted results fail the gate. Word headers, footers and notes are checked alongside the body.
+
+It does not read numbers inside images.
 
 ### Build a prediction model
 

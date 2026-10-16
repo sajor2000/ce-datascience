@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "id": "method-submission-package-number-gate",
+  "target": {
+    "kind": "skill",
+    "name": "method-submission-package",
+    "source": "plugins/methodsmith/skills/method-submission-package/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-submission-package-number-gate/prompt.md",
+  "fixtures": [
+    {
+      "path": "evals/methodsmith/cases/method-submission-package-number-gate/fixtures/sap.md",
+      "destination": "workspace/analysis/sap.md",
+      "sha256": "5e02e898bc18818f2f9bd6844e2a4fae541ee8bbf41cd32127b9e3bd6808a97f"
+    },
+    {
+      "path": "evals/methodsmith/cases/method-submission-package-number-gate/fixtures/table1-spec.json",
+      "destination": "workspace/analysis/publication/tables/table1-spec.json",
+      "sha256": "2930d55a33fd40c8252dafb8dc34c2b64408d36391e0e4280cf44a535bca7654"
+    },
+    {
+      "path": "evals/methodsmith/cases/method-submission-package-number-gate/fixtures/figure-manifest.json",
+      "destination": "workspace/analysis/publication/figures/figure-manifest.json",
+      "sha256": "d56eee6e60633f016082e666f635d32b831c87e86f7e378b4fac9837d26c6c67"
+    },
+    {
+      "path": "evals/methodsmith/cases/method-submission-package-number-gate/fixtures/results.qmd",
+      "destination": "workspace/manuscript/results.qmd",
+      "sha256": "11d1d517f94d02c0a085a1bcf6be30828b2f84998af70376cac07efc19e979ab"
+    }
+  ],
+  "required_behaviors": [
+    "manifest-written",
+    "numeric-gate-blocked"
+  ],
+  "prohibited_behaviors": [
+    "no-signoff"
+  ],
+  "criteria": [
+    {
+      "id": "manifest-written",
+      "description": "The real package builder produces a manifest.",
+      "type": "file_exists",
+      "path": "workspace/manuscript/package-manifest.json",
+      "expected": true,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "numeric-gate-blocked",
+      "description": "Absent registry/traceable results block package readiness.",
+      "type": "regex",
+      "path": "workspace/manuscript/package-manifest.json",
+      "pattern": "\"readiness\"\\s*:\\s*\"blocked\"",
+      "weight": 4,
+      "hard_gate": true
+    },
+    {
+      "id": "no-signoff",
+      "description": "No successful numeric gate is invented.",
+      "type": "regex_not",
+      "path": "workspace/manuscript/package-manifest.json",
+      "pattern": "\"(?:readiness|status)\"\\s*:\\s*\"(?:ready-for-signoff|PASS)\"",
+      "weight": 4,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 0.85,
+  "limitations": [
+    "Synthetic aggregate-only project; this case checks blocking readiness when numeric provenance is absent, not the scientific validity of a complete analysis.",
+    "Offline artifact scoring does not attest model identity or production Word application behavior."
+  ]
+}
