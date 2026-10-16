@@ -72,7 +72,7 @@ def visible(start, end, total):
     )
 
 
-def typed_clip(cid, x, y, width, start, end, total):
+def typed_clip(cid, x, y, width, start, end, total, full=False):
     """A clip rect that grows in whole-character steps while a command types."""
     steps = max(1, round((end - start) * TYPE_CPS))
     keys, vals = ["0"], ["0"]
@@ -80,7 +80,7 @@ def typed_clip(cid, x, y, width, start, end, total):
         keys.append(f"{(start + (end - start) * i / steps) / total:.4f}")
         vals.append(f"{width * i / steps:.1f}")
     return (
-        f'<clipPath id="{cid}"><rect x="{x}" y="{y - SIZE}" height="{LINE}" width="0">'
+        f'<clipPath id="{cid}"><rect x="{x}" y="{y - SIZE}" height="{LINE}" width="{width if full else 0}">'
         f'<animate attributeName="width" values="{";".join(vals)}" keyTimes="{";".join(keys)}" '
         f'dur="{total:.2f}s" repeatCount="indefinite" calcMode="discrete"/></rect></clipPath>'
     )
@@ -108,7 +108,7 @@ def chrome(title):
     )
 
 
-def scene_body(scene, times, typed, total, animate, sid):
+def scene_body(scene, times, typed, total, animate, sid, base=0):
     out = []
     for i, (style, value) in enumerate(scene):
         y = TOP + i * LINE
@@ -117,7 +117,7 @@ def scene_body(scene, times, typed, total, animate, sid):
             if animate:
                 cid = f"c{sid}"
                 width = len(value) * CHAR + 4
-                out.append(typed_clip(cid, PAD + 22, y, width, times[i], typed[i], total))
+                out.append(typed_clip(cid, PAD + 22, y, width, times[i], typed[i], total, base == 1))
                 out.append(prompt + line_el(style, value, PAD + 22, y, f' clip-path="url(#{cid})"'))
             else:
                 out.append(prompt + line_el(style, value, PAD + 22, y))
@@ -125,7 +125,7 @@ def scene_body(scene, times, typed, total, animate, sid):
             el = line_el(style, value, PAD, y)
             if animate:
                 el = el.replace("</text>", visible(times[i], total * 2, total) + "</text>", 1)
-                el = el.replace(">", ' opacity="0">', 1)
+                el = el.replace(">", f' opacity="{base}">', 1)
             out.append(el)
     return "".join(out)
 
@@ -150,8 +150,10 @@ def main():
     plan, total = schedule()
     scenes = []
     for sid, ((start, end, times, typed), scene) in enumerate(zip(plan, SCENES)):
-        group = scene_body(scene, times, typed, total, True, sid)
-        scenes.append(f'<g opacity="0">{visible(start, end, total)}{group}</g>')
+        # Renderers that ignore SMIL show base values: only the last scene, complete.
+        base = 1 if sid == len(SCENES) - 1 else 0
+        group = scene_body(scene, times, typed, total, True, sid, base)
+        scenes.append(f'<g opacity="{base}">{visible(start, end, total)}{group}</g>')
     animated = svg(chrome("methodsmith demo  |  synthetic data") + "".join(scenes), "Methodsmith terminal demo", DESC)
     (OUT / "demo.svg").write_text(animated)
     last = len(SCENES) - 1
