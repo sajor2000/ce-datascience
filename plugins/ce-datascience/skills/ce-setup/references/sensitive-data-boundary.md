@@ -48,8 +48,9 @@ How work proceeds:  the agent writes the code; scripts print only aggregates,
 In Claude Code a guard hook blocks tool calls that would read data files, and
 runs scripts that read data only through ce-safe-run, which keeps their output
 in a local log and shows the agent the exit code, files written, and a masked
-error tail. Aggregate tables under output/ are readable once they pass the
-aggregate check (no identifier columns, no counts from 1 to 10).
+error tail. Aggregate tables under output/ print through ce-aggregate-read,
+which checks the same bytes it shows (no identifier columns, no counts from
+1 to 10).
 To change this later, re-run the ce-setup skill or edit phi_environment.mode
 in .ce-datascience/config.local.yaml.
 ```

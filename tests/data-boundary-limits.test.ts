@@ -74,13 +74,14 @@ describe("limit 1a: agent-written scripts that read data (schema-only)", () => {
     expect(denied.reason).toContain(`${safeRun} -- <command>`)
   })
 
-  test("a script that only plots from an aggregate CSV runs without the safe runner", () => {
+  test("a script that reads an aggregate CSV runs through the safe runner (it reads later than any hook check)", () => {
     const root = project(SCHEMA_ONLY)
     withFile(root, "output/table1.csv", AGGREGATE_CSV)
     withFile(root, "analysis/plot.py",
       "import pandas as pd, matplotlib.pyplot as plt\nt = pd.read_csv('output/table1.csv')\nt.plot.bar(x='group')\nplt.savefig('output/fig1.png')\n")
     withFile(root, "analysis/hello.R", "x <- c(1, 2, 3)\nprint(mean(x))\n")
-    expectAll(root, "allow", [["Bash", bash("python3 analysis/plot.py")], ["Bash", bash("Rscript analysis/hello.R")]])
+    expectAll(root, "allow", [["Bash", bash(`${safeRun} -- python3 analysis/plot.py`)], ["Bash", bash("Rscript analysis/hello.R")]])
+    expectAll(root, "deny", [["Bash", bash("python3 analysis/plot.py")]])
   })
 })
 
@@ -323,16 +324,23 @@ describe("one definition of identifier normalization and hashing", () => {
 const AGGREGATE_MD = "| Characteristic | Exposed (n=120) | Unexposed (n=180) |\n|---|---|---|\n| Age, mean (SD) | 61.2 (11.0) | 59.8 (12.1) |\n" +
   "| Female, n (%) | 64 (53.3) | 90 (50.0) |\n| Died, n (%) | 0 (0.0) | 12 (6.7) |\n"
 
+const aggregateReader = path.join(pluginRoot, "scripts", "ce-aggregate-read")
+function readAggregate(cwd: string, ...files: string[]) {
+  const proc = Bun.spawnSync([aggregateReader, ...files], { cwd })
+  return { code: proc.exitCode, out: proc.stdout.toString(), err: proc.stderr.toString() }
+}
+
 describe("limit 5: aggregate outputs are readable in schema-only mode when they pass the aggregate check", () => {
-  test("Read, cat, and head of a passing table1.csv/tsv/md under an aggregate dir are allowed", () => {
+  test("passing CSV/TSV tables print through ce-aggregate-read; passing Markdown tables also via Read and cat", () => {
     const root = project(SCHEMA_ONLY)
     withFile(root, "output/table1.csv", AGGREGATE_CSV)
     withFile(root, "results/table1.tsv", AGGREGATE_CSV.replaceAll(",", "\t"))
     withFile(root, "analysis/publication/table1.md", AGGREGATE_MD)
+    expect(readAggregate(root, "output/table1.csv")).toEqual({ code: 0, out: AGGREGATE_CSV, err: "" })
+    expect(readAggregate(root, "results/table1.tsv").out).toBe(AGGREGATE_CSV.replaceAll(",", "\t"))
+    expect(readAggregate(root, "analysis/publication/table1.md").out).toBe(AGGREGATE_MD)
     expectAll(root, "allow", [
-      ["Read", { file_path: "output/table1.csv" }],
-      ["Bash", bash("cat output/table1.csv")],
-      ["Bash", bash("head -n 20 results/table1.tsv")],
+      ["Bash", bash(`${aggregateReader} output/table1.csv results/table1.tsv`)],
       ["Read", { file_path: "analysis/publication/table1.md" }],
       ["Bash", bash("cat analysis/publication/table1.md")],
     ])
@@ -349,15 +357,18 @@ describe("limit 5: aggregate outputs are readable in schema-only mode when they 
     withFile(root, "analysis/plot_small.py", "import pandas as pd\nprint(pd.read_csv('output/small.csv'))\n")
     const cases: Array<[string, Record<string, unknown>, string]> = [
       ["Read", { file_path: "output/small.md" }, "small-cell rule"],
-      ["Bash", bash("cat output/small.csv"), "small-cell rule"],
-      ["Bash", bash("head output/ids.csv"), "column heading names an identifier"],
-      ["Read", { file_path: "output/indexed.csv" }, "identifier index"],
-      ["Read", { file_path: "results/long.csv" }, "more than 500 rows"],
+      ["Bash", bash("cat output/small.md"), "small-cell rule"],
     ]
     for (const [tool, input, rule] of cases) {
       const result = runGuard(root, tool, input)
       expect({ input, decision: result.decision, named: result.reason.includes(rule) }).toEqual({ input, decision: "deny", named: true })
       for (const value of ["Zed", "Testperson", "3.9", "unexposed,7"]) expect(result.stdout).not.toContain(value)
+    }
+    for (const [file, rule] of [["output/small.csv", "small-cell rule"], ["output/ids.csv", "column heading names an identifier"],
+      ["output/indexed.csv", "identifier index"], ["results/long.csv", "more than 500 rows"]]) {
+      const result = readAggregate(root, file)
+      expect({ file, code: result.code, out: result.out, named: result.err.includes(rule) }).toEqual({ file, code: 1, out: "", named: true })
+      for (const value of ["Zed", "Testperson", "unexposed,7"]) expect(result.err).not.toContain(value)
     }
     expectAll(root, "deny", [["Bash", bash("python3 analysis/plot_small.py")]])
   })
@@ -368,9 +379,10 @@ describe("limit 5: aggregate outputs are readable in schema-only mode when they 
       withFile(root, "tables/table1.csv", AGGREGATE_CSV)
       withFile(root, "output/table1.csv", AGGREGATE_CSV)
       withFile(root, "data/summary/table1.csv", AGGREGATE_CSV)
-      expectAll(root, "allow", [["Read", { file_path: "tables/table1.csv" }], ["Bash", bash("cat tables/table1.csv")]])
+      expect(readAggregate(root, "tables/table1.csv")).toEqual({ code: 0, out: AGGREGATE_CSV, err: "" })
+      for (const file of ["output/table1.csv", "data/summary/table1.csv"]) expect({ file, code: readAggregate(root, file).code }).toEqual({ file, code: 1 })
       expectAll(root, "deny", [
-        ["Read", { file_path: "output/table1.csv" }],
+        ["Read", { file_path: "tables/table1.csv" }],
         ["Read", { file_path: "data/summary/table1.csv" }],
         ["Bash", bash("cat data/summary/table1.csv")],
       ])

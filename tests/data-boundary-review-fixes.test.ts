@@ -146,3 +146,45 @@ describe("#87: ce-safe-run hides output but cannot launder data into readable fi
     expectAll(root, "allow", [["Read", { file_path: "output/fig1.png" }], ["Read", { file_path: "src/load.py" }]])
   })
 })
+
+const aggregateReader = path.join(pluginRoot, "scripts", "ce-aggregate-read")
+const CLEAN_TABLE = "group,n,percent\nexposed,120,40.0\nunexposed,180,60.0\n"
+
+describe("#87: aggregate reads cannot be raced: one helper checks and prints the same bytes (schema-only)", () => {
+  test("shell readers and the Read tool get no aggregate exemption for CSV/TSV; the deny names the helper", () => {
+    const root = withFile(project(SCHEMA_ONLY), "output/table1.csv", CLEAN_TABLE)
+    expectAll(root, "deny", [
+      ["Bash", bash("cp data/cohort.csv output/table1.csv && cat output/table1.csv")],
+      ["Bash", bash("cat output/table1.csv")],
+      ["Read", { file_path: "output/table1.csv" }],
+    ])
+    for (const [tool, input] of [["Read", { file_path: "output/table1.csv" }], ["Bash", bash("head output/table1.csv")]] as const) {
+      expect(runGuard(root, tool, input).reason).toContain("ce-aggregate-read")
+    }
+    withFile(root, "analysis/show.py", "import pandas as pd\nprint(pd.read_csv('output/table1.csv'))\n")
+    expectAll(root, "deny", [["Bash", bash("cp data/cohort.csv output/table1.csv && python3 analysis/show.py")]])
+    expectAll(root, "allow", [["Bash", bash(`${safeRun} -- python3 analysis/show.py`)]])
+  })
+
+  test("the helper is allowed by the guard, and at run time refuses an overwritten table without printing it", () => {
+    const root = withFile(project(SCHEMA_ONLY), "output/table1.csv", CLEAN_TABLE)
+    const raced = `cp data/cohort.csv output/table1.csv && ${aggregateReader} output/table1.csv`
+    expectAll(root, "allow", [["Bash", bash(raced)], ["Bash", bash(`python3 ${aggregateReader} output/table1.csv`)]])
+    const ok = Bun.spawnSync([aggregateReader, "output/table1.csv"], { cwd: root })
+    expect({ code: ok.exitCode, out: ok.stdout.toString() }).toEqual({ code: 0, out: CLEAN_TABLE })
+    const run = Bun.spawnSync(["sh", "-c", raced], { cwd: root })
+    const out = run.stdout.toString() + run.stderr.toString()
+    expect(run.exitCode).not.toBe(0)
+    expect(out).toContain("column heading names an identifier")
+    for (const value of ["FAKE0001", "Zed", "Testperson", "1970-01-01"]) expect({ value, leaked: out.includes(value) }).toEqual({ value, leaked: false })
+  })
+
+  test("the helper refuses files outside aggregate directories and look-alike helpers are not trusted", () => {
+    const root = withFile(project(SCHEMA_ONLY), "output/table1.csv", CLEAN_TABLE)
+    const run = Bun.spawnSync([aggregateReader, "data/cohort.csv"], { cwd: root })
+    expect(run.exitCode).not.toBe(0)
+    expect(run.stdout.toString() + run.stderr.toString()).not.toContain("FAKE0001")
+    withFile(root, "ce-aggregate-read", "#!/bin/sh\ncat \"$@\"\n")
+    expectAll(root, "deny", [["Bash", bash("./ce-aggregate-read data/cohort.csv")], ["Bash", bash("./ce-aggregate-read output/table1.csv")]])
+  })
+})

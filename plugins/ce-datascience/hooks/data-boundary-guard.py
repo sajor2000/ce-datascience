@@ -36,9 +36,11 @@ statically (1 MB cap) and denied when they name a data path or call a reader
 on a variable path, unless the command runs through the plugin's ce-safe-run.
 Inside ce-safe-run only the copy rule still applies (output stays in the log),
 and files a run wrote (runs/outputs.txt) are data afterwards.
-Tables under phi_environment.aggregate_dirs are readable when they pass the
-aggregate check (no identifier headers or indexed cells, no counts 1-10, at
-most 500 rows). Limits: the script check is heuristic; obfuscation the parser
+Tables under phi_environment.aggregate_dirs print through the plugin's
+ce-aggregate-read, which reads once and checks the bytes it prints (no
+identifier headers or indexed cells, no counts 1-10, at most 500 rows); a
+hook-time check of a later shell or script read could be raced. Markdown
+tables, which are not data files, are also checked on Read and cat. Limits: the script check is heuristic; obfuscation the parser
 cannot see is out of scope; this is defense in depth, not a sandbox.
 
 Fail mode: config problems resolve to schema-only. An unexpected internal error
@@ -934,15 +936,16 @@ PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 SAFE_RUNNER = os.path.join(PLUGIN_ROOT, "scripts", "ce-safe-run")
+AGGREGATE_READER = os.path.join(PLUGIN_ROOT, "scripts", "ce-aggregate-read")
 
 
-def is_safe_runner(token, cwd):
-    """The plugin's own ce-safe-run (same file or byte-identical copy), never a look-alike."""
+def is_plugin_script(token, cwd, script=SAFE_RUNNER):
+    """The plugin's own script (same file or byte-identical copy), never a look-alike."""
     path = os.path.realpath(_resolve(os.path.expandvars(token), cwd))
-    if path == os.path.realpath(SAFE_RUNNER):
+    if path == os.path.realpath(script):
         return True
     try:
-        with open(path, "rb") as a, open(SAFE_RUNNER, "rb") as b:
+        with open(path, "rb") as a, open(script, "rb") as b:
             return a.read(1 << 16) == b.read(1 << 16)
     except OSError:
         return False
@@ -979,10 +982,7 @@ def script_reads_data(path, cwd, mode):
     if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
         return True  # reads a path held in a variable or argument
     for literal in (a or b for a, b in LITERAL.findall(text)):
-        if in_aggregate_dir(literal, cwd, mode):
-            if aggregate_file(literal, cwd, mode) and aggregate_problem(_resolve(literal, cwd), mode):
-                return True
-        elif is_data_path(literal, cwd, mode):
+        if is_data_path(literal, cwd, mode):  # aggregate tables too: the script reads them later than this check
             return True
     return False
 
@@ -1000,14 +1000,12 @@ def aggregate_file(raw, cwd, mode):
     return ext in AGGREGATE_EXTS and in_aggregate_dir(raw, cwd, mode) and os.path.isfile(_resolve(raw, cwd))
 
 
-def _table_rows(path):
+def _table_rows(text, ext):
     import csv  # only aggregate reads need it
 
-    with open(path, encoding="utf-8-sig", errors="replace", newline="") as fh:
-        text = fh.read(AGGREGATE_CAP + 1)
     if len(text) > AGGREGATE_CAP:
         return None
-    delimiter = AGGREGATE_EXTS[path.rsplit(".", 1)[-1].lower()]
+    delimiter = AGGREGATE_EXTS[ext]
     if delimiter:
         rows = [r for r in csv.reader(text.splitlines(), delimiter=delimiter) if any(c.strip() for c in r)]
         return [(True, rows[0])] + [(False, r) for r in rows[1:]] if rows else []
@@ -1026,8 +1024,24 @@ def _table_rows(path):
 
 
 def aggregate_problem(path, mode):
-    """Which aggregate rule a table fails, or None. Never includes a value."""
-    rows = _table_rows(path)
+    """Which aggregate rule a table file fails, or None. Never includes a value."""
+    with open(path, encoding="utf-8-sig", errors="replace", newline="") as fh:
+        return table_problem(fh.read(AGGREGATE_CAP + 1), path.rsplit(".", 1)[-1].lower(), mode)
+
+
+def read_aggregate(raw, cwd, mode):
+    """(problem, text) from one read, so the check and the printed table are the same bytes (no TOCTOU)."""
+    if not aggregate_file(raw, cwd, mode):
+        return "it is not a .csv, .tsv, or .md file under an aggregate directory", None
+    with open(_resolve(raw, cwd), "rb") as fh:
+        text = fh.read(AGGREGATE_CAP + 1).decode("utf-8-sig", errors="replace")
+    problem = table_problem(text, raw.rsplit(".", 1)[-1].lower(), mode)
+    return problem, None if problem else text
+
+
+def table_problem(text, ext, mode):
+    """Which aggregate rule table text fails, or None. Never includes a value."""
+    rows = _table_rows(text, ext)
     if rows is None or sum(1 for header, _ in rows if not header) > AGGREGATE_MAX_ROWS:
         return f"it has more than {AGGREGATE_MAX_ROWS} rows"
     index = load_index(mode)
@@ -1044,6 +1058,11 @@ def aggregate_problem(path, mode):
             if count and 1 <= int(count.group(1)) <= 10:
                 return "a count from 1 to 10 breaks the small-cell rule"
     return None
+
+
+def aggregate_hint(table):
+    return (f"`{table}` is a table under an aggregate directory; print it with `{AGGREGATE_READER} {table}`, "
+            "which checks and prints the same bytes")
 
 
 def in_aggregate_dir(raw, cwd, mode):
@@ -1091,10 +1110,15 @@ def judge(cmd, cwd, mode, tainted, written):
         if refs or text_ref(code, cwd, mode) or lists_dataish_dir(code, cwd, mode):
             return f"inline `{verb}` code that opens data returns its values", False
         return None, False
+    runner = next((t for t in args if not t.startswith("-")), "") if re.match(r"^python", verb) else cmd[0]
+    if os.path.basename(runner) == "ce-aggregate-read" and is_plugin_script(runner, cwd, AGGREGATE_READER):
+        return None, False  # checks and prints the same bytes
     if verb in AGG_READERS:
         ops = operands(args)
         tables = [t for t in ops if aggregate_file(t, cwd, mode)]
         for table in tables:
+            if DATA_REF.search(table):
+                return aggregate_hint(table), False
             problem = aggregate_problem(_resolve(table, cwd), mode)
             if problem:
                 return f"`{table}` is not an aggregate table: {problem}", False
@@ -1179,7 +1203,7 @@ def bash_violations(command, cwd, mode, depth=0):
                 continue
             safe = False
             if program(cmd[0]) == "ce-safe-run" and "--" in cmd:
-                safe = is_safe_runner(cmd[0], cur)
+                safe = is_plugin_script(cmd[0], cur)
                 _, cmd = unwrap(cmd[cmd.index("--") + 1:])
                 if not cmd:
                     continue
@@ -1287,7 +1311,9 @@ def classify(call, mode):
     if tool in ("Read", "NotebookRead", "Edit", "MultiEdit", "NotebookEdit"):  # edits return a snippet
         path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         resolved = _resolve(path, cwd) if path else ""
-        if path and aggregate_file(path, cwd, mode):
+        if path and aggregate_file(path, cwd, mode) and DATA_REF.search(path):
+            reason = aggregate_hint(path)
+        elif path and aggregate_file(path, cwd, mode):
             problem = aggregate_problem(resolved, mode)
             reason = f"`{path}` is not an aggregate table: {problem}" if problem else None
         elif resolved.lower().endswith(".ipynb") and os.path.exists(resolved) and notebook_has_outputs(resolved):

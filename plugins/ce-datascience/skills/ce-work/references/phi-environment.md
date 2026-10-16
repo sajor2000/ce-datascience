@@ -52,8 +52,9 @@ How work proceeds:  the agent writes the code; scripts print only aggregates,
 In Claude Code a guard hook blocks tool calls that would read data files, and
 runs scripts that read data only through ce-safe-run, which keeps their output
 in a local log and shows the agent the exit code, files written, and a masked
-error tail. Aggregate tables under output/ are readable once they pass the
-aggregate check (no identifier columns, no counts from 1 to 10).
+error tail. Aggregate tables under output/ print through ce-aggregate-read,
+which checks the same bytes it shows (no identifier columns, no counts from
+1 to 10).
 To change this later, re-run the ce-setup skill or edit phi_environment.mode
 in .ce-datascience/config.local.yaml.
 ```
@@ -63,7 +64,7 @@ in .ce-datascience/config.local.yaml.
 
 - Never read, grep, print, or paste data-file contents (names, MRNs, claim numbers, dates, notes, or any cell value) into the conversation. Use file names and column headings only.
 - Write analysis code as script files. Run any script that reads data as `ce-safe-run -- <command>`, using the path the guard's deny message gives. The runner keeps stdout and stderr in `.ce-datascience/runs/` (gitignored, and unreadable to the agent in this mode) and prints only the exit code, duration, files written with row counts, and a masked stderr tail.
-- Save results as aggregate tables (counts, rates, model estimates; cells under 11 suppressed) in `.csv`, `.tsv`, or `.md` under `output/`, `results/`, `analysis/publication/`, `analysis/sap-tables/`, or the directories in `phi_environment.aggregate_dirs`. The guard lets the agent read such a table only if it passes the aggregate check: no identifier-like column headings, no cell in the identifier index, no count from 1 to 10, and at most 500 rows. A script that only reads passing aggregate tables runs without the safe runner.
+- Save results as aggregate tables (counts, rates, model estimates; cells under 11 suppressed) in `.csv`, `.tsv`, or `.md` under `output/`, `results/`, `analysis/publication/`, `analysis/sap-tables/`, or the directories in `phi_environment.aggregate_dirs`. Print such a table with `ce-aggregate-read <file>`, using the path the guard's deny message gives: it reads the file once and prints it only if those bytes pass the aggregate check (no identifier-like column headings, no cell in the identifier index, no count from 1 to 10, at most 500 rows). Scripts that read these tables run through `ce-safe-run` like any data-reading script, and files a `ce-safe-run` run writes count as data until printed through `ce-aggregate-read`.
 - When a task needs value-level inspection (debugging a parse, a recode, or a join mismatch by example), say so, and give the user a script to run and summarize instead.
 
 ## Schema helper
