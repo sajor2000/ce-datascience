@@ -76,13 +76,14 @@ if (is_ratio) ok_ci <- ok_ci & dat$effect > 0 & dat$effect_lo > 0 & dat$effect_h
 n_ci_drop <- sum(!ok_ci)
 dat <- dat[ok_ci, , drop = FALSE]
 
-ok_n <- !is.na(dat$sample_size) & dat$sample_size >= min_n
+# Missing sample_size only matters when the size filter is on.
+ok_n <- if (min_n > 0) !is.na(dat$sample_size) & dat$sample_size >= min_n else rep(TRUE, nrow(dat))
 n_small_drop <- sum(!ok_n)
 dat <- dat[ok_n, , drop = FALSE]
 
 cat(sprintf("Input rows: %d; dropped %d (metric != %s), %d (missing, non-positive, or inconsistent point/CI), %s; %d studies enter pooling.\n",
             n_input, n_metric_drop, a$metric, n_ci_drop,
-            if (min_n > 0) sprintf("%d (sample_size < %g)", n_small_drop, min_n) else "no size filter",
+            if (min_n > 0) sprintf("%d (sample_size missing or < %g)", n_small_drop, min_n) else "no size filter",
             nrow(dat)))
 
 if (nrow(dat) < 3) {
@@ -98,7 +99,7 @@ if (nrow(dat) < 3) {
   } else {
     pt_min <- min(dat$effect); pt_med <- median(dat$effect); pt_max <- max(dat$effect)
     # Anchor: RCTs first when study_type is present, then largest N, then most recent.
-    is_rct <- if ("study_type" %in% names(dat)) grepl("rct|random", tolower(dat$study_type)) else rep(FALSE, nrow(dat))
+    is_rct <- if ("study_type" %in% names(dat)) grepl("rct|random", tolower(dat$study_type)) & !grepl("non[- ]?random|quasi[- ]?random|not random", tolower(dat$study_type)) else rep(FALSE, nrow(dat))
     best   <- dat[order(-is_rct, -dat$sample_size, -dat$year)[1], ]
     out_md <- c(
       sprintf("# Effect-size narrative (k = %d, %s)", nrow(dat), a$metric),
