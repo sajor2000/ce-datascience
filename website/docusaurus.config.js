@@ -5,9 +5,9 @@ const config = {
   title: 'CE DataScience',
   tagline: 'A practical AI research partner for health and biomedical data',
   url: 'https://sajor2000.github.io',
-  baseUrl: '/ce-datascience/',
+  baseUrl: '/methodsmith/',
   organizationName: 'sajor2000',
-  projectName: 'ce-datascience',
+  projectName: 'methodsmith',
   trailingSlash: false,
   onBrokenLinks: 'throw',
   i18n: {
@@ -25,7 +25,7 @@ const config = {
           routeBasePath: 'docs',
           sidebarPath: false,
           editUrl: ({docPath}) =>
-            `https://github.com/sajor2000/ce-datascience/edit/main/docs/${docPath}`,
+            `https://github.com/sajor2000/methodsmith/edit/main/docs/${docPath}`,
         },
         blog: false,
         theme: {
@@ -46,12 +46,12 @@ const config = {
           {to: '/docs/setup', label: 'Setup guide', position: 'left'},
           {to: '/docs/guideline-sources', label: 'Guideline sources', position: 'left'},
           {
-            href: 'https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/README.md',
+            href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/ce-datascience/README.md',
             label: 'Skills and agents',
             position: 'left',
           },
           {
-            href: 'https://github.com/sajor2000/ce-datascience',
+            href: 'https://github.com/sajor2000/methodsmith',
             label: 'GitHub',
             position: 'right',
           },
@@ -67,7 +67,7 @@ const config = {
               {label: 'Guideline sources', to: '/docs/guideline-sources'},
               {
                 label: 'Skills and agents',
-                href: 'https://github.com/sajor2000/ce-datascience/blob/main/plugins/ce-datascience/README.md',
+                href: 'https://github.com/sajor2000/methodsmith/blob/main/plugins/ce-datascience/README.md',
               },
             ],
           },
@@ -76,11 +76,11 @@ const config = {
             items: [
               {
                 label: 'GitHub repository',
-                href: 'https://github.com/sajor2000/ce-datascience',
+                href: 'https://github.com/sajor2000/methodsmith',
               },
               {
                 label: 'Report an issue',
-                href: 'https://github.com/sajor2000/ce-datascience/issues',
+                href: 'https://github.com/sajor2000/methodsmith/issues',
               },
             ],
           },
