@@ -56,7 +56,8 @@ describe.skipIf(!python3)("ce-phenotype-validate script", () => {
     // pi = P(algo+) = 0.2 in the cohort: Se = .94*.2/(.94*.2 + .15*.8) = 0.610; Sp = 0.983.
     const csv = writeMerged("b.csv")
     const out = path.join(tmp, "b/report.md")
-    const r = run(["T2DM", csv, "--out", out, "--n-algo-pos-pop", "2000", "--n-algo-neg-pop", "8000"])
+    // FP=6 is below the default floor of 11, which would withhold the CSV metrics.
+    const r = run(["T2DM", csv, "--out", out, "--n-algo-pos-pop", "2000", "--n-algo-neg-pop", "8000", "--disclosure-floor", "5"])
     expect(r.code).toBe(0)
     const s = signal(r.out)
     expect(s.sens).toBe("0.61")
@@ -83,7 +84,7 @@ describe.skipIf(!python3)("ce-phenotype-validate script", () => {
     const csv = writeMerged("e.csv")
     run(["T2DM", csv, "--out", path.join(tmp, "e/report.md")])
     const report = readFileSync(path.join(tmp, "e/report.md"), "utf8")
-    expect(report).toContain("<11")
+    expect(report).not.toMatch(/\|\s+<11 \|/) // the small cell is not singled out
     expect(report).not.toMatch(/\|\s+94 \|/)
     const agg = readFileSync(path.join(tmp, "e/report.csv"), "utf8")
     expect(agg).not.toContain("s0")
@@ -102,5 +103,46 @@ describe.skipIf(!python3)("ce-phenotype-validate script", () => {
     const r = run(["T2DM", file, "--out", path.join(tmp, "g/r.md")])
     expect(r.code).not.toBe(0)
     expect(r.err + r.out).not.toContain("MRN123456")
+  })
+
+  test("withholds n and every derived metric from shared outputs when a cell is suppressed", () => {
+    // n=200 with PPV 0.94, NPV 0.85 and Wilson CIs reconstructs (94, 6, 15, 85).
+    const csv = writeMerged("h.csv")
+    const r = run(["T2DM", csv, "--out", path.join(tmp, "h/report.md"), "--design", "srs"])
+    expect(r.code).toBe(0)
+    const md = readFileSync(path.join(tmp, "h/report.md"), "utf8")
+    const agg = readFileSync(path.join(tmp, "h/report.csv"), "utf8")
+    const yaml = readFileSync(path.join(tmp, "h/report.yaml"), "utf8")
+    for (const text of [md, agg, yaml]) {
+      expect(text).not.toMatch(/0\.94|0\.85|0\.86|0\.93|\b200\b/)
+      expect(text).not.toMatch(/\(0\.\d\d, 0\.\d\d\)|\[0\.\d\d, 0\.\d\d\]/)
+    }
+  })
+
+  test("drops a whole subgroup axis when any group is below the floor or has a small cell", () => {
+    // Overall cells all >= 11. Sex X has 5 rows, so showing M and F lets X be
+    // recovered from the overall table by subtraction.
+    const lines = ["subject_id,chart_label,algo_label,sex"]
+    let id = 0
+    const add = (n: number, chart: number, algo: number, sex: (i: number) => string) => {
+      for (let i = 0; i < n; i++) lines.push(`s${id++},${chart},${algo},${sex(i)}`)
+    }
+    const mf = (i: number) => (i % 2 ? "F" : "M")
+    add(40, 1, 1, mf)
+    add(30, 0, 1, (i) => (i < 5 ? "X" : mf(i)))
+    add(30, 1, 0, mf)
+    add(40, 0, 0, mf)
+    const file = path.join(tmp, "i.csv")
+    writeFileSync(file, lines.join("\n") + "\n")
+    const r = run(["T2DM", file, "--out", path.join(tmp, "i/report.md")])
+    expect(r.code).toBe(0)
+    expect(readFileSync(path.join(tmp, "i/report.md"), "utf8")).not.toContain("Performance by sex")
+    expect(readFileSync(path.join(tmp, "i/report.csv"), "utf8")).not.toMatch(/^sex,/m)
+    expect(readFileSync(path.join(tmp, "i/report.yaml"), "utf8")).not.toContain("sex:")
+
+    // Every group has n >= 11 but F has FP = 6: the subgroup row would expose it.
+    const small = writeMerged("j.csv", { tp: 60, fp: 12, fn: 20, tn: 60 })
+    run(["T2DM", small, "--out", path.join(tmp, "j/report.md")])
+    expect(readFileSync(path.join(tmp, "j/report.md"), "utf8")).not.toContain("Performance by sex")
   })
 })
