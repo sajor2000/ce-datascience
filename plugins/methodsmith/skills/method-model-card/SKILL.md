@@ -93,6 +93,8 @@ Use `references/model-card-template.md`. Sections:
 8. **Ethical considerations** -- subjects, mitigations, risks
 9. **Caveats and recommendations** -- known limitations, recalibration plan, monitoring plan
 
+Lock the metrics to the number registry: in the evaluation script, register each reported metric with `register_number` from the `method-numbers` helpers (`kind="estimate"` with `ci=` for AUC and calibration, `kind="count"` for events, the evaluation output file as `sources`, and its SAP output as `sap_output`), write every numeric cell of the card source as `{{num:<id>}}`, and produce `analysis/model-card.md` with the `method-numbers` `render` command.
+
 ### Step 3: Build the fairness summary table
 
 For each protected attribute in the eval output, report (derive gaps and ratios only from reported values; never rerun the evaluation or recompute from predictions, and treat a missing metric as a Step 1 gap):
@@ -111,7 +113,7 @@ Highlight any AUC gap > 0.05 or calibration intercept |Δ| > 0.10 in the card bo
 - `analysis/model-card.html` -- rendered (for sharing)
 - `analysis/model-card.json` -- structured form for deployment registries
 
-Completion check: every numeric cell in the card traces to a key in the eval JSON, and no template placeholder (`{{ ... }}`) remains; if either fails, fix the input or the fill and regenerate before writing outputs.
+Completion check: every numeric cell in the card traces to a key in the eval JSON, no template placeholder (`{{ ... }}`) remains in the rendered card, and the `method-numbers` `check` on it prints `PASS`; if any fails, fix the input or the fill and regenerate before writing outputs.
 
 ### Step 5: Cross-link
 

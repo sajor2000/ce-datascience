@@ -204,10 +204,8 @@
     }
   },
   "pending": {
-    "$comment": "Mapped ahead of in-flight branches (feat/number-registry). Allowed to be absent from the shipped tree.",
-    "skills": [
-      "ce-numbers"
-    ]
+    "$comment": "Mapped ahead of in-flight branches. Allowed to be absent from the shipped tree.",
+    "skills": []
   },
   "keep": {
     "$comment": "tokens: retired ce-datascience names and upstream Compound Engineering names (including the ce-unified-plan/v1 artifact contract) that must never be renamed. foreign: placeholder names in generic converter tests and upstream doc slugs; not ours, may remain. ce-guidelines/ is a gitignored local folder of guideline source documents, so renaming it would un-ignore those files.",

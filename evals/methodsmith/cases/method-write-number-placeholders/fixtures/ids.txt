@@ -1,0 +1,4 @@
+cohort.n	n	SAP cohort_summary.csv
+mortality.day28	percent	SAP table2_outcomes.csv
+primary.hr	estimate	SAP A3_cox_primary.csv
+primary.p	p	SAP A3_cox_primary.csv

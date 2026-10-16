@@ -104,6 +104,31 @@ def known_style_profiles(path: Path = STYLE_PROFILES) -> set[str]:
     return names
 
 
+TABLE_ID = "table1"
+
+
+def registry_id(row: dict[str, str], column: str = "overall") -> str:
+    """The number-registry id a filled cell is registered under (method-numbers: {{num:<id>}})."""
+    return f"{TABLE_ID}.{value_for(row, 'variable')}.{column}"
+
+
+def table1_sap_output(path: Path) -> str | None:
+    """The outputs-catalog file that holds Table 1, so registry entries trace to a SAP output."""
+    if not path.exists():
+        return None
+    with path.open(newline="", encoding="utf-8-sig") as handle:
+        rows = list(csv.reader(handle))
+    if not rows:
+        return None
+    header = [cell.strip().lower() for cell in rows[0]]
+    column = next((i for i, name in enumerate(header) if name.startswith("output")), 0)
+    for row in rows[1:]:
+        cell = row[column].strip() if column < len(row) else ""
+        if cell and "|" not in cell and re.match(r"table[\s_-]?1(?!\d)", cell, re.IGNORECASE):
+            return cell
+    return None
+
+
 def comparison_column(design: str, strata: list[str]) -> str:
     """Observational comparisons get an absolute SMD column; trials never get baseline tests."""
     return "abs_smd" if design == "observational" and strata else ""
@@ -125,7 +150,7 @@ def write_csv(path: Path, rows: list[dict[str, str]], strata: list[str], compari
                 "category": value_for(row, "category"),
                 "type": value_for(row, "type"),
                 "levels": value_for(row, "levels"),
-                "overall": "TBD: compute from locked analysis dataset",
+                "overall": "{{num:" + registry_id(row) + "}}",
                 "by_strata": by_strata,
                 "notes": value_for(row, "notes"),
             }
@@ -143,9 +168,12 @@ def write_markdown(
     design: str,
     comparison: str,
 ) -> None:
+    # Authoring notes sit in an HTML comment: they are instructions, not table content,
+    # and the method-numbers gate does not count numbers inside comments.
     lines = [
         "# Table 1. Baseline Characteristics",
         "",
+        "<!--",
         f"Style profile: `{style_profile}`",
         "",
         f"Strata: {', '.join(f'`{s}`' for s in strata) if strata else 'none declared'}",
@@ -157,6 +185,7 @@ def write_markdown(
         lines += ["Comparison: none. Do not report significance tests of baseline differences (CONSORT 2025 item 25).", ""]
     elif comparison:
         lines += ["Comparison: absolute standardized difference; |SMD| > 0.10 flags meaningful imbalance. No p-values.", ""]
+    lines += ["-->", ""]
     header = ["Variable", "Category", "Type", "Overall", "By strata"] + (["Abs. SMD"] if comparison else []) + ["Notes"]
     lines += ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
     for row in rows:
@@ -167,7 +196,7 @@ def write_markdown(
                 label,
                 value_for(row, "category"),
                 value_for(row, "type"),
-                "TBD",
+                "{{num:" + registry_id(row) + "}}",
                 "TBD",
                 *(["TBD"] if comparison else []),
                 value_for(row, "notes"),
@@ -205,6 +234,11 @@ def main(argv: list[str]) -> int:
         help="rct: no baseline tests; observational: add an absolute SMD column when strata are declared",
     )
     parser.add_argument("--project-root", default=".")
+    parser.add_argument(
+        "--sap-output",
+        default=None,
+        help="outputs-catalog file that holds Table 1 (default: the catalog row whose file starts with table1)",
+    )
     parser.add_argument(
         "--strata",
         default="",
@@ -265,6 +299,12 @@ def main(argv: list[str]) -> int:
     comparison = comparison_column(design, strata)
     if not outputs_path.exists():
         warnings.append(f"Outputs catalog not found: {repo_relative(outputs_path, root)}")
+    sap_output = args.sap_output or table1_sap_output(outputs_path)
+    if not sap_output:
+        warnings.append(
+            "No SAP output names Table 1 (pass --sap-output or add a table1_* row to the outputs catalog); "
+            "registry entries for its cells would be untraceable."
+        )
     if not sap_path.exists():
         warnings.append(f"SAP not found: {repo_relative(sap_path, root)}")
     if not strata:
@@ -286,6 +326,7 @@ def main(argv: list[str]) -> int:
         "design": design or None,
         "comparison_column": comparison or None,
         "disclosure_floor": {"suppress_below_n": args.disclosure_floor},
+        "registry": {"table_id": TABLE_ID, "sap_output": sap_output},
         "rows": [
             {
                 "variable": value_for(row, "variable"),
@@ -293,6 +334,7 @@ def main(argv: list[str]) -> int:
                 "description": value_for(row, "description") or value_for(row, "variable"),
                 "type": value_for(row, "type"),
                 "levels": value_for(row, "levels"),
+                "registry_ids": {"overall": registry_id(row)},
             }
             for row in selected
         ],

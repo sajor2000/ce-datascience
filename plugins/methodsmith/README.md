@@ -253,6 +253,43 @@ Connection skills can hand setup a verified database default by emitting
 For database-backed projects, `data_root` stays optional and is used only for
 local extracts or cache files.
 
+### Numbers locked to raw data
+
+Clinical journals, reviewers, and data-sharing audits ask where each number in a
+paper came from. `/method-numbers` makes that answer checkable: a rigor signal, not a
+style rule. Analysis code registers aggregates in
+`analysis/numbers/registry.json` (R or Python; counts from 1 to 10 are stored
+suppressed). The manuscript cites them as `{{num:<id>}}`. A gate fails the
+submission when a number can't be traced. Each number follows one chain:
+SAP output -> script@commit -> source file hash -> registry entry -> sentence.
+
+Worked example (synthetic):
+
+```r
+# analysis/primary_cox.R, committed before it runs
+source("analysis/numbers/method_numbers.R")
+register_number("primary.hr", 0.781, kind = "estimate", ci = c(0.664, 0.918),
+                sources = "data/analytic.parquet", sap_output = "A3_cox_primary.csv")
+```
+
+```text
+manuscript/results.qmd:  The hazard ratio was {{num:primary.hr}}.
+rendered:                The hazard ratio was 0.78 (95% CI, 0.66-0.92).
+gate on a typed number:  manuscript/abstract.md:7: untraced number: 0.81
+gate after a data pull:  registry:primary.hr: stale: source data/analytic.parquet changed
+```
+
+The gate also fails on unknown ids, unsuppressed small cells, entries without a
+SAP output or committed script, and when it found nothing to check. It allows
+years, citation markers, figure, table, and item numbers, dates, quoted
+guideline text, and the doses or units you declare. Table 1, figure captions,
+model cards, and scientific writing cite the registry; `method-verify`,
+`method-presubmit`, and `method-submission-package` run the gate and fail
+closed. Word manuscripts keep each number as a registry-owned field
+(`ADDIN CE_NUM <id>`, beside Zotero's citation fields);
+the gate fails a field whose text was hand-edited, and a number typed into a
+Word table. It does not read numbers inside images.
+
 ### Recommended research add-ons
 
 The plugin's bundled `/method-pubmed` workflow remains the portable baseline.
@@ -396,7 +433,7 @@ one-line warning, so a hook bug never blocks unrelated work.
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 65 |
+| Skills | 66 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -509,6 +546,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 | `/method-prereg` | Generate a pre-registration form for OSF, ClinicalTrials.gov, PROSPERO, or AsPredicted from the locked SAP; its validator blocks a draft SAP, unblinded data, and a PROSPERO registration at or past data extraction |
 | `/method-table1` | Generate a publication-ready Table 1 shell, spec, and validation report from the SAP variables catalog; `--design rct\|observational\|descriptive` sets the comparison columns (SMD column for observational comparisons, no baseline p-values for randomized trials) |
 | `/method-figure` | Create publication figures in R (ggplot2) or Python (matplotlib, Jupyter/Marimo) in a journal-neutral clinical figure style (calibration-in-the-large via an offset model, cumulative incidence under competing risks), and validate figure manifests for source data, code, outputs, captions, alt text, and checklist traceability |
+| `/method-numbers` | Lock every manuscript, Table 1, caption, and abstract number to a registry of aggregates written by R or Python analysis code (`{{num:<id>}}` placeholders), and run a fail-closed gate that traces each number to its SAP output, script commit, and source hash |
 | `/method-submission-package` | Build a manuscript package manifest and Quarto-ready shell from SAP, Table 1, figure, checklist, and registry artifacts |
 | `/method-citations` | Resolve PubMed/Paperclip evidence and deliver a Word manuscript with editable Zotero citation fields |
 | `/method-write` | Draft, revise, or audit evidence-bound scientific manuscripts without imposing one journal's style |

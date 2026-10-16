@@ -9,6 +9,7 @@
 - 5. PHI Scan
 - 6. Figure Quality
 - 7. Reproducibility Check
+- 8. Number Registry Check
 
 Each check runs independently. Skip checks that don't apply to the current analysis.
 
@@ -127,3 +128,15 @@ If `analysis/publication/figures/figure-manifest.json` exists, validate it with 
 **Pass:** Seeds set, package versions locked, data paths configurable.
 **Warn:** Seeds set but no lockfile, or lockfile exists but some packages are unpinned.
 **Fail:** No random seeds in scripts that use randomization (bootstrap, imputation, cross-validation, train/test split).
+
+## 8. Number Registry Check
+
+**What:** Does every reported number trace to the analysis that produced it?
+
+**Checks:** Load the `method-numbers` skill and run its `check` on the manuscript sources, rendered copies, and tables. The gate reads `analysis/numbers/registry.json` and fails on untraced numbers, inline computed values, unknown placeholder ids, stale entries (a source file or script changed), untraceable entries (no sources, no SAP output, or an uncommitted script), unsuppressed counts from 1 to 10, unknown SAP output IDs, and when it found nothing to check.
+
+**Pass:** The gate exits 0 and prints `PASS`.
+**Warn:** Never; a number either traces or it does not.
+**Fail:** The gate exits 1, or it could not run. List its `file:line: reason: token` lines as printed.
+
+**When to skip:** No registry exists and the outputs do not yet feed a manuscript, table, caption, or model card.

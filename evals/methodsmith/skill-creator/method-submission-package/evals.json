@@ -11,7 +11,8 @@
         "Runs scripts/build_package_manifest.py with --format quarto (anchored via SKILL_DIR) and --out-dir manuscript",
         "Produces or references manuscript/package-manifest.json and manuscript/package-readiness-report.md and reviews the readiness report before any submission-ready claim",
         "Includes the STROBE reporting checklist in the manifest",
-        "Does not write new manuscript prose, results, or scientific claims"
+        "Does not write new manuscript prose, results, or scientific claims",
+        "Runs the method-numbers number gate on the manuscript sources, rendered copies, and tables before the manifest, and never sets ready-for-signoff unless it printed PASS"
       ]
     },
     {
