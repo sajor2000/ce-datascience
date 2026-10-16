@@ -1,6 +1,6 @@
 ---
 title: Port CLIF meta-analysis to Methodsmith
-status: validated-pending-pr
+status: ready-for-pr
 ---
 
 # Scope
@@ -60,3 +60,16 @@ Do not claim estimator parity between Python Paule-Mandel and R REML.
 - Description fingerprints are regenerated after the feature commit because the
   existing generator deliberately reads committed Git history. No generator or
   release-version contract was changed.
+
+# Advisory adjudication
+
+- Jev returned eight complete, untruncated escalations: composite scores
+  0.37525–0.6485 and safe-to-apply scores 0.23–0.43. Both completion claims
+  were verified in every group, with no contradictions or unsupported claims.
+- Under the Jev house rules' stronger-review route, independent Spec and
+  Standards reviewers examined all scores, raw evidence, tests and installed
+  smoke results at commit 3b98c553. Both support pushing and opening a PR;
+  neither identified a concrete blocker. No Jev reruns were used.
+- The advisory remains escalated. This adjudication permits PR review only;
+  it does not approve merging, release or scientific use. Synthetic coverage,
+  unmeasured trigger reliability and omitted diagnostics remain limitations.
