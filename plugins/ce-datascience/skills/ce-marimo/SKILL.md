@@ -1,6 +1,6 @@
 ---
 name: ce-marimo
-description: "Create, modify, validate, or review Marimo reactive Python notebooks for data-science and research workflows. Use when working with marimo.App notebooks, reactive cells, UI widgets, PEP 723 dependencies, notebook export, or Marimo execution errors."
+description: "Creates, edits, validates, and reviews marimo reactive Python notebooks (UI widgets, PEP 723, export). Use when working on a marimo notebook; Jupyter edits go to ce-notebook-edit."
 argument-hint: "[new|edit|validate|export]"
 ---
 

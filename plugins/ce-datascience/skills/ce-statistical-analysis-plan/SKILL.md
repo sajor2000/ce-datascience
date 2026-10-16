@@ -1,6 +1,6 @@
 ---
 name: ce-statistical-analysis-plan
-description: "Deepen a clinical or observational SAP with a claims-to-datasets schema, estimands, diagnostics, and decision evidence. Use when a complex EHR/registry, validation, prediction, causal, multisite, or benchmarking design needs more depth after ce-plan establishes the canonical plan."
+description: "Deepens a complex SAP with a claim-to-dataset schema (scientific claims, not insurance claims), estimands, and decision evidence. Use when a causal, prediction, or multisite SAP outgrows ce-plan."
 ---
 
 # Claim-Linked Statistical Analysis Plan

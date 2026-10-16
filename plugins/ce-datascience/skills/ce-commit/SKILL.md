@@ -1,6 +1,6 @@
 ---
 name: ce-commit
-description: "Create a focused git commit with a value-oriented conventional message while preserving branch and staging safety. Use when the user says commit, save changes, or create a commit for current staged or unstaged work."
+description: "Creates a focused conventional git commit that keeps raw data, PHI, and large outputs out of version control. Use when the user says commit or save changes."
 ---
 
 # Git Commit

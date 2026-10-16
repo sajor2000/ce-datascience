@@ -1,6 +1,6 @@
 ---
 name: ce-omop-mapping-reviewer
-description: Conditional code-review persona, selected when the diff touches OMOP CDM tables, concept_id columns, or analysis/cohort/concept-sets/. Reviews OMOP usage for vocabulary-version pinning, valid_start/valid_end honoring, proper domain assignment, descendant-inclusion correctness, era-table use, and standard-vs-source concept distinction.
+description: "Conditional code-review persona, selected when the diff touches OMOP CDM tables, concept_id columns, or concept sets. Reviews vocabulary pinning, validity dates, domains, descendants, and standard vs source concepts."
 model: inherit
 tools:
   - Read

@@ -1,6 +1,6 @@
 ---
 name: ce-sprint-audit-reviewer
-description: Conditional code-review persona, dispatched by `ce-sprint` close. Audits a sprint's outputs against its planned scope -- verifies every planned output exists at its declared path, checks for out-of-scope SAP edits, flags extra outputs, and runs a reproducibility re-run when a build system is present. Produces a JSON finding set that gates human sign-off.
+description: "Conditional code-review persona, dispatched by ce-sprint close. Audits sprint outputs against planned scope (paths, out-of-scope SAP edits, extra outputs, re-run) and returns JSON findings that gate signoff."
 model: inherit
 tools:
   - Read

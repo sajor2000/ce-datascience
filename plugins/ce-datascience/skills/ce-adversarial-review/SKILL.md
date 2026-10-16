@@ -1,6 +1,6 @@
 ---
 name: ce-adversarial-review
-description: "Independently stress-test a code diff or implementation plan with a local adversarial pass and, when available, the other authenticated coding harness. Use when a change is high-consequence, a diff needs pre-merge challenge, or a plan needs an independent review."
+description: "Challenges a high-stakes analysis diff or plan with an adversarial pass and, when available, a cross-model (Claude/Codex) reviewer. Use when the user asks for an adversarial or cross-model review."
 argument-hint: "[target:auto|code|plan] [peer:auto|claude|codex|local] [depth:quick|auto|deep] [diff base, PR URL, or plan path]"
 ---
 

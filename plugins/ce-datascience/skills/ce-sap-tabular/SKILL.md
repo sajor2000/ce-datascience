@@ -1,6 +1,6 @@
 ---
 name: ce-sap-tabular
-description: "Generate a biostatistics-style tabular SAP companion workbook with Overview, Outputs, Master Variables, and optional sample sheets. Use when the user has a prose SAP and needs programmer handoff sheets, output catalog, variable catalog, or workbook contract."
+description: "Generates a tabular SAP companion workbook (Overview, Outputs, Master Variables) from a prose SAP. Use when the user needs programmer handoff sheets or a variable catalog."
 argument-hint: "[study slug, e.g. sbt-validation]"
 ---
 

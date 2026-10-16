@@ -1,6 +1,6 @@
 ---
 name: ce-commit-push-pr
-description: "Commit, push, and open or update a pull request with an adaptive value-first title and description. Use when the user asks to commit and PR, push and open PR, ship this, create a PR, or refresh a PR description."
+description: "Commits, pushes, and opens or updates a pull request with a value-first body, keeping data and PHI out. Use when the user asks to ship or open a PR."
 ---
 
 # Git Commit, Push, and PR

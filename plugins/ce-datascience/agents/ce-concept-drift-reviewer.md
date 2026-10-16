@@ -1,6 +1,6 @@
 ---
 name: ce-concept-drift-reviewer
-description: Conditional code-review persona, selected when the diff touches OMOP concept sets, ICD/CPT/LOINC/SNOMED code lists, or any analysis that uses code-based phenotypes / cohorts across multiple data refresh waves or multiple years. Detects vocabulary drift across data refreshes (ICD-9 → ICD-10 transition, concept_id deprecation, CPT/HCPCS year-over-year), phenotype definition changes silently introduced by vocabulary updates, and concept-coverage drift (a concept set that "worked in 2018" now matches different data).
+description: "Conditional code-review persona, selected when the diff touches concept sets or ICD/CPT/LOINC/SNOMED code lists used across data refreshes or years. Detects vocabulary drift (ICD-9 to ICD-10, deprecated concepts)."
 model: inherit
 tools:
   - Read

@@ -1,6 +1,6 @@
 ---
 name: ce-plan
-description: "Create the canonical durable implementation plan or statistical analysis plan. Use when the user asks to plan work, write or finalize a SAP, or turn requirements into implementation units; hand off to the claims-based SAP specialist only when a clinical study needs deeper claim-to-dataset and decision-evidence modeling."
+description: "Creates the durable plan for data-science work: an implementation plan or, for studies, a statistical analysis plan (SAP). Use when the user asks to plan work or write a SAP."
 argument-hint: "[optional: feature description, study design doc, requirements doc path, plan path to deepen, or any task to plan] [output:html]"
 ---
 

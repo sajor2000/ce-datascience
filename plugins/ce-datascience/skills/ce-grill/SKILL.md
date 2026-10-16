@@ -1,6 +1,6 @@
 ---
 name: ce-grill
-description: "Stress-test a research project through a one-question-at-a-time interview covering the goal, hypothesis, data, proposed analysis, target journal, and audience, with a recommended answer for every question, then save a grill record of decisions and open risks. Use when the user says grill me, wants a study idea, hypothesis, or analysis plan challenged before planning, or asks whether a project is ready for a target journal."
+description: "Interviews the user one question at a time to stress-test a study's goal, hypothesis, data, analysis, and journal, recommending answers. Use when the user says grill me."
 argument-hint: "[project idea, or path to a brief, research-question.yaml, draft SAP, or abstract]"
 ---
 

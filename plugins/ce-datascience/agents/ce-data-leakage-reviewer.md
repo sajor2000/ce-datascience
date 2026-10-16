@@ -1,6 +1,6 @@
 ---
 name: ce-data-leakage-reviewer
-description: Conditional code-review persona, selected when the diff touches machine-learning training/evaluation code (sklearn, lightgbm, xgboost, pytorch, tensorflow, keras, lifelines, scikit-survival, tidymodels). Detects target leakage, train-test contamination, look-ahead bias in time-series, normalization fit on the test set, subject-in-both-splits, and other patterns that artificially inflate model performance.
+description: "Conditional code-review persona, selected when the diff touches ML training or evaluation code (sklearn, xgboost, pytorch, tidymodels, survival ML). Detects target leakage, train-test contamination, and look-ahead bias."
 model: inherit
 tools:
   - Read

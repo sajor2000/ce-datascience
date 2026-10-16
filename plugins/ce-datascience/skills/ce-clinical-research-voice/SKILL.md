@@ -1,6 +1,6 @@
 ---
 name: ce-clinical-research-voice
-description: "Apply a precise, clinically detached house style to narrative clinical AI manuscript prose, including Introductions, Discussions, abstracts, cover letters, and grants. Use with ce-scientific-anti-slop and ce-pre-submission-audit; Methods and Results follow ce-manuscript-section-discipline. Use when drafting or revising an Introduction, Discussion, narrative abstract text, cover letter, grant text, or related scientific prose."
+description: "Applies a precise, clinically detached voice to Introductions, Discussions, abstracts, cover letters, and grants. Use when the user wants that voice, tone, or hedging; full manuscript drafting goes to ce-scientific-writing."
 ---
 
 # Clinical Research Voice

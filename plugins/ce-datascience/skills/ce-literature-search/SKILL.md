@@ -1,6 +1,6 @@
 ---
 name: ce-literature-search
-description: "Route evidence searches to PubMed, full-text evidence mapping, or authoritative web sources without duplicating specialist workflows. Use when the user asks broadly for papers, literature, evidence grounding, methods sources, current guidance, or a DOI/PMID lookup and the correct source workflow is not yet clear."
+description: "Routes a literature request to PubMed, full-text evidence mapping, or authoritative web sources. Use when the user broadly asks for papers or evidence."
 argument-hint: "[research query, PICO/PECO question, DOI/PMID list, or source request]"
 ---
 

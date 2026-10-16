@@ -1,6 +1,6 @@
 ---
 name: ce-prereg
-description: "Generate preregistration or registry-ready content for OSF, ClinicalTrials.gov, PROSPERO, or study protocol workflows. Use when the user asks for preregistration, registry package, ClinicalTrials.gov, OSF, PROSPERO, or protocol registration."
+description: "Generates preregistration and registry content for OSF, ClinicalTrials.gov, PROSPERO, or a study protocol. Use when the user asks to preregister or register a study."
 argument-hint: "<registry: osf|clinicaltrials|prospero|aspredicted>, optional --sap path"
 ---
 

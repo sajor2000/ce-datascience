@@ -1,6 +1,6 @@
 ---
 name: ce-workflow
-description: "Show the ordered ce-datascience lifecycle for the current project and recommend the next safe skill to run. Use when the user starts or resumes a science project, feels unsure what to run next, or wants lifecycle status."
+description: "Shows the ce-datascience study lifecycle for the current project and recommends the next safe skill. Use when the user asks what to run next or wants lifecycle status."
 ---
 
 # Workflow Navigator

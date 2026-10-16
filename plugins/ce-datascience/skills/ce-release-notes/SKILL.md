@@ -1,6 +1,6 @@
 ---
 name: ce-release-notes
-description: "Summarize recent ce-datascience plugin releases or answer version-specific questions from release metadata. Use when the user asks what changed, whether a skill shipped, or what happened in recent plugin releases."
+description: "Summarizes recent ce-datascience plugin releases from release metadata. Use when the user asks what changed in the plugin or whether a skill shipped."
 argument-hint: "[optional: question about a past release]"
 disable-model-invocation: true
 ---

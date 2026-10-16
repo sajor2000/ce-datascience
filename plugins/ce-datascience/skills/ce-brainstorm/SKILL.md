@@ -1,6 +1,6 @@
 ---
 name: ce-brainstorm
-description: "Explore a research idea or study design before planning. Produces a right-sized requirements document that captures scope, rationale, outcomes, and unresolved assumptions. Use when the user wants to brainstorm, refine a research question, compare study designs, or decide what evidence would be worth generating."
+description: "Explores a research or analysis idea, compares study designs, and scopes requirements before planning. Use when the user wants to brainstorm or weigh designs; PICO framing goes to ce-research-question."
 argument-hint: "[research question or study idea to explore] [output:html]"
 ---
 

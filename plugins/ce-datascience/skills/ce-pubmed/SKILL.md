@@ -1,6 +1,6 @@
 ---
 name: ce-pubmed
-description: "Search PubMed/MEDLINE with structured E-utilities queries, filters, MeSH expansion, and abstract metadata output. Use when the user asks for PubMed, MEDLINE, PMIDs, biomedical abstracts, or literature metadata."
+description: "Searches PubMed/MEDLINE via E-utilities with MeSH-aware queries into a PMID and abstract CSV. Use when the user explicitly wants PubMed or PMIDs; broad asks go to ce-literature-search."
 argument-hint: "<query terms>, optional: --years 5 --study-type rct|cohort|case-control|prediction|review --max 50"
 ---
 

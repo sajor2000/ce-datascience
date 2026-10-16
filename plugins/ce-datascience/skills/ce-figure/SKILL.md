@@ -1,6 +1,6 @@
 ---
 name: ce-figure
-description: "Create publication figures in R (ggplot2 in RStudio) or Python (matplotlib, seaborn, lifelines in Jupyter or Marimo) with a journal-neutral clinical figure style covering typography, axes, legends, captions, and export sizes, plus a traceable figure manifest entry; or validate existing figures and manifests, then visually check exported images. Use when the user asks for a manuscript figure, a Kaplan-Meier, forest, calibration, ROC, or multi-panel plot, matplotlib or ggplot2 figure styling, figure QA, a figure manifest, or confirmation that manuscript figures are ready."
+description: "Creates and validates publication figures (ggplot2, matplotlib) with a journal-neutral clinical style and manifest. Use when the user wants a Kaplan-Meier, forest, calibration, ROC, or multi-panel figure."
 argument-hint: "[optional: --manifest analysis/publication/figures/figure-manifest.json --project-root .]"
 ---
 

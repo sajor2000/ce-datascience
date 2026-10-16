@@ -1,6 +1,6 @@
 ---
 name: ce-rstats
-description: "R programming and statistical-analysis workflows: analysis design, read-only R code review, tidyverse joins and reshaping, event-study and staggered difference-in-differences designs, package development, testthat testing, CRAN readiness, profiling, and targets pipelines. Use when a project is R-first (.R, .Rmd, .qmd, renv, DESCRIPTION, _targets.R) or the user asks for R code review, dplyr/ggplot2 help, an event study, an R package, testthat, CRAN submission prep, slow R code, or a targets pipeline."
+description: "Routes R work: analysis design, tidyverse, event-study DiD, packages, testthat, CRAN, profiling, targets. Use when a project is R-first or the user needs R help; diffs and PRs go to ce-code-review."
 argument-hint: "[analysis|review|tidyverse|event-studies|package|testing|cran|performance|targets]"
 ---
 

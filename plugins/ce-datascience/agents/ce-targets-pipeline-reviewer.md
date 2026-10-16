@@ -1,6 +1,6 @@
 ---
 name: ce-targets-pipeline-reviewer
-description: Conditional code-review persona, selected when the diff touches _targets.R, tar_target() definitions, _targets.yaml, or any file referenced from a targets pipeline. Reviews targets graphs for invalidation traps, missing format hints, hidden dependencies, and pipeline-breaking changes that pass lint but corrupt downstream artifacts.
+description: "Conditional code-review persona, selected when the diff touches _targets.R, tar_target() definitions, or _targets.yaml. Reviews targets graphs for invalidation traps, missing formats, and hidden dependencies."
 model: inherit
 tools:
   - Read

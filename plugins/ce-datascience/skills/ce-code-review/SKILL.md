@@ -1,6 +1,6 @@
 ---
 name: ce-code-review
-description: "Review code changes with ce-datascience reviewer personas and confidence-gated findings. Use mode:agent for a read-only JSON handoff to workflow callers. Use when the user asks for code review, PR review, review before merge, or fixable findings on current changes."
+description: "Reviews data-science code changes with statistical, methods, PHI, and engineering personas and confidence-gated findings. Use when the user asks for code or PR review."
 argument-hint: "[mode:agent] [blank to review current branch, or provide PR link]"
 ---
 

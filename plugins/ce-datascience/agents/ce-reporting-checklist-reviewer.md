@@ -1,6 +1,6 @@
 ---
 name: ce-reporting-checklist-reviewer
-description: Reviews analysis code and outputs against reporting guidelines auto-selected from the study type. Supports 35 guidelines from the ce-code-review guideline registry, including CONSORT, STROBE, PRISMA, STARD, CARE, COREQ, ARRIVE, CHEERS, RECORD, TRIPOD+AI, CLAIM, SPIRIT-AI, CONSORT-AI, REFORMS, DEAL, CHART, and PDSQI-9. Opt-in conditional reviewer dispatched when stack_profile.reporting_checklist is a non-null string in config.
+description: "Reviews analysis code and outputs against the reporting guidelines selected in stack_profile, resolved through the ce-code-review guideline registry (CONSORT, STROBE, TARGET, TRIPOD+AI, STARD, PRISMA, extensions). Opt-in."
 model: inherit
 tools:
   - Read

@@ -1,6 +1,6 @@
 ---
 name: ce-setup
-description: "Configure a project-local ce-datascience profile by inferring its stack first, confirming concise defaults, and offering an optional detailed survey. Use when starting a project, changing its tools, or checking a corporate/locked-down environment."
+description: "Configures the project-local ce-datascience profile: infers the stack, confirms defaults, offers a survey. Use when the user asks to set up or reconfigure the plugin."
 argument-hint: "[--locked-down|--no-install]"
 disable-model-invocation: true
 ---

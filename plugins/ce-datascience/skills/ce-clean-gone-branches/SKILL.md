@@ -1,6 +1,6 @@
 ---
 name: ce-clean-gone-branches
-description: "Clean local git branches whose upstream tracking branches are gone, with confirmation before branch or worktree deletion. Use when the user asks to clean gone branches, prune local branches, or remove branches whose remotes no longer exist."
+description: "Deletes local git branches whose upstream is gone, and their worktrees, after confirmation. Use when the user asks to clean or prune gone branches."
 ---
 
 # Clean Gone Branches

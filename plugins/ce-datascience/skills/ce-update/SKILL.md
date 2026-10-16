@@ -1,6 +1,6 @@
 ---
 name: ce-update
-description: "Check Claude Code marketplace ce-datascience plugin version and recommend the plugin update command when stale. Use when the user asks whether ce-datascience is up to date in Claude Code."
+description: "Checks whether the installed ce-datascience Claude Code plugin is current and gives the update command. Use when the user asks if ce-datascience is up to date."
 disable-model-invocation: true
 ce_platforms: [claude]
 ---

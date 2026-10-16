@@ -1,6 +1,6 @@
 ---
 name: ce-model-strategy
-description: "Choose, justify, and scaffold an evidence-grounded statistical model for clinical, biomedical, or applied research. Use when a study needs regression-family selection, mixed or random effects, longitudinal or clustered data handling, survival, causal, prediction, Bayesian, joint-model, or meta-analysis decisions after data grain and estimand are established."
+description: "Chooses and justifies the statistical model (regression, mixed/GEE, survival, causal, prediction, Bayesian) after the estimand is set. Use when the user asks which model to fit."
 argument-hint: "<research question, SAP path, or data-profile path> [language:auto|r|python]"
 ---
 

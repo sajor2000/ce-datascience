@@ -1,6 +1,6 @@
 ---
 name: ce-sprint
-description: "Open, close, or report bounded analysis sprints with named reviewer, planned SAP outputs, data-lock checks, and signoff audit trail. Use when the user wants an auditable analysis sprint, human signoff, scoped SAP execution, or sprint closeout."
+description: "Opens, closes, and reports scoped analysis sprints with a named reviewer, planned SAP outputs, and data-lock checks. Use when the user opens, closes, or checks a sprint."
 argument-hint: "<start|close|status>, optional name and reviewer, e.g. start sprint-01 reviewer=jcr scope=SAP-3.1,SAP-3.2"
 ---
 

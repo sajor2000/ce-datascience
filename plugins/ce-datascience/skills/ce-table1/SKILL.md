@@ -1,6 +1,6 @@
 ---
 name: ce-table1
-description: "Generate a traceable Table 1 baseline-characteristics shell and validation report from the SAP, tabular SAP variables, and style profile. Use when the user asks for Table 1, baseline characteristics, demographic table, or manuscript-ready descriptive cohort table."
+description: "Generates a traceable Table 1 (baseline characteristics) shell and validation report from the SAP and variable catalog. Use when the user asks for Table 1 or a baseline-characteristics table."
 argument-hint: "[optional: --variables analysis/sap-tables/03-variables.csv --out-dir analysis/publication/tables --style-profile jama --strata exposure_var --design rct|observational|descriptive]"
 ---
 

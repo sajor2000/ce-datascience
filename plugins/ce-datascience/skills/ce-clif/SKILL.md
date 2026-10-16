@@ -1,6 +1,6 @@
 ---
 name: ce-clif
-description: "Activate CLIF-safe guidance for Common Longitudinal ICU data Format projects, including a selected CLIF/mCIDE 2.1 or 3.0 family, Parquet, UTC datetime, and no-PHI output rules. Use when the repo has CLIF_CLAUDE.md, CLIF tables, mCIDE content, CLIF remotes, or the user asks for CLIF-specific analysis."
+description: "Applies CLIF (Common Longitudinal ICU data Format) rules: mCIDE versions, Parquet, UTC datetimes, no-PHI outputs. Use when the repo has CLIF tables, mCIDE, or CLIF_CLAUDE.md."
 argument-hint: "[optional: --version 2.1.0|3.0.0, --strict, --off]"
 ---
 
