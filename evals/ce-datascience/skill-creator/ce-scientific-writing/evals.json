@@ -11,7 +11,8 @@
         "Every numeric claim traces to the frozen results or SAP; missing support is labeled 'evidence needed', 'analysis needed', or 'author decision needed' rather than filled in",
         "Does not convert the observational association into causal language",
         "Ends with a handoff separated into verified, author decision needed, and not checked",
-        "Does not describe the manuscript as submission-ready while blockers remain and points to ce-pre-submission-audit before author handoff"
+        "Does not describe the manuscript as submission-ready while blockers remain and points to ce-pre-submission-audit before author handoff",
+        "Cites every reported number as a {{num:<id>}} placeholder from the number registry (using the ce-numbers ids listing) instead of typing values, and runs the ce-numbers check before finalizing"
       ]
     },
     {

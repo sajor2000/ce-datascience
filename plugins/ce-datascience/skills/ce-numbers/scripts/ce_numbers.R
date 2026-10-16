@@ -56,7 +56,7 @@ ce_numbers_small_cell <- 11
   paste(label, "=", if (jama) sub("^0", "", text) else text)
 }
 
-format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama") {
+format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama", sd = NULL, iqr = NULL) {
   if (!style %in% ce_numbers_styles) stop("unknown style profile; expected one of ", paste(ce_numbers_styles, collapse = ", "))
   if (kind == "p") return(.ce_p(value, style))
   if (kind %in% c("count", "n")) {
@@ -72,22 +72,25 @@ format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL
     return(interval)
   }
   text <- .ce_fmt(value, digits)
-  if (is.null(interval)) text else paste0(text, " (95% CI, ", interval, ")")
+  if (!is.null(interval)) return(paste0(text, " (95% CI, ", interval, ")"))
+  if (!is.null(sd)) return(paste0(text, " (", .ce_fmt(sd, digits), ")"))
+  if (!is.null(iqr)) return(paste0(text, " (", .ce_fmt(iqr[[1]], digits), "-", .ce_fmt(iqr[[2]], digits), ")"))
+  text
 }
 
 .ce_finite <- function(x) is.numeric(x) && length(x) == 1 && is.finite(x)
 
 .ce_entry <- function(root, script, id, value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama",
-                      sources = character(), sap_output = NULL, table = NULL) {
+                      sources = character(), sap_output = NULL, table = NULL, sd = NULL, iqr = NULL) {
   if (!kind %in% ce_numbers_kinds) stop("unknown kind; expected one of ", paste(ce_numbers_kinds, collapse = ", "))
-  if (!.ce_finite(value) || (!is.null(ci) && !all(vapply(ci, .ce_finite, logical(1)))))
+  if (!all(vapply(c(list(value), as.list(ci), as.list(iqr), as.list(sd)), .ce_finite, logical(1))))
     stop(id, ": the registry holds finite numeric aggregates only")
   suppressed <- kind %in% c("count", "n") && value >= 1 && value < ce_numbers_small_cell
   entry <- list(
     id = id,
     value = if (suppressed) NULL else value,
     kind = kind,
-    text = if (suppressed) paste0("<", ce_numbers_small_cell) else format_number(value, kind, ci, digits, denominator, style),
+    text = if (suppressed) paste0("<", ce_numbers_small_cell) else format_number(value, kind, ci, digits, denominator, style, sd, iqr),
     suppressed = suppressed,
     sources = lapply(sources, function(s) list(path = .ce_rel(root, s), sha256 = .ce_sha256(file.path(root, s)))),
     script = if (is.null(script)) NULL else
@@ -114,11 +117,12 @@ format_number <- function(value, kind, ci = NULL, digits = 2, denominator = NULL
 }
 
 register_number <- function(id, value, kind, ci = NULL, digits = 2, denominator = NULL, style = "jama",
-                            sources = character(), sap_output = NULL, script = NULL, registry = ce_numbers_registry) {
+                            sources = character(), sap_output = NULL, script = NULL, registry = ce_numbers_registry,
+                            sd = NULL, iqr = NULL) {
   root <- .ce_root()
   if (is.null(script)) script <- .ce_calling_script()
   if (!is.null(script)) script <- normalizePath(script, mustWork = TRUE)
-  entry <- .ce_entry(root, script, id, value, kind, ci, digits, denominator, style, sources, sap_output)
+  entry <- .ce_entry(root, script, id, value, kind, ci, digits, denominator, style, sources, sap_output, sd = sd, iqr = iqr)
   .ce_write(root, registry, list(entry))
   invisible(entry)
 }

@@ -11,7 +11,8 @@
         "Every SAP-5.N analysis in analysis/sap.md appears as a row in 01-overview.csv and has an A<N> flag column in 03-variables.csv",
         "Analysis-level output filenames in 02-outputs.csv follow the A<N>_*.csv pattern and each row has an Interpretation entry",
         "Runs scripts/generate-tabular-sap.py to produce analysis/sap-tables/sbt-validation-tabular-sap.xlsx (or reports that CSVs alone are valid if openpyxl is missing)",
-        "Appends SAP-12 Output Catalog and SAP-13 Variable Catalog cross-references to analysis/sap.md if absent"
+        "Appends SAP-12 Output Catalog and SAP-13 Variable Catalog cross-references to analysis/sap.md if absent",
+        "Treats each Output File name in 02-outputs.csv as the SAP output ID that number-registry entries pass as sap_output"
       ]
     },
     {

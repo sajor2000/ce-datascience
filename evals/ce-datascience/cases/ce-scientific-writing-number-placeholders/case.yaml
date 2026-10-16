@@ -1,0 +1,63 @@
+schema_version: "1.0"
+id: ce-scientific-writing-number-placeholders
+target:
+  kind: skill
+  name: ce-scientific-writing
+  source: plugins/ce-datascience/skills/ce-scientific-writing/SKILL.md
+mode: forward
+prompt_path: evals/ce-datascience/cases/ce-scientific-writing-number-placeholders/prompt.md
+fixtures:
+  - path: evals/ce-datascience/cases/ce-scientific-writing-number-placeholders/fixtures/ids.txt
+    destination: workspace/analysis/numbers/ids.txt
+    sha256: d8316d1a3d872d76857706c14b4d31c378f6d59302f80530062268e470ab75fe
+required_behaviors:
+  - draft-exists
+  - cites-cohort-placeholder
+  - cites-hr-placeholder
+  - cites-p-placeholder
+prohibited_behaviors:
+  - no-typed-results
+criteria:
+  - id: draft-exists
+    description: The Results paragraph is written.
+    type: file_exists
+    path: workspace/manuscript/results.md
+    expected: true
+    weight: 2
+    hard_gate: true
+  - id: cites-cohort-placeholder
+    description: The cohort size is cited from the registry.
+    type: text_contains
+    path: workspace/manuscript/results.md
+    value: "{{num:cohort.n}}"
+    case_sensitive: true
+    weight: 2
+    hard_gate: true
+  - id: cites-hr-placeholder
+    description: The hazard ratio is cited from the registry.
+    type: text_contains
+    path: workspace/manuscript/results.md
+    value: "{{num:primary.hr}}"
+    case_sensitive: true
+    weight: 3
+    hard_gate: true
+  - id: cites-p-placeholder
+    description: The P value is cited from the registry.
+    type: text_contains
+    path: workspace/manuscript/results.md
+    value: "{{num:primary.p}}"
+    case_sensitive: true
+    weight: 2
+    hard_gate: true
+  - id: no-typed-results
+    description: The draft types none of the PI's approximate numbers.
+    type: regex_not
+    path: workspace/manuscript/results.md
+    pattern: '(?<![\w.])(?:412|23(?:\.\d+)?\s?%|0\.78|\.004)(?![\w])'
+    weight: 4
+    hard_gate: true
+threshold: 0.85
+limitations:
+  - The ids listing is synthetic; the case does not run the gate or render the draft.
+  - Prose quality and section discipline are not scored here.
+  - Scoring is offline and unattested: run.json's runner/model fields are operator-supplied, so a green result proves the recorded output satisfies the criteria, not that a particular model produced it.

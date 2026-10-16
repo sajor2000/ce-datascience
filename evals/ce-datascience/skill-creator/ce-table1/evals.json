@@ -12,7 +12,8 @@
         "Produces table1-spec.json, table1.csv, table1.md, and table1-validation-report.md",
         "Reviews the validation report before presenting the table as ready",
         "Applies small-cell suppression (default n<11) to every stratified cell, including complementary cells recoverable by subtraction",
-        "Uses JAMA formatting such as No. (%) for frequency data"
+        "Uses JAMA formatting such as No. (%) for frequency data",
+        "Registers filled cells with register_table from the ce-numbers helpers under the spec registry_ids (cited in table1.md as {{num:table1.<variable>.overall}}) and passes the spec registry.sap_output as sap_output"
       ]
     },
     {

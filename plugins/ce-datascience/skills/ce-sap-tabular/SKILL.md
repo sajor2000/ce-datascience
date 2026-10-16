@@ -83,6 +83,8 @@ One row per artifact. Group rows by visible section-banner rows, where column 1 
 | Role at Coordinating Center | What the coordinating center / pooled-analysis layer does with this output |
 | Interpretation | 1-2 sentence pre-result expectation: what this result should mean and what direction or pattern would support the claim |
 
+The `Output File` name is the SAP output ID for reported numbers: number-registry entries (`ce-numbers`) pass it, with or without the extension, as `sap_output`, and the `ce-numbers` gate fails an entry whose `sap_output` is not in this catalog.
+
 The `Interpretation` column is the most important. It forces a pre-registered expectation, so when results arrive they can be compared to it ("expected OR > 1; got 0.85; investigate").
 
 #### Table 3: `03-variables.csv` (Master variables)
