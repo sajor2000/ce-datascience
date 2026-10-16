@@ -163,6 +163,11 @@ export class InstallOwnership {
     await this.backupPath(absolutePath, true)
   }
 
+  /** Move a retired plugin location to backups whole, whatever the ledger says. */
+  async retireToBackup(absolutePath: string): Promise<void> {
+    if (await pathExists(absolutePath)) await this.backupPath(absolutePath, true)
+  }
+
   private async backupPath(absolutePath: string, move: boolean): Promise<void> {
     const backupPath = path.join(this.managedDir, "backups", this.stamp, ...this.relative(absolutePath).split("/"))
     await ensureDir(path.dirname(backupPath))

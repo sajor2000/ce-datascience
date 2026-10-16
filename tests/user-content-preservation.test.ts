@@ -391,3 +391,26 @@ describe("legacy fingerprints cover every description ce-datascience has shipped
     expect(await isKnownPluginArtifact(userAgent)).toBe(false)
   })
 })
+
+describe("Codex retired skill store", () => {
+  test("files in <codex>/ce-datascience/skills are moved to a backup, not deleted", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-codex-retired-store-"))
+    const codexRoot = path.join(root, ".codex")
+    const userSkill = path.join(codexRoot, "ce-datascience", "skills", "my-own-skill", "SKILL.md")
+    await writeFile(userSkill, USER_SKILL)
+
+    await writeCodexBundle(codexRoot, {
+      pluginName: "ce-datascience",
+      prompts: [],
+      skillDirs: [{ name: "ce-skill-one", sourceDir: fixtureSkillDir }],
+      generatedSkills: [],
+      agents: [],
+    })
+
+    expect(await exists(path.join(codexRoot, "ce-datascience", "skills"))).toBe(false)
+    const saved = (await findFiles(path.join(codexRoot, "ce-datascience", "backups")))
+      .filter((file) => file.endsWith(path.join("my-own-skill", "SKILL.md")))
+    expect(saved).toHaveLength(1)
+    expect(await fs.readFile(saved[0], "utf8")).toBe(USER_SKILL)
+  })
+})

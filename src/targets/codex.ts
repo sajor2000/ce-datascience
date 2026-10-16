@@ -158,7 +158,9 @@ export async function writeCodexBundle(
     await cleanupKnownLegacyCodexArtifacts(codexRoot, bundle)
     await cleanupLegacyAgentSkillDirs(codexRoot, pluginName, currentSkills, bundle)
     await cleanupLegacyAgentsSkillSymlinks(codexRoot, pluginName, currentSkills, manifest)
-    await cleanupPreviousManagedCodexSkillStore(codexRoot, pluginName)
+    // The retired store held symlink targets in older layouts; a user may
+    // also have put files there, so move it to backups rather than delete it.
+    await ownership?.retireToBackup(path.join(codexRoot, pluginName, "skills"))
   }
   await ownership?.finish()
 
@@ -442,10 +444,6 @@ async function cleanupLegacyAgentsSkillSymlinks(
   for (const skillName of candidateSkillNames) {
     await removeAgentsSkillSymlinkIfManaged(path.join(agentsSkillsDir, skillName), managedRoots)
   }
-}
-
-async function cleanupPreviousManagedCodexSkillStore(codexRoot: string, pluginName: string): Promise<void> {
-  await fs.rm(path.join(codexRoot, pluginName, "skills"), { recursive: true, force: true })
 }
 
 async function removeAgentsSkillSymlinkIfManaged(symlinkPath: string, managedRoots: string[]): Promise<void> {
