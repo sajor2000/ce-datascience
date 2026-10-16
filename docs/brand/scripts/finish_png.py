@@ -10,7 +10,7 @@ for png in sorted(out.glob("*.png")):
     with Image.open(png) as im:
         im.load()
         im.save(png, optimize=True)
-icons = [Image.open(out / f"mark-{s}.png").convert("RGBA") for s in (16, 32, 48)]
+icons = [Image.open(out / f"favicon-{s}.png").convert("RGBA") for s in (16, 32, 48)]
 icons[2].save(out / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)], append_images=icons[:2])
 for f in sorted(out.iterdir()):
     print(f"{f.stat().st_size:>9,}  {f.name}")

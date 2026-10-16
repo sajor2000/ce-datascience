@@ -121,31 +121,53 @@ def width_of(spec, value, size, tracking=0.0):
 
 
 # --- mark -------------------------------------------------------------------
-# A lowercase m (methods) forged on an anvil face (smith). The two arches are
-# two passes of the loop; the ember face is the compound step every study
-# rests on. Drawn on a 64-unit grid.
+# The hallmark. A smith punches a hallmark into finished work to vouch for it;
+# here a geometric M is struck into a plate with chamfered corners. Drawn on a
+# 64-unit grid: plate stroke 3.4, M stems 6.2, flat-cut tops, and the vertex a
+# little below centre so the counters balance optically.
+
+FRAME_W = 3.4
+FRAME = "M11 12 H53 L57 16 V48 L53 52 H11 L7 48 V16 Z"
+# Outer edge of the stroked plate, for alignment.
+MARK_BOX = (7 - FRAME_W / 2, 12 - FRAME_W / 2, 57 + FRAME_W / 2, 52 + FRAME_W / 2)
 
 
-def _m_path():
-    x0, top, base, r = 18, 17, 44.5, 7
-    return (
-        f"M{x0} {base} V{top + r} a{r} {r} 0 0 1 {2 * r} 0 V{base} "
-        f"M{x0 + 2 * r} {top + r} a{r} {r} 0 0 1 {2 * r} 0 V{base}"
-    )
+def _m_points(scale=1.0, cx=32.0, cy=32.0):
+    stem, diag = 6.2, 6.2
+    l0, l1, r0, r1 = 18.0, 18.0 + stem, 46.0 - stem, 46.0
+    top, base, v = 20.5, 43.5, 37.0
+    dv = diag * 1.35
+    pts = [(l0, base), (l0, top), (l1, top), (32, v - dv), (r0, top), (r1, top), (r1, base),
+           (r0, base), (r0, top + dv * 1.05), (32, v), (l1, top + dv * 1.05), (l1, base)]
+    return [(cx + (x - 32) * scale, cy + (y - 32) * scale) for x, y in pts]
 
 
-ANVIL = "M11 43.5 H53 L48.5 49.5 H15.5 Z"
+def m_path(scale=1.0, cy=32.0):
+    return "M" + " L".join(f"{x:.2f} {y:.2f}" for x, y in _m_points(scale, cy=cy)) + " Z"
 
 
 def mark_glyph(fg, accent):
+    """The full mark: ember plate, ink (or paper) M."""
     return (
-        f'<path d="{_m_path()}" fill="none" stroke="{fg}" stroke-width="6.2" '
-        f'stroke-linejoin="round"/><path d="{ANVIL}" fill="{accent}"/>'
+        f'<path d="{FRAME}" fill="none" stroke="{accent}" stroke-width="{FRAME_W}" '
+        f'stroke-linejoin="miter"/><path d="{m_path()}" fill="{fg}"/>'
     )
 
 
-def mark_tile(tile=INK, fg=PAPER, accent=EMBER):
-    return f'<rect width="64" height="64" rx="14" fill="{tile}"/>' + mark_glyph(fg, accent)
+def mark_mono():
+    """One-colour mark that follows the surrounding text colour."""
+    return mark_glyph("currentColor", "currentColor")
+
+
+def icon_tile(small=False, rx=0):
+    """Square directory/avatar tile. At 32 px and below the plate is dropped
+    and the M is enlarged, so small sizes stay crisp."""
+    inner = (
+        f'<path d="{m_path(1.55, cy=33)}" fill="{PAPER}"/>'
+        if small
+        else f'<g transform="translate(5.12 5.12) scale(0.84)">{mark_glyph(PAPER, EMBER_GLOW)}</g>'
+    )
+    return f'<rect width="64" height="64" rx="{rx}" fill="{INK}"/>' + inner
 
 
 def place(inner, x, y, size):
@@ -167,21 +189,45 @@ def svg(width, height, body, title, desc=None, background=None):
 
 
 def wordmark(x, baseline, size, fill):
-    return text(SERIF, "Methodsmith", size, x, baseline, fill, tracking=-0.012)
+    return text(SERIF, "Methodsmith", size, x, baseline, fill, tracking=-0.015)
+
+
+CAP = 0.66  # Source Serif 4 cap height, in em
+
+
+def _mark_beside(fg, accent, x, baseline, size):
+    """Place the mark beside a wordmark set at `size`: the plate is 1.6x the cap
+    height and centred on it. Returns (svg, width of the mark)."""
+    bx0, by0, bx1, by1 = MARK_BOX
+    s = 1.6 * CAP * size / (by1 - by0)
+    mid = baseline - CAP * size / 2
+    y = mid - (by0 + by1) / 2 * s
+    return place(mark_glyph(fg, accent), x - bx0 * s, y, 64 * s), (bx1 - bx0) * s
 
 
 def lockup(theme):
-    """Mark plus wordmark. The mark's anvil sits on the wordmark baseline and
-    the mark scales with the type (1.34x the font size), as in the hero."""
+    """Horizontal lockup: mark, one cap-height gap, wordmark."""
     fg, accent = (INK, EMBER) if theme == "light" else (NIGHT_TEXT, EMBER_GLOW)
-    size, baseline = 64, 66
-    mark_size = size * 150 / 112
-    s = mark_size / 64
-    word_x = 42 * s + size * 30 / 112
-    word_w = width_of(SERIF, "Methodsmith", size, -0.012)
-    body = place(mark_glyph(fg, accent), -11 * s, baseline - 49.5 * s, mark_size)
-    body += wordmark(word_x, baseline, size, fg)
-    return svg(round(word_x + word_w + 2), 82, body, "Methodsmith")
+    size, baseline = 64, 70
+    mark, mw = _mark_beside(fg, accent, 0, baseline, size)
+    gap = CAP * size * 0.62
+    word_w = width_of(SERIF, "Methodsmith", size, -0.015)
+    body = mark + wordmark(mw + gap, baseline, size, fg)
+    return svg(round(mw + gap + word_w + 2), 92, body, "Methodsmith")
+
+
+def lockup_stacked(theme):
+    """Stacked lockup: mark centred above the wordmark."""
+    fg, accent = (INK, EMBER) if theme == "light" else (NIGHT_TEXT, EMBER_GLOW)
+    size = 64
+    word_w = width_of(SERIF, "Methodsmith", size, -0.015)
+    W = round(word_w + 8)
+    bx0, by0, bx1, by1 = MARK_BOX
+    s = 120 / (bx1 - bx0)
+    mark = place(mark_glyph(fg, accent), W / 2 - (bx0 + bx1) / 2 * s, -by0 * s, 64 * s)
+    baseline = (by1 - by0) * s + 22 + CAP * size
+    body = mark + wordmark(4, baseline, size, fg)
+    return svg(W, round(baseline + 18), body, "Methodsmith")
 
 
 def loop_strip(x0, x1, y, theme, bg, label_size=17, cmd_size=19):
@@ -233,23 +279,34 @@ def loop_strip(x0, x1, y, theme, bg, label_size=17, cmd_size=19):
     return "".join(out)
 
 
+PLUGIN_LINE = "A plugin for Claude Code and Codex"
+
+
 def hero(theme):
+    """README banner. The README's H1 carries the name, so the banner leads
+    with the mark and the promise instead of repeating the wordmark."""
     W, H = 1600, 560
     bg, fg, muted, accent, accent_text, rule = (
         (PAPER, INK, MUTED, EMBER, EMBER_DEEP, RULE)
         if theme == "light"
         else (NIGHT, NIGHT_TEXT, NIGHT_MUTED, EMBER_GLOW, EMBER_GLOW, NIGHT_RULE)
     )
-    body = []
-    body.append(place(mark_glyph(fg, accent), 112 - 11 * 150 / 64, 172 - 49.5 * 150 / 64, 150))
-    body.append(wordmark(112 + 42 * 150 / 64 + 30, 172, 112, fg))
-    body.append(text(SANS, TAGLINE, 31, 112, 254, muted))
-    body.append(text(SANS_MEDIUM, SIGNOFF, 31, 112, 300, accent_text))
+    bx0, by0, bx1, by1 = MARK_BOX
+    s = 168 / (by1 - by0)
+    body = [place(mark_glyph(fg, accent), 112 - bx0 * s, 92 - by0 * s, 64 * s)]
+    tx = 112 + (bx1 - bx0) * s + 56
+    body.append(text(SERIF, "Rigorous methods for statistics,", 50, tx, 134, fg, tracking=-0.012))
+    body.append(text(SERIF, "machine learning, and meta-analysis,", 50, tx, 194, fg, tracking=-0.012))
+    body.append(text(SERIF, "from question to paper.", 50, tx, 254, fg, tracking=-0.012))
+    body.append(text(SANS_MEDIUM, SIGNOFF, 26, tx, 300, accent_text))
+    sw = width_of(SANS_MEDIUM, SIGNOFF, 26)
+    body.append(text(SANS, "  ·  " + PLUGIN_LINE, 26, tx + sw, 300, muted))
     body.append(f'<line x1="112" y1="344" x2="{W - 112}" y2="344" stroke="{rule}" stroke-width="1.5"/>')
     body.append(loop_strip(250, W - 250, 408, theme, bg))
     desc = (
-        "Methodsmith logo and tagline. The loop: plan, work, review, compound, "
-        "with an arrow returning from compound to plan."
+        "Methodsmith hallmark. Rigorous methods for statistics, machine learning, and meta-analysis, "
+        "from question to paper. Every study compounds. A plugin for Claude Code and Codex. "
+        "The loop: plan, work, review, compound, with an arrow returning from compound to plan."
     )
     return svg(W, H, "".join(body), "Methodsmith", desc, background=bg)
 
@@ -257,20 +314,21 @@ def hero(theme):
 def social_card():
     W, H = 1280, 640
     body = []
-    body.append(place(mark_tile(NIGHT_SURFACE, NIGHT_TEXT, EMBER_GLOW), 80, 80, 104))
-    body.append(wordmark(212, 160, 92, NIGHT_TEXT))
-    body.append(text(SANS, "Rigorous methods for statistics, machine learning,", 30, 84, 252, NIGHT_MUTED))
-    body.append(text(SANS, "and meta-analysis, from question to paper.", 30, 84, 292, NIGHT_MUTED))
-    body.append(text(SANS_MEDIUM, SIGNOFF, 30, 84, 338, EMBER_GLOW))
-    body.append(loop_strip(176, W - 176, 420, "dark", NIGHT, label_size=15, cmd_size=17))
+    mark, mw = _mark_beside(NIGHT_TEXT, EMBER_GLOW, 84, 160, 92)
+    body.append(mark)
+    body.append(wordmark(84 + mw + 0.62 * CAP * 92, 160, 92, NIGHT_TEXT))
+    body.append(text(SANS_MEDIUM, PLUGIN_LINE, 22, 86, 212, EMBER_GLOW, tracking=0.01))
+    body.append(text(SANS, "Rigorous methods for statistics, machine learning,", 30, 84, 270, NIGHT_MUTED))
+    body.append(text(SANS, "and meta-analysis, from question to paper. Every study compounds.", 30, 84, 310, NIGHT_MUTED))
+    body.append(loop_strip(176, W - 176, 410, "dark", NIGHT, label_size=15, cmd_size=17))
     skills, agents, checklists = inventory()
     facts = f"{skills} skills  ·  {agents} specialist reviewers  ·  {checklists} EQUATOR checklists  ·  PHI guard"
     body.append(f'<line x1="84" y1="560" x2="{W - 84}" y2="560" stroke="{NIGHT_RULE}" stroke-width="1.5"/>')
-    body.append(text(SANS, facts, 19, 84, 598, NIGHT_MUTED))
-    body.append(text(MONO, "github.com/sajor2000/methodsmith", 18, W - 84, 598, NIGHT_TEXT, anchor="end"))
+    body.append(text(SANS, facts, 20, 84, 600, NIGHT_MUTED))
+    body.append(text(MONO, "github.com/sajor2000/methodsmith", 18, W - 84, 600, NIGHT_TEXT, anchor="end"))
     desc = (
-        f"Methodsmith: plan, work, review, compound. {skills} skills, {agents} reviewers, "
-        f"{checklists} EQUATOR checklists, PHI guard."
+        f"Methodsmith, a plugin for Claude Code and Codex: plan, work, review, compound. "
+        f"{skills} skills, {agents} reviewers, {checklists} EQUATOR checklists, PHI guard."
     )
     return svg(W, H, "".join(body), "Methodsmith", desc, background=NIGHT)
 
@@ -281,19 +339,25 @@ def write(name, content):
     print(f"wrote {path}")
 
 
+def bare(inner, title="Methodsmith", extra=""):
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"{extra}>'
+        f"<title>{title}</title>{inner}</svg>\n"
+    )
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    write("mark.svg", svg(64, 64, mark_tile(), "Methodsmith"))
-    write("mark-light.svg", svg(64, 64, mark_glyph(INK, EMBER), "Methodsmith"))
-    write("mark-dark.svg", svg(64, 64, mark_glyph(NIGHT_TEXT, EMBER_GLOW), "Methodsmith"))
-    write(
-        "favicon.svg",
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Methodsmith</title>'
-        + mark_tile()
-        + "</svg>\n",
-    )
+    write("mark-light.svg", bare(mark_glyph(INK, EMBER)))
+    write("mark-dark.svg", bare(mark_glyph(NIGHT_TEXT, EMBER_GLOW)))
+    write("mark-mono.svg", bare(mark_mono(), extra=' fill="none"'))
+    write("icon.svg", bare(icon_tile()))
+    write("icon-small.svg", bare(icon_tile(small=True)))
+    write("favicon.svg", bare(icon_tile(small=True, rx=12)))
     write("lockup-light.svg", lockup("light"))
     write("lockup-dark.svg", lockup("dark"))
+    write("lockup-stacked-light.svg", lockup_stacked("light"))
+    write("lockup-stacked-dark.svg", lockup_stacked("dark"))
     write("hero-light.svg", hero("light"))
     write("hero-dark.svg", hero("dark"))
     write("social-preview.svg", social_card())

@@ -39,14 +39,30 @@ HTML
     --screenshot="$dst" "file://$work/page.html" >/dev/null 2>&1
 }
 
-for size in 16 32 48 64 128 180 192 256 512 1024; do
-  raster "$out/mark.svg" "$out/mark-$size.png" "$size" "$size"
+# Clear previous raster exports so renamed or retired sizes do not linger.
+rm -f "$out"/*.png "$out"/favicon.ico
+
+# Transparent mark for documents and slides.
+for size in 64 128 256 512 1024; do
+  raster "$out/mark-light.svg" "$out/mark-$size.png" "$size" "$size"
 done
-cp "$out/mark-180.png" "$out/apple-touch-icon.png"
-for theme in light dark; do
-  # Export the lockup at 3x its intrinsic size, keeping its aspect ratio.
-  lw="$(sed -n 's/^<svg[^>]* width="\([0-9]*\)".*/\1/p' "$out/lockup-$theme.svg")"
-  raster "$out/lockup-$theme.svg" "$out/lockup-$theme.png" "$((lw * 3))" 246
+# Square tile: the small form (M only) up to 32 px, the full hallmark above.
+for size in 16 32; do
+  raster "$out/icon-small.svg" "$out/icon-$size.png" "$size" "$size"
+done
+for size in 48 64 128 256 512 1024; do
+  raster "$out/icon.svg" "$out/icon-$size.png" "$size" "$size"
+done
+for size in 16 32 48; do
+  raster "$out/favicon.svg" "$out/favicon-$size.png" "$size" "$size"
+done
+raster "$out/icon.svg" "$out/apple-touch-icon.png" 180 180
+raster "$out/icon.svg" "$out/avatar.png" 500 500
+for name in lockup-light lockup-dark lockup-stacked-light lockup-stacked-dark; do
+  # Export each lockup at 3x its intrinsic size, keeping its aspect ratio.
+  lw="$(sed -n 's/^<svg[^>]* width="\([0-9]*\)".*/\1/p' "$out/$name.svg")"
+  lh="$(sed -n 's/^<svg[^>]* height="\([0-9]*\)".*/\1/p' "$out/$name.svg")"
+  raster "$out/$name.svg" "$out/$name.png" "$((lw * 3))" "$((lh * 3))"
 done
 raster "$out/hero-light.svg" "$out/hero-light.png" 1600 560
 raster "$out/hero-dark.svg" "$out/hero-dark.png" 1600 560
@@ -61,6 +77,7 @@ raster "$out/demo-poster.svg" "$out/demo-poster.png" 1200 "$demo_h"
 # holds other binary types, such as .ico, for manual review.
 plugin_assets="$repo_root/plugins/methodsmith/assets"
 mkdir -p "$plugin_assets"
-cp "$out/mark.svg" "$plugin_assets/icon.svg"
-cp "$out/mark-512.png" "$plugin_assets/icon.png"
+cp "$out/icon.svg" "$plugin_assets/icon.svg"
+cp "$out/icon-small.svg" "$plugin_assets/icon-small.svg"
+cp "$out/icon-512.png" "$plugin_assets/icon.png"
 cp "$out/demo-poster.png" "$plugin_assets/screenshot.png"
