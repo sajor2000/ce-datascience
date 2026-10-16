@@ -9,9 +9,11 @@ distinct value. Small cells are suppressed: a row count under 11 shows as
 "<11", and when a column's non-null or missing count is under 11 neither exact
 count is shown, so one cannot be recovered from the other by subtraction.
 
-If the first row looks like data (numbers, dates, ID-like or identifier-like
-values, duplicate names, or a value repeated in its own column), headings are
-printed as col_1..col_n with the reason.
+If the first row looks like data (numbers, dates, ID-like values, duplicate
+names, or a value repeated in its own column), headings are printed as
+col_1..col_n with the reason. A single heading that is itself an identifier
+(SSN, email, phone, MRN/ID, or date-of-birth shape, or a value in the
+project's identifier index) is printed as col_<k> [masked header].
 
 Supports CSV/TSV/PSV (optionally .gz) with the standard library; Parquet,
 Feather, and Arrow via pyarrow; and the XLSX header row via openpyxl. Plain
@@ -20,6 +22,7 @@ text and other types are refused. Errors print only the exception type.
 
 import csv
 import gzip
+import json
 import os
 import re
 import sys
@@ -32,6 +35,125 @@ DATA_EXTS = (
     "pickle", "npy", "npz", "h5", "hdf5", "sqlite", "sqlite3", "db", "duckdb",
     "jsonl", "ndjson",
 )
+# --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
+HASH_WIDTH = 16
+# Identifier shapes. Keyword-anchored where digits alone are ambiguous.
+IDENTIFIER_PATTERNS = (
+    ("an SSN", re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")),
+    ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
+    ("a phone number", re.compile(r"(?<![\d/.])(?:\+?1[-. ]?)?(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}(?![\d/])")),
+    ("a record identifier", re.compile(
+        r"\b(?:mrn|medical[\s_-]*record(?:[\s_-]*(?:number|num|no|#))?|patient[\s_-]*(?:id|identifier|number|no)|"
+        r"member[\s_-]*(?:id|number|no)|subscriber[\s_-]*id|claim[\s_-]*(?:number|num|no|id|#)|encounter[\s_-]*id)"
+        r"[\s:=#._-]{0,4}[A-Za-z]{0,6}\d{4,}", re.IGNORECASE)),
+    ("a date of birth", re.compile(
+        r"\b(?:dob|d\.o\.b\.?|date[\s_-]*of[\s_-]*birth|birth[\s_-]*date)\b[\s:=#-]{0,4}"
+        r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
+)
+
+# Identifier-like column headings, by kind.
+HEADER_KINDS = (
+    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
+    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
+    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
+    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
+    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
+    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
+                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
+                      r"|claim_?(?:id|num|number|no|nbr))$")),
+    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
+    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
+)
+
+
+def header_kind(name):
+    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+    for kind, pattern in HEADER_KINDS:
+        if pattern.match(key):
+            return kind
+    return None
+
+
+def id_tokens(text):
+    """Lowercase, fold accents, and split into alphanumeric tokens."""
+    import unicodedata  # lazy: only identifier checks need it
+
+    folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return re.findall(r"[^\W_]+", folded.lower())
+
+
+def id_hash(salt, entry):
+    import hashlib  # lazy: only identifier checks need it
+
+    return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
+
+
+# A present but malformed index: every lookup matches, so callers fail closed.
+INVALID_INDEX = ("", HASH_WIDTH, "")
+
+
+def read_index(path):
+    """(salt, width, sorted hash blob) from an index file, None when absent, INVALID_INDEX when malformed."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (FileNotFoundError, NotADirectoryError):
+        return None
+    except (OSError, ValueError):
+        return INVALID_INDEX
+    if not isinstance(data, dict):
+        return INVALID_INDEX
+    salt, width, blob = data.get("salt"), data.get("width"), data.get("hashes")
+    if (not isinstance(salt, str) or not re.fullmatch(r"[0-9a-f]{32,128}", salt) or type(width) is not int
+            or width != HASH_WIDTH or not isinstance(blob, str) or len(blob) % width
+            or data.get("count") != len(blob) // width or blob != blob.lower()):
+        return INVALID_INDEX
+    try:
+        if len(bytes.fromhex(blob)) * 2 != len(blob):  # fromhex skips whitespace
+            return INVALID_INDEX
+    except ValueError:
+        return INVALID_INDEX
+    count = len(blob) // width  # binary search needs sorted keys: check all, or 4096 evenly spaced
+    keys = [blob[i * width:(i + 1) * width] for i in range(0, count, max(1, count // 4096))] + [blob[-width:]]
+    if any(a >= b for a, b in zip(keys, keys[1:-1])) or (count > 1 and keys[-2] > keys[-1]):
+        return INVALID_INDEX
+    return salt, width, blob
+
+
+def _indexed(index, entry):
+    if index is INVALID_INDEX:
+        return True
+    salt, width, blob = index
+    key = id_hash(salt, entry)[:width]
+    lo, hi = 0, len(blob) // width
+    while lo < hi:
+        mid = (lo + hi) // 2
+        probe = blob[mid * width:(mid + 1) * width]
+        if probe == key:
+            return True
+        if probe < key:
+            lo = mid + 1
+        else:
+            hi = mid
+    return False
+
+
+def index_hit(text, index):
+    """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    if index is INVALID_INDEX:
+        return True
+    tokens = id_tokens(text)
+    grams = {" ".join(tokens)} if len(tokens) > 3 else set()
+    for size in (1, 2, 3):
+        for start in range(len(tokens) - size + 1):
+            gram = tokens[start:start + size]
+            if size == 1 and (len(gram[0]) < 4 or not any(ch.isdigit() for ch in gram[0])):
+                continue
+            grams.add(" ".join(gram))
+    return any(_indexed(index, gram) for gram in grams)
+# --- end identifier index ---
+
+INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
 THRESHOLD = 11
 MISSING = {"", "na", "n/a", "nan", "null", "none", ".", "nat", "#n/a"}
 INT_RE = re.compile(r"^[+-]?\d+$")
@@ -40,7 +162,6 @@ DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+
                      r"|\d{1,2}/\d{1,2}/\d{2,4})$")
 BOOL_VALUES = {"true", "false", "t", "f", "yes", "no"}
 ID_LIKE = re.compile(r"^[A-Za-z]{0,6}[-_]?\d{3,}$")
-IDENTIFIER_LIKE = re.compile(r"@|\d{3}-\d{2}-\d{4}|\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}")
 HEADER_SCAN_ROWS = 1000
 
 
@@ -68,6 +189,35 @@ def merge_type(current, new):
     return "string"
 
 
+def name_shaped(text):
+    """Two or three capitalised words of letters (and ' - or an initial), as in a personal name."""
+    words = str(text).strip().split(" ")
+    if not 2 <= len(words) <= 3:
+        return False
+    for word in words:
+        if len(word) == 2 and word[0].isupper() and word[1] == ".":
+            continue
+        if len(word) < 2 or not word[0].isupper() or word.isupper() or not all(c.isalpha() or c in "'-" for c in word):
+            return False
+    return True
+
+
+def name_headers(names, later_values=None):
+    """Indexes of first-row cells that may be personal names: name-shaped over a column of names, or no values.
+
+    A name-shaped heading over other values ("Age Group" over 40-49) is kept. Residual: a first row of
+    free text or of names in another shape (lower case, "Smith, John", one word) is not caught here.
+    """
+    masked = set()
+    for index, name in enumerate(names):
+        if name is None or not name_shaped(name):
+            continue
+        values = later_values[index] if later_values and index < len(later_values) else set()
+        if not values or 2 * sum(1 for v in values if name_shaped(v)) >= len(values):
+            masked.add(index)
+    return masked
+
+
 def header_problem(names, later_values=None):
     """Return why the first row looks like data, or None when it looks like headings."""
     cleaned = [str(n).strip() if n is not None else "" for n in names]
@@ -76,8 +226,6 @@ def header_problem(names, later_values=None):
             return "a first-row cell is a number or date"
         if ID_LIKE.match(name):
             return "a first-row cell looks like an ID"
-        if IDENTIFIER_LIKE.search(name):
-            return "a first-row cell looks like an identifier"
     present = [n.lower() for n in cleaned if n]
     if len(present) != len(set(present)):
         return "the first row has duplicate names"
@@ -85,11 +233,47 @@ def header_problem(names, later_values=None):
         for index, name in enumerate(cleaned):
             if name and name in later_values[index]:
                 return "a first-row cell repeats as a value in its column"
+    present = [i for i, n in enumerate(cleaned) if n]
+    if present and set(present) <= name_headers(cleaned, later_values):
+        return "every first-row cell looks like a personal name"
     return None
+
+
+NAME_NOTE = "Headings shaped like a personal name, over a column of names, are masked."
+
+
+def mask_name_headers(names, later_values=None):
+    masked = name_headers(names, later_values)
+    return [f"col_{i + 1} [masked header]" if i in masked else n for i, n in enumerate(names)], bool(masked)
+
+
+def find_index(path):
+    """The nearest identifier index above the file or the working directory, or None."""
+    for start in (os.path.dirname(os.path.abspath(path)), os.getcwd()):
+        probe = start
+        while True:
+            index = read_index(os.path.join(probe, INDEX_REL))
+            if index:
+                return index
+            parent = os.path.dirname(probe)
+            if parent == probe:
+                break
+            probe = parent
+    return None
+
+
+def shown_name(k, name, index):
+    """A heading, or col_<k> [masked header] when the heading is itself an identifier."""
+    text = str(name)
+    if any(pattern.search(text) for _, pattern in IDENTIFIER_PATTERNS) or (index and index_hit(text, index)):
+        return f"col_{k} [masked header]"
+    return text
 
 
 def render(path, rows, columns, note=None):
     """columns: list of (name, type, non_null or None)."""
+    index = find_index(path.split(" [", 1)[0])
+    columns = [(shown_name(k, name, index), t, n) for k, (name, t, n) in enumerate(columns, 1)]
     print(f"## {os.path.basename(path)}")
     shown_rows = "unknown" if rows is None else (f"<{THRESHOLD}" if small(rows) else str(rows))
     print(f"Rows: {shown_rows}")
@@ -156,7 +340,8 @@ def peek_delimited(path, delimiter, max_rows):
                 types[index] = merge_type(types[index], value_type)
         names = [f"col_{i + 1}" for i in range(width)]
     else:
-        names = first
+        names, masked = mask_name_headers(first, seen)
+        note = NAME_NOTE if masked else None
     if truncated:
         note = (note + " " if note else "") + f"Only the first {max_rows} data rows were scanned."
     render(path, rows, [(name, types[i] or "empty", non_null[i]) for i, name in enumerate(names)], note)
@@ -218,8 +403,8 @@ def peek_xlsx(path):
             note = f"XLSX: no header detected ({problem}); approximate row count only."
             rows += 1
         else:
-            names = [str(h) if h is not None else "(blank)" for h in header]
-            note = "XLSX: header row and approximate row count only."
+            names, masked = mask_name_headers([str(h) if h is not None else "(blank)" for h in header])
+            note = "XLSX: header row and approximate row count only." + (" " + NAME_NOTE if masked else "")
         render(f"{path} [{sheet.title}]", rows, [(n, "not inferred", None) for n in names], note=note)
     book.close()
 

@@ -19,17 +19,32 @@ schema-only, sensitive_data: false -> no-sensitive-data. Any explicit
 schema-only signal wins a conflict. An unreadable or misspelled value, or no
 saved answer, also resolves to schema-only, with a deny reason that says why.
 
-Egress (every mode except off): MCP tool arguments must not carry identifiers
-(SSN, email, phone, keyword-anchored MRN/patient/member/claim IDs, DOB) or data
-files, and Bash must not upload data files (curl/wget/scp/rsync and similar).
-An endpoint approval does not cover third-party services.
+Egress (every mode except off): MCP tool arguments and Bash HTTP requests
+(curl/wget/httpie/xh to any host, so NCBI E-utilities by name or IP, and the
+ce-pubmed script, also inside sh -c or eval) must not carry identifiers (SSN,
+email, phone, keyword-anchored MRN/patient/member/claim IDs, DOB, or a value
+in the project's hashed identifier index), MCP tools must not receive data
+files, and Bash must not upload data files (as arguments, or through a pipe or
+`<` redirect into curl/wget/nc/ncat/socat/openssl/ftp/ssh and similar). An
+endpoint approval does not cover third-party services.
 
-Schema-only access: Read/Grep/NotebookRead on data files, Bash/Monitor/
-PowerShell commands whose text references a data path (any program except a
-metadata allowlist), inline interpreter code that opens data, and recursive
-content searches are denied. Running an existing script file is allowed.
-Limits: a script file can still print values; obfuscation the parser cannot
-see is out of scope; this is defense in depth, not a sandbox.
+Schema-only access: Read/Grep/NotebookRead and Edit/MultiEdit/NotebookEdit
+(they return a snippet) on data files (including data_root and ce-safe-run
+logs), Bash/Monitor/PowerShell commands whose text references a data path (any
+program except a metadata allowlist), inline interpreter code that opens data,
+and recursive content searches are denied. Script files run by
+python/Rscript/bash/sh/quarto render/jupyter nbconvert --execute are read
+statically (1 MB cap) and denied when they name a data path or call a reader
+on a variable path, unless the command runs through the plugin's ce-safe-run.
+Inside ce-safe-run only the copy rule still applies (output stays in the log),
+and files a run wrote (runs/outputs.txt) are data afterwards. Tables under
+phi_environment.aggregate_dirs print through the plugin's ce-aggregate-read,
+which reads once and checks the bytes it prints (no identifier headers or
+indexed cells, no counts 1-10, at most 500 rows); a hook-time check of a later
+shell or script read could be raced. Markdown tables, which are not data
+files, are also checked on Read and cat. Limits: the script check is
+heuristic; obfuscation the parser cannot see is out of scope; this is defense
+in depth, not a sandbox.
 
 Fail mode: config problems resolve to schema-only. An unexpected internal error
 denies only calls that mention a data-like path or an upload; anything else is
@@ -74,6 +89,7 @@ CODE_TYPES = {
 }
 SCRIPT_EXTS = {"py", "r", "sh", "bash", "zsh", "jl", "qmd", "rmd", "js", "mjs", "ts", "rb", "pl", "php", "lua", "do", "sas"}
 MODES = ("approved", "schema-only", "no-sensitive-data")
+AGGREGATE_DIRS = ("output", "results", "analysis/publication", "analysis/sap-tables")
 CONFIG_REL = os.path.join(".ce-datascience", "config.local.yaml")
 
 METADATA_VERBS = {
@@ -98,7 +114,21 @@ RUN_WRAPPERS = {"uv": "run", "poetry": "run", "pipenv": "run", "pixi": "run", "c
 SEPARATORS = {";", "&", "&&", "||", "|", "|&", "(", ")", ";;"}
 REDIRECTS = {"<", ">", ">>", "<>", ">|", "&>", "&>>", ">&", "<&"}
 
-# Egress: identifier patterns for MCP arguments. Keyword-anchored where digits alone are ambiguous.
+DOI_OR_PMC = re.compile(r"\b10\.\d{4,9}/\S+|\bPMC\d+\b", re.IGNORECASE)
+RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
+UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
+UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
+                "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
+# Tools that send their stdin over the network: data piped or redirected into them is an upload.
+NETWORK_VERBS = UPLOAD_VERBS | {"socat", "openssl", "telnet", "ssh", "netcat"}
+NCBI_HOST = "eutils.ncbi.nlm.nih.gov"
+PUBMED_SCRIPT = "pubmed_search.py"
+FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
+
+
+# --- identifier index: patterns, normalize, hash, lookup (keep identical across plugin scripts; tested) ---
+HASH_WIDTH = 16
+# Identifier shapes. Keyword-anchored where digits alone are ambiguous.
 IDENTIFIER_PATTERNS = (
     ("an SSN", re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")),
     ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")),
@@ -111,13 +141,132 @@ IDENTIFIER_PATTERNS = (
         r"\b(?:dob|d\.o\.b\.?|date[\s_-]*of[\s_-]*birth|birth[\s_-]*date)\b[\s:=#-]{0,4}"
         r"\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}", re.IGNORECASE)),
 )
-DOI_OR_PMC = re.compile(r"\b10\.\d{4,9}/\S+|\bPMC\d+\b", re.IGNORECASE)
-EXEMPT_KEYS = {"pmid", "pmids", "pmcid", "pmcids", "doi", "dois", "id", "ids", "upload_id"}
-RECIPIENT_KEYS = {"email", "emails", "recipient", "recipients", "to", "cc"}
-UPLOADISH_TOOL = re.compile(r"upload|import|share|attach|send|export|publish|put|create-file", re.IGNORECASE)
-UPLOAD_VERBS = {"curl", "wget", "scp", "sftp", "rsync", "http", "https", "xh", "aws", "gsutil",
-                "gcloud", "rclone", "azcopy", "nc", "ncat", "ftp", "lftp"}
-FALLBACK_RISK = re.compile(DATA_REF.pattern + r"|upload|--data|-T\s|=@|\s@[\w./~]", re.IGNORECASE)
+
+# Identifier-like column headings, by kind.
+HEADER_KINDS = (
+    ("email", re.compile(r"^(?:.*_)?e_?mail(?:_.*)?$")),
+    ("phone", re.compile(r"^(?:.*_)?(?:phone|telephone|tel|mobile|cell)(?:_.*)?$")),
+    ("first", re.compile(r"^(?:first|given|fore)_?name$|^(?:first|given|fname|forename)$")),
+    ("last", re.compile(r"^(?:last|family|sur|maiden)_?name$|^(?:last|surname|family|lname)$")),
+    ("name", re.compile(r"^(?:(?:patient|pt|member|subscriber|person|full|middle|preferred)_?)?name$")),
+    ("id", re.compile(r"^(?:mrn|medical_?record(?:_.*)?|ssn|social_?security(?:_.*)?|claim|subscriber"
+                      r"|(?:patient|pt|person|member|subscriber|record|encounter|enrollee|beneficiary)_?(?:id|num|number|no|nbr)"
+                      r"|claim_?(?:id|num|number|no|nbr))$")),
+    ("dob", re.compile(r"^(?:dob|birth_?date|date_?of_?birth|birth_?dt|birthday|dt_?birth)$")),
+    ("address", re.compile(r"^(?:.*_)?(?:address|addr|street)(?:_.*)?$")),
+)
+
+
+def header_kind(name):
+    key = re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+    for kind, pattern in HEADER_KINDS:
+        if pattern.match(key):
+            return kind
+    return None
+
+
+def id_tokens(text):
+    """Lowercase, fold accents, and split into alphanumeric tokens."""
+    import unicodedata  # lazy: only identifier checks need it
+
+    folded = "".join(c for c in unicodedata.normalize("NFKD", str(text)) if not unicodedata.combining(c))
+    return re.findall(r"[^\W_]+", folded.lower())
+
+
+def id_hash(salt, entry):
+    import hashlib  # lazy: only identifier checks need it
+
+    return hashlib.sha256(bytes.fromhex(salt) + b"\0" + entry.encode("utf-8")).hexdigest()[:HASH_WIDTH]
+
+
+# A present but malformed index: every lookup matches, so callers fail closed.
+INVALID_INDEX = ("", HASH_WIDTH, "")
+
+
+def read_index(path):
+    """(salt, width, sorted hash blob) from an index file, None when absent, INVALID_INDEX when malformed."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (FileNotFoundError, NotADirectoryError):
+        return None
+    except (OSError, ValueError):
+        return INVALID_INDEX
+    if not isinstance(data, dict):
+        return INVALID_INDEX
+    salt, width, blob = data.get("salt"), data.get("width"), data.get("hashes")
+    if (not isinstance(salt, str) or not re.fullmatch(r"[0-9a-f]{32,128}", salt) or type(width) is not int
+            or width != HASH_WIDTH or not isinstance(blob, str) or len(blob) % width
+            or data.get("count") != len(blob) // width or blob != blob.lower()):
+        return INVALID_INDEX
+    try:
+        if len(bytes.fromhex(blob)) * 2 != len(blob):  # fromhex skips whitespace
+            return INVALID_INDEX
+    except ValueError:
+        return INVALID_INDEX
+    count = len(blob) // width  # binary search needs sorted keys: check all, or 4096 evenly spaced
+    keys = [blob[i * width:(i + 1) * width] for i in range(0, count, max(1, count // 4096))] + [blob[-width:]]
+    if any(a >= b for a, b in zip(keys, keys[1:-1])) or (count > 1 and keys[-2] > keys[-1]):
+        return INVALID_INDEX
+    return salt, width, blob
+
+
+def _indexed(index, entry):
+    if index is INVALID_INDEX:
+        return True
+    salt, width, blob = index
+    key = id_hash(salt, entry)[:width]
+    lo, hi = 0, len(blob) // width
+    while lo < hi:
+        mid = (lo + hi) // 2
+        probe = blob[mid * width:(mid + 1) * width]
+        if probe == key:
+            return True
+        if probe < key:
+            lo = mid + 1
+        else:
+            hi = mid
+    return False
+
+
+def index_hit(text, index):
+    """True when any 1-3 token n-gram (single tokens only if ID-like) or the whole text is in the index."""
+    if index is INVALID_INDEX:
+        return True
+    tokens = id_tokens(text)
+    grams = {" ".join(tokens)} if len(tokens) > 3 else set()
+    for size in (1, 2, 3):
+        for start in range(len(tokens) - size + 1):
+            gram = tokens[start:start + size]
+            if size == 1 and (len(gram[0]) < 4 or not any(ch.isdigit() for ch in gram[0])):
+                continue
+            grams.add(" ".join(gram))
+    return any(_indexed(index, gram) for gram in grams)
+# --- end identifier index ---
+
+INDEX_REL = os.path.join(".ce-datascience", "identifier-index.local.json")
+OUTPUTS = "outputs.txt"  # ce-safe-run lists the files its runs wrote here, one project-relative path per line
+
+
+def run_outputs(mode):
+    """Absolute paths of files written by ce-safe-run runs: data, because the run read data."""
+    if "_outputs" not in mode:
+        mode["_outputs"] = set()
+        for listing in mode.get("output_lists", []):
+            base = os.path.dirname(os.path.dirname(os.path.dirname(listing)))
+            try:
+                with open(listing, encoding="utf-8", errors="replace") as fh:
+                    mode["_outputs"].update(os.path.normpath(os.path.join(base, line)) for line in fh.read().splitlines() if line)
+            except OSError:
+                continue
+    return mode["_outputs"]
+
+
+def load_index(mode):
+    """The project's identifier index, loaded once and only for calls that need it."""
+    if "_index" not in mode:
+        mode["_index"] = next((i for i in map(read_index, mode.get("index_paths", [])) if i), None)
+    return mode["_index"]
 
 
 class ConfigError(Exception):
@@ -226,9 +375,16 @@ def read_config(path):
                 else:
                     in_phi = True
                 continue
+        elif in_phi and stripped.startswith("- ") and isinstance(phi.get("aggregate_dirs"), list):
+            phi["aggregate_dirs"].append(_scalar(stripped[2:]))
+            continue
         elif in_phi and ":" in stripped:
             key, value = stripped.split(":", 1)
-            phi[key.strip()] = value
+            key = key.strip()
+            if key == "aggregate_dirs":
+                inline = value.split(" #", 1)[0].strip()
+                value = [_scalar(v) for v in inline.strip("[]").split(",") if _scalar(v)] if inline else []
+            phi[key] = value
             continue
         match = re.match(r"^data_root:\s*(.*)$", stripped)
         if match:
@@ -281,14 +437,27 @@ def _project_mode(ce_root, main):
     else:
         phi, data_root, error = None, None, None
     mode, why, detail = mode_from_config(phi, error)
-    data_roots = set()
+    runs = os.path.join(ce_root, ".ce-datascience", "runs")  # ce-safe-run logs hold raw output
+    data_roots = {runs, os.path.realpath(runs)}
     if data_root:
         expanded = os.path.expanduser(data_root)
         bases = [ce_root] + ([main] if main else [])
         for base in bases:
             path = os.path.normpath(expanded if os.path.isabs(expanded) else os.path.join(base, expanded))
             data_roots.update({path, os.path.realpath(path)})
-    return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots)}
+    aggregate = set()
+    configured = (phi or {}).get("aggregate_dirs")
+    inside = [ce_root, os.path.realpath(ce_root)]
+    for rel in (configured if isinstance(configured, list) else AGGREGATE_DIRS):
+        path = os.path.normpath(os.path.join(ce_root, os.path.expanduser(rel)))
+        real = os.path.realpath(path)
+        if path in inside or real in inside or not _under(path, inside) or not _under(real, inside):
+            continue  # an aggregate directory must be a subdirectory of its own project
+        aggregate.update({path, real})
+    aggregate = sorted(aggregate)
+    index_paths = [os.path.join(base, INDEX_REL) for base in [ce_root] + ([main] if main else [])]
+    return {"mode": mode, "why": why, "detail": detail, "roots": [ce_root], "data_roots": sorted(data_roots),
+            "aggregate_dirs": aggregate, "index_paths": index_paths, "output_lists": [os.path.join(runs, OUTPUTS)]}
 
 
 RANK = {"off": 0, "approved": 1, "no-sensitive-data": 1, "schema-only": 2}
@@ -314,19 +483,24 @@ def _anchors(context):
 def resolve_mode(context):
     """Resolve the boundary for a tool call from cwd and the paths it targets. Strictest project wins."""
     cwd, anchors = _anchors(context)
-    cache, best, data_roots, roots = {}, None, set(), []
+    cache, best, data_roots, roots, aggregate, index_paths, output_lists = {}, None, set(), [], set(), [], []
     for anchor in anchors:
         found = _locate(anchor, cache)
         if not found:
             continue
         project = _project_mode(*found)
         data_roots.update(project["data_roots"])
+        aggregate.update(project["aggregate_dirs"])
+        index_paths.extend(p for p in project["index_paths"] if p not in index_paths)
+        output_lists.extend(p for p in project["output_lists"] if p not in output_lists)
         roots.extend(r for r in project["roots"] if r not in roots)
         if best is None or RANK[project["mode"]] > RANK[best["mode"]]:
             best = project
     if best is None:
-        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "cwd": cwd}
-    return dict(best, roots=roots, data_roots=sorted(data_roots), cwd=cwd)
+        return {"mode": "off", "why": None, "detail": "", "roots": [], "data_roots": [], "aggregate_dirs": [],
+                "index_paths": [], "output_lists": [], "cwd": cwd}
+    return dict(best, roots=roots, data_roots=sorted(data_roots), aggregate_dirs=sorted(aggregate),
+                index_paths=index_paths, output_lists=output_lists, cwd=cwd)
 
 
 # ------------------------------------------------------------------- data refs
@@ -375,6 +549,9 @@ def is_data_path(raw, cwd, mode):
             return True
         path = _resolve(variant, cwd)
         if _under(path, mode["data_roots"]):
+            return True
+        outputs = run_outputs(mode)
+        if outputs and (path in outputs or os.path.realpath(path) in outputs):
             return True
         if any(ch in variant for ch in "*?["):
             parts = [p for p in variant.replace("\\", "/").split("/")[:-1] if p not in ("", ".", "..")]
@@ -593,6 +770,32 @@ def _remote(token):
     return bool(re.match(r"^(?:[\w.-]+@)?[\w.-]+:(?!//)", token)) or bool(re.match(r"^(?:s3|gs|az|rsync|sftp|ftp)://", token))
 
 
+def input_refs(seg, cwd, mode, tainted):
+    """True when a segment reads a data file: any data reference except the target of an output redirect."""
+    skip = False
+    for token in seg:
+        if skip:
+            skip = False
+            continue
+        if token in (">", ">>", ">|", "&>", "&>>"):
+            skip = True
+            continue
+        if token_ref(token, cwd, mode, tainted):
+            return True
+    return False
+
+
+def stdin_upload(seg, cmd, piped, cwd, mode, tainted):
+    """A network tool whose stdin is a data file (`< file`) or a pipe fed by a command that read one."""
+    if not cmd or program(cmd[0]) not in NETWORK_VERBS:
+        return None
+    redirected = any(t == "<" and i + 1 < len(seg) and token_ref(seg[i + 1], cwd, mode, tainted)
+                     for i, t in enumerate(seg))
+    if redirected or piped:
+        return f"`{program(cmd[0])}` would send a data file from its standard input"
+    return None
+
+
 def upload_violation(cmd, cwd, mode):
     verb = program(cmd[0])
     args = cmd[1:]
@@ -755,6 +958,172 @@ def sed_ok(args, cwd, mode, tainted):
     return not any(token_ref(f, cwd, mode, tainted) for f in files)
 
 
+SCRIPT_CAP = 1 << 20
+LITERAL = re.compile(r"'([^'\n]{1,500})'|\"([^\"\n]{1,500})\"")
+# Read calls (pandas, polars, pyarrow, readr, haven, readxl, data.table, base R, arrow, duckdb, sqlite).
+READ_CALL = re.compile(
+    r"(?:\b(?:read_(?:csv|tsv|table|delim|fwf|parquet|feather|ipc|excel|xlsx|xls|sas|stata|dta|spss|sav|xpt|json|rds|orc)"
+    r"|read\.(?:csv2?|table|delim2?|dta|xport)|scan_(?:csv|parquet|ipc)|fread|vroom|readRDS|open_dataset|ParquetFile"
+    r"|dbConnect)|\barrow::\w+|\bduckdb(?:\.|::)\w+|\bsqlite3?(?:\.|::)\w+)\s*\(\s*([^)\s]?)")
+
+
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+
+SAFE_RUNNER = os.path.join(PLUGIN_ROOT, "scripts", "ce-safe-run")
+AGGREGATE_READER = os.path.join(PLUGIN_ROOT, "scripts", "ce-aggregate-read")
+
+
+def is_plugin_script(token, cwd, script=SAFE_RUNNER):
+    """The plugin's own script (same file or byte-identical copy), never a look-alike."""
+    path = os.path.realpath(_resolve(os.path.expandvars(token), cwd))
+    if path == os.path.realpath(script):
+        return True
+    try:
+        with open(path, "rb") as a, open(script, "rb") as b:
+            return a.read(1 << 16) == b.read(1 << 16)
+    except OSError:
+        return False
+
+
+_SCANNING = set()
+
+
+def script_reads_data(path, cwd, mode):
+    """Static, heuristic: does the script file name a data path? Reads at most 1 MB. Plugin scripts are trusted."""
+    if _under(os.path.realpath(path), [PLUGIN_ROOT]):
+        return False
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read(SCRIPT_CAP)
+    except OSError:
+        return False
+    ext = path.rsplit(".", 1)[-1].lower()
+    if ext == "ipynb":
+        try:
+            cells = json.loads(text).get("cells", [])
+            text = "\n".join("".join(c.get("source", "")) for c in cells if isinstance(c, dict))
+        except (ValueError, AttributeError, TypeError):
+            return True  # cannot verify
+    if ext in ("sh", "bash", "zsh") and path not in _SCANNING and len(_SCANNING) < 8:
+        _SCANNING.add(path)
+        try:
+            if bash_violations(text, cwd, mode, 1)[1]:
+                return True
+        finally:
+            _SCANNING.discard(path)
+    if lists_dataish_dir(text, cwd, mode):
+        return True
+    if any(first not in ("'", '"', "") for first in READ_CALL.findall(text)):
+        return True  # reads a path held in a variable or argument
+    for literal in (a or b for a, b in LITERAL.findall(text)):
+        if is_data_path(literal, cwd, mode):  # aggregate tables too: the script reads them later than this check
+            return True
+    return False
+
+
+AGGREGATE_EXTS = {"csv": ",", "tsv": "\t", "tab": "\t", "md": None}
+AGGREGATE_MAX_ROWS = 500
+AGGREGATE_CAP = 2 << 20
+AGG_READERS = {"cat", "head", "tail", "less", "more", "bat", "column", "csvlook"}
+COUNT_CELL = re.compile(r"^(\d+)(?:\s*\([^()]*\)|\s*/\s*\d+)?\s*%?$")
+
+
+def aggregate_file(raw, cwd, mode):
+    """An existing .csv/.tsv/.md under an aggregate directory (and outside data_root)."""
+    ext = raw.rsplit(".", 1)[-1].lower() if "." in os.path.basename(raw) else ""
+    return ext in AGGREGATE_EXTS and in_aggregate_dir(raw, cwd, mode) and os.path.isfile(_resolve(raw, cwd))
+
+
+def _table_rows(text, ext):
+    import csv  # only aggregate reads need it
+
+    if len(text) > AGGREGATE_CAP:
+        return None
+    delimiter = AGGREGATE_EXTS[ext]
+    if delimiter:
+        rows = [r for r in csv.reader(text.splitlines(), delimiter=delimiter) if any(c.strip() for c in r)]
+        return [(True, rows[0])] + [(False, r) for r in rows[1:]] if rows else []
+    out, in_table = [], False
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            in_table = False
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if all(re.match(r"^:?-{3,}:?$", c) for c in cells if c):
+            continue
+        out.append((not in_table, cells))
+        in_table = True
+    return out
+
+
+def aggregate_problem(path, mode):
+    """Which aggregate rule a table file fails, or None. Never includes a value."""
+    with open(path, encoding="utf-8-sig", errors="replace", newline="") as fh:
+        return table_problem(fh.read(AGGREGATE_CAP + 1), path.rsplit(".", 1)[-1].lower(), mode)
+
+
+def read_aggregate(raw, cwd, mode):
+    """(problem, text) from one read, so the check and the printed table are the same bytes (no TOCTOU)."""
+    if not aggregate_file(raw, cwd, mode):
+        return "it is not a .csv, .tsv, or .md file under an aggregate directory", None
+    with open(_resolve(raw, cwd), "rb") as fh:
+        text = fh.read(AGGREGATE_CAP + 1).decode("utf-8-sig", errors="replace")
+    problem = table_problem(text, raw.rsplit(".", 1)[-1].lower(), mode)
+    return problem, None if problem else text
+
+
+def table_problem(text, ext, mode):
+    """Which aggregate rule table text fails, or None. Never includes a value."""
+    rows = _table_rows(text, ext)
+    if rows is None or sum(1 for header, _ in rows if not header) > AGGREGATE_MAX_ROWS:
+        return f"it has more than {AGGREGATE_MAX_ROWS} rows"
+    index = load_index(mode)
+    for header, cells in rows:
+        for cell in cells:
+            if header and any(pattern.match(re.sub(r"[^a-z0-9]+", "_", cell.lower()).strip("_"))
+                              for _, pattern in HEADER_KINDS):
+                return "a column heading names an identifier"
+            if any(pattern.search(cell) for _, pattern in IDENTIFIER_PATTERNS):
+                return "a cell looks like an identifier"
+            if index and index_hit(cell, index):
+                return "a cell matches the project's identifier index"
+            count = None if header else COUNT_CELL.match(cell)
+            if count and 1 <= int(count.group(1)) <= 10:
+                return "a count from 1 to 10 breaks the small-cell rule"
+    return None
+
+
+def aggregate_hint(table):
+    return (f"`{table}` is a table under an aggregate directory; print it with `{AGGREGATE_READER} {table}`, "
+            "which checks and prints the same bytes")
+
+
+def in_aggregate_dir(raw, cwd, mode):
+    """A path under a configured aggregate directory and outside data_root (data_root always wins)."""
+    path = _resolve(raw, cwd)
+    real = os.path.realpath(path)
+    return (_under(path, mode.get("aggregate_dirs", [])) and _under(real, mode.get("aggregate_dirs", []))
+            and not _under(path, mode["data_roots"]) and not _under(real, mode["data_roots"]))
+
+
+def script_file(verb, args):
+    """The script, Quarto document, or executed notebook a command runs, or None."""
+    ops = [t for t in args if not t.startswith("-")]
+    if verb == "quarto":
+        return ops[1] if ops[:1] == ["render"] and len(ops) > 1 else None
+    if verb == "jupyter":
+        if ops[:1] == ["nbconvert"] and "--execute" in args:
+            return next((t for t in ops[1:] if t.lower().endswith(".ipynb")), None)
+        return None
+    if not SCRIPT_RUNNERS.match(verb):
+        return None
+    script = ops[0] if ops else ""
+    ext = script.rsplit(".", 1)[-1].lower() if "." in os.path.basename(script) else ""
+    return script if ext in SCRIPT_EXTS else None
+
+
 def judge(cmd, cwd, mode, tainted, written):
     """Classify one unwrapped command. Returns (reason or None, listed_data)."""
     if not cmd:
@@ -776,6 +1145,23 @@ def judge(cmd, cwd, mode, tainted, written):
         if refs or text_ref(code, cwd, mode) or lists_dataish_dir(code, cwd, mode):
             return f"inline `{verb}` code that opens data returns its values", False
         return None, False
+    runner = next((t for t in args if not t.startswith("-")), "") if re.match(r"^python", verb) else cmd[0]
+    if os.path.basename(runner) == "ce-aggregate-read" and is_plugin_script(runner, cwd, AGGREGATE_READER):
+        return None, False  # checks and prints the same bytes
+    if verb in AGG_READERS:
+        ops = operands(args)
+        tables = [t for t in ops if aggregate_file(t, cwd, mode)]
+        for table in tables:
+            if DATA_REF.search(table):
+                return aggregate_hint(table), False
+            problem = aggregate_problem(_resolve(table, cwd), mode)
+            if problem:
+                return f"`{table}` is not an aggregate table: {problem}", False
+        if tables and not any(token_ref(t, cwd, mode, tainted) for t in ops if t not in tables):
+            return None, False
+    script = script_file(verb, args)
+    if script and script_reads_data(_resolve(script, cwd), cwd, mode):
+        return f"the script `{script}` reads data and can print its values", False
     if not refs:
         return None, False
     if verb in METADATA_VERBS:
@@ -810,6 +1196,26 @@ def judge(cmd, cwd, mode, tainted, written):
     return f"`{verb}` on a data file prints its values", False
 
 
+def safe_companion(cmd):
+    """A command that may share a Bash call with ce-safe-run: metadata only, or a reader of the pipe (no files)."""
+    verb = program(cmd[0])
+    if verb in METADATA_VERBS or verb in ("echo", "printf", "true", "false", ":"):
+        return True
+    return verb in AGG_READERS | GREP_VERBS and all(t.isdigit() for t in operands(cmd[1:])[1 if verb in GREP_VERBS else 0:])
+
+
+def shell_code(cmd):
+    """The code string run by `sh|bash|zsh|dash|ksh -c CODE` or `eval CODE...`, else None."""
+    verb = program(cmd[0])
+    if verb == "eval":
+        return " ".join(cmd[1:])
+    if verb in ("sh", "bash", "zsh", "dash", "ksh"):
+        flags = [i for i, t in enumerate(cmd[1:], 1) if re.match(r"^-[A-Za-z]*c[A-Za-z]*$", t)]
+        if flags and flags[0] + 1 < len(cmd):
+            return cmd[flags[0] + 1]
+    return None
+
+
 def bash_violations(command, cwd, mode, depth=0):
     """Return (egress reason, access reason) for a shell command."""
     if depth > 3:
@@ -824,6 +1230,11 @@ def bash_violations(command, cwd, mode, depth=0):
     commands = [unwrap(seg) for pipeline in pipelines for seg in pipeline]
     runs_code = any(rest and (INTERPRETERS.match(program(rest[0])) or SCRIPT_RUNNERS.match(program(rest[0])))
                     for _, rest in commands)
+    if mode["mode"] == "schema-only" and any(rest and program(rest[0]) == "ce-safe-run" and is_plugin_script(rest[0], cwd)
+                                             for _, rest in commands):
+        if not all(not rest or program(rest[0]) == "ce-safe-run" or safe_companion(rest) for _, rest in commands):
+            access = access or ("run ce-safe-run as its own command: other commands in the same call can read what the "
+                                "run writes before it is recorded as data")
     written = set()
     for index, token in enumerate(tokens[:-1]):
         if token in (">", ">>", ">|"):
@@ -841,19 +1252,34 @@ def bash_violations(command, cwd, mode, depth=0):
                 access = access or "writing a script that opens data and running it in one command returns its values"
     tainted, cur = set(), cwd
     for pipeline in pipelines:
-        listed = False
+        listed = piped = False
         for seg in pipeline:
             assignments, cmd = unwrap(seg)
+            egress = egress or stdin_upload(seg, cmd, piped, cur, mode, tainted)
+            piped = piped or input_refs(seg, cur, mode, tainted)
             for assignment in assignments:
                 name, value = assignment.split("=", 1)
                 if token_ref(value, cur, mode, tainted):
                     tainted.add(name)
             if not cmd:
                 continue
-            egress = egress or upload_violation(cmd, cur, mode)
+            safe = False
+            if program(cmd[0]) == "ce-safe-run" and "--" in cmd:
+                safe = is_plugin_script(cmd[0], cur)
+                _, cmd = unwrap(cmd[cmd.index("--") + 1:])
+                if not cmd:
+                    continue
+            egress = egress or upload_violation(cmd, cur, mode) or ncbi_violation(cmd, mode)
+            inner = shell_code(cmd)
+            if inner is not None:
+                egress = egress or bash_violations(inner, cur, mode, depth + 1)[0]
             if mode["mode"] != "schema-only":
                 continue
             verb = program(cmd[0])
+            if safe:  # output stays in the run log; a copy to a readable path still leaks
+                if verb in COPY_VERBS:
+                    access = access or judge(cmd, cur, mode, tainted, written)[0]
+                continue
             if listed and verb in EXEC_CONSUMERS:
                 sub = [t for t in cmd[1:] if not t.startswith("-")]
                 if verb != "xargs" or not sub or program(sub[0]) not in METADATA_VERBS:
@@ -879,19 +1305,64 @@ def _strings(value, key=""):
             yield from _strings(v, key)
 
 
+def identifier_reason(text, mode, key=""):
+    """Why a string sent to a third party carries an identifier, or None. Never includes the match."""
+    text = DOI_OR_PMC.sub(" ", text)
+    for label, pattern in IDENTIFIER_PATTERNS:
+        if label == "an email address" and key in RECIPIENT_KEYS:
+            continue
+        if pattern.search(text):
+            return f"an argument contains {label}"
+    index = load_index(mode)
+    if index is INVALID_INDEX:
+        return ("the project's identifier index (.ce-datascience/identifier-index.local.json) is malformed, so "
+                "arguments cannot be checked against it; rebuild it with ce-identifier-index")
+    if index and index_hit(text, index):
+        return "an argument matches a value in the project's identifier index"
+    return None
+
+
 def mcp_violation(tool, tool_input, cwd, mode):
     uploadish = bool(UPLOADISH_TOOL.search(tool.split("__")[-1]))
-    for key, value in _strings(tool_input):
-        if key in EXEMPT_KEYS:
-            continue
-        text = DOI_OR_PMC.sub(" ", value)
-        for label, pattern in IDENTIFIER_PATTERNS:
-            if label == "an email address" and key in RECIPIENT_KEYS:
-                continue
-            if pattern.search(text):
-                return f"an argument contains {label}"
+    for key, value in _strings(tool_input):  # no key is exempt: DOIs/PMCIDs are stripped, bare PMIDs never match
+        reason = identifier_reason(value, mode, key)
+        if reason:
+            return reason
         if uploadish and not value.startswith(("/clipboard", "http://", "https://")) and is_data_path(value.strip(), cwd, mode):
             return "the tool would send a local data file"
+    return None
+
+
+HTTP_CLIENTS = {"curl", "wget", "http", "https", "xh"}
+# Where an HTTP request carries the caller's own contact by convention: credentials, the From header
+# (RFC 9110: the human user's email), and the User-Agent (polite-pool "mailto:"). An email there is not a patient's.
+OWN_CONTACT_OPTS = {"-u", "--user", "-A", "--user-agent"}
+OWN_CONTACT_HEADERS = ("from:", "user-agent:")
+
+
+def own_contact(prev, token):
+    if prev in OWN_CONTACT_OPTS or token.split("=", 1)[0] in OWN_CONTACT_OPTS:
+        return True
+    value = token.split("=", 1)[1] if token.startswith("--header=") else token if prev in ("-H", "--header") else ""
+    return value.strip().lower().startswith(OWN_CONTACT_HEADERS)
+
+
+def ncbi_violation(cmd, mode):
+    """Any HTTP client call (NCBI E-utilities by name or IP included) or the ce-pubmed script: MCP identifier checks."""
+    verb, args = program(cmd[0]), cmd[1:]
+    if verb not in HTTP_CLIENTS and not any(os.path.basename(t) == PUBMED_SCRIPT for t in cmd):
+        return None
+    from urllib.parse import unquote_plus  # only outbound queries need it
+
+    where = "an NCBI E-utilities query" if any(NCBI_HOST in t or os.path.basename(t) == PUBMED_SCRIPT for t in cmd) \
+        else f"a `{verb}` request"
+    for index, token in enumerate(args):
+        if os.path.basename(token) == PUBMED_SCRIPT:
+            continue
+        own = verb in HTTP_CLIENTS and own_contact(args[index - 1] if index else "", token)
+        reason = identifier_reason(unquote_plus(token), mode, "email" if own else "")
+        if reason:
+            return f"{where}: {reason[len('an argument '):]}" if reason.startswith("an argument ") else reason
     return None
 
 
@@ -916,10 +1387,15 @@ def classify(call, mode):
     if mode["mode"] != "schema-only":
         return None
     reason = access
-    if tool in ("Read", "NotebookRead"):
+    if tool in ("Read", "NotebookRead", "Edit", "MultiEdit", "NotebookEdit"):  # edits return a snippet
         path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         resolved = _resolve(path, cwd) if path else ""
-        if resolved.lower().endswith(".ipynb") and os.path.exists(resolved) and notebook_has_outputs(resolved):
+        if path and aggregate_file(path, cwd, mode) and DATA_REF.search(path):
+            reason = aggregate_hint(path)
+        elif path and aggregate_file(path, cwd, mode):
+            problem = aggregate_problem(resolved, mode)
+            reason = f"`{path}` is not an aggregate table: {problem}" if problem else None
+        elif resolved.lower().endswith(".ipynb") and os.path.exists(resolved) and notebook_has_outputs(resolved):
             reason = ("the notebook has saved outputs that may hold data values; clear them first with "
                       "`jupyter nbconvert --clear-output --inplace <notebook>`")
         elif is_data_path(path, cwd, mode):
@@ -964,7 +1440,8 @@ def deny_message(result, mode, helper):
                 "approved, schema-only, or no-sensitive-data, or re-run ce-setup.")
     return ("ce-datascience schema-only mode: the model endpoint is not approved for this project's sensitive "
             f"data ({reason}). Inspect structure with `python3 \"{helper}\" <file>` (headings, types, counts, "
-            "% missing only), or write a script that prints aggregates only and run it. If the endpoint is "
+            f"% missing only). Run scripts that read data through `{SAFE_RUNNER} -- <command>`: it keeps their "
+            "output in a local log and prints only the exit code, files written, and a masked stderr tail. If the endpoint is "
             "approved, re-run ce-setup or set phi_environment.mode in .ce-datascience/config.local.yaml.")
 
 

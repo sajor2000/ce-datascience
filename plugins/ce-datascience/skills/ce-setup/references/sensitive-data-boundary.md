@@ -45,12 +45,27 @@ How work proceeds:  the agent writes the code; scripts print only aggregates,
                     runs the schema helper, which prints headings, types,
                     counts, and % missing only.
 
-In Claude Code a guard hook blocks tool calls that would read data files. It
-cannot see what a script prints, so keep scripts aggregate-only.
+In Claude Code a guard hook blocks tool calls that would read data files, and
+runs scripts that read data only through ce-safe-run, which keeps their output
+in a local log and shows the agent the exit code, files written, and a masked
+error tail. Aggregate tables under output/ print through ce-aggregate-read,
+which checks the same bytes it shows (no identifier columns, no counts from
+1 to 10).
 To change this later, re-run the ce-setup skill or edit phi_environment.mode
 in .ce-datascience/config.local.yaml.
 ```
 <!-- ask-and-save:end -->
+
+## Identifier index
+
+Build or refresh the identifier index whenever `data_root` is set, in every mode (the guard uses it to keep patient names and IDs out of MCP tools and NCBI queries even with an approved endpoint). `scripts/ce-identifier-index` in this skill's directory hashes values from identifier-like columns (names, MRN and other IDs, SSN, date of birth, address, phone, email) under `data_root` with a fresh salt and writes `.ce-datascience/identifier-index.local.json`, gitignored, with no plaintext. It prints counts only. Check that the file exists, then run it with the first interpreter found among `python3`, then `python`, then `py`:
+
+```bash
+SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
+python3 "$SKILL_DIR/scripts/ce-identifier-index"
+```
+
+Report the counts line it prints. If no Python interpreter exists, say the index was not built and that MCP calls are then checked by identifier patterns only.
 
 ## Schema helper
 
