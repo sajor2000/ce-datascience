@@ -80,7 +80,7 @@
   --docusaurus-highlighted-code-line-bg: rgba(194, 80, 42, 0.12);
 }
 
-[data-theme='dark'] {
+html[data-theme='dark'] {
   --ms-ink: #ece8e0;
   --ms-paper: #11141a;
   --ms-surface: #1b1f27;
