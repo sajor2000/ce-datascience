@@ -1,6 +1,6 @@
 ---
 title: Port CLIF meta-analysis to Methodsmith
-status: in-progress
+status: validated-pending-pr
 ---
 
 # Scope
@@ -42,3 +42,21 @@ Do not claim estimator parity between Python Paule-Mandel and R REML.
   heterogeneity and HKSJ intervals match an independent Q-root/t calculation;
   R REML/Knapp-Hartung emits finite JSON with method provenance. This does not
   assert parity between the different estimators.
+
+# Port validation (2026-10-16)
+
+- Full suite: 1,611 pass, five unrelated optional-dependency skips, zero failures
+  across 112 files. Python PM and R REML regressions both execute.
+- Both fresh-context cases (dependence and methods) scored 13/13 twice; all hard
+  gates and credential checks passed. Whole-skill digests were captured before
+  dispatch. Evidence: `/tmp/methodsmith/behavioral-evals/clif-port-*`.
+- Typecheck, release metadata (67 skills), all 22 case schemas, rename idempotence,
+  description fingerprints, skill portability and website build pass.
+- Installed smoke uses numpy 2.4.6, scipy 1.17.1, statsmodels 0.15.0 and metafor
+  3.8.1. Code and fixture checks use synthetic aggregates only and temporary homes.
+- Independent Standards and Spec reviewers verified the original reproductions
+  are fixed; no remaining concrete blockers found in scope. Review reports remain
+  in OS temporary paths, separate from the historical audits.
+- Description fingerprints are regenerated after the feature commit because the
+  existing generator deliberately reads committed Git history. No generator or
+  release-version contract was changed.
