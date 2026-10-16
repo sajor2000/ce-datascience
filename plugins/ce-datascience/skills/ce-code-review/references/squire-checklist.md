@@ -16,6 +16,8 @@ Standards for QUality Improvement Reporting Excellence (SQUIRE 2.0).
 
 **Explanation and elaboration:** Goodman D, Ogrinc G, Davies L, Baker GR, Barnsteiner J, Foster TC, et al. Explanation and elaboration of the SQUIRE (Standards for Quality Improvement Reporting Excellence) Guidelines, V.2.0: examples of SQUIRE elements in the healthcare improvement literature. BMJ Qual Saf. 2016;25(12):e7. doi:10.1136/bmjqs-2015-004480. PMID: 27076505. PMCID: PMC5256235.
 
+**Source and licence:** Item numbers, names, and descriptions are reproduced verbatim from Table 1 of Ogrinc et al. 2016 (https://doi.org/10.1136/bmjqs-2015-004411, PMC5256233), published under CC BY-NC 4.0 (non-commercial reuse with attribution). EQUATOR record: https://www.equator-network.org/reporting-guidelines/squire/. Specialised versions: SQUIRE-EDU (Acad Med. 2019;94(10):1461-1470. PMID: 30998575) for educational improvement and SQUIRE-SIM (Simul Healthc. 2024. PMID: 39162794) for simulation-based improvement. The "What to look for" bullets are ce-datascience review guidance, not part of the guideline.
+
 Apply when reporting studies that describe healthcare quality, safety, or value improvement interventions in local or organizational contexts. SQUIRE 2.0 acknowledges that QI work is complex, context-dependent, and iterative. Items should be addressed as fully as their relevance allows; not all items apply to every study.
 
 ---
@@ -24,7 +26,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 1 -- Title
 
-**Description:** Indicate that the manuscript concerns an initiative to improve healthcare (broadly defined to include the quality, safety, effectiveness, patient-centeredness, timeliness, efficiency, and equity of healthcare).
+**Description:** Indicate that the manuscript concerns an initiative to improve healthcare (broadly defined to include the quality, safety, effectiveness, patient-centredness, timeliness, cost, efficiency and equity of healthcare).
 
 **What to look for in code/outputs:**
 - Report title naming the improvement initiative, care setting, and target outcome
@@ -34,7 +36,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 2 -- Abstract
 
-**Description:** Summarize the background and importance of the problem, the aim, setting, participant/patient population, study design and analytical methods, key findings, and conclusions.
+**Description:** Provide adequate information to aid in searching and indexing. Summarise all key information from various sections of the text using the abstract format of the intended publication or a structured summary such as: background, local problem, methods, interventions, results, conclusions.
 
 **What to look for in code/outputs:**
 - Abstract including the specific problem and its measured baseline magnitude
@@ -48,7 +50,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 3 -- Problem description
 
-**Description:** Nature and significance of the local problem. Describe what is known about the problem, why it is important to address, and how it affects patients, staff, or the organization.
+**Description:** Nature and significance of the local problem.
 
 **What to look for in code/outputs:**
 - Baseline performance data or measure of the problem's magnitude
@@ -68,7 +70,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 5 -- Rationale
 
-**Description:** Informal or formal frameworks, models, concepts, and/or theories used to explain the problem, any reasons or assumptions that were used to develop the intervention(s), and reasons why the intervention(s) was expected to work.
+**Description:** Informal or formal frameworks, models, concepts and/or theories used to explain the problem, any reasons or assumptions that were used to develop the intervention(s) and reasons why the intervention(s) was expected to work
 
 **What to look for in code/outputs:**
 - Theoretical framework cited (e.g., Model for Improvement, Lean, Theory of Constraints, Behavior Change Wheel)
@@ -92,7 +94,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 7 -- Context
 
-**Description:** Contextual elements considered important at the outset of introducing the intervention(s). Describe the setting, the local and system factors that were important for understanding the problem, and the people involved in delivering care.
+**Description:** Contextual elements considered important at the outset of introducing the intervention(s).
 
 **What to look for in code/outputs:**
 - Care setting described (hospital unit, ambulatory clinic, community setting)
@@ -102,7 +104,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 8 -- Intervention(s)
 
-**Description:** Description of the intervention(s) in sufficient detail that others could reproduce it. Describe what was done for whom, by whom, in what setting and when (the what, who, where, and when of the intervention).
+**Description:** Description of the intervention(s) in sufficient detail that others could reproduce it. Specifics of the team involved in the work.
 
 **What to look for in code/outputs:**
 - Intervention components described with sufficient detail for replication
@@ -111,9 +113,9 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 - Change package or bundle components documented
 - Iterative refinements to the intervention over time described
 
-### Item 9 -- Study of the intervention
+### Item 9 -- Study of the intervention(s)
 
-**Description:** Approach used to assess the impact of the intervention(s). Describe the type of study design used (e.g., pre-post, interrupted time series, run chart, control chart).
+**Description:** Approach chosen for assessing the impact of the intervention(s). Approach used to establish whether the observed outcomes were due to the intervention(s).
 
 **What to look for in code/outputs:**
 - Study design specified (pre-post, interrupted time series, stepped wedge, concurrent control)
@@ -123,7 +125,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 10 -- Measures
 
-**Description:** Measures chosen for studying processes and outcomes of the intervention(s), including rationale for choosing them, their operational definitions, and how data were collected.
+**Description:** Measures chosen for studying processes and outcomes of the intervention(s), including rationale for choosing them, their operational definitions and their validity and reliability. Description of the approach to the ongoing assessment of contextual elements that contributed to the success, failure, efficiency and cost. Methods employed for assessing completeness and accuracy of data.
 
 **What to look for in code/outputs:**
 - Outcome measures operationally defined (numerator, denominator, data source)
@@ -134,7 +136,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 11 -- Analysis
 
-**Description:** Approach to assessing the impact of the intervention(s). Include the approach to analyzing quantitative data (e.g., statistical methods and software used) and qualitative data (e.g., content analysis, thematic analysis).
+**Description:** Qualitative and quantitative methods used to draw inferences from the data. Methods for understanding variation within the data, including the effects of time as a variable.
 
 **What to look for in code/outputs:**
 - Statistical method specified and appropriate for study design (SPC, ITS regression, difference-in-differences)
@@ -145,7 +147,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 12 -- Ethical considerations
 
-**Description:** Ethical aspects of implementing and studying the improvement, including potential conflicts of interest, how they were managed, and the process for obtaining any required institutional permissions.
+**Description:** Ethical aspects of implementing and studying the intervention(s) and how they were addressed, including, but not limited to, formal ethics review and potential conflict(s) of interest.
 
 **What to look for in code/outputs:**
 - IRB or ethics board determination (QI exemption vs. full review) documented
@@ -159,7 +161,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 13 -- Results
 
-**Description:** Initial steps of the intervention and the context in which it was implemented; changes to the intervention during the project (with rationale); details of the process measures and outcome measures; and any harms to participants and unintended consequences.
+**Description:** Initial steps of the intervention(s) and their evolution over time (eg, time-line diagram, flow chart or table), including modifications made to the intervention during the project. Details of the process measures and outcomes. Contextual elements that interacted with the intervention(s). Observed associations between outcomes, interventions and relevant contextual elements. Unintended consequences such as unexpected benefits, problems, failures or costs associated with the intervention(s). Details about missing data.
 
 **What to look for in code/outputs:**
 - Timeline of intervention implementation with PDSA cycles or phases documented
@@ -175,7 +177,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 14 -- Summary
 
-**Description:** Key findings, including relevance to the rationale and specific aims. Consider the overall implications with respect to the aim.
+**Description:** Key findings, including relevance to the rationale and specific aims. Particular strengths of the project.
 
 **What to look for in code/outputs:**
 - Summary of observed improvement magnitude relative to the stated aim
@@ -185,18 +187,18 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 15 -- Interpretation
 
-**Description:** Nature of the association between the intervention(s) and the outcomes; any observed mechanisms; unanticipated findings; sustainability; and transferability of findings.
+**Description:** Nature of the association between the intervention(s) and the outcomes. Comparison of results with findings from other publications. Impact of the project on people and systems. Reasons for any differences between observed and anticipated outcomes, including the influence of context. Costs and strategic trade-offs, including opportunity costs.
 
 **What to look for in code/outputs:**
-- Causal pathway between intervention components and outcomes discussed
-- Rival explanations (secular trends, concurrent changes) addressed
-- Unanticipated consequences identified and explained
-- Sustainability of improvement over time assessed in time series data
-- Transferability to other settings discussed with relevant contextual factors
+- Nature of the association between intervention components and outcomes discussed, including rival explanations (secular trends, concurrent changes)
+- Results compared with findings from other publications
+- Impact of the project on people and systems described
+- Differences between observed and anticipated outcomes explained, including the influence of context
+- Costs and strategic trade-offs, including opportunity costs, reported
 
 ### Item 16 -- Limitations
 
-**Description:** Limits to the generalizability of the work. Include factors that may limit internal validity such as confounding, bias, or imprecision in the design, methods, measurement, or analysis.
+**Description:** Limits to the generalisability of the work. Factors that might have limited internal validity such as confounding, bias or imprecision in the design, methods, measurement or analysis. Efforts made to minimise and adjust for limitations.
 
 **What to look for in code/outputs:**
 - Internal validity limitations (confounding, selection bias, measurement bias) discussed
@@ -206,7 +208,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 17 -- Conclusions
 
-**Description:** Usefulness of the work; sustainability; potential for spread to other contexts; implications for practice and for further study in the field.
+**Description:** Usefulness of the work. Sustainability. Potential for spread to other contexts. Implications for practice and for further study in the field. Suggested next steps.
 
 **What to look for in code/outputs:**
 - Actionable conclusions for similar settings
@@ -220,7 +222,7 @@ Apply when reporting studies that describe healthcare quality, safety, or value 
 
 ### Item 18 -- Funding
 
-**Description:** Sources of funding that supported this work. Role, if any, of the funding organization in the design, implementation, interpretation, and reporting.
+**Description:** Sources of funding that supported this work. Role, if any, of the funding organisation in the design, implementation, interpretation and reporting.
 
 **What to look for in code/outputs:**
 - Funding acknowledgment in report
