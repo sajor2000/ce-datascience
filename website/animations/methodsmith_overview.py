@@ -17,7 +17,7 @@ from manim import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ce_visuals import MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
+from method_visuals import MUTED, PAPER, guardrail_strip, heading, skill_map, text  # noqa: E402
 
 
 class MethodsmithOverview(Scene):
@@ -26,7 +26,7 @@ class MethodsmithOverview(Scene):
 
         header = heading(
             "Methodsmith",
-            "From research question to reviewable evidence, one safe step at a time",
+            "Rigorous methods, from question to paper. Every study compounds.",
         )
         header.to_edge(UP, buff=0.32)
         columns = skill_map()
