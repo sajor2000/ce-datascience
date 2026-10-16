@@ -32,11 +32,13 @@ ANCOVA on `(1 - ρ^2) n` per arm has the same power as a t-test on `n` per arm; 
 
 ## Two-proportion (binary outcome)
 
-Normal approximation without continuity correction (matches `pwr.2p.test` / `NormalIndPower` to within 1):
+Normal approximation without continuity correction (matches base R `power.prop.test` exactly):
 
 `n_per_arm = (z_{1-alpha/2} sqrt(2 p_bar q_bar) + z_{1-beta} sqrt(p1 q1 + p2 q2))^2 / (p1 - p2)^2`
 
 Sanity: control 50% vs treatment 60%, α = 0.05 two-sided, power 0.80 → n ≈ 388/arm (387.3).
+
+`pwr.2p.test` and statsmodels `NormalIndPower` (with `proportion_effectsize`) use Cohen's arcsine effect size `h = 2 asin(sqrt(p1)) - 2 asin(sqrt(p2))`, `n_per_arm = 2 ((z_{1-alpha/2} + z_{1-beta}) / h)^2`. The two methods agree near 50% (387.2 vs 387.3) but diverge for rare outcomes: control 1% vs treatment 5% gives 284.3/arm by the formula above and 249.8/arm by arcsine. Name the method the planned test uses and validate against that solver.
 
 When the planned test is a continuity-corrected chi-square, apply the Fleiss correction `n_cc = n/4 * (1 + sqrt(1 + 4/(n * |p1 - p2|)))^2` (Fleiss, Levin & Paik, *Statistical Methods for Rates and Proportions*); the same example gives ≈ 408/arm. For small N, size an exact test (Fisher or Boschloo) by simulation.
 
@@ -50,11 +52,11 @@ where `d` = total events needed, `p1` = proportion allocated to arm 1.
 
 Rule of thumb: HR 0.75, balanced arms, α 0.05 two-sided, power 0.80 → ~380 events (`gsDesign::nEvents(hr = 0.75, alpha = 0.025, beta = 0.2)` gives 379.4; its defaults are one-sided 0.025 and power 0.90).
 
-Convert events to enrolment with the probability of an event averaged over arms. Under uniform accrual over `a` and minimum follow-up `f`, Simpson's rule gives (Schoenfeld, Biometrics 1983;39:499-503, PMID 6354290):
+Convert events to enrolment with the probability of an event weighted by allocation. Under uniform accrual over `a` and minimum follow-up `f`, Simpson's rule gives (Schoenfeld, Biometrics 1983;39:499-503, PMID 6354290):
 
-`P_event = 1 - mean_over_arms( [S_j(f) + 4 * S_j(f + a/2) + S_j(f + a)] / 6 )`
+`P_event = 1 - sum_j p_j * [S_j(f) + 4 * S_j(f + a/2) + S_j(f + a)] / 6`
 
-with `S_j(t) = exp(-lambda_j * t)` under exponential survival, `lambda_T = HR * lambda_C`. Then `n = d / P_event`, inflated for dropout. Prefer `gsDesign::nSurv` or `rpact::getSampleSizeSurvival`, which handle accrual, dropout, and allocation directly; never divide by a single-arm `1 - exp(-lambda * t)` that assumes everyone is followed for the full `t`.
+where `p_j` is the proportion allocated to arm `j` (1/2 each when balanced), with `S_j(t) = exp(-lambda_j * t)` under exponential survival, `lambda_T = HR * lambda_C`. Then `n = d / P_event`, inflated for dropout. Prefer `gsDesign::nSurv` or `rpact::getSampleSizeSurvival`, which handle accrual, dropout, and allocation directly; never divide by a single-arm `1 - exp(-lambda * t)` that assumes everyone is followed for the full `t`.
 
 ### Cox regression with a non-binary covariate
 
