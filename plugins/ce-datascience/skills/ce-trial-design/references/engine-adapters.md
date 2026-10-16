@@ -74,7 +74,7 @@ Use documented crossing probabilities and expected sample-size/information outpu
 
 Type I error under non-binding futility (`test.type = 4` or `6`) is computed IGNORING the futility bound (verified against gsDesign 3.11.0):
 
-- `sum(gsProbability(k = x$k, theta = 0, n.I = x$n.I, a = rep(-20, x$k), b = x$upper$bound)$upper$prob)`; `sum(x$falseposnb)` gives the same value
+- `sum(gsProbability(k = x$k, theta = 0, n.I = x$n.I, a = rep(-20, x$k), b = x$upper$bound)$upper$prob)`; `sum(x$falseposnb)` gives the same value (the help page calls this field `falseprobnb`, but the 3.11.0 object stores `falseposnb`; `x$falseprobnb` is `NULL` and sums to 0, so check `names(x)` on the pinned version)
 - do not use `sum(x$upper$prob[, 1])`, which includes the futility bound and understates alpha (0.0228 vs 0.025 for a 3-look Lan-DeMets O'Brien-Fleming design)
 - expected sample size or events: `x$en` (one value per `x$theta`, null first); power at the planned N: `sum(x$upper$prob[, 2])` from the same object or `gsProbability()` at the rounded N
 
