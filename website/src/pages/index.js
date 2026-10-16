@@ -22,6 +22,7 @@ const AUDIENCES = [
       ['/method-sap', 'claims linked to ICH E9(R1) estimands'],
       ['/method-cohort', 'reproducible cohort and waterfall counts'],
       ['/method-table1', 'traceable baseline-characteristics table'],
+      ['/method-numbers', 'every reported number traced to the analysis'],
     ],
   },
   {
@@ -33,6 +34,7 @@ const AUDIENCES = [
       ['/method-verify', 'leakage, effect direction and PHI gate'],
       ['/method-model-card', 'calibration, fairness and limits'],
       ['/method-marimo', 'reactive, reproducible Python notebooks'],
+      ['/method-figure', 'calibration, ROC and forest plots'],
     ],
   },
   {
@@ -44,6 +46,7 @@ const AUDIENCES = [
       ['/method-prereg', 'PROSPERO, OSF or ClinicalTrials.gov'],
       ['/method-meta-analysis', 'random effects, REML with Hartung-Knapp'],
       ['/method-checklist', 'PRISMA 2020 and its extensions'],
+      ['/method-write', 'evidence-bound manuscript drafts'],
     ],
   },
 ];
@@ -52,7 +55,7 @@ const TRUST = [
   ['39 EQUATOR checklists', 'CONSORT, STROBE, PRISMA, TRIPOD+AI, TARGET and more, encoded with their official item IDs. Only the newest version of each guideline can load; a test enforces it.'],
   ['PHI guard', 'A pre-tool hook keeps data values out of the model in schema-only projects and keeps identifiers out of MCP tools and uploads in every mode. Outputs are aggregate, with small cells suppressed.'],
   ['55 specialist reviewers', 'Methods, causal inference, multiplicity, leakage, calibration, fairness, reproducibility and PHI reviewers run in parallel; findings are deduplicated and confidence-gated.'],
-  ['Numbers locked to raw data', 'Manuscript, table and abstract numbers cite a registry written by the analysis code, and a fail-closed gate traces each one to its SAP output and source hash.', 'in progress'],
+  ['Numbers locked to raw data', '/method-numbers has manuscripts, tables and abstracts cite numbers from a registry written by the analysis code, and a fail-closed gate traces each one to its SAP output, script commit and source hash.'],
 ];
 
 export default function Home() {
