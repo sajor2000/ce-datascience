@@ -8,7 +8,7 @@
   <img src="website/static/brand/hero-light.svg" width="100%" alt="The Methodsmith hallmark. Rigorous methods for statistics, machine learning, and meta-analysis, from question to paper. Every study compounds. A plugin for Claude Code and Codex. The loop: /method-plan, /method-work, /method-review, /method-compound, with learnings feeding the next plan.">
 </picture>
 
-[![Release](https://img.shields.io/github/v/release/sajor2000/methodsmith?display_name=release&label=release&color=1B1F27)](https://github.com/sajor2000/methodsmith/releases)
+[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsajor2000%2Fmethodsmith%2Fmain%2Fplugins%2Fmethodsmith%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=1B1F27)](https://github.com/sajor2000/methodsmith/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-1B1F27)](LICENSE)
 [![CI](https://github.com/sajor2000/methodsmith/actions/workflows/ci.yml/badge.svg)](https://github.com/sajor2000/methodsmith/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-sajor2000.github.io%2Fmethodsmith-A63F1C?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48dGl0bGU%2BTWV0aG9kc21pdGg8L3RpdGxlPjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjAiIGZpbGw9IiMxQjFGMjciLz48cGF0aCBkPSJNMTAuMzAgNTAuODMgTDEwLjMwIDE1LjE4IEwxOS45MSAxNS4xOCBMMzIuMDAgMjcuNzggTDQ0LjA5IDE1LjE4IEw1My43MCAxNS4xOCBMNTMuNzAgNTAuODMgTDQ0LjA5IDUwLjgzIEw0NC4wOSAyOC44MCBMMzIuMDAgNDAuNzUgTDE5LjkxIDI4LjgwIEwxOS45MSA1MC44MyBaIiBmaWxsPSIjRjdGNUYwIi8%2BPC9zdmc%2BCg%3D%3D)](https://sajor2000.github.io/methodsmith/)
