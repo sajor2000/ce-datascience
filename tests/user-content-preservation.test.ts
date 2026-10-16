@@ -11,6 +11,7 @@ import type { PiBundle } from "../src/types/pi"
 import { writeGeminiBundle } from "../src/targets/gemini"
 import { writeKiroBundle } from "../src/targets/kiro"
 import { hashContent, readOwnershipLedger, writeOwnershipLedger } from "../src/targets/install-ownership"
+import { isKnownPluginArtifact } from "../src/utils/legacy-cleanup"
 
 // Synthetic user content only. Names deliberately collide with entries in the
 // legacy cleanup allow-lists (STALE_SKILL_DIRS, STALE_AGENT_NAMES,
@@ -371,5 +372,22 @@ describe("stale-name cleanup keeps user files found inside a plugin-owned direct
     const saved = (await findFiles(path.join(openCodeRoot, "ce-datascience"))).filter((file) => file.endsWith("my-notes.md"))
     expect(saved).toHaveLength(1)
     expect(await fs.readFile(saved[0], "utf8")).toBe("my notes")
+  })
+})
+
+describe("legacy fingerprints cover every description ce-datascience has shipped", () => {
+  test("an agent written by an older release, with a since-reworded description, is recognized", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "ce-fingerprint-history-"))
+    // Description shipped for ce-web-researcher before commit 2dbb90bf reworded it.
+    const oldAgent = path.join(root, "ce-web-researcher.md")
+    await fs.writeFile(
+      oldAgent,
+      "---\ndescription: Performs iterative web research and returns structured external grounding (prior art, adjacent solutions, market signals, cross-domain analogies). Use when ideating outside the codebase, validating prior art, scanning competitor patterns, finding cross-domain analogies, or any task that benefits from current external context. Prefer over manual web searches when the orchestrator needs structured external grounding.\nmode: subagent\n---\n\nOld agent.\n",
+    )
+    expect(await isKnownPluginArtifact(oldAgent)).toBe(true)
+
+    const userAgent = path.join(root, "my-agent.md")
+    await fs.writeFile(userAgent, USER_AGENT)
+    expect(await isKnownPluginArtifact(userAgent)).toBe(false)
   })
 })

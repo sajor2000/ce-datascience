@@ -13,10 +13,12 @@
  * TODO(cleanup): Remove this file after the v3 transition (circa Q3 2026).
  */
 
+import { createHash } from "crypto"
 import fs from "fs/promises"
 import path from "path"
 import { fileURLToPath } from "url"
 import { parseFrontmatter } from "./frontmatter"
+import shippedDescriptionFingerprints from "../data/shipped-description-fingerprints.json"
 
 /** Old skill directory names that no longer exist after the v3 rename. */
 export const STALE_SKILL_DIRS = [
@@ -536,6 +538,17 @@ function normalizeDescriptionFingerprint(value: string): string {
 }
 
 /**
+ * Short hash of a normalized description. `src/data/shipped-description-fingerprints.json`
+ * holds one per description any ce-datascience release shipped, generated from
+ * git history by `scripts/maintenance/description-fingerprints.ts`.
+ */
+export function descriptionFingerprint(value: string): string {
+  return createHash("sha256").update(normalizeDescriptionFingerprint(value)).digest("hex").slice(0, 16)
+}
+
+const shippedFingerprints = new Set<string>(shippedDescriptionFingerprints.fingerprints)
+
+/**
  * Every `description:` value ce-datascience has shipped that this checkout
  * knows about: current skills and agents, plus the historical maps above.
  * A file's description is the second ownership signal for legacy artifacts
@@ -601,6 +614,7 @@ export async function isKnownPluginArtifact(
 ): Promise<boolean> {
   const description = await readArtifactDescription(targetPath)
   if (!description) return false
+  if (shippedFingerprints.has(descriptionFingerprint(description))) return true
   const fingerprint = normalizeDescriptionFingerprint(description)
   if ((await loadKnownDescriptions()).has(fingerprint)) return true
   for (const extra of extraDescriptions) {
