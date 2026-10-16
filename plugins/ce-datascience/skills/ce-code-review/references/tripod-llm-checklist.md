@@ -14,7 +14,9 @@ TRIPOD-LLM: 19 main items and 50 subitems. 14 main items and 32 subitems apply t
 
 **Current primary reference:** Gallifant J, Afshar M, Ameen S, et al. The TRIPOD-LLM reporting guideline for studies using large language models. Nat Med. 2025;31(1):60-69. doi:10.1038/s41591-024-03425-5. PMID: 39779929. PMCID: PMC12104976.
 
-**Verified against:** TRIPOD-LLM Tables 1-3 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC12104976/.
+**Verified against:** TRIPOD-LLM Tables 1-3 in the PMC full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC12104976/, checked 2026-10-15. EQUATOR record: https://www.equator-network.org/reporting-guidelines/the-tripod-llm-reporting-guideline-for-studies-using-large-language-models/. Interactive checklist: https://tripod-llm.vercel.app/. TRIPOD-LLM is a living guideline; no later version had been published as of 2026-10-15.
+
+**Licence and wording:** The PMC copy is an NIH author manuscript available for text mining and fair use, not under an open licence, so item wording here is a faithful paraphrase that keeps each item's meaning; item numbers and the research-design and task codes are reproduced exactly.
 
 TRIPOD-LLM is an extension of TRIPOD+AI. For an LLM used as a prediction or classification model, apply TRIPOD+AI as the primary checklist and add TRIPOD-LLM. For chatbot health-advice studies, CHART is the primary guideline.
 
@@ -37,7 +39,7 @@ Item 6e applies only to classification and outcome-forecasting tasks; item 7a to
 
 | Item | Description | Applies to |
 |---|---|---|
-| 1 | Identify the study as developing, fine-tuning, and/or evaluating an LLM, specifying the task, target population, and outcome to be predicted | All |
+| 1 | Identify the study as developing, fine-tuning, and/or evaluating the performance of an LLM, specifying the task, target population, and outcome to be predicted | All |
 | 2 | Abstract per TRIPOD-LLM for Abstracts (sub-items 2a-2l: title, background, objectives, setting, data and splits, LLM name and version, building steps, tasks, evaluation datasets and measures, results, implications, registration) | All |
 
 ## Introduction
@@ -102,6 +104,6 @@ Item 6e applies only to classification and outcome-forecasting tasks; item 7a to
 | 19b | Limitations and their effects on bias, statistical uncertainty, and generalizability | All |
 | 19c | Known challenges in using data for the task and domain (representation, missingness, harmonization, bias) | E, H |
 | 19d | Intended use: input, end user, level of autonomy and human oversight | E, H |
-| 19e | How poor-quality or unavailable input data should be handled in implementation | E, H |
-| 19f | Whether users must interact with input data or the LLM, and the expertise required | E, H |
+| 19e | If applicable, how poor-quality or unavailable input data should be assessed and handled when implementing the LLM (its usability in current clinical care) | E, H |
+| 19f | If applicable, whether users must interact in handling input data or using the LLM, and the expertise required | E, H |
 | 19g | Next steps for future research, focused on applicability and generalizability | All |
