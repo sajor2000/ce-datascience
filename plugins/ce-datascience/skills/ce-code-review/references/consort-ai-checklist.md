@@ -2,186 +2,188 @@
 
 ## Contents
 
-- Title and Abstract
-- Introduction
-- Methods -- Intervention
-- Methods -- Outcomes
-- Methods -- Sample Size
-- Results
-- Discussion
+- Title and Abstract (items 1a,b (i)-(ii))
+- Introduction (item 2a (i))
+- Methods -- Participants (items 4a (i)-4b)
+- Methods -- Interventions (items 5 (i)-(vi))
+- Results -- Harms (item 19)
+- Other Information (item 25)
 
 AI EXTENSION checklist for reporting clinical trial reports that evaluate interventions with an artificial intelligence component.
+CONSORT-AI adds 14 items to the core CONSORT 2010 items, keyed to CONSORT 2010 item numbers. Items marked "Elaboration" expand on an existing CONSORT item; items marked "Extension" are new.
 
 **Base guideline:** Current CONSORT core (CONSORT 2025); this extension was published against CONSORT 2010 and should be interpreted with the current core.
 
-**Primary reference:** Liu X, Cruz Rivera S, Moher D, Calvert MJ, Denniston AK; CONSORT-AI and SPIRIT-AI Steering Group. Reporting guidelines for clinical trial reports for interventions involving artificial intelligence: the CONSORT-AI extension. Lancet Digit Health. 2020;2(10):e537-e548. doi:10.1016/S2589-7500(20)30218-1. PMID: 33328048.
+**Primary reference:** Liu X, Cruz Rivera S, Moher D, Calvert MJ, Denniston AK; SPIRIT-AI and CONSORT-AI Working Group. Reporting guidelines for clinical trial reports for interventions involving artificial intelligence: the CONSORT-AI extension. Lancet Digit Health. 2020;2(10):e537-e548. doi:10.1016/S2589-7500(20)30218-1. PMID: 33328048. Published simultaneously in BMJ. 2020;370:m3164 (doi:10.1136/bmj.m3164; PMID: 32909959; PMCID: PMC7490784) and Nat Med. 2020;26(9):1364-1374 (PMID: 32908283).
 
-This checklist supplements the current CONSORT core. Apply both checklists together; the extension's original publication used CONSORT 2010 terminology.
+**Verified against:** CONSORT-AI Table 1 in the BMJ full text, https://pmc.ncbi.nlm.nih.gov/articles/PMC7490784/, cross-checked against the Lancet Digital Health Table 1, https://pmc.ncbi.nlm.nih.gov/articles/PMC8183333/ (verified 2026-10-15).
+
+**Licence:** Checklist text reproduced verbatim from the BMJ publication (Liu et al., BMJ 2020;370:m3164) under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). The "What to look for" bullets and the CONSORT 2025 mapping lines are added by this plugin and are not CONSORT-AI text.
+
+**Numbering:** Item IDs are the CONSORT 2010 numbers used by CONSORT-AI. Each item gives the nearest CONSORT 2025 core item as a plugin mapping; cite CONSORT 2025 numbers for core items.
+
+This checklist supplements the current CONSORT core. Apply both checklists together.
 
 ---
 
 ## Title and Abstract
 
-### Item 1 -- AI intervention identification
+### Item 1a,b (i) -- AI intervention and model type (Elaboration)
 
-**Description:** Indicate that the intervention involves artificial intelligence or machine learning in the title and structured abstract.
+**Description:** Indicate that the intervention involves artificial intelligence/machine learning in the title and/or abstract and specify the type of model.
+
+CONSORT 2025 core: 1a, 1b.
 
 **What to look for in code/outputs:**
 - Manuscript title or report header explicitly naming the AI/ML component
-- Structured abstract mentioning AI method type (e.g., deep learning, NLP, decision support)
+- Structured abstract naming the model type (e.g., deep learning, gradient boosting, large language model)
 - Trial registration documents that label the intervention as AI-based
-- README or protocol files that classify the study as an AI clinical trial
+
+### Item 1a,b (ii) -- Intended use in title or abstract (Elaboration)
+
+**Description:** State the intended use of the AI intervention within the trial in the title and/or abstract.
+
+CONSORT 2025 core: 1a, 1b.
+
+**What to look for in code/outputs:**
+- Abstract sentence stating what the AI does in the trial (e.g., triage, diagnosis, treatment recommendation)
 
 ---
 
 ## Introduction
 
-### Item 2 -- AI intervention rationale
+### Item 2a (i) -- Intended use in the clinical pathway (Extension)
 
-**Description:** Explain the rationale for using an AI intervention, including the intended role of the AI component in clinical care.
+**Description:** Explain the intended use of the AI intervention in the context of the clinical pathway, including its purpose and its intended users (e.g. healthcare professionals, patients, public).
+
+CONSORT 2025 core: 6.
 
 **What to look for in code/outputs:**
-- Documentation describing why AI was chosen over conventional approaches
-- Background sections citing prior evidence for the AI approach in the clinical domain
-- Comments or documentation linking model outputs to clinical decision points
-- Protocol documents defining the AI's intended clinical role (assistive, autonomous, triage)
+- Protocol or background text defining the AI's clinical role (assistive, autonomous, triage) and its intended users
+- Workflow diagrams or comments linking model outputs to clinical decision points
 
 ---
 
-## Methods -- Intervention
+## Methods -- Participants
 
-### Item 3 -- AI intervention description
+### Item 4a (i) -- Participant-level eligibility (Elaboration)
 
-**Description:** Describe the AI intervention in sufficient detail to allow replication, including the algorithm type, version, and intended function.
+**Description:** State the inclusion and exclusion criteria at the level of participants.
 
-**What to look for in code/outputs:**
-- Model architecture specification (e.g., ResNet-50, BERT, XGBoost) in config files or documentation
-- Software version numbers and framework versions (TensorFlow, PyTorch) in requirements files
-- Model cards or technical specification documents accompanying the trial code
-- Hyperparameter configuration files or training scripts that define the model
-
-### Item 4 -- Instructions and skills for AI use
-
-**Description:** Describe the instructions and skills required for the human users of the AI intervention (e.g., clinicians, technicians).
+CONSORT 2025 core: 12a.
 
 **What to look for in code/outputs:**
-- User interface documentation or clinical workflow guides
-- Training materials or standard operating procedures for AI tool use
-- Qualification requirements for operators documented in the protocol
-- Human factors assessment or usability testing documentation
+- Participant inclusion/exclusion filter logic with explicit thresholds
 
-### Item 5 -- AI integration setting
+### Item 4a (ii) -- Input-data-level eligibility (Extension)
 
-**Description:** Describe the setting in which the AI intervention is integrated, including the point in the clinical pathway where the AI is deployed.
+**Description:** State the inclusion and exclusion criteria at the level of the input data.
 
-**What to look for in code/outputs:**
-- Workflow diagrams showing where AI outputs enter clinical decisions
-- Configuration files specifying deployment environment (EHR integration, standalone app, PACS plugin)
-- Infrastructure documentation (cloud vs. on-premise, hardware specifications)
-- API endpoint documentation or integration interface specifications
-
-### Item 6 -- Input data handling
-
-**Description:** Describe the input data required by the AI intervention, including data sources, data types, and any preprocessing applied.
+CONSORT 2025 core: 12a.
 
 **What to look for in code/outputs:**
-- Data preprocessing pipelines (normalization, resizing, feature extraction) in code
-- Input data format specifications and validation schemas
-- Data quality checks or input validation logic applied before model inference
-- Documentation of required data fields, acceptable ranges, and missing data handling
+- Input data validation schemas (image modality, resolution, required fields, acceptable ranges)
+- Counts of participants or records excluded because their input data failed the criteria
 
-### Item 7 -- Output data handling
+### Item 4b -- Integration into the trial setting (Extension)
 
-**Description:** Describe the output of the AI intervention, including the format, how outputs are presented to users, and any post-processing applied.
+**Description:** Describe how the AI intervention was integrated into the trial setting, including any onsite or offsite requirements.
+
+CONSORT 2025 core: 11.
 
 **What to look for in code/outputs:**
-- Output formatting code (probability thresholds, classification labels, risk scores)
-- Post-processing logic applied to raw model outputs before clinical presentation
-- User interface rendering code showing how results are displayed to clinicians
-- Threshold selection documentation and decision boundary specifications
+- Deployment configuration (EHR integration, standalone app, PACS plugin; cloud vs on-premise; hardware)
+- API endpoint or integration interface documentation
 
-### Item 8 -- Human-AI interaction
+---
 
-**Description:** Describe the human-AI interaction, including whether the AI output is used autonomously or as decision support, and whether clinicians can override the AI.
+## Methods -- Interventions
+
+### Item 5 (i) -- Algorithm version (Extension)
+
+**Description:** State which version of the AI algorithm was used.
+
+CONSORT 2025 core: 13.
+
+**What to look for in code/outputs:**
+- Model registry entries, version tags, or checkpoint hashes linked to trial enrolment periods
+- Documentation of model freeze dates and any mid-trial updates
+
+### Item 5 (ii) -- Acquisition and selection of input data (Extension)
+
+**Description:** Describe how the input data were acquired and selected for the AI intervention.
+
+CONSORT 2025 core: 13.
+
+**What to look for in code/outputs:**
+- Data acquisition and selection code (devices, sources, sampling of records) and preprocessing pipelines applied before inference
+
+### Item 5 (iii) -- Poor-quality or unavailable input data (Extension)
+
+**Description:** Describe how poor quality or unavailable input data were assessed and handled.
+
+CONSORT 2025 core: 13.
+
+**What to look for in code/outputs:**
+- Input quality checks and the actions taken on failure (reject, re-acquire, fall back to usual care)
+- Counts of cases with unusable or missing input, by arm
+
+### Item 5 (iv) -- Human-AI interaction in input handling (Extension)
+
+**Description:** Specify whether there was human-AI interaction in the handling of the input data, and what level of expertise was required of users.
+
+CONSORT 2025 core: 13.
+
+**What to look for in code/outputs:**
+- Standard operating procedures or training materials for users who prepare or select input data
+- Operator qualification requirements documented in the protocol
+
+### Item 5 (v) -- Output of the AI intervention (Extension)
+
+**Description:** Specify the output of the AI intervention
+
+CONSORT 2025 core: 13.
+
+**What to look for in code/outputs:**
+- Output formatting code (probabilities, classification labels, risk scores) and any thresholds applied
+- Post-processing applied to raw model outputs before presentation
+
+### Item 5 (vi) -- How outputs contributed to decisions (Extension)
+
+**Description:** Explain how the AI intervention's outputs contributed to decision-making or other elements of clinical practice.
+
+CONSORT 2025 core: 13.
 
 **What to look for in code/outputs:**
 - Workflow logic defining override mechanisms or escalation pathways
-- Logging code that captures when clinicians accept, reject, or modify AI recommendations
-- Documentation of autonomy level (fully automated, advisory, second-reader)
-- Alert and notification systems that mediate human-AI interaction
-
-### Item 9 -- Error case analysis
-
-**Description:** Provide an analysis of cases where the AI intervention produced incorrect, unexpected, or missing outputs, and how these were handled.
-
-**What to look for in code/outputs:**
-- Error logging and exception handling code for model inference failures
-- Analysis scripts examining false positives, false negatives, and edge cases
-- Fallback procedures documented for cases when AI output is unavailable
-- Confusion matrix, error case stratification, or failure mode analysis outputs
+- Logging that captures when clinicians accept, reject, or modify AI recommendations
+- Documentation of autonomy level (fully automated, advisory, second reader)
 
 ---
 
-## Methods -- Outcomes
+## Results -- Harms
 
-### Item 10 -- AI-specific outcome measures
+### Item 19 -- Performance errors (Extension)
 
-**Description:** Report any AI-specific performance metrics used as outcomes alongside clinical outcomes.
+**Description:** Describe results of any analysis of performance errors and how errors were identified, where applicable. If no such analysis was planned or done, justify why not.
+
+CONSORT 2025 core: 27.
 
 **What to look for in code/outputs:**
-- Performance metric calculations (AUC, sensitivity, specificity, F1) alongside clinical endpoints
-- Code computing both AI technical performance and patient-relevant outcomes
-- Statistical analysis comparing AI-assisted vs. control arm on both performance and clinical metrics
-- Calibration assessment code and decision curve analysis scripts
+- Analysis scripts examining false positives, false negatives, and failure cases, with how errors were identified
+- Error logging for model inference failures and subgroup breakdowns of errors
+- A stated justification when no error analysis was done
 
 ---
 
-## Methods -- Sample Size
+## Other Information
 
-### Item 11 -- Sample size considerations for AI
+### Item 25 -- Access to the AI intervention and code (Extension)
 
-**Description:** Describe any AI-specific considerations in the sample size calculation, such as the number of subgroups for fairness evaluation.
+**Description:** State whether and how the AI intervention and/or its code can be accessed, including any restrictions to access or re-use.
 
-**What to look for in code/outputs:**
-- Power calculations that account for AI performance variability
-- Subgroup sample size requirements for demographic fairness evaluation
-- Documentation of minimum sample sizes per stratum for meaningful AI performance assessment
-- Simulation code for determining adequate sample size for AI outcome evaluation
-
----
-
-## Results
-
-### Item 12 -- AI version and updates
-
-**Description:** Report the version of the AI algorithm used during the trial and whether any updates occurred during the trial period.
+CONSORT 2025 core: 4.
 
 **What to look for in code/outputs:**
-- Version control tags or model checkpoint identifiers logged per trial phase
-- Documentation of model freeze dates and any mid-trial updates
-- Model registry entries with version hashes linked to trial enrollment periods
-- Change logs documenting algorithm modifications during the trial
-
-### Item 13 -- Data preprocessing transparency
-
-**Description:** Report the actual data preprocessing steps applied during the trial, including any deviations from the protocol.
-
-**What to look for in code/outputs:**
-- Preprocessing pipeline code with documented parameters used in production
-- Data quality reports showing preprocessing outcomes (imputation rates, normalization statistics)
-- Deviation logs documenting any changes from planned preprocessing
-- Input data distribution summaries before and after preprocessing
-
----
-
-## Discussion
-
-### Item 14 -- AI-specific limitations
-
-**Description:** Discuss limitations specific to the AI intervention, including known failure modes, generalizability constraints, and potential biases.
-
-**What to look for in code/outputs:**
-- Subgroup analysis results revealing differential AI performance
-- Documentation of known edge cases or failure modes from development phase
-- Bias audit results across demographic groups (age, sex, race/ethnicity)
-- Discussion of deployment environment differences from training environment
+- Code or model repository URL, release tag, or DOI, with licence and access restrictions stated
+- Statement explaining why access is restricted, if it is
