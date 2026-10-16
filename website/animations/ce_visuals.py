@@ -1,16 +1,25 @@
 """Shared design system and content for the README diagrams and the site video.
 
-Render on macOS: the type pairs Avenir Next (prose) with Menlo (skill names).
-Other systems fall back to their default sans and mono faces.
+Type follows the Methodsmith brand (docs/brand/brand.md): Source Serif 4 for
+titles, IBM Plex Sans for prose, IBM Plex Mono for skill names. The render
+scripts download the OFL fonts with fetch-brand-fonts.sh and this module
+registers them for the render process only. Without them it falls back to
+Avenir Next and Menlo on macOS, or the system faces elsewhere.
 """
+
+import os
+from pathlib import Path
 
 from manim import (
     DOWN,
     LEFT,
+    PI,
     RIGHT,
     UP,
+    AnnularSector,
     Circle,
     Line,
+    Polygon,
     RoundedRectangle,
     Text,
     VGroup,
@@ -25,9 +34,24 @@ MUTED = "#5B6370"
 FAINT = "#9AA1AB"
 RULE = "#DCD8CF"
 SHADOW = "#1B1F27"
+EMBER = "#C2502A"  # brand accent: graphics only
+EMBER_DEEP = "#A63F1C"  # brand accent for text on paper
 
-SANS = "Avenir Next"
-MONO = "Menlo"
+
+def _register_brand_fonts():
+    font_dir = Path(os.environ.get("BRAND_FONT_DIR", "/tmp/ce-datascience/brand/manim-fonts"))
+    files = sorted(font_dir.glob("*.[ot]tf")) if font_dir.is_dir() else []
+    if not files:
+        return False
+    import manimpango
+
+    return all(manimpango.register_font(str(f)) for f in files)
+
+
+if _register_brand_fonts():
+    SANS, MONO, SERIF = "IBM Plex Sans", "IBM Plex Mono", "Source Serif 4"
+else:
+    SANS, MONO, SERIF = "Avenir Next", "Menlo", "Avenir Next"
 
 # (phase, purpose, color, [(skill, what it does)])
 PHASES = (
@@ -130,10 +154,35 @@ def shadowed(box, offset=0.045, opacity=0.08):
     return VGroup(shadow, box)
 
 
-def heading(title, subtitle, width=12.6, top_buff=0.38):
-    head = text(title, 40, weight="BOLD")
+def brand_mark(height=0.62, ink=INK, accent=EMBER):
+    """The Methodsmith mark: an ink m on an ember anvil face.
+
+    Rebuilt from filled shapes on the brand's 64-unit grid (see
+    docs/brand/scripts/build_brand.py), because Manim draws the SVG's stroked
+    path as an outline."""
+    half, r = 3.1, 7  # half stroke width, arch radius (centre line)
+
+    def pt(x, y):
+        return [x, -y, 0]
+
+    shapes = VGroup()
+    for x in (18, 32, 46):  # stems
+        shapes.add(Polygon(pt(x - half, 24), pt(x + half, 24), pt(x + half, 44.5), pt(x - half, 44.5)))
+    for cx in (25, 39):  # arches
+        shapes.add(AnnularSector(inner_radius=r - half, outer_radius=r + half, angle=PI).move_arc_center_to(pt(cx, 24)))
+    for shape in shapes:
+        shape.set_fill(ink, 1).set_stroke(width=0)
+    anvil = Polygon(pt(11, 43.5), pt(53, 43.5), pt(48.5, 49.5), pt(15.5, 49.5))
+    anvil.set_fill(accent, 1).set_stroke(width=0)
+    return VGroup(shapes, anvil).set_height(height)
+
+
+def heading(title, subtitle, width=12.6, top_buff=0.38, mark=False):
+    head = text(title, 42, weight="SEMIBOLD", font=SERIF)
+    if mark:
+        head = VGroup(brand_mark(head.height * 1.1), head).arrange(RIGHT, buff=0.26)
     sub = text(subtitle, 20, color=MUTED)
-    group = VGroup(head, sub).arrange(DOWN, buff=0.16)
+    group = VGroup(head, sub).arrange(DOWN, buff=0.18)
     fit(group, width)
     return group
 

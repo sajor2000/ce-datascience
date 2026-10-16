@@ -2,6 +2,8 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BRAND_FONT_DIR="$(bash "$repo_root/website/animations/fetch-brand-fonts.sh")"
+export BRAND_FONT_DIR
 scene="$repo_root/website/animations/readme_diagrams.py"
 render_dir="$(mktemp -d -t methodsmith-readme-diagrams-XXXXXX)"
 trap 'rm -rf "$render_dir"' EXIT

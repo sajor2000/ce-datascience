@@ -94,8 +94,8 @@ All three families are open source (SIL OFL 1.1).
 | Text and UI | [IBM Plex Sans](https://github.com/IBM/plex) 400 and 500 | Labels in caps get +0.08 em tracking |
 | Commands, code, numbers in tables | [IBM Plex Mono](https://github.com/IBM/plex) 500 | Only for things a user types or a machine prints |
 
-The README diagrams and video are rendered with Avenir Next and Menlo on macOS
-(see `website/animations/README.md`); they share the palette, not the faces.
+The README diagrams and the overview video use the same three faces; see
+`website/animations/README.md` for how they are fetched and registered.
 
 ## Media
 

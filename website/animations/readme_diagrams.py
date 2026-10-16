@@ -27,6 +27,7 @@ class ResearchWorkflow(Scene):
         header = heading(
             "From research question to reviewable evidence",
             "65 skills across six phases. method-workflow recommends the next safe step.",
+            mark=True,
         ).to_edge(UP, buff=0.32)
         columns = skill_map()
         columns.scale_to_fit_width(13.5).next_to(header, DOWN, buff=0.32)
