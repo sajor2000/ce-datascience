@@ -60,10 +60,6 @@ HEAD, not release tags; the marketplace installs from `main`.
 
 If **Skill directory** is empty or unresolved, skip to section 3.
 
-If **Latest upstream version** contains `__CE_UPDATE_VERSION_FAILED__`: tell
-the user the upstream version could not be fetched (gh may be unavailable or
-rate-limited), give the update command below anyway, and stop.
-
 If **Currently loaded version** contains `__CE_UPDATE_NOT_MARKETPLACE__`: this
 session loaded the skill from outside the standard marketplace cache (typical
 when using `claude --plugin-dir` for local development, or for a non-standard
@@ -76,6 +72,12 @@ install). Tell the user (substituting the actual path):
 > regular Claude Code session (no `--plugin-dir`) to check that cache."
 
 Then stop.
+
+If **Latest upstream version** contains `__CE_UPDATE_VERSION_FAILED__`: tell
+the user the upstream version could not be fetched (gh may be unavailable or
+rate-limited), give the update command below anyway, and stop. Fill
+`{marketplace-name}` from **Marketplace name**; if that line holds a sentinel,
+tell the user to read the name from `/plugin` under **Marketplaces**.
 
 **Up to date** — `{currently loaded} == {latest upstream}`:
 

@@ -165,7 +165,7 @@ esac
 }
 
 describe("ce-update covers every supported harness", () => {
-  const frontmatter = SKILL_BODY.split("---")[1]
+  const frontmatter = SKILL_BODY.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? ""
 
   test("ships to every target, not only Claude Code", () => {
     expect(frontmatter).not.toMatch(/ce_platforms/)
@@ -184,6 +184,15 @@ describe("ce-update covers every supported harness", () => {
     ]) {
       expect(SKILL_BODY).toContain(command)
     }
+  })
+
+  test("checks for a non-marketplace load before the fetch-failure branch, which falls back to /plugin", () => {
+    const logic = SKILL_BODY.slice(SKILL_BODY.indexOf("### Claude Code decision logic"))
+    const notMarketplace = logic.indexOf("If **Currently loaded version** contains `__CE_UPDATE_NOT_MARKETPLACE__`")
+    const fetchFailed = logic.indexOf("If **Latest upstream version** contains `__CE_UPDATE_VERSION_FAILED__`")
+    expect(notMarketplace).toBeGreaterThan(-1)
+    expect(fetchFailed).toBeGreaterThan(notMarketplace)
+    expect(logic.slice(fetchFailed, fetchFailed + 600)).toContain("**Marketplaces**")
   })
 
   test("says updates keep the user's own skills", () => {
