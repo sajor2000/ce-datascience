@@ -6,9 +6,9 @@
 - Attributes
 - How to use in review
 
-**Evidence status:** Unverified (registry status, pending a registry update). The instrument itself is verified against its primary publication below; the registry entry still records the earlier, unrelated local candidate and must be updated before PDSQI-9 is routed. PDSQI-9 is an evaluation instrument, not a reporting guideline.
+PDSQI-9 is an evaluation instrument, not a reporting guideline. It is never auto-routed.
 
-**Related reference:** Croxford E, Gao Y, Pellegrino N, et al. Development and validation of the provider documentation summarization quality instrument for large language models. J Am Med Inform Assoc. 2025;32(6):1050-1060. doi:10.1093/jamia/ocaf068. PMID: 40323321. PMCID: PMC12089781. Follow-on use as an LLM-as-a-judge rubric: Croxford E, et al. NPJ Digit Med. 2025;8:640. doi:10.1038/s41746-025-02005-2. PMID: 41193667.
+**Primary reference:** Croxford E, Gao Y, Pellegrino N, et al. Development and validation of the provider documentation summarization quality instrument for large language models. J Am Med Inform Assoc. 2025;32(6):1050-1060. doi:10.1093/jamia/ocaf068. PMID: 40323321. PMCID: PMC12089781. Follow-on use as an LLM-as-a-judge rubric: Croxford E, et al. NPJ Digit Med. 2025;8:640. doi:10.1038/s41746-025-02005-2. PMID: 41193667.
 
 **Source and licence:** Attribute names follow Table 1 of Croxford et al. 2025. The article is copyright Oxford University Press (all rights reserved), so each definition below is a faithful paraphrase, not a verbatim copy. Consult the publication for the exact rating instructions and scales.
 

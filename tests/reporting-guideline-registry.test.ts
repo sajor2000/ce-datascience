@@ -104,11 +104,10 @@ describe("reporting guideline registry", () => {
     const pdsqi = await readReference(registry.guidelines["PDSQI-9"].file)
 
     expect(registry.evidence.DEAL.status).toBe("unverified")
-    expect(registry.evidence["PDSQI-9"].status).toBe("unverified")
+    expect(registry.evidence["PDSQI-9"].status).toBe("verified")
     expect(deal).toContain("Evidence status:** Unverified")
-    expect(pdsqi).toContain("Evidence status:** Unverified")
+    expect(pdsqi).toContain("PMID: 40323321")
     expect(deal).not.toContain("**Primary reference:**")
-    expect(pdsqi).not.toContain("**Primary reference:**")
   })
 
   test("records current replacements and final publications", async () => {

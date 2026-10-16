@@ -96,7 +96,7 @@ OPTIONAL (any clinical-AI modelling study): offer MI-CLAIM (Norgeot et al., Nat 
 1. Read canonical `stack_profile.reporting_checklist` and `reporting_checklist_extensions` first.
 2. Pass each selected name to `ce-code-review` for resolution against the canonical evidence registry; reject unknown names there.
 3. Do not route entries with `evidence_status: unverified` as authoritative (`unverified` is a registry status, not an evidence label).
-4. Treat `appraisal`, `template`, and `data-quality-tool` roles as distinct from primary reporting guidelines.
+4. Treat `appraisal`, `template`, `data-quality-tool`, and `evaluation-instrument` roles as distinct from primary reporting guidelines.
 5. Layer base and extension checklists; an extension never replaces its base unless the registry explicitly records supersession.
 6. When current and legacy versions coexist, select the current version and retain the legacy citation only for historical compatibility.
 7. If study attributes cannot distinguish competing routes, ask one decision-changing question rather than guessing.
