@@ -14,6 +14,7 @@ argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 - **Output:** Effect-size summary with sources, assumptions, uncertainty, and downstream SAP/power handoff.
 - **Ask only if:** Only when outcome scale, comparison, estimand, or source set is ambiguous.
 - **Do not do:** Do not overstate causal interpretation or replace formal meta-analysis when one is required.
+- **Formal synthesis:** Use `ce-clif-meta-analysis` for a complete systematic review or CLIF site-to-lead analysis. The sample-size filter and power-anchor workflow here are not review eligibility rules.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Bridges `ce-method-extract` (which collects what prior studies REPORTED) and `ce-power` (which needs a single number to plug in). Without this skill, analysts pick the most favorable prior estimate and over-power; with it, they get a defensible pooled estimate with explicit uncertainty.
@@ -73,7 +74,7 @@ Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-pa
 Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
 
 If N ≥ 3:
-- For OR / HR / RR: log-transform → random-effects REML (use R `meta::metagen` or Python `pymeta`-style direct computation)
+- For OR / HR / RR: log-transform → random-effects REML (use an explicitly configured R `meta::metagen` or `metafor::rma`; Python statsmodels Paule-Mandel is a different method)
 - For MD: random-effects REML on the raw scale
 - For SMD: Hedges g + REML
 - Report: pooled estimate, 95% CI, 95% prediction interval (PI), I^2 heterogeneity, tau^2

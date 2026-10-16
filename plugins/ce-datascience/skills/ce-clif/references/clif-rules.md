@@ -117,11 +117,12 @@ To override: include `POC: @<github-handle> approved` (or `--poc-approved`) in t
 - Develop on MIMIC-IV converted to CLIF format (`CLIF-MIMIC` pipeline) or on local CLIF data.
 - Ship the analysis script via PR; each site runs it locally and returns aggregate results.
 - Validate site-portability: scripts must read paths from `config/config.json`, not hardcoded paths; must not assume a particular OS or filesystem; must list dependencies in `renv.lock` (R) or `uv.lock` / `pyproject.toml` (Python) with project-controlled versions.
-- **Two aggregation patterns exist in the consortium:**
-  - **Meta-analytic pooling:** each site runs the full analysis and submits summary CSVs; a central aggregation script pools with `metafor::rma(method="REML")`.
-  - **Federated coefficient pooling:** for low-prevalence outcomes where site-level models fail — sites submit local model coefficients, a lead site pools them into global intercepts, sites apply the global model locally. Use when outcome is too rare for site-level propensity scoring.
+- **Distinguish aggregation targets:**
+  - **Two-stage meta-analysis:** sites submit reviewed aggregate effects and same-scale uncertainty under a common estimand/model contract. Validate compatibility, independence, convergence, and site dispositions before pooling. REML is one justified estimator, not an asserted consortium-wide mandate.
+  - **Federated model estimation:** iterative distributed likelihood/gradient methods or a prespecified hierarchical model require a separate algorithm and validation. Averaging site coefficients or intercepts does not rescue failed rare-outcome models and is not equivalent to fitting a global model.
+- For formal site-to-lead or literature synthesis, use `ce-clif-meta-analysis`; it covers aggregate contracts, failed/suppressed sites, R/Python estimator differences, and lead-to-site feedback.
 - Site output files follow `{SITE_ID}_{descriptor}.{ext}` naming. The site identifier is always the prefix.
-- Aggregation code lives in a separate repository from the analysis code — the split is enforced at the repo boundary.
+- Keep aggregation separate from patient-level analysis. Use the project's approved layout; do not assert that a separate repository is universally required.
 
 ## 9b. Staged data loading
 

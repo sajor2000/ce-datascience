@@ -1,72 +1,70 @@
-# Pooling Formulas (DerSimonian-Laird and REML)
+# Pooling methods for a power-assumption anchor
 
-Random-effects meta-analysis. Default to REML (unbiased; better than DL for small N).
+This reference supports an effect-size assumption for power. Use
+`ce-clif-meta-analysis` for formal site-to-lead synthesis or a systematic review.
+Its eligibility and dependence decisions cannot be replaced by power-anchor
+filters.
 
-## Inputs per study
+## Inputs and uncertainty
 
-For each study `i`:
-- `theta_i` = effect size on the analytic scale (log(HR), log(OR), MD, SMD)
-- `se_i` = standard error of `theta_i` (compute from CI: `(hi - lo) / (2 * 1.96)` if 95% CI)
-- `w_i` = inverse-variance weight (`1 / (se_i^2 + tau^2)` for random-effects)
+For each independent compatible study, use an effect on its analysis scale and
+its sampling SE: natural log for OR/RR/HR, raw units for MD, and correctly
+bias-adjusted Hedges g with its variance for SMD. Do not conflate effect measures
+or adjusted and unadjusted estimands.
 
-## REML iteration
+For a symmetric 95% Wald interval on the analysis scale only,
+`SE = (upper - lower) / (2 * qnorm(0.975))` is an approximation.
+For ratios, transform the endpoints to logs first. Profile, bootstrap, exact,
+and t-based intervals need their actual construction, not an assumed 1.96.
 
-```
-1. Initialize tau^2 = 0
-2. Compute fixed-effect weights w_i = 1 / se_i^2
-3. Compute pooled theta = sum(w_i * theta_i) / sum(w_i)
-4. Compute Q = sum(w_i * (theta_i - theta)^2)
-5. Update tau^2 via REML estimating equation:
-   tau^2 = max(0, (sum(w_i * (theta_i - theta)^2) - (k - 1)) / (sum(w_i) - sum(w_i^2) / sum(w_i)))
-   where k = number of studies
-6. Recompute w_i = 1 / (se_i^2 + tau^2)
-7. Iterate until tau^2 converges
-```
+## Estimation
 
-## Pooled estimate
+Use a maintained implementation such as R `meta::metagen` or `metafor::rma`.
+REML estimates the heterogeneity variance by optimizing a restricted likelihood.
+It is not guaranteed unbiased in small samples. The closed-form
+`max(0, (Q - (k-1)) / (sum(w) - sum(w^2)/sum(w)))`, with common-effect inverse
+variance weights, is the DerSimonian-Laird moment estimator, not a REML update.
+Do not implement REML by iterating that formula.
 
-```
-pooled_theta = sum(w_i * theta_i) / sum(w_i)
-pooled_se    = sqrt(1 / sum(w_i))
-pooled_ci    = pooled_theta +/- 1.96 * pooled_se
-```
+For a specified tau-squared, random-effects weights are
+`w_i = 1 / (SE_i^2 + tau^2)` and the mean is
+`sum(w_i * theta_i) / sum(w_i)`. The scale-one SE is
+`sqrt(1 / sum(w_i))`. HKSJ estimated-scale inference and its degrees of freedom
+must be selected explicitly when used. Report the estimator, interval method
+and installed package version; do not assume defaults match across packages.
 
-For ratio metrics, exponentiate:
-```
-HR_pooled    = exp(pooled_theta)
-HR_ci        = exp(pooled_ci)
-```
+Exponentiate pooled log effects and interval endpoints for ratio presentation.
+I-squared, Q and tau-squared describe different aspects of heterogeneity.
+Do not select the scientific model by an I-squared cutoff or Q-test P value.
 
-## Heterogeneity
+## Prediction intervals and sensitivity
 
-```
-I^2 = max(0, (Q - (k - 1)) / Q) * 100%
-tau^2 = (from REML)
-```
+A prediction interval estimates the spread of underlying effects in comparable
+settings under the random-effects model. Its method matters. For example,
+metafor with `test="knha"` uses k-p t degrees of freedom by default; the Riley
+approximation uses k-2. Neither is an exact interval in general. State the
+method actually used and caution that few studies can make the interval
+misleading. A finite interval is not automatically suitable for planning.
 
-I^2 interpretation: 25% low, 50% moderate, 75% high (Higgins JPT, Thompson SG, Deeks JJ, Altman DG. Measuring inconsistency in meta-analyses. BMJ 2003;327(7414):557-60. PMID 12958120; PMCID PMC192859; DOI 10.1136/bmj.327.7414.557).
+For the existing power workflow, keep the emitted `pi=lo,hi` or `pi=NA` contract.
+If a PI is not defensible, document that and use an explicitly justified CI or
+clinical scenario range for a sensitivity sweep. These are planning assumptions,
+not review inclusion rules. Do not automatically discard a fixed percentage of
+small studies in response to funnel asymmetry. Prespecify meaningful sensitivity
+analyses and assess missing evidence.
 
-## Prediction interval
+## Software boundaries
 
-The prediction interval is the range a NEW study's effect would fall in -- wider than the CI. Often more useful for planning a new study.
+- R: `metafor::rma(yi, sei=se, method="REML", test="knha")` or explicitly
+  configured `meta::metagen`; inspect current version-specific CI/PI arguments.
+- Python: `statsmodels.stats.meta_analysis.combine_effects` supports
+  Paule-Mandel (`iterated`/`pm`) and DL (`chi2`/`dl`), not REML. Its estimated-
+  scale interval and scale-one interval are distinct outputs. Use the declared
+  supported method or an approved R bridge rather than hand-coded REML.
+- Cross-language checks must match estimator, CI method, transformation and
+  degrees of freedom. Different supported methods are not parity tests.
 
-```
-PI = pooled_theta +/- t_{k-2, 0.975} * sqrt(pooled_se^2 + tau^2)
-```
-
-For ratio metrics, exponentiate. PI is what `ce-power` should use as the sensitivity-sweep bounds; the signal carries it as `pi=lo,hi`. It needs k >= 3 (t has k - 2 df), so emit `pi=NA` when it is not computable and `ce-power` falls back to `ci=`.
-
-## When NOT to pool
-
-The k and I^2 cutoffs below are working conventions of this skill, not literature-derived thresholds; state them in the output and look up the question-specific guidance (see Evidence access in `SKILL.md`) when a reviewer or the SAP needs a sourced justification.
-
-- k < 3: report narrative range only
-- I^2 > 80%: report pooled estimate but caution; consider subgroup or meta-regression
-- Mixed metrics in input (some OR, some RR): subset to modal; do not convert without per-study event rates
-- Small-study effects (funnel plot asymmetry): suggest sensitivity excluding the smallest 20%
-
-## Software equivalents
-
-- R: `meta::metagen(TE, seTE, studlab, sm="HR", method.tau="REML")`
-- Python: there's no perfect equivalent; recommend hand-coded REML or bridging via `rpy2`
-- Stata: `meta set theta se, eform`; `meta summarize, random(reml)`
+Primary documentation:
+https://wviechtb.github.io/metafor/reference/rma.uni.html
+https://wviechtb.github.io/metafor/reference/predict.rma.html
+https://www.statsmodels.org/stable/generated/statsmodels.stats.meta_analysis.combine_effects.html

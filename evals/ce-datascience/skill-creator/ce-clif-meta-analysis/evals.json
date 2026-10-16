@@ -1,0 +1,41 @@
+{
+  "skill_name": "ce-clif-meta-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our CLIF lead has six site summaries, two failed logistic fits, one log-RR and five log-OR estimates, possible transfer overlap, and no adjustment dictionary. Write the R/Python synthesis plan and input checks.",
+      "expected_output": "Reconciles every site and blocks independent pooling until scale, estimand, overlap and model compatibility are resolved.",
+      "files": [],
+      "expectations": [
+        "Keeps failed fits as unavailable with reasons rather than zero effects",
+        "Does not pool log-RR and log-OR together",
+        "Requires adjustment/estimand compatibility and an overlap assessment",
+        "Separates coefficient meta-analysis from global model fitting and returns a site reconciliation plan"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "For our preregistered review, generate R REML and Python statsmodels code for independent adjusted log-HRs. We have four studies. Can the two engines be called equivalent and can we use Egger to prove no publication bias?",
+      "expected_output": "Produces explicit method guidance and declines unsupported method equivalence and bias claims.",
+      "files": [],
+      "expectations": [
+        "Identifies statsmodels iterated as Paule-Mandel rather than REML",
+        "Explicitly selects HKSJ/Knapp-Hartung intervals rather than relying on defaults",
+        "Explains small-k heterogeneity and prediction interval uncertainty",
+        "Does not use Egger with four studies or interpret its result as proof of no publication bias"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan a healthcare systematic review of observational intervention studies in R. We have searched PubMed once but have no protocol, second reviewer or risk-of-bias decisions. Provide what is needed before pooling.",
+      "expected_output": "Provides protocol, source and reviewer workflows without fabricating completed actions.",
+      "files": [],
+      "expectations": [
+        "Distinguishes PRISMA/MOOSE reporting from Cochrane conduct and statistical validity",
+        "Records prospective registration eligibility/timing and does not invent an identifier",
+        "Requires documented topic-appropriate database searches and independent decisions",
+        "Selects an appropriate risk-of-bias tool with version and outcome-level certainty assessment"
+      ]
+    }
+  ]
+}

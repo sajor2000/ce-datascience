@@ -205,7 +205,7 @@ configuration examples and selection guidance are in
 | Component | Count |
 |-----------|-------|
 | Agents | 55 |
-| Skills | 65 |
+| Skills | 66 |
 
 Publication workflows use shared artifact registries and publication profiles so tables, figures, manuscript packages, registry exports, review packs, and signoff ledgers stay consistent. The initial publication profiles are JAMA and generic biomedical.
 
@@ -330,6 +330,7 @@ For the academic paper lifecycle: literature → checklist → cohort → power 
 |-------|-------------|
 | `/ce-clif` | Activate CLIF-safe profile for ICU consortium repos -- `/ce-clif --version 2.1.0` selects CLIF/mCIDE 2.1 and `--version 3.0.0` selects the matching 3.0 family; asks once whether the data environment and model endpoint are PHI/PII-compliant, keeps patient-level intermediates in the approved restricted data root, and enforces Parquet-only, version-correct mCIDE vocab, and POC sign-off |
 | `/ce-clif-project-template` | Initialize or audit a CLIF project against the official Project Template, with explicit version selection, site-local configuration, and aggregate-only final-output safeguards |
+| `/ce-clif-meta-analysis` | Plan, code and audit CLIF site-to-lead effect synthesis or conventional healthcare meta-analysis, with validated aggregate contracts and explicit R REML/Python Paule-Mandel methods |
 | `/ce-cohort-build` | Define a study cohort using OMOP concept sets / ICD / CPT / LOINC code lists with vocabulary version pinning; outputs SQL, JSON spec, and CONSORT-flow waterfall |
 | `/ce-phenotype-validate` | Validate an EHR-derived phenotype algorithm against a chart-review gold standard; PPV / NPV / sensitivity / specificity overall and by subgroup |
 

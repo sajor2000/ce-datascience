@@ -409,56 +409,40 @@ covariate_df <- covariate_df[, keep]
 
 CLIF studies use a local-then-summary architecture: local scripts run at each site on patient-level data and emit aggregate CSVs; summary scripts run centrally on the pooled aggregates.
 
-### 10a. Collating site results
+### 10a. Validate site results before synthesis
+
+Use `ce-clif-meta-analysis` for a complete aggregate contract and executable R
+and Python templates. Keep every site's received/failed/suppressed/excluded
+status. Verify compatible outcome, contrast, adjustment set, analysis scale,
+time horizon, code version and independent sampling units before a fit.
+Do not concatenate arbitrary files and pool every row as independent.
+
+### 10b. Explicit random-effects inference
+
+For already validated independent approximately normal log-OR estimates, a
+prespecified R analysis can use:
 
 ```r
-library(data.table)
-
-# Load each site's aggregate CSV into a named list, then bind
-site_files <- list.files("site_results", pattern = "_global_aggregate_.*\\.csv$", full.names = TRUE)
-site_data <- lapply(site_files, function(f) {
-  dt <- fread(f)
-  dt$site <- tools::file_path_sans_ext(basename(f)) |> sub("_global_aggregate_.*", "", x = _)
-  dt
-})
-pooled <- rbindlist(site_data)
+fit <- metafor::rma(yi = log_estimate, sei = se_estimate,
+                    method = "REML", test = "knha", data = validated)
+metafor::forest(fit, atransf = exp, xlab = "Odds ratio")
 ```
 
-### 10b. Random-effects meta-analysis
+This is REML with Knapp-Hartung inference, not a claim that REML is a consortium
+standard. Generate the forest plot from the fitted primary model rather than
+refitting through another package's potentially different defaults. Report
+heterogeneity and influence checks, small-site-count uncertainty, and the exact
+prediction-interval method when one is defensible.
 
-```r
-library(metafor)
-library(meta)
+### 10c. Distinguish alternative targets
 
-# Pool site-level estimates — REML is the consortium standard
-fit <- rma(yi = log_estimate, sei = se_estimate, method = "REML", data = pooled)
-
-# Forest plot
-forest_obj <- metagen(
-  TE = log_estimate, seTE = se_estimate,
-  studlab = site, data = pooled,
-  sm = "OR", backtransf = TRUE,
-  common = FALSE, random = TRUE
-)
-forest(forest_obj)
-```
-
-### 10c. Bayesian hierarchical complement
-
-Some CLIF studies run a Bayesian model alongside the frequentist meta-analysis for robustness:
-
-```r
-library(brms)
-
-fit_bayes <- brm(
-  outcome | trials(n) ~ 1 + (1 | site),
-  data = pooled,
-  family = binomial(),
-  prior = c(prior(normal(0, 2), class = Intercept),
-            prior(cauchy(0, 1), class = sd)),
-  chains = 4, iter = 4000, warmup = 2000
-)
-```
+A binomial random-intercept model of event counts estimates a prevalence/risk
+hierarchy. It is not automatically a robustness analysis for an adjusted
+log-odds-ratio meta-analysis. A Bayesian complement must target the same
+estimand with a stated likelihood, priors, diagnostics and sensitivity analyses.
+Pooling coefficients is also different from federated optimization or external
+prediction-model validation. A failed local model needs a planned statistical
+resolution, not a substituted zero or an averaged global intercept.
 
 ### 10d. Figure conventions
 

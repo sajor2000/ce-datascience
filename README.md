@@ -404,6 +404,7 @@ preserved, while retrospective interpretation remains in Discussion.
 /ce-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
 # or
 /ce-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+/ce-clif-meta-analysis  # Site-to-lead or literature synthesis in R/Python
 /ce-workflow
 /ce-work
 ```
@@ -590,7 +591,7 @@ bun run package:corporate
 
 | | Count |
 |---|---|
-| Skills | 65 |
+| Skills | 66 |
 | Agents | 55 |
 | Reporting checklists | 35 |
 

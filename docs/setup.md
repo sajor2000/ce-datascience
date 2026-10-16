@@ -470,6 +470,7 @@ these calls before category work:
 ```text
 /ce-clif --version 2.1.0  # CLIF 2.1 + mCIDE 2.1
 /ce-clif --version 3.0.0  # CLIF 3.0 + mCIDE 3.0
+/ce-clif-meta-analysis  # Site-to-lead or literature synthesis in R/Python
 ```
 
 An explicit call does not prompt again. If it conflicts with an explicitly
