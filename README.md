@@ -34,7 +34,8 @@ claude plugin install methodsmith --marketplace sajor2000/methodsmith
 **Codex**:
 
 ```bash
-git clone https://github.com/sajor2000/methodsmith.git ~/methodsmith && bash ~/methodsmith/install.sh codex
+git clone https://github.com/sajor2000/methodsmith.git ~/methodsmith
+bash ~/methodsmith/install.sh codex
 ```
 
 Then open your project and run `/methodsmith:method-setup` (in Codex, ask it to
@@ -54,12 +55,12 @@ Every study runs the same four steps. The loop comes from Every's
 [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin);
 Methodsmith adapts each step for research methods.
 
-| Step | Command | What it does |
-|---|---|---|
-| Plan | `/method-plan` | Writes the analysis plan first: a versioned SAP with ICH E9(R1) estimands, endpoints and decisions |
-| Work | `/method-work` | Runs the plan with SAP traceability, tests and a real-data gate |
-| Review | `/method-review` | Specialist reviewers check methods, leakage, PHI and the reporting checklist; findings are confidence-gated |
-| Compound | `/method-compound` | Records what the study taught you in `docs/solutions/`, so the next plan starts from it |
+| Step | What it does |
+|---|---|
+| **Plan**<br>`/method-plan` | Writes the analysis plan first: a versioned SAP with ICH E9(R1) estimands, endpoints and decisions |
+| **Work**<br>`/method-work` | Runs the plan with SAP traceability, tests and a real-data gate |
+| **Review**<br>`/method-review` | Specialist reviewers check methods, leakage, PHI and the reporting checklist; findings are confidence-gated |
+| **Compound**<br>`/method-compound` | Records what the study taught you in `docs/solutions/`, so the next plan starts from it |
 
 Not sure where you are? `/method-workflow` reads the project and recommends the
 next safe step.
@@ -875,9 +876,42 @@ bun run package:corporate
 
 ---
 
-## Built on
+<!-- brand:faq:start -->
+## FAQ
 
-Fork of [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by [Kieran Klaassen](https://github.com/kieranklaassen) at [Every](https://every.to). Also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) and [Superpowers](https://github.com/obra/superpowers).
+**Is this an AI statistician?** No. It is a set of workflows and reviewers that
+make an analysis explicit and checkable. The researcher chooses the methods,
+reads the review, and is accountable for every result, as ICMJE and the ASA
+expect.
+
+**Does my data leave my machine?** Methodsmith has no server of its own; it runs
+inside your coding agent. Literature skills query public services such as
+PubMed when you ask them to, and your agent's model provider sees what the agent
+reads. That is why the PHI guard keeps data values out of the model in
+schema-only projects and keeps identifiers out of MCP tools. See [Sensitive-data boundary](#sensitive-data-boundary)
+and [What MCP tools receive](#what-mcp-tools-receive).
+
+**R or Python?** Either. Setup detects the language, notebook format and data
+layer from the project and only asks about what it cannot infer.
+
+**Which agents does it run on?** Claude Code and Codex natively, Pi through a
+generated install, and others through the converter CLI. See
+[Also works with Codex, Pi, Gemini, and more](#also-works-with-codex-pi-gemini-and-more).
+
+**How is it related to Compound Engineering?** It is an MIT-licensed fork. The
+loop, the review architecture and much of the engineering workflow come from
+Every's plugin; Methodsmith adds the research-methods skills, reviewers,
+checklists and guards.
+
+## Credits
+
+Methodsmith is a fork of [Compound Engineering](https://github.com/EveryInc/compound-engineering-plugin)
+by [Kieran Klaassen](https://github.com/kieranklaassen) and [Trevin Chow](https://github.com/tmchow)
+at [Every](https://every.to), which introduced the plan, work, review, compound
+loop. It is also influenced by [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
+and [Superpowers](https://github.com/obra/superpowers). Methodsmith is maintained
+by Juan Carlos Rojas. Brand assets and their sources are in [docs/brand](docs/brand/brand.md).
+<!-- brand:faq:end -->
 
 ## License
 
