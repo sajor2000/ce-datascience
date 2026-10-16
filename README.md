@@ -492,10 +492,10 @@ The checklist registry records publication evidence, current versus legacy versi
 |---|---|---|
 | Observational cohort | STROBE | RECORD, RECORD-PE, STROBE-MR, STREGA |
 | Randomized trial | CONSORT | CONSORT-AI, SPIRIT-AI, Cluster, Adaptive, N-of-1 |
-| Prediction model | TRIPOD, TRIPOD+AI | CHARMS |
+| Prediction model | TRIPOD+AI (supersedes TRIPOD 2015) | CHARMS |
 | Diagnostic accuracy | STARD, STARD-AI | CLAIM, QUADAS-2 |
 | Systematic review | PRISMA | DTA, NMA, IPD, ScR |
-| Target trial emulation | TARGET | |
+| Target trial emulation | TARGET (standalone) | |
 | Other | SQUIRE, GRAMMS, STaRT-RWE, ARRIVE, CARE, CHART, CHEERS, COREQ, DEAL, PDSQI, REFORMS | |
 
 ---

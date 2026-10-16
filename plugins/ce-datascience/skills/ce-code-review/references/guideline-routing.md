@@ -16,13 +16,15 @@ Each `study_type` maps to exactly one primary guideline. When `study_type` is ab
 | `qualitative` | COREQ | `references/coreq-checklist.md` |
 | `animal` | ARRIVE 2.0 | `references/arrive-checklist.md` |
 | `health-economic` | CHEERS 2022 | `references/cheers-checklist.md` |
-| `prediction-model` | TRIPOD or TRIPOD+AI, based on AI/ML involvement | `references/tripod-checklist.md` or `references/tripod-ai-checklist.md` |
-| `target-trial-emulation` | TARGET (companion: STROBE, plus RECORD for routinely collected EHR, claims, or registry data) | `references/target-checklist.md` (+ `references/strobe-checklist.md`, `references/record-checklist.md`) |
+| `prediction-model` | TRIPOD+AI (regression or machine learning; TRIPOD 2015 is superseded) | `references/tripod-ai-checklist.md` |
+| `target-trial-emulation` | TARGET (standalone) | `references/target-checklist.md` |
 | `quality-improvement` | SQUIRE 2.0 | `references/squire-checklist.md` |
 | `exploratory` | _(none required)_ | _(reviewer skips unless user overrides)_ |
 | `other` | _(ask user)_ | _(reviewer asks which guideline to apply)_ |
 
-**Target trial emulation:** an `observational` study whose design or SAP explicitly emulates a target trial routes as `target-trial-emulation`: TARGET is the primary reporting guideline and STROBE is always applied as its companion; add RECORD when the data are routinely collected (EHR, claims, registry). Mixed-methods studies keep the quantitative primary and add GRAMMS as a provisional extension; GRAMMS is never the primary.
+**Target trial emulation:** an `observational` study whose design or SAP explicitly emulates a target trial routes as `target-trial-emulation`: TARGET is the primary reporting guideline and is designed to stand alone (Cashin et al. 2025, PMID 40903028). Add RECORD (routinely collected EHR, claims, or registry data) or STROBE only when the journal or data source requires them. Mixed-methods studies keep the quantitative primary and add GRAMMS as a provisional extension; GRAMMS is never the primary.
+
+**Prediction models:** TRIPOD+AI supersedes TRIPOD 2015 for every prediction-model study, regression or machine learning (Collins et al. 2024, PMID 38626948). Load `references/tripod-checklist.md` only when the user explicitly asks for a legacy TRIPOD 2015 audit (alias `tripod-2015`).
 
 **Backward compatibility:** The original values `observational`, `rct`, `exploratory`, and `other` continue to work unchanged. New values extend the enum without breaking existing SAPs.
 
@@ -62,6 +64,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | Abbreviation | Full name | Items | Scope |
 |---|---|---|---|
 | CONSORT | Consolidated Standards of Reporting Trials (2025) | 30 | RCTs |
+| TARGET | Transparent Reporting of Observational Studies Emulating a Target Trial (2025) | 21 | Target trial emulation |
 | STROBE | Strengthening the Reporting of Observational Studies in Epidemiology | 22 | Observational |
 | PRISMA | Preferred Reporting Items for Systematic Reviews and Meta-Analyses | 27 | Systematic reviews |
 | STARD | Standards for Reporting Diagnostic Accuracy | 30 | Diagnostic accuracy |
@@ -71,7 +74,7 @@ When `ai_involvement` is set to a value other than `none`, the reviewer layers t
 | CHEERS | Consolidated Health Economic Evaluation Reporting Standards | 28 | Health economics |
 | CONSORT-AI | CONSORT extension for AI interventions | 14 | AI + RCT |
 | SPIRIT-AI | SPIRIT extension for AI trial protocols | 15 | AI + trial protocol |
-| TRIPOD+AI | TRIPOD extension for AI prediction models | 27 | AI prediction |
+| TRIPOD+AI | Prediction-model reporting, regression or ML (supersedes TRIPOD 2015) | 27 | Any prediction model |
 | REFORMS | Reporting Standards for ML in Science | ~20 | ML/computational |
 | CLAIM | Checklist for AI in Medical Imaging | 42 | AI + imaging |
 | DEAL | DEep Learning in pAthology | ~16 | DL + pathology |
