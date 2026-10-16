@@ -74,7 +74,7 @@ describe("bundled R scripts", () => {
 
   test("trial-design example reads type I error from alpha spent, not the futility-applied null rejection", async () => {
     const source = await readFile(path.join(skillsRoot, "ce-trial-design", "references", "engine-run.example.R"), "utf8")
-    expect(source).toContain("type1_error = round(design$alphaSpent[design$kMax], 4)")
+    expect(source).toContain("type1_error = design$alphaSpent[design$kMax]")
     expect(source).not.toMatch(/type1_error = [^\n]*pow_null\$overallReject/)
   })
 
@@ -84,5 +84,24 @@ describe("bundled R scripts", () => {
     expect(source).not.toContain("primary_concepts[[1]]$include_descendants")
     expect(source).toContain("exclude(%s)")
     expect(source).toContain("vocabulary_version")
+  })
+
+  test("trial-design example keeps full precision, honors the declared direction, and logs warnings", async () => {
+    const source = await readFile(path.join(skillsRoot, "ce-trial-design", "references", "engine-run.example.R"), "utf8")
+    expect(source).not.toMatch(/(achieved_power|type1_error|expected_information_\w+) = round\(/)
+    expect(source).toMatch(/getDesignGroupSequential\([\s\S]*directionUpper = direction_upper/)
+    expect(source).toMatch(/record_warning <- function\(w\) \{[\s\S]*message\([\s\S]*muffleWarning/)
+  })
+
+  test("meta pooling keeps rows with missing sample size when no size filter is set and skips negated randomization", async () => {
+    const source = await readFile(path.join(skillsRoot, "ce-effect-size", "scripts", "pool_effects.R"), "utf8")
+    expect(source).toContain("if (min_n > 0) !is.na(dat$sample_size)")
+    expect(source).toContain("non[- ]?random")
+  })
+
+  test("gsDesign adapter names the non-binding field the 3.11.0 object actually has", async () => {
+    const text = await readFile(path.join(skillsRoot, "ce-trial-design", "references", "engine-adapters.md"), "utf8")
+    expect(text).toContain("sum(x$falseposnb)")
+    expect(text).toContain("`x$falseprobnb` is `NULL`")
   })
 })
