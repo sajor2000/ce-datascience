@@ -284,17 +284,18 @@ def mask(text, declared=(), quotes=True):
 
 
 def lines(rel, text, declared):
-    """(line number, original, masked) for a manuscript or table file. Table cells keep their quotes."""
+    """(line number, [(column or None, original, masked)]) for a manuscript or table file.
+    Table cells keep their quotes and carry their column number, so reports can locate a cell without
+    printing it."""
     ext = rel.rsplit(".", 1)[-1].lower()
     if ext in TABLE_EXTS:
         reader = csv.reader(io.StringIO(text), delimiter=TABLE_EXTS[ext])
         start = 1
         for row in reader:
-            joined = " | ".join(row)
-            yield start, joined, mask(joined, declared, quotes=False)
+            yield start, [(i, cell, mask(cell, declared, quotes=False)) for i, cell in enumerate(row, 1)]
             start = reader.line_num + 1
         return
-    yield from ((n, line, masked) for n, (line, masked) in
+    yield from ((n, [(None, line, masked)]) for n, (line, masked) in
                 enumerate(zip(text.splitlines(), mask(text, declared).splitlines()), 1))
 
 
@@ -306,12 +307,44 @@ def registry_tokens(entries):
 CHECKED_EXTS = {"md", "qmd", "rmd", "markdown", *TABLE_EXTS}
 
 
-def expand(paths):
-    """Files to check: directories expand (sorted) to manuscript and table files; files pass through."""
+# The data-boundary guard trusts plugin scripts, so this script keeps data out itself: it never reads a
+# path that names a data directory or sits under a configured data_root, and it never prints tokens from
+# tables or from files a ce-safe-run run wrote (those count as data until checked as aggregates).
+DATAISH_DIRS = {"data", "raw", "rawdata", "restricted", "phi", "extract", "extracts", "private", "secure",
+                "source_data", "sourcedata"}
+
+
+def _data_roots(root):
+    text = _read(os.path.join(root, ".ce-datascience", "config.local.yaml")) or ""
+    return [os.path.realpath(os.path.join(root, value.strip().strip("'\""))) for value in
+            re.findall(r"^\s*data_root:\s*([^#\n]+)", text, re.M) if value.strip()]
+
+
+def is_data_path(path, root):
+    """A path inside a data-like directory or a configured data_root (checked without reading it)."""
+    real = os.path.realpath(path)
+    rel = os.path.relpath(real, root)
+    parts = real.split(os.sep) if rel.startswith("..") else rel.split(os.sep)
+    if any(part.lower() in DATAISH_DIRS for part in parts):
+        return True
+    return any(real == r or real.startswith(r + os.sep) for r in _data_roots(root))
+
+
+def run_outputs(root):
+    """Files ce-safe-run runs wrote; the guard treats them as data."""
+    text = _read(os.path.join(root, ".ce-datascience", "runs", "outputs.txt")) or ""
+    return {os.path.realpath(os.path.join(root, line)) for line in text.splitlines() if line}
+
+
+def expand(paths, root=None):
+    """Files to check: directories expand (sorted) to manuscript and table files, skipping data
+    directories; files and data paths pass through so the caller can refuse them."""
+    root = root or _project_root()
     for path in paths:
-        if os.path.isdir(path):
+        if os.path.isdir(path) and not is_data_path(path, root):
             for base, dirs, names in os.walk(path):
-                dirs[:] = sorted(d for d in dirs if not d.startswith("."))
+                dirs[:] = sorted(d for d in dirs if not d.startswith(".")
+                                 and not is_data_path(os.path.join(base, d), root))
                 for name in sorted(names):
                     if name.rsplit(".", 1)[-1].lower() in CHECKED_EXTS:
                         yield os.path.join(base, name)
@@ -385,7 +418,12 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL):
     produced = registry_tokens(entries)
     declared = read_allowlist(allowlist_path)
     failures, checked = [], 0
-    for rel in expand(files):
+    root = _project_root()
+    written = run_outputs(root)
+    for rel in expand(files, root):
+        if is_data_path(rel, root):
+            failures.append((rel, "refused", "data path"))
+            continue
         ext = rel.rsplit(".", 1)[-1].lower() if "." in os.path.basename(rel) else ""
         if os.path.exists(rel) and ext not in CHECKED_EXTS:
             failures.append((rel, "unsupported file type", f".{ext}" if ext else "no extension"))
@@ -397,15 +435,23 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL):
         for number, code in inline_computed(text):
             checked += 1
             failures.append((f"{rel}:{number}", "inline computed value", code))
-        for number, line, masked in lines(rel, text, declared):
-            for match in PLACEHOLDER.finditer(line):
-                checked += 1
-                if match.group(1) not in entries:
-                    failures.append((f"{rel}:{number}", "unknown registry id", match.group(0)))
-            for _, token in numbers(masked):
-                checked += 1
-                if token not in produced:
-                    failures.append((f"{rel}:{number}", "untraced number", token))
+        hidden = os.path.realpath(rel) in written
+        for number, cells in lines(rel, text, declared):
+            for column, line, masked in cells:
+                for match in PLACEHOLDER.finditer(line):
+                    checked += 1
+                    if match.group(1) not in entries:
+                        failures.append((f"{rel}:{number}", "unknown registry id", match.group(0)))
+                untraced = []
+                for _, token in numbers(masked):
+                    checked += 1
+                    if token not in produced:
+                        untraced.append(token)
+                if column and untraced:
+                    untraced = [f"column {column}"]  # one report per table cell, located not printed
+                elif hidden:
+                    untraced = ["value hidden (run output)"] * len(untraced)
+                failures.extend((f"{rel}:{number}", "untraced number", shown) for shown in untraced)
     failures.extend(stale(entries, _project_root()))
     failures.extend(untraceable(entries))
     failures.extend(small_cells(entries, threshold))
@@ -416,10 +462,14 @@ def check(files, registry_path, allowlist_path, threshold=SMALL_CELL):
 
 def render(source, out, registry_path):
     """Substitute each placeholder with its entry's text. Fails (writes nothing) on unknown or stale ids."""
+    if is_data_path(source, _project_root()):
+        return [(source, "refused", "data path")]
     entries = load_registry(registry_path) or {}
     text = _read(source)
     if text is None:
         return [(source, "unreadable file", "missing")]
+    if not PLACEHOLDER.search(text):
+        return [(source, "nothing to render", "no {{num:<id>}} placeholders")]
     failures, used = [], set()
     for number, line in enumerate(text.splitlines(), 1):
         for match in PLACEHOLDER.finditer(line):

@@ -56,7 +56,7 @@ python3 "$SKILL_DIR/scripts/ce_numbers.py" ids
 
    Never type a result, and never compute one inline (`` `r ...` ``, `` `{python} ...` ``); the gate fails both.
 5. **Render.** `python3 "$SKILL_DIR/scripts/ce_numbers.py" render manuscript/results.qmd --out manuscript/_rendered/results.qmd` substitutes each entry's formatted text. It writes nothing when an id is unknown or its entry is stale.
-6. **Gate.** Run `python3 "$SKILL_DIR/scripts/ce_numbers.py" check <files or directories>` on the sources, the rendered copies, and the tables (`.md`, `.qmd`, `.Rmd`, `.csv`, `.tsv`). Exit 0 prints `PASS`; exit 1 prints one line per problem and `FAIL`. Report the result as the script's exit status and lines, not as a judgement. If `python3` is missing, try `python`, then `py`; if none runs, report the gate as not run, never as passed.
+6. **Gate.** Run `python3 "$SKILL_DIR/scripts/ce_numbers.py" check <files or directories>` on the sources, the rendered copies, and the tables (`.md`, `.qmd`, `.Rmd`, `.csv`, `.tsv`). Exit 0 prints `PASS`; exit 1 prints one line per problem and `FAIL`. Table cells are reported by column, and tokens from files a ce-safe-run run wrote are hidden, so the report never carries data values. Report the result as the script's exit status and lines, not as a judgement. If `python3` is missing, try `python`, then `py`; if none runs, report the gate as not run, never as passed.
 7. **Trace on request.** `python3 "$SKILL_DIR/scripts/ce_numbers.py" trace <files>` prints the chain for each placeholder.
 
 ## What the gate fails
@@ -69,6 +69,7 @@ python3 "$SKILL_DIR/scripts/ce_numbers.py" ids
 | `stale` | A source file or the producing script changed (or is gone) since registration | Rerun the producing script |
 | `untraceable` | An entry has no source files, no SAP output, or a script that was uncommitted when it ran | Register with `sources` and `sap_output`; commit the script, then rerun it |
 | `small cell` | A registered count from 1 to 10 is not suppressed | Rerun through the helper, which suppresses it |
+| `refused: data path` | A path in a data directory (`data/`, `raw/`, `phi/`, ...) or the configured `data_root` | Point the gate at manuscripts and aggregate tables, never at data |
 | `nothing to check` | No files, no registry entries, or no numbers found | Point the gate at the manuscript; a gate that checks nothing does not pass |
 | `unsupported file type` | A file the gate cannot read for numbers | Check its Markdown or table source instead |
 

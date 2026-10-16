@@ -47,3 +47,62 @@ describe("number registry in schema-only mode", () => {
     expect(gate.exitCode).toBe(0)
   })
 })
+
+describe("the gate is not a way around the boundary", () => {
+  function registered() {
+    const root = project(SCHEMA_ONLY, { git: "real" })
+    withFile(root, "analysis/cohort.py", [
+      "import sys",
+      `sys.path.insert(0, ${JSON.stringify(scripts)})`,
+      "from ce_numbers import register_number",
+      "register_number('cohort.n', 412, kind='n', sources=['data/cohort.csv'], sap_output='F1')",
+      "",
+    ].join("\n"))
+    git(root, "add", "-A")
+    git(root, "commit", "-qm", "synthetic")
+    expect(Bun.spawnSync(["python3", "analysis/cohort.py"], { cwd: root }).exitCode).toBe(0)
+    return root
+  }
+  const gate = (root: string, ...args: string[]) => {
+    const proc = Bun.spawnSync(["python3", cli, ...args], { cwd: root })
+    return { code: proc.exitCode, out: proc.stdout.toString() + proc.stderr.toString() }
+  }
+
+  test("check refuses data paths and never prints their values", () => {
+    const root = registered()
+    withFile(root, "data/labs.md", "| id | value |\n|---|---|\n| FAKE0001 | 7.31 |\n")
+    for (const target of ["data", "data/cohort.csv", "data/labs.md", "."]) {
+      const result = gate(root, "check", target)
+      expect({ target, code: result.code }).toEqual({ target, code: 1 })
+      expect(result.out).not.toContain("1970")
+      expect(result.out).not.toContain("7.31")
+    }
+    expect(gate(root, "check", "data/cohort.csv").out).toContain("data/cohort.csv: refused: data path")
+  })
+
+  test("table and run-output tokens are located, not printed", () => {
+    const root = registered()
+    withFile(root, "analysis/publication/tables/table1.csv", "Characteristic,Overall\nAge,64.2 (11.8)\n")
+    const result = gate(root, "check", "analysis/publication/tables/table1.csv")
+    expect(result.out).toContain("analysis/publication/tables/table1.csv:2: untraced number: column 2")
+    expect(result.out).not.toContain("64.2")
+
+    withFile(root, "output/summary.md", "Mean lactate was 3.87 in the run output.\n")
+    withFile(root, ".ce-datascience/runs/outputs.txt", "output/summary.md\n")
+    const written = gate(root, "check", "output/summary.md")
+    expect(written.out).toContain("output/summary.md:1: untraced number: value hidden (run output)")
+    expect(written.out).not.toContain("3.87")
+  })
+
+  test("render refuses data paths and files without placeholders, writing nothing", () => {
+    const root = registered()
+    withFile(root, "manuscript/plain.md", "No placeholders here.\n")
+    for (const [source, reason] of [["data/cohort.csv", "refused: data path"], ["manuscript/plain.md", "nothing to render"]]) {
+      const result = gate(root, "render", source, "--out", "out/copy.txt")
+      expect(result.code).toBe(1)
+      expect(result.out).toContain(reason)
+      expect(existsSync(path.join(root, "out", "copy.txt"))).toBe(false)
+      expect(result.out).not.toContain("FAKE0001")
+    }
+  })
+})
