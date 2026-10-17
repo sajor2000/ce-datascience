@@ -12,10 +12,11 @@
   "required_behaviors": [
     "detects-covariance-nonidentifiability",
     "preserves-clinic-level",
+    "removes-redundant-patient-intercept",
     "preserves-unstructured-residual"
   ],
   "prohibited_behaviors": [
-    "removes-redundant-patient-intercept"
+    "retains-redundant-patient-intercept"
   ],
   "criteria": [
     {
@@ -45,6 +46,15 @@
       "path": "workspace/advice.json",
       "json_path": "recommended.patient_random_intercept",
       "expected": false,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "retains-redundant-patient-intercept",
+      "description": "does not retain a redundant patient intercept",
+      "type": "regex_not",
+      "path": "workspace/advice.json",
+      "pattern": "\\\"patient_random_intercept\\\"\\s*:\\s*true",
       "weight": 2,
       "hard_gate": true
     },

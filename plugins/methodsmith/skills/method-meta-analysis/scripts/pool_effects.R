@@ -124,6 +124,9 @@ if (nrow(dat) > 0) {
     stop("pool_effects.R: compatibility: analysis_scale must be ", expected_scale,
          " for the reported input metric (ratios are log-transformed internally)", call. = FALSE)
   }
+  if (is_ratio && any(dat$unit != "dimensionless")) {
+    stop("pool_effects.R: compatibility: ratio metrics require unit=dimensionless", call. = FALSE)
+  }
 }
 if (!grepl("\\.md$", a$out)) stop("pool_effects.R: --out must end in .md", call. = FALSE)
 contract_path <- sub("\\.md$", "-contract.csv", a$out)

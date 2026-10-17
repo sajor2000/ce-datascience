@@ -69,6 +69,13 @@ describe.skipIf(!hasR)("pool_effects.R on synthetic rows", () => {
     expect(unknown.md).toBeNull()
   })
 
+  test("rejects ratio metrics with non-dimensionless units", () => {
+    const r = run(comparable, { unit: ["percent", "percent", "percent"] })
+    expect(r.code).not.toBe(0)
+    expect(r.stderr).toContain("unit=dimensionless")
+    expect(r.md).toBeNull()
+  })
+
   test("emits the selected scientific contract with the power handoff", () => {
     const r = run(comparable)
     expect(r.code).toBe(0)

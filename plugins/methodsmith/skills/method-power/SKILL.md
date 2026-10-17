@@ -68,7 +68,7 @@ When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the 
 | Mixed-effects (longitudinal) | Liu/Liang | `longpower` | manual |
 | Prediction model (development) | Riley criteria (EPV >= 10 alone is too lenient) | `pmsampsize::pmsampsize` | manual |
 | Diagnostic accuracy | exact binomial CI on sens/spec | `MKmisc` or hand-roll | `statsmodels.stats.proportion.proportion_confint` |
-| Non-inferiority | one one-sided test against margin M, prespecified α (often 0.025 in confirmatory clinical NI) | `pwr::pwr.t.test(d = (M + true_diff)/sd, sig.level = 0.025, alternative = "greater")` | `TTestIndPower(..., alternative="larger")` |
+| Non-inferiority | one one-sided test against margin M, prespecified α (often 0.025 in confirmatory clinical NI) | `pwr::pwr.t.test(d = (M + true_diff)/sd, sig.level = alpha, alternative = "greater")` | `TTestIndPower(..., alternative="larger")` |
 | Equivalence | TOST, prespecified α at each margin; framework-specific CI = 100(1-2α)% | `TOSTER::power_t_TOST` (replaces deprecated `powerTOSTtwo`) | manual (formula in cheatsheet); statsmodels `ttost_ind` analyses but has no TOST power solver |
 | Multi-arm vs shared control | Bonferroni α/(k-1) (conservative) or Dunnett | as above with α/(k-1); simulation for Dunnett | as above |
 

@@ -40,6 +40,15 @@
       "hard_gate": true
     },
     {
+      "id": "response-has-no-invented-canonical-anchor",
+      "description": "complete response does not supply a numeric canonical power anchor",
+      "type": "regex_not",
+      "path": "response.md",
+      "pattern": "(?:canonical|pooled)[^\\n]{0,80}(?:anchor|signal)[^\\n]{0,80}\\b\\d+(?:\\.\\d+)?",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
       "id": "adjustment-target-reviewed",
       "description": "adjustment target reviewed",
       "type": "regex",

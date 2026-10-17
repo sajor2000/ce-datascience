@@ -149,7 +149,7 @@ recommended:
     - decision_curve.net_benefit_at_<threshold>
 ```
 
-A run that omits the required validation evidence is not eligible for manuscript inclusion. Held-out fields are conditional on that design; disclosure-suppressed shared values are acceptable when the complete restricted record and review reason are retained. A run that logs test-set metrics before the model is locked is not eligible either: scoring exploratory runs on the test set turns it into a selection set (REFORMS, Kapoor et al., Sci Adv 2024, PMID 38691601). Report `n_configurations_evaluated` with the final model (TRIPOD+AI item 12c, PMID 38626948).
+A run that omits the required validation evidence is not eligible for manuscript inclusion. For non-held-out designs, that evidence is `validation_type`, `validation_procedure`, and `corrected_performance`. Held-out fields are conditional on that design; disclosure-suppressed shared values are acceptable when the complete restricted record and review reason are retained. A run that logs test-set metrics before the model is locked is not eligible either: scoring exploratory runs on the test set turns it into a selection set (REFORMS, Kapoor et al., Sci Adv 2024, PMID 38691601). Report `n_configurations_evaluated` with the final model (TRIPOD+AI item 12c, PMID 38626948).
 
 ### Step 4: Write the linkage to the SAP
 

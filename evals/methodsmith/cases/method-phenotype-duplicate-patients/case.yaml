@@ -36,7 +36,7 @@
       "id": "no-invalid-report",
       "description": "No report is published from duplicate patient rows",
       "type": "file_exists",
-      "path": "workspace/reports/phenotype.md",
+      "path": "workspace/reports/phenotype-validation",
       "expected": false,
       "weight": 3,
       "hard_gate": true

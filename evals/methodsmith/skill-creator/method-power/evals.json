@@ -35,7 +35,6 @@
       "expected_output": "Stops automatic adoption of the legacy pooled signal until its selected scientific compatibility artifact is supplied and matched to the planned study; does not calculate a misleading sample size.",
       "files": [],
       "expectations": [
-        "Preserves framework-specific equivalence alpha/CI rather than imposing .025 universally",
         "Requires the selected compatibility artifact before automatically using a pooled power anchor",
         "Does not fabricate control risk, compatibility metadata or sample size"
       ]

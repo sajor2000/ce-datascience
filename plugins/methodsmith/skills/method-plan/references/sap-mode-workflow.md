@@ -49,8 +49,8 @@ When a signal is present, treat its output file (`csv=`, `yaml=`, `json=`, `file
 
 Each emitter MUST emit at minimum the listed keys; extra keys are allowed (forward-compatible). When a consumer expects a key that the emitter wrote `null` for (e.g. narrative-mode effect-size pooling), treat it as missing rather than an error.
 
-| Signal | Canonical shape | Emitted by | Feeds SAP section |
-|--------|------------------|------------|-------------------|
+| Signal | Emitted by | Feeds SAP section |
+|--------|------------|-------------------|
 | `__CE_RESEARCH_QUESTION__ yaml=<path> design=<string> checklist=<string> query="<one-line>"` | `method-question` | SAP-1 framing, SAP-1.1 hypothesis |
 | `__CE_PUBMED_RESULTS__ csv=<path> n=<int> query=<string> pmc_pct=<float>` | `method-pubmed` | SAP-1 background, SAP-2 rationale |
 | `__CE_EVIDENCE_MAP__ path=<artifact> sources=pubmed[,paperclip] full_text_pct=<n> claims=<n>` | `method-evidence-map` | SAP-1 background, SAP-2 rationale, SAP-5 analysis-plan justification |

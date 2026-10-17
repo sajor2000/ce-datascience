@@ -50,7 +50,7 @@ Read the methods CSV. Parse the `effect_size_reported` field: extract metric typ
 
 ### Step 2: Filter to comparable studies
 
-Filter to the selected scientific target first; read the complete parsed contract in `references/effect-parser.md`. Resolve adjusted/marginal differences, units and overlapping cohorts before any fit. Save the selection code and excluded-study reasons. Then filter:
+Filter to the selected scientific target first; read the complete parsed contract in `references/effect-parser.md`. Resolve adjusted/marginal differences, units and overlapping cohorts before any fit. Save the selection code and excluded-study reasons. Write only the selected compatible rows to `analysis/effect-size/<query>-selected.csv`; retain the full parsed CSV and exclusions for audit. Then filter:
 - `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
 - No sample-size cutoff by default: inverse-variance weights already down-weight small studies. Pass `--min-n <n>` to `scripts/pool_effects.R` only as a sensitivity analysis, and then report the unfiltered estimate alongside it
 - Year within last `--years` window if passed
@@ -60,11 +60,11 @@ Report N studies in the meta-analysis vs N in the input.
 
 ### Step 3: Pool
 
-Run the bundled script on the parsed CSV from Step 1 (the numerical columns plus the reviewed compatibility declarations in `references/effect-parser.md`; it fails on missing or incompatible declarations, so the raw methods table will not work). It applies the Step 2 metric and CI filters (plus `--min-n` when passed), prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, the selected `-contract.csv`, and the Step 6 signal:
+Run the bundled script on the selected CSV from Step 2 (the numerical columns plus the reviewed compatibility declarations in `references/effect-parser.md`; it fails on missing or incompatible declarations, so the raw methods table will not work). It applies the metric and CI filters (plus `--min-n` when passed), prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, the selected `-contract.csv`, and the Step 6 signal:
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
-Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-parsed.csv --metric HR --out analysis/effect-size/<query>-pooled.md
+Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-selected.csv --metric HR --out analysis/effect-size/<query>-pooled.md
 ```
 
 Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
