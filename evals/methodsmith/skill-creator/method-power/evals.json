@@ -36,6 +36,7 @@
       "files": [],
       "expectations": [
         "Requires the selected compatibility artifact before automatically using a pooled power anchor",
+        "Does not calculate a sample size until the selected compatibility artifact is matched to the planned cohort study",
         "Does not fabricate control risk, compatibility metadata or sample size"
       ]
     }
