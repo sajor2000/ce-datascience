@@ -1,6 +1,6 @@
 ---
 title: Port CLIF meta-analysis to Methodsmith
-status: ready-for-pr
+status: pr-open
 ---
 
 # Scope
@@ -73,3 +73,20 @@ Do not claim estimator parity between Python Paule-Mandel and R REML.
 - The advisory remains escalated. This adjudication permits PR review only;
   it does not approve merging, release or scientific use. Synthetic coverage,
   unmeasured trigger reliability and omitted diagnostics remain limitations.
+
+# PR review follow-up (2026-10-17)
+
+- PR #111: CodeRabbit identified an undefined `pooled` object in the retained
+  R recipe and unescaped table delimiters in the historical audit. Reproduced
+  the R failure, then constructed `pooled` from the validated aggregate TSV
+  while preserving the manifest and explicit log-OR assumption. Synthetic
+  validation, REML/KH and prediction now execute. The audit row has four cells.
+- Full follow-up suite with CI's pinned Bun 1.3.14: 1,611 pass, five optional
+  skips, zero failures. Guidance/portability checks: 16 pass; release metadata
+  passes. Existing meta/brms fitting calls are unchanged and were not executed
+  locally because those optional packages are unavailable.
+- An earlier follow-up run under Bun 1.2.17 timed out in platform-install smoke
+  and was interrupted. The complete pinned-version rerun above passes; no
+  runner code or project dependencies were changed.
+- PR description now follows the repository template. Blanket docstring
+  coverage remains an advisory suggestion, outside this focused correction.

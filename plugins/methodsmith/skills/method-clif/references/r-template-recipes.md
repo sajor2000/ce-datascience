@@ -415,6 +415,18 @@ status. Verify compatible outcome, contrast, adjustment set, analysis scale,
 time horizon, code version and independent sampling units before a fit.
 Do not concatenate arbitrary files and pool every row as independent.
 
+Load `method-clif-meta-analysis` and use its validator with `--validate-only`,
+`--validated-tsv validated-effects.tsv` and
+`--validated-manifest validated-manifest.json` on the reviewed aggregate input.
+Use new output paths and retain the manifest with its source hash, release
+references and dispositions.
+
+Stop if validation fails. Sections 10b and 10c assume the reviewed contract's
+effects and SEs are already on the natural-log odds-ratio scale; the OR labels
+and exponential back-transformation are inappropriate for other measures.
+The TSV contains only usable units; retain the manifest's nonusable-unit
+accounting rather than interpreting their absence as zero effects.
+
 ### 10b. Explicit random-effects inference
 
 Federated analyses usually pool fewer than 15 sites, where Wald-type random-effects CIs under-cover; use REML for tau^2 with Knapp-Hartung (HKSJ) intervals (IntHout et al., BMC Med Res Methodol 2014, PMID 24548571), and report the prediction interval.
@@ -422,6 +434,14 @@ Federated analyses usually pool fewer than 15 sites, where Wald-type random-effe
 ```r
 library(metafor)
 library(meta)
+
+# Read only the successfully validated TSV from 10a, not arbitrary site files.
+validated <- read.delim("validated-effects.tsv", stringsAsFactors = FALSE)
+pooled <- data.frame(
+  site = validated$analysis_unit_id,
+  log_estimate = validated$effect,
+  se_estimate = validated$standard_error
+)
 
 # Pool site-level estimates — REML tau^2 with Knapp-Hartung (HKSJ) CIs
 fit <- rma(yi = log_estimate, sei = se_estimate, method = "REML", test = "knha", data = pooled)
