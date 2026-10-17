@@ -31,14 +31,13 @@
     },
     {
       "id": 3,
-      "prompt": "We redefined AKI as a continuous creatinine trajectory score instead of a yes/no. Can you validate the new score against the nephrologist chart review and tell me it's clinically valid so we can use it as the primary outcome?",
-      "expected_output": "Explains that the skill handles only binary phenotype labels against a chart-review gold standard, does not certify clinical validity, and asks for a binary threshold or routes elsewhere.",
+      "prompt": "Validate synthetic merged chart-review data at output/intermediate_phi/merged.csv; an earlier one-to-many join may have repeated subject_id values. Check the inputs before writing reports.",
+      "expected_output": "Rejects duplicate, conflicting or blank subject keys before publishing; Does not silently deduplicate or count rows as independent patients; Errors do not echo subject identifiers.",
       "files": [],
       "expectations": [
-        "States that continuous-outcome phenotypes are out of scope and binary algo_label/chart_label are required",
-        "Does not certify the phenotype as clinically valid",
-        "Asks for a binary operationalization (e.g. threshold) or the missing inputs rather than computing metrics on the continuous score",
-        "Does not adjudicate or generate chart-review labels itself"
+        "Rejects duplicate, conflicting or blank subject keys before publishing",
+        "Does not silently deduplicate or count rows as independent patients",
+        "Errors do not echo subject identifiers"
       ]
     }
   ]

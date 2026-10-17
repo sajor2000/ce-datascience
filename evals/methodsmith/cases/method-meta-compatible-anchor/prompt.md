@@ -1,0 +1,3 @@
+Use method-meta-analysis for a synthetic advisory request. I want one HR for my power calculation. Three extracted records all say HR: one unadjusted marginal 28-day estimate, two covariate-adjusted conditional 90-day estimates with different adjustment sets. Two publications reuse the same patient cohort. The extraction has not yet resolved these differences. Please decide whether the primary pool can proceed now; do not fit anything or invent metadata.
+
+Write workspace/advice.json with boolean primary_pool_ready, canonical_power_signal (string or null), and unresolved (list of issues). Save your complete response in response.md. Use the skill's frozen methodological guidance; no network or package installation.

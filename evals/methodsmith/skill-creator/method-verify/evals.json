@@ -30,14 +30,13 @@
     },
     {
       "id": 3,
-      "prompt": "Run method-verify on output/ -- there's a csv called output/tables/patient_list_with_mrn.csv in there that a student exported, plus figure fig2.png.",
-      "expected_output": "Flags the patient-identifier export as a PHI FAIL without reproducing identifiers, and runs figure-quality and other applicable checks.",
+      "prompt": "Audit two finished analyses: survival has 80 events versus a prespecified required 300 despite adequate enrollment; prediction validation applies a locked training-fitted imputer without outcome labels. Our analyzable N excludes the planned dropout inflation. Report which checks can pass.",
+      "expected_output": "Checks observed versus target events, not only patient N; Distinguishes analyzable N from recruitment inflation; Does not require validation outcomes in a deployment-faithful prediction imputer.",
       "files": [],
       "expectations": [
-        "Reports a PHI scan FAIL for output/tables/patient_list_with_mrn.csv",
-        "Does not print MRNs or other identifier values from the file in the report",
-        "Runs the figure quality check on fig2.png",
-        "Emits __CE_VERIFY__ with blocking=true"
+        "Checks observed versus target events, not only patient N",
+        "Distinguishes analyzable N from recruitment inflation",
+        "Does not require validation outcomes in a deployment-faithful prediction imputer"
       ]
     }
   ]

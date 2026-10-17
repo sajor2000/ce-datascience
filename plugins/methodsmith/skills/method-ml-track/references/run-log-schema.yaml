@@ -1,4 +1,6 @@
-# Required schema for every committed run log.
+# Schema for disclosure-reviewed aggregate run summaries, not raw tracker mirrors.
+# Complete sensitive logs/artifacts stay restricted and gitignored. Numeric fields
+# may be null with a suppression reason in shared summaries; never encode as zero.
 # Files at runs/<run-id>.yaml MUST conform to this schema.
 
 run_id: string                    # UUID; matches backend run id when applicable
@@ -13,7 +15,8 @@ params:
   test_data_sha: string          # final locked model only; null for exploratory runs
   git_sha: string                 # `git rev-parse HEAD` at run start
   random_seed: integer
-  split_strategy: group|temporal|random
+  validation_type: bootstrap|nested-cv|internal-external|temporal|held-out
+  split_strategy: group|temporal|random|not-applicable
   model_class: string             # recommended in run-schema.yaml; e.g., "lightgbm.LGBMClassifier"
   hyperparams: map                # model hyperparams as a flat map
   feature_count: integer
@@ -24,7 +27,10 @@ metrics:
   n_events_train: integer
   auc_validation: float           # tuning/CV metric used for model selection
   auc_validation_scheme: string   # e.g., "grouped 5-fold CV by patient"
-  # Test metrics below: final locked model only, logged once; null otherwise.
+  # Test metrics below: held-out design and final locked model only, logged once;
+  # null otherwise. Record resampling-corrected estimates for other designs.
+  corrected_performance: map
+  validation_procedure: string
   test_set_unlocked_at: ISO8601
   n_test: integer
   n_events_test: integer
@@ -45,13 +51,14 @@ metrics:
       calibration_slope: float
 
 artifacts:
-  - name: model.pkl
-    path: string                  # absolute or repo-relative
+  # Reviewed aggregate artifacts only; restricted models/logs use opaque record IDs.
+  - name: reviewed-aggregate.json
+    path: string                  # non-revealing shareable artifact path
     sha: string
-  - name: eval-results.json
+  - name: reviewed-aggregate-eval-results.json
     path: string
     sha: string
-  - name: calibration-plot.png
+  - name: reviewed-calibration-plot.png
     path: string
     sha: string
 
@@ -59,3 +66,8 @@ artifacts:
 notes: string                     # what this run was trying to test
 parent_run_id: string             # for hyperparameter sweeps; the sweep id
 manuscript_candidate: bool        # set true when this run is the one going in the paper
+
+disclosure:
+  review_status: pending|approved|public-or-synthetic
+  suppression_reason: string       # null if not needed; include related metrics
+  restricted_record_id: string     # opaque id; no patient/revealing file path

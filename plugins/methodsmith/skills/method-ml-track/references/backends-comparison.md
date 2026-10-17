@@ -7,8 +7,8 @@
 | Requires network | no (local file backend) | yes | no (local remote) | no |
 | UI | built-in | best-in-class | minimal (CLI) | none |
 | Multi-language | Python, R, Java, Scala | Python primarily | Python, anything via CLI | anything |
-| Data versioning | weak (artifact log) | weak | strong (DVC files in git) | none |
-| Model versioning | yes (model registry) | yes (registry) | yes (DVC files) | manual |
+| Data versioning | weak (artifact log) | weak | strong (DVC metadata in git; approved remote only) | none |
+| Model versioning | yes (model registry) | yes (registry) | yes (DVC metadata in git; approved remote only) | manual |
 | Search / compare runs | yes | yes | no | manual |
 | Suitable for PHI | yes (self-hosted, no telemetry) | only with enterprise + BAA | yes | yes |
 | Setup time | 5 min (file mode) | 2 min | 15 min | 0 |

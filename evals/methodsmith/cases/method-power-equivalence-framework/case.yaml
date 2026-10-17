@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "id": "method-power-equivalence-framework",
+  "target": {
+    "kind": "skill",
+    "name": "method-power",
+    "source": "plugins/methodsmith/skills/method-power/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-power-equivalence-framework/prompt.md",
+  "fixtures": [],
+  "required_behaviors": [
+    "preserves-tost-alpha",
+    "preserves-equivalence-ci",
+    "no-universal-ni-rule"
+  ],
+  "prohibited_behaviors": [
+    "missing-contract-blocks-anchor"
+  ],
+  "criteria": [
+    {
+      "id": "preserves-tost-alpha",
+      "description": "preserves tost alpha",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "equivalence_alpha",
+      "expected": 0.05,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "preserves-equivalence-ci",
+      "description": "preserves equivalence ci",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "equivalence_ci_percent",
+      "expected": 90,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "no-universal-ni-rule",
+      "description": "no universal ni rule",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "ni_convention_transferred",
+      "expected": false,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "missing-contract-blocks-anchor",
+      "description": "missing contract blocks anchor",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "power_anchor_ready",
+      "expected": false,
+      "weight": 2,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 1,
+  "limitations": [
+    "Synthetic forward cases check specific decisions and artifacts, not clinical validity, privacy certification or general agent reliability. Criteria are manually reviewed alongside actual responses."
+  ]
+}

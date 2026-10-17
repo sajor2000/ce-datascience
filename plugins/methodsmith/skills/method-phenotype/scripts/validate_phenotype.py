@@ -317,6 +317,7 @@ def main() -> None:
         raise SystemExit("--disclosure-floor must be >= 1")
 
     rows: list[dict] = []
+    seen_subjects: set[str] = set()
     with args.chart_csv.open(newline="") as fh:
         reader = csv.DictReader(fh)
         required = ("subject_id", "chart_label", "algo_label")
@@ -327,6 +328,12 @@ def main() -> None:
                 f"expected header: subject_id,chart_label,algo_label[,sex,age_band,race,site]")
         # Never echo row contents (subject_id, labels) into errors: PHI rule.
         for line_no, row in enumerate(reader, start=2):
+            subject = (row.get("subject_id") or "").strip()
+            if not subject:
+                raise SystemExit(f"{args.chart_csv} line {line_no}: subject_id must be nonempty")
+            if subject in seen_subjects:
+                raise SystemExit(f"{args.chart_csv} line {line_no}: duplicate subject_id; require one row per patient")
+            seen_subjects.add(subject)
             try:
                 chart, algo = int(row["chart_label"]), int(row["algo_label"])
             except ValueError:

@@ -43,10 +43,11 @@ Read `references/evidence-access.md` before the first literature lookup (PubMed 
 
 ### Step 0: Context inputs (scan chat first)
 
-If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> pi=<lo,hi|NA> i2=<pct|null> mode=<reml|narrative>`.
+If no `--effect-size` argument was passed, scan the most recent ~50 chat turns for `__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v|null> ci=<lo,hi|null> pi=<lo,hi|NA> i2=<pct|null> mode=<reml|narrative> contract=<path>`.
 
-- If `mode=reml` and `point` is a number, use `point` as the default `--effect-size`. Sweep range: use `pi=lo,hi` (95% prediction interval, the plausible range for a new study) when both bounds are finite numbers; otherwise (`pi=NA`, missing, or non-finite) fall back to `ci=lo,hi`. Print this exact line in the response before any calculation: `[effect-size] anchor from method-meta-analysis: point=<v> (n_studies=<n>, I^2=<i2>%); sweep over <PI|CI> <lo>-<hi>; other interval <CI|PI> <lo>-<hi|not available>`.
-- The signal carries numbers only. The PMIDs/DOIs behind it are in `analysis/effect-size/<query>-included.csv` (written by `method-meta-analysis` next to `<query>-pooled.md`); read that file for the SAP-6 citation, and write `PMIDs: see <path>` only when it is absent, never a guessed list.
+- Before consuming a pooled signal, read its `contract=<path>` artifact and confirm the selected estimand, population/comparison, outcome/horizon, unit/scale, adjustment set and independent contributions match this design. Missing/unresolved compatibility evidence blocks automatic adoption; request reconciliation rather than choosing a convenient pooled point.
+- If that contract is compatible, `mode=reml` and `point` is a number, use `point` as the proposed `--effect-size`, subject to a clinically important and realistic target. Sweep range: use `pi=lo,hi` (95% prediction interval, the plausible range for a new study) when both bounds are finite numbers; otherwise (`pi=NA`, missing, or non-finite) fall back to `ci=lo,hi`. Print this exact line in the response before any calculation: `[effect-size] anchor from method-meta-analysis: point=<v> (n_studies=<n>, I^2=<i2>%); sweep over <PI|CI> <lo>-<hi>; other interval <CI|PI> <lo>-<hi|not available>`.
+- The signal carries numbers and a compatibility-artifact path. Read PMIDs from the selected `contract=` rows and the inclusion/evidence ledger at `analysis/effect-size/<query>-included.csv` (saved by the skill alongside the summary). If that ledger or source-reading evidence is absent, report the citation-verification gap rather than claiming the R helper generated it or guessing citations.
 - If the sweep interval crosses the null (HR/OR/RR = 1, MD/SMD = 0), required N is unbounded near it: sweep only the side containing `point`, stop short of the null, and state the truncation.
 - If `mode=narrative` (or `point=null`), do NOT silently fall back to a single anchor. Surface the narrative range to the user and ask for an explicit effect-size assumption, or stop and recommend the user load the `method-meta-analysis` skill again with more studies.
 
@@ -67,8 +68,8 @@ When `__CE_EFFECT_SIZE__` is absent and `--effect-size` is also absent, ask the 
 | Mixed-effects (longitudinal) | Liu/Liang | `longpower` | manual |
 | Prediction model (development) | Riley criteria (EPV >= 10 alone is too lenient) | `pmsampsize::pmsampsize` | manual |
 | Diagnostic accuracy | exact binomial CI on sens/spec | `MKmisc` or hand-roll | `statsmodels.stats.proportion.proportion_confint` |
-| Non-inferiority | one one-sided test against margin M, one-sided α = 0.025 | `pwr::pwr.t.test(d = (M + true_diff)/sd, sig.level = 0.025, alternative = "greater")` | `TTestIndPower(..., alternative="larger")` |
-| Equivalence | TOST, one-sided α = 0.025 at each margin | `TOSTER::power_t_TOST` (replaces deprecated `powerTOSTtwo`) | manual (formula in cheatsheet); statsmodels `ttost_ind` analyses but has no TOST power solver |
+| Non-inferiority | one one-sided test against margin M, prespecified α (often 0.025 in confirmatory clinical NI) | `pwr::pwr.t.test(d = (M + true_diff)/sd, sig.level = 0.025, alternative = "greater")` | `TTestIndPower(..., alternative="larger")` |
+| Equivalence | TOST, prespecified α at each margin; framework-specific CI = 100(1-2α)% | `TOSTER::power_t_TOST` (replaces deprecated `powerTOSTtwo`) | manual (formula in cheatsheet); statsmodels `ttost_ind` analyses but has no TOST power solver |
 | Multi-arm vs shared control | Bonferroni α/(k-1) (conservative) or Dunnett | as above with α/(k-1); simulation for Dunnett | as above |
 
 ### Step 2: Generate the script

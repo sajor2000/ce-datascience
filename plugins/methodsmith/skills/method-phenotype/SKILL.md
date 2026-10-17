@@ -52,7 +52,7 @@ When this run needs literature, read `references/evidence-access.md` first; neve
 
 ### Step 1: Load and merge
 
-Inner-join chart-review on `subject_id`. Any subject in one but not the other → flag and drop. Report N matched, N dropped.
+Apply the project's declared patient-key normalization before joining; do not case-fold or remove leading zeroes unless that identifier schema requires it. Validate nonempty, unique `subject_id` keys in both inputs before joining, and require a one-to-one patient join. Duplicate or conflicting patient labels block validation; never silently deduplicate or count encounters/adjudicator rows as independent patients. Repeated-unit designs require a separately specified clustered analysis. Inner-join on the validated keys, document unmatched subjects and reasons, and assess whether exclusions could bias verification before reporting N matched and N dropped. The bundled validator rejects blank or duplicate patient keys without echoing their values.
 
 ### Step 2: Compute the 2x2
 

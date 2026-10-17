@@ -39,6 +39,12 @@ Random intercepts/slopes model heterogeneity in trajectories or cluster means. A
 
 Irregular observation times weaken discrete equally spaced AR(1) assumptions. Use a continuous-time correlation or another justified structure when timing is irregular and residual correlation remains after random effects.
 
+Do not add a patient random intercept to a fully unstructured residual covariance
+at that same patient level: its variance is not separately identifiable. A clinic
+random intercept plus an unstructured within-patient residual covariance can
+represent different levels; verify identifiability at each level. Alternatively,
+use supported patient random effects with a constrained residual structure.
+
 ## 5. Predeclare fitting and inference
 
 - For Gaussian LMM comparison of fixed effects, use ML when likelihood-ratio comparisons require it; use REML for final variance estimation when appropriate.

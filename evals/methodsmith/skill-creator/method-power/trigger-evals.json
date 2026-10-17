@@ -1,5 +1,5 @@
 [
-  {"query": "How many patients per arm do we need for a two-arm RCT, 30-day mortality 25% vs 18%, alpha 0.05 two-sided, 90% power, 10% loss to follow-up? Please give me a script and a sensitivity sweep.", "should_trigger": true},
+  {"query": "Check our bioequivalence TOST alpha=.05 with 90% CI, and whether an old pooled-effect signal without a compatibility artifact can feed power.", "should_trigger": true},
   {"query": "samp size for a log-rank test - HR 0.75, control 1-yr event rate 30%, 2 yr accrual + 1 yr follow-up, 15% dropout. R pls", "should_trigger": true},
   {"query": "Write the SAP power section (SAP-6) for our cluster RCT: 20 ICUs, ICC 0.05, mean cluster size 60, binary outcome 20% vs 15%.", "should_trigger": true},
   {"query": "What's the minimum sample size for developing a prediction model with 15 candidate predictors, outcome prevalence 12%, expected C-statistic 0.78? Use pmsampsize.", "should_trigger": true},

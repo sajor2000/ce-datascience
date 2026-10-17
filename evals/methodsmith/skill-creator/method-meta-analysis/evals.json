@@ -13,7 +13,8 @@
         "Writes analysis/effect-size/sepsis-bundle-pooled.md and analysis/effect-size/sepsis-bundle-included.csv and references a forest plot at analysis/effect-size/sepsis-bundle-pooled-forest.png",
         "Emits a __CE_EFFECT_SIZE__ line with metric=HR, n_studies, point, ci, pi (the 95% prediction interval bounds, or pi=NA if not computable), i2, and mode=reml",
         "Does not compute power itself; it hands off to method-power with a sensitivity range across the prediction interval",
-        "If both adjusted (aHR) and unadjusted HRs are present, also pools each kind separately and says which one matches the planned trial's estimand"
+        "Selects a compatible primary estimand/adjustment set before pooling; never emits a mixed primary anchor",
+        "Requires outcome/horizon/unit/scale/design and independent contribution declarations, and preserves the selected contract"
       ]
     },
     {

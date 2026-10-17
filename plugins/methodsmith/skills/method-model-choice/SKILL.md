@@ -136,7 +136,8 @@ Then route downstream work without duplicating it:
 | Canonical SAP | `method-plan` |
 | Claim/dataset/estimand schema | `method-sap` |
 | Literature evidence map | `method-evidence-map` |
-| Random-effects meta-analysis computation | `method-meta-analysis` |
+| Formal site/study synthesis | `method-clif-meta-analysis` |
+| Literature effect-size anchor for power | `method-meta-analysis` |
 | Power or simulation-based design | `method-power` |
 | Prediction experiment tracking | `method-ml-track` |
 | Implementation and statistical audit | `method-review` |

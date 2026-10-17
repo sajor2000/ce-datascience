@@ -3,14 +3,14 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "We just finished the cohort build for the sepsis early-warning model (Python, sklearn + xgboost). Before training starts I want proper tracking - mlflow with a local mlruns/ dir, project name sepsis-ews. SAP is analysis/sap.md.",
-      "expected_output": "Sets up mlflow tracking boilerplate, a required-log run schema, SAP linkage text, and a committed YAML run-log fallback, then emits the __CE_ML_TRACK__ signal.",
+      "prompt": "We just finished the cohort build for the sepsis early-warning model (Python, sklearn + xgboost). Before training starts I want proper tracking with MLflow using our approved_tracking_uri, project name sepsis-ews. SAP is analysis/sap.md.",
+      "expected_output": "Sets up approved restricted mlflow storage, validation-aware schema and SAP linkage; only reviewed aggregate summaries may be committed.",
       "files": [],
       "expectations": [
         "Writes analysis/ml/tracking.py with mlflow init code that logs train_data_sha, git_sha, and study_id",
         "Writes analysis/ml/run-schema.yaml listing required params (including random_seed and split_strategy), validation metrics used for model selection (auc_validation with its scheme, n_events_train), and artifacts, and restricts held-out test metrics (Brier, calibration intercept/slope, test AUC) to the locked final model logged once",
         "Adds the tracking/manuscript-run linkage sentence to analysis/sap.md referencing analysis/ml/manuscript-run.txt",
-        "Sets up the runs/<run-id>.yaml fallback mirror and states runs/ is committed",
+        "Keeps complete logs in approved restricted gitignored storage; runs/ contains only disclosure-reviewed suppressed aggregate summaries",
         "Emits '__CE_ML_TRACK__ backend=mlflow uri=<uri> schema=<path>'"
       ]
     },
@@ -20,7 +20,7 @@
       "expected_output": "Selects the offline YAML backend (no network service), writes R tracking boilerplate and the run schema, and does not require wandb or any external service.",
       "files": [],
       "expectations": [
-        "Chooses the offline backend (runs/ YAML logs) rather than wandb or a remote tracking server",
+        "Chooses restricted gitignored offline logging, not wandb or a remote tracking server",
         "Writes analysis/ml/tracking.R (R, not Python)",
         "Does not make a tracking service mandatory or send data off the machine",
         "Logs data hashes rather than copying patient-level data into run logs"
@@ -28,14 +28,14 @@
     },
     {
       "id": 3,
-      "prompt": "Our AUROC 0.89 run from March isn't reproducible - nobody logged the split seed. Add tracking so this doesn't happen again, and also train a new LightGBM with tuned hyperparameters so we can get the number back.",
-      "expected_output": "Infers or asks for the backend, wires tracking with seeds and data hashes as required fields, and declines to train the model itself, routing training to method-work.",
+      "prompt": "We use bootstrap optimism correction in a restricted clinical study with seven training events and no held-out test set. Design offline logging and say what we can commit; do not run or upload data. Also train and tune a new LightGBM model now.",
+      "expected_output": "Preserves bootstrap validation, withholds sensitive shared metrics, keeps complete logs restricted and routes training to method-work.",
       "files": [],
       "expectations": [
-        "Infers backend from existing config (mlflow/wandb/.dvc) or asks a single backend question when none is detectable",
-        "Includes random_seed and split_strategy as required params in the run schema",
-        "States that runs missing required fields are not eligible for manuscript inclusion",
-        "Does not train or tune the LightGBM model; routes training to method-work"
+        "Preserves bootstrap validation and leaves held-out fields null",
+        "Keeps full logs restricted and gitignored; only reviewed suppressed aggregate summaries enter Git",
+        "Withholds small counts, complements and revealing derived metrics from shared summaries",
+        "Does not train or tune; routes training to method-work"
       ]
     }
   ]

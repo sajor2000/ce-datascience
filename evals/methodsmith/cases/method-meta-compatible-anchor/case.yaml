@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "id": "method-meta-compatible-anchor",
+  "target": {
+    "kind": "skill",
+    "name": "method-meta-analysis",
+    "source": "plugins/methodsmith/skills/method-meta-analysis/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-meta-compatible-anchor/prompt.md",
+  "fixtures": [],
+  "required_behaviors": [
+    "mixed-primary-pool-blocked",
+    "adjustment-target-reviewed",
+    "overlap-reviewed",
+    "horizon-reviewed"
+  ],
+  "prohibited_behaviors": [
+    "no-invented-canonical-anchor"
+  ],
+  "criteria": [
+    {
+      "id": "mixed-primary-pool-blocked",
+      "description": "mixed primary pool blocked",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "primary_pool_ready",
+      "expected": false,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "no-invented-canonical-anchor",
+      "description": "no invented canonical anchor",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "canonical_power_signal",
+      "expected": null,
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "adjustment-target-reviewed",
+      "description": "adjustment target reviewed",
+      "type": "regex",
+      "path": "workspace/advice.json",
+      "pattern": "adjust|conditional|marginal",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "overlap-reviewed",
+      "description": "overlap reviewed",
+      "type": "regex",
+      "path": "workspace/advice.json",
+      "pattern": "overlap|same.*cohort|independen",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "horizon-reviewed",
+      "description": "horizon reviewed",
+      "type": "regex",
+      "path": "workspace/advice.json",
+      "pattern": "horizon|28|90",
+      "weight": 2,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 1,
+  "limitations": [
+    "Synthetic forward cases check specific decisions and artifacts, not clinical validity, privacy certification or general agent reliability. Criteria are manually reviewed alongside actual responses."
+  ]
+}

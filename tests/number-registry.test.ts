@@ -263,6 +263,27 @@ describe("numbers gate: allowlist", () => {
   })
 })
 
+describe("numbers gate: result-bearing compounds", () => {
+  test("rejects unregistered patient, site and fold counts in compounds", () => {
+    const root = project(PRIMARY)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    for (const resultText of ["a 7-patient cohort", "a 42-site analysis", "a 2.4-fold increase", "7patients responded"]) {
+      write(root, "manuscript/results.md", `Among {{num:cohort.n}} patients we observed ${resultText}.`)
+      const result = check(root, "manuscript/results.md")
+      expect(result.code).toBe(1)
+      expect(result.out).toContain("untraced number")
+    }
+  })
+
+  test("accepts declared design compounds and named biomarkers alongside registered results", () => {
+    const root = project(PRIMARY)
+    expect(run(root, ["python3", "analysis/model.py"]).code).toBe(0)
+    write(root, "manuscript/results.md", "At the 28-day visit, CD4 and IL-6 were assessed for COVID-19; N={{num:cohort.n}}.")
+    write(root, "analysis/numbers/allowlist.txt", "phrase: 28-day\n")
+    expect(check(root, "manuscript/results.md").code).toBe(0)
+  })
+})
+
 describe("numbers gate: inline computed values", () => {
   test("fails inline R or Python expressions that print numbers outside the registry", () => {
     const root = project(PRIMARY)

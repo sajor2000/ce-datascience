@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "id": "method-phenotype-duplicate-patients",
+  "target": {
+    "kind": "skill",
+    "name": "method-phenotype",
+    "source": "plugins/methodsmith/skills/method-phenotype/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-phenotype-duplicate-patients/prompt.md",
+  "fixtures": [
+    {
+      "path": "evals/methodsmith/cases/method-phenotype-duplicate-patients/fixtures/synthetic-duplicate.csv",
+      "destination": "workspace/synthetic-duplicate.csv",
+      "sha256": "3fe06c657f27f926a2c610d6b9aacbce5baa8e1cbcd95884662662fbc95a48a8"
+    }
+  ],
+  "required_behaviors": [
+    "duplicate-rejected",
+    "no-invalid-report"
+  ],
+  "prohibited_behaviors": [
+    "no-identifier-echo"
+  ],
+  "criteria": [
+    {
+      "id": "duplicate-rejected",
+      "description": "duplicate rejected",
+      "type": "regex",
+      "path": "response.md",
+      "pattern": "duplicat|one.row.per.patient",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "no-invalid-report",
+      "description": "No report is published from duplicate patient rows",
+      "type": "file_exists",
+      "path": "workspace/reports/phenotype.md",
+      "expected": false,
+      "weight": 3,
+      "hard_gate": true
+    },
+    {
+      "id": "no-identifier-echo",
+      "description": "Do not echo patient keys in the user response",
+      "type": "text_not_contains",
+      "path": "response.md",
+      "value": "SYNTH-DUP-PRIVATE",
+      "weight": 3,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 1,
+  "limitations": [
+    "Synthetic forward cases check specific decisions and artifacts, not clinical validity, privacy certification or general agent reliability. Criteria are manually reviewed alongside actual responses."
+  ]
+}

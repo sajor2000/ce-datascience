@@ -32,14 +32,12 @@
     {
       "id": 3,
       "prompt": "need a sample size for our cohort study on statins and post-op delirium. method-meta-analysis gave me this earlier in the chat: __CE_EFFECT_SIZE__ metric=OR n_studies=6 point=0.72 ci=0.58,0.89 pi=0.41,1.26 i2=48 mode=reml -- use that. we're in python.",
-      "expected_output": "Reads the __CE_EFFECT_SIZE__ signal, anchors on point=0.72, sweeps over the 95% prediction interval (pi=0.41,1.26) rather than the CI because both PI bounds are finite, truncates the sweep before the null OR of 1, reports which interval was used plus the CI, and asks for the control-group delirium rate if missing.",
+      "expected_output": "Stops automatic adoption of the legacy pooled signal until its selected scientific compatibility artifact is supplied and matched to the planned study; does not calculate a misleading sample size.",
       "files": [],
       "expectations": [
-        "Reads the '__CE_EFFECT_SIZE__' line from the chat instead of asking for an effect size, and prints the '[effect-size] anchor from method-meta-analysis: point=0.72 ...' line",
-        "Uses the pi= bounds (0.41 to 1.26), not the ci= bounds, as the sensitivity-sweep range and states that the prediction interval was used while also reporting the CI (0.58-0.89)",
-        "Because the PI crosses OR = 1, sweeps only the side containing the point estimate, stops short of the null, and states the truncation",
-        "Asks only one missing load-bearing input at a time (e.g. control-group event rate), or looks it up through the PubMed MCP and cites the PMID; never substitutes a default rate and does not guarantee feasibility",
-        "Uses statsmodels (Python) rather than R for the script"
+        "Preserves framework-specific equivalence alpha/CI rather than imposing .025 universally",
+        "Requires the selected compatibility artifact before automatically using a pooled power anchor",
+        "Does not fabricate control risk, compatibility metadata or sample size"
       ]
     }
   ]
