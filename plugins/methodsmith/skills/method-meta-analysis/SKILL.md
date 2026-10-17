@@ -1,6 +1,6 @@
 ---
 name: method-meta-analysis
-description: "Extracts and pools literature effect sizes (random-effects meta-analysis, REML with Hartung-Knapp) into a cited anchor and sweep range. Use when the user wants to pool studies, or power or a SAP needs an effect-size assumption."
+description: "Pools literature effects with REML/Hartung-Knapp. Use when power or a SAP needs a cited effect-size assumption and sensitivity range."
 argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 ---
 
@@ -14,6 +14,7 @@ argument-hint: "<path/to/methods.csv>, optional: --metric OR|HR|RR|MD|SMD"
 - **Output:** Effect-size summary with sources, assumptions, uncertainty, and downstream SAP/power handoff.
 - **Ask only if:** Only when outcome scale, comparison, estimand, or source set is ambiguous.
 - **Do not do:** Do not overstate causal interpretation or replace formal meta-analysis when one is required.
+- **Formal synthesis:** Use `method-clif-meta-analysis` for a complete systematic review or CLIF site-to-lead analysis. The sample-size filter and power-anchor workflow here are not review eligibility rules.
 - **Interaction:** Check repo/config/chat evidence first. Ask one decision-changing question at a time; use the current harness's blocking question UI when available, otherwise present numbered choices and wait.
 
 Bridges `method-extract` (which collects what prior studies REPORTED) and `method-power` (which needs a single number to plug in).
@@ -69,7 +70,7 @@ Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-pa
 Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
 
 If N ≥ 3:
-- For OR / HR / RR: log-transform → random-effects REML
+- For OR / HR / RR: log-transform → random-effects REML (use an explicitly configured R `meta::metagen` or `metafor::rma`; Python statsmodels Paule-Mandel is a different method)
 - For MD: random-effects REML on the raw scale
 - For SMD: Hedges g + REML
 - The script pins the CI method (Hartung-Knapp-Sidik-Jonkman when tau^2 > 0, Wald when tau^2 = 0) and the prediction interval (t, k-1 df) rather than trusting `meta` defaults; `references/pooling-formulas.md` explains each choice

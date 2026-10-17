@@ -147,7 +147,7 @@ export default function Home() {
             Built for three kinds of study
           </Heading>
           <p className="ms-section__lead">
-            66 skills in total. These are the ones each kind of study reaches for first.
+            67 skills in total. These are the ones each kind of study reaches for first.
           </p>
           <div className="ms-audiences">
             {AUDIENCES.map(({title, lead, commands}) => (
@@ -193,7 +193,7 @@ export default function Home() {
             The skill map
           </Heading>
           <p className="ms-section__lead">
-            Thirty of the 66 skills, in the order a study meets them, with the
+            Thirty of the 67 skills, in the order a study meets them, with the
             guardrails that apply at every step.
           </p>
           <figure className="ms-figure">

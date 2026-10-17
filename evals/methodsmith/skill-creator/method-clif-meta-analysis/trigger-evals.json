@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Pool our CLIF site-level adjusted log-ORs with SEs and return a lead report.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit a CLIF federated meta-analysis input contract in Python.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write R code for formal systematic-review meta-analysis with REML.",
+    "should_trigger": true
+  },
+  {
+    "query": "Compare Paule-Mandel Python and REML R synthesis code.",
+    "should_trigger": true
+  },
+  {
+    "query": "Assess whether four site coefficients can be meta-analyzed independently.",
+    "should_trigger": true
+  },
+  {
+    "query": "Plan PRISMA and MOOSE reporting for an observational meta-analysis.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit uncertainty and missing sites in a CLIF consortium synthesis.",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a site-to-lead model output reconciliation workflow.",
+    "should_trigger": true
+  },
+  {
+    "query": "Select a rare-event meta-analysis method for a healthcare review.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check dependence and shared controls before pooling literature effects.",
+    "should_trigger": true
+  },
+  {
+    "query": "Convert our CLIF vitals table to Parquet.",
+    "should_trigger": false
+  },
+  {
+    "query": "Select CLIF 3.0 vocabulary for respiratory support.",
+    "should_trigger": false
+  },
+  {
+    "query": "Initialize a CLIF Project Template repository.",
+    "should_trigger": false
+  },
+  {
+    "query": "Compute a single study sample size from a known odds ratio.",
+    "should_trigger": false
+  },
+  {
+    "query": "Rewrite the Methods paragraph without changing the analysis.",
+    "should_trigger": false
+  },
+  {
+    "query": "Debug a pandas CSV read error.",
+    "should_trigger": false
+  },
+  {
+    "query": "Train a local ICU mortality prediction model.",
+    "should_trigger": false
+  },
+  {
+    "query": "Check whether an individual R function is vectorized.",
+    "should_trigger": false
+  },
+  {
+    "query": "Render a PowerPoint presentation from these slides.",
+    "should_trigger": false
+  },
+  {
+    "query": "Choose an effect-size assumption for a pilot power sensitivity analysis only.",
+    "should_trigger": false
+  }
+]

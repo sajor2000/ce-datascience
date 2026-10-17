@@ -184,6 +184,10 @@ When the user is writing CLIF analysis code, surface canonical recipes from the 
 
 For a new consortium project or an audit of an existing template-derived repository, route to the `method-clif-template` skill. It owns template initialization and structural audit; this skill remains the CLIF version, vocabulary, and protected-path guardrail.
 
+For formal site-to-lead effect pooling, model-output synthesis, or a literature
+meta-analysis, use `method-clif-meta-analysis`. A shared CLIF schema does not establish
+comparable estimands or independent site estimates.
+
 ## References
 
 Read each file at the step that names it (backtick paths, loaded on demand):
