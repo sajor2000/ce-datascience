@@ -64,7 +64,7 @@ The k and I^2 cutoffs below are working conventions of this skill, not literatur
 - k < 3: report narrative range only
 - I^2 > 80%: report pooled estimate but caution; consider subgroup or meta-regression
 - Mixed OR and RR in the input: subset to the modal metric; OR -> RR needs each study's control risk (see `references/effect-parser.md`)
-- Adjusted and unadjusted OR/HR in the same pool: pool each kind separately as a sensitivity analysis (non-collapsibility; see `references/effect-parser.md`)
+- Adjusted and unadjusted OR/HR: select one compatible primary estimand/adjustment set before fitting; separate sensitivity pools cannot justify a mixed primary power anchor (see `references/effect-parser.md`)
 - Small-study effects (funnel plot asymmetry): suggest a sensitivity analysis; do not drop studies by size for the primary estimate
 
 ## Software equivalents

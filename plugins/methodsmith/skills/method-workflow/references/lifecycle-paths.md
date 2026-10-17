@@ -125,7 +125,7 @@ Includes ML-specific skills for experiment tracking, model cards, and fairness r
 
 ### Optional additions
 - `method-power` before step 4 — minimum sample size for model development by the Riley et al. criteria (R `pmsampsize`)
-- `method-meta-analysis` before step 6 — pool discrimination/calibration from prior literature
+- `method-clif-meta-analysis` before step 6 — plan a performance-specific synthesis of discrimination/calibration from prior literature, with compatible horizons, validation designs, transformations and uncertainty. Its scalar-effect helper is not a ready-made performance-meta-analysis engine; do not send AUC/calibration values to the OR/HR/RR/MD/SMD power-anchor parser
 - `method-compound` after step 11 — document learnings
 
 ---

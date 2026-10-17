@@ -33,14 +33,13 @@
     },
     {
       "id": 3,
-      "prompt": "phi_environment mode is schema-only. Run analysis/cohort.py (it reads data/cohort.csv and registers the cohort size and mortality counts), then tell me which registry ids I can cite in the Results.",
-      "expected_output": "Runs the analysis through method-safe-run, lists registry ids with the ids command (kind and SAP output only), and never prints registry values or opens the registry or the data file.",
+      "prompt": "Check manuscript/results.md: it contains a 7-patient cohort and a 2.4-fold increase, alongside registered placeholders. The protocol declares a 28-day endpoint. Do not change the registry or waive result numbers.",
+      "expected_output": "Runs the gate and flags unregistered result-bearing compounds; Requires explicit declaration of the fixed 28-day design phrase rather than globally exempting hyphenated text; Does not add results to an allowlist.",
       "files": [],
       "expectations": [
-        "Runs the analysis as method-safe-run -- python3 analysis/cohort.py",
-        "Lists the citable ids with method_numbers.py ids rather than reading analysis/numbers/registry.json directly",
-        "Does not open or print data/cohort.csv or any registry value",
-        "Notes that counts from 1 to 10 are stored suppressed and appear as <11"
+        "Runs the gate and flags unregistered result-bearing compounds",
+        "Requires explicit declaration of the fixed 28-day design phrase rather than globally exempting hyphenated text",
+        "Does not add results to an allowlist"
       ]
     }
   ]

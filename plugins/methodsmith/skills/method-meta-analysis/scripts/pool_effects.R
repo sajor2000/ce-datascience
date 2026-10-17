@@ -18,7 +18,10 @@
 #     [--min-n 0]
 #
 # Input CSV must have at minimum: pmid, year, first_author, sample_size,
-# metric, effect (point), effect_lo, effect_hi. The method-extract table
+# metric, effect (point), effect_lo, effect_hi, and reviewed compatibility
+# declarations (population, comparator, estimand, outcome, time_horizon, adjustment_specification,
+# adjusted, analysis_scale, unit, study_design, independent_unit_id).
+# The method-extract table
 # carries only free-text effect_size_reported, so parse it first (see
 # references/effect-parser.md) and pass the parsed CSV here.
 #
@@ -42,6 +45,9 @@ parse_args <- function(args) {
   i <- 1
   while (i <= length(args)) {
     key <- sub("^--", "", args[i])
+    if (!key %in% c("in", "metric", "out", "min-n") || i == length(args) || startsWith(args[i + 1], "--")) {
+      stop("pool_effects.R: unknown option or missing value: ", args[i], call. = FALSE)
+    }
     out[[key]] <- args[i + 1]
     i <- i + 2
   }
@@ -52,12 +58,15 @@ a <- parse_args(commandArgs(trailingOnly = TRUE))
 stopifnot(!is.null(a$`in`), !is.null(a$metric), !is.null(a$out))
 
 dat <- read.csv(a$`in`, stringsAsFactors = FALSE)
-needed  <- c("pmid", "year", "first_author", "sample_size", "metric", "effect", "effect_lo", "effect_hi")
+compatibility_fields <- c("population", "comparator", "estimand", "outcome", "time_horizon", "adjustment_specification",
+                          "adjusted", "analysis_scale", "unit", "study_design")
+needed  <- c("pmid", "year", "first_author", "sample_size", "metric", "effect", "effect_lo", "effect_hi",
+             compatibility_fields, "independent_unit_id")
 missing <- setdiff(needed, names(dat))
 if (length(missing) > 0) {
   cat(sprintf("pool_effects.R: %s is missing column(s): %s\n", a$`in`, paste(missing, collapse = ", ")),
       "Parse the free-text effect_size_reported field into metric, effect, effect_lo, effect_hi ",
-      "first (see references/effect-parser.md), then re-run.\n", sep = "", file = stderr())
+      "and supply reviewed compatibility fields (see references/effect-parser.md), then re-run.\n", sep = "", file = stderr())
   quit(status = 1)
 }
 dir.create(dirname(a$out), recursive = TRUE, showWarnings = FALSE)
@@ -86,6 +95,46 @@ cat(sprintf("Input rows: %d; dropped %d (metric != %s), %d (missing, non-positiv
             if (min_n > 0) sprintf("%d (sample_size missing or < %g)", n_small_drop, min_n) else "no size filter",
             nrow(dat)))
 
+# Compatibility declarations select one scientific target, not a mixed primary
+# pool followed by corrective subgroup fits. Matching labels are assertions;
+# the protocol and source review must establish their scientific validity.
+if (nrow(dat) > 0) {
+  for (field in c(compatibility_fields, "independent_unit_id")) {
+    dat[[field]] <- trimws(as.character(dat[[field]]))
+    if (anyNA(dat[[field]]) || any(!nzchar(dat[[field]]))) {
+      stop("pool_effects.R: compatibility: missing declaration for ", field, call. = FALSE)
+    }
+  }
+  if (anyDuplicated(dat$independent_unit_id)) {
+    stop("pool_effects.R: compatibility: duplicate independent_unit_id; resolve overlapping contributions", call. = FALSE)
+  }
+  dat$adjusted <- tolower(dat$adjusted)
+  if (any(!dat$adjusted %in% c("true", "false", "not_applicable"))) {
+    stop("pool_effects.R: compatibility: adjusted must be true, false or not_applicable", call. = FALSE)
+  }
+  for (field in compatibility_fields) {
+    # Different designs may be described separately in the non-pooling branch.
+    if (field == "study_design" && nrow(dat) < 3) next
+    if (length(unique(dat[[field]])) != 1) {
+      stop("pool_effects.R: compatibility: mixed ", field, "; select a compatible primary set before pooling", call. = FALSE)
+    }
+  }
+  expected_scale <- if (is_ratio) "ratio" else "identity"
+  if (any(dat$analysis_scale != expected_scale)) {
+    stop("pool_effects.R: compatibility: analysis_scale must be ", expected_scale,
+         " for the reported input metric (ratios are log-transformed internally)", call. = FALSE)
+  }
+  if (is_ratio && any(dat$unit != "dimensionless")) {
+    stop("pool_effects.R: compatibility: ratio metrics require unit=dimensionless", call. = FALSE)
+  }
+}
+if (!grepl("\\.md$", a$out)) stop("pool_effects.R: --out must end in .md", call. = FALSE)
+contract_path <- sub("\\.md$", "-contract.csv", a$out)
+write_contract <- function() {
+  write.csv(dat[, c("pmid", "independent_unit_id", compatibility_fields), drop = FALSE],
+            contract_path, row.names = FALSE, na = "")
+}
+
 if (nrow(dat) < 3) {
   cat(sprintf("Only %d studies with metric=%s and complete CI; pooling not meaningful.\n",
               nrow(dat), a$metric))
@@ -112,8 +161,9 @@ if (nrow(dat) < 3) {
     )
   }
   writeLines(out_md, a$out)
-  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null pi=NA i2=null mode=narrative\n",
-              a$metric, nrow(dat)))
+  write_contract()
+  cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=null ci=null pi=NA i2=null mode=narrative contract=%s\n",
+              a$metric, nrow(dat), contract_path))
   quit(status = 0)
 }
 
@@ -200,6 +250,8 @@ out_md <- c(
           a$metric, pooled, ci_lo, ci_hi, pi_txt),
   sprintf("Heterogeneity: I^2 = %.0f%%, tau^2 = %.3f", m$I2 * 100, m$tau2),
   "",
+  sprintf("Selected compatibility contract: %s", contract_path),
+  "",
   "## For `method-power`",
   "",
   sprintf("Anchor: %.2f", pooled),
@@ -208,6 +260,7 @@ out_md <- c(
   sprintf("Forest plot: %s", fp_path)
 )
 writeLines(out_md, a$out)
+write_contract()
 
-cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f pi=%s i2=%.0f mode=reml\n",
-            a$metric, nrow(dat), pooled, ci_lo, ci_hi, pi_sig, m$I2 * 100))
+cat(sprintf("__CE_EFFECT_SIZE__ metric=%s n_studies=%d point=%.3f ci=%.3f,%.3f pi=%s i2=%.0f mode=reml contract=%s\n",
+            a$metric, nrow(dat), pooled, ci_lo, ci_hi, pi_sig, m$I2 * 100, contract_path))

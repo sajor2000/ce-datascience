@@ -714,6 +714,19 @@ Use `/method-voice`, `/method-section-check`, or
 pre-submission audit is the final editing gate; required Methods rationale is
 preserved, while retrospective interpretation remains in Discussion.
 
+### Scientific input and disclosure contracts
+
+Power-effect pooling requires a selected compatible estimand, outcome/horizon,
+adjustment set, scale/unit and independent contributions. Its `contract=` artifact
+travels with the pooled signal; legacy tables/signals need reconciliation before
+automatic power use. Formal study/performance synthesis uses
+`method-clif-meta-analysis`, not the power-anchor parser. Verification separates
+inferential MI from prediction validation/deployment and event targets from
+recruitment N. Equivalence alpha follows the study framework rather than a
+universal NI convention. Phenotype validation rejects duplicate patient keys.
+Tracking preserves the chosen validation design and keeps full sensitive logs
+restricted; only reviewed, disclosure-safe aggregate summaries enter Git.
+
 ### Numbers locked to raw data
 
 Clinical journals, reviewers, and data-sharing audits ask where each number in a
@@ -751,7 +764,7 @@ closed. Word manuscripts keep each number as a registry-owned field
 the gate fails a field whose text was hand-edited, and a number typed into a
 Word table. Rendered text copies keep an adjacent `.numbers.json` provenance map; typed matching numbers and quoted results fail the gate. Word headers, footers and notes are checked alongside the body.
 
-It does not read numbers inside images.
+Numeric-prefix compounds such as `7-patient` and `2.4-fold` require registry provenance. Fixed design phrases such as `28-day` need an explicit declaration; hyphenation is not an exemption. It does not read numbers inside images.
 
 ### Build a prediction model
 

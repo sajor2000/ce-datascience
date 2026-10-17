@@ -42,7 +42,7 @@ Match the metric and model to the reference standard, repeated ratings, and inte
 
 ### Evidence synthesis
 
-Separate fixed-effect from random-effects meta-analysis based on the synthesis estimand and heterogeneity model, not the significance of a heterogeneity test. Route computation to `method-meta-analysis`.
+Separate fixed-effect from random-effects meta-analysis based on the synthesis estimand and heterogeneity model, not the significance of a heterogeneity test. Route formal synthesis to `method-clif-meta-analysis`; use `method-meta-analysis` only for a compatible literature effect-size anchor for power.
 
 ## Estimation and inference
 
@@ -82,9 +82,9 @@ Illustrative structure only; every value comes from the project's own inputs and
 Status: provisional            Reviewer: pending
 Aim/estimand: marginal mean difference in 12-month HbA1c, intervention vs usual care
 Grain: patient-visit; 4 visits; 38 clinics (clusters); dropout 18%, related to baseline HbA1c (MAR plausible)
-Primary: Gaussian LMM, random clinic + patient intercepts, unstructured visit covariance (MMRM-type), REML, Kenward-Roger df
+Primary: Gaussian LMM, clinic random intercept plus unstructured within-patient residual covariance (MMRM-type; no patient random intercept), REML, Kenward-Roger df
 Rejected: GEE (dropout not plausibly MCAR; 38 clusters needs a bias-corrected sandwich) -> sensitivity analysis only
-Diagnostics: residual vs fitted by visit; singularity; influential clinics; fallback = drop clinic-patient correlation first
+Diagnostics: residual vs fitted by visit; singularity; influential clinics; fallback = assess clinic variance support; if unsupported, retain the patient unstructured residual covariance without the clinic intercept
 Sensitivity: delta-adjusted MNAR tipping point for dropout
 Ledger: "MAR validity of likelihood LMM vs GEE" -> Fitzmaurice 2011 (textbook, documentation); PMID 11252587 (abstract)
 ```

@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, test } from "bun:test"
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import os from "os"
 import path from "path"
 
@@ -40,6 +40,24 @@ const signal = (out: string) =>
   )
 
 describe.skipIf(!python3)("method-phenotype script", () => {
+  test("rejects repeated or blank subject keys before publishing without echoing identifiers", () => {
+    for (const [name, rows] of [
+      ["identical", ["PRIVATE-SYNTH-ID,1,1", "PRIVATE-SYNTH-ID,1,1"]],
+      ["conflicting", ["PRIVATE-SYNTH-ID,1,1", "PRIVATE-SYNTH-ID,0,1"]],
+      ["blank", [",1,1"]],
+      ["whitespace", ["   ,1,1"]],
+    ] as const) {
+      const file = path.join(tmp, `${name}-keys.csv`)
+      const out = path.join(tmp, `${name}-keys/report.md`)
+      writeFileSync(file, "subject_id,chart_label,algo_label\n" + rows.join("\n") + "\n")
+      const r = run(["synthetic", file, "--out", out, "--design", "srs"])
+      expect(r.code).not.toBe(0)
+      expect(r.out + r.err).not.toContain("PRIVATE-SYNTH-ID")
+      expect(r.err).toMatch(/subject_id|subject key/)
+      for (const ext of ["md", "csv", "yaml"]) expect(existsSync(out.replace(/md$/, ext))).toBe(false)
+    }
+  })
+
   test("algo-stratified sample without cohort counts reports Se/Sp as not estimable", () => {
     const csv = writeMerged("a.csv")
     const r = run(["T2DM", csv, "--out", path.join(tmp, "a/report.md")])

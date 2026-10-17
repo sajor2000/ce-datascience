@@ -1,5 +1,5 @@
 [
-  {"query": "We have a 200-patient chart review for our heart failure phenotype (chart_label) and the algorithm flags (algo_label). Compute PPV, sensitivity, specificity, NPV with Wilson CIs, by sex and age band.", "should_trigger": true},
+  {"query": "Validate a merged chart-review file containing duplicate subject IDs after a one-to-many join.", "should_trigger": true},
   {"query": "the reviewer says our CKD phenotype isn't validated in this dataset. we have adjudicated charts in output/intermediate_phi/ - can you run the validation and update the concept set yaml?", "should_trigger": true},
   {"query": "Re-validate the T2DM algorithm from the eMERGE network on our hospital's data against our new chart review - don't trust the original PPV.", "should_trigger": true},
   {"query": "How good is our sepsis-3 EHR case definition? 2 clinicians adjudicated 150 charts; I need the 2x2, kappa, and a report I can cite in the SAP.", "should_trigger": true},

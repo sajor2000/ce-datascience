@@ -251,13 +251,11 @@ SIGN_BEFORE = re.compile(r"(?:^|[\s(\[,;:=<>])[-\u2212]$")
 def numbers(text):
     """(start, token) for each numeric token, signed when a minus sign stands alone before it.
 
-    Skips numbers glued to letters (CD4, COVID-19, 2A, 1st) and compound adjectives (28-day, 2-sided).
+    Named identifiers with a letter prefix (CD4, COVID-19) are excluded; numeric-prefix
+    compounds require provenance or an explicitly declared design phrase.
     """
     for match in NUMBER.finditer(text):
         start, end = match.span()
-        after = text[end:end + 2]
-        if after[:1].isalpha() or (after[:1] == "-" and after[1:2].isalpha()):
-            continue
         before = text[max(0, start - 2):start]
         if before.endswith(("-", "\u2212")):
             if before[:1].isalpha():

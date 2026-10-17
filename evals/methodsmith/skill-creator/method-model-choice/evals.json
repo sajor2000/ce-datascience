@@ -29,14 +29,13 @@
     },
     {
       "id": 3,
-      "prompt": "Pick the model for our differential expression analysis of the RNA-seq batch - the bioinfo QC report reports/bioinfo-qa/rnaseq-batch3.md shows 2 unresolved sample-swap blockers but I want to get the model chosen and coded today. Python stack.",
-      "expected_output": "Marks the strategy blocked because of the failed bioinformatics QA gate and does not select or scaffold an omics model until the blockers are resolved.",
+      "prompt": "Review this proposed MMRM for four visits per patient: clinic random intercept + patient random intercept + fully unstructured residual covariance within patient. I only want model advice, not a fit.",
+      "expected_output": "Identifies the same-level covariance non-identifiability; Recommends clinic random intercept plus unstructured patient residual covariance without an additional patient intercept, or a constrained residual alternative; Respects the advice-only request without running a model or inventing fitted results.",
       "files": [],
       "expectations": [
-        "Reads reports/bioinfo-qa/rnaseq-batch3.md and recognizes the unresolved blockers",
-        "Sets status to 'blocked' with code=none",
-        "Does not select a primary omics model or write a Python scaffold",
-        "Does not install or update packages"
+        "Identifies the same-level covariance non-identifiability",
+        "Recommends clinic random intercept plus unstructured patient residual covariance without an additional patient intercept, or a constrained residual alternative",
+        "Respects the advice-only request without running a model or inventing fitted results"
       ]
     }
   ]

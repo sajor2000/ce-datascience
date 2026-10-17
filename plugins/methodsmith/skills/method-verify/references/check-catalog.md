@@ -22,11 +22,28 @@ Each check runs independently. Skip checks that don't apply to the current analy
 - `analysis/power/` — minimum N from power calculation
 - SAP file — stated sample size or inclusion/exclusion criteria
 
-**Pass:** N within 10% of expected N from data QA, and N meets minimum from power calculation.
-**Warn:** N differs from expected by 10-25%, or no power calculation found to compare against.
-**Fail:** N is less than 75% of expected, or N is below the minimum from power calculation.
+**Use the design's information unit.** Separate screened/enrolled/randomized N,
+expected analyzable N, dropout-inflated recruitment target, observed events and
+independent clusters. Name the comparator and its SAP source before assigning a
+status. For survival, compare target and observed events as well as follow-up;
+adequate patient N alone does not establish the planned information. For cluster
+studies compare independent clusters and their sizes. For prediction development,
+check the prespecified Riley criteria/parameter and event assumptions, not a
+fixed EPV rule. Do not substitute a recruitment target for analyzable N.
 
-**How to check:** Search analysis scripts and output files for cohort counts, `nrow()`, `len()`, `.shape[0]`, CONSORT flow numbers. Compare against the reference sources.
+**Pass:** The population/denominator and required design-specific information
+match the SAP, and participant flow reconciles with data QA. Planned attrition
+is accounted for against analyzable N, not counted as a recruitment-target error.
+**Warn:** A disclosed information shortfall, planned attrition beyond assumptions,
+unknown comparator, or missing target prevents confirming planned precision.
+A 10-25% N difference is a screening flag, not evidence of bias or adequate power.
+**Fail:** Unexplained participant duplication/loss or the wrong denominator breaks
+the analysis contract, or a prespecified required event/cluster/information gate
+is unmet. Never mark event adequacy PASS merely because enrollment N is large.
+
+**How to check:** Reconcile cohort flow counts with the QA/SAP populations and
+power output fields (`total`, `with_dropout`, events and clusters). Use recorded
+design assumptions; do not compute observed/post-hoc power from the fitted effect.
 
 ## 2. Data Leakage Scan
 
@@ -70,12 +87,14 @@ Leakage taxonomy: Kapoor & Narayanan, Patterns 2023 (PMID 37720327).
 **Checks:**
 - Missingness per key variable (exposure, outcome, primary covariates), reported for context
 - Assumed mechanism (MCAR, MAR, MNAR) stated, and the handling method matches the SAP (e.g., SAP says "multiple imputation with m=20" — verify)
-- With multiple imputation: the imputation model includes the outcome and all analysis-model variables, and m is at least the percentage of incomplete cases (White, Royston & Wood, Stat Med 2011, PMID 21225900)
+- First distinguish inferential estimation from prediction, and development from validation/deployment.
+- For inferential multiple imputation of covariates, include the outcome and analysis-model variables as appropriate to the substantive model; justify any exception. Choose m for stable estimates/Monte Carlo error (the percentage of incomplete cases is a starting heuristic, not a universal validity threshold; White, Royston & Wood, Stat Med 2011, PMID 21225900).
+- For prediction, verify the prespecified missing-predictor strategy and whether missingness is allowed at deployment. Outcome-inclusive MI during model development can be appropriate; it does not authorize using held-out labels to impute predictors in a deployed prediction pipeline. In deployment-faithful validation with missing predictors, apply the locked, training-fitted strategy without validation outcomes. Keep imputation, feature selection and tuning inside the appropriate resampling folds. An inferential MI analysis targeting fully observed future patients is a different validation estimand and needs its own explicit assumptions; do not deploy an outcome-dependent imputer. Sisk et al., simulation study: https://arxiv.org/abs/2206.12295.
 - Complete-case analysis is justified (MCAR, or missingness depending only on covariates) and allowed by the SAP
 
 **Pass:** Missingness is reported; the mechanism is stated; handling matches the SAP; MI (if used) meets the checks above.
 **Warn:** Imputation method or m differs from the SAP; complete-case analysis is used without a stated justification; no MNAR sensitivity analysis (e.g., delta adjustment) is planned for a missing outcome.
-**Fail:** Missing outcome or exposure data with no handling stated in the SAP, or MI that omits the outcome from the imputation model.
+**Fail:** Missing outcome or exposure data with no handling stated in the SAP; inferential covariate MI that unjustifiably omits the outcome; or validation/deployment predictor imputation that uses unavailable outcomes and leaks information. Do not fail a deployment-faithful prediction imputer merely because it excludes the outcome.
 
 Never pass or fail on percent missing alone: bias depends on the mechanism and the method, not the proportion (Madley-Dowd et al., J Clin Epidemiol 2019, PMID 30878639).
 

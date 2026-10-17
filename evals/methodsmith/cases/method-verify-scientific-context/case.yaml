@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "id": "method-verify-scientific-context",
+  "target": {
+    "kind": "skill",
+    "name": "method-verify",
+    "source": "plugins/methodsmith/skills/method-verify/SKILL.md"
+  },
+  "mode": "forward",
+  "prompt_path": "evals/methodsmith/cases/method-verify-scientific-context/prompt.md",
+  "fixtures": [],
+  "required_behaviors": [
+    "prediction-no-labels-accepted",
+    "inferential-mi-preserved",
+    "event-gate-not-met",
+    "analyzable-not-recruitment"
+  ],
+  "prohibited_behaviors": [
+    "leaky-validation-rejected"
+  ],
+  "criteria": [
+    {
+      "id": "prediction-no-labels-accepted",
+      "description": "prediction no labels accepted",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "prediction_imputation.status",
+      "expected": "PASS",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "leaky-validation-rejected",
+      "description": "leaky validation rejected",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "outcome_assisted_validation.status",
+      "expected": "FAIL",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "inferential-mi-preserved",
+      "description": "inferential mi preserved",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "inferential_imputation.status",
+      "expected": "PASS",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "event-gate-not-met",
+      "description": "event gate not met",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "survival_information.status",
+      "expected": "FAIL",
+      "weight": 2,
+      "hard_gate": true
+    },
+    {
+      "id": "analyzable-not-recruitment",
+      "description": "analyzable not recruitment",
+      "type": "json_equals",
+      "path": "workspace/advice.json",
+      "json_path": "attrition_comparator.status",
+      "expected": "PASS",
+      "weight": 2,
+      "hard_gate": true
+    }
+  ],
+  "threshold": 1,
+  "limitations": [
+    "Synthetic forward cases check specific decisions and artifacts, not clinical validity, privacy certification or general agent reliability. Criteria are manually reviewed alongside actual responses."
+  ]
+}

@@ -28,7 +28,7 @@ Bridges `method-extract` (which collects what prior studies REPORTED) and `metho
 ## Prerequisites
 
 - A methods CSV with at minimum: pmid, year, sample_size, effect_size_reported (and ideally lo / hi 95% CI)
-- The metric is consistent across studies (all OR, or all HR, etc.) -- if mixed, the skill will subset to the modal metric and report on the rest narratively
+- Select a protocol-compatible target: population/comparison, outcome/horizon, effect scale/unit, adjustment specification, study design and independent contribution. A modal metric is not evidence of compatibility; resolve unknowns before fitting.
 
 ## Evidence access
 
@@ -50,7 +50,7 @@ Read the methods CSV. Parse the `effect_size_reported` field: extract metric typ
 
 ### Step 2: Filter to comparable studies
 
-Filter:
+Filter to the selected scientific target first; read the complete parsed contract in `references/effect-parser.md`. Resolve adjusted/marginal differences, units and overlapping cohorts before any fit. Save the selection code and excluded-study reasons. Write only the selected compatible rows to `analysis/effect-size/<query>-selected.csv`; retain the full parsed CSV and exclusions for audit. Then filter:
 - `metric` matches `--metric` (or modal-metric if not specified); `scripts/pool_effects.R` matches the uppercase label exactly, so pass `HR`, not `hr`
 - No sample-size cutoff by default: inverse-variance weights already down-weight small studies. Pass `--min-n <n>` to `scripts/pool_effects.R` only as a sensitivity analysis, and then report the unfiltered estimate alongside it
 - Year within last `--years` window if passed
@@ -60,11 +60,11 @@ Report N studies in the meta-analysis vs N in the input.
 
 ### Step 3: Pool
 
-Run the bundled script on the parsed CSV from Step 1 (columns `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi`; it exits with a one-line message naming any missing column, so the raw methods table will not work). It applies the Step 2 metric and CI filters (plus `--min-n` when passed), prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, and the Step 6 signal:
+Run the bundled script on the selected CSV from Step 2 (the numerical columns plus the reviewed compatibility declarations in `references/effect-parser.md`; it fails on missing or incompatible declarations, so the raw methods table will not work). It applies the metric and CI filters (plus `--min-n` when passed), prints each dropped count, and writes the Markdown summary, a sibling `-forest.png`, the selected `-contract.csv`, and the Step 6 signal:
 
 ```bash
 SKILL_DIR="<absolute path of the directory containing this SKILL.md>";
-Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-parsed.csv --metric HR --out analysis/effect-size/<query>-pooled.md
+Rscript "$SKILL_DIR/scripts/pool_effects.R" --in analysis/effect-size/<query>-selected.csv --metric HR --out analysis/effect-size/<query>-pooled.md
 ```
 
 Requires R with current CRAN `meta` and `ggplot2` (`install.packages(c("meta", "ggplot2"))`).
@@ -76,7 +76,7 @@ If N ≥ 3:
 - The script pins the CI method (Hartung-Knapp-Sidik-Jonkman when tau^2 > 0, Wald when tau^2 = 0) and the prediction interval (t, k-1 df) rather than trusting `meta` defaults; `references/pooling-formulas.md` explains each choice
 - Report: pooled estimate, 95% CI (with its method), 95% prediction interval (PI), I^2 heterogeneity, tau^2, and the `meta` version
 - If `meta` returns no finite PI bounds, say so and report the CI as the fallback sweep range
-- If both adjusted and unadjusted OR/HR rows are present, also pool each kind separately and report which one matches the planned trial's estimand
+- Do not fit a mixed adjusted/unadjusted primary pool. Select the compatible estimand/adjustment set first; separate sensitivity pools get separate files and cannot overwrite the primary contract or handoff.
 - If R is unavailable, stop and report it rather than hand-coding REML; `statsmodels.stats.meta_analysis.combine_effects(..., method_re="iterated", use_t=True)` is acceptable only when labelled as Paule-Mandel
 
 If N < 3:
@@ -131,7 +131,7 @@ Use R `meta::forest()` or Python `matplotlib`. Each study's point and CI; pooled
 The bundled `scripts/pool_effects.R` prints the canonical envelope. REML (k>=3) form:
 
 ```
-__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> pi=<lo,hi|NA> i2=<pct> mode=reml
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> pi=<lo,hi|NA> i2=<pct> mode=reml contract=<path>
 ```
 
 `pi=` carries the 95% prediction interval on the reported scale (exponentiated for ratio metrics). It is `pi=NA` when `meta` returns no finite PI bounds for this k and tau^2.
@@ -139,10 +139,10 @@ __CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=<v> ci=<lo,hi> pi=<lo,hi|NA> i
 Narrative form (k<3, no pooling):
 
 ```
-__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=null ci=null pi=NA i2=null mode=narrative
+__CE_EFFECT_SIZE__ metric=<m> n_studies=<n> point=null ci=null pi=NA i2=null mode=narrative contract=<path>
 ```
 
-Both forms share the same key set so `method-power` can scan one regex. `method-power` sweeps over `pi=` when both bounds are finite and falls back to `ci=` otherwise. When `mode=narrative`, `method-power` should fall back to the user-supplied effect size or stop and ask, rather than try to read `point=null` as a number.
+Both forms carry the selected compatibility artifact in `contract=`. `method-power` must read it and match the planned estimand, outcome/horizon, unit and adjustment set before using the point. Legacy signals without that evidence require reconciliation, not an assumed compatible anchor. `method-power` sweeps over `pi=` when both bounds are finite and falls back to `ci=` otherwise. When `mode=narrative`, `method-power` should fall back to the user-supplied effect size or stop and ask, rather than try to read `point=null` as a number.
 
 ## What this skill does NOT do
 

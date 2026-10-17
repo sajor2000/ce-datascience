@@ -67,7 +67,7 @@ criteria:
     description: The memo links random intercept and slope choices to repeated subjects and within-subject time.
     type: regex
     path: workspace/analysis/model-strategy/longitudinal-symptom-model-strategy.md
-    pattern: 'random intercept[\s\S]*subject[\s\S]*random slope[\s\S]*(?:time|month)|random slope[\s\S]*(?:time|month)[\s\S]*random intercept[\s\S]*subject'
+    pattern: 'subject[\s\S]{0,1000}random intercept[\s\S]{0,1000}random (?:time )?slope|random intercept[\s\S]{0,1000}random (?:time )?slope[\s\S]{0,1000}(?:subject|within-subject|time|month)'
     weight: 3
     hard_gate: true
   - id: predeclares-singularity-fallback

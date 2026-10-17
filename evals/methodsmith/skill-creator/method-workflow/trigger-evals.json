@@ -1,82 +1,22 @@
 [
-  {
-    "query": "I'm new to this plugin -- what's the ordered sequence of skills for an observational EHR study and where am I?",
-    "should_trigger": true
-  },
-  {
-    "query": "where am i in the lifecycle for this project? what should i run next",
-    "should_trigger": true
-  },
-  {
-    "query": "Resuming the sepsis prediction project after vacation; show lifecycle status and the next safe step",
-    "should_trigger": true
-  },
-  {
-    "query": "We just finished the data QA gate. What comes after that -- SAP, model strategy, sprint?",
-    "should_trigger": true
-  },
-  {
-    "query": "Show me the workflow card for this bioinformatics repo (Snakefile + VCFs) with done/not-started steps",
-    "should_trigger": true
-  },
-  {
-    "query": "not sure what to run next after method-plan wrote the SAP -- do I need method-sap-workbook before method-sprint?",
-    "should_trigger": true
-  },
-  {
-    "query": "Give me the lifecycle path for a clinical trial analysis project and which steps are already done here",
-    "should_trigger": true
-  },
-  {
-    "query": "Starting a science project from scratch; lay out the methodsmith steps in order with language-specific notes for R",
-    "should_trigger": true
-  },
-  {
-    "query": "lifecycle status pls -- CLIF project, R, want to know what's left before method-work",
-    "should_trigger": true
-  },
-  {
-    "query": "Which ce skill should I use next? I have a research-question.yaml and some PubMed results, nothing else",
-    "should_trigger": true
-  },
-  {
-    "query": "Configure the project profile and run the environment health check",
-    "should_trigger": false
-  },
-  {
-    "query": "Execute the plan in docs/plans/latest.md",
-    "should_trigger": false
-  },
-  {
-    "query": "Open a sprint for SAP-3.1 with reviewer jcr",
-    "should_trigger": false
-  },
-  {
-    "query": "Activate CLIF guidance and choose CLIF 3.0 + mCIDE 3.0 for this repo",
-    "should_trigger": false
-  },
-  {
-    "query": "Generate ideas for research directions using our ICU dataset",
-    "should_trigger": false
-  },
-  {
-    "query": "Explore and refine my research question about early mobilization and delirium before planning",
-    "should_trigger": false
-  },
-  {
-    "query": "Harden this fuzzy idea into PICO and FINER with a PubMed query",
-    "should_trigger": false
-  },
-  {
-    "query": "What did I try in previous sessions on this project?",
-    "should_trigger": false
-  },
-  {
-    "query": "Write a handoff note so another agent can resume this project",
-    "should_trigger": false
-  },
-  {
-    "query": "Detect whether this repo is R, Python, or mixed and emit the language handoff",
-    "should_trigger": false
-  }
+  {"query": "Which skill should synthesize published calibration slopes and AUC estimates for our prediction project?", "should_trigger": true},
+  {"query": "where am i in the lifecycle for this project? what should i run next", "should_trigger": true},
+  {"query": "Resuming the sepsis prediction project after vacation; show lifecycle status and the next safe step", "should_trigger": true},
+  {"query": "We just finished the data QA gate. What comes after that -- SAP, model strategy, sprint?", "should_trigger": true},
+  {"query": "Show me the workflow card for this bioinformatics repo (Snakefile + VCFs) with done/not-started steps", "should_trigger": true},
+  {"query": "not sure what to run next after method-plan wrote the SAP -- do I need method-sap-workbook before method-sprint?", "should_trigger": true},
+  {"query": "Give me the lifecycle path for a clinical trial analysis project and which steps are already done here", "should_trigger": true},
+  {"query": "Starting a science project from scratch; lay out the methodsmith steps in order with language-specific notes for R", "should_trigger": true},
+  {"query": "lifecycle status pls -- CLIF project, R, want to know what's left before method-work", "should_trigger": true},
+  {"query": "Which ce skill should I use next? I have a research-question.yaml and some PubMed results, nothing else", "should_trigger": true},
+  {"query": "Configure the project profile and run the environment health check", "should_trigger": false},
+  {"query": "Execute the plan in docs/plans/latest.md", "should_trigger": false},
+  {"query": "Open a sprint for SAP-3.1 with reviewer jcr", "should_trigger": false},
+  {"query": "Activate CLIF guidance and choose CLIF 3.0 + mCIDE 3.0 for this repo", "should_trigger": false},
+  {"query": "Generate ideas for research directions using our ICU dataset", "should_trigger": false},
+  {"query": "Explore and refine my research question about early mobilization and delirium before planning", "should_trigger": false},
+  {"query": "Harden this fuzzy idea into PICO and FINER with a PubMed query", "should_trigger": false},
+  {"query": "What did I try in previous sessions on this project?", "should_trigger": false},
+  {"query": "Write a handoff note so another agent can resume this project", "should_trigger": false},
+  {"query": "Detect whether this repo is R, Python, or mixed and emit the language handoff", "should_trigger": false}
 ]

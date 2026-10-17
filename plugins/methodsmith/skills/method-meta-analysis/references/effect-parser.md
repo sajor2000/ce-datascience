@@ -1,5 +1,17 @@
 # Effect-Size String Parsers
 
+## Contents
+
+- [Hazard / odds / risk ratios](#hazard--odds--risk-ratios)
+- [Adjusted labels](#adjusted-labels)
+- [Parsed CSV contract](#parsed-csv-contract)
+- [Mean differences](#mean-differences)
+- [P-value-only reports](#p-value-only-reports)
+- [Survival outcomes (special)](#survival-outcomes-special)
+- [Conversion rules](#conversion-rules)
+- [Conversions for the method-power handoff](#conversions-for-the-method-power-handoff)
+- [Edge cases](#edge-cases)
+
 The `effect_size_reported` field in `method-extract` output is free-text. Parse it with the regex patterns below.
 
 ## Hazard / odds / risk ratios
@@ -25,11 +37,50 @@ Replace the Unicode minus (`−`) with `-` before `float()`. After parsing, chec
 
 Normalise `aHR`, `aOR`, `aRR`, and "adjusted HR" to the base label in the `metric` column and keep the adjustment in a separate `adjusted` (true/false) column, because `scripts/pool_effects.R` matches `--metric` against the label exactly and would silently leave `aHR` rows out of an `HR` pool.
 
-Sharing a label does not make them interchangeable. OR and HR are non-collapsible: a covariate-adjusted (conditional) OR or HR sits further from 1 than the marginal one even without confounding (Daniel, Zhang & Farewell, Biom J 2021;63:528-57, PMID 33314251). When both kinds are present, pool the full set and each kind separately (filter the parsed CSV on `adjusted`), report all three, and state which one matches the planned trial's estimand (usually marginal for an unadjusted primary analysis). RR and MD are collapsible, so this split matters less for them.
+Sharing a label does not make effects interchangeable. Conditional and marginal
+OR/HR can differ even without confounding (Daniel, Zhang & Farewell, Biom J 2021,
+PMID 33314251). Select the scientific estimand and compatible adjustment set
+before pooling. Never use a mixed adjusted/unadjusted primary pool as the power
+anchor. Separate compatible pools may be sensitivity analyses with separate
+outputs, but only the selected primary pool supplies the canonical handoff.
+RR/MD collapsibility does not remove confounding or compatibility requirements.
+For observational intervention effects, choose the appropriate adjusted estimate
+using the protocol and confounding assessment, not the largest reported benefit
+(Cochrane Handbook chapter 24).
 
 ## Parsed CSV contract
 
-Write the parsed table to `analysis/effect-size/<query>-parsed.csv` with at least `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi` (plus `doi`, `pmcid`, `study_type`, `adjusted`, `evidence_level` when present). Save the parsing code itself as `analysis/effect-size/<query>-parse.R` or `.py` in the project, not in a scratch directory, so the pooled number can be regenerated from the methods CSV.
+Write `analysis/effect-size/<query>-parsed.csv` with:
+
+- `pmid, year, first_author, sample_size, metric, effect, effect_lo, effect_hi`;
+- `population, comparator, estimand, outcome, time_horizon, adjustment_specification, adjusted,
+  analysis_scale, unit, study_design, independent_unit_id`.
+
+Resolve these scientific declarations from the protocol and read sources; do not
+fill unknown fields with invented labels to satisfy the validator. `adjusted`
+is `true`, `false` or `not_applicable` when genuinely appropriate. Use `none`
+for no covariate adjustment. `analysis_scale` describes the input, not the
+internal fit: `ratio` for unlogged OR/HR/RR and `identity` for MD or already
+standardized SMD. Use a consistent declared unit (`dimensionless` for ratios);
+convert MD units and their uncertainty before pooling. For SMD, establish the
+same standardization/Hedges correction rather than mixing Cohen d and Hedges g.
+Use a normalized study-design label and a reviewed independent contribution ID;
+different publications from one cohort do not become independent because their
+PMIDs differ. Resolve shared controls/overlap under the protocol before using
+this independent-effects helper. More complex covariance methods belong in the
+formal synthesis workflow.
+
+The script rejects missing declarations, duplicate independent-unit IDs and
+mixed scientific targets/units/adjustment sets. A pooled primary set must also
+share the declared design. Narrative-only output for fewer than three compatible
+effects carries no numeric power anchor. Matching strings document assertions;
+they do not prove clinical compatibility or independence.
+
+Keep `doi, pmcid, study_type, evidence_level` and inclusion/exclusion reasons in
+the source ledger. Save the parsing/selection code as `<query>-parse.R` or `.py`
+in the project. The successful helper writes `<output-stem>-contract.csv` for
+the selected rows and names it in `contract=`; retain it with the summary and
+read it before power/SAP use.
 
 ## Mean differences
 

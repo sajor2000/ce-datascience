@@ -30,15 +30,13 @@
     },
     {
       "id": 3,
-      "prompt": "Draft the statistical analysis plan for the randomized trial of early mobilization vs usual care; primary outcome is ICU-free days at day 28, hypothesis is superiority. We haven't received any data yet.",
-      "expected_output": "Enters SAP mode, writes a draft SAP with a GAP comment for the missing data profile, keeps variable/model sections provisional, and lists method-data-qa then method-model-choice before method-sap-workbook as next steps.",
+      "prompt": "Prepare the SAP power section from a pooled __CE_EFFECT_SIZE__ handoff that lacks its selected compatibility artifact. Do not invent missing study facts.",
+      "expected_output": "Blocks automatic adoption until the selected scientific compatibility evidence is supplied and matched; Keeps the SAP effect assumption provisional instead of inventing a target; Does not fabricate compatibility metadata, study facts or a pooled numerical result.",
       "files": [],
       "expectations": [
-        "Announces 'Entering SAP mode'",
-        "Keeps the SAP at status: draft with a GAP comment noting the missing method-data-qa column profile",
-        "Marks variable, missingness, and model sections as provisional rather than inventing column names or cohort sizes",
-        "Lists method-data-qa followed by method-model-choice as required next steps before method-sap-workbook, method-sprint, or method-work",
-        "Does not invent tabular SAP workbook rows while data QA is missing"
+        "Blocks automatic adoption until the selected scientific compatibility evidence is supplied and matched",
+        "Keeps the SAP effect assumption provisional instead of inventing a target",
+        "Does not fabricate compatibility metadata, study facts or a pooled numerical result"
       ]
     }
   ]

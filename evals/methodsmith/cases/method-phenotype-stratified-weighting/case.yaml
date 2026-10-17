@@ -9,7 +9,7 @@ prompt_path: evals/methodsmith/cases/method-phenotype-stratified-weighting/promp
 fixtures:
   - path: evals/methodsmith/cases/method-phenotype-stratified-weighting/fixtures/synthetic-merged-chart-review.csv
     destination: workspace/synthetic-merged-chart-review.csv
-    sha256: 303481639aa7f48d31aa2d162a666aa7f47a51d4fc1bb6b5da9c1a3a4777ed25
+    sha256: 16d7500f9b24b835b9a6b08bc13bcb51542acfdd7ff4a4429a5bdf86e0537740
 required_behaviors:
   - report-exists
   - weighted-sensitivity

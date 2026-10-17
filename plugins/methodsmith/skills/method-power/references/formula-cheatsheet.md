@@ -108,7 +108,9 @@ Equivalence uses TOST (two one-sided tests, one at each margin). When the true d
 
 `n_per_arm = (z_{1-alpha} + z_{1-beta/2})^2 * 2 * sigma^2 / M^2`
 
-Use one-sided α = 0.025 for both, not 0.05: ICH E9 section 5.5 prefers one-sided tests at half the conventional two-sided level, and FDA's NI guidance (2016) states the NI test as a one-sided 0.025 test. Justify M from the historical active-control effect (M1) and the clinically acceptable loss (M2). NI N is not inherently larger than superiority N; it depends on M and the assumed true difference.
+Preserve the protocol's hypothesis framework, margin, sidedness and alpha. For confirmatory clinical NI, one-sided α = 0.025 is a common convention (ICH E9 section 5.5; FDA NI guidance, 2016); justify the active-control margin using M1/M2 when that framework applies. NI N is not inherently larger than superiority N; it depends on M and the assumed true difference.
+
+Do not transfer that convention universally to equivalence. TOST tests both margins at α and corresponds to an equal-tailed 100(1-2α)% CI. Conventional average bioequivalence uses α = 0.05 and a 90% CI (FDA, *Statistical Approaches to Establishing Bioequivalence*, final May 2026, section II.C: https://www.fda.gov/media/163638/download). A protocol can instead require α = 0.025 and a 95% CI. Ask for the applicable framework when unresolved; never silently override .05 or derive an equivalence margin from NI's M1/M2 machinery without justification.
 
 Sanity (sigma = 1, M = 0.5, true_diff = 0, α = 0.025 one-sided, power 0.90): NI ≈ 85/arm; equivalence ≈ 105/arm (`TOSTER::power_t_TOST` gives 104.9).
 
@@ -120,7 +122,7 @@ If `k` primary endpoints with Bonferroni: replace `alpha` with `alpha/k`. Requir
 
 - Using `qnorm(0.95)` instead of `qnorm(0.975)` for two-sided 0.05 (N about 21% too small; the correct N is about 27% larger at 80% power)
 - Forgetting the factor of 2 in the t-test formula (sigma^2 → 2 sigma^2 for two-sample)
-- Running NI or equivalence at one-sided 0.05 instead of 0.025
+- Confusing NI and equivalence frameworks, or changing the prespecified alpha/CI convention without justification
 - Treating "power = 0.80" as a goal rather than a floor
 - Not accounting for dropout (inflate by `1 / (1 - dropout_rate)`, rounding up)
 - Cluster RCT without design effect (off by 2-5×), or with the equal-size design effect when cluster sizes vary

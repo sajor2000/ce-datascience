@@ -28,10 +28,40 @@ Most ML papers in biomedicine are unreproducible because runs are not tracked. B
 ## Prerequisites
 
 - A Python or R ML project (most modern frameworks have tracking integrations)
-- For mlflow: pip-installed; tracking-server URL OR local `mlruns/` directory
+- For mlflow: pip-installed; tracking-server URL OR approved, gitignored restricted store
 - For wandb: API key in `~/.netrc` or env; project quota
 - For dvc: dvc-installed; remote configured
 - For offline: just file-system writable
+
+## Validation design and disclosure boundary
+
+Preserve the SAP's validation design: bootstrap optimism correction, nested CV,
+internal-external validation, temporal validation or a locked held-out test set.
+A separate test split is not mandatory. Record the complete development/tuning
+procedure inside the appropriate resampling. If no held-out set exists, use
+`test_data_sha: null` and null test metrics; record the prespecified resampling
+scheme, corrected metrics and uncertainty instead. Never invent test results or
+force a small-data split merely to fill the schema. When a held-out set exists,
+score it only after final model lock and record when it was unlocked.
+
+Tracking is not permission to upload data. Establish the project's sensitive-data
+mode and approved storage/backend before reading training files or initializing
+network logging. In schema-only mode, run data-reading/hash/training commands
+through the method-safe-run command; never paste row values into context. If mode or
+backend approval is unresolved, use a restricted, gitignored offline location
+and report the missing decision; do not start SaaS logging.
+
+Keep complete sensitive run logs and model artifacts in the approved restricted,
+gitignored working area. A shareable `runs/` summary is a separate release:
+apply the project/site/DUA disclosure floor (default counts below 11), suppress
+small counts, complements and related subgroup metrics/CIs that reveal them,
+and record the review status. Null/suppressed values with a reason satisfy the
+shareable schema; they are not fabricated zeroes or missing logging failures.
+Use `method-numbers` for reportable aggregate registration and source provenance.
+Commit/export only reviewed aggregate summaries. Keep serialized models that
+retain training examples (for example nearest-neighbor models), SHAP arrays,
+patient-level evaluation output, row identifiers and revealing file paths out of
+Git and external trackers. A model-file hash does not certify safe release.
 
 ## Core workflow
 
@@ -41,8 +71,8 @@ Most ML papers in biomedicine are unreproducible because runs are not tracked. B
 |---------|--------------|
 | **mlflow** | Self-hostable, file or DB backend, multi-language (Python + R + Java). Default for most academic settings |
 | **wandb** | SaaS-first, hosted UI, requires network (check the current plan terms for academic use). Pick when sharing with collaborators in real time and no PHI leaves the site |
-| **dvc** | Git-native, versions data + model artifacts together. Pick for dataset-heavy projects with strict reproducibility |
-| **offline** | YAML run logs in a `runs/` folder, no network, no UI. Pick when working on air-gapped or PHI-restricted machines |
+| **dvc** | Git-native, versions approved data + model artifacts through approved remotes only. Pick for dataset-heavy projects with strict reproducibility |
+| **offline** | No network or UI. Complete sensitive logs stay restricted and gitignored; only disclosure-reviewed summaries may enter `runs/` or Git |
 
 If `--backend` not passed, infer from existing config (presence of `mlflow`, `wandb`, `.dvc/`); else prompt.
 
@@ -65,9 +95,11 @@ def sha256_file(path, chunk=1 << 20):
             h.update(block)
     return h.hexdigest()
 
-def init_run(train_path, experiment="sepsis-risk", run_name=None):
+def init_run(train_path, approved_tracking_uri, experiment="sepsis-risk", run_name=None):
     # train_path comes from the project config, never a hard-coded path
-    mlflow.set_tracking_uri("file:./mlruns")  # or http://tracking-server:5000
+    # Require an approved restricted store or approved backend from project config.
+    # Local stores must be outside Git or explicitly gitignored before logging.
+    mlflow.set_tracking_uri(approved_tracking_uri)
     mlflow.set_experiment(experiment)
     run = mlflow.start_run(run_name=run_name)
     # Always log data hash
@@ -88,7 +120,8 @@ required:
     - git_sha
     - study_id
     - random_seed
-    - split_strategy          # group / temporal / random
+    - validation_type         # bootstrap / nested-CV / internal-external / temporal / held-out
+    - split_strategy          # group / temporal / random / not-applicable
     - n_configurations_evaluated  # running count of configurations tried in this experiment
   metrics:
     - auc_validation          # tuning/CV metric used for model selection
@@ -99,11 +132,14 @@ required:
   # calibration_intercept_test, calibration_slope_test, n_test, n_events_test,
   # auc_external when an external set exists) are logged ONLY for the locked
   # final model, once; record test_set_unlocked_at.
-  artifacts:
+  restricted_artifacts:       # approved restricted store, not automatic tracker uploads
     - model.pkl (or equivalent)
     - eval-results.json
     - calibration-plot.png
     - feature-importance.csv (or shap_values.npz)
+  # Upload/export only separately reviewed aggregate artifacts to an approved
+  # backend. Row-retaining models, SHAP arrays and patient-level evaluation
+  # output remain in restricted storage, even when the backend is wandb.
 recommended:
   params:
     - hyperparam_search_strategy
@@ -113,7 +149,7 @@ recommended:
     - decision_curve.net_benefit_at_<threshold>
 ```
 
-A run that does not log all required fields → not eligible for manuscript inclusion. A run that logs test-set metrics before the model is locked is not eligible either: scoring exploratory runs on the test set turns it into a selection set (REFORMS, Kapoor et al., Sci Adv 2024, PMID 38691601). Report `n_configurations_evaluated` with the final model (TRIPOD+AI item 12c, PMID 38626948).
+A run that omits the required validation evidence is not eligible for manuscript inclusion. For non-held-out designs, that evidence is `validation_type`, `validation_procedure`, and `corrected_performance`. Held-out fields are conditional on that design; disclosure-suppressed shared values are acceptable when the complete restricted record and review reason are retained. A run that logs test-set metrics before the model is locked is not eligible either: scoring exploratory runs on the test set turns it into a selection set (REFORMS, Kapoor et al., Sci Adv 2024, PMID 38691601). Report `n_configurations_evaluated` with the final model (TRIPOD+AI item 12c, PMID 38626948).
 
 ### Step 4: Write the linkage to the SAP
 
@@ -123,7 +159,7 @@ Add to `analysis/sap.md`:
 
 ### Step 5: Provide the run-log fallback
 
-For any backend, also write `runs/<run-id>.yaml` -- a YAML mirror of the tracked run. This way even if the tracking server is lost, the local repo has a record. `runs/` is committed to git.
+For any backend, retain a complete offline run log in the approved restricted, gitignored area. Write `runs/<run-id>.yaml` only as a disclosure-reviewed aggregate summary for Git. It is not an unfiltered mirror: withhold small cells/complements and revealing derived metrics, identifier-bearing paths and row-level artifacts. If review is pending, keep the summary uncommitted and report the blocker.
 
 ```yaml
 run_id: <uuid>
@@ -138,10 +174,14 @@ metrics:
   auc_validation: 0.84
   # one key per reported metric
 artifacts:
-  - name: model.pkl
-    path: mlruns/.../model.pkl
-    sha: ...
+  - name: reviewed-calibration-plot.png
+    path: <non-revealing aggregate artifact path>
+    sha: <sha256>
 study_id: <id>
+disclosure:
+  review_status: pending
+  suppression_reason: <small cells and related metrics withheld, or null>
+  restricted_record_id: <opaque id; no restricted file path>
 ```
 
 ### Step 6: Emit signal

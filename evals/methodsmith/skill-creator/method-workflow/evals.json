@@ -29,14 +29,13 @@
     },
     {
       "id": 3,
-      "prompt": "New ICU project. Repo has a WORKFLOW.md and a vitals.parquet, nothing else yet. Is this CLIF? Show me the lifecycle and just apply CLIF 2.1 if it is.",
-      "expected_output": "Does not route to CLIF on WORKFLOW.md alone (one weak signal) and does not silently apply CLIF 2.1; asks project type if still ambiguous.",
+      "prompt": "Which skill should synthesize published calibration slopes and AUC estimates for our prediction project?",
+      "expected_output": "Routes formal performance synthesis to method-clif-meta-analysis; Does not route AUC/calibration through the OR/HR/RR/MD/SMD power-anchor parser; States that the scalar helper needs a performance-specific implementation.",
       "files": [],
       "expectations": [
-        "Does not route to the CLIF overlay from WORKFLOW.md and vitals.parquet alone",
-        "Does not silently apply CLIF 2.1 or infer a CLIF version",
-        "If project type remains ambiguous, asks 'What type of project is this?' with the four numbered options",
-        "Does not create files or run other skills"
+        "Routes formal performance synthesis to method-clif-meta-analysis",
+        "Does not route AUC/calibration through the OR/HR/RR/MD/SMD power-anchor parser",
+        "States that the scalar helper needs a performance-specific implementation"
       ]
     }
   ]

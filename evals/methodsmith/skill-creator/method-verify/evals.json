@@ -7,7 +7,7 @@
       "expected_output": "Runs the applicable checks from the catalog (sample size, effect direction, missingness, PHI, reproducibility, and leakage only if a split exists), emits a PASS/WARN/FAIL report and the __CE_VERIFY__ signal.",
       "files": [],
       "expectations": [
-        "Cross-references the analysis N against analysis/data-qa-report.md (N=8,234) using the 10%/25% thresholds",
+        "Cross-references the analysis N against analysis/data-qa-report.md (N=8,234) using the design-specific sample-size check rather than fixed percentage thresholds",
         "Compares the observed effect direction with the hypothesis in analysis/research-question.yaml and, on mismatch, checks the exposure reference level and outcome coding before WARNing",
         "Judges missing data by the stated mechanism and SAP-consistent handling, not by a percent-missing pass/fail threshold",
         "Skips the leakage scan if no train/test split exists",
@@ -30,14 +30,13 @@
     },
     {
       "id": 3,
-      "prompt": "Run method-verify on output/ -- there's a csv called output/tables/patient_list_with_mrn.csv in there that a student exported, plus figure fig2.png.",
-      "expected_output": "Flags the patient-identifier export as a PHI FAIL without reproducing identifiers, and runs figure-quality and other applicable checks.",
+      "prompt": "Audit two finished analyses: survival has 80 events versus a prespecified required 300 despite adequate enrollment; prediction validation applies a locked training-fitted imputer without outcome labels. Our analyzable N excludes the planned dropout inflation. Report which checks can pass.",
+      "expected_output": "Reports survival information as FAIL because 80 observed events are below the prespecified 300; treats the attrition comparator as PASS when analyzable N matches the SAP; and does not fail a deployment-faithful prediction imputer for excluding validation outcomes.",
       "files": [],
       "expectations": [
-        "Reports a PHI scan FAIL for output/tables/patient_list_with_mrn.csv",
-        "Does not print MRNs or other identifier values from the file in the report",
-        "Runs the figure quality check on fig2.png",
-        "Emits __CE_VERIFY__ with blocking=true"
+        "Reports a FAIL because 80 observed events are below the required 300",
+        "Reports the attrition comparator as PASS when analyzable N matches the SAP, distinct from recruitment inflation",
+        "Does not report a FAIL merely because a deployment-faithful prediction imputer excludes validation outcomes"
       ]
     }
   ]
