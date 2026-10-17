@@ -5,6 +5,18 @@ release pull requests. Canonical current release notes are the repository's
 [GitHub Releases](https://github.com/sajor2000/ce-datascience/releases) and
 open release PRs. Do not hand-add entries from feature or documentation work.
 
+## [5.1.0](https://github.com/sajor2000/methodsmith/compare/methodsmith-v5.0.0...methodsmith-v5.1.0) (2026-10-17)
+
+
+### Features
+
+* **clif-meta:** add formal aggregate synthesis workflows ([#111](https://github.com/sajor2000/methodsmith/issues/111)) ([9e40c82](https://github.com/sajor2000/methodsmith/commit/9e40c822ef6952f626550e88025c212b8a8b252d))
+
+
+### Bug Fixes
+
+* **review:** strengthen scientific integrity gates ([#113](https://github.com/sajor2000/methodsmith/issues/113)) ([73cbef7](https://github.com/sajor2000/methodsmith/commit/73cbef7baea148ea5c7f692bbfa9b3e0c7692204))
+
 ## [5.0.0](https://github.com/sajor2000/methodsmith/compare/methodsmith-v4.1.0...methodsmith-v5.0.0) (2026-10-16)
 
 
